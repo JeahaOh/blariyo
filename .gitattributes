@@ -1,0 +1,42 @@
+# 모든 텍스트 파일은 자동으로 LF로 변환 (권장)
+* text=auto eol=lf
+
+# 코드 파일들 (명시적 LF 설정)
+*.js     text eol=lf
+*.ts     text eol=lf
+*.tsx    text eol=lf
+*.jsx    text eol=lf
+*.java   text eol=lf
+*.py     text eol=lf
+*.sh     text eol=lf
+*.html   text eol=lf
+*.css    text eol=lf
+*.scss   text eol=lf
+*.vue    text eol=lf
+*.json   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.md     text eol=lf
+
+# Windows 실행 파일/스크립트 (CRLF 유지 원할 경우만 사용)
+# *.bat    text eol=crlf
+# *.cmd    text eol=crlf
+
+# 바이너리 파일은 diff하지 않음
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.mp4 binary
+*.mp3 binary
+*.mov binary

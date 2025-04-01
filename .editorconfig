@@ -1,0 +1,38 @@
+# 모든 프로젝트에 적용할 기준점
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# 마크다운은 줄 끝 공백 유지 (예: 강제 개행)
+[*.md]
+trim_trailing_whitespace = false
+
+# Java 계열은 보통 4칸 들여쓰기
+[*.java]
+indent_size = 4
+
+# YAML, JSON 등도 2칸 들여쓰기
+[*.yml]
+indent_size = 2
+
+[*.yaml]
+indent_size = 2
+
+[*.json]
+indent_size = 2
+
+# HTML, CSS 등
+[*.html]
+indent_size = 2
+
+[*.css]
+indent_size = 2
+
+[*.scss]
+indent_size = 2

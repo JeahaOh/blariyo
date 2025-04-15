@@ -27,6 +27,7 @@ package-lock.json
 yarn.lock
 .env
 .env.*
+!.env.template
 
 # Build output
 dist/
@@ -123,9 +124,9 @@ nbdist/
 ############################################
 # Docker
 ############################################
-Dockerfile
+# Dockerfile
 .dockerignore
-docker-compose.*
+# docker-compose.*
 *.tar
 *.img
 
@@ -149,3 +150,9 @@ logs/
 # System files
 *.DS_Store
 Thumbs.db
+
+############################################
+# application data
+apps/data/mongodb/*
+!apps/data/mongodb/README.md
+############################################

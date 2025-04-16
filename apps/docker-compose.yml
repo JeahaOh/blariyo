@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   # MongoDB
   mongodb:
     image: mongo:latest
-    container_name: mongodb
+    container_name: blariyo-mongodb
     restart: always
     env_file: .env
     command: mongod --auth
@@ -20,7 +18,7 @@ services:
   # Mongo Express
   mongo-express:
     image: mongo-express
-    container_name: mongo-express
+    container_name: blariyo-mongo-express
     restart: always
     ports:
       - '9001:8081'
@@ -37,33 +35,61 @@ services:
     networks:
       - blariyo-network
 
-  # # MySQL
-  # mysql:
-  #   image: mysql:8.0
-  #   container_name: mysql
-  #   restart: always
-  #   env_file: .env
-  #   ports:
-  #     - 43306:3306
-  #   volumes:
-  #     - ./data/mysql:/var/lib/mysql
-  #     - ./init/mysql:/docker-entrypoint-initdb.d
+  # MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: blariyo-mysql
+    platform: linux/arm64/v8
+    restart: always
+    env_file: .env
+    ports:
+      - 43306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Seoul
+      LANG: C.UTF-8
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./init/mysql:/docker-entrypoint-initdb.d
+      - ./init/mysql/my.conf:/etc/mysql/conf.d/my.conf
+    networks:
+      - blariyo-network
 
-  # # phpMyAdmin
-  # phpmyadmin:
-  #   image: phpmyadmin/phpmyadmin
-  #   platform: linux/amd64
-  #   container_name: phpmyadmine
-  #   restart: always
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    platform: linux/amd64
+    container_name: blariyo-phpmyadmin
+    restart: always
+    ports:
+      - 9000:80
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - mysql
+    networks:
+      - blariyo-network
+
+  # Backend: Express.js
+  # api:
+  #   build: ./api
+  #   container_name: blariyo-api
   #   ports:
-  #     - 9000:80
-  #   environment:
-  #     PMA_HOST: mysql
-  #     PMA_PORT: 3306
-  #     PMA_USER: root
-  #     PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  #     - '4000:4000'
+  #   volumes:
+  #     - ./api:/app
   #   depends_on:
   #     - mysql
+  #     - mongo
+  #   environment:
+  #   command: npm run dev
 
   # Frontend: Vue.js
   #web:

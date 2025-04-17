@@ -53,8 +53,8 @@ services:
       LANG: C.UTF-8
     volumes:
       - ./data/mysql:/var/lib/mysql
-      - ./init/mysql:/docker-entrypoint-initdb.d
-      - ./init/mysql/my.conf:/etc/mysql/conf.d/my.conf
+      - ./init/mysql/scripts:/docker-entrypoint-initdb.d
+      - ./init/mysql/config/my.conf:/etc/mysql/conf.d/my.conf
     networks:
       - blariyo-network
 

@@ -153,6 +153,11 @@ Thumbs.db
 
 ############################################
 # application data
+## MySQL
+apps/data/mysql/*
+!apps/data/mysql/README.md
+
+## MongoDB
 apps/data/mongodb/*
 !apps/data/mongodb/README.md
 ############################################

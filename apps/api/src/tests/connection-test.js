@@ -10,6 +10,7 @@ async function testConnection() {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME
     });
+    
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,

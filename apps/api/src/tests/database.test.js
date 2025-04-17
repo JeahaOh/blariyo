@@ -1,14 +1,12 @@
-const { testPool } = require('./setup');
 const pool = require('../config/database');
 
 describe('Database Tests', () => {
   afterAll(async () => {
-    await testPool.end();
     await pool.end();
   });
 
   test('데이터베이스 연결 테스트', async () => {
-    const connection = await testPool.getConnection();
+    const connection = await pool.getConnection();
     try {
       const [rows] = await connection.execute('SELECT 1');
       expect(rows[0]['1']).toBe(1);
@@ -18,7 +16,7 @@ describe('Database Tests', () => {
   });
 
   test('테이블 정보 확인', async () => {
-    const connection = await testPool.getConnection();
+    const connection = await pool.getConnection();
     try {
       // 테이블 목록 조회
       const [tables] = await connection.execute(`

@@ -6,18 +6,18 @@ SET character_set_client = utf8mb4;
 SET character_set_results = utf8mb4;
 SET collation_connection = utf8mb4_unicode_ci;
 
--- 개발 데이터베이스 생성
-CREATE DATABASE IF NOT EXISTS blariyo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 테스트 데이터베이스 생성
+CREATE DATABASE IF NOT EXISTS blariyo_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- 개발 사용자 생성 및 권한 부여
-DROP USER IF EXISTS 'blariyo'@'localhost';
-DROP USER IF EXISTS 'blariyo'@'%';
-CREATE USER 'blariyo'@'%' IDENTIFIED BY 'blariyo!020';
-GRANT ALL PRIVILEGES ON blariyo.* TO 'blariyo'@'%';
+-- 테스트 사용자 생성 및 권한 부여
+DROP USER IF EXISTS 'blariyo_test'@'localhost';
+DROP USER IF EXISTS 'blariyo_test'@'%';
+CREATE USER 'blariyo_test'@'%' IDENTIFIED BY 'test1020';
+GRANT ALL PRIVILEGES ON blariyo_test.* TO 'blariyo_test'@'%';
 FLUSH PRIVILEGES;
 
 -- 데이터베이스 선택
-USE blariyo;
+USE blariyo_test;
 
 -- 공통 코드 그룹 테이블 생성
 CREATE TABLE IF NOT EXISTS TC_CODE_GROUP (
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS TU_USER (
     user_id VARCHAR(50) NOT NULL UNIQUE COMMENT '사용자 ID',
     user_pswd VARCHAR(255) NOT NULL COMMENT '비밀번호',
     user_nm VARCHAR(100) NOT NULL COMMENT '사용자 이름',
-    email VARCHAR(100) COMMENT '이메일',
+    email VARCHAR(100) NOT NULL UNIQUE COMMENT '이메일',
     role_code VARCHAR(20) NOT NULL COMMENT '권한 코드',
     status_code VARCHAR(20) NOT NULL COMMENT '상태 코드',
     pwd_rst_tkn VARCHAR(100) COMMENT '비밀번호 재설정 토큰',

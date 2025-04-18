@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS TU_USER (
     role_code VARCHAR(20) NOT NULL COMMENT '권한 코드',
     status_code VARCHAR(20) NOT NULL COMMENT '상태 코드',
     pwd_rst_tkn VARCHAR(100) COMMENT '비밀번호 재설정 토큰',
-    login_attempts TINYINT UNSIGNED DEFAULT 0 COMMENT '로그인 시도 횟수',
+    login_fail_cnt TINYINT UNSIGNED DEFAULT 0 COMMENT '로그인 시도 실패 횟수',
     reg_dttm DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
     updator_no BIGINT COMMENT '수정자 번호',
     upd_dttm DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
@@ -83,7 +83,37 @@ INSERT INTO TC_CODE (code_group, code, code_nm, code_desc) VALUES
 ('USR_ROLE', 'USR', '일반 사용자', '일반 사용자'),
 ('USR_ROLE', 'ADM', '관리자', '시스템 관리자'),
 ('USR_ROLE', 'SAD', '슈퍼 관리자', '최고 관리자'),
+
 ('USR_STAT', 'ACT', '활성', '정상 사용 중인 상태'),
 ('USR_STAT', 'DOR', '휴면', '장기간 미접속 상태'),
-('USR_STAT', 'WDR', '탈퇴', '사용자가 직접 탈퇴한 상태'),
-('USR_STAT', 'FWD', '강제 탈퇴', '관리자가 강제로 탈퇴시킨 상태'); 
+('USR_STAT', 'LCK', '잠금', '비밀번호 5회 이상 실패로 인한 계정 잠금 상태');
+('USR_STAT', 'WDR', '탈퇴', '사용자가 직접 탈퇴한 상태'), 
+('USR_STAT', 'FWD', '강제 탈퇴', '관리자가 강제로 탈퇴시킨 상태');
+
+-- 기본 사용자 데이터 삽입
+-- 비회원(GST) 사용자 2명
+INSERT INTO TU_USER (user_id, user_pswd, user_nm, email, role_code, status_code) VALUES
+('guest1', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '게스트1', 'guest1@example.com', 'GST', 'ACT'),
+('guest2', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '게스트2', 'guest2@example.com', 'GST', 'ACT');
+
+-- 일반 사용자(USR) 10명 - 각 상태별 2명씩
+INSERT INTO TU_USER (user_id, user_pswd, user_nm, email, role_code, status_code) VALUES
+('user1', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자1', 'user1@example.com', 'USR', 'ACT'),
+('user2', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자2', 'user2@example.com', 'USR', 'ACT'),
+('user3', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자3', 'user3@example.com', 'USR', 'DOR'),
+('user4', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자4', 'user4@example.com', 'USR', 'DOR'),
+('user5', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자5', 'user5@example.com', 'USR', 'LCK'),
+('user6', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자6', 'user6@example.com', 'USR', 'LCK'),
+('user7', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자7', 'user7@example.com', 'USR', 'WDR'),
+('user8', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자8', 'user8@example.com', 'USR', 'WDR'),
+('user9', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자9', 'user9@example.com', 'USR', 'FWD'),
+('user10', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '사용자10', 'user10@example.com', 'USR', 'FWD');
+
+-- 관리자(ADM) 사용자 2명
+INSERT INTO TU_USER (user_id, user_pswd, user_nm, email, role_code, status_code) VALUES
+('admin1', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '관리자1', 'admin1@example.com', 'ADM', 'ACT'),
+('admin2', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '관리자2', 'admin2@example.com', 'ADM', 'ACT');
+
+-- 슈퍼관리자(SAD) 사용자 1명
+INSERT INTO TU_USER (user_id, user_pswd, user_nm, email, role_code, status_code) VALUES
+('superadmin', '$2b$10$1YC8DMQqbXfaZrIVVNa7.OPn0HFw7QIp8bGcPQFQNLzR0IQF3OyIi', '슈퍼관리자', 'superadmin@example.com', 'SAD', 'ACT');

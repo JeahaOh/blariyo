@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swagger');
 require('dotenv').config();
 
 const userRoutes = require('./routes/userRoutes');
@@ -17,8 +19,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(loggingMiddleware);
 
+// Swagger UI 설정
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+
 // 라우트 설정
-app.use('/api/users', userRoutes);
+app.use('/api/v1/users', userRoutes);
 
 // 에러 핸들러
 app.use((err, req, res, next) => {

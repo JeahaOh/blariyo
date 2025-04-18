@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "dev": "DEBUG=express:* nodemon --inspect src/app.js",
     "test": "docker-compose -f docker-compose.test.yml up -d && NODE_ENV=test jest && docker-compose -f docker-compose.test.yml down",
     "test:watch": "NODE_ENV=test jest --watch",
     "test:coverage": "NODE_ENV=test jest --coverage",
@@ -26,6 +26,8 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "mysql2": "^3.6.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "winston": "^3.11.0"
   },
   "devDependencies": {

@@ -5,6 +5,7 @@ const loggingMiddleware = (req, res, next) => {
   const { method, url, body, query, params } = req;
 
   // 요청 시작 로그
+  logger.info('\n\n\n');
   logger.info('Request Start', {
     method,
     url,

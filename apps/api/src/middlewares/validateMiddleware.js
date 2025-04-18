@@ -60,7 +60,11 @@ const validateUpdate = (req, res, next) => {
     user_nm: Joi.string(),
     email: Joi.string().email().messages({
       'string.email': '올바른 이메일 형식이어야 합니다.'
-    })
+    }),
+    role_code: Joi.string().valid('GST', 'USR', 'ADM', 'SAD'),
+    status_code: Joi.string().valid('ACT', 'DOR', 'LCK', 'WDR', 'FWD'),
+    login_fail_cnt: Joi.number().integer().min(0),
+    updator_no: Joi.number().integer()
   }).min(1).messages({
     'object.min': '최소 하나의 필드를 수정해야 합니다.'
   });

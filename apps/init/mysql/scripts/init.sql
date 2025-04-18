@@ -17,7 +17,7 @@ GRANT ALL PRIVILEGES ON blariyo.* TO 'blariyo'@'%';
 FLUSH PRIVILEGES;
 
 -- 데이터베이스 선택
-USE blariyo;
+-- USE blariyo;
 
 -- 공통 코드 그룹 테이블 생성
 CREATE TABLE IF NOT EXISTS TC_CODE_GROUP (

@@ -52,20 +52,22 @@ describe('Database Connection Test', () => {
       })
     ).rejects.toThrow();
   });
-
-  it('잘못된 쿼리 실행 시 에러가 발생해야 함', async () => {
-    await expect(connection.execute('INVALID SQL')).rejects.toThrow();
-  });
-
+  
   it('데이터베이스 연결 성공', () => {
     expect(connection).toBeDefined();
   });
-
+    
+  it('데이터베이스 버전 확인', async () => {
+    const [rows] = await connection.execute('SELECT VERSION() as version');
+    expect(rows[0].version).toBeDefined();
+    console.log('MySQL Version:', rows[0].version);
+  });
+  
   it('데이터베이스 쿼리를 실행할 수 있어야 함', async () => {
     // 간단한 쿼리 실행
     const [rows] = await connection.execute('SELECT 1 as result');
     expect(rows[0].result).toBe(1);
-
+    
     // 테이블 조회 쿼리 실행
     const [tables] = await connection.execute(`
       SELECT TABLE_NAME 
@@ -76,10 +78,8 @@ describe('Database Connection Test', () => {
     expect(Array.isArray(tables)).toBe(true);
   });
 
-  it('데이터베이스 버전 확인', async () => {
-    const [rows] = await connection.execute('SELECT VERSION() as version');
-    expect(rows[0].version).toBeDefined();
-    console.log('MySQL Version:', rows[0].version);
+  it('잘못된 쿼리 실행 시 에러가 발생해야 함', async () => {
+    await expect(connection.execute('INVALID SQL')).rejects.toThrow();
   });
 
   it('테이블 목록 조회', async () => {
@@ -88,6 +88,35 @@ describe('Database Connection Test', () => {
     console.log('Tables:', rows.map(row => Object.values(row)[0]));
   });
 
+  it('테이블 상세 정보 확인', async () => {
+    const [tables] = await connection.execute(`
+      SELECT TABLE_NAME, TABLE_ROWS 
+      FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_SCHEMA = ?
+    `, [process.env.DB_NAME]);
+
+    console.log('\n테이블 정보:');
+    console.log('-------------------');
+    
+    for (const table of tables) {
+      const [columns] = await connection.execute(`
+        SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+      `, [process.env.DB_NAME, table.TABLE_NAME]);
+
+      console.log(`\n테이블명: ${table.TABLE_NAME}`);
+      console.log(`레코드 수: ${table.TABLE_ROWS}`);
+      console.log('컬럼 정보:');
+      columns.forEach(col => {
+        console.log(`- ${col.COLUMN_NAME} (${col.DATA_TYPE}) ${col.IS_NULLABLE === 'YES' ? 'NULL' : 'NOT NULL'} ${col.COLUMN_KEY ? `[${col.COLUMN_KEY}]` : ''}`);
+      });
+      console.log('-------------------');
+    }
+
+    expect(tables.length).toBeGreaterThan(0);
+  });
+  
   it('TU_USER 테이블 구조 확인', async () => {
     const [rows] = await connection.execute('DESCRIBE TU_USER');
     expect(Array.isArray(rows)).toBe(true);

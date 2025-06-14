@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { validateJoin, validateLogin, validateUpdate } = require('../middlewares/validateMiddleware');
+const { validateJoin, validateUpdate } = require('../middlewares/validateMiddleware');
 
 /**
  * @swagger
@@ -118,26 +118,6 @@ const { validateJoin, validateLogin, validateUpdate } = require('../middlewares/
  *         description: 잘못된 요청
  */
 router.post('/register', validateJoin, userController.register);
-
-/**
- * @swagger
- * /api/v1/users/login:
- *   post:
- *     summary: 사용자 로그인
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Login'
- *     responses:
- *       200:
- *         description: 로그인 성공
- *       401:
- *         description: 인증 실패
- */
-router.post('/login', validateLogin, userController.login);
 
 /**
  * @swagger

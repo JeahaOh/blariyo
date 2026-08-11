@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>블라리요 퍼블 프로토타입</title>
+  <link rel="canonical" href="https://blariyo.example.com/">
+  <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
+  <meta property="og:site_name" content="블라리요">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blariyo.example.com/">
+  <meta property="og:title" content="블라리요">
+  <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
+  <meta property="og:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="블라리요">
+  <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
+  <meta name="twitter:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="prototype-bar">
+    <strong>Blariyo publishing prototype</strong>
+    <nav aria-label="화면 선택">
+      <button type="button" class="prototype-tab is-active" data-screen="home">홈</button>
+      <button type="button" class="prototype-tab" data-screen="detail">상세</button>
+      <button type="button" class="prototype-tab" data-screen="state">상태</button>
+    </nav>
+  </div>
+
+  <section class="screen is-active" data-view="home">
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#home" data-go="home"><span>B</span>블라리요</a>
+        <nav class="board-nav" aria-label="게시판">
+          <a class="is-active" href="#home">유머</a>
+          <a href="#home">이야기</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="content">
+        <div class="page-title">
+          <h1>오늘 올라온 웃긴 것</h1>
+          <p>20개 · 최신순 · 1쪽</p>
+        </div>
+
+        <div class="board-list" aria-label="최신 게시글">
+          <div class="board-row board-head" aria-hidden="true">
+            <span>번호</span><span>게시판</span><span>제목</span><span>조회</span><span>작성자</span><span>시간</span>
+          </div>
+          <div id="homeRows"></div>
+        </div>
+
+        <nav class="pagination" aria-label="페이지 이동">
+          <button type="button" disabled>‹</button>
+          <button type="button" class="is-active">1</button>
+          <button type="button">2</button>
+          <button type="button">3</button>
+          <button type="button">4</button>
+          <button type="button">5</button>
+          <button type="button">›</button>
+        </nav>
+      </section>
+
+      <aside class="side">
+        <section>
+          <h2>운영 기준</h2>
+          <p>운영자가 검수한 글만 발행한다. 출처와 권리 상태는 발행 전에 분리 확인한다.</p>
+        </section>
+        <section class="side-ad">AD-SIDE-RAIL</section>
+      </aside>
+    </main>
+  </section>
+
+  <section class="screen" data-view="detail">
+    <header class="site-header">
+      <div class="header-inner detail-header">
+        <button type="button" class="ghost-button" data-go="home">← 목록</button>
+        <a class="brand" href="#home" data-go="home">블라리요</a>
+        <button type="button" class="ghost-button">↗ 공유</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <article class="content article">
+        <div class="article-board">유머</div>
+        <h1>퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</h1>
+        <div class="meta"><span>No.1047</span><span>2026.08.06 13:45</span><span>조회 1,248</span></div>
+
+        <div class="article-body">
+          <p>오후 5시 57분, 가방을 닫는 소리가 들리기 시작했다.</p>
+          <p>그때 옆자리에서 조용히 들려온 한마디.</p>
+          <figure class="image-placeholder">5:57</figure>
+          <p><strong>“질문 하나만 해도 돼요?”</strong></p>
+          <p>질문은 하나였고, 설명에 필요한 문서는 열두 개였다.</p>
+        </div>
+
+        <section class="source-box">
+          <strong>출처</strong>
+          <span>example.com/original/funny-office-story</span>
+          <a href="#">원문 보기 ↗</a>
+        </section>
+        <p class="rights">권리자 요청 시 게시글과 캐시를 함께 비노출 처리한다.</p>
+
+        <div class="ad-slot">AD-POST-BODY-BOTTOM · 본문 하단 광고</div>
+
+        <section class="adblock-box">
+          <strong>광고 차단 해제를 부탁드립니다</strong>
+          <span>본문 열람은 계속 가능합니다. 같은 세션에서는 다시 표시하지 않습니다.</span>
+          <div>
+            <button type="button">계속 보기</button>
+            <button type="button">해제 방법</button>
+            <button type="button">다시 확인</button>
+          </div>
+        </section>
+
+        <section class="bottom-list">
+          <div class="bottom-list-title">
+            <h2>최신 목록</h2>
+            <a href="#home" data-go="home">20개 보기</a>
+          </div>
+          <div class="board-list" aria-label="상세 하단 최신 목록">
+            <div class="board-row board-head" aria-hidden="true">
+              <span>번호</span><span>게시판</span><span>제목</span><span>조회</span><span>작성자</span><span>시간</span>
+            </div>
+            <div id="detailRows"></div>
+          </div>
+          <div class="ad-slot">AD-DETAIL-LIST-AFTER · 목록 아래 광고</div>
+        </section>
+      </article>
+
+      <aside class="side">
+        <section>
+          <h2>권리자 요청</h2>
+          <p>원본 출처와 권리를 확인해 게시한다.</p>
+          <a href="mailto:rights@example.com">rights@example.com</a>
+        </section>
+        <section class="side-ad">AD-SIDE-RAIL</section>
+      </aside>
+    </main>
+  </section>
+
+  <section class="screen" data-view="state">
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#home" data-go="home"><span>B</span>블라리요</a>
+        <nav class="board-nav" aria-label="게시판">
+          <a class="is-active" href="#home">유머</a>
+          <a href="#home">이야기</a>
+        </nav>
+      </div>
+    </header>
+    <main class="page">
+      <section class="content state-panel">
+        <h1>게시글을 불러오지 못했습니다</h1>
+        <p>연결 상태를 확인하고 다시 시도해 주세요.</p>
+        <button type="button" data-go="home">다시 시도</button>
+      </section>
+    </main>
+  </section>
+
+  <footer class="site-footer">
+    <div>
+      <strong>블라리요</strong>
+      <span>슬로건 결정 보류</span>
+    </div>
+    <nav aria-label="푸터">
+      <a href="#">이용약관</a>
+      <a href="#">개인정보처리방침</a>
+      <a href="mailto:rights@example.com">권리자 요청</a>
+      <a href="#">쿠키 설정</a>
+    </nav>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

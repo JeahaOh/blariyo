@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>블라리요 반응형 웹 와이어프레임</title>
+  <link rel="canonical" href="https://blariyo.example.com/">
+  <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 반응형 웹 피드">
+  <meta property="og:site_name" content="블라리요">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blariyo.example.com/">
+  <meta property="og:title" content="블라리요">
+  <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 반응형 웹 피드">
+  <meta property="og:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="블라리요 기본 공유 이미지">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="블라리요">
+  <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 반응형 웹 피드">
+  <meta name="twitter:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta name="twitter:image:alt" content="블라리요 기본 공유 이미지">
+  <style>
+    :root {
+      --ink: #171717;
+      --muted: #666;
+      --line: #d8d8d8;
+      --soft: #f5f5f2;
+      --paper: #fff;
+      --canvas: #e9ecef;
+      --brand: #ffd43b;
+      --accent: #087f8c;
+      --warn: #7a5a12;
+      --radius: 6px;
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      letter-spacing: 0;
+    }
+    button, a { font: inherit; }
+    button { color: inherit; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    .review-bar {
+      position: sticky;
+      z-index: 30;
+      top: 0;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 18px;
+      color: #fff;
+      background: #202124;
+      border-bottom: 1px solid #000;
+    }
+    .review-title { font-size: 14px; font-weight: 900; }
+    .review-meta { margin-left: 10px; color: #bfc1bc; font-size: 12px; }
+    .view-tabs { display: flex; gap: 4px; }
+    .view-tab {
+      min-height: 36px;
+      min-width: 72px;
+      padding: 0 12px;
+      border: 1px solid #5f6368;
+      border-radius: 4px;
+      color: #e8eaed;
+      background: transparent;
+    }
+    .view-tab[aria-selected="true"] {
+      border-color: var(--brand);
+      color: #111;
+      background: var(--brand);
+      font-weight: 900;
+    }
+
+    .browser {
+      width: min(1180px, calc(100% - 32px));
+      min-height: calc(100vh - 104px);
+      margin: 24px auto 48px;
+      overflow: hidden;
+      border: 1px solid #adb3b7;
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    }
+    .browser-chrome {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      border-bottom: 1px solid #c7c9cc;
+      background: #f1f3f4;
+    }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #adb5bd; }
+    .address {
+      flex: 1;
+      height: 27px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      border: 1px solid #d1d3d4;
+      border-radius: 4px;
+      color: #666;
+      background: #fff;
+      font-size: 12px;
+    }
+    .screen[hidden] { display: none; }
+
+    .site-header {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.98);
+    }
+    .header-inner {
+      max-width: 1120px;
+      min-height: 60px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 20px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 900; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border: 2px solid var(--ink); border-radius: 5px; background: var(--brand); font-size: 10px; }
+    .main-nav { display: flex; gap: 4px; }
+    .nav-item { min-height: 40px; display: inline-flex; align-items: center; padding: 0 12px; color: #444; font-size: 14px; }
+    .nav-item.current { border-bottom: 3px solid var(--ink); font-weight: 900; }
+    .header-note { margin: 0; color: var(--muted); font-size: 13px; }
+    .icon-button {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 0;
+      background: transparent;
+      font-weight: 900;
+    }
+
+    .top-strip { border-bottom: 1px solid var(--line); background: #fff9db; }
+    .top-strip-inner {
+      max-width: 1120px;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 auto;
+      padding: 0 20px;
+      color: #555;
+      font-size: 13px;
+    }
+    .top-strip a { color: var(--accent); font-weight: 800; text-decoration: underline; }
+
+    .page-shell {
+      max-width: 1120px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 34px;
+      margin: 0 auto;
+      padding: 28px 20px 56px;
+    }
+    .main-column { min-width: 0; }
+    .aside { min-width: 0; }
+    .aside-section { padding: 16px 0; border-top: 2px solid var(--ink); }
+    .aside-section h2 { margin: 0 0 8px; font-size: 15px; }
+    .aside-section p, .aside-section li { color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .aside-section ol { margin: 0; padding-left: 18px; }
+
+    .page-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--ink);
+    }
+    h1, h2, p { margin-top: 0; }
+    .page-heading h1 { margin-bottom: 5px; font-size: clamp(24px, 4vw, 34px); line-height: 1.25; }
+    .heading-copy, .count { color: var(--muted); font-size: 13px; }
+    .feed-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfbfb;
+      font-size: 13px;
+    }
+    .board-tabs { display: flex; gap: 6px; }
+    .board-tab {
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      font-weight: 900;
+    }
+    .board-tab.current { border-color: var(--ink); background: var(--brand); }
+    .benchmark-note {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid #d7d7d0;
+      border-left: 4px solid var(--accent);
+      background: #fbfbf8;
+      color: #555;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .board-list { border-top: 2px solid var(--ink); }
+    .board-row {
+      display: grid;
+      grid-template-columns: 78px 82px minmax(0, 1fr) 78px 86px 70px;
+      align-items: center;
+      min-height: 44px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .board-row.header { min-height: 36px; color: #555; background: #f7f7f5; font-size: 12px; font-weight: 900; }
+    .board-cell { min-width: 0; padding: 0 8px; text-align: center; }
+    .board-title { overflow: hidden; text-align: left; font-size: 15px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+    .board-name { color: var(--accent); font-weight: 900; }
+    .board-muted { color: var(--muted); }
+    .ad-slot {
+      display: grid;
+      place-items: center;
+      min-height: 96px;
+      margin: 20px 0;
+      padding: 12px;
+      border: 1px dashed #9aa0a6;
+      border-radius: var(--radius);
+      color: #666;
+      background: #fafafa;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .ad-slot strong { display: block; margin-bottom: 4px; color: #333; }
+    .ad-slot.feed-ad { min-height: 76px; margin: 0; border-width: 1px 0; border-radius: 0; background: #fffdf6; }
+    .ad-slot.side { min-height: 260px; margin: 0; }
+
+    .pagination { display: flex; justify-content: center; gap: 6px; padding: 18px 0 8px; }
+    .page-button { min-width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 4px; background: #fff; font-weight: 800; }
+    .page-button.current { border-color: var(--ink); background: var(--brand); }
+
+    .share-menu {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfbfb;
+    }
+    .share-menu strong { margin-right: 4px; font-size: 13px; }
+    .share-action {
+      min-height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .share-action.primary { border-color: var(--ink); background: var(--brand); }
+    .article-board { margin-bottom: 10px; color: var(--accent); font-size: 13px; font-weight: 900; }
+    .article-title { overflow-wrap: anywhere; margin-bottom: 12px; font-size: clamp(27px, 5vw, 36px); line-height: 1.3; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 12px; }
+    .meta span + span::before { content: "·"; margin-right: 10px; }
+    .article-meta { padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .affiliate-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 18px 0 0;
+      padding: 14px;
+      border: 1px solid #f0c36a;
+      border-radius: var(--radius);
+      background: #fff8e7;
+      color: #5c4512;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .affiliate-cta strong { display: block; color: #2e2208; }
+    .affiliate-cta button { min-height: 38px; flex: 0 0 auto; padding: 0 12px; border: 1px solid var(--warn); border-radius: 4px; color: #fff; background: var(--warn); font-weight: 900; }
+    .article-body { padding: 28px 0; font-size: clamp(17px, 2vw, 18px); line-height: 1.8; }
+    .article-image { aspect-ratio: 4 / 3; display: grid; place-items: center; margin: 22px 0; border-radius: var(--radius); color: #fff; background: #343a40; font-size: clamp(40px, 8vw, 56px); font-weight: 900; }
+    .source-panel { display: grid; grid-template-columns: 80px 1fr auto; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--soft); font-size: 13px; }
+    .source-label { font-weight: 900; }
+    .source-url { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+    .source-link { color: var(--accent); font-weight: 900; text-decoration: underline; }
+    .rights-note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .adblock-notice { margin: 24px 0 0; padding: 16px; border: 1px solid #d5b66d; border-radius: var(--radius); background: #fffaf0; color: #574317; font-size: 13px; line-height: 1.5; }
+    .adblock-notice strong { display: block; margin-bottom: 6px; color: #2b210b; }
+    .adblock-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .adblock-actions button { min-height: 36px; padding: 0 10px; border: 1px solid #b79545; border-radius: 4px; background: #fff; font-size: 12px; font-weight: 900; }
+    .adblock-actions .primary { color: #fff; background: var(--warn); }
+    .bottom-list { margin-top: 28px; padding-top: 20px; border-top: 2px solid var(--ink); }
+    .bottom-list-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .bottom-list-head h2 { margin: 0; font-size: 18px; }
+    .bottom-list-head a { color: var(--accent); font-size: 13px; font-weight: 900; text-decoration: underline; }
+
+    .state-panel { display: grid; place-items: center; min-height: 480px; border: 1px solid var(--line); background: #fbfbfb; }
+    .state-card { width: min(420px, 100%); padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; text-align: center; }
+    .state-card h1 { margin-bottom: 8px; font-size: 24px; }
+    .state-card p { color: var(--muted); line-height: 1.6; }
+    .state-action { min-height: 42px; padding: 0 14px; border: 1px solid var(--ink); border-radius: 4px; background: var(--brand); font-weight: 900; }
+
+    .site-footer { border-top: 1px solid var(--line); background: #f7f7f7; }
+    .footer-inner { max-width: 1120px; display: flex; justify-content: space-between; gap: 18px; margin: 0 auto; padding: 22px 20px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 12px; }
+    .footer-links a { text-decoration: underline; }
+
+    @media (max-width: 1023px) {
+      .page-shell { grid-template-columns: 1fr; max-width: 760px; }
+      .aside { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      .ad-slot.side { min-height: 120px; }
+      .header-inner { grid-template-columns: 1fr auto; }
+      .main-nav { grid-column: 1 / -1; order: 3; }
+      .header-note { display: none; }
+    }
+
+    @media (max-width: 767px) {
+      body { background: #fff; }
+      .review-bar { align-items: flex-start; flex-direction: column; }
+      .review-meta { display: block; margin: 4px 0 0; }
+      .view-tabs { width: 100%; }
+      .view-tab { flex: 1; min-width: 0; }
+      .browser { width: 100%; min-height: calc(100vh - 116px); margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+      .browser-chrome { display: none; }
+      .site-header { top: 0; }
+      .header-inner {
+        min-height: 52px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+        padding: 0 12px;
+      }
+      .brand { flex: 1 1 auto; font-size: 20px; }
+      .brand-mark { width: 26px; height: 26px; }
+      .main-nav {
+        width: calc(100% + 24px);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        order: 3;
+        margin: 0 -12px;
+        border-top: 1px solid var(--line);
+      }
+      .nav-item { min-height: 38px; justify-content: center; padding: 0; }
+      .nav-item.current { border-bottom-width: 2px; }
+      .header-note,
+      .top-strip,
+      .heading-copy,
+      .benchmark-note,
+      .feed-toolbar > span,
+      .aside { display: none; }
+      .page-shell { display: block; padding: 14px 12px 36px; }
+      .page-heading {
+        align-items: center;
+        gap: 8px;
+        margin: 0 -12px;
+        padding: 10px 12px;
+      }
+      .page-heading h1 { margin: 0; font-size: 20px; }
+      .count { white-space: nowrap; font-size: 12px; }
+      .feed-toolbar {
+        display: block;
+        margin: 0 -12px;
+        padding: 0;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        border-radius: 0;
+        background: #fff;
+      }
+      .board-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+      .board-tab {
+        min-height: 40px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        background: #fff;
+      }
+      .board-tab.current { border-color: var(--ink); background: #fff; }
+      .board-list { margin: 0 -12px; border-top: 0; }
+      .board-row.header { display: none; }
+      .board-row { grid-template-columns: 54px minmax(0, 1fr) 52px; min-height: 52px; }
+      .board-row:not(.header) span:nth-child(2),
+      .board-row:not(.header) span:nth-child(4),
+      .board-row:not(.header) span:nth-child(5) { display: none; }
+      .board-row:not(.header) span:nth-child(1) { grid-column: 1; }
+      .board-row:not(.header) span:nth-child(3) { grid-column: 2; }
+      .board-row:not(.header) span:nth-child(6) { grid-column: 3; }
+      .board-cell { padding: 0 6px; }
+      .board-title { font-size: 14px; }
+      .ad-slot.feed-ad { min-height: 56px; font-size: 11px; }
+      .pagination { padding: 12px 0 18px; }
+      .share-menu { display: none; }
+      .affiliate-cta { display: none; }
+      .article-title { font-size: 25px; }
+      .article-body { padding: 22px 0; }
+      .ad-slot { min-height: 72px; margin: 16px 0; font-size: 12px; }
+      .source-panel { grid-template-columns: 1fr; }
+      .adblock-notice { padding: 12px; font-size: 12px; }
+      .adblock-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+      .footer-inner { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="review-bar">
+    <div><span class="review-title">Blariyo responsive web wireframe</span><span class="review-meta">single URL · mobile-first · CSS breakpoint</span></div>
+    <div class="view-tabs" role="tablist" aria-label="화면 선택">
+      <button class="view-tab" type="button" role="tab" aria-selected="true" data-screen="home">홈</button>
+      <button class="view-tab" type="button" role="tab" aria-selected="false" data-screen="detail">상세</button>
+      <button class="view-tab" type="button" role="tab" aria-selected="false" data-screen="state">상태</button>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="browser-chrome" aria-hidden="true"><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="address">https://blariyo.example.com/</div></div>
+
+    <section class="screen" data-view="home">
+      <header class="site-header">
+        <div class="header-inner">
+          <a class="brand" href="#home" data-go="home"><span class="brand-mark">B</span>블라리요</a>
+          <nav class="main-nav" aria-label="게시판"><a class="nav-item current" href="#home" aria-current="page">유머</a><a class="nav-item" href="#home">이야기</a></nav>
+          <p class="header-note">카피 후보 검토 중</p>
+        </div>
+      </header>
+      <div class="top-strip"><div class="top-strip-inner"><span>하나의 URL과 컴포넌트를 쓰고, 화면 폭에 따라 목록·상세·광고 배치만 바뀝니다.</span><a href="#">반응형 기준 보기</a></div></div>
+      <main class="page-shell">
+        <section class="main-column">
+          <div class="page-heading"><div><h1>오늘 올라온 웃긴 것</h1><p class="heading-copy">고급유머처럼 빠르게 훑는 게시판형 최신 목록</p></div><span class="count">20개 · 최신순 · 1쪽</span></div>
+          <div class="feed-toolbar"><div class="board-tabs" aria-label="게시판 선택"><span class="board-tab current">유머</span><span class="board-tab">이야기</span></div><span>모바일 우선 · 데스크톱 확장 · 검색 없음</span></div>
+          <div class="benchmark-note">반응형 헷징: URL, API, SEO, OG는 하나로 유지하고 CSS breakpoint로 모바일 단일 열과 데스크톱 보조 영역만 전환.</div>
+          <div class="board-list" aria-label="최신 게시글">
+            <div class="board-row header" aria-hidden="true"><span class="board-cell">번호</span><span class="board-cell">게시판</span><span class="board-cell board-title">제목</span><span class="board-cell">조회</span><span class="board-cell">작성자</span><span class="board-cell">시간</span></div>
+            <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1048</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">회의 시작 5분 전에 모두가 갑자기 바빠지는 이유</span><span class="board-cell board-muted">812</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">14:30</span></div>
+            <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1047</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</span><span class="board-cell board-muted">1,248</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">13:45</span></div>
+            <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1046</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">간식을 숨긴 위치를 정확히 기억하고 있던 고양이</span><span class="board-cell board-muted">967</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">12:10</span></div>
+            <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1045</span><span class="board-cell board-name">이야기</span><span class="board-cell board-title">배달 메뉴를 20분 보고 결국 냉장고를 연 사람</span><span class="board-cell board-muted">704</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">10:24</span></div>
+            <div class="ad-slot feed-ad" aria-label="목록 중간 광고 후보"><div><strong>AD-FEED-INLINE 후보</strong>게시글 사이 광고 행. 모바일/데스크톱 모두 같은 슬롯을 CSS로 조정.</div></div>
+            <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1044</span><span class="board-cell board-name">이야기</span><span class="board-cell board-title">온라인 후기에서 별점보다 먼저 봐야 하는 문장</span><span class="board-cell board-muted">533</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">09:40</span></div>
+            <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1043</span><span class="board-cell board-name">이야기</span><span class="board-cell board-title">분명 하나만 사러 갔는데 계산대에서 만난 장바구니</span><span class="board-cell board-muted">411</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">08:55</span></div>
+          </div>
+          <nav class="pagination" aria-label="페이지 이동"><button class="page-button" type="button" disabled>←</button><button class="page-button current" type="button" aria-current="page">1</button><button class="page-button" type="button">2</button><button class="page-button" type="button">3</button><button class="page-button" type="button">4</button><button class="page-button" type="button">5</button><button class="page-button" type="button">→</button></nav>
+        </section>
+        <aside class="aside">
+          <section class="aside-section"><h2>반응형 기준</h2><p>~767px 단일 열, 768~1023px 단일 열 확장, 1024px 이상 본문+보조 영역.</p></section>
+          <section class="aside-section"><h2>광고 후보</h2><div class="ad-slot side"><div><strong>AD-SIDE-RAIL 후보</strong>1024px 이상에서만 노출. 모바일에서는 상세 하단으로 접음.</div></div></section>
+          <section class="aside-section"><h2>최근 많이 본 글</h2><ol><li>회의 직전 모두가 바빠지는 이유</li><li>퇴근 직전 질문 하나의 의미</li><li>배달 메뉴와 냉장고의 승부</li></ol></section>
+        </aside>
+      </main>
+      <footer class="site-footer"><div class="footer-inner"><div><strong>블라리요</strong><br>슬로건 결정 보류</div><div class="footer-links"><a href="#">이용약관</a><a href="#">개인정보처리방침</a><a href="mailto:rights@example.com">권리자 요청</a><a href="#">쿠키 설정</a></div></div></footer>
+    </section>
+
+    <section class="screen" data-view="detail" hidden>
+      <header class="site-header"><div class="header-inner"><button class="icon-button" type="button" data-go="home">← 목록</button><a class="brand" href="#home" data-go="home">블라리요</a><button class="icon-button" type="button">↗ 공유</button></div></header>
+      <main class="page-shell">
+        <article class="main-column">
+          <div class="share-menu"><strong>공유하기</strong><button class="share-action primary" type="button">링크 복사</button><button class="share-action" type="button">카카오톡</button><button class="share-action" type="button">X/Twitter</button><button class="share-action" type="button">브라우저 공유</button></div>
+          <div class="article-board">유머</div>
+          <h1 class="article-title">퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</h1>
+          <div class="meta article-meta"><span>No.1047</span><span>2026년 8월 6일 13:45</span><span>조회 1,248</span></div>
+          <div class="affiliate-cta"><div><strong>제휴 상품 링크 후보</strong>상품형 게시글에서만 표시. 외부 쇼핑몰 이동과 수수료 고지를 함께 노출.</div><button type="button">상품링크 보기 ↗</button></div>
+          <div class="article-body"><p>오후 5시 57분, 가방을 닫는 소리가 들리기 시작했다.</p><p>그때 옆자리에서 조용히 들려온 한마디.</p><div class="article-image" role="img" aria-label="퇴근 직전 질문을 받은 사람의 표정을 표현한 이미지">5:57</div><p><strong>“질문 하나만 해도 돼요?”</strong></p><p>질문은 하나였고, 설명에 필요한 문서는 열두 개였다.</p></div>
+          <div class="source-panel"><span class="source-label">출처</span><span class="source-url">example.com/original/funny-office-story</span><a class="source-link" href="#">원문 보기 ↗</a></div>
+          <p class="rights-note">권리 상태: 운영자 확인 완료. 권리자 요청 시 게시글과 캐시를 함께 비노출 처리한다.</p>
+          <div class="ad-slot"><div><strong>AD-POST-BODY-BOTTOM 후보</strong>본문과 출처를 모두 읽은 뒤 보이는 상세 본문 하단 광고.</div></div>
+          <section class="adblock-notice"><strong>광고 차단 해제를 부탁드립니다</strong><span>본문 열람은 계속 가능합니다. 같은 세션에서 닫으면 다시 표시하지 않습니다.</span><div class="adblock-actions"><button class="primary" type="button">계속 보기</button><button type="button">해제 방법</button><button type="button">다시 확인</button></div></section>
+          <section class="bottom-list"><div class="bottom-list-head"><h2>최신 목록</h2><a href="#home" data-go="home">20개 보기</a></div><div class="board-list"><div class="board-row header" aria-hidden="true"><span class="board-cell">번호</span><span class="board-cell">게시판</span><span class="board-cell board-title">제목</span><span class="board-cell">조회</span><span class="board-cell">작성자</span><span class="board-cell">시간</span></div><div class="board-row" tabindex="0"><span class="board-cell board-muted">1048</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">회의 시작 5분 전에 모두가 갑자기 바빠지는 이유</span><span class="board-cell board-muted">812</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">14:30</span></div><div class="ad-slot feed-ad" aria-label="상세 하단 목록 중간 광고 후보"><div><strong>AD-DETAIL-LIST-INLINE 후보</strong>상세 하단 목록 20개 안에 끼워 넣는 광고 행.</div></div><div class="board-row" tabindex="0"><span class="board-cell board-muted">1046</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">간식을 숨긴 위치를 정확히 기억하고 있던 고양이</span><span class="board-cell board-muted">967</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">12:10</span></div><div class="board-row" tabindex="0"><span class="board-cell board-muted">1045</span><span class="board-cell board-name">이야기</span><span class="board-cell board-title">배달 메뉴를 20분 보고 결국 냉장고를 연 사람</span><span class="board-cell board-muted">704</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">10:24</span></div></div><div class="ad-slot"><div><strong>AD-DETAIL-LIST-AFTER 후보</strong>하단 목록 20개를 모두 본 뒤 노출되는 목록 아래 광고.</div></div></section>
+        </article>
+        <aside class="aside">
+          <section class="aside-section"><h2>다음에 볼 글</h2><ol><li>회의 직전 모두가 바빠지는 이유</li><li>간식을 기억한 고양이</li><li>배달 메뉴와 냉장고의 승부</li></ol></section>
+          <section class="aside-section"><h2>우측 광고 후보</h2><div class="ad-slot side"><div><strong>AD-SIDE-RAIL</strong>데스크톱에서만 우측 노출. 작은 화면에서는 미노출 또는 하단 전환.</div></div></section>
+          <section class="aside-section"><h2>권리자 요청</h2><p>원본 출처와 권리를 확인해 게시합니다.</p><a href="mailto:rights@example.com">rights@example.com</a></section>
+        </aside>
+      </main>
+      <footer class="site-footer"><div class="footer-inner"><div><strong>블라리요</strong><br>슬로건 결정 보류</div><div class="footer-links"><a href="#">이용약관</a><a href="#">개인정보처리방침</a><a href="mailto:rights@example.com">권리자 요청</a><a href="#">쿠키 설정</a></div></div></footer>
+    </section>
+
+    <section class="screen" data-view="state" hidden>
+      <header class="site-header"><div class="header-inner"><a class="brand" href="#home" data-go="home"><span class="brand-mark">B</span>블라리요</a><nav class="main-nav"><a class="nav-item current" href="#home">유머</a><a class="nav-item" href="#home">이야기</a></nav></div></header>
+      <main class="page-shell"><section class="main-column"><div class="state-panel"><div class="state-card"><h1>게시글을 불러오지 못했습니다</h1><p>연결 상태를 확인하고 다시 시도해 주세요. 같은 컴포넌트가 모바일과 데스크톱에서 폭만 바꿔 표시됩니다.</p><button class="state-action" type="button" data-go="home">다시 시도</button></div></div></section><aside class="aside"><section class="aside-section"><h2>상태 처리</h2><p>로딩, 빈 목록, 오류, 숨김 게시글은 별도 페이지가 아니라 현재 route의 상태로 처리합니다.</p></section></aside></main>
+    </section>
+  </div>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll('[data-screen]'));
+    const screens = Array.from(document.querySelectorAll('[data-view]'));
+    const address = document.querySelector('.address');
+    const routes = { home: '/', detail: '/posts/1047', state: '/posts/unknown' };
+
+    function showScreen(name) {
+      if (!screens.some((screen) => screen.dataset.view === name)) return;
+      screens.forEach((screen) => { screen.hidden = screen.dataset.view !== name; });
+      tabs.forEach((tab) => { tab.setAttribute('aria-selected', String(tab.dataset.screen === name)); });
+      if (address) address.textContent = `https://blariyo.example.com${routes[name]}`;
+      history.replaceState(null, '', `#${name}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    tabs.forEach((tab) => tab.addEventListener('click', () => showScreen(tab.dataset.screen)));
+    document.querySelectorAll('[data-go]').forEach((el) => el.addEventListener('click', (event) => {
+      event.preventDefault();
+      showScreen(el.dataset.go);
+    }));
+    showScreen(location.hash.slice(1) || 'home');
+  </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>블라리요 분석·광고 확장 참고 와이어프레임</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --ink: #171717;
+      --muted: #6b6b66;
+      --line: #d9d9d3;
+      --paper: #fff;
+      --canvas: #eff1ee;
+      --brand: #e92e4d;
+      --accent: #146c5c;
+      --ad: #f3f4f2;
+    }
+    html, body { margin: 0; min-height: 100%; background: var(--canvas); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+    button { font: inherit; }
+    .reviewbar { position: sticky; top: 0; z-index: 20; min-height: 52px; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #fff; background: #20211f; }
+    .reviewbar strong { font-size: 14px; }
+    .reviewbar span { color: #bfc1bc; font-size: 12px; }
+    .tabs { display: flex; gap: 4px; }
+    .tabs button { min-height: 34px; padding: 0 12px; border: 1px solid #555751; color: #ddd; background: transparent; cursor: pointer; }
+    .tabs button[aria-selected="true"] { color: #111; background: #fff; border-color: #fff; }
+    .stage { min-height: calc(100vh - 52px); padding: 24px; }
+    .browser { max-width: 1120px; min-height: 760px; margin: 0 auto; background: var(--paper); border: 1px solid #c8cac5; box-shadow: 0 18px 40px rgba(24, 26, 23, .10); }
+    .sitehead { height: 64px; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+    .logo { color: var(--brand); font-size: 25px; font-weight: 900; }
+    .sitehead nav { font-size: 14px; color: var(--muted); }
+    .page { display: grid; grid-template-columns: minmax(0, 760px) 260px; gap: 52px; max-width: 1064px; margin: 0 auto; padding: 32px 28px 80px; }
+    article { min-width: 0; }
+    .board-label { color: var(--accent); font-size: 13px; font-weight: 700; }
+    h1 { margin: 8px 0 12px; font-size: 30px; line-height: 1.28; overflow-wrap: anywhere; }
+    .meta { color: var(--muted); font-size: 13px; }
+    .adslot { display: grid; place-items: center; width: 100%; min-height: 112px; margin: 24px 0; border: 1px dashed #aeb1aa; background: var(--ad); color: #64665f; text-align: center; }
+    .adslot b { display: block; margin-bottom: 6px; color: #2e302c; font-size: 12px; }
+    .adslot small { font-size: 12px; }
+    .hero { aspect-ratio: 16 / 9; display: grid; place-items: center; margin-top: 20px; background: #dbe3dc; color: #456153; font-weight: 750; font-size: 20px; }
+    .bodycopy { margin: 22px 0; font-size: 18px; line-height: 1.8; }
+    .source { padding: 14px 16px; border-left: 3px solid var(--accent); background: #f6f7f5; color: var(--muted); font-size: 13px; }
+    .adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .adjacent button { min-height: 58px; padding: 10px 14px; border: 1px solid var(--line); background: #fff; text-align: left; cursor: pointer; }
+    aside { padding-top: 10px; }
+    aside h2 { margin: 0 0 14px; font-size: 15px; }
+    .rule { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+    .rule li { padding: 12px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .cap { margin-top: 18px; padding: 14px; border: 1px solid #b7cec7; background: #f0f7f5; }
+    .cap strong { display: block; margin-bottom: 5px; color: var(--accent); font-size: 13px; }
+    .cap span { font-size: 12px; color: #4f5c57; }
+    .adblock-box { margin-top: 24px; padding: 18px; border: 1px solid #d5b66d; background: #fffaf0; color: #574317; }
+    .adblock-box strong { display: block; margin-bottom: 6px; color: #2b210b; }
+    .partner-note { margin: 0 0 18px; padding: 14px 16px; border: 1px solid #f0c36a; background: #fff8e7; color: #5c4512; font-size: 13px; line-height: 1.55; }
+    .partner-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+    .partner-item { display: grid; grid-template-columns: 64px 1fr auto auto; gap: 12px; align-items: center; min-height: 52px; border-bottom: 1px solid var(--line); font-size: 14px; }
+    .partner-item a { color: var(--accent); font-size: 13px; font-weight: 700; }
+    .consent { position: fixed; z-index: 30; left: 50%; bottom: 20px; transform: translateX(-50%); width: min(760px, calc(100% - 32px)); padding: 16px; display: none; align-items: center; justify-content: space-between; gap: 18px; border: 1px solid #333; background: #fff; box-shadow: 0 14px 40px rgba(0, 0, 0, .2); }
+    .consent.show { display: flex; }
+    .consent p { margin: 0; color: #4c4c48; font-size: 13px; line-height: 1.5; }
+    .actions { flex: 0 0 auto; display: flex; gap: 8px; }
+    .actions button { min-height: 40px; padding: 0 13px; border: 1px solid #aaa; background: #fff; cursor: pointer; }
+    .actions .primary { color: #fff; background: var(--accent); border-color: var(--accent); }
+    .interstitial { position: fixed; inset: 0; z-index: 40; display: none; place-items: center; padding: 20px; background: rgba(18, 18, 17, .78); }
+    .interstitial.show { display: grid; }
+    .interstitial-panel { width: min(600px, 100%); background: #fff; border: 1px solid #222; }
+    .adhead { height: 48px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+    .adhead span { color: var(--muted); font-size: 12px; }
+    .close { width: 36px; height: 36px; border: 0; background: transparent; font-size: 25px; cursor: pointer; }
+    .large-ad { min-height: 430px; display: grid; place-items: center; padding: 24px; background: #f1f2ef; color: #555750; text-align: center; }
+    .large-ad b { display: block; margin-bottom: 8px; color: #242521; font-size: 18px; }
+    .continue { width: 100%; min-height: 52px; border: 0; color: #fff; background: var(--accent); font-weight: 700; cursor: pointer; }
+    .hidden { display: none !important; }
+    @media (max-width: 760px) {
+      html, body { width: min(430px, 100vw); max-width: 430px; overflow-x: hidden; }
+      .reviewbar { align-items: flex-start; flex-direction: column; gap: 8px; }
+      .reviewbar span { display: none; }
+      .tabs { width: 100%; }
+      .tabs button { min-width: 0; flex: 1; padding: 0 4px; white-space: nowrap; }
+      .stage { padding: 0; }
+      .browser { min-height: 100vh; border: 0; box-shadow: none; }
+      .sitehead { height: 56px; padding: 0 16px; }
+      .page { display: block; padding: 24px 16px 110px; }
+      h1 { font-size: 25px; }
+      aside { margin-top: 36px; }
+      .adslot { min-height: 100px; }
+      .adjacent { grid-template-columns: 1fr; }
+      .consent { bottom: 12px; align-items: stretch; flex-direction: column; }
+      .actions button { flex: 1; }
+      .large-ad { min-height: min(430px, 58vh); }
+      .partner-item { grid-template-columns: 44px 1fr; gap: 8px; padding: 10px 0; }
+      .partner-item a { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <header class="reviewbar">
+    <div><strong>블라리요 분석·광고 확장 참고 와이어프레임</strong> <span>실제 광고 노출은 M0 이후 게이트 통과 시점</span></div>
+    <div class="tabs" role="tablist" aria-label="검토 화면">
+      <button type="button" data-view="detail" aria-selected="true">상세 하단 광고</button>
+      <button type="button" data-view="large" aria-selected="false">대형 광고</button>
+      <button type="button" data-view="consent" aria-selected="false">동의 화면</button>
+      <button type="button" data-view="adblock" aria-selected="false">차단 해제</button>
+      <button type="button" data-view="partners" aria-selected="false">제휴 목록</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="browser" aria-label="게시글 상세 화면">
+      <header class="sitehead"><div class="logo">블라리요</div><nav>최신 &nbsp; 공유</nav></header>
+      <div class="page">
+        <article>
+          <div class="board-label">유머</div>
+          <h1>오늘 지하철에서 모두가 동시에 웃은 이유</h1>
+          <div class="meta">8월 6일 14:30 · 조회 1,284</div>
+          <div class="hero">게시글 대표 이미지 16:9</div>
+          <p class="bodycopy">본문은 광고와 분명한 간격을 두고 시작한다. 광고가 늦게 로드되어도 본문 위치가 움직이지 않도록 슬롯 크기를 먼저 확보한다.</p>
+          <div class="source">출처 · 원본 사이트 이름과 링크</div>
+          <div class="adslot"><div><b>광고</b><small>AD-POST-BODY-BOTTOM · 본문 하단 반응형 배너</small></div></div>
+          <div class="source">
+            상세 하단 목록 20개 영역
+            <br><small>AD-DETAIL-LIST-INLINE · 목록 중간 광고 행 1개</small>
+          </div>
+          <div class="adslot"><div><b>광고</b><small>AD-DETAIL-LIST-AFTER · 목록 아래 반응형 배너</small></div></div>
+          <div class="adblock-box hidden" id="adblockBox"><strong>광고 차단 해제를 부탁드립니다</strong>본문 열람은 계속 가능합니다. 운영비를 위해 광고 영역을 허용해 주세요.</div>
+        </article>
+        <aside>
+          <h2>노출 규칙</h2>
+          <ul class="rule">
+            <li>상세 광고는 본문 하단, 목록 중간, 목록 아래에 표시</li>
+            <li>로그인·제보·관리자·오류 화면 제외</li>
+            <li>광고 미할당 시 빈 영역 제거</li>
+            <li>광고 클릭 유도 문구 사용 금지</li>
+          </ul>
+          <div class="cap"><strong>대형 광고 빈도</strong><span>일 최대 3회 · 상세 3개 간격 · 최소 20분</span></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <section class="consent" id="consent" aria-label="쿠키 동의">
+    <p><strong>방문 분석과 광고 설정</strong><br>필수 기능은 항상 동작합니다. 분석과 광고 저장은 선택할 수 있습니다.</p>
+    <div class="actions"><button type="button">필수만</button><button type="button">설정</button><button type="button" class="primary">분석 허용</button></div>
+  </section>
+
+  <section class="interstitial" id="interstitial" aria-label="대형 광고 예시">
+    <div class="interstitial-panel">
+      <header class="adhead"><span>광고 · 오늘 1/3회</span><button type="button" class="close" aria-label="광고 닫기">×</button></header>
+      <div class="large-ad"><div><b>대형 광고 영역</b>허용된 전면형 광고 상품만 사용<br>첫 게시글에는 노출하지 않음</div></div>
+      <button type="button" class="continue">닫고 다음 게시글 보기</button>
+    </div>
+  </section>
+
+  <section class="interstitial" id="partners" aria-label="제휴 상품 목록 예시">
+    <div class="interstitial-panel">
+      <header class="adhead"><span>제휴 상품 목록 · 별도 경로 후보</span><button type="button" class="close" aria-label="제휴 목록 닫기">×</button></header>
+      <div class="large-ad">
+        <div style="width:100%; text-align:left;">
+          <p class="partner-note">쿠팡 파트너스 활동의 일환으로 일정 수수료를 받을 수 있습니다. 일반 최신 피드와 분리해 운영합니다.</p>
+          <ol class="partner-list">
+            <li class="partner-item"><span>446</span><strong>부부갈등에 특효라는 폴드형 기기</strong><a href="#">상품링크</a><a href="#">자료보기</a></li>
+            <li class="partner-item"><span>445</span><strong>강아지 구명조끼</strong><a href="#">상품링크</a><a href="#">자료보기</a></li>
+            <li class="partner-item"><span>444</span><strong>볶음밥으로 성공한 조리도구</strong><a href="#">상품링크</a><a href="#">자료보기</a></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const tabs = document.querySelectorAll('[data-view]');
+    const consent = document.getElementById('consent');
+    const interstitial = document.getElementById('interstitial');
+    const adblockBox = document.getElementById('adblockBox');
+    const partners = document.getElementById('partners');
+
+    function setView(view) {
+      tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.view === view)));
+      consent.classList.toggle('show', view === 'consent');
+      interstitial.classList.toggle('show', view === 'large');
+      partners.classList.toggle('show', view === 'partners');
+      adblockBox.classList.toggle('hidden', view !== 'adblock');
+      history.replaceState(null, '', `#${view}`);
+    }
+
+    tabs.forEach((tab) => tab.addEventListener('click', () => setView(tab.dataset.view)));
+    document.querySelectorAll('.close, .continue').forEach((button) => button.addEventListener('click', () => setView('detail')));
+    setView(['detail', 'large', 'consent', 'adblock', 'partners'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'detail');
+  </script>
+</body>
+</html>

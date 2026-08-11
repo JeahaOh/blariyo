@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>블라리요 앱 와이어프레임 보류</title>
+  <style>
+    :root {
+      --ink: #171717;
+      --muted: #666;
+      --line: #d8d8d8;
+      --brand: #ffd43b;
+      --paper: #fff;
+      --canvas: #e6e8ea;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    }
+    main {
+      width: min(720px, 100%);
+      padding: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .10);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      font-size: 24px;
+      font-weight: 900;
+    }
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      background: var(--brand);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    h1 { margin: 0 0 10px; font-size: 30px; line-height: 1.3; }
+    p, li { color: var(--muted); font-size: 15px; line-height: 1.7; }
+    ul { margin: 18px 0 0; padding-left: 20px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      margin-bottom: 18px;
+      padding: 0 10px;
+      border: 1px solid var(--ink);
+      border-radius: 4px;
+      background: var(--brand);
+      font-size: 12px;
+      font-weight: 900;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand"><span class="brand-mark">B</span>블라리요</div>
+    <div class="badge">앱 와이어프레임 보류</div>
+    <h1>현재 기획 범위는 데스크톱 웹과 모바일 웹입니다.</h1>
+    <p>앱 화면, 네이티브 광고, 푸시, 오프라인 저장, 앱 설치 흐름은 이번 기획과 와이어프레임 전수 개선 대상에서 제외합니다.</p>
+    <ul>
+      <li>홈 피드와 상세 화면은 `desktop/index.html`, `mobile/index.html`에서 검토한다.</li>
+      <li>광고 후보와 동의 UX는 웹 화면 기준으로만 판단한다.</li>
+      <li>앱은 실제 설치 요구가 확인될 때 별도 기획서와 별도 와이어프레임으로 다시 연다.</li>
+    </ul>
+  </main>
+</body>
+</html>

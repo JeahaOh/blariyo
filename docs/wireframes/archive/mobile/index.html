@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>블라리요 모바일 웹 와이어프레임</title>
+  <link rel="canonical" href="https://blariyo.example.com/">
+  <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 모바일 웹 피드">
+  <meta property="og:site_name" content="블라리요">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blariyo.example.com/">
+  <meta property="og:title" content="블라리요">
+  <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 모바일 웹 피드">
+  <meta property="og:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="블라리요 기본 공유 이미지">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="블라리요">
+  <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 모바일 웹 피드">
+  <meta name="twitter:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta name="twitter:image:alt" content="블라리요 기본 공유 이미지">
+  <style>
+    :root {
+      --ink: #171717;
+      --muted: #666;
+      --line: #d9d9d9;
+      --soft: #f4f4f2;
+      --paper: #fff;
+      --canvas: #dfe3e6;
+      --brand: #ffd43b;
+      --accent: #087f8c;
+      --radius: 6px;
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      letter-spacing: 0;
+    }
+    button, a { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    .workspace {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    .review-bar {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 18px;
+      color: #fff;
+      background: #202124;
+    }
+    .review-title { font-size: 14px; font-weight: 800; }
+    .review-meta { display: block; margin-top: 3px; color: #b7b7b7; font-size: 11px; }
+    .view-tabs { display: flex; gap: 4px; }
+    .view-tab {
+      min-width: 54px;
+      height: 38px;
+      padding: 0 10px;
+      border: 1px solid #666;
+      border-radius: 4px;
+      color: #eee;
+      background: transparent;
+      cursor: pointer;
+    }
+    .view-tab[aria-selected="true"] { border-color: var(--brand); color: #111; background: var(--brand); font-weight: 800; }
+
+    .stage { display: grid; place-items: start center; padding: 24px 12px 48px; }
+    .phone {
+      width: 390px;
+      height: 844px;
+      overflow: hidden;
+      border: 9px solid #171717;
+      border-radius: 34px;
+      background: var(--paper);
+      box-shadow: 0 16px 34px rgba(0,0,0,.18);
+    }
+    .phone-top {
+      height: 32px;
+      display: grid;
+      grid-template-columns: 1fr 92px 1fr;
+      align-items: center;
+      padding: 0 14px;
+      color: #222;
+      background: #fff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .sensor { width: 88px; height: 20px; justify-self: center; border-radius: 0 0 13px 13px; background: #171717; }
+    .status-icons { justify-self: end; }
+    .viewport { height: calc(100% - 32px); overflow-y: auto; overscroll-behavior: contain; background: #fff; }
+    .screen[hidden] { display: none; }
+
+    .site-header {
+      position: sticky;
+      z-index: 10;
+      top: 0;
+      height: 56px;
+      display: grid;
+      grid-template-columns: 48px 1fr 48px;
+      align-items: center;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.98);
+    }
+    .brand { justify-self: center; display: flex; align-items: center; gap: 7px; font-size: 20px; font-weight: 900; }
+    .brand-mark { width: 27px; height: 27px; display: grid; place-items: center; border: 2px solid var(--ink); border-radius: 5px; background: var(--brand); font-size: 10px; }
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .header-spacer { width: 44px; }
+
+    .feed-head { padding: 24px 16px 16px; border-bottom: 2px solid var(--ink); }
+    h1, h2, p { margin-top: 0; }
+    .feed-head h1 { margin-bottom: 5px; font-size: 24px; line-height: 1.3; }
+    .feed-head-row { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px; }
+    .benchmark-note {
+      margin: 10px 16px 0;
+      padding: 10px;
+      border-left: 4px solid var(--accent);
+      background: #fbfbf8;
+      color: #555;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+    .notice-strip {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff9db;
+      color: #555;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .board-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfbfb;
+    }
+    .board-tab {
+      flex: 1;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .board-tab.current { border-color: var(--ink); background: var(--brand); }
+    .feed-item {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr) 54px;
+      gap: 8px;
+      align-items: center;
+      min-height: 54px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .feed-item:hover .feed-title { color: var(--accent); text-decoration: underline; }
+    .thumb {
+      aspect-ratio: 16 / 9;
+      display: grid;
+      place-items: center;
+      margin-bottom: 13px;
+      border: 1px solid #b8b8b8;
+      border-radius: var(--radius);
+      color: #4d4d4d;
+      background: var(--soft);
+      font-size: 28px;
+      font-weight: 900;
+    }
+    .thumb.alt { color: #fff; background: #087f8c; }
+    .thumb.dark { color: #fff; background: #343a40; }
+    .board-label { margin-bottom: 5px; color: var(--accent); font-size: 12px; font-weight: 800; }
+    .feed-title {
+      overflow: hidden;
+      margin-bottom: 4px;
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 850;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .meta { display: flex; gap: 9px; color: var(--muted); font-size: 11px; }
+    .meta span + span::before { content: "·"; margin-right: 9px; }
+    .post-no { color: #888; font-variant-numeric: tabular-nums; }
+    .feed-no { color: #888; font-size: 12px; text-align: center; font-variant-numeric: tabular-nums; }
+    .feed-time { color: var(--muted); font-size: 11px; text-align: right; }
+    .feed-board-head {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr) 54px;
+      gap: 8px;
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--line);
+      color: #555;
+      background: #f7f7f5;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .bottom-list {
+      margin-top: 24px;
+      border-top: 2px solid var(--ink);
+    }
+    .bottom-list-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0 8px;
+    }
+    .bottom-list-head h2 { margin: 0; font-size: 17px; }
+    .bottom-list-head a { color: var(--accent); font-size: 12px; font-weight: 800; text-decoration: underline; }
+    .ad-slot {
+      display: grid;
+      place-items: center;
+      min-height: 86px;
+      margin: 18px 16px;
+      padding: 12px;
+      border: 1px dashed #9aa0a6;
+      border-radius: var(--radius);
+      color: #666;
+      background: #fafafa;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .ad-slot strong { display: block; margin-bottom: 4px; color: #333; }
+    .ad-slot.feed-ad {
+      min-height: 74px;
+      margin: 0;
+      border-width: 1px 0;
+      border-radius: 0;
+      background: #fffdf6;
+    }
+
+    .pagination { display: flex; justify-content: center; gap: 5px; padding: 24px 16px 32px; }
+    .page-button { min-width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 4px; background: #fff; cursor: pointer; }
+    .page-button.current { border-color: var(--ink); background: var(--brand); font-weight: 900; }
+    .page-button:disabled { color: #aaa; background: #f7f7f7; }
+
+    .site-footer { padding: 24px 16px 34px; border-top: 1px solid var(--line); color: var(--muted); background: var(--soft); font-size: 12px; line-height: 1.7; }
+    .footer-brand { margin-bottom: 10px; color: var(--ink); font-weight: 900; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; }
+    .footer-links a { text-decoration: underline; }
+
+    .article { padding: 24px 16px 32px; }
+    .share-sheet {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 0 0 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfbfb;
+    }
+    .share-sheet strong { grid-column: 1 / -1; font-size: 13px; }
+    .share-action {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .share-action.primary { border-color: var(--ink); background: var(--brand); }
+    .affiliate-cta {
+      display: grid;
+      gap: 10px;
+      margin: 14px 0 0;
+      padding: 13px;
+      border: 1px solid #f0c36a;
+      border-radius: var(--radius);
+      background: #fff8e7;
+      color: #5c4512;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .affiliate-cta strong { display: block; color: #2e2208; font-size: 13px; }
+    .affiliate-cta button { min-height: 40px; border: 0; border-radius: 4px; color: #fff; background: #7a5a12; font-weight: 800; }
+    .adblock-notice {
+      margin: 22px 0 0;
+      padding: 15px;
+      border: 1px solid #d5b66d;
+      border-radius: var(--radius);
+      background: #fffaf0;
+      color: #574317;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .adblock-notice strong { display: block; margin-bottom: 5px; color: #2b210b; font-size: 13px; }
+    .adblock-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
+    .adblock-actions button { min-height: 38px; border: 1px solid #b79545; border-radius: 4px; background: #fff; font-size: 11px; font-weight: 800; }
+    .adblock-actions .primary { color: #fff; background: #7a5a12; }
+    .article-board { margin-bottom: 10px; color: var(--accent); font-size: 12px; font-weight: 800; }
+    .article-title { overflow-wrap: anywhere; margin-bottom: 12px; font-size: 27px; line-height: 1.34; }
+    .article-meta { padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+    .source-meta-line { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; color: var(--muted); font-size: 11px; }
+    .source-meta-line a { color: var(--accent); font-weight: 800; text-decoration: underline; }
+    .article-body { padding: 24px 0; font-size: 17px; line-height: 1.75; }
+    .article-image { aspect-ratio: 4 / 3; display: grid; place-items: center; margin: 20px 0; border-radius: var(--radius); color: #fff; background: #343a40; font-size: 42px; font-weight: 900; }
+    .source-panel { padding: 15px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--soft); }
+    .source-label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: 800; }
+    .source-url { display: block; overflow: hidden; margin-bottom: 10px; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .source-link { display: inline-flex; min-height: 44px; align-items: center; color: var(--accent); font-size: 14px; font-weight: 800; }
+    .rights-note { margin: 11px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .adjacent-nav { display: grid; gap: 8px; margin-top: 22px; }
+    .adjacent-button { min-height: 66px; padding: 11px 13px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; text-align: left; }
+    .adjacent-label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 11px; }
+    .adjacent-title { display: block; overflow: hidden; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+
+    .state-page { min-height: 756px; display: grid; align-content: center; padding: 32px 22px; }
+    .state-card { text-align: center; }
+    .state-symbol { width: 60px; height: 60px; display: grid; place-items: center; margin: 0 auto 18px; border: 2px solid var(--ink); border-radius: 50%; font-size: 22px; font-weight: 900; }
+    .state-card h1 { margin-bottom: 8px; font-size: 22px; }
+    .state-copy { margin-bottom: 22px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .state-action { width: 100%; height: 48px; border: 1px solid var(--ink); border-radius: 4px; background: var(--brand); font-weight: 850; cursor: pointer; }
+    .state-action + .state-action { margin-top: 8px; background: #fff; }
+    .consent-bar {
+      position: sticky;
+      bottom: 0;
+      z-index: 20;
+      padding: 12px 14px;
+      border-top: 1px solid #c9c9c9;
+      background: rgba(255,255,255,.98);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .consent-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
+    .consent-actions button {
+      height: 38px;
+      border: 1px solid var(--ink);
+      border-radius: 4px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .consent-actions .primary { background: var(--brand); }
+
+    @media (max-width: 520px) {
+      html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+      .workspace {
+        width: min(430px, 100vw);
+        max-width: 430px;
+        min-width: 0;
+      }
+      .review-bar, .stage, .phone, .viewport, .screen {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+      .review-bar { align-items: flex-start; flex-direction: column; }
+      .review-bar > div { width: 100%; min-width: 0; }
+      .view-tabs { width: 100%; min-width: 0; }
+      .view-tab { min-width: 0; flex: 1; }
+      .stage { padding: 0; }
+      .phone { width: 100%; height: calc(100vh - 116px); border: 0; border-radius: 0; box-shadow: none; }
+      .phone-top { display: none; }
+      .viewport { height: 100%; }
+      .article-title { max-width: 100%; word-break: keep-all; overflow-wrap: anywhere; }
+      .state-page { width: 100%; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="workspace">
+    <header class="review-bar">
+      <div><span class="review-title">Blariyo mobile web wireframe</span><span class="review-meta">390 × 844 · web only · 기획 구체화안</span></div>
+      <div class="view-tabs" role="tablist" aria-label="화면 선택">
+        <button class="view-tab" type="button" role="tab" aria-selected="true" data-screen="home">홈</button>
+        <button class="view-tab" type="button" role="tab" aria-selected="false" data-screen="detail">상세</button>
+        <button class="view-tab" type="button" role="tab" aria-selected="false" data-screen="error">오류</button>
+      </div>
+    </header>
+
+    <main class="stage">
+      <div class="phone">
+        <div class="phone-top" aria-hidden="true"><span>9:41</span><span class="sensor"></span><span class="status-icons">● ◒</span></div>
+        <div class="viewport">
+          <section class="screen" data-view="home">
+            <header class="site-header"><span class="header-spacer"></span><a class="brand" href="#home"><span class="brand-mark">B</span>블라리요</a><span class="header-spacer"></span></header>
+            <div class="notice-strip">회원·댓글·앱 없이, 운영자가 고른 유머를 바로 보는 모바일 웹 기준.</div>
+            <div class="feed-head"><h1>오늘 올라온 웃긴 것</h1><div class="feed-head-row"><span>고급유머처럼 훑는 게시판형 목록</span><span>12개</span></div></div>
+            <div class="benchmark-note">벤치마킹 반영: 번호 중심 목록, 중간 광고 행, 페이지 이동, 상세 하단 목록.</div>
+            <div class="board-tabs" aria-label="게시판 선택"><span class="board-tab current">유머</span><span class="board-tab">이야기</span></div>
+            <div aria-label="최신 게시글">
+              <div class="feed-board-head" aria-hidden="true"><span>번호</span><span>제목</span><span>시간</span></div>
+              <article class="feed-item" tabindex="0" data-go="detail"><span class="feed-no">1048</span><div><div class="board-label">유머</div><h2 class="feed-title">회의 시작 5분 전에 모두가 갑자기 바빠지는 이유</h2><div class="meta"><span>조회 812</span><span>운영자</span></div></div><span class="feed-time">14:30</span></article>
+              <article class="feed-item" tabindex="0" data-go="detail"><span class="feed-no">1047</span><div><div class="board-label">유머</div><h2 class="feed-title">퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</h2><div class="meta"><span>조회 1,248</span><span>운영자</span></div></div><span class="feed-time">13:45</span></article>
+              <article class="feed-item" tabindex="0" data-go="detail"><span class="feed-no">1046</span><div><div class="board-label">유머</div><h2 class="feed-title">간식을 숨긴 위치를 정확히 기억하고 있던 고양이</h2><div class="meta"><span>조회 967</span><span>운영자</span></div></div><span class="feed-time">12:10</span></article>
+              <article class="feed-item" tabindex="0" data-go="detail"><span class="feed-no">1045</span><div><div class="board-label">이야기</div><h2 class="feed-title">배달 메뉴를 20분 보고 결국 냉장고를 연 사람</h2><div class="meta"><span>조회 704</span><span>운영자</span></div></div><span class="feed-time">10:24</span></article>
+              <div class="ad-slot feed-ad" aria-label="모바일 홈 목록 중간 광고 후보"><div><strong>AD-FEED-INLINE 후보</strong>게시글 사이에 들어가는 광고. 게시글 번호 없음.</div></div>
+            </div>
+            <nav class="pagination" aria-label="페이지 이동"><button class="page-button" type="button" disabled aria-label="이전 페이지">←</button><button class="page-button current" type="button" aria-current="page">1</button><button class="page-button" type="button">2</button><button class="page-button" type="button" aria-label="다음 페이지">→</button></nav>
+            <footer class="site-footer"><div class="footer-brand">블라리요</div>콘텐츠 권리 관련 요청은 확인 후 빠르게 처리합니다.<div class="footer-links"><a href="#">이용약관</a><a href="#">개인정보처리방침</a><a href="mailto:rights@example.com">권리자 요청</a><a href="#">쿠키 설정</a></div></footer>
+            <div class="consent-bar"><div>방문 분석은 선택입니다. 광고 저장소는 실제 광고 실험 전까지 사용하지 않습니다.</div><div class="consent-actions"><button type="button">필수만</button><button type="button">설정</button><button class="primary" type="button">허용</button></div></div>
+          </section>
+
+          <section class="screen" data-view="detail" hidden>
+            <header class="site-header"><button class="icon-button" type="button" data-go="home" aria-label="목록으로 돌아가기">←</button><a class="brand" href="#home" data-go="home">블라리요</a><button class="icon-button" type="button" aria-label="게시글 공유">↗</button></header>
+            <article class="article">
+              <div class="share-sheet" aria-label="공유 메뉴 예시"><strong>공유하기</strong><button class="share-action primary" type="button">기본 공유</button><button class="share-action" type="button">링크 복사</button><button class="share-action" type="button">카카오톡</button><button class="share-action" type="button">X/Twitter</button></div>
+              <div class="article-board">유머</div>
+              <h1 class="article-title">퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</h1>
+              <div class="meta article-meta"><span>No.1047</span><span>8월 6일 13:45</span><span>조회 1,248</span></div>
+              <div class="source-meta-line"><span>출처 : 개드립넷</span><a href="#">스크랩</a><a href="#">URL 복사</a></div>
+              <div class="affiliate-cta" aria-label="제휴 상품 링크 후보"><div><strong>제휴 상품 링크 후보</strong>상품형 게시글에서만 표시합니다.</div><button type="button">상품링크 보기 ↗</button></div>
+              <div class="ad-slot" aria-label="상세 상단 광고 후보"><div><strong>AD-POST-TOP 후보</strong>본문 시작 전. 실제 광고 실행 전까지 비활성.</div></div>
+              <div class="article-body"><p>오후 5시 57분, 가방을 닫는 소리가 들리기 시작했다.</p><p>그때 옆자리에서 조용히 들려온 한마디.</p><div class="article-image" role="img" aria-label="퇴근 직전 질문을 받은 사람의 표정을 표현한 이미지">5:57</div><p><strong>“질문 하나만 해도 돼요?”</strong></p><p>질문은 하나였고, 설명에 필요한 문서는 열두 개였다.</p></div>
+              <div class="source-panel"><span class="source-label">출처</span><span class="source-url">example.com/original/funny-office-story</span><a class="source-link" href="#">원문 보기 ↗</a></div>
+              <p class="rights-note">권리 상태: 운영자 확인 완료. 권리자 요청 시 게시글과 캐시를 함께 비노출 처리한다.</p>
+              <div class="ad-slot" aria-label="상세 하단 광고 후보"><div><strong>AD-POST-BOTTOM 후보</strong>출처 다음, 이전·다음 이동 전.</div></div>
+              <nav class="adjacent-nav" aria-label="이전 글과 다음 글"><button class="adjacent-button" type="button"><span class="adjacent-label">← 이전 글</span><span class="adjacent-title">회의 직전 모두가 바빠지는 이유</span></button><button class="adjacent-button" type="button"><span class="adjacent-label">다음 글 →</span><span class="adjacent-title">간식을 기억한 고양이</span></button></nav>
+              <section class="adblock-notice" aria-label="광고 차단 해제 요청 후보"><strong>광고 차단 해제를 부탁드립니다</strong><span>본문 열람은 계속 가능합니다.</span><div class="adblock-actions"><button class="primary" type="button">계속 보기</button><button type="button">해제 방법</button><button type="button">다시 확인</button></div></section>
+              <section class="bottom-list" aria-label="상세 하단 최신 목록"><div class="bottom-list-head"><h2>최신 목록</h2><a href="#home" data-go="home">목록</a></div><div class="feed-board-head" aria-hidden="true"><span>번호</span><span>제목</span><span>시간</span></div><article class="feed-item" tabindex="0"><span class="feed-no">1048</span><div><div class="board-label">유머</div><h2 class="feed-title">회의 시작 5분 전에 모두가 갑자기 바빠지는 이유</h2><div class="meta"><span>조회 812</span></div></div><span class="feed-time">14:30</span></article><article class="feed-item" tabindex="0"><span class="feed-no">1047</span><div><div class="board-label">유머</div><h2 class="feed-title">퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</h2><div class="meta"><span>조회 1,248</span></div></div><span class="feed-time">13:45</span></article><article class="feed-item" tabindex="0"><span class="feed-no">1046</span><div><div class="board-label">유머</div><h2 class="feed-title">간식을 숨긴 위치를 정확히 기억하고 있던 고양이</h2><div class="meta"><span>조회 967</span></div></div><span class="feed-time">12:10</span></article></section>
+            </article>
+            <footer class="site-footer"><div class="footer-brand">블라리요</div>콘텐츠 권리 관련 요청은 확인 후 빠르게 처리합니다.<div class="footer-links"><a href="#">이용약관</a><a href="#">개인정보처리방침</a><a href="mailto:rights@example.com">권리자 요청</a><a href="#">쿠키 설정</a></div></footer>
+          </section>
+
+          <section class="screen" data-view="error" hidden>
+            <header class="site-header"><button class="icon-button" type="button" data-go="home" aria-label="목록으로 돌아가기">←</button><a class="brand" href="#home" data-go="home">블라리요</a><span class="header-spacer"></span></header>
+            <div class="state-page"><div class="state-card"><div class="state-symbol">!</div><h1>게시글을 불러오지 못했습니다</h1><p class="state-copy">연결을 확인하고 다시 시도해 주세요.</p><button class="state-action" type="button" data-go="home">다시 시도</button><button class="state-action" type="button" data-go="home">홈으로</button></div></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll('[data-screen]'));
+    const screens = Array.from(document.querySelectorAll('[data-view]'));
+    const viewport = document.querySelector('.viewport');
+
+    function showScreen(name) {
+      if (!screens.some((screen) => screen.dataset.view === name)) return;
+      screens.forEach((screen) => { screen.hidden = screen.dataset.view !== name; });
+      tabs.forEach((tab) => { tab.setAttribute('aria-selected', String(tab.dataset.screen === name)); });
+      window.history.replaceState(null, '', `#${name}`);
+      viewport.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    tabs.forEach((tab) => tab.addEventListener('click', () => showScreen(tab.dataset.screen)));
+    document.querySelectorAll('[data-go]').forEach((control) => {
+      control.addEventListener('click', (event) => { event.preventDefault(); showScreen(control.dataset.go); });
+    });
+    document.querySelectorAll('.feed-item').forEach((item) => {
+      item.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') showScreen('detail');
+      });
+    });
+    showScreen(window.location.hash.slice(1) || 'home');
+  </script>
+</body>
+</html>

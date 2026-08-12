@@ -4,22 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>블라리요 모바일 웹 와이어프레임</title>
-  <link rel="canonical" href="https://blariyo.example.com/">
+  <link rel="canonical" href="https://__SERVICE_DOMAIN__/">
   <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 모바일 웹 피드">
   <meta property="og:site_name" content="블라리요">
   <meta property="og:locale" content="ko_KR">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://blariyo.example.com/">
+  <meta property="og:url" content="https://__SERVICE_DOMAIN__/">
   <meta property="og:title" content="블라리요">
   <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 모바일 웹 피드">
-  <meta property="og:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta property="og:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="블라리요 기본 공유 이미지">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="블라리요">
   <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 모바일 웹 피드">
-  <meta name="twitter:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta name="twitter:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
   <meta name="twitter:image:alt" content="블라리요 기본 공유 이미지">
   <style>
     :root {
@@ -46,6 +46,18 @@
     button { color: inherit; }
     a { color: inherit; text-decoration: none; }
     :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    .archive-notice {
+      padding: 12px 16px;
+      border-bottom: 2px solid #8a5a00;
+      color: #4a3000;
+      background: #fff3bf;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .archive-notice strong { display: block; }
+    .archive-notice a { color: #5c3d00; font-weight: 800; text-decoration: underline; }
 
     .workspace {
       min-height: 100vh;
@@ -388,6 +400,10 @@
   </style>
 </head>
 <body>
+  <aside class="archive-notice" aria-label="보관 문서 안내">
+    <strong>대체됨 · 과거 비교용</strong>
+    현행 구현 기준이 아닙니다. <a href="../../responsive/index.html">현행 반응형 와이어프레임</a>과 <a href="../../../planning/03-screen-design.md">화면 설계 정본</a>을 확인하세요.
+  </aside>
   <div class="workspace">
     <header class="review-bar">
       <div><span class="review-title">Blariyo mobile web wireframe</span><span class="review-meta">390 × 844 · web only · 기획 구체화안</span></div>

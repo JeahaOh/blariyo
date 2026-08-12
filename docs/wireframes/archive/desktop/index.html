@@ -4,22 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>블라리요 데스크톱 웹 와이어프레임</title>
-  <link rel="canonical" href="https://blariyo.example.com/">
+  <link rel="canonical" href="https://__SERVICE_DOMAIN__/">
   <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
   <meta property="og:site_name" content="블라리요">
   <meta property="og:locale" content="ko_KR">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://blariyo.example.com/">
+  <meta property="og:url" content="https://__SERVICE_DOMAIN__/">
   <meta property="og:title" content="블라리요">
   <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
-  <meta property="og:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta property="og:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="블라리요 기본 공유 이미지">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="블라리요">
   <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
-  <meta name="twitter:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta name="twitter:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
   <meta name="twitter:image:alt" content="블라리요 기본 공유 이미지">
   <style>
     :root {
@@ -48,6 +48,18 @@
     button { color: inherit; }
     a { color: inherit; text-decoration: none; }
     :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    .archive-notice {
+      padding: 12px 24px;
+      border-bottom: 2px solid #8a5a00;
+      color: #4a3000;
+      background: #fff3bf;
+      font-size: 14px;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .archive-notice strong { margin-right: 8px; }
+    .archive-notice a { color: #5c3d00; font-weight: 800; text-decoration: underline; }
 
     .review-bar {
       height: 54px;
@@ -612,6 +624,10 @@
   </style>
 </head>
 <body>
+  <aside class="archive-notice" aria-label="보관 문서 안내">
+    <strong>대체됨 · 과거 비교용</strong>
+    현행 구현 기준이 아닙니다. <a href="../../responsive/index.html">현행 반응형 와이어프레임</a>과 <a href="../../../planning/03-screen-design.md">화면 설계 정본</a>을 확인하세요.
+  </aside>
   <div class="review-bar">
     <div>
       <span class="review-title">Blariyo desktop wireframe</span>
@@ -627,7 +643,7 @@
   <div class="browser">
     <div class="browser-chrome" aria-hidden="true">
       <div class="window-dots"><span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span></div>
-      <div class="address">https://blariyo.example.com/</div>
+      <div class="address">https://__SERVICE_DOMAIN__/</div>
     </div>
 
     <section class="screen" data-view="home">
@@ -784,8 +800,8 @@
       screens.forEach((screen) => { screen.hidden = screen.dataset.view !== name; });
       tabs.forEach((tab) => { tab.setAttribute('aria-selected', String(tab.dataset.screen === name)); });
       document.querySelector('.address').textContent = name === 'detail'
-        ? 'https://blariyo.example.com/posts/1047'
-        : 'https://blariyo.example.com/';
+        ? 'https://__SERVICE_DOMAIN__/posts/1047'
+        : 'https://__SERVICE_DOMAIN__/';
       window.history.replaceState(null, '', `#${name}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }

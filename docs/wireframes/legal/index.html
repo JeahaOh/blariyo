@@ -38,7 +38,7 @@
     .review-bar strong { font-size: 14px; }
     .tabs { display: flex; flex-wrap: wrap; gap: 4px; }
     .tabs button {
-      min-height: 34px;
+      min-height: 44px;
       padding: 0 10px;
       border: 1px solid #5f6368;
       border-radius: 4px;
@@ -243,7 +243,7 @@
   </div>
 
   <div class="browser">
-    <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="address">https://blariyo.example.com/terms</span></div>
+    <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="address">https://__SERVICE_DOMAIN__/terms</span></div>
 
     <header class="site-header">
       <div class="header-inner">
@@ -254,10 +254,10 @@
 
     <main class="page">
       <nav class="policy-nav" aria-label="정책 메뉴">
-        <a href="#terms" class="is-active" data-go="terms">이용약관</a>
-        <a href="#privacy" data-go="privacy">개인정보처리방침</a>
-        <a href="#rights" data-go="rights">권리자요청</a>
-        <a href="#cookies" data-go="cookies">쿠키설정</a>
+        <a href="/terms" class="is-active" data-go="terms">이용약관</a>
+        <a href="/privacy" data-go="privacy">개인정보처리방침</a>
+        <a href="/rights" data-go="rights">권리자요청</a>
+        <a href="/cookie-settings" data-go="cookies">쿠키설정</a>
       </nav>
 
       <section class="content screen" data-view="terms">
@@ -284,7 +284,7 @@
       <section class="content screen" data-view="cookies" hidden>
         <div class="policy-title"><h1>쿠키 설정</h1><p>언제든 변경 가능</p></div>
         <div class="summary">필수 쿠키는 항상 사용하고, 분석·광고 쿠키는 이용자가 선택한다.</div>
-        <section class="section"><h2>설정 카드</h2><div class="table"><div><strong>필수</strong><span>보안, 세션, 설정 저장. 항상 사용</span></div><div><strong>분석</strong><span>방문 통계와 화면 흐름 측정. 선택</span></div><div><strong>광고</strong><span>광고 노출 빈도와 품질 관리. 선택</span></div></div><div class="cookie-actions"><button type="button">필수만</button><button type="button">분석 허용</button><button type="button" class="primary">저장</button></div></section>
+        <section class="section"><h2>설정 카드</h2><div class="table"><div><strong>필수</strong><span>보안, 세션, 설정 저장. 항상 사용</span></div><div><strong>분석</strong><span><label><input type="checkbox"> 방문 통계와 화면 흐름 측정 허용</label></span></div><div><strong>광고</strong><span><label><input type="checkbox"> 광고 노출 빈도와 품질 관리 허용</label></span></div></div><div class="cookie-actions"><button type="button">필수만</button><button type="button">모두 허용</button><button type="button" class="primary">선택 저장</button></div></section>
         <section class="section"><h2>UI 규칙</h2><p>쿠키 설정은 modal로도 열 수 있지만, 별도 URL에서도 접근 가능해야 한다. 동의 전에도 게시글 열람을 막지 않는다.</p></section>
       </section>
     </main>
@@ -292,7 +292,7 @@
     <footer class="site-footer">
       <div class="footer-inner">
         <div><strong>블라리요</strong><br>슬로건 결정 보류</div>
-        <nav><a href="#terms" data-go="terms">이용약관</a><a href="#privacy" data-go="privacy">개인정보처리방침</a><a href="#rights" data-go="rights">권리자 요청</a><a href="#cookies" data-go="cookies">쿠키 설정</a></nav>
+        <nav><a href="/terms" data-go="terms">이용약관</a><a href="/privacy" data-go="privacy">개인정보처리방침</a><a href="/rights" data-go="rights">권리자 요청</a><a href="/cookie-settings" data-go="cookies">쿠키 설정</a></nav>
       </div>
     </footer>
   </div>
@@ -309,12 +309,19 @@
       screens.forEach((screen) => { screen.hidden = screen.dataset.view !== name; });
       tabs.forEach((tab) => { tab.setAttribute('aria-selected', String(tab.dataset.screen === name)); });
       links.forEach((link) => { link.classList.toggle('is-active', link.dataset.go === name); });
-      if (address) address.textContent = `https://blariyo.example.com${routeMap[name]}`;
+      if (address) address.textContent = `https://__SERVICE_DOMAIN__${routeMap[name]}`;
       history.replaceState(null, '', `#${name}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     tabs.forEach((tab) => tab.addEventListener('click', () => showScreen(tab.dataset.screen)));
+    tabs.forEach((tab, index) => tab.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      let next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : event.key === 'ArrowLeft' ? (index - 1 + tabs.length) % tabs.length : (index + 1) % tabs.length;
+      tabs[next].focus();
+      showScreen(tabs[next].dataset.screen);
+    }));
     links.forEach((link) => link.addEventListener('click', (event) => {
       event.preventDefault();
       showScreen(link.dataset.go);

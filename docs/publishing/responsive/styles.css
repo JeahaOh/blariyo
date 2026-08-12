@@ -20,6 +20,7 @@ body {
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 .prototype-bar {
   position: sticky;
@@ -35,9 +36,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
   background: #202124;
 }
 .prototype-bar nav { display: flex; gap: 4px; }
+.prototype-bar small { display: block; margin-top: 3px; color: #c7c9cc; font-size: 11px; }
 .prototype-tab {
   min-width: 68px;
-  min-height: 34px;
+  min-height: 44px;
   border: 1px solid #5f6368;
   border-radius: 4px;
   color: #e8eaed;
@@ -52,6 +54,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .screen { display: none; }
 .screen.is-active { display: block; }
+.screen[hidden] { display: none; }
 .site-header {
   position: sticky;
   z-index: 20;
@@ -90,7 +93,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .board-nav { display: flex; gap: 4px; }
 .board-nav a {
-  min-height: 40px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   padding: 0 12px;
@@ -102,7 +105,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font-weight: 900;
 }
 .ghost-button {
-  min-height: 40px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   border: 0;
   background: transparent;
   font-weight: 900;
@@ -181,6 +186,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .muted { color: var(--muted); }
 .board-row:not(.board-head) { cursor: pointer; }
 .board-row:not(.board-head):hover { background: #fffdf0; }
+.board-row.is-current {
+  cursor: default;
+  border-left: 4px solid var(--accent);
+  background: #eaf7f8;
+  font-weight: 900;
+}
+.board-row small { color: var(--accent); font-size: 11px; }
 
 .ad-row,
 .ad-slot {
@@ -209,8 +221,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   padding: 18px 0 8px;
 }
 .pagination button {
-  min-width: 36px;
-  height: 36px;
+  min-width: 44px;
+  height: 44px;
   border: 1px solid var(--line);
   border-radius: 4px;
   background: #fff;
@@ -225,6 +237,25 @@ button { font: inherit; color: inherit; cursor: pointer; }
   margin-bottom: 10px;
   color: var(--accent);
   font-size: 13px;
+  font-weight: 900;
+}
+.share-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fbfbfb;
+}
+.share-menu[hidden] { display: none; }
+.share-menu button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
   font-weight: 900;
 }
 .article h1 {
@@ -288,6 +319,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font-size: 12px;
   line-height: 1.55;
 }
+.rights a { color: var(--accent); font-weight: 900; text-decoration: underline; }
 .adblock-box {
   margin: 24px 0 0;
   padding: 16px;
@@ -301,7 +333,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .adblock-box strong { display: block; margin-bottom: 6px; color: #2b210b; }
 .adblock-box div { display: flex; gap: 8px; margin-top: 12px; }
 .adblock-box button {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 10px;
   border: 1px solid #b79545;
   border-radius: 4px;
@@ -336,16 +368,40 @@ button { font: inherit; color: inherit; cursor: pointer; }
   background: #fbfbfb;
   text-align: center;
 }
+.state-page { max-width: 760px; margin: 0 auto; padding: 28px 20px 56px; background: var(--paper); }
 .state-panel h1 { margin: 0 0 8px; font-size: 24px; }
 .state-panel p { margin: 0 0 18px; color: var(--muted); }
 .state-panel button {
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--ink);
   border-radius: 4px;
   background: var(--brand);
   font-weight: 900;
 }
+.state-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px;
+  padding: 0 14px;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  font-weight: 900;
+}
+.state-link.primary { background: var(--brand); }
+.loading-panel { min-height: 420px; }
+.loading-panel h1 { font-size: 24px; }
+.skeleton {
+  height: 52px;
+  margin: 10px 0;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #eeeeea 25%, #f8f8f5 50%, #eeeeea 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
 
 .site-footer {
   max-width: 1120px;
@@ -405,7 +461,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     border-top: 1px solid var(--line);
   }
   .board-nav a {
-    min-height: 38px;
+    min-height: 44px;
     justify-content: center;
     padding: 0;
   }
@@ -438,9 +494,16 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .source-box { grid-template-columns: 1fr; }
   .adblock-box { padding: 12px; font-size: 12px; }
   .adblock-box div { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .share-menu { display: grid; grid-template-columns: 1fr 1fr; }
+  .share-menu[hidden] { display: none; }
+  .state-page { padding: 14px 12px 36px; }
   .site-footer {
     flex-direction: column;
     margin-bottom: 0;
     padding: 18px 12px;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }

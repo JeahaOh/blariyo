@@ -4,22 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>블라리요 반응형 웹 와이어프레임</title>
-  <link rel="canonical" href="https://blariyo.example.com/">
+  <link rel="canonical" href="https://__SERVICE_DOMAIN__/">
   <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 반응형 웹 피드">
   <meta property="og:site_name" content="블라리요">
   <meta property="og:locale" content="ko_KR">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://blariyo.example.com/">
+  <meta property="og:url" content="https://__SERVICE_DOMAIN__/">
   <meta property="og:title" content="블라리요">
   <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 반응형 웹 피드">
-  <meta property="og:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta property="og:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="블라리요 기본 공유 이미지">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="블라리요">
   <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 반응형 웹 피드">
-  <meta name="twitter:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta name="twitter:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
   <meta name="twitter:image:alt" content="블라리요 기본 공유 이미지">
   <style>
     :root {
@@ -136,7 +136,7 @@
     .brand { display: inline-flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 900; }
     .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border: 2px solid var(--ink); border-radius: 5px; background: var(--brand); font-size: 10px; }
     .main-nav { display: flex; gap: 4px; }
-    .nav-item { min-height: 40px; display: inline-flex; align-items: center; padding: 0 12px; color: #444; font-size: 14px; }
+    .nav-item { min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; color: #444; font-size: 14px; }
     .nav-item.current { border-bottom: 3px solid var(--ink); font-weight: 900; }
     .header-note { margin: 0; color: var(--muted); font-size: 13px; }
     .icon-button {
@@ -205,7 +205,7 @@
     }
     .board-tabs { display: flex; gap: 6px; }
     .board-tab {
-      min-height: 32px;
+      min-height: 44px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -237,6 +237,7 @@
       font-size: 13px;
     }
     .board-row.header { min-height: 36px; color: #555; background: #f7f7f5; font-size: 12px; font-weight: 900; }
+    .board-row.is-current { border-left: 4px solid var(--accent); background: #eaf7f8; font-weight: 900; cursor: default; }
     .board-cell { min-width: 0; padding: 0 8px; text-align: center; }
     .board-title { overflow: hidden; text-align: left; font-size: 15px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
     .board-name { color: var(--accent); font-weight: 900; }
@@ -260,7 +261,7 @@
     .ad-slot.side { min-height: 260px; margin: 0; }
 
     .pagination { display: flex; justify-content: center; gap: 6px; padding: 18px 0 8px; }
-    .page-button { min-width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 4px; background: #fff; font-weight: 800; }
+    .page-button { min-width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 4px; background: #fff; font-weight: 800; }
     .page-button.current { border-color: var(--ink); background: var(--brand); }
 
     .share-menu {
@@ -275,7 +276,7 @@
     }
     .share-menu strong { margin-right: 4px; font-size: 13px; }
     .share-action {
-      min-height: 36px;
+      min-height: 44px;
       padding: 0 10px;
       border: 1px solid var(--line);
       border-radius: 4px;
@@ -417,7 +418,7 @@
       .board-title { font-size: 14px; }
       .ad-slot.feed-ad { min-height: 56px; font-size: 11px; }
       .pagination { padding: 12px 0 18px; }
-      .share-menu { display: none; }
+      .share-menu { display: flex; overflow-x: auto; }
       .affiliate-cta { display: none; }
       .article-title { font-size: 25px; }
       .article-body { padding: 22px 0; }
@@ -440,13 +441,13 @@
   </div>
 
   <div class="browser">
-    <div class="browser-chrome" aria-hidden="true"><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="address">https://blariyo.example.com/</div></div>
+    <div class="browser-chrome" aria-hidden="true"><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="address">https://__SERVICE_DOMAIN__/</div></div>
 
     <section class="screen" data-view="home">
       <header class="site-header">
         <div class="header-inner">
           <a class="brand" href="#home" data-go="home"><span class="brand-mark">B</span>블라리요</a>
-          <nav class="main-nav" aria-label="게시판"><a class="nav-item current" href="#home" aria-current="page">유머</a><a class="nav-item" href="#home">이야기</a></nav>
+          <nav class="main-nav" aria-label="게시판"><a class="nav-item" href="/boards/humor">유머</a><a class="nav-item" href="/boards/talk">이야기</a></nav>
           <p class="header-note">카피 후보 검토 중</p>
         </div>
       </header>
@@ -454,9 +455,9 @@
       <main class="page-shell">
         <section class="main-column">
           <div class="page-heading"><div><h1>오늘 올라온 웃긴 것</h1><p class="heading-copy">고급유머처럼 빠르게 훑는 게시판형 최신 목록</p></div><span class="count">20개 · 최신순 · 1쪽</span></div>
-          <div class="feed-toolbar"><div class="board-tabs" aria-label="게시판 선택"><span class="board-tab current">유머</span><span class="board-tab">이야기</span></div><span>모바일 우선 · 데스크톱 확장 · 검색 없음</span></div>
+          <div class="feed-toolbar"><div class="board-tabs" aria-label="게시판 선택"><a class="board-tab" href="/boards/humor">유머</a><a class="board-tab" href="/boards/talk">이야기</a></div><span>루트는 두 게시판 혼합 최신 · 세 번째 메뉴 없음</span></div>
           <div class="benchmark-note">반응형 헷징: URL, API, SEO, OG는 하나로 유지하고 CSS breakpoint로 모바일 단일 열과 데스크톱 보조 영역만 전환.</div>
-          <div class="board-list" aria-label="최신 게시글">
+          <div class="board-list" id="homeWireList" aria-label="유머와 이야기 혼합 최신 게시글 20개">
             <div class="board-row header" aria-hidden="true"><span class="board-cell">번호</span><span class="board-cell">게시판</span><span class="board-cell board-title">제목</span><span class="board-cell">조회</span><span class="board-cell">작성자</span><span class="board-cell">시간</span></div>
             <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1048</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">회의 시작 5분 전에 모두가 갑자기 바빠지는 이유</span><span class="board-cell board-muted">812</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">14:30</span></div>
             <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1047</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</span><span class="board-cell board-muted">1,248</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">13:45</span></div>
@@ -470,11 +471,11 @@
         </section>
         <aside class="aside">
           <section class="aside-section"><h2>반응형 기준</h2><p>~767px 단일 열, 768~1023px 단일 열 확장, 1024px 이상 본문+보조 영역.</p></section>
-          <section class="aside-section"><h2>광고 후보</h2><div class="ad-slot side"><div><strong>AD-SIDE-RAIL 후보</strong>1024px 이상에서만 노출. 모바일에서는 상세 하단으로 접음.</div></div></section>
+          <section class="aside-section"><h2>홈 광고 후보</h2><div class="ad-slot side"><div><strong>AD-SIDE-RAIL 후보</strong>홈의 1024px 이상에서만 노출하고 모바일에서는 숨김.</div></div></section>
           <section class="aside-section"><h2>최근 많이 본 글</h2><ol><li>회의 직전 모두가 바빠지는 이유</li><li>퇴근 직전 질문 하나의 의미</li><li>배달 메뉴와 냉장고의 승부</li></ol></section>
         </aside>
       </main>
-      <footer class="site-footer"><div class="footer-inner"><div><strong>블라리요</strong><br>슬로건 결정 보류</div><div class="footer-links"><a href="#">이용약관</a><a href="#">개인정보처리방침</a><a href="mailto:rights@example.com">권리자 요청</a><a href="#">쿠키 설정</a></div></div></footer>
+      <footer class="site-footer"><div class="footer-inner"><div><strong>블라리요</strong><br>슬로건 결정 보류</div><div class="footer-links"><a href="/terms">이용약관</a><a href="/privacy">개인정보처리방침</a><a href="/rights">권리자 요청</a><a href="/cookie-settings">쿠키 설정</a></div></div></footer>
     </section>
 
     <section class="screen" data-view="detail" hidden>
@@ -488,23 +489,22 @@
           <div class="affiliate-cta"><div><strong>제휴 상품 링크 후보</strong>상품형 게시글에서만 표시. 외부 쇼핑몰 이동과 수수료 고지를 함께 노출.</div><button type="button">상품링크 보기 ↗</button></div>
           <div class="article-body"><p>오후 5시 57분, 가방을 닫는 소리가 들리기 시작했다.</p><p>그때 옆자리에서 조용히 들려온 한마디.</p><div class="article-image" role="img" aria-label="퇴근 직전 질문을 받은 사람의 표정을 표현한 이미지">5:57</div><p><strong>“질문 하나만 해도 돼요?”</strong></p><p>질문은 하나였고, 설명에 필요한 문서는 열두 개였다.</p></div>
           <div class="source-panel"><span class="source-label">출처</span><span class="source-url">example.com/original/funny-office-story</span><a class="source-link" href="#">원문 보기 ↗</a></div>
-          <p class="rights-note">권리 상태: 운영자 확인 완료. 권리자 요청 시 게시글과 캐시를 함께 비노출 처리한다.</p>
+          <p class="rights-note"><a href="/rights">권리자 요청 안내</a></p>
           <div class="ad-slot"><div><strong>AD-POST-BODY-BOTTOM 후보</strong>본문과 출처를 모두 읽은 뒤 보이는 상세 본문 하단 광고.</div></div>
           <section class="adblock-notice"><strong>광고 차단 해제를 부탁드립니다</strong><span>본문 열람은 계속 가능합니다. 같은 세션에서 닫으면 다시 표시하지 않습니다.</span><div class="adblock-actions"><button class="primary" type="button">계속 보기</button><button type="button">해제 방법</button><button type="button">다시 확인</button></div></section>
-          <section class="bottom-list"><div class="bottom-list-head"><h2>최신 목록</h2><a href="#home" data-go="home">20개 보기</a></div><div class="board-list"><div class="board-row header" aria-hidden="true"><span class="board-cell">번호</span><span class="board-cell">게시판</span><span class="board-cell board-title">제목</span><span class="board-cell">조회</span><span class="board-cell">작성자</span><span class="board-cell">시간</span></div><div class="board-row" tabindex="0"><span class="board-cell board-muted">1048</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">회의 시작 5분 전에 모두가 갑자기 바빠지는 이유</span><span class="board-cell board-muted">812</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">14:30</span></div><div class="ad-slot feed-ad" aria-label="상세 하단 목록 중간 광고 후보"><div><strong>AD-DETAIL-LIST-INLINE 후보</strong>상세 하단 목록 20개 안에 끼워 넣는 광고 행.</div></div><div class="board-row" tabindex="0"><span class="board-cell board-muted">1046</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">간식을 숨긴 위치를 정확히 기억하고 있던 고양이</span><span class="board-cell board-muted">967</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">12:10</span></div><div class="board-row" tabindex="0"><span class="board-cell board-muted">1045</span><span class="board-cell board-name">이야기</span><span class="board-cell board-title">배달 메뉴를 20분 보고 결국 냉장고를 연 사람</span><span class="board-cell board-muted">704</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">10:24</span></div></div><div class="ad-slot"><div><strong>AD-DETAIL-LIST-AFTER 후보</strong>하단 목록 20개를 모두 본 뒤 노출되는 목록 아래 광고.</div></div></section>
+          <section class="bottom-list"><div class="bottom-list-head"><h2>유머 게시판 현재 글 주변 20개</h2><a href="/boards/humor">유머 목록으로</a></div><div class="board-list" id="detailContextList"><div class="board-row header" aria-hidden="true"><span class="board-cell">번호</span><span class="board-cell">게시판</span><span class="board-cell board-title">제목</span><span class="board-cell">조회</span><span class="board-cell">작성자</span><span class="board-cell">시간</span></div></div><div class="ad-slot"><div><strong>AD-DETAIL-LIST-AFTER 후보</strong>하단 목록 20개를 모두 본 뒤 노출되는 목록 아래 광고.</div></div></section>
         </article>
         <aside class="aside">
           <section class="aside-section"><h2>다음에 볼 글</h2><ol><li>회의 직전 모두가 바빠지는 이유</li><li>간식을 기억한 고양이</li><li>배달 메뉴와 냉장고의 승부</li></ol></section>
-          <section class="aside-section"><h2>우측 광고 후보</h2><div class="ad-slot side"><div><strong>AD-SIDE-RAIL</strong>데스크톱에서만 우측 노출. 작은 화면에서는 미노출 또는 하단 전환.</div></div></section>
           <section class="aside-section"><h2>권리자 요청</h2><p>원본 출처와 권리를 확인해 게시합니다.</p><a href="mailto:rights@example.com">rights@example.com</a></section>
         </aside>
       </main>
-      <footer class="site-footer"><div class="footer-inner"><div><strong>블라리요</strong><br>슬로건 결정 보류</div><div class="footer-links"><a href="#">이용약관</a><a href="#">개인정보처리방침</a><a href="mailto:rights@example.com">권리자 요청</a><a href="#">쿠키 설정</a></div></div></footer>
+      <footer class="site-footer"><div class="footer-inner"><div><strong>블라리요</strong><br>슬로건 결정 보류</div><div class="footer-links"><a href="/terms">이용약관</a><a href="/privacy">개인정보처리방침</a><a href="/rights">권리자 요청</a><a href="/cookie-settings">쿠키 설정</a></div></div></footer>
     </section>
 
     <section class="screen" data-view="state" hidden>
       <header class="site-header"><div class="header-inner"><a class="brand" href="#home" data-go="home"><span class="brand-mark">B</span>블라리요</a><nav class="main-nav"><a class="nav-item current" href="#home">유머</a><a class="nav-item" href="#home">이야기</a></nav></div></header>
-      <main class="page-shell"><section class="main-column"><div class="state-panel"><div class="state-card"><h1>게시글을 불러오지 못했습니다</h1><p>연결 상태를 확인하고 다시 시도해 주세요. 같은 컴포넌트가 모바일과 데스크톱에서 폭만 바꿔 표시됩니다.</p><button class="state-action" type="button" data-go="home">다시 시도</button></div></div></section><aside class="aside"><section class="aside-section"><h2>상태 처리</h2><p>로딩, 빈 목록, 오류, 숨김 게시글은 별도 페이지가 아니라 현재 route의 상태로 처리합니다.</p></section></aside></main>
+      <main class="page-shell"><section class="main-column"><div class="state-panel"><div class="state-card"><h1>상태 4종</h1><p><strong>로딩</strong> skeleton과 <code>aria-busy</code><br><strong>빈 목록</strong> 새로고침 명령<br><strong>오류</strong> 다시 시도와 홈 링크<br><strong>없음·숨김</strong> 같은 404·noindex 화면</p><button class="state-action" type="button" data-go="home">홈으로</button></div></div></section><aside class="aside"><section class="aside-section"><h2>상태 처리</h2><p>로딩, 빈 목록, 오류, 숨김 게시글은 별도 제품 메뉴가 아니라 현재 route의 상태로 처리합니다.</p></section></aside></main>
     </section>
   </div>
 
@@ -514,11 +514,54 @@
     const address = document.querySelector('.address');
     const routes = { home: '/', detail: '/posts/1047', state: '/posts/unknown' };
 
+    const homeWireList = document.getElementById('homeWireList');
+    if (homeWireList) {
+      homeWireList.querySelectorAll('.board-row[data-go]').forEach((oldRow) => {
+        const link = document.createElement('a');
+        link.className = oldRow.className;
+        link.href = `/posts/${oldRow.querySelector('.board-cell')?.textContent.trim()}`;
+        link.innerHTML = oldRow.innerHTML;
+        oldRow.replaceWith(link);
+      });
+      for (let index = 0; index < 14; index += 1) {
+        const postNo = 1042 - index;
+        const row = document.createElement('a');
+        row.className = 'board-row';
+        row.href = `/posts/${postNo}`;
+        row.innerHTML = `<span class="board-cell board-muted">${postNo}</span><span class="board-cell board-name">${index % 2 ? '이야기' : '유머'}</span><span class="board-cell board-title">루트 혼합 최신 목록 게시글 ${postNo}</span><span class="board-cell board-muted">${390 - index * 13}</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 11일</span>`;
+        homeWireList.appendChild(row);
+      }
+    }
+
+    const contextList = document.getElementById('detailContextList');
+    if (contextList) {
+      for (let index = 0; index < 20; index += 1) {
+        const postNo = 1056 - index;
+        if (index === 10) {
+          const ad = document.createElement('div');
+          ad.className = 'ad-slot feed-ad';
+          ad.setAttribute('aria-label', '광고');
+          ad.textContent = 'AD-DETAIL-LIST-INLINE · 게시글 20개 산정 제외';
+          contextList.appendChild(ad);
+        }
+        const row = document.createElement(postNo === 1047 ? 'div' : 'a');
+        row.className = `board-row${postNo === 1047 ? ' is-current' : ''}`;
+        if (postNo === 1047) {
+          row.setAttribute('aria-current', 'true');
+          row.setAttribute('aria-disabled', 'true');
+        } else {
+          row.href = `/posts/${postNo}`;
+        }
+        row.innerHTML = `<span class="board-cell board-muted">${postNo}</span><span class="board-cell board-name">유머</span><span class="board-cell board-title">같은 유머 게시판의 현재 글 주변 게시글${postNo === 1047 ? ' (현재 글)' : ''}</span><span class="board-cell board-muted">${800 - index * 17}</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 11일</span>`;
+        contextList.appendChild(row);
+      }
+    }
+
     function showScreen(name) {
       if (!screens.some((screen) => screen.dataset.view === name)) return;
       screens.forEach((screen) => { screen.hidden = screen.dataset.view !== name; });
       tabs.forEach((tab) => { tab.setAttribute('aria-selected', String(tab.dataset.screen === name)); });
-      if (address) address.textContent = `https://blariyo.example.com${routes[name]}`;
+      if (address) address.textContent = `https://__SERVICE_DOMAIN__${routes[name]}`;
       history.replaceState(null, '', `#${name}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }

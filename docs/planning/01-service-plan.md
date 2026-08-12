@@ -1,7 +1,7 @@
 # Blariyo 유머 피드 서비스 기획서
 
-- 문서 상태: 기획 재정의 중
-- 기준일: 2026-08-11
+- 문서 상태: 4차 감사 정정 반영
+- 기준일: 2026-08-12
 - Repository: `blariyo`
 - 관련 문서: [02-infra-plan.md](./02-infra-plan.md), [03-screen-design.md](./03-screen-design.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md), [05-benchmark-spec.md](./05-benchmark-spec.md), [06-copy-candidates.md](./06-copy-candidates.md)
 - 서비스 명칭: `블라리요`
@@ -22,8 +22,8 @@
 | 단계               | 목적                    | 핵심 범위                                     |
 | ------------------ | ----------------------- | --------------------------------------------- |
 | M0 피드 검증판     | 반복 소비 검증          | 공개 피드, 상세, 조회 기록, 관리자 게시글 API |
-| M1 커뮤니티판      | 참여와 운영 가능성 검증 | 회원, 좋아요, 댓글, 신고, 최소 관리자 화면    |
-| M1.5 승인형 제보판 | 사용자 콘텐츠 수요 검증 | 제보 작성, 내 제보, 관리자 검수와 승인 발행   |
+| M1 커뮤니티판      | 참여와 운영 가능성 검증 | 회원, 좋아요, 댓글, 신고, 최소 관리자 화면, 조건부 후보수집 자동화 |
+| M1.5 승인형 제보판 | 사용자 콘텐츠 수요 검증 | 제보 작성, 내 제보, 관리자 검수, 초안 생성과 최종 발행 |
 
 ## 2. 서비스 이름과 기획 선행 원칙
 
@@ -60,7 +60,15 @@ AA, IA, 화면 설계, 기술 설계는 기획 확정 이후에 다시 정리한
 | 유머 | 이미지와 짧은 텍스트 중심의 웃긴 자료 | 운영자 |
 | 이야기 | 생활 공감, 짧은 썰, 가벼운 읽을거리 | 운영자 |
 
-게시글은 반드시 두 게시판 중 하나에만 속한다. 홈과 상세 하단 목록은 이 두 게시판 기준으로만 이동한다.
+게시글은 반드시 두 게시판 중 하나에만 속한다. 공개 IA와 URL 계약은 아래와 같다.
+
+| 화면 | URL | 목록 범위 | 메뉴 상태 |
+| --- | --- | --- | --- |
+| 루트 | `/` | `HUMOR`, `TALK` 공개 글을 합친 최신순 목록 | 로고로 진입하며 `최신` 같은 세 번째 메뉴를 만들지 않음 |
+| 유머 | `/boards/humor` | `HUMOR` 공개 글만 최신순 목록 | `유머` 활성 |
+| 이야기 | `/boards/talk` | `TALK` 공개 글만 최신순 목록 | `이야기` 활성 |
+
+헤더의 게시판 메뉴는 `유머`, `이야기` 두 개뿐이다. 루트의 혼합 목록은 기본 화면이지 별도 게시판이나 세 번째 메뉴가 아니다. 상세 하단 목록은 루트 진입 여부와 무관하게 현재 글과 같은 게시판만 사용한다.
 
 ## 3. 문제와 대상
 
@@ -120,7 +128,7 @@ AA, IA, 화면 설계, 기술 설계는 기획 확정 이후에 다시 정리한
 
 1. M0와 M1의 공개 게시글은 운영자만 등록한다.
 2. 사용자는 로그인하지 않아도 모든 콘텐츠를 볼 수 있다.
-3. 첫 화면은 최신 피드 하나로 시작한다.
+3. 첫 화면은 두 게시판을 합친 최신 피드이며 별도 세 번째 메뉴로 취급하지 않는다.
 4. 기능 추가보다 콘텐츠 품질과 재방문을 먼저 본다.
 5. MySQL 하나만 사용한다.
 6. 자동 수집은 허용하되, 수집 결과를 즉시 공개 발행하지 않는다.
@@ -135,8 +143,8 @@ M0는 외부 사용자 100명 내외에게 보여줄 수 있는 최소 웹 서�
 
 #### 사용자 기능
 
-- 로그인 없는 최신 게시글 피드
-- 페이지네이션
+- 로그인 없는 혼합 최신 게시글 피드와 게시판별 피드
+- 게시글 20개 단위 페이지네이션. 광고 행은 20개에 포함하지 않음
 - 게시글 상세
 - 이미지와 텍스트 표시
 - 원본 유형과 조건부 출처 링크 표시
@@ -177,7 +185,9 @@ M0 성공 조건을 충족했을 때만 시작한다.
 
 #### 추가할 기능
 
-- 이메일 회원가입, 로그인, 로그아웃
+- 이메일 회원가입, 이메일 인증, 로그인, 로그아웃
+- 비밀번호 재설정
+- 계정 조회, 닉네임 변경, 전체 로그아웃, 회원 탈퇴
 - 게시글 좋아요 1종
 - 댓글 목록, 작성, 본인 삭제
 - 게시글과 댓글 신고
@@ -198,7 +208,7 @@ M0 성공 조건을 충족했을 때만 시작한다.
 - OAuth 로그인
 - 앱과 PWA
 - 영상 업로드
-- 자동 크롤링
+- 허용 출처 정책 없이 불특정 사이트를 수집하는 범용 크롤링
 - 광고 슬롯 DB 관리
 
 ### M1.5: 승인형 제보판
@@ -214,11 +224,11 @@ M1의 댓글과 신고 운영이 안정된 경우에만 사용자 제보를 연�
 - 검수 대기 중인 제보 철회
 - 관리자 제보 검수 목록
 - 승인, 반려, 반려 사유 기록
-- 승인된 제보를 기존 게시글로 발행
+- 승인된 제보에서 게시글 초안을 만들고 별도 최종 발행
 
 #### 운영 규칙
 
-- 사용자당 하루 3건까지만 제출할 수 있다.
+- 사용자당 하루 1건, 서비스 전체 주 5건까지만 제출할 수 있다.
 - 대표 이미지는 `jpg`, `png`, `webp`, 최대 5MB로 제한한다.
 - 직접 제작이면 원본 유형을 `ORIGINAL`로 기록하고 외부 출처 URL을 받지 않는다.
 - 외부 콘텐츠면 원본 유형을 `EXTERNAL`로 기록하고 출처 이름과 URL을 필수로 받는다.
@@ -226,7 +236,7 @@ M1의 댓글과 신고 운영이 안정된 경우에만 사용자 제보를 연�
 - 운영자가 내용, 출처, 권리를 확인한 뒤에만 공개한다.
 - 승인 시 기존 `TB_POST`로 전환하고 제보자 번호를 연결한다.
 - 반려 사유는 `RIGHTS`, `DUPLICATE`, `POLICY`, `QUALITY`, `OTHER` 중 하나로 기록한다.
-- 제보 검수 목표 시간은 접수 후 48시간 이내다.
+- 제보 검수 목표 시간은 접수 후 48시간 이내다. 가장 오래된 대기 건이 36시간을 넘으면 신규 접수를 먼저 중단해 목표 시간을 보호한다.
 - 제보자가 철회하거나 반려된 이미지는 운영 저장소에서 7일 안에 삭제한다. 암호화 백업의 잔여 사본은 최대 28일 후 만료한다.
 
 #### M1.5에서도 제외할 것
@@ -238,20 +248,20 @@ M1의 댓글과 신고 운영이 안정된 경우에만 사용자 제보를 연�
 - 포인트, 보상금, 등급 상승
 - 제보 승인 수 기반 자동 권한 부여
 
-제보 대기 건이 20건을 넘거나 가장 오래된 건을 48시간 안에 처리하지 못하면 신규 제보를 일시 중단한다.
+제보 대기 건이 5건 이상이거나 가장 오래된 건이 36시간을 넘으면 신규 제보를 일시 중단한다. 대기 건이 2건 이하이고 모든 대기 건이 24시간 이내인 상태가 확인되면 운영자가 다시 연다.
 
 ## 7. 핵심 사용자 흐름
 
 ### M0 사용자
 
 ```text
-링크 진입 -> 최신 피드 -> 게시글 상세 -> 다음 게시글 -> 재방문
+링크 진입 -> 혼합 최신 피드 또는 게시판별 피드 -> 게시글 상세 -> 같은 게시판의 현재 글 주변 목록 -> 재방문
 ```
 
 ### M0 운영자
 
 ```text
-후보 수집 -> 권리 확인 -> 이미지 준비 -> API 등록 -> 발행 확인 -> 지표 확인
+후보 수동 등록 -> 권리 확인 -> 게시글 초안 생성 -> 최종 발행 -> 지표 확인
 ```
 
 ### M1 사용자
@@ -275,7 +285,7 @@ M1의 댓글과 신고 운영이 안정된 경우에만 사용자 제보를 연�
 ### M1.5 운영자
 
 ```text
-제보 목록 -> 내용·출처·권리 확인 -> 승인 또는 반려 -> 승인 게시글 발행
+제보 목록 -> 내용·출처 검수 -> 승인 또는 반려 -> 게시글 초안 생성 -> 권리 확인 -> 최종 발행
 ```
 
 ## 8. 화면 설계
@@ -284,12 +294,12 @@ M1의 댓글과 신고 운영이 안정된 경우에만 사용자 제보를 연�
 
 | 화면 | 필수 요소                                                                             | 제외 요소          |
 | ---- | ------------------------------------------------------------------------------------- | ------------------ |
-| 홈   | 게시판형 최신 목록, 번호, 게시판, 제목, 게시 시각, 조회 수, 페이지네이션, 하단 연락처, 광고 배치 후보의 여백 정책, 기본 OG tag | 블로그형 카드 피드, 인기 탭, 회원 메뉴 |
-| 상세 | 게시판형 제목·메타 영역, 본문, 이미지, 하단 출처, 공유하기, 하단 목록, 하단 연락처, 게시글별 OG tag                         | 블로그형 히어로 상세, 댓글, 반응, 추천, 개별 이동 버튼 |
+| 홈   | 두 게시판 혼합 최신 목록, 유머·이야기 2개 메뉴, 번호, 게시판, 제목, 게시 시각, 조회 수, 20개 단위 페이지네이션, 하단 연락처, 광고 배치 후보의 여백 정책, 기본 OG tag | 별도 최신 메뉴, 세 번째 게시판, 블로그형 카드 피드, 인기 탭, 회원 메뉴 |
+| 상세 | 게시판형 제목·메타 영역, 본문, 이미지, 하단 출처, 공유하기, 같은 게시판의 현재 글 주변 20개 목록, 하단 연락처, 게시글별 OG tag | 블로그형 히어로 상세, 댓글, 반응, 추천, 이전·다음 버튼 |
 
 홈과 상세는 블로그 레이아웃이 아니라 커뮤니티 게시판 레이아웃을 기본으로 한다. 고급유머처럼 목록에서 게시판, 제목, 번호, 조회 수, 게시 시각을 빠르게 훑고, 상세를 읽은 뒤 하단 목록에서 바로 다른 글로 이동하는 흐름을 우선한다.
 
-홈 목록과 상세 하단 목록은 페이지당 20개를 기본으로 한다. 상세 하단에는 현재 페이지의 최신 목록 또는 현재 글 주변 목록을 다시 보여준다. 사용자는 브라우저 뒤로 가기를 누르지 않아도 다음 콘텐츠를 고를 수 있어야 한다.
+루트와 게시판별 목록은 페이지당 게시글 20개로 고정한다. 광고 행은 게시글 수와 페이지 계산에서 제외한다. 상세 하단에는 현재 글과 같은 게시판의 현재 글 주변 게시글을 현재 글 포함 최대 20개 보여준다. 정렬은 `published_at DESC, post_no DESC`이며 현재 글을 표시한다. 최신 쪽 글이 부족하면 오래된 쪽으로, 오래된 쪽 글이 부족하면 최신 쪽으로 채운다. 해당 게시판의 공개 글이 20개보다 적으면 존재하는 글만 반환한다. 이 목록은 페이지네이션과 이전·다음 버튼을 제공하지 않는다.
 
 광고는 M0 수익 기능으로 바로 켜지지 않는다. 그러나 화면 설계 전에 광고 위치와 금지 영역을 확정해야 한다. 광고를 나중에 붙이기 위해 본문 흐름을 깨는 방식은 피한다.
 
@@ -297,18 +307,19 @@ M1의 댓글과 신고 운영이 안정된 경우에만 사용자 제보를 연�
 
 | 광고 후보         | 화면                    | 기획 판단                                         |
 | ----------------- | ----------------------- | ------------------------------------------------- |
-| 상세 본문 하단 광고 | 본문과 출처 다음        | 본문 소비가 끝난 뒤 노출하는 기본 후보            |
-| 상세 하단 목록 중간 광고 | 상세 하단 목록 안       | 하단 목록 안에 1개만 넣는 광고 행 후보           |
-| 상세 하단 목록 아래 광고 | 상세 하단 목록 아래     | 목록 탐색 이후 노출하는 하단 광고 후보            |
+| `AD-POST-BODY-BOTTOM` | 본문과 출처 다음        | 본문과 출처 소비가 끝난 뒤 노출하는 상세 첫 슬롯 |
+| `AD-DETAIL-LIST-INLINE` | 상세 하단 목록 중간     | 20개 게시글 산정과 무관한 광고 행 1개            |
+| `AD-DETAIL-LIST-AFTER` | 상세 하단 목록 아래     | 목록 탐색 이후 노출하는 상세 마지막 슬롯         |
 | 홈 목록 중간 광고 행 | 게시글 행 사이          | 5~6번째 게시글 이후 1개만 후보로 둠. 목록 첫 화면 진입을 막지 않아야 함 |
 | 광고 차단 해제 요청 | 광고 영역 또는 상세 하단 | 광고가 차단된 경우에만 안내. 콘텐츠 열람을 막지 않음 |
 | 제휴 상품 링크    | 상품형 게시글 본문 상단 | 명확한 제휴 고지와 외부 이동 확인을 전제로 후보 |
 | 제휴 상품 목록    | 별도 제휴 목록 화면     | 일반 최신 피드와 분리. 트래픽 게이트 이후 후보 |
-| 대형 광고         | 상세 연속 탐색 중간     | 첫 방문 금지, 닫기 필수, 일 최대 3회 후보         |
 
 광고 영역은 게시글 행처럼 보이면 안 된다. `광고` 표기를 명확히 두고, 로딩 실패 시 빈 박스가 콘텐츠 사이에 남지 않게 한다. 홈 목록 광고는 연속 게시글 사이에 하나만 끼워 넣는 형태로 설계하고, 번호·작성자·조회 수를 가진 게시글처럼 렌더링하지 않는다.
 
-광고 차단 해제 요청은 광고 로드 실패 또는 광고 차단 감지 시에만 표시한다. 본문, 목록, 공유, 출처 이동을 막지 않는다. 문구는 짧게 유지하고, `계속 보기`, `해제 방법 보기`, `다시 확인` 세 가지 명령만 둔다. 같은 세션에서 사용자가 닫으면 재노출하지 않는다.
+상세 광고는 위 세 슬롯만 허용한다. 상세 헤더·본문 시작 전·우측 레일·이전/다음 사이·대형 전면 광고는 사용하지 않는다.
+
+광고 차단 해제 요청은 광고 차단이 확정된 경우에만 표시한다. timeout, no-fill, 네트워크 오류 같은 일반 로드 실패는 슬롯만 접고 안내를 띄우지 않는다. 본문, 목록, 공유, 출처 이동을 막지 않는다. 문구는 짧게 유지하고, `계속 보기`, `해제 방법 보기`, `다시 확인` 세 가지 명령만 둔다. 같은 세션에서 사용자가 닫으면 재노출하지 않는다.
 
 쿠팡 파트너스 같은 제휴 수익화는 가능하다. 단, 일반 유머 게시글과 제휴 상품형 게시글을 데이터와 화면에서 분리한다. 상품형 게시글에는 `제휴 링크`, `수수료 고지`, `원문 자료 보기`, `외부 쇼핑몰 이동`을 명확히 표시한다. 별도 제휴 목록은 `/partners` 같은 독립 경로 후보로 두고, 일반 최신 피드에는 기본 노출하지 않는다.
 
@@ -338,22 +349,22 @@ M1의 댓글과 신고 운영이 안정된 경우에만 사용자 제보를 연�
 
 ```html
 <title>{확정 전 홈 title}</title>
-<link rel="canonical" href="https://blariyo.example.com/">
+<link rel="canonical" href="https://__SERVICE_DOMAIN__/">
 <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
 <meta property="og:site_name" content="블라리요">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://blariyo.example.com/">
+<meta property="og:url" content="https://__SERVICE_DOMAIN__/">
 <meta property="og:title" content="{확정 전 홈 OG title}">
 <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
-<meta property="og:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+<meta property="og:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="블라리요 기본 공유 이미지">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{확정 전 홈 OG title}">
 <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
-<meta name="twitter:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+<meta name="twitter:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
 <meta name="twitter:image:alt" content="블라리요 기본 공유 이미지">
 ```
 
@@ -361,15 +372,15 @@ M1의 댓글과 신고 운영이 안정된 경우에만 사용자 제보를 연�
 
 ```html
 <title>{게시글 제목} | 블라리요</title>
-<link rel="canonical" href="https://blariyo.example.com/posts/{postNo}">
+<link rel="canonical" href="https://__SERVICE_DOMAIN__/posts/{postNo}">
 <meta name="description" content="{본문 앞부분 또는 운영자 요약 100~140자}">
 <meta property="og:site_name" content="블라리요">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://blariyo.example.com/posts/{postNo}">
+<meta property="og:url" content="https://__SERVICE_DOMAIN__/posts/{postNo}">
 <meta property="og:title" content="{게시글 제목}">
 <meta property="og:description" content="{본문 앞부분 또는 운영자 요약 100~140자}">
-<meta property="og:image" content="https://blariyo.example.com/uploads/posts/{postNo}/og-1200x630.jpg">
+<meta property="og:image" content="https://__SERVICE_DOMAIN__/uploads/posts/{postNo}/og-1200x630.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{대표 이미지 대체 텍스트}">
@@ -379,7 +390,7 @@ M1의 댓글과 신고 운영이 안정된 경우에만 사용자 제보를 연�
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{게시글 제목}">
 <meta name="twitter:description" content="{본문 앞부분 또는 운영자 요약 100~140자}">
-<meta name="twitter:image" content="https://blariyo.example.com/uploads/posts/{postNo}/og-1200x630.jpg">
+<meta name="twitter:image" content="https://__SERVICE_DOMAIN__/uploads/posts/{postNo}/og-1200x630.jpg">
 <meta name="twitter:image:alt" content="{대표 이미지 대체 텍스트}">
 ```
 
@@ -433,17 +444,18 @@ M1 관리자 화면은 게시글 관리와 신고 관리 두 화면을 넘기지
 
 ### 출처 후보 수집
 
-고급유머처럼 외부 출처를 표시하는 운영 방식은 벤치마킹한다. 블라리요도 자동 수집을 할 수 있다. 다만 수집 결과를 공개 게시글로 즉시 전환하지 않는다.
+고급유머처럼 외부 출처를 표시하는 운영 방식은 벤치마킹한다. M0는 운영자의 수동 후보 등록만 사용한다. 자동 수집은 M1의 필수 기능이 아니라 수동 수집 시간이 운영 병목이 됐을 때 여는 운영 자동화 후보이며, 결과는 항상 `TB_SOURCE_CANDIDATE` 임시 큐에만 저장한다.
 
 허용하는 방식은 아래와 같다.
 
 | 방식 | 설명 | 단계 |
 | --- | --- | --- |
 | 수동 후보 등록 | 운영자가 URL, 제목, 출처명, 메모를 직접 입력 | M0 |
-| 후보 수집 도구 | 운영자가 지정한 URL의 제목, 대표 이미지 후보, 원문 링크만 임시 큐에 저장 | M1 후보 |
-| 출처별 자동 수집 | 허용 목록에 등록한 출처에서 목록과 상세 후보를 주기적으로 수집 | M1 후보 |
-| 중복 확인 | 같은 원문 URL 또는 유사 제목이 이미 있는지 확인 | M1 후보 |
-| 발행 전 검수 | 본문, 이미지, 출처, 권리 상태를 운영자가 직접 확인한 뒤 발행 | M0 |
+| 후보 수집 도구 | 운영자가 지정한 URL의 허용 필드만 임시 큐에 저장 | M1 운영 자동화 후보 |
+| 출처별 자동 수집 | 승인된 출처 정책의 허용 경로에서 정해진 주기로 후보 URL과 허용 필드만 수집 | M1 운영 자동화 후보 |
+| 중복 확인 | canonical URL hash를 우선하고 제목 유사도와 이미지 hash는 경고 보조값으로 사용 | M1 운영 자동화 후보 |
+| 초안 생성 | 운영자가 후보를 승인한 뒤 별도 명령으로 `DRAFT` 게시글 하나를 생성 | M0 수동, M1 자동화 후보 연계 |
+| 최종 발행 | 운영자가 초안과 권리 상태를 다시 확인하고 별도 발행 명령 실행 | M0 |
 
 금지하는 방식은 아래와 같다.
 
@@ -453,22 +465,49 @@ M1 관리자 화면은 게시글 관리와 신고 관리 두 화면을 넘기지
 - 원문 사이트의 차단, robots 정책, 이용 조건을 우회한다.
 - 본문 전문을 기계적으로 복제해 블라리요 본문으로 사용한다.
 
-후보 수집 도구를 만들더라도 공개 게시글 테이블에 바로 쓰지 않는다. `TB_SOURCE_CANDIDATE` 같은 임시 큐에 저장하고, 운영자가 검수 완료한 건만 `TB_POST`로 발행한다.
+후보 수집 도구는 `TB_POST`에 쓰지 않는다. 운영자가 검수를 승인한 후보만 별도 초안 생성 API로 `TB_POST.post_status=DRAFT`를 만들 수 있다. 초안 생성도 공개 발행이 아니며 `rights_status=CLEARED`와 필수 필드를 통과한 초안만 별도 최종 발행 API로 공개한다. 자동 수집, 자동 승인, 자동 초안 생성, 자동 최종 발행을 연결하는 작업은 금지한다.
 
 #### 출처별 수집 계획
 
-초기 수집 대상은 운영자가 명시적으로 허용 목록에 넣은 사이트만 사용한다. 출처별 adapter를 분리해 URL 구조, 목록 selector, 상세 selector, 속도 제한, 차단 대응을 독립 관리한다.
+출처별 adapter는 운영자가 `TB_SOURCE_SITE_POLICY`에서 승인한 사이트만 활성화한다. 승인 전 기본값은 비활성이며 URL 구조, 허용 경로, 허용 필드, 이용조건 확인일, robots 확인 결과, 요청 속도, 담당자, 재검토일을 출처별로 기록한다. 이용조건 또는 robots 정책이 불명확하거나 로그인, CAPTCHA, 차단 우회가 필요하면 승인하지 않는다.
 
-| 출처 | 수집 대상 | 수집 필드 | 우선순위 |
+| 출처 후보 | 초기 상태 | 허용 전 확인 항목 | 비고 |
 | --- | --- | --- | --- |
-| 이토랜드 | 유머, 인기, 생활관, 핫딜 목록 후보 | 원문 URL, 제목, 작성자명, 작성 시각, 추천 수, 조회 수, 게시판명, 썸네일 후보 | 1 |
-| 펨코 | 포텐·유머성 상세 후보 | 원문 URL, 제목, 작성자명, 작성 시각, 조회 수, 추천 수, 댓글 수, 첨부 이미지 후보 | 2 |
-| 개드립넷 | 개드립, 유저 개드립, 읽을거리 후보 | 원문 URL, 제목, 댓글 수, 게시판명, 목록 위치, 상세 출처 표시 후보 | 2 |
-| 고급유머 | 벤치마킹 구조 확인용 | 메뉴, 목록 밀도, 광고 위치, 하단 목록 구조 | 수집 발행 대상 아님 |
+| 이토랜드 | `UNAPPROVED` | 이용조건, robots, 허용 경로·필드, 요청 빈도 | 승인 전 수집 금지 |
+| 펨코 | `UNAPPROVED` | 이용조건, robots, 허용 경로·필드, 요청 빈도 | 승인 전 수집 금지 |
+| 개드립넷 | `UNAPPROVED` | 이용조건, robots, 허용 경로·필드, 요청 빈도 | 승인 전 수집 금지 |
+| 고급유머 | `REFERENCE_ONLY` | 기능 관찰만 수행 | 후보 큐 저장과 발행 대상 아님 |
 
-수집 주기는 처음에는 6시간 1회 이하로 제한한다. 같은 출처에 연속 요청하지 않고, 출처별 실패율이 높으면 자동으로 해당 출처를 일시 중지한다. HTTP 403, 429, 로그인 요구, CAPTCHA, 차단 페이지가 나오면 우회하지 않고 해당 후보를 `BLOCKED` 상태로 기록한다.
+수집 최소 필드는 `source_site_code`, canonical 원문 URL, 원문 제목, 원문 게시 시각, 원문 게시판명, 대표 이미지 URL 후보, 수집 시각으로 제한한다. 작성자명, 추천 수, 조회 수, 댓글 수는 출처 정책에서 목적과 보관기간을 별도 승인한 경우만 수집한다. 원문 HTML 전문과 이미지 원본 파일은 저장하지 않으며 정규화가 끝나면 응답 본문을 즉시 폐기한다.
 
-수집 상태는 `PENDING`, `DUPLICATE`, `NEEDS_REVIEW`, `APPROVED`, `REJECTED`, `BLOCKED`로 관리한다. `APPROVED`가 되어도 바로 공개하지 않고 운영자의 최종 발행 명령을 별도로 둔다.
+수집 주기는 활성화 후에도 6시간 1회 이하로 제한한다. 같은 출처에 연속 요청하지 않고, 출처별 실패율이 높으면 자동으로 해당 출처를 일시 중지한다. HTTP 403, 429, 로그인 요구, CAPTCHA, 차단 페이지가 나오면 우회하지 않고 `fetch_status=BLOCKED`로 기록한다.
+
+수집 실행 상태와 운영자 검수 상태는 한 필드에 섞지 않는다.
+
+| 필드 | 값 | 의미와 허용 전이 |
+| --- | --- | --- |
+| `fetch_status` | `NOT_REQUIRED` | 수동 입력으로 원격 fetch가 필요 없음 |
+| `fetch_status` | `PENDING` | fetch 대기. `FETCHING`으로만 진행 |
+| `fetch_status` | `FETCHING` | 실행 중. `SUCCEEDED`, `FAILED`, `BLOCKED`로 종료 |
+| `fetch_status` | `SUCCEEDED` | 허용 필드 정규화 완료 |
+| `fetch_status` | `FAILED` | 일시 실패. 운영자 또는 제한된 재시도만 `PENDING`으로 복귀 |
+| `fetch_status` | `BLOCKED` | 정책·차단·인증 요구로 중지. 출처 정책 재승인 전 재시도 금지 |
+| `review_status` | `PENDING` | 운영자 검수 대기 |
+| `review_status` | `IN_REVIEW` | 운영자 검수 중 |
+| `review_status` | `APPROVED` | 초안 생성 가능. 공개 상태가 아님 |
+| `review_status` | `REJECTED` | 품질·정책·권리 사유로 사용하지 않음 |
+| `review_status` | `DUPLICATE` | 기존 후보 또는 게시글과 중복 |
+| `review_status` | `EXPIRED` | 보관기한 내 검수하지 못해 종료 |
+
+`fetch_status`가 `SUCCEEDED` 또는 `NOT_REQUIRED`일 때만 `review_status`를 `IN_REVIEW`로 바꿀 수 있다. 검수 결과 `APPROVED`가 된 뒤에도 게시글 초안 생성과 최종 발행은 각각 별도 명령이다.
+
+#### 보관과 파기
+
+- `PENDING`, `IN_REVIEW` 후보의 허용 메타데이터는 생성 후 최대 30일 보관하고 미처리 시 `EXPIRED`로 전환한다.
+- `REJECTED`, `DUPLICATE`, `EXPIRED`, `BLOCKED` 후보의 제목과 이미지 URL 등 수집 payload는 상태 확정 후 7일 안에 삭제한다.
+- 중복 방지와 감사에 필요한 `candidate_no`, `source_site_code`, canonical URL hash, 상태, 사유 코드, 처리 시각은 180일 보관한다.
+- `APPROVED` 후보의 수집 payload는 초안 생성 후 7일 안에 삭제하고, `draft_post_no`와 상태 전이 기록만 180일 보관한다. 공개 게시글에 필요한 출처 정보는 `TB_POST` 정책에 따라 별도 보관한다.
+- 출처 정책이 비활성화되거나 탈퇴·차단 요청을 받으면 신규 수집을 즉시 중단하고 미검수 payload를 7일 안에 파기한다.
 
 ### 권리자 요청
 
@@ -587,7 +626,7 @@ M0 공개 후 4주 동안 최소 순사용자 100명, 세션 200건을 확보한
 | Analytics   | MySQL 내부 이벤트 + GA4                                                                                  | 핵심 지표 정본과 유입·화면 분석을 분리함                                |
 | 목록 방식   | 페이지네이션                                                                                             | 초기 구현과 오류 처리가 단순함                                          |
 | 관리자 운영 | M0는 Swagger/API, M1부터 최소 화면                                                                       | 초기 개발량을 줄임                                                      |
-| 광고        | 기획 단계에서 UI/UX 위치를 확정하고, 트래픽 게이트 이후 목록 중간 광고 행, 상세 상·하단 배너와 일 3회 제한 대형 광고를 실험 | 나중에 억지로 붙이면 소비 흐름과 레이아웃이 깨지므로 사전 설계가 필요함 |
+| 광고        | 기획 단계에서 UI/UX 위치를 확정하고, 트래픽 게이트 이후 목록 중간 광고 행과 상세의 확정된 3개 슬롯만 실험 | 나중에 억지로 붙이면 소비 흐름과 레이아웃이 깨지므로 사전 설계가 필요함 |
 
 ### 이미지
 
@@ -622,14 +661,69 @@ M0에는 업로드 UI를 만들지 않는다. 운영자가 파일을 정해진 �
 - `source_type`: `ORIGINAL`, `EXTERNAL`
 - `source_name`
 - `source_url`: `ORIGINAL`이면 nullable
-- `rights_status`
+- `rights_status`: `PENDING`, `CLEARED`, `REJECTED`, `DISPUTED`
 - `rights_note`
-- `board_code`
+- `board_code`: `HUMOR`, `TALK`
 - `author_no`
-- `visible_yn`
+- `post_status`: `DRAFT`, `SCHEDULED`, `PUBLISHED`, `HIDDEN`, `ARCHIVED`
+- `scheduled_at`: nullable
 - `published_at`
+- `source_candidate_no`: nullable, unique
+- `submission_no`: nullable, unique
 - `reg_dttm`
 - `upd_dttm`
+
+`visible_yn`은 별도 상태 원천으로 두지 않는다. 공개 조건은 `post_status=PUBLISHED`, `rights_status=CLEARED`, `published_at <= now()`를 모두 만족하는 경우로 계산한다. 후보수집과 사용자 제보에서 동시에 생성된 게시글은 허용하지 않으므로 `source_candidate_no`와 `submission_no` 중 최대 하나만 값이 있어야 한다.
+
+#### 게시글·권리 상태 전이
+
+| 상태 축 | 허용 전이 | 규칙 |
+| --- | --- | --- |
+| 게시글 | `DRAFT -> SCHEDULED` | 미래 `scheduled_at`을 지정한 최종 발행 요청 |
+| 게시글 | `DRAFT -> PUBLISHED` | 즉시 최종 발행 요청 |
+| 게시글 | `SCHEDULED -> DRAFT` | 예약 취소 |
+| 게시글 | `SCHEDULED -> PUBLISHED` | 예약 시각 도달 후 발행 작업이 실행 |
+| 게시글 | `PUBLISHED -> HIDDEN` | 운영자 숨김 또는 권리 분쟁 발생 |
+| 게시글 | `HIDDEN -> PUBLISHED` | 권리 상태가 `CLEARED`이고 최종 발행 guard를 다시 통과 |
+| 게시글 | `DRAFT`, `HIDDEN -> ARCHIVED` | 운영 종료. 공개 복귀 불가 |
+| 권리 | `PENDING -> CLEARED`, `REJECTED` | 운영자 검토 결과 |
+| 권리 | `CLEARED -> DISPUTED` | 권리자 요청 또는 분쟁 접수. 게시글은 같은 트랜잭션에서 `HIDDEN` 처리 |
+| 권리 | `DISPUTED -> CLEARED`, `REJECTED` | 재검토 결과 |
+
+최종 발행 guard는 제목·본문·게시판·대표 이미지 대체 텍스트·원본 유형을 확인하고, `EXTERNAL`이면 출처명과 canonical 원문 URL을 추가로 요구한다. `rights_status=CLEARED`가 아니면 즉시 발행과 예약 발행을 모두 거절한다.
+
+#### `TB_SOURCE_SITE_POLICY`
+
+- `source_site_code`: unique
+- `policy_status`: `UNAPPROVED`, `ACTIVE`, `PAUSED`, `BLOCKED`, `REFERENCE_ONLY`
+- `allowed_paths`
+- `allowed_fields`
+- `terms_checked_at`
+- `robots_checked_at`
+- `reviewed_by`
+- `next_review_at`
+- `request_interval_seconds`
+
+#### `TB_SOURCE_CANDIDATE`
+
+- `candidate_no`
+- `source_site_code`
+- `candidate_url`
+- `canonical_url_hash`
+- `candidate_title`
+- `candidate_published_at`: nullable
+- `candidate_board_name`: nullable
+- `candidate_image_url`: nullable
+- `fetch_status`: `NOT_REQUIRED`, `PENDING`, `FETCHING`, `SUCCEEDED`, `FAILED`, `BLOCKED`
+- `review_status`: `PENDING`, `IN_REVIEW`, `APPROVED`, `REJECTED`, `DUPLICATE`, `EXPIRED`
+- `review_reason_code`: nullable
+- `review_note`: nullable, 관리자 전용
+- `draft_post_no`: nullable, unique
+- `expires_at`
+- `reg_dttm`
+- `upd_dttm`
+
+`(source_site_code, canonical_url_hash)`를 unique로 두어 같은 원문 후보의 중복 생성을 막는다. `draft_post_no`와 `TB_POST.source_candidate_no`는 동일한 1:1 연결을 양쪽에서 검증한다.
 
 #### `TB_VISIT_EVENT`
 
@@ -644,6 +738,10 @@ M0에는 업로드 UI를 만들지 않는다. 운영자가 파일을 정해진 �
 
 ### M1 추가
 
+- `TU_USER.email_verified_at`: 이메일 인증 완료 시각
+- `TU_USER.withdrawn_at`: 탈퇴 완료 시각. 값이 있으면 로그인과 참여 기능 차단
+- `TB_AUTH_TOKEN`: 이메일 인증·비밀번호 재설정용 일회성 토큰 hash, 목적, 만료·사용 시각
+- `TB_REFRESH_TOKEN`: 사용자별 Refresh Token hash, 만료·폐기 시각. 비밀번호 재설정·전체 로그아웃·탈퇴 시 일괄 폐기
 - `TB_COMMENT`: 게시글 댓글과 숨김 상태
 - `TB_POST_LIKE`: 사용자별 게시글 좋아요, `(post_no, user_no)` unique
 - `TB_POST_REPORT`: 게시글 신고와 처리 상태
@@ -670,11 +768,11 @@ M0에는 업로드 UI를 만들지 않는다. 운영자가 파일을 정해진 �
 - `review_note`: nullable, 관리자만 조회
 - `reviewer_no`: nullable
 - `reviewed_at`: nullable
-- `published_post_no`: nullable
+- `draft_post_no`: nullable, unique
 - `reg_dttm`
 - `upd_dttm`
 
-승인 처리는 하나의 트랜잭션에서 제보의 원본 유형과 출처 정보를 복사해 `TB_POST`를 생성하고 `published_post_no`와 상태를 갱신한다. 승인된 게시글에는 nullable `submission_no`, `submitter_no`를 연결한다. 반려·철회 건은 운영 이력을 위해 텍스트와 상태를 보존하되 업로드 이미지는 운영 저장소에서 7일 후 삭제한다.
+승인 처리는 하나의 트랜잭션에서 제보의 원본 유형과 출처 정보를 복사해 `post_status=DRAFT`, `rights_status=PENDING`인 `TB_POST`를 하나만 생성하고 `draft_post_no`를 연결한다. 승인 자체는 공개 발행이 아니다. 운영자가 권리 상태와 초안을 다시 확인한 뒤 공통 최종 발행 API를 호출한다. 승인된 게시글에는 nullable `submission_no`, `submitter_no`를 연결한다. 반려·철회 건은 운영 이력을 위해 텍스트와 상태를 보존하되 업로드 이미지는 운영 저장소에서 7일 후 삭제한다.
 
 ## 15. API 범위
 
@@ -684,13 +782,18 @@ M0에는 업로드 UI를 만들지 않는다. 운영자가 파일을 정해진 �
 | ------ | ----------------------------- | ------ | ----------------------- |
 | POST   | `/api/v1/auth/login`          | 공개   | 관리자 로그인           |
 | GET    | `/api/v1/auth/me`             | 관리자 | 현재 관리자 확인        |
-| GET    | `/api/v1/posts`               | 공개   | 최신 피드               |
-| GET    | `/api/v1/posts/:postNo`       | 공개   | 게시글 상세             |
-| POST   | `/api/v1/admin/posts`         | 관리자 | 게시글 등록             |
-| PATCH  | `/api/v1/admin/posts/:postNo` | 관리자 | 게시글 수정 또는 숨김   |
+| GET    | `/api/v1/posts`               | 공개   | 혼합 또는 게시판별 최신 목록 20개 |
+| GET    | `/api/v1/posts/:postNo`       | 공개   | 게시글 상세와 같은 게시판의 주변 목록 |
+| POST   | `/api/v1/admin/posts`         | 관리자 | 수동 게시글 초안 생성   |
+| PATCH  | `/api/v1/admin/posts/:postNo` | 관리자 | 초안 수정, 권리 상태 변경, 숨김 또는 예약 취소 |
+| POST   | `/api/v1/admin/posts/:postNo/publish` | 관리자 | 즉시 또는 예약 최종 발행 |
 | GET    | `/api/v1/admin/metrics`       | 관리자 | 기간별 방문과 조회 요약 |
 
 상세 조회 응답 시 조회 이벤트를 함께 기록한다. 별도 조회수 증가 API는 두지 않는다.
+
+`GET /api/v1/posts`는 `page=1`을 기본으로 하고 페이지 크기는 게시글 20개로 고정한다. `board`가 없으면 `/`용 `HUMOR`, `TALK` 혼합 최신 목록이고, `board=HUMOR` 또는 `board=TALK`이면 해당 게시판 목록이다. 광고 행은 API 응답과 `totalElements`, `totalPages` 계산에 포함하지 않는다.
+
+`GET /api/v1/posts/:postNo`의 `contextPosts`는 현재 글과 같은 `board_code`에서 공개 조건을 만족하는 글만 `published_at DESC, post_no DESC`로 최대 20개 반환한다. 현재 글을 반드시 포함하고 최신·오래된 방향의 부족분을 반대편에서 채우며 각 항목에 `isCurrent`를 둔다. 별도 이전·다음 필드, 버튼, `/adjacent` API, context 페이지네이션은 만들지 않는다.
 
 공개 목록과 상세 API는 공유 meta 생성에 필요한 값을 함께 제공한다.
 
@@ -706,8 +809,15 @@ M0에는 업로드 UI를 만들지 않는다. 운영자가 파일을 정해진 �
 | Method | Endpoint                                  | 인증          | 설명                                   |
 | ------ | ----------------------------------------- | ------------- | -------------------------------------- |
 | POST   | `/api/v1/auth/register`                   | 공개          | 회원가입                               |
+| POST   | `/api/v1/auth/email-verifications`        | 공개          | 이메일 인증 메일 발송                  |
+| POST   | `/api/v1/auth/email-verifications/confirm` | 공개         | 일회성 토큰으로 이메일 인증 완료       |
+| POST   | `/api/v1/auth/password-resets`            | 공개          | 비밀번호 재설정 메일 요청              |
+| POST   | `/api/v1/auth/password-resets/confirm`    | 공개          | 일회성 토큰으로 비밀번호 변경          |
 | POST   | `/api/v1/auth/logout`                     | 회원          | 로그아웃                               |
 | POST   | `/api/v1/auth/refresh`                    | Refresh Token | Access Token 갱신과 Refresh Token 회전 |
+| GET    | `/api/v1/me`                              | 회원          | 내 계정과 이메일 인증 상태 조회        |
+| PATCH  | `/api/v1/me`                              | 회원          | 닉네임 변경                            |
+| DELETE | `/api/v1/me`                              | 회원          | 회원 탈퇴와 인증 토큰 일괄 폐기        |
 | PUT    | `/api/v1/posts/:postNo/like`              | 회원          | 좋아요 설정                            |
 | DELETE | `/api/v1/posts/:postNo/like`              | 회원          | 좋아요 취소                            |
 | GET    | `/api/v1/posts/:postNo/comments`          | 공개          | 댓글 목록                              |
@@ -724,6 +834,18 @@ M0에는 업로드 UI를 만들지 않는다. 운영자가 파일을 정해진 �
 
 단일 인기 목록은 `GET /api/v1/posts?sort=popular`로 조회하고, 최근 24시간의 좋아요 수를 기준으로 정렬한다.
 
+### M1 운영 자동화 후보
+
+| Method | Endpoint | 인증 | 설명 |
+| --- | --- | --- | --- |
+| POST | `/api/v1/admin/source-candidates` | 관리자 | 수동 후보 등록. `Idempotency-Key` 필수 |
+| GET | `/api/v1/admin/source-candidates` | 관리자 | `fetch_status`, `review_status`별 임시 큐 조회 |
+| POST | `/api/v1/admin/source-candidates/collect` | 관리자 | 활성 출처 정책의 제한된 수집 실행. `Idempotency-Key` 필수 |
+| PATCH | `/api/v1/admin/source-candidates/:candidateNo/review` | 관리자 | 검수 시작, 승인, 반려, 중복 판정 |
+| POST | `/api/v1/admin/source-candidates/:candidateNo/draft` | 관리자 | 승인 후보에서 게시글 초안 하나 생성. `Idempotency-Key` 필수 |
+
+후보 검수 API는 `review_status`만 변경하고 게시글을 만들지 않는다. 초안 생성 API는 `review_status=APPROVED`인 후보에만 허용되며 `TB_SOURCE_CANDIDATE.draft_post_no`와 `TB_POST.source_candidate_no`를 같은 트랜잭션에서 연결한다. 이미 연결된 초안이 있으면 새로 만들지 않고 기존 초안을 반환한다.
+
 ### M1.5 추가
 
 | Method | Endpoint                                  | 인증   | 설명                  |
@@ -734,8 +856,17 @@ M0에는 업로드 UI를 만들지 않는다. 운영자가 파일을 정해진 �
 | GET    | `/api/v1/admin/submissions`               | 관리자 | 상태별 제보 검수 목록 |
 | GET    | `/api/v1/admin/submissions/:submissionNo` | 관리자 | 제보 검수 상세        |
 | PATCH  | `/api/v1/admin/submissions/:submissionNo` | 관리자 | 승인 또는 반려 처리   |
+| POST   | `/api/v1/admin/submissions/:submissionNo/draft` | 관리자 | 승인 제보에서 게시글 초안 하나 생성. `Idempotency-Key` 필수 |
 
-제보 승인 API는 중복 요청에도 게시글을 하나만 생성하도록 처리한다. `PENDING` 상태에서만 승인, 반려, 철회할 수 있다.
+제보 승인 API는 검수 상태만 변경한다. `PENDING` 상태에서만 승인, 반려, 철회할 수 있고 승인 후 초안 생성은 별도 API를 사용한다. 최종 공개는 후보·제보·수동 작성 모두 공통 `POST /api/v1/admin/posts/:postNo/publish`만 사용한다.
+
+### 멱등성과 연결키
+
+- 초안 생성과 최종 발행을 포함한 중복 가능 `POST`에는 `Idempotency-Key`를 필수로 받는다. 키는 관리자, endpoint, key 조합으로 24시간 보관한다.
+- 같은 키와 같은 payload의 재요청은 최초 응답의 리소스 번호와 결과를 그대로 반환한다. 같은 키에 다른 payload가 오면 `409 IDEMPOTENCY_KEY_REUSED`를 반환한다.
+- 후보 초안은 `TB_SOURCE_CANDIDATE.draft_post_no` unique와 `TB_POST.source_candidate_no` unique, 제보 초안은 `TB_POST_SUBMISSION.draft_post_no` unique와 `TB_POST.submission_no` unique를 DB 제약으로 보강한다.
+- 최종 발행은 게시글 행 잠금과 상태 전이를 한 트랜잭션에서 처리한다. 이미 같은 요청으로 발행된 글은 기존 `published_at`을 반환하고 새 발행 이벤트를 만들지 않는다.
+- 예약 발행 요청은 `publishAt`이 미래면 `SCHEDULED`, 없거나 현재 이하면 `PUBLISHED`로 전이한다. 다른 예약 시각으로 재요청하면 기존 예약을 암묵적으로 덮지 않고 `409 PUBLISH_SCHEDULE_CONFLICT`를 반환한다.
 
 ## 16. 개발 계획
 
@@ -761,7 +892,7 @@ M0 통과 후 회원 인증, 좋아요, 댓글, 신고, 최소 관리자 화면 
 
 ### M1.5 예상: 추가 25~40시간
 
-M1 운영 게이트 통과 후 제보 작성, 이미지 업로드, 내 제보, 관리자 검수, 승인 발행 순서로 구현한다.
+M1 운영 게이트 통과 후 제보 작성, 이미지 업로드, 내 제보, 관리자 검수, 초안 생성, 권리 확인, 최종 발행 순서로 구현한다.
 
 ## 17. 현재 저장소 상태와 선행 문제
 
@@ -784,6 +915,7 @@ README는 이 문서를 기준으로 M0 큐레이션 피드, MySQL 단일 사용
 | 기능                     | 시작 조건                                                                     |
 | ------------------------ | ----------------------------------------------------------------------------- |
 | 회원/좋아요/댓글         | M0 계속 조건 5개 중 4개 충족                                                  |
+| 후보수집 자동화          | M1에서 수동 후보 준비가 주 4시간 운영의 병목이고 승인된 출처 정책이 존재함    |
 | 승인형 사용자 제보       | M1 댓글·신고 운영이 8주 연속 주 4시간 이내                                    |
 | 유저 게시글 직접 공개    | 승인형 제보를 8주 운영한 뒤 별도 검토                                         |
 | 광고 실행                | 월간 활성 사용자 1만 이상, 최근 30일 5만 PV 이상, 직접 광고 제안 중 하나 충족 |
@@ -794,7 +926,7 @@ README는 이 문서를 기준으로 M0 큐레이션 피드, MySQL 단일 사용
 
 조건을 충족하지 않으면 해당 기능은 백로그에만 둔다.
 
-광고 UX 기획은 개발 전 확정한다. 실제 광고 실행은 목록 중간 광고 행과 상세 상·하단 배너부터 시작한다. 광고 차단 해제 요청은 광고 실행과 동시에 열 수 있지만 열람 차단 방식으로 만들지 않는다. 2주간 소비 지표 하락이 없을 때만 대형 광고를 일 1회로 열고, 주 단위로 일 2회, 최대 일 3회까지 올린다. 제휴 상품 목록은 광고 실행 조건을 충족한 뒤 별도 게이트로 연다. 안정적인 운영비 회수 목표는 월 10만 PV이며 세부 손익·중단 기준은 분석 및 광고 운영 설계서를 따른다.
+광고 UX 기획은 개발 전 확정한다. 실제 광고 실행은 홈 목록 중간 광고 행과 상세의 `AD-POST-BODY-BOTTOM`, `AD-DETAIL-LIST-INLINE`, `AD-DETAIL-LIST-AFTER`만 사용한다. 광고 차단 해제 요청은 광고 실행과 동시에 열 수 있지만 열람 차단 방식으로 만들지 않는다. 제휴 상품 목록은 광고 실행 조건을 충족한 뒤 별도 게이트로 연다. 안정적인 운영비 회수 목표는 월 10만 PV이며 세부 손익·중단 기준은 분석 및 광고 운영 설계서를 따른다.
 
 ## 19. 1차 검토 결과
 
@@ -846,7 +978,25 @@ M1.5 승인형 제보를 추가한 뒤 단계 범위, 운영 시간, API 정합�
 
 총 5건: High 2건, Medium 2건, Low 1건. 신뢰도 High 5건이며 모두 문서와 와이어프레임에 반영했다.
 
-## 22. 최종 판정
+## 22. 4차 감사 정정 결과
+
+2026-08-12 사용자 결정을 기준으로 4차 감사의 제품·IA·데이터·API 지적을 정정했다.
+
+| ID | 심각도 | 정정 결과 |
+| --- | --- | --- |
+| C4-1 | High | 이전·다음 버튼·필드·API를 제거하고 같은 게시판의 현재 글 포함 주변 20개 `contextPosts`로 통일 |
+| C4-2 | High | 상세 광고를 본문·출처 다음, 하단 목록 중간, 목록 아래의 3개 슬롯으로 고정 |
+| C4-3 | High | 자동 수집을 M1 운영 자동화 후보로 고정하고 임시 큐 이후 모든 공개 단계를 수동으로 분리 |
+| E4-2 | High | 후보·제보의 unique 초안 연결키, 초안 생성 API, 공통 최종 발행 API, `Idempotency-Key` 계약 추가 |
+| C4-4 | High | `fetch_status`와 `review_status`, `post_status`와 `rights_status`를 분리하고 허용 전이·발행 guard 확정 |
+| C4-7 | Medium | `/`는 두 게시판 혼합 최신 목록, 메뉴는 유머·이야기 두 개만 유지하도록 IA 확정 |
+| C4-8 | Medium | 공개 목록과 상세 주변 목록을 게시글 20개로 고정하고 광고 행을 산정에서 제외 |
+| A4-1 | Medium | 상세 목록의 게시판, 현재 글 포함, 정렬, 부족분 보충, 경계 동작을 확정 |
+| D4-1 | Medium | 출처 승인표, 최소수집 필드, 30일 검수 기한, payload 파기와 180일 감사키 보관 기준 추가 |
+
+이번 쓰기 범위 밖의 4차 감사 항목은 이 절의 완료 범위에 포함하지 않는다.
+
+## 23. 최종 판정
 
 이 프로젝트는 구현 가능하다. 다만 첫 버전을 댓글 커뮤니티로 잡으면 가볍지 않다.
 

@@ -4,40 +4,45 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>블라리요 퍼블 프로토타입</title>
-  <link rel="canonical" href="https://blariyo.example.com/">
+  <link rel="canonical" href="https://__SERVICE_DOMAIN__/">
   <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
   <meta property="og:site_name" content="블라리요">
   <meta property="og:locale" content="ko_KR">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://blariyo.example.com/">
+  <meta property="og:url" content="https://__SERVICE_DOMAIN__/">
   <meta property="og:title" content="블라리요">
   <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
-  <meta property="og:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta property="og:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="블라리요 기본 공유 이미지">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="블라리요">
   <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
-  <meta name="twitter:image" content="https://blariyo.example.com/og/default-1200x630.jpg">
+  <meta name="twitter:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
+  <meta name="twitter:image:alt" content="블라리요 기본 공유 이미지">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <div class="prototype-bar">
-    <strong>Blariyo publishing prototype</strong>
-    <nav aria-label="화면 선택">
-      <button type="button" class="prototype-tab is-active" data-screen="home">홈</button>
-      <button type="button" class="prototype-tab" data-screen="detail">상세</button>
-      <button type="button" class="prototype-tab" data-screen="state">상태</button>
+    <div><strong>Blariyo publishing prototype</strong><small>정적 파일은 홈 OG만 표현합니다. 게시글별 OG는 SSR `/posts/:postNo` 계약입니다.</small></div>
+    <nav role="tablist" aria-label="검토 화면 선택">
+      <button type="button" role="tab" aria-selected="true" class="prototype-tab is-active" data-screen="home">홈</button>
+      <button type="button" role="tab" aria-selected="false" tabindex="-1" class="prototype-tab" data-screen="detail">상세</button>
+      <button type="button" role="tab" aria-selected="false" tabindex="-1" class="prototype-tab" data-screen="loading">로딩</button>
+      <button type="button" role="tab" aria-selected="false" tabindex="-1" class="prototype-tab" data-screen="empty">빈 목록</button>
+      <button type="button" role="tab" aria-selected="false" tabindex="-1" class="prototype-tab" data-screen="error">오류</button>
+      <button type="button" role="tab" aria-selected="false" tabindex="-1" class="prototype-tab" data-screen="hidden">숨김</button>
     </nav>
   </div>
 
-  <section class="screen is-active" data-view="home">
+  <section class="screen is-active" data-view="home" role="tabpanel">
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="#home" data-go="home"><span>B</span>블라리요</a>
+        <a class="brand" href="/" data-go="home"><span>B</span>블라리요</a>
         <nav class="board-nav" aria-label="게시판">
-          <a class="is-active" href="#home">유머</a>
-          <a href="#home">이야기</a>
+          <a href="/boards/humor">유머</a>
+          <a href="/boards/talk">이야기</a>
         </nav>
       </div>
     </header>
@@ -45,8 +50,8 @@
     <main class="page">
       <section class="content">
         <div class="page-title">
-          <h1>오늘 올라온 웃긴 것</h1>
-          <p>20개 · 최신순 · 1쪽</p>
+          <h1 tabindex="-1">오늘 올라온 웃긴 것</h1>
+          <p>유머·이야기 혼합 · 게시글 20개 · 광고 제외</p>
         </div>
 
         <div class="board-list" aria-label="최신 게시글">
@@ -70,32 +75,39 @@
       <aside class="side">
         <section>
           <h2>운영 기준</h2>
-          <p>운영자가 검수한 글만 발행한다. 출처와 권리 상태는 발행 전에 분리 확인한다.</p>
+          <p>운영자가 검수하고 수동 최종 발행한 글만 공개한다.</p>
         </section>
         <section class="side-ad">AD-SIDE-RAIL</section>
       </aside>
     </main>
   </section>
 
-  <section class="screen" data-view="detail">
+  <section class="screen" data-view="detail" role="tabpanel" hidden>
     <header class="site-header">
       <div class="header-inner detail-header">
-        <button type="button" class="ghost-button" data-go="home">← 목록</button>
-        <a class="brand" href="#home" data-go="home">블라리요</a>
-        <button type="button" class="ghost-button">↗ 공유</button>
+        <a class="ghost-button" href="/boards/humor">← 유머 목록</a>
+        <a class="brand" href="/" data-go="home">블라리요</a>
+        <button type="button" class="ghost-button" id="shareButton" aria-expanded="false" aria-controls="shareMenu">↗ 공유</button>
       </div>
     </header>
 
     <main class="page">
       <article class="content article">
+        <div class="share-menu" id="shareMenu" role="menu" aria-label="공유하기" hidden>
+          <button type="button" role="menuitem" data-share="copy">링크 복사</button>
+          <button type="button" role="menuitem" data-share="kakao">카카오톡</button>
+          <button type="button" role="menuitem" data-share="x">X</button>
+          <button type="button" role="menuitem" data-share="native">브라우저 공유</button>
+        </div>
+        <p class="sr-only" id="shareStatus" aria-live="polite"></p>
         <div class="article-board">유머</div>
-        <h1>퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</h1>
+        <h1 tabindex="-1">퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</h1>
         <div class="meta"><span>No.1047</span><span>2026.08.06 13:45</span><span>조회 1,248</span></div>
 
         <div class="article-body">
           <p>오후 5시 57분, 가방을 닫는 소리가 들리기 시작했다.</p>
           <p>그때 옆자리에서 조용히 들려온 한마디.</p>
-          <figure class="image-placeholder">5:57</figure>
+          <figure class="image-placeholder" role="img" aria-label="퇴근 직전 질문을 받은 상황을 나타내는 시각 자료">5:57</figure>
           <p><strong>“질문 하나만 해도 돼요?”</strong></p>
           <p>질문은 하나였고, 설명에 필요한 문서는 열두 개였다.</p>
         </div>
@@ -103,11 +115,11 @@
         <section class="source-box">
           <strong>출처</strong>
           <span>example.com/original/funny-office-story</span>
-          <a href="#">원문 보기 ↗</a>
+          <a href="https://example.com/original/funny-office-story" target="_blank" rel="noopener noreferrer">원문 보기 ↗</a>
         </section>
-        <p class="rights">권리자 요청 시 게시글과 캐시를 함께 비노출 처리한다.</p>
+        <p class="rights"><a href="/rights">권리자 요청 안내</a></p>
 
-        <div class="ad-slot">AD-POST-BODY-BOTTOM · 본문 하단 광고</div>
+        <div class="ad-slot" role="complementary" aria-label="광고">광고 · AD-POST-BODY-BOTTOM · 본문·출처 다음</div>
 
         <section class="adblock-box">
           <strong>광고 차단 해제를 부탁드립니다</strong>
@@ -121,47 +133,57 @@
 
         <section class="bottom-list">
           <div class="bottom-list-title">
-            <h2>최신 목록</h2>
-            <a href="#home" data-go="home">20개 보기</a>
+            <h2>유머 게시판 현재 글 주변 20개</h2>
+            <a href="/boards/humor">유머 목록으로</a>
           </div>
-          <div class="board-list" aria-label="상세 하단 최신 목록">
+          <div class="board-list" aria-label="같은 유머 게시판의 현재 글 주변 20개">
             <div class="board-row board-head" aria-hidden="true">
               <span>번호</span><span>게시판</span><span>제목</span><span>조회</span><span>작성자</span><span>시간</span>
             </div>
             <div id="detailRows"></div>
           </div>
-          <div class="ad-slot">AD-DETAIL-LIST-AFTER · 목록 아래 광고</div>
+          <div class="ad-slot" role="complementary" aria-label="광고">광고 · AD-DETAIL-LIST-AFTER · 목록 아래</div>
         </section>
       </article>
 
       <aside class="side">
         <section>
           <h2>권리자 요청</h2>
-          <p>원본 출처와 권리를 확인해 게시한다.</p>
-          <a href="mailto:rights@example.com">rights@example.com</a>
+          <p>게시 중단·정정 절차를 확인할 수 있다.</p>
+          <a href="/rights">권리자 요청 안내</a>
         </section>
-        <section class="side-ad">AD-SIDE-RAIL</section>
       </aside>
     </main>
   </section>
 
-  <section class="screen" data-view="state">
+  <section class="screen" data-view="loading" role="tabpanel" hidden>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="#home" data-go="home"><span>B</span>블라리요</a>
+        <a class="brand" href="/" data-go="home"><span>B</span>블라리요</a>
         <nav class="board-nav" aria-label="게시판">
-          <a class="is-active" href="#home">유머</a>
-          <a href="#home">이야기</a>
+          <a href="/boards/humor">유머</a>
+          <a href="/boards/talk">이야기</a>
         </nav>
       </div>
     </header>
     <main class="page">
-      <section class="content state-panel">
-        <h1>게시글을 불러오지 못했습니다</h1>
-        <p>연결 상태를 확인하고 다시 시도해 주세요.</p>
-        <button type="button" data-go="home">다시 시도</button>
+      <section class="content loading-panel" aria-busy="true" aria-live="polite">
+        <h1 tabindex="-1">게시글 목록을 불러오는 중입니다</h1>
+        <div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div>
       </section>
     </main>
+  </section>
+
+  <section class="screen" data-view="empty" role="tabpanel" hidden>
+    <main class="state-page"><section class="state-panel"><div><h1 tabindex="-1">아직 올라온 글이 없습니다</h1><p>잠시 후 새 글을 확인해 주세요.</p><button type="button" data-go="home">목록 새로고침</button></div></section></main>
+  </section>
+
+  <section class="screen" data-view="error" role="tabpanel" hidden>
+    <main class="state-page"><section class="state-panel"><div><h1 id="stateHeading" tabindex="-1">게시글을 불러오지 못했습니다</h1><p>연결 상태를 확인하고 다시 시도해 주세요.</p><button type="button" data-go="home">다시 시도</button> <a class="state-link" href="/" data-go="home">홈으로</a></div></section></main>
+  </section>
+
+  <section class="screen" data-view="hidden" role="tabpanel" hidden>
+    <main class="state-page"><section class="state-panel"><div><h1 tabindex="-1">볼 수 없는 게시글입니다</h1><p>존재하지 않거나 비공개 처리된 게시글입니다.</p><a class="state-link primary" href="/" data-go="home">홈으로</a></div></section></main>
   </section>
 
   <footer class="site-footer">
@@ -170,10 +192,10 @@
       <span>슬로건 결정 보류</span>
     </div>
     <nav aria-label="푸터">
-      <a href="#">이용약관</a>
-      <a href="#">개인정보처리방침</a>
-      <a href="mailto:rights@example.com">권리자 요청</a>
-      <a href="#">쿠키 설정</a>
+      <a href="/terms">이용약관</a>
+      <a href="/privacy">개인정보처리방침</a>
+      <a href="/rights">권리자 요청</a>
+      <a href="/cookie-settings">쿠키 설정</a>
     </nav>
   </footer>
 

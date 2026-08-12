@@ -22,7 +22,7 @@
     .reviewbar strong { font-size: 14px; }
     .reviewbar span { color: #bfc1bc; font-size: 12px; }
     .tabs { display: flex; gap: 4px; }
-    .tabs button { min-height: 34px; padding: 0 12px; border: 1px solid #555751; color: #ddd; background: transparent; cursor: pointer; }
+    .tabs button { min-height: 44px; padding: 0 12px; border: 1px solid #555751; color: #ddd; background: transparent; cursor: pointer; }
     .tabs button[aria-selected="true"] { color: #111; background: #fff; border-color: #fff; }
     .stage { min-height: calc(100vh - 52px); padding: 24px; }
     .browser { max-width: 1120px; min-height: 760px; margin: 0 auto; background: var(--paper); border: 1px solid #c8cac5; box-shadow: 0 18px 40px rgba(24, 26, 23, .10); }
@@ -40,8 +40,6 @@
     .hero { aspect-ratio: 16 / 9; display: grid; place-items: center; margin-top: 20px; background: #dbe3dc; color: #456153; font-weight: 750; font-size: 20px; }
     .bodycopy { margin: 22px 0; font-size: 18px; line-height: 1.8; }
     .source { padding: 14px 16px; border-left: 3px solid var(--accent); background: #f6f7f5; color: var(--muted); font-size: 13px; }
-    .adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .adjacent button { min-height: 58px; padding: 10px 14px; border: 1px solid var(--line); background: #fff; text-align: left; cursor: pointer; }
     aside { padding-top: 10px; }
     aside h2 { margin: 0 0 14px; font-size: 15px; }
     .rule { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
@@ -84,7 +82,6 @@
       h1 { font-size: 25px; }
       aside { margin-top: 36px; }
       .adslot { min-height: 100px; }
-      .adjacent { grid-template-columns: 1fr; }
       .consent { bottom: 12px; align-items: stretch; flex-direction: column; }
       .actions button { flex: 1; }
       .large-ad { min-height: min(430px, 58vh); }
@@ -98,7 +95,6 @@
     <div><strong>블라리요 분석·광고 확장 참고 와이어프레임</strong> <span>실제 광고 노출은 M0 이후 게이트 통과 시점</span></div>
     <div class="tabs" role="tablist" aria-label="검토 화면">
       <button type="button" data-view="detail" aria-selected="true">상세 하단 광고</button>
-      <button type="button" data-view="large" aria-selected="false">대형 광고</button>
       <button type="button" data-view="consent" aria-selected="false">동의 화면</button>
       <button type="button" data-view="adblock" aria-selected="false">차단 해제</button>
       <button type="button" data-view="partners" aria-selected="false">제휴 목록</button>
@@ -107,7 +103,7 @@
 
   <main class="stage">
     <section class="browser" aria-label="게시글 상세 화면">
-      <header class="sitehead"><div class="logo">블라리요</div><nav>최신 &nbsp; 공유</nav></header>
+      <header class="sitehead"><div class="logo">블라리요</div><nav>유머 &nbsp; 이야기 &nbsp; 공유</nav></header>
       <div class="page">
         <article>
           <div class="board-label">유머</div>
@@ -118,8 +114,8 @@
           <div class="source">출처 · 원본 사이트 이름과 링크</div>
           <div class="adslot"><div><b>광고</b><small>AD-POST-BODY-BOTTOM · 본문 하단 반응형 배너</small></div></div>
           <div class="source">
-            상세 하단 목록 20개 영역
-            <br><small>AD-DETAIL-LIST-INLINE · 목록 중간 광고 행 1개</small>
+            같은 게시판의 현재 글 주변 게시글 20개 영역<br>현재 글 행은 비활성화 · 이전/다음 버튼 없음
+            <br><small>AD-DETAIL-LIST-INLINE · 목록 중간 광고 행 1개 · 20개 산정 제외</small>
           </div>
           <div class="adslot"><div><b>광고</b><small>AD-DETAIL-LIST-AFTER · 목록 아래 반응형 배너</small></div></div>
           <div class="adblock-box hidden" id="adblockBox"><strong>광고 차단 해제를 부탁드립니다</strong>본문 열람은 계속 가능합니다. 운영비를 위해 광고 영역을 허용해 주세요.</div>
@@ -132,7 +128,7 @@
             <li>광고 미할당 시 빈 영역 제거</li>
             <li>광고 클릭 유도 문구 사용 금지</li>
           </ul>
-          <div class="cap"><strong>대형 광고 빈도</strong><span>일 최대 3회 · 상세 3개 간격 · 최소 20분</span></div>
+          <div class="cap"><strong>상세 광고 상한</strong><span>본문·출처 다음 / 목록 중간 / 목록 아래의 3개만 허용</span></div>
         </aside>
       </div>
     </section>
@@ -141,14 +137,6 @@
   <section class="consent" id="consent" aria-label="쿠키 동의">
     <p><strong>방문 분석과 광고 설정</strong><br>필수 기능은 항상 동작합니다. 분석과 광고 저장은 선택할 수 있습니다.</p>
     <div class="actions"><button type="button">필수만</button><button type="button">설정</button><button type="button" class="primary">분석 허용</button></div>
-  </section>
-
-  <section class="interstitial" id="interstitial" aria-label="대형 광고 예시">
-    <div class="interstitial-panel">
-      <header class="adhead"><span>광고 · 오늘 1/3회</span><button type="button" class="close" aria-label="광고 닫기">×</button></header>
-      <div class="large-ad"><div><b>대형 광고 영역</b>허용된 전면형 광고 상품만 사용<br>첫 게시글에는 노출하지 않음</div></div>
-      <button type="button" class="continue">닫고 다음 게시글 보기</button>
-    </div>
   </section>
 
   <section class="interstitial" id="partners" aria-label="제휴 상품 목록 예시">
@@ -170,22 +158,27 @@
   <script>
     const tabs = document.querySelectorAll('[data-view]');
     const consent = document.getElementById('consent');
-    const interstitial = document.getElementById('interstitial');
     const adblockBox = document.getElementById('adblockBox');
     const partners = document.getElementById('partners');
 
     function setView(view) {
       tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.view === view)));
       consent.classList.toggle('show', view === 'consent');
-      interstitial.classList.toggle('show', view === 'large');
       partners.classList.toggle('show', view === 'partners');
       adblockBox.classList.toggle('hidden', view !== 'adblock');
       history.replaceState(null, '', `#${view}`);
     }
 
     tabs.forEach((tab) => tab.addEventListener('click', () => setView(tab.dataset.view)));
+    tabs.forEach((tab, index) => tab.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : event.key === 'ArrowLeft' ? (index - 1 + tabs.length) % tabs.length : (index + 1) % tabs.length;
+      tabs[next].focus();
+      setView(tabs[next].dataset.view);
+    }));
     document.querySelectorAll('.close, .continue').forEach((button) => button.addEventListener('click', () => setView('detail')));
-    setView(['detail', 'large', 'consent', 'adblock', 'partners'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'detail');
+    setView(['detail', 'consent', 'adblock', 'partners'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'detail');
   </script>
 </body>
 </html>

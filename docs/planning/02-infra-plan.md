@@ -1,13 +1,13 @@
 # Blariyo 인프라 설계서
 
-- 문서 상태: 기획 재정의에 따른 참고안
-- 기준일: 2026-08-11
+- 문서 상태: 현행 인프라 정본
+- 기준일: 2026-08-12
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md)
 - 대상: 운영자 큐레이션형 유머 피드 웹 서비스
 
 ## 1. 결론
 
-기획 재정의가 끝난 뒤에도 M0부터 M1.5까지는 확장 조건을 넘지 않는 한 AWS Lightsail 서울 리전의 단일 인스턴스에서 Docker Compose로 운영하는 안을 기본 후보로 둔다. 단, 이 문서는 현재 구현 지시가 아니라 기획 확정 후 재검토할 인프라 참고안이다.
+M0부터 M1.5까지는 확장 조건을 넘지 않는 한 AWS Lightsail 서울 리전의 단일 인스턴스에서 Docker Compose로 운영한다. 이 문서는 인프라 구현의 현행 기준이며, 제품 범위와 화면 계약은 연결된 서비스·화면·분석 정본을 우선한다.
 
 ```text
 사용자
@@ -202,6 +202,14 @@ DB 점검이 필요하면 SSH 터널을 통해 MySQL 클라이언트로 접근�
 
 Cloudflare는 DNS proxy를 활성화하고 정적 자산만 캐시한다. 관리자, 인증, API 응답은 캐시 대상에서 제외한다.
 
+### 공개 조회 계약
+
+- 게시판 코드는 `HUMOR`, `TALK` 두 개만 허용한다. `/`는 두 게시판의 최신 글을 섞은 목록이며 세 번째 게시판이나 별도 메뉴로 취급하지 않는다.
+- 공개 목록 API는 기본 `size=20`으로 고정한다. 광고 행은 API 게시글 배열과 20개 산정에 포함하지 않고 화면 계층에서 별도 삽입한다.
+- 게시판별 목록은 같은 목록 API의 `boardCode` 필터로 처리하며, 허용 코드 외의 값은 거부한다.
+- 상세 하단 탐색은 현재 글과 같은 `board_code` 안에서 현재 글 주변 게시글 20개를 조회한다. 현재 글을 포함하고 최신순으로 반환하며 첫 글·마지막 글 경계에서는 존재하는 범위만 채운다.
+- 이전·다음 전용 API와 응답 필드는 만들지 않는다. 상세 하단 목록이 유일한 연속 탐색 계약이다.
+
 ## 9. TLS와 도메인
 
 - 사용자 연결은 HTTPS만 허용한다.
@@ -209,12 +217,13 @@ Cloudflare는 DNS proxy를 활성화하고 정적 자산만 캐시한다. 관리
 - 원본 서버에도 유효한 인증서를 설치한다.
 - HTTP 요청은 HTTPS로 영구 리다이렉트한다.
 - HSTS는 HTTPS 동작을 확인한 뒤 적용한다.
-- 서비스 도메인 확정 전에는 임시 서브도메인을 사용한다.
+- 확보한 도메인의 실제 문자열은 이 문서 작성 시점에 제공되지 않았다. 임의의 도메인을 추정해 설정하지 않는다.
+- 아래 `__SERVICE_DOMAIN__`은 출시 전 반드시 실제 확보 도메인으로 교체할 입력 placeholder이며, 남아 있으면 배포를 차단한다.
 
 권장 도메인 구조는 다음과 같다.
 
 ```text
-service.example.com       사용자 웹과 API
+__SERVICE_DOMAIN__       사용자 웹과 API
 ```
 
 M0에서는 API 서브도메인을 분리하지 않는다. 동일 출처를 사용해 CORS와 쿠키 구성을 단순하게 유지한다.
@@ -225,8 +234,9 @@ M0에서는 API 서브도메인을 분리하지 않는다. 동일 출처를 사�
 - 분석 동의 전에는 Google tag를 로드하지 않는다.
 - 광고 script는 광고 게이트 통과 전 production bundle에 포함하지 않는다.
 - GA4 measurement ID, AdSense publisher ID와 slot ID는 Nuxt public runtime config로 분리한다.
-- `ANALYTICS_ENABLED`, `ADS_ENABLED`, `ADS_POST_BANNERS_ENABLED`, `ADS_INTERSTITIAL_ENABLED` feature flag를 둔다.
-- 대형 광고는 사용자 현지 날짜 기준 일 3회, 상세 3개, 20분 간격을 클라이언트에서 확인한다.
+- `ANALYTICS_ENABLED`, `ADS_ENABLED`, `ADS_POST_BODY_BOTTOM_ENABLED`, `ADS_DETAIL_LIST_INLINE_ENABLED`, `ADS_DETAIL_LIST_AFTER_ENABLED` feature flag를 둔다.
+- 상세 광고 위치는 `AD-POST-BODY-BOTTOM`(본문·출처 다음), `AD-DETAIL-LIST-INLINE`(같은 게시판의 현재 글 주변 목록 중간), `AD-DETAIL-LIST-AFTER`(목록 아래) 세 곳으로 고정한다.
+- 상세 제목·본문 앞과 이전·다음 버튼 주변에는 광고 슬롯을 만들지 않는다. 이전·다음 버튼 자체도 제공하지 않는다.
 - Google script는 비동기로 한 번만 로드하고 실패가 Nuxt 화면과 API 호출을 중단시키지 않게 격리한다.
 - AdSense publisher ID가 확정된 뒤에만 root의 `/ads.txt`를 배포한다.
 - 상세한 이벤트·동의·광고 노출 규칙은 [04-analytics-ad-plan.md](./04-analytics-ad-plan.md)를 따른다.
@@ -252,6 +262,33 @@ apps/init/mysql/migrations/
 ```
 
 적용된 버전은 `SCHEMA_MIGRATION` 테이블에 기록한다. 기존 데이터를 삭제하는 초기화 스크립트를 운영 배포에서 실행하지 않는다.
+
+### 상태와 발행 계약
+
+출처 후보, 게시글, 권리 상태는 MySQL을 단일 정본으로 사용한다. 자동 수집 worker와 공개 API가 같은 상태값을 임의로 만들지 않도록 아래 계약을 DB 제약과 서비스 계층에서 함께 강제한다.
+
+| 대상 | 필드 | 허용 상태 | 전이 원칙 |
+| --- | --- | --- | --- |
+| 후보 수집 | `fetch_status` | `NOT_REQUIRED`, `PENDING`, `FETCHING`, `SUCCEEDED`, `FAILED`, `BLOCKED` | worker는 수집 단계 안에서만 전이하며 공개 상태를 바꾸지 않음 |
+| 후보 검수 | `review_status` | `PENDING`, `IN_REVIEW`, `APPROVED`, `REJECTED`, `DUPLICATE`, `EXPIRED` | 운영자만 검수를 시작·종결하며 30일 미처리 후보는 `EXPIRED` 처리 |
+| 게시글 | `post_status` | `DRAFT`, `SCHEDULED`, `PUBLISHED`, `HIDDEN`, `ARCHIVED` | 공개 API는 공개 조건을 만족한 `PUBLISHED`만 조회하며 최종 발행·예약·재공개는 운영자만 수행 |
+| 권리 | `rights_status` | `PENDING`, `CLEARED`, `REJECTED`, `DISPUTED` | `CLEARED`만 발행 가능하고 `DISPUTED` 전환 시 공개 게시글을 같은 트랜잭션에서 `HIDDEN` 처리 |
+
+- 후보 검수는 `PATCH /api/v1/admin/source-candidates/:candidateNo/review`, 초안 생성은 `POST /api/v1/admin/source-candidates/:candidateNo/draft`, 최종 발행은 `POST /api/v1/admin/posts/:postNo/publish`로 분리한다.
+- 초안 생성 요청은 `TB_SOURCE_CANDIDATE.draft_post_no`와 `TB_POST.source_candidate_no`를 unique 연결키로 사용해 한 개의 `DRAFT`만 생성한다. 같은 멱등 요청을 반복하면 기존 초안 번호를 반환한다.
+- `APPROVED`는 검수 완료 상태일 뿐 공개 상태가 아니다. 검수 API와 수집 worker는 초안을 만들거나 `PUBLISHED`, `SCHEDULED`로 전이할 권한이 없다.
+- 운영자는 최종 발행 명령에서 즉시 발행 또는 미래 `publishAt`을 지정한 예약 발행을 선택할 수 있다. 예약 작업은 운영자가 명시적으로 `SCHEDULED`로 등록한 글만 시각 도달 후 `PUBLISHED`로 전이하며 수집 worker가 예약을 만들 수 없다.
+- 발행 명령은 `rights_status=CLEARED`, 필수 출처·본문·이미지 검증 통과, 현재 상태 `DRAFT` 또는 허용된 재공개 상태를 확인한다. 조건이 맞지 않으면 상태를 바꾸지 않고 실패 이유를 반환한다.
+- 숨김은 `PUBLISHED -> HIDDEN`, 재공개는 운영자의 재검수 후 `HIDDEN -> PUBLISHED`만 허용한다. 권리 상태가 `DISPUTED` 또는 `REJECTED`면 재공개할 수 없다.
+- 모든 검수·발행·숨김 전이는 운영자 번호, 요청 ID, 이전/이후 상태, 시각을 감사 로그에 남긴다.
+
+### 분석 저장소
+
+- 동의와 무관하게 필요한 최소 운영 통계는 MySQL의 `TB_VISIT_EVENT`에 저장하고, 핵심 제품 지표의 정본으로 사용한다.
+- `TB_VISIT_EVENT`에는 `anonymous_id`, `session_id`, `event_type`, nullable `post_no`, `occurred_at`만 저장한다. 이메일, 닉네임, 본문, 댓글, 제보 원문, 원문 IP와 User-Agent 원문은 저장하지 않는다.
+- 운영 집계는 MySQL의 일별 집계 테이블로 분리할 수 있으나 원본 이벤트와 집계 정의를 함께 버전 관리한다. GA4 결과를 MySQL 정본에 역수입하지 않는다.
+- GA4는 사용자가 분석을 허용한 뒤에만 로드하며 유입 채널, 기기, 화면 흐름 분석에만 사용한다. 분석 거부 시에도 서비스와 최소 운영 통계는 동작해야 한다.
+- 분석 보관기간, 익명 식별자 생성·회전·삭제 규칙은 [04-analytics-ad-plan.md](./04-analytics-ad-plan.md)를 따르며, 인프라 설정이 그 계약보다 오래 보관하지 않게 한다.
 
 ### 이미지
 
@@ -310,12 +347,12 @@ M0~M1.5에는 아래 확장 조건이 생기기 전까지 Redis를 사용하지 
 
 ## 13. 배포 구조
 
-### 출처 후보 수집 작업
+### M1 운영 자동화 후보: 출처 후보 수집
 
-출처 후보 수집은 공개 사용자 요청과 분리한다. 초기에는 관리자 명령으로 실행하고, 자동 주기는 운영 안정화 이후 feature flag로 연다.
+M0에서는 운영자가 후보 URL을 수동 등록한다. 목록·상세를 주기적으로 가져오는 자동 수집은 M1의 운영 자동화 후보이며, M1 진입과 운영 안정성 검증을 모두 통과한 뒤 별도 feature flag로만 연다. 자동 수집은 공개 사용자 요청 및 최종 발행 흐름과 분리한다.
 
 ```text
-관리자 실행
+M1 수집 trigger
   -> SourceCollector job
   -> SourceAdapter별 목록 요청
   -> 상세 후보 요청
@@ -325,10 +362,11 @@ M0~M1.5에는 아래 확장 조건이 생기기 전까지 Redis를 사용하지 
 ```
 
 - 수집 job은 API 컨테이너 내부 worker 또는 별도 one-shot container로 실행한다.
+- `SOURCE_CANDIDATE_COLLECTION_ENABLED=false`를 기본값으로 두며 M0에서는 worker를 배포하거나 예약 실행하지 않는다.
 - 같은 출처에 동시에 여러 worker가 접근하지 않도록 source별 lock을 둔다.
 - 실패한 출처는 backoff를 적용하고 반복 실패 시 자동 중지한다.
-- 수집 결과는 공개 게시글 테이블에 직접 쓰지 않는다.
-- `SOURCE_CANDIDATE_AUTO_PUBLISH=false`를 운영 기본값으로 둔다.
+- 수집 결과는 임시 큐 `TB_SOURCE_CANDIDATE`에만 저장하고 공개 게시글 테이블에 직접 쓰지 않는다.
+- 자동 수집에는 초안 생성, 발행 API 호출, `post_status` 변경 권한을 부여하지 않는다. 자동 발행 feature flag는 만들지 않으며 운영자가 별도 최종 발행 명령을 수행해야 한다.
 
 ### 이미지 관리
 
@@ -573,8 +611,9 @@ infra/
 14. Cloudflare DNS와 TLS를 설정한다.
 15. GA4, 분석 동의 bar, 쿠키 설정과 CSP Report-Only를 적용한다.
 16. 제한 공개 전 부하 테스트와 복구 테스트를 수행한다.
+17. M1 진입 후 필요성이 확인되면 임시 큐 전용 자동 수집 worker를 별도 검토한다.
 
-광고 게이트 통과 후에는 `/ads.txt`, 상세 상·하단 배너, 대형 광고 순서로 별도 배포한다. 대형 광고는 일 1회부터 시작해 최대 일 3회까지 단계적으로 올리며 M0 운영 시작의 선행 조건으로 만들지 않는다.
+광고 게이트 통과 후에는 `/ads.txt`와 상세의 `AD-POST-BODY-BOTTOM`, `AD-DETAIL-LIST-INLINE`, `AD-DETAIL-LIST-AFTER`를 별도 배포한다. 세 슬롯은 모두 M0 운영 시작의 선행 조건이 아니며, 상세의 다른 위치를 추가하려면 화면·분석 정본을 먼저 개정한다.
 
 ## 22. 운영 시작 체크리스트
 
@@ -582,7 +621,7 @@ infra/
 - [ ] Lightsail 고정 IP 연결
 - [ ] AWS 루트 MFA와 운영용 IAM 계정 설정
 - [ ] AWS Budget `$25`, `$35` 비용 알림 설정
-- [ ] 운영 도메인 확정
+- [ ] `__SERVICE_DOMAIN__`을 실제 확보 도메인 문자열로 교체하고 placeholder 잔존 검사 통과
 - [ ] SSH key 인증과 방화벽 적용
 - [ ] MySQL 외부 포트 미노출 확인
 - [ ] 운영 환경 변수 권한 확인
@@ -605,8 +644,10 @@ infra/
 광고 실험 시 추가 확인한다.
 
 - [ ] `/ads.txt` publisher ID와 AdSense 계정 일치
-- [ ] 상세 상·하단 배너만 활성화되고 금지 화면에는 광고가 없음
-- [ ] 대형 광고 일 3회·상세 3개·20분 제한 확인
+- [ ] `AD-POST-BODY-BOTTOM`이 본문과 출처 다음에만 표시됨
+- [ ] `AD-DETAIL-LIST-INLINE`이 같은 게시판의 현재 글 주변 20개 목록 중간에 표시되고 게시글 수 산정에서 제외됨
+- [ ] `AD-DETAIL-LIST-AFTER`가 하단 목록 아래에만 표시됨
+- [ ] 상세 상단과 이전·다음 탐색 위치에는 광고가 없음
 - [ ] 광고 script 차단·실패 시 상세 이동 smoke test 통과
 - [ ] `ADS_ENABLED=false`로 광고 기능 즉시 비활성화 확인
 
@@ -614,7 +655,7 @@ infra/
 
 M0부터 M1.5까지 적당한 인프라는 다음과 같다.
 
-> AWS Lightsail 서울 리전 `ap-northeast-2`의 2 vCPU, RAM 4GB, SSD 80GB 인스턴스 한 대에서 Nginx, Nuxt, Express, MySQL을 Docker Compose로 운영한다. 정적 파일은 Cloudflare와 Nginx가 처리하고, Lightsail 자동 스냅샷과 S3 데이터 백업을 함께 사용한다. Redis와 다중 서버는 측정된 병목이 생긴 뒤 추가한다.
+> AWS Lightsail 서울 리전 `ap-northeast-2`의 2 vCPU, RAM 4GB, SSD 80GB 인스턴스 한 대에서 Nginx, Nuxt, Express, MySQL을 Docker Compose로 운영한다. 정적 파일은 Cloudflare와 Nginx가 처리하고, Lightsail 자동 스냅샷과 S3 데이터 백업을 함께 사용한다. 자동 수집은 M1 운영 자동화 후보로만 두고 임시 큐 저장과 수동 최종 발행 경계를 강제한다. Redis와 다중 서버는 측정된 병목이 생긴 뒤 추가한다.
 
 이 구성은 단일 서버 장애를 허용하는 대신 복구 절차를 명확히 하며, 초기 서비스에 불필요한 운영 복잡도를 만들지 않는다.
 

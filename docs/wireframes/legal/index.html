@@ -3,330 +3,222 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>블라리요 정책 화면 와이어프레임</title>
+  <title>블라리요 정책 모달 와이어프레임</title>
   <style>
     :root {
-      --ink: #171717;
-      --muted: #666;
-      --line: #d8d8d8;
-      --paper: #fff;
-      --canvas: #eceff1;
-      --brand: #ffd43b;
-      --accent: #087f8c;
+      --midnight: #1b262c;
+      --charcoal: #262626;
+      --slate: #3a4a5a;
+      --muted: #565f64;
+      --teal: #00a19b;
+      --teal-dark: #007a76;
+      --red: #c74b50;
+      --gold: #e2b858;
+      --line: #d4dce0;
+      --paper: #f9f9f9;
+      --white: #fff;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      color: var(--ink);
-      background: var(--canvas);
-      font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-    }
+    html, body { min-height: 100%; }
+    body { margin: 0; color: var(--charcoal); background: var(--slate); font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+    body.modal-open { overflow: hidden; }
     a { color: inherit; text-decoration: none; }
-    button { font: inherit; color: inherit; cursor: pointer; }
-    .review-bar {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 10px 18px;
-      color: #fff;
-      background: #202124;
-    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .review-bar { position: relative; z-index: 5; min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 16px; color: #fff; background: var(--midnight); }
     .review-bar strong { font-size: 14px; }
     .tabs { display: flex; flex-wrap: wrap; gap: 4px; }
-    .tabs button {
-      min-height: 44px;
-      padding: 0 10px;
-      border: 1px solid #5f6368;
-      border-radius: 4px;
-      color: #e8eaed;
-      background: transparent;
-      font-weight: 800;
-    }
-    .tabs button[aria-selected="true"] {
-      border-color: var(--brand);
-      color: #111;
-      background: var(--brand);
-    }
-    .browser {
-      width: min(1120px, calc(100% - 32px));
-      margin: 24px auto 48px;
-      border: 1px solid #adb3b7;
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--paper);
-    }
-    .chrome {
-      height: 40px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 12px;
-      border-bottom: 1px solid #c7c9cc;
-      background: #f1f3f4;
-      color: #666;
-      font-size: 12px;
-    }
-    .dot { width: 9px; height: 9px; border-radius: 50%; background: #adb5bd; }
-    .address {
-      flex: 1;
-      padding: 6px 10px;
-      border: 1px solid #d1d3d4;
-      border-radius: 4px;
-      background: #fff;
-    }
-    .site-header {
-      position: sticky;
-      top: 0;
-      border-bottom: 1px solid var(--line);
-      background: #fff;
-    }
-    .header-inner {
-      max-width: 960px;
-      min-height: 58px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-    .brand { font-size: 22px; font-weight: 900; }
-    .back { color: var(--accent); font-size: 13px; font-weight: 900; text-decoration: underline; }
-    .page {
-      max-width: 960px;
-      display: grid;
-      grid-template-columns: 220px minmax(0, 1fr);
-      gap: 34px;
-      margin: 0 auto;
-      padding: 32px 20px 56px;
-    }
-    .policy-nav {
-      position: sticky;
-      top: 76px;
-      align-self: start;
-      border-top: 2px solid var(--ink);
-    }
-    .policy-nav a {
-      display: block;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--line);
-      color: #444;
-      font-size: 13px;
-      font-weight: 800;
-    }
-    .policy-nav a.is-active { color: var(--ink); }
-    .content { min-width: 0; }
-    .policy-title {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 16px;
-      padding-bottom: 14px;
-      border-bottom: 2px solid var(--ink);
-    }
-    .policy-title h1 { margin: 0; font-size: clamp(26px, 4vw, 36px); }
-    .policy-title p { margin: 0; color: var(--muted); font-size: 12px; }
-    .summary {
-      margin: 18px 0;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-left: 4px solid var(--accent);
-      background: #f7fbfb;
-      color: #444;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-    .section {
-      padding: 20px 0;
-      border-bottom: 1px solid var(--line);
-    }
-    .section h2 { margin: 0 0 10px; font-size: 18px; }
-    .section p,
-    .section li {
-      color: #444;
-      font-size: 14px;
-      line-height: 1.75;
-    }
-    .section ul,
-    .section ol { margin: 0; padding-left: 20px; }
-    .table {
-      display: grid;
-      border-top: 1px solid var(--line);
-      font-size: 13px;
-    }
-    .table div {
-      display: grid;
-      grid-template-columns: 140px 1fr;
-      border-bottom: 1px solid var(--line);
-    }
-    .table strong,
-    .table span { padding: 10px; }
-    .table strong { background: #f7f7f5; }
-    .cookie-actions {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 14px;
-    }
-    .cookie-actions button {
-      min-height: 42px;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      background: #fff;
-      font-weight: 900;
-    }
-    .cookie-actions .primary {
-      border-color: var(--ink);
-      background: var(--brand);
-    }
-    .screen[hidden] { display: none; }
-    .site-footer {
-      border-top: 1px solid var(--line);
-      background: #f7f7f7;
-    }
-    .footer-inner {
-      max-width: 960px;
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      margin: 0 auto;
-      padding: 20px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .footer-inner nav { display: flex; flex-wrap: wrap; gap: 12px; }
-    .footer-inner a { text-decoration: underline; }
-    @media (max-width: 767px) {
-      body { background: #fff; }
-      .review-bar { position: static; align-items: stretch; flex-direction: column; padding: 8px 12px; }
+    .tabs button { min-height: 38px; padding: 0 10px; border: 1px solid #6b7c84; border-radius: 4px; color: #fff; background: transparent; font-size: 12px; font-weight: 800; }
+    .tabs button[aria-selected="true"] { border-color: var(--teal); background: var(--teal); }
+    .browser { width: min(760px, calc(100% - 28px)); min-height: 820px; margin: 22px auto 46px; overflow: hidden; border: 1px solid #8b9fa8; border-radius: 8px; background: var(--paper); box-shadow: 0 20px 50px rgba(0, 0, 0, .16); }
+    .chrome { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-bottom: 1px solid var(--line); background: #edf0f2; color: var(--muted); font-size: 12px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #8b9fa8; }
+    .address { flex: 1; padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
+    .site-header { min-height: 54px; display: grid; grid-template-columns: 88px minmax(0, 1fr) 88px; align-items: center; padding: 0 12px; color: #fff; background: var(--slate); }
+    .brand { grid-column: 2; justify-self: center; color: #fff; font-size: 20px; font-weight: 900; }
+    .site-header nav { font-size: 13px; font-weight: 800; }
+    .site-header .login { grid-column: 3; justify-self: end; }
+    .background-page { padding: 22px 18px 60px; }
+    .background-page h1 { margin: 0 0 14px; font-size: 22px; }
+    .fake-list { border-top: 2px solid var(--charcoal); }
+    .fake-row { min-height: 58px; display: grid; grid-template-columns: 58px 1fr 76px; align-items: center; gap: 10px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    .fake-row strong { color: var(--charcoal); font-size: 14px; }
+    .reopen { min-height: 40px; margin-top: 18px; padding: 0 14px; border: 1px solid var(--teal-dark); border-radius: 4px; color: #fff; background: var(--teal); font-weight: 900; }
+    .modal-layer { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 14px; background: rgba(27, 38, 44, .84); backdrop-filter: blur(3px); }
+    .modal-layer[hidden] { display: none; }
+    .policy-dialog { width: min(720px, 100%); max-height: min(760px, calc(100vh - 28px)); display: flex; flex-direction: column; overflow: hidden; border-top: 5px solid var(--teal); border-radius: 8px; background: var(--white); box-shadow: 0 20px 56px rgba(0, 0, 0, .42); }
+    .policy-head { position: relative; padding: 24px 58px 18px 22px; border-bottom: 1px solid var(--line); }
+    .eyebrow { display: block; margin-bottom: 8px; color: var(--teal-dark); font-size: 11px; font-weight: 900; letter-spacing: .12em; }
+    .policy-head h1 { margin: 0; font-size: 27px; }
+    .policy-head p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .close { position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 28px; }
+    .policy-body { min-height: 220px; overflow-y: auto; padding: 18px 22px 22px; }
+    .history-board { border-top: 2px solid var(--charcoal); }
+    .history-section { margin-top: 28px; padding-top: 22px; border-top: 6px solid var(--line); }
+    .history-section h2 { margin: 0 0 5px; font-size: 18px; }
+    .history-section > p { margin: 0 0 13px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .history-head, .history-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 100px 98px; align-items: center; gap: 10px; min-height: 48px; padding: 0 10px; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .history-head { min-height: 40px; color: var(--muted); background: #eef2f3; font-size: 12px; font-weight: 800; }
+    .history-row strong { overflow-wrap: anywhere; }
+    .history-row button { min-height: 34px; border: 1px solid var(--teal-dark); border-radius: 4px; color: var(--teal-dark); background: #fff; font-size: 12px; font-weight: 900; }
+    .empty-history { margin: 0; padding: 18px 10px; border-bottom: 1px solid var(--line); color: var(--muted); text-align: center; font-size: 12px; }
+    .policy-document h2 { margin: 0 0 12px; font-size: 20px; }
+    .policy-document h3 { margin: 22px 0 8px; font-size: 16px; }
+    .policy-document p, .policy-document li { color: #454d51; font-size: 14px; line-height: 1.75; }
+    .back-history { min-height: 38px; margin-bottom: 18px; padding: 0 12px; border: 1px solid var(--line); background: #fff; font-weight: 800; }
+    .request-note { margin: 0 0 16px; padding: 12px 14px; border-left: 4px solid var(--red); background: #f6e7e8; color: #6b2b2e; font-size: 13px; line-height: 1.6; }
+    .form-grid { display: grid; gap: 13px; }
+    .form-grid label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .form-grid input, .form-grid select, .form-grid textarea { width: 100%; padding: 10px 11px; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
+    .form-grid textarea { min-height: 100px; resize: vertical; }
+    .form-grid .consent-check { grid-template-columns: auto 1fr; align-items: start; line-height: 1.5; }
+    .form-grid .consent-check input { width: 20px; height: 20px; padding: 0; accent-color: var(--teal); }
+    .primary { min-height: 44px; border: 1px solid var(--teal-dark); border-radius: 4px; color: #fff; background: var(--teal); font-weight: 900; }
+    .cookie-list { display: grid; gap: 10px; }
+    .cookie-row { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; padding: 14px; border: 1px solid var(--line); border-radius: 4px; }
+    .cookie-row strong { display: block; margin-bottom: 4px; }
+    .cookie-row span { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .cookie-row input { width: 20px; height: 20px; accent-color: var(--teal); }
+    @media (max-width: 600px) {
+      .review-bar { align-items: stretch; flex-direction: column; }
       .tabs { display: grid; grid-template-columns: 1fr 1fr; }
-      .browser { width: 100%; margin: 0; border: 0; border-radius: 0; }
+      .browser { width: 100%; min-height: calc(100vh - 116px); margin: 0; border: 0; border-radius: 0; }
       .chrome { display: none; }
-      .header-inner { min-height: 52px; padding: 0 12px; }
-      .page { display: block; padding: 18px 12px 40px; }
-      .policy-nav {
-        position: static;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0;
-        margin: -18px -12px 18px;
-        border-top: 0;
-        border-bottom: 1px solid var(--line);
-      }
-      .policy-nav a {
-        padding: 11px 0;
-        text-align: center;
-        border-bottom: 2px solid transparent;
-      }
-      .policy-nav a.is-active { border-bottom-color: var(--ink); }
-      .policy-title { align-items: flex-start; flex-direction: column; gap: 6px; }
-      .policy-title h1 { font-size: 24px; }
-      .table div { grid-template-columns: 1fr; }
-      .cookie-actions { grid-template-columns: 1fr; }
-      .footer-inner { flex-direction: column; padding: 18px 12px; }
+      .modal-layer { align-items: center; }
+      .policy-dialog { max-height: calc(100vh - 28px); }
+      .policy-head { padding: 20px 52px 14px 18px; }
+      .policy-head h1 { font-size: 23px; }
+      .policy-body { padding: 16px 18px 18px; }
+      .history-head { display: none; }
+      .history-row { grid-template-columns: 58px minmax(0, 1fr) 84px; padding: 10px 4px; }
+      .history-row .date { display: none; }
+      .cookie-row { grid-template-columns: 1fr auto; }
     }
   </style>
 </head>
-<body>
-  <div class="review-bar">
-    <strong>Blariyo legal pages wireframe</strong>
-    <div class="tabs" role="tablist" aria-label="정책 화면 선택">
-      <button type="button" role="tab" aria-selected="true" data-screen="terms">이용약관</button>
-      <button type="button" role="tab" aria-selected="false" data-screen="privacy">개인정보처리방침</button>
-      <button type="button" role="tab" aria-selected="false" data-screen="rights">권리자요청</button>
-      <button type="button" role="tab" aria-selected="false" data-screen="cookies">쿠키설정</button>
+<body class="modal-open">
+  <header class="review-bar" id="reviewBar">
+    <strong>Blariyo policy modal wireframe</strong>
+    <div class="tabs" role="tablist" aria-label="정책 모달 선택">
+      <button type="button" role="tab" aria-selected="true" data-policy="terms">이용약관</button>
+      <button type="button" role="tab" aria-selected="false" data-policy="privacy">개인정보처리방침</button>
+      <button type="button" role="tab" aria-selected="false" data-policy="rights">권리자 요청</button>
+      <button type="button" role="tab" aria-selected="false" data-policy="cookies">쿠키 설정</button>
     </div>
-  </div>
+  </header>
 
-  <div class="browser">
-    <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="address">https://__SERVICE_DOMAIN__/terms</span></div>
-
-    <header class="site-header">
-      <div class="header-inner">
-        <a class="brand" href="#">블라리요</a>
-        <a class="back" href="../responsive/index.html">목록으로</a>
+  <div class="browser" id="backgroundSite" inert>
+    <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="address">https://__SERVICE_DOMAIN__/meme</span></div>
+    <header class="site-header"><span aria-hidden="true"></span><a class="brand" href="../responsive/index.html">블라리요</a><a class="login" href="/login">로그인</a></header>
+    <main class="background-page">
+      <h1>짤</h1>
+      <div class="fake-list">
+        <div class="fake-row"><span>공지</span><strong>블라리요 운영 및 권리자 요청 안내</strong><span>8월 12일</span></div>
+        <div class="fake-row"><span>1048</span><strong>회의 시작 5분 전에 모두가 바빠지는 이유</strong><span>14:30</span></div>
+        <div class="fake-row"><span>1047</span><strong>퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</strong><span>13:45</span></div>
       </div>
-    </header>
-
-    <main class="page">
-      <nav class="policy-nav" aria-label="정책 메뉴">
-        <a href="/terms" class="is-active" data-go="terms">이용약관</a>
-        <a href="/privacy" data-go="privacy">개인정보처리방침</a>
-        <a href="/rights" data-go="rights">권리자요청</a>
-        <a href="/cookie-settings" data-go="cookies">쿠키설정</a>
-      </nav>
-
-      <section class="content screen" data-view="terms">
-        <div class="policy-title"><h1>이용약관</h1><p>시행일 `[입력 필요]`</p></div>
-        <div class="summary">서비스 이용 조건, 게시글 운영 기준, 광고·제휴 콘텐츠, 책임 범위를 조항형으로 안내한다.</div>
-        <section class="section"><h2>핵심 구성</h2><ol><li>목적과 용어</li><li>서비스 제공과 중단</li><li>이용자 금지 행위</li><li>게시글 운영과 권리자 요청</li><li>광고와 제휴 콘텐츠</li><li>책임 제한과 분쟁 해결</li></ol></section>
-        <section class="section"><h2>UI 규칙</h2><p>상단에는 제목과 시행일을 두고, 본문은 조항 단위 접힘 없이 한 페이지에서 스크롤한다. 모바일에서도 약관 검색 없이 읽히도록 조항 제목을 크게 둔다.</p></section>
-      </section>
-
-      <section class="content screen" data-view="privacy" hidden>
-        <div class="policy-title"><h1>개인정보처리방침</h1><p>시행일 `[입력 필요]`</p></div>
-        <div class="summary">수집 항목, 처리 목적, 보유 기간, 제3자 제공, 위탁, 쿠키, 권리 행사, 보호책임자를 표로 먼저 보여준다.</div>
-        <section class="section"><h2>요약 표</h2><div class="table"><div><strong>직접 회원 정보</strong><span>초기 짤 게시판에서는 회원가입 없음</span></div><div><strong>자동 생성 정보</strong><span>IP, User-Agent, 접속 일시, 요청 URL</span></div><div><strong>선택 정보</strong><span>분석 동의, 광고 동의, 권리자 요청 정보</span></div><div><strong>보유 기간</strong><span>로그 90일, 동의 기록 12개월, 권리자 요청 3년</span></div></div></section>
-        <section class="section"><h2>UI 규칙</h2><p>개인정보 화면은 표와 조항을 함께 쓴다. 사용자가 가장 많이 찾는 수집 항목, 보유 기간, 문의처를 상단 1스크린 안에 배치한다.</p></section>
-      </section>
-
-      <section class="content screen" data-view="rights" hidden>
-        <div class="policy-title"><h1>권리자 요청</h1><p>게시 중단·정정 요청</p></div>
-        <div class="summary">저작권, 초상권, 개인정보, 명예 등 권리 침해 가능성이 있는 게시글의 중단·수정 요청 방법을 안내한다.</div>
-        <section class="section"><h2>요청 정보</h2><ol><li>요청자 이름 또는 단체명</li><li>연락 이메일</li><li>게시글 URL</li><li>침해 권리와 사유</li><li>권리 소명 자료</li><li>원하는 조치</li></ol></section>
-        <section class="section"><h2>처리 흐름</h2><p>접수 → 대상 게시글 우선 비노출 → 관리자 확인 → 재공개·수정·삭제 판단 → 처리 결과 회신 순서로 보여준다.</p></section>
-      </section>
-
-      <section class="content screen" data-view="cookies" hidden>
-        <div class="policy-title"><h1>쿠키 설정</h1><p>언제든 변경 가능</p></div>
-        <div class="summary">필수 쿠키는 항상 사용하고, 분석·광고 쿠키는 이용자가 선택한다.</div>
-        <section class="section"><h2>설정 카드</h2><div class="table"><div><strong>필수</strong><span>보안, 세션, 설정 저장. 항상 사용</span></div><div><strong>분석</strong><span><label><input type="checkbox"> 방문 통계와 화면 흐름 측정 허용</label></span></div><div><strong>광고</strong><span><label><input type="checkbox"> 광고 노출 빈도와 품질 관리 허용</label></span></div></div><div class="cookie-actions"><button type="button">필수만</button><button type="button">모두 허용</button><button type="button" class="primary">선택 저장</button></div></section>
-        <section class="section"><h2>UI 규칙</h2><p>쿠키 설정은 modal로도 열 수 있지만, 별도 URL에서도 접근 가능해야 한다. 동의 전에도 게시글 열람을 막지 않는다.</p></section>
-      </section>
+      <button class="reopen" type="button" data-reopen>정책 모달 다시 열기</button>
     </main>
-
-    <footer class="site-footer">
-      <div class="footer-inner">
-        <div><strong>블라리요</strong><br>슬로건 결정 보류</div>
-        <nav><a href="/terms" data-go="terms">이용약관</a><a href="/privacy" data-go="privacy">개인정보처리방침</a><a href="/rights" data-go="rights">권리자 요청</a><a href="/cookie-settings" data-go="cookies">쿠키 설정</a></nav>
-      </div>
-    </footer>
   </div>
+
+  <div class="modal-layer" id="policyModal">
+    <section class="policy-dialog" role="dialog" aria-modal="true" aria-labelledby="policyTitle" aria-describedby="policyDescription" tabindex="-1">
+      <header class="policy-head">
+        <span class="eyebrow">BLARIYO POLICY</span>
+        <h1 id="policyTitle">이용약관</h1>
+        <p id="policyDescription">시행 중인 약관과 개정 이력을 게시판 형태로 확인합니다.</p>
+        <button class="close" type="button" data-close aria-label="정책 모달 닫기">×</button>
+      </header>
+      <div class="policy-body" id="policyBody"></div>
+    </section>
+  </div>
+
+  <template id="historyTemplate">
+    <div class="history-board">
+      <div class="history-head"><span>버전</span><span>제목</span><span>시행일</span><span>보기</span></div>
+      <div class="history-row"><span>v0.1</span><strong data-history-subject></strong><span class="date">시행 전</span><button type="button" data-version>현재 초안</button></div>
+      <p class="empty-history">이전 개정 이력이 없습니다.</p>
+    </div>
+  </template>
 
   <script>
-    const routeMap = { terms: '/terms', privacy: '/privacy', rights: '/rights', cookies: '/cookie-settings' };
-    const screens = Array.from(document.querySelectorAll('[data-view]'));
-    const tabs = Array.from(document.querySelectorAll('[data-screen]'));
-    const links = Array.from(document.querySelectorAll('[data-go]'));
-    const address = document.querySelector('.address');
+    const policyData = {
+      terms: { title: '이용약관', description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.', subject: '블라리요 이용약관 초안' },
+      privacy: { title: '개인정보처리방침', description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.', subject: '블라리요 개인정보처리방침 초안' }
+    };
+    const modal = document.getElementById('policyModal');
+    const dialog = modal.querySelector('[role="dialog"]');
+    const title = document.getElementById('policyTitle');
+    const description = document.getElementById('policyDescription');
+    const body = document.getElementById('policyBody');
+    const backgroundSite = document.getElementById('backgroundSite');
+    const tabs = Array.from(document.querySelectorAll('[data-policy]'));
+    let currentPolicy = 'terms';
 
-    function showScreen(name) {
-      if (!routeMap[name]) return;
-      screens.forEach((screen) => { screen.hidden = screen.dataset.view !== name; });
-      tabs.forEach((tab) => { tab.setAttribute('aria-selected', String(tab.dataset.screen === name)); });
-      links.forEach((link) => { link.classList.toggle('is-active', link.dataset.go === name); });
-      if (address) address.textContent = `https://__SERVICE_DOMAIN__${routeMap[name]}`;
-      history.replaceState(null, '', `#${name}`);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    function setModalState(open) {
+      modal.hidden = !open;
+      document.body.classList.toggle('modal-open', open);
+      backgroundSite.inert = open;
+      if (open) dialog.focus();
     }
 
-    tabs.forEach((tab) => tab.addEventListener('click', () => showScreen(tab.dataset.screen)));
-    tabs.forEach((tab, index) => tab.addEventListener('keydown', (event) => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      event.preventDefault();
-      let next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : event.key === 'ArrowLeft' ? (index - 1 + tabs.length) % tabs.length : (index + 1) % tabs.length;
-      tabs[next].focus();
-      showScreen(tabs[next].dataset.screen);
-    }));
-    links.forEach((link) => link.addEventListener('click', (event) => {
-      event.preventDefault();
-      showScreen(link.dataset.go);
-    }));
-    showScreen(routeMap[location.hash.slice(1)] ? location.hash.slice(1) : 'terms');
+    function createHistory(type) {
+      const data = policyData[type];
+      const section = document.createElement('section');
+      section.className = 'history-section';
+      section.innerHTML = '<h2>개정 이력</h2><p>버전을 선택하면 위 문서 전체가 해당 버전으로 바뀝니다.</p>';
+      const fragment = document.getElementById('historyTemplate').content.cloneNode(true);
+      fragment.querySelector('[data-history-subject]').textContent = data.subject;
+      fragment.querySelector('[data-version]').dataset.version = type;
+      section.appendChild(fragment);
+      return section;
+    }
+
+    function renderDocument(type) {
+      const data = policyData[type];
+      title.textContent = data.title;
+      description.textContent = data.description;
+      const sections = type === 'terms'
+        ? ['목적', '정의', '약관 게시와 변경', '서비스와 소셜 계정', '게시글 선별과 발행', '외부 콘텐츠와 출처', '금지행위', '광고와 제휴', '권리자 요청', '지식재산권', '개인정보와 쿠키', '서비스 변경과 중단', '책임 제한', '통지와 분쟁 해결', '부칙']
+        : ['처리 목적', '처리 항목과 수집 방법', '내부 식별자', '보유 기간', '제3자 제공과 소셜 제공자', '처리위탁', '국외이전', '파기', '정보주체 권리', '쿠키와 GA4', '자동화된 결정과 AI', '안전성 확보 조치', '보호책임자와 고충 처리', '권익침해 구제', '변경과 이력'];
+      const policyText = sections.map((section, index) => `<h3>${type === 'terms' ? `제${index + 1}조 ` : `${index + 1}. `}${section}</h3><p>${index === 3 && type === 'terms' ? '네이버·카카오·Google·Apple 계정 가입, 별도 필수 동의, 탈퇴·연동 해제 기준을 공개합니다.' : index === 9 && type === 'privacy' ? '로그인 보안 저장소와 동의 후 GA4를 분리하고 회원·provider 식별자는 분석으로 보내지 않습니다.' : '현재 적용 전문을 이 위치에 생략 없이 표시합니다.'}</p>`).join('');
+      body.innerHTML = `<article class="policy-document"><h2>${data.subject}</h2><p>버전 v0.1 · 시행 전 · 현재 초안</p>${policyText}</article>`;
+      body.appendChild(createHistory(type));
+      body.scrollTo({ top: 0, behavior: 'auto' });
+    }
+
+    function renderRights() {
+      title.textContent = '권리자 요청';
+      description.textContent = '게시 중단·출처 정정·개인정보 삭제 요청을 접수합니다.';
+      body.innerHTML = `<p class="request-note">요청이 접수되면 대상 게시글을 우선 숨기고 관리자가 재공개·수정·삭제를 판단합니다.</p><form class="form-grid"><label>대상 게시글 URL<input type="url" placeholder="https://__SERVICE_DOMAIN__/posts/1047"></label><label>요청 유형<select><option>게시 중단</option><option>출처 정정</option><option>개인정보 삭제</option></select></label><label>회신 이메일<input type="email" placeholder="name@example.com"></label><label>요청 내용<textarea placeholder="권리 관계와 요청 사유를 입력해 주세요."></textarea></label><label class="consent-check"><input type="checkbox" required><span>권리 확인·결과 회신을 위한 개인정보 수집·이용 동의 (필수)</span></label><button class="primary" type="button">요청 접수</button></form>`;
+    }
+
+    function renderCookies() {
+      title.textContent = '쿠키 설정';
+      description.textContent = '필수 기능을 제외한 분석·광고 저장 여부를 선택합니다.';
+      body.innerHTML = `<div class="cookie-list"><label class="cookie-row"><span><strong>필수</strong>보안, 소셜 로그인 세션, OAuth 위조 방지, 설정 저장</span><input type="checkbox" checked disabled></label><label class="cookie-row"><span><strong>분석</strong>동의 후 GA4 방문 통계와 화면 흐름 측정</span><input type="checkbox"></label><label class="cookie-row"><span><strong>광고</strong>광고 노출 빈도와 품질 관리</span><input type="checkbox"></label><button class="primary" type="button" data-save-cookies>선택 저장</button></div>`;
+    }
+
+    function showPolicy(type) {
+      currentPolicy = ['terms', 'privacy', 'rights', 'cookies'].includes(type) ? type : 'terms';
+      tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.policy === currentPolicy)));
+      if (policyData[currentPolicy]) renderDocument(currentPolicy);
+      else if (currentPolicy === 'rights') renderRights();
+      else renderCookies();
+      history.replaceState(null, '', `#${currentPolicy}`);
+      setModalState(true);
+    }
+
+    tabs.forEach((tab) => tab.addEventListener('click', () => showPolicy(tab.dataset.policy)));
+    body.addEventListener('click', (event) => {
+      if (event.target.matches('[data-version]')) renderDocument(event.target.dataset.version);
+      if (event.target.matches('[data-save-cookies]')) setModalState(false);
+    });
+    document.querySelector('[data-close]').addEventListener('click', () => setModalState(false));
+    modal.addEventListener('click', (event) => { if (event.target === modal) setModalState(false); });
+    document.querySelector('[data-reopen]').addEventListener('click', () => showPolicy(currentPolicy));
+    document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !modal.hidden) setModalState(false); });
+    showPolicy(location.hash.slice(1));
   </script>
 </body>
 </html>

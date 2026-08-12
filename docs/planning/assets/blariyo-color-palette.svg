@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1400" viewBox="0 0 2400 1400" role="img" aria-labelledby="title description">
+  <title id="title">블라리요 컬러 팔레트</title>
+  <desc id="description">블라리요의 기본 팔레트 열 가지와 파생색 여섯 가지를 세로 색상 블록으로 정리한 이미지</desc>
+
+  <rect width="240" height="1240" x="0" y="0" fill="#1B262C"/>
+  <rect width="240" height="1240" x="240" y="0" fill="#262626"/>
+  <rect width="240" height="1240" x="480" y="0" fill="#3A4A5A"/>
+  <rect width="240" height="1240" x="720" y="0" fill="#565F64"/>
+  <rect width="240" height="1240" x="960" y="0" fill="#8B9FA8"/>
+  <rect width="240" height="980" x="1200" y="0" fill="#00A19B"/>
+  <rect width="240" height="980" x="1440" y="0" fill="#E2B858"/>
+  <rect width="240" height="980" x="1680" y="0" fill="#C74B50"/>
+  <rect width="240" height="1240" x="1920" y="0" fill="#D4DCE0"/>
+  <rect width="240" height="1240" x="2160" y="0" fill="#F9F9F9"/>
+
+  <g font-family="'D2Coding', Menlo, monospace" text-anchor="middle">
+    <g font-size="24" font-weight="700">
+      <text x="120" y="610" fill="#F9F9F9"><tspan x="120" font-size="40">#1B262C</tspan><tspan x="120" dy="44">Deep Midnight Blue</tspan></text>
+      <text x="360" y="610" fill="#F9F9F9"><tspan x="360" font-size="40">#262626</tspan><tspan x="360" dy="44">Dark Charcoal</tspan></text>
+      <text x="600" y="610" fill="#F9F9F9"><tspan x="600" font-size="40">#3A4A5A</tspan><tspan x="600" dy="44">Slate Blue Gray</tspan></text>
+      <text x="840" y="610" fill="#F9F9F9"><tspan x="840" font-size="40">#565F64</tspan><tspan x="840" dy="44">Medium Slate Gray</tspan></text>
+      <text x="1080" y="610" fill="#262626"><tspan x="1080" font-size="40">#8B9FA8</tspan><tspan x="1080" dy="44">Soft Ice Gray</tspan></text>
+      <text x="1320" y="610" fill="#262626"><tspan x="1320" font-size="40">#00A19B</tspan><tspan x="1320" dy="44">Vibrant Teal Green</tspan></text>
+      <text x="1560" y="610" fill="#262626"><tspan x="1560" font-size="40">#E2B858</tspan><tspan x="1560" dy="44">Warm Mustard Gold</tspan></text>
+      <text x="1800" y="610" fill="#F9F9F9"><tspan x="1800" font-size="40">#C74B50</tspan><tspan x="1800" dy="44">Crimson Red</tspan></text>
+      <text x="2040" y="610" fill="#262626"><tspan x="2040" font-size="40">#D4DCE0</tspan><tspan x="2040" dy="44">Cool Tint Silver</tspan></text>
+      <text x="2280" y="610" fill="#262626"><tspan x="2280" font-size="40">#F9F9F9</tspan><tspan x="2280" dy="44">Clean Off-White</tspan></text>
+    </g>
+  </g>
+
+  <g font-family="'D2Coding', Menlo, monospace" text-anchor="middle">
+    <rect width="240" height="130" x="1200" y="980" fill="#007A76"/>
+    <rect width="240" height="130" x="1200" y="1110" fill="#E2F4F3"/>
+    <rect width="240" height="130" x="1440" y="980" fill="#8A6B25"/>
+    <rect width="240" height="130" x="1440" y="1110" fill="#F8F0DC"/>
+    <rect width="240" height="130" x="1680" y="980" fill="#96383C"/>
+    <rect width="240" height="130" x="1680" y="1110" fill="#F6E7E8"/>
+
+    <g font-size="24" font-weight="700">
+      <text x="1320" y="1035" fill="#F9F9F9"><tspan x="1320" font-size="40">#007A76</tspan><tspan x="1320" dy="42">TEAL 700</tspan></text>
+      <text x="1320" y="1165" fill="#262626"><tspan x="1320" font-size="40">#E2F4F3</tspan><tspan x="1320" dy="42">TEAL 050</tspan></text>
+      <text x="1560" y="1035" fill="#F9F9F9"><tspan x="1560" font-size="40">#8A6B25</tspan><tspan x="1560" dy="42">GOLD 700</tspan></text>
+      <text x="1560" y="1165" fill="#262626"><tspan x="1560" font-size="40">#F8F0DC</tspan><tspan x="1560" dy="42">GOLD 050</tspan></text>
+      <text x="1800" y="1035" fill="#F9F9F9"><tspan x="1800" font-size="40">#96383C</tspan><tspan x="1800" dy="42">RED 700</tspan></text>
+      <text x="1800" y="1165" fill="#262626"><tspan x="1800" font-size="40">#F6E7E8</tspan><tspan x="1800" dy="42">RED 050</tspan></text>
+    </g>
+  </g>
+
+  <rect width="2400" height="160" x="0" y="1240" fill="#FFFFFF"/>
+  <g font-family="'D2Coding', Menlo, monospace">
+    <text x="60" y="1342" fill="#787C82" font-size="38" font-weight="400">blariyo color palette</text>
+    <circle cx="2110" cy="1320" r="38" fill="#00A19B"/>
+    <text x="2110" y="1334" fill="#262626" font-size="40" font-weight="800" text-anchor="middle">B</text>
+    <text x="2170" y="1336" fill="#3A4A5A" font-size="44" font-weight="700">블라리요</text>
+  </g>
+</svg>

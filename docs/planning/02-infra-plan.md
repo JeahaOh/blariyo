@@ -15,6 +15,8 @@
 - 이미지 저장 사업자와 물리 경로는 아직 확정하지 않는다.
 - 자동 수집 결과는 임시 큐에만 저장하고 즉시 공개하지 않는다.
 - 권리자 요청이 접수되면 대상 게시글을 먼저 숨긴다.
+- 네이버, 카카오, Google, Apple OAuth/OIDC 회원가입·로그인을 제공한다.
+- GA4는 분석 동의 후에만 로드하고 회원·소셜 계정 식별자를 전송하지 않는다.
 
 ## 2. 현재 인프라 제안
 
@@ -52,10 +54,13 @@ Redis, MongoDB, 다중 API 서버는 초기 필수 구성에 넣지 않는다.
 | `/community` | 추후 익게 |
 | `/news` | 추후 뉴스 |
 | `/posts/:postNo` | 게시글 상세 |
-| `/terms` | 이용약관 |
-| `/privacy` | 개인정보처리방침 |
-| `/rights` | 권리자 요청 |
-| `/cookie-settings` | 쿠키 설정 |
+| `/login` | 소셜 로그인 선택 |
+| `/signup/consent` | 최초 로그인 후 Blariyo 약관·개인정보 동의와 가입 완료 |
+| `/account` | 연동 제공자 확인, 로그아웃, 탈퇴 |
+| `/terms` | 이용약관 modal 직접 진입 |
+| `/privacy` | 개인정보처리방침 modal 직접 진입 |
+| `/rights` | 권리자 요청 modal 직접 진입 |
+| `/cookie-settings` | 쿠키 설정 modal 직접 진입 |
 | `/api/v1/*` | Express API |
 | `/_nuxt/*` | Nuxt 정적 자산 |
 | `/health/live` | 프로세스 생존 확인 |
@@ -100,6 +105,7 @@ TB_POST
   source_name varchar null
   source_url varchar null
   post_status varchar
+  pinned_order tinyint null
   scheduled_at datetime null
   published_at datetime null
   created_at datetime
@@ -119,6 +125,61 @@ TB_POST
 - 권리자 요청을 접수하면 게시글 상태를 같은 트랜잭션에서 `HIDDEN_REVIEW`로 변경한다.
 - 관리자가 재공개, 수정 후 재공개, 삭제 중 하나를 결정한다.
 - 상태 변경은 운영자, 이전·이후 상태, 시각, 요청 번호를 기록한다.
+
+### 정책 버전 데이터
+
+```text
+TB_POLICY_VERSION
+  policy_type varchar
+  version varchar
+  title varchar
+  body_markdown longtext
+  policy_status varchar
+  effective_at datetime null
+  created_at datetime
+  updated_at datetime
+  primary key (policy_type, version)
+```
+
+- `policy_type`은 `TERMS`, `PRIVACY`를 사용한다.
+- `policy_status`는 `DRAFT`, `SCHEDULED`, `EFFECTIVE`, `RETIRED`를 사용한다.
+- 공개 시점에는 유형별 `EFFECTIVE` 버전을 하나만 유지한다.
+- 시행된 본문은 덮어쓰지 않고 새 버전을 추가한다.
+- 기본 요청은 현재 적용 본문과 하단 이력 metadata를 함께 반환하고, 버전 지정 요청은 해당 버전의 전체 본문을 반환한다.
+
+### 회원·소셜 연동 데이터
+
+```text
+TB_USER
+  user_no bigint primary key
+  user_status varchar
+  display_name varchar null
+  profile_image_url varchar null
+  joined_at datetime
+  last_login_at datetime
+  withdrawn_at datetime null
+
+TB_SOCIAL_ACCOUNT
+  user_no bigint foreign key
+  provider varchar
+  provider_subject varchar
+  email varchar null
+  email_verified char(1) null
+  linked_at datetime
+  last_authenticated_at datetime
+  unique(provider, provider_subject)
+
+TB_POLICY_CONSENT
+  user_no bigint foreign key
+  policy_type varchar
+  policy_version varchar
+  consented_at datetime
+```
+
+- provider는 `NAVER`, `KAKAO`, `GOOGLE`, `APPLE`을 사용하되 adapter registry로 관리한다.
+- 이메일은 unique constraint와 자동 계정 병합 기준으로 사용하지 않는다.
+- OAuth access·refresh token은 로그인 완료 후 폐기하며 기본 회원 테이블에 저장하지 않는다.
+- 탈퇴는 회원 상태 변경, 활성 세션 폐기, 소셜 연동 삭제, 제공자별 unlink/revoke를 하나의 작업으로 처리한다. 외부 API 실패는 재시도 queue와 운영 경보에 남기되 token·개인정보 원문은 로그에 남기지 않는다.
 
 ## 6. 게시와 예약
 
@@ -196,8 +257,16 @@ SourceAdapter
 - `GET /api/v1/boards`
 - `GET /api/v1/posts?board=meme&page=1`
 - `GET /api/v1/posts/:postNo`
+- `GET /api/v1/policies/:type`
+- `GET /api/v1/policies/:type?version=v0.1`
+- `GET /api/v1/auth/:provider/start`
+- `GET /api/v1/auth/:provider/callback`
+- `POST /api/v1/auth/signup/complete`
+- `POST /api/v1/auth/logout`
+- `GET /api/v1/me`
+- `DELETE /api/v1/me`
 
-목록 크기는 게시글 20개로 고정한다. 광고 행은 API 결과에 포함하지 않는다. 상세 응답의 `contextPosts`는 현재 글과 같은 게시판에서 현재 글을 포함해 최대 20개 반환한다.
+목록 크기는 일반 게시글 20개로 고정한다. `pinned_order`가 `1~3`인 공지는 별도 배열로 최대 3개를 먼저 반환하며 일반 게시글 수와 광고 위치 계산에서 제외한다. 광고 행은 API 결과에 포함하지 않는다. 상세 응답의 `contextPosts`는 공지 없이 현재 글과 같은 게시판에서 현재 글을 포함해 최대 20개 반환한다.
 
 ## 10. 관리자 API
 
@@ -225,7 +294,11 @@ SourceAdapter
 ## 12. 보안과 운영
 
 - 사용자 연결은 HTTPS만 허용한다.
-- 관리자 인증 쿠키는 `HttpOnly`, `Secure`, `SameSite`를 사용한다.
+- 회원·관리자 인증 쿠키는 `HttpOnly`, `Secure`, 적절한 `SameSite`와 짧은 세션 만료를 사용한다.
+- OAuth authorization code flow를 사용하고 provider가 지원하면 PKCE를 적용한다. 요청별 `state`, OIDC `nonce`, callback URL allowlist를 검증한다.
+- 가입 완료 전 임시 인증 정보는 10분 이내 만료하며 약관 동의가 끝나기 전 정식 회원 세션을 발급하지 않는다.
+- provider client secret과 Apple private key는 secret 저장소에 보관하고 브라우저·저장소·로그에 노출하지 않는다.
+- 계정 연결·해제는 현재 로그인 세션만 믿지 않고 해당 provider 재인증을 요구한다.
 - 관리자·수집 API에 요청 제한을 적용한다.
 - 비밀값은 저장소에 커밋하지 않고 환경 변수나 secret 저장소로 주입한다.
 - DB와 이미지 백업을 자동화한다.
@@ -241,5 +314,8 @@ SourceAdapter
 - DB·이미지 백업 저장소
 - 로그·모니터링 사업자
 - 자동 수집 실행 주기와 출처별 제한값
+- provider별 production client ID, callback URL, 검수·심사 결과
+- OAuth 세션 만료, 계정 복구·연결 정책과 14세 미만 가입 처리
+- GA4 측정 ID, 속성 보관 기간, 실제 계약 법인과 국외이전 항목
 
 미정 항목은 확정값처럼 Docker, 환경 변수 예제, 배포 체크리스트에 넣지 않는다.

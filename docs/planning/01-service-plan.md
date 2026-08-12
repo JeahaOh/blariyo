@@ -3,7 +3,7 @@
 - 문서 상태: 사용자 확정안 반영 정본
 - 기준일: 2026-08-12
 - 서비스명: `블라리요`
-- 관련 문서: [02-infra-plan.md](./02-infra-plan.md), [03-screen-design.md](./03-screen-design.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md), [05-benchmark-spec.md](./05-benchmark-spec.md), [06-copy-candidates.md](./06-copy-candidates.md)
+- 관련 문서: [02-infra-plan.md](./02-infra-plan.md), [03-screen-design.md](./03-screen-design.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md), [05-benchmark-spec.md](./05-benchmark-spec.md), [06-copy-candidates.md](./06-copy-candidates.md), [07-color-palette.md](./07-color-palette.md)
 
 ## 1. 서비스 정의
 
@@ -11,6 +11,7 @@
 
 - 데스크톱 웹과 모바일 웹을 하나의 반응형 화면으로 운영한다.
 - 초기에는 운영자만 게시한다.
+- 네이버, 카카오, Google, Apple 소셜 회원가입·로그인을 제공한다. 로그인 여부와 무관하게 짤 콘텐츠는 열람할 수 있다.
 - 목록과 상세는 블로그보다 커뮤니티 게시판 형태로 구성한다.
 - 고급유머의 빠른 목록 탐색, 상세 하단 목록, 목록 중간 광고 배치를 참고한다.
 - 네이티브 앱은 현재 범위에 포함하지 않는다.
@@ -41,6 +42,17 @@
 | `active_yn` | 공개 메뉴와 작성 대상 활성화 여부 |
 | `write_policy` | `ADMIN`, `USER` 등 작성 주체 |
 | `sort_order` | 메뉴 표시 순서 |
+
+### 회원과 소셜 로그인
+
+- 가입·로그인 제공자는 네이버, 카카오, Google, Apple이다.
+- 가입 완료 전에 소셜 제공자 동의와 별도로 블라리요 이용약관 동의와 회원가입 개인정보 수집·이용 동의를 받는다. 개인정보처리방침 전문도 확인할 수 있게 한다.
+- 제공자별 고유 식별자를 연동 키로 사용하고 이메일을 회원 고유 키로 사용하지 않는다.
+- 요청 범위는 고유 식별자와 이메일·닉네임·프로필 이미지 중 가입에 필요한 최소 항목으로 제한한다. 성별, 생년월일, 연령대, 전화번호는 요청하지 않는다.
+- 소셜 비밀번호는 받거나 저장하지 않는다.
+- 로그인 전용 access·refresh token은 사용자 정보 확인과 Blariyo 세션 발급 뒤 폐기한다. 제공자 API를 지속 호출하는 기능이 생기기 전에는 장기 보관하지 않는다.
+- 계정 연결·해제, 로그아웃, 탈퇴를 제공한다. 탈퇴 시 회원·연동 정보를 삭제하고 제공자가 지원하는 범위에서 unlink/revoke를 호출한다.
+- 초기 `짤/meme`의 작성 권한은 로그인 회원이 아니라 운영자에게만 있다. 소셜 계정 기반의 사용자 작성 기능은 `익게/community` 단계에서 추가한다.
 
 ## 3. 콘텐츠 운영
 
@@ -104,6 +116,8 @@ PUBLISHED
 ### 짤 목록 `/meme`
 
 - 최신순 게시판형 목록을 표시한다.
+- 일반 목록 위에 고정 공지 0~3건을 표시할 수 있다.
+- 고정 공지는 `공지` 배지로 구분하고 일반 게시글 20개와 광고 위치 산정에서 제외한다.
 - 한 페이지에 게시글 20개를 표시한다.
 - 광고 행은 게시글 20개에 포함하지 않는다.
 - 행에는 번호, 제목, 조회 수, 작성자, 게시 시각을 표시한다.
@@ -146,8 +160,10 @@ PUBLISHED
 | `AD-DETAIL-LIST-INLINE` | 상세 하단 목록 중간 |
 | `AD-DETAIL-LIST-AFTER` | 상세 하단 목록 아래 |
 
-- 상세 상단, 우측, 전면형 광고는 두지 않는다.
-- 광고 차단이 확인되면 해제 요청을 표시할 수 있지만 콘텐츠 열람을 막지 않는다.
+- 상세 상단, 우측, 전면형 광고는 두지 않는다. 광고 차단 해제 요청 modal은 광고 슬롯이 아니다.
+- 광고 차단이 확인되면 화면 전체를 dim 처리하는 해제 요청 modal을 표시할 수 있다.
+- modal이 열린 동안 배경 조작과 스크롤은 막지만 사용자가 닫으면 즉시 콘텐츠 열람을 계속할 수 있다.
+- 사용자가 닫으면 같은 세션에서는 다시 자동 표시하지 않는다.
 - 광고 로드 실패만으로 광고 차단 안내를 띄우지 않는다.
 
 ### 제휴
@@ -162,6 +178,8 @@ PUBLISHED
 - 링크 복사
 - 카카오톡 공유
 - X/Twitter 공유
+- 공유 선택 UI는 데스크톱에서 헤더 버튼 아래 floating popup, 모바일에서 하단 share sheet로 표시한다.
+- popup은 바깥 클릭, 닫기, `Escape`로 닫는다.
 - 게시글별 canonical URL
 - Open Graph와 Twitter Card
 
@@ -210,12 +228,45 @@ TB_POST
   image_alt
   source_name
   source_url
+  pinned_order
   post_status
   scheduled_at
   published_at
   created_at
   updated_at
 ```
+
+### 회원과 소셜 연동
+
+```text
+TB_USER
+  user_no
+  user_status
+  display_name
+  profile_image_url
+  joined_at
+  last_login_at
+  withdrawn_at
+
+TB_SOCIAL_ACCOUNT
+  user_no
+  provider
+  provider_subject
+  email
+  email_verified
+  linked_at
+  last_authenticated_at
+
+TB_POLICY_CONSENT
+  user_no
+  policy_type
+  policy_version
+  consented_at
+```
+
+- `provider + provider_subject`를 unique key로 사용한다.
+- 이메일은 제공자에서 바뀌거나 가려질 수 있으므로 계정 병합·로그인의 유일 키로 사용하지 않는다.
+- OAuth token은 위 테이블의 기본 저장 항목에 포함하지 않는다.
 
 `post_status`는 다음 값만 사용한다.
 
@@ -234,6 +285,12 @@ TB_POST
 | `GET` | `/api/v1/boards` | 활성 게시판 목록 |
 | `GET` | `/api/v1/posts?board=meme&page=1` | 짤 게시판 게시글 20개 |
 | `GET` | `/api/v1/posts/:postNo` | 상세와 같은 게시판의 주변 목록 20개 |
+| `GET` | `/api/v1/auth/:provider/start` | 네이버·카카오·Google·Apple 인증 시작 |
+| `GET` | `/api/v1/auth/:provider/callback` | code 검증, 최소 profile 조회, 가입 동의 단계 또는 세션 발급 |
+| `POST` | `/api/v1/auth/signup/complete` | 약관·개인정보 수집이용 동의 후 회원가입 완료 |
+| `POST` | `/api/v1/auth/logout` | 블라리요 세션 종료 |
+| `GET` | `/api/v1/me` | 현재 회원과 연동 제공자 조회 |
+| `DELETE` | `/api/v1/me` | 탈퇴, 세션 종료, 소셜 연동 해제·정보 삭제 |
 | `POST` | `/api/v1/admin/posts` | 게시글 초안 등록 |
 | `PATCH` | `/api/v1/admin/posts/:postNo` | 게시글·출처·예약 정보 수정 |
 | `POST` | `/api/v1/admin/posts/:postNo/publish` | 즉시 또는 예약 발행 |
@@ -241,17 +298,31 @@ TB_POST
 | `PATCH` | `/api/v1/admin/rights-requests/:requestNo` | 재공개·수정·삭제 판단 기록 |
 
 - 목록 크기는 게시글 20개로 고정한다.
+- 목록 응답은 고정 공지 0~3건과 일반 게시글 20건을 분리해 제공한다.
+- `pinned_order`는 공지가 아닐 때 `null`, 공지일 때 `1~3`을 사용한다.
 - 상세의 주변 목록은 현재 글과 같은 `board_code`만 사용한다.
 - 게시판 코드를 코드 상수 목록으로 제한하지 않고 활성 게시판 데이터로 검증한다.
 
 ## 11. 정책 화면
 
-푸터에서 다음 화면으로 이동할 수 있어야 한다.
+푸터에서 다음 정책을 modal로 열 수 있어야 한다. 직접 URL로 접근하면 같은 내용을 독립 화면으로 제공한다.
 
 - 이용약관 `/terms`
 - 개인정보처리방침 `/privacy`
 - 권리자 요청 `/rights`
 - 쿠키 설정 `/cookie-settings`
+
+- modal이 열린 동안 화면 전체를 dim 처리하고 배경 클릭과 스크롤을 막는다.
+- 닫기, `Escape`, dialog 바깥 dim 영역 클릭으로 원래 화면에 돌아갈 수 있다.
+- 이용약관과 개인정보처리방침은 현재 적용 버전의 전체 본문을 먼저 표시하고, 하단에 `버전, 제목, 시행일, 상태`를 가진 게시판형 개정 이력을 둔다.
+- 하단 이력에서 버전을 선택하면 같은 modal의 전체 본문을 해당 버전으로 교체한다.
+- 시행 중인 버전과 과거 버전의 본문을 덮어쓰지 않고 각각 보관한다.
+- 권리자 요청은 modal 안에서 대상 URL, 요청 유형, 회신 이메일, 요청 내용을 입력한다.
+- 권리자 요청 제출 전 처리 목적·항목·보유 기간을 표시하고 필수 수집·이용 동의를 받는다.
+- 쿠키 설정은 필수, 분석, 광고 항목을 구분하고 선택값을 저장한다.
+- 저장된 쿠키 선택이 없는 최초 접속에는 화면 하단에 비차단형 쿠키 배너를 표시한다.
+- 하단 배너는 `필수만 사용`, `설정`, `모두 허용`을 제공하고 `설정`은 쿠키 설정 modal을 연다.
+- 선택을 저장한 뒤에는 modal과 배너를 닫고 푸터의 쿠키 설정에서 언제든 다시 변경할 수 있다.
 
 권리자 요청 화면은 요청 접수 시 우선 숨김된다는 점과 관리자가 재공개·수정·삭제를 판단한다는 점을 명시한다.
 
@@ -261,7 +332,8 @@ TB_POST
 
 - 표시명은 `익게`, 내부 코드는 `community`다.
 - 사용자가 글을 작성하는 게시판이다.
-- 계정, 작성, 댓글, 신고, 관리 기준은 익게 개발 전에 별도 기획한다.
+- 소셜 계정 기반으로 작성자를 식별한다.
+- 작성, 댓글, 신고, 닉네임·익명성, 탈퇴 후 게시글 처리 기준은 익게 개발 전에 별도 기획한다.
 
 ### 뉴스 `/news`
 
@@ -281,6 +353,9 @@ TB_POST
 - 하루 두 차례의 정확한 게시 시각
 - 이미지 저장 사업자와 물리 경로
 - 익게와 뉴스의 공개 시점 및 세부 기능
+- 14세 미만 회원가입 허용 여부와 연령 확인 방식
+- 소셜 제공자별 production application, callback URL과 동의 항목 검수 결과
+- GA4 속성 보관 기간과 국외이전 고지 확정값
 - 향후 추가 게시판의 이름과 운영 방식
 
 미정 항목은 확정된 것처럼 문서나 코드에 넣지 않는다.
@@ -295,6 +370,8 @@ TB_POST
 6. 외부 이미지 서버 저장 인터페이스
 7. 출처 표시와 권리자 요청 즉시 숨김 처리
 8. 공유·OG와 정책 화면
-9. 광고 영역 UI 계약
+9. 네이버·카카오·Google·Apple 가입·로그인과 계정 탈퇴
+10. GA4 동의 기반 로딩과 이벤트 검수
+11. 광고 영역 UI 계약
 
 초기 구현 완료 기준은 `짤 게시판에 운영자가 하루 두 번, 한 번에 10~20개를 올리고 사용자가 목록과 상세를 연속해서 볼 수 있는 상태`다.

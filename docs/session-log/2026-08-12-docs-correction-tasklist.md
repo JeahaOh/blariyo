@@ -1,5 +1,7 @@
 # Blariyo 기획 문서 정정 Tasklist
 
+> 대체됨 · 과거 정정 기록. 이 문서의 `유머/이야기 2개 고정`, 단계별 회원·제보, 권리 확인 발행 조건은 현행 결정이 아니다. 최신 기준은 [01-service-plan.md](../planning/01-service-plan.md)와 [2026-08-12-board-policy-correction.md](./2026-08-12-board-policy-correction.md)를 따른다.
+
 - 작성일: 2026-08-12
 - 기준: `2026-08-11-docs-full-audit-tasklist.md`의 17개 발견 사항
 - 대상: `docs/` 기획·정책·와이어프레임·퍼블리싱·세션 기록

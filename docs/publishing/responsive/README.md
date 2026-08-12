@@ -15,7 +15,8 @@
 
 ## 현재 반영 기준
 
-- 게시판 메뉴는 `유머`, `이야기` 2개뿐이며 `/`는 메뉴를 추가하지 않는 두 게시판 혼합 최신 목록
+- 초기 게시판은 `짤/meme` 하나이며 `/`는 `/meme`으로 리다이렉트
+- 추후 `익게/community`, `뉴스/news`와 추가 게시판을 활성 데이터로 확장
 - 홈 목록은 페이지당 게시글 20개이며 광고 행은 개수에서 제외
 - 상세 하단 목록은 같은 게시판의 현재 글 주변 게시글 20개이며 광고 행은 개수에서 제외
 - 현재 글 행은 `aria-current`로 강조하고 링크와 tab stop을 만들지 않음
@@ -38,4 +39,4 @@
 - absolute HTTPS `og:image`, `og:image:alt`, image width·height
 - `twitter:card=summary_large_image`, title, description, image, image alt
 
-공개 게시글은 HTTP `200`을 반환한다. 없거나 숨김 처리된 게시글은 HTTP `404`, `noindex`를 반환하고 제목·본문·이미지·내부 권리 상태를 HTML에 넣지 않는다. `/`, `/boards/humor`, `/boards/talk`, `/terms`, `/privacy`, `/rights`, `/cookie-settings`도 route별 canonical을 가진 서버 응답 HTML을 제공한다.
+공개 게시글은 HTTP `200`을 반환한다. 없거나 숨김 처리된 게시글은 HTTP `404`, `noindex`를 반환하고 제목·본문·이미지·내부 검토 내용을 HTML에 넣지 않는다. `/meme`, `/terms`, `/privacy`, `/rights`, `/cookie-settings`도 route별 canonical을 가진 서버 응답 HTML을 제공한다. `/`는 `/meme`으로 리다이렉트한다.

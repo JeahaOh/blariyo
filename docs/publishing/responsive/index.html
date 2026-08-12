@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>블라리요 퍼블 프로토타입</title>
-  <link rel="canonical" href="https://__SERVICE_DOMAIN__/">
+  <link rel="canonical" href="https://__SERVICE_DOMAIN__/meme">
   <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
   <meta property="og:site_name" content="블라리요">
   <meta property="og:locale" content="ko_KR">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://__SERVICE_DOMAIN__/">
+  <meta property="og:url" content="https://__SERVICE_DOMAIN__/meme">
   <meta property="og:title" content="블라리요">
   <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
   <meta property="og:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
@@ -39,10 +39,9 @@
   <section class="screen is-active" data-view="home" role="tabpanel">
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="/" data-go="home"><span>B</span>블라리요</a>
+        <a class="brand" href="/meme" data-go="home"><span>B</span>블라리요</a>
         <nav class="board-nav" aria-label="게시판">
-          <a href="/boards/humor">유머</a>
-          <a href="/boards/talk">이야기</a>
+          <a href="/meme" aria-current="page">짤</a>
         </nav>
       </div>
     </header>
@@ -50,8 +49,8 @@
     <main class="page">
       <section class="content">
         <div class="page-title">
-          <h1 tabindex="-1">오늘 올라온 웃긴 것</h1>
-          <p>유머·이야기 혼합 · 게시글 20개 · 광고 제외</p>
+          <h1 tabindex="-1">짤</h1>
+          <p>하루 2회 · 회당 10~20개 · 목록은 게시글 20개</p>
         </div>
 
         <div class="board-list" aria-label="최신 게시글">
@@ -75,9 +74,8 @@
       <aside class="side">
         <section>
           <h2>운영 기준</h2>
-          <p>운영자가 검수하고 수동 최종 발행한 글만 공개한다.</p>
+          <p>관리자가 보기에 웃긴 짤을 골라 하루 두 차례 게시한다.</p>
         </section>
-        <section class="side-ad">AD-SIDE-RAIL</section>
       </aside>
     </main>
   </section>
@@ -85,8 +83,8 @@
   <section class="screen" data-view="detail" role="tabpanel" hidden>
     <header class="site-header">
       <div class="header-inner detail-header">
-        <a class="ghost-button" href="/boards/humor">← 유머 목록</a>
-        <a class="brand" href="/" data-go="home">블라리요</a>
+        <a class="ghost-button" href="/meme">← 짤 목록</a>
+        <a class="brand" href="/meme" data-go="home">블라리요</a>
         <button type="button" class="ghost-button" id="shareButton" aria-expanded="false" aria-controls="shareMenu">↗ 공유</button>
       </div>
     </header>
@@ -100,7 +98,7 @@
           <button type="button" role="menuitem" data-share="native">브라우저 공유</button>
         </div>
         <p class="sr-only" id="shareStatus" aria-live="polite"></p>
-        <div class="article-board">유머</div>
+        <div class="article-board">짤</div>
         <h1 tabindex="-1">퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</h1>
         <div class="meta"><span>No.1047</span><span>2026.08.06 13:45</span><span>조회 1,248</span></div>
 
@@ -133,10 +131,10 @@
 
         <section class="bottom-list">
           <div class="bottom-list-title">
-            <h2>유머 게시판 현재 글 주변 20개</h2>
-            <a href="/boards/humor">유머 목록으로</a>
+            <h2>짤 게시판 현재 글 주변 20개</h2>
+            <a href="/meme">짤 목록으로</a>
           </div>
-          <div class="board-list" aria-label="같은 유머 게시판의 현재 글 주변 20개">
+          <div class="board-list" aria-label="같은 짤 게시판의 현재 글 주변 20개">
             <div class="board-row board-head" aria-hidden="true">
               <span>번호</span><span>게시판</span><span>제목</span><span>조회</span><span>작성자</span><span>시간</span>
             </div>
@@ -159,10 +157,9 @@
   <section class="screen" data-view="loading" role="tabpanel" hidden>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="/" data-go="home"><span>B</span>블라리요</a>
+        <a class="brand" href="/meme" data-go="home"><span>B</span>블라리요</a>
         <nav class="board-nav" aria-label="게시판">
-          <a href="/boards/humor">유머</a>
-          <a href="/boards/talk">이야기</a>
+          <a href="/meme" aria-current="page">짤</a>
         </nav>
       </div>
     </header>
@@ -179,11 +176,11 @@
   </section>
 
   <section class="screen" data-view="error" role="tabpanel" hidden>
-    <main class="state-page"><section class="state-panel"><div><h1 id="stateHeading" tabindex="-1">게시글을 불러오지 못했습니다</h1><p>연결 상태를 확인하고 다시 시도해 주세요.</p><button type="button" data-go="home">다시 시도</button> <a class="state-link" href="/" data-go="home">홈으로</a></div></section></main>
+    <main class="state-page"><section class="state-panel"><div><h1 id="stateHeading" tabindex="-1">게시글을 불러오지 못했습니다</h1><p>연결 상태를 확인하고 다시 시도해 주세요.</p><button type="button" data-go="home">다시 시도</button> <a class="state-link" href="/meme" data-go="home">짤 목록으로</a></div></section></main>
   </section>
 
   <section class="screen" data-view="hidden" role="tabpanel" hidden>
-    <main class="state-page"><section class="state-panel"><div><h1 tabindex="-1">볼 수 없는 게시글입니다</h1><p>존재하지 않거나 비공개 처리된 게시글입니다.</p><a class="state-link primary" href="/" data-go="home">홈으로</a></div></section></main>
+    <main class="state-page"><section class="state-panel"><div><h1 tabindex="-1">볼 수 없는 게시글입니다</h1><p>존재하지 않거나 권리자 요청으로 검토 중인 게시글입니다.</p><a class="state-link primary" href="/meme" data-go="home">짤 목록으로</a></div></section></main>
   </section>
 
   <footer class="site-footer">

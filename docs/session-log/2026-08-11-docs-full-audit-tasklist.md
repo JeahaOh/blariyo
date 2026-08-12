@@ -1,5 +1,7 @@
 # Blariyo 기획 문서 전수 검토 Tasklist
 
+> 대체됨 · 과거 감사 기록. 현행 게시판·권리·게시 빈도·이미지 저장 기준은 [01-service-plan.md](../planning/01-service-plan.md)와 [2026-08-12-board-policy-correction.md](./2026-08-12-board-policy-correction.md)를 따른다.
+
 - 작성일: 2026-08-11
 - 대상: `docs/` 아래 기획, 설계, 정책, 와이어프레임, 퍼블리싱, 세션 기록
 - 방식: 다관점 독립 검토 후 교차검증

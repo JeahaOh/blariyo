@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
   <meta name="twitter:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
   <meta name="twitter:image:alt" content="블라리요 기본 공유 이미지">
-  <link rel="stylesheet" href="./styles.css?v=20260812-15">
+  <link rel="stylesheet" href="./styles.css?v=20260813-4">
 </head>
 <body>
   <aside class="review-toolbar" aria-label="퍼블리싱 검토 화면 선택">
@@ -39,15 +39,20 @@
 
   <header class="site-header">
     <div class="site-header-main">
-      <a class="header-action" id="backToList" href="/meme" data-go="home" hidden><span aria-hidden="true">←</span> 목록</a>
+      <a class="header-action" id="backToList" href="/meme" data-go="home" aria-label="목록으로" hidden><span aria-hidden="true">←</span></a>
       <span class="header-spacer" id="leftSpacer" aria-hidden="true"></span>
-      <a class="brand" href="/meme" data-go="home" aria-label="블라리요 짤 목록">
+      <a class="brand" id="brandLink" href="/meme" data-go="home" aria-label="블라리요 짤 목록">
         <span class="brand-mark" aria-hidden="true">B</span><span>블라리요</span>
       </a>
-      <button type="button" class="header-action share-action" id="shareButton" aria-expanded="false" aria-controls="shareMenu" hidden>공유 <span aria-hidden="true">↗</span></button>
-      <a class="header-action" id="loginLink" href="/login">로그인</a>
+      <strong class="detail-header-title" id="detailHeaderTitle" hidden>퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</strong>
+      <div class="header-end">
+        <button type="button" class="header-action share-action" id="shareButton" aria-label="공유하기" aria-expanded="false" aria-controls="shareMenu" hidden>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"></path></svg>
+        </button>
+        <a class="header-action" id="loginLink" href="/login">로그인</a>
+      </div>
     </div>
-    <nav class="board-tabs" aria-label="게시판">
+    <nav class="board-tabs" id="boardTabs" aria-label="게시판">
       <a href="/meme" data-go="home" aria-current="page">짤</a>
     </nav>
   </header>
@@ -102,23 +107,25 @@
           <p>질문은 하나였고, 설명에 필요한 문서는 열두 개였다.</p>
         </div>
 
-        <div class="article-actions" aria-label="게시글 공유">
-          <button type="button" data-share="copy">링크 복사</button>
-          <button type="button" data-share="kakao">카카오톡</button>
-          <button type="button" data-share="x">X 공유</button>
-        </div>
-
         <section class="source-row" aria-label="출처">
-          <div><strong>출처</strong><span>example.com · funny-office-story</span></div>
-          <a href="https://example.com/original/funny-office-story" target="_blank" rel="noopener noreferrer">원문 보기 <span aria-hidden="true">↗</span></a>
+          <strong>출처</strong>
+          <a href="https://example.com/original/funny-office-story" target="_blank" rel="noopener noreferrer">example.com · funny-office-story <span aria-hidden="true">↗</span></a>
         </section>
-        <p class="rights-link"><a href="/rights" data-policy="rights">권리자 요청 안내</a></p>
 
         <div class="ad-slot body-ad" role="complementary" aria-label="광고"><span>ADVERTISEMENT</span><strong>본문 하단 광고</strong></div>
 
         <section class="related-list">
           <header class="section-heading"><div><h2>짤 목록</h2><p>현재 글과 같은 게시판의 글 20개</p></div><a href="/meme" data-go="home">전체 목록</a></header>
           <div class="post-list" id="detailRows" aria-label="현재 글과 같은 짤 게시판의 게시글 20개"></div>
+          <nav class="pagination" aria-label="상세 하단 목록 페이지 이동">
+            <button type="button" aria-label="이전 페이지" disabled>‹</button>
+            <button type="button" class="is-active" aria-current="page">1</button>
+            <button type="button">2</button>
+            <button type="button">3</button>
+            <button type="button">4</button>
+            <button type="button">5</button>
+            <button type="button" aria-label="다음 페이지">›</button>
+          </nav>
           <div class="ad-slot list-after-ad" role="complementary" aria-label="광고"><span>ADVERTISEMENT</span><strong>목록 아래 광고</strong></div>
         </section>
       </article>
@@ -146,7 +153,7 @@
     <nav aria-label="푸터">
       <a href="/terms" data-policy="terms">이용약관</a>
       <a href="/privacy" data-policy="privacy">개인정보처리방침</a>
-      <a href="/rights" data-policy="rights">권리자 요청</a>
+      <a id="rightsMailLink" href="mailto:rights@__SERVICE_DOMAIN__">권리 문의</a>
       <a href="/cookie-settings" data-policy="cookies">쿠키 설정</a>
     </nav>
   </footer>
@@ -191,6 +198,6 @@
     </section>
   </div>
 
-  <script src="./app.js?v=20260812-14"></script>
+  <script src="./app.js?v=20260813-5"></script>
 </body>
 </html>

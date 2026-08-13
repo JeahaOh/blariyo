@@ -1,7 +1,7 @@
 # 블라리요 인프라 계획
 
 - 문서 상태: 제품 확정안 반영, 인프라 세부안은 제안
-- 기준일: 2026-08-12
+- 기준일: 2026-08-13
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md)
 
 ## 1. 확정된 기술 계약
@@ -14,7 +14,7 @@
 - 외부 이미지는 블라리요 서버 측 저장소에 저장하고 핫링크하지 않는다.
 - 이미지 저장 사업자와 물리 경로는 아직 확정하지 않는다.
 - 자동 수집 결과는 임시 큐에만 저장하고 즉시 공개하지 않는다.
-- 권리자 요청이 접수되면 대상 게시글을 먼저 숨긴다.
+- 1차에서는 푸터 이메일로 권리자 요청을 받고 운영자가 확인한 뒤 대상 게시글을 우선 숨긴다.
 - 네이버, 카카오, Google, Apple OAuth/OIDC 회원가입·로그인을 제공한다.
 - GA4는 분석 동의 후에만 로드하고 회원·소셜 계정 식별자를 전송하지 않는다.
 
@@ -59,7 +59,6 @@ Redis, MongoDB, 다중 API 서버는 초기 필수 구성에 넣지 않는다.
 | `/account` | 연동 제공자 확인, 로그아웃, 탈퇴 |
 | `/terms` | 이용약관 modal 직접 진입 |
 | `/privacy` | 개인정보처리방침 modal 직접 진입 |
-| `/rights` | 권리자 요청 modal 직접 진입 |
 | `/cookie-settings` | 쿠키 설정 modal 직접 진입 |
 | `/api/v1/*` | Express API |
 | `/_nuxt/*` | Nuxt 정적 자산 |
@@ -122,9 +121,9 @@ TB_POST
 
 - 공개 API는 `post_status=PUBLISHED`이고 `published_at <= now()`인 글만 반환한다.
 - 권리 확인 완료 상태를 공개 조건으로 사용하지 않는다.
-- 권리자 요청을 접수하면 게시글 상태를 같은 트랜잭션에서 `HIDDEN_REVIEW`로 변경한다.
+- 권리자 요청 이메일을 확인한 운영자는 관리자 게시글 수정 기능으로 상태를 `HIDDEN_REVIEW`로 변경한다. 이메일 수신 자체는 게시글 상태를 자동 변경하지 않는다.
 - 관리자가 재공개, 수정 후 재공개, 삭제 중 하나를 결정한다.
-- 상태 변경은 운영자, 이전·이후 상태, 시각, 요청 번호를 기록한다.
+- 상태 변경은 운영자, 이전·이후 상태, 시각과 변경 사유 `RIGHTS_EMAIL`을 기록하고 이메일 본문은 애플리케이션 로그에 복사하지 않는다.
 
 ### 정책 버전 데이터
 
@@ -136,6 +135,7 @@ TB_POLICY_VERSION
   body_markdown longtext
   policy_status varchar
   effective_at datetime null
+  ended_at datetime null
   created_at datetime
   updated_at datetime
   primary key (policy_type, version)
@@ -145,6 +145,7 @@ TB_POLICY_VERSION
 - `policy_status`는 `DRAFT`, `SCHEDULED`, `EFFECTIVE`, `RETIRED`를 사용한다.
 - 공개 시점에는 유형별 `EFFECTIVE` 버전을 하나만 유지한다.
 - 시행된 본문은 덮어쓰지 않고 새 버전을 추가한다.
+- 현재 버전은 `effective_at ~ 시행 중`, 이전 버전은 `effective_at ~ ended_at` 적용 기간으로 표시한다.
 - 기본 요청은 현재 적용 본문과 하단 이력 metadata를 함께 반환하고, 버전 지정 요청은 해당 버전의 전체 본문을 반환한다.
 
 ### 회원·소셜 연동 데이터
@@ -263,6 +264,8 @@ SourceAdapter
 - `GET /api/v1/auth/:provider/callback`
 - `POST /api/v1/auth/signup/complete`
 - `POST /api/v1/auth/logout`
+
+상세 응답은 게시판 코드와 현재 글이 포함된 목록 페이지 번호를 함께 반환한다. 상세 하단 페이지 이동은 기존 게시판 목록 API의 `page`를 사용해 본문 재조회 없이 목록만 교체한다.
 - `GET /api/v1/me`
 - `DELETE /api/v1/me`
 
@@ -276,8 +279,8 @@ SourceAdapter
 - `POST /api/v1/admin/source-candidates/collect`
 - `GET /api/v1/admin/source-candidates`
 - `PATCH /api/v1/admin/source-candidates/:candidateNo/review`
-- `POST /api/v1/rights-requests`
-- `PATCH /api/v1/admin/rights-requests/:requestNo`
+
+권리자 요청 form과 전용 API는 초기 범위에서 제외한다. 1차 운영 결과에서 자동 접수·상태 추적 필요성이 확인되면 후속 단계에서 추가한다.
 
 관리자 API는 인증과 관리자 권한을 확인한다. 공개 API와 수집 worker에는 게시글 상태를 임의 변경할 권한을 주지 않는다.
 

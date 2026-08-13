@@ -45,6 +45,9 @@ const shareMenu = document.getElementById('shareMenu');
 const shareStatus = document.getElementById('shareStatus');
 const backToList = document.getElementById('backToList');
 const leftSpacer = document.getElementById('leftSpacer');
+const brandLink = document.getElementById('brandLink');
+const detailHeaderTitle = document.getElementById('detailHeaderTitle');
+const boardTabs = document.getElementById('boardTabs');
 const loginLink = document.getElementById('loginLink');
 const adblockModal = document.getElementById('adblockModal');
 const adblockDialog = adblockModal.querySelector('[role="dialog"]');
@@ -55,6 +58,7 @@ const policyTitle = document.getElementById('policyTitle');
 const policyDescription = document.getElementById('policyDescription');
 const policyContent = document.getElementById('policyContent');
 const cookieBanner = document.getElementById('cookieBanner');
+const rightsMailLink = document.getElementById('rightsMailLink');
 const cookieConsentKey = 'blariyo_consent';
 const modalBackground = [
   document.querySelector('.review-toolbar'),
@@ -92,18 +96,22 @@ const policyHistory = {
   terms: {
     title: '이용약관',
     description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.',
-    version: 'v0.1',
-    subject: '블라리요 이용약관 초안',
-    date: '시행 전',
-    status: '현재 초안'
+    currentVersion: 'v0.3',
+    versions: [
+      { version: 'v0.3', period: 'yyyy.mm.dd ~ 시행 중', status: '현재 초안' },
+      { version: 'v0.2', period: 'yyyy.mm.dd ~ yyyy.mm.dd', status: '이전 버전' },
+      { version: 'v0.1', period: 'yyyy.mm.dd ~ yyyy.mm.dd', status: '이전 버전' }
+    ]
   },
   privacy: {
     title: '개인정보처리방침',
     description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.',
-    version: 'v0.1',
-    subject: '블라리요 개인정보처리방침 초안',
-    date: '시행 전',
-    status: '현재 초안'
+    currentVersion: 'v0.3',
+    versions: [
+      { version: 'v0.3', period: 'yyyy.mm.dd ~ 시행 중', status: '현재 초안' },
+      { version: 'v0.2', period: 'yyyy.mm.dd ~ yyyy.mm.dd', status: '이전 버전' },
+      { version: 'v0.1', period: 'yyyy.mm.dd ~ yyyy.mm.dd', status: '이전 버전' }
+    ]
   }
 };
 
@@ -162,10 +170,27 @@ function renderRows(target, posts, { adAfterIndex, adLabel, markCurrent = false,
 
 function updateHeader(name) {
   const isDetail = name === 'detail';
-  backToList.hidden = !isDetail;
+  const postStateTitles = {
+    detail: '퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미',
+    loading: '불러오는 중',
+    error: '불러오기 오류',
+    hidden: '볼 수 없는 게시글'
+  };
+  const isPostState = Object.hasOwn(postStateTitles, name);
+
+  backToList.hidden = !isPostState;
   shareButton.hidden = !isDetail;
-  leftSpacer.hidden = isDetail;
-  loginLink.hidden = isDetail;
+  leftSpacer.hidden = isPostState;
+  loginLink.hidden = false;
+  brandLink.hidden = isPostState;
+  detailHeaderTitle.hidden = !isPostState;
+  detailHeaderTitle.textContent = postStateTitles[name] || '';
+  boardTabs.hidden = isPostState;
+
+  const targetUrl = isPostState ? 'https://__SERVICE_DOMAIN__/posts/1047' : 'https://__SERVICE_DOMAIN__/meme';
+  const subject = encodeURIComponent('[블라리요] 권리 침해·게시 중단 문의');
+  const body = encodeURIComponent(`대상 URL: ${targetUrl}\n요청 내용: `);
+  rightsMailLink.href = `mailto:rights@__SERVICE_DOMAIN__?subject=${subject}&body=${body}`;
 }
 
 function showScreen(name, { focus = false } = {}) {
@@ -252,30 +277,28 @@ function trapModalFocus(dialog, event) {
   }
 }
 
-function policyHistoryMarkup(type) {
+function policyHistoryMarkup(type, selectedVersion) {
   const policy = policyHistory[type];
+  const rows = policy.versions.map((entry) => `
+      <button type="button" class="policy-history-row" data-policy-type="${type}" data-policy-version="${entry.version}" aria-current="${entry.version === selectedVersion}">
+        <span>${entry.version}</span><span>${entry.period}</span>
+      </button>
+  `).join('');
   return `
     <section class="policy-history-section" aria-labelledby="${type}HistoryTitle">
       <h3 id="${type}HistoryTitle">개정 이력</h3>
-      <p>버전을 선택하면 이 영역 위의 문서 전체가 해당 버전으로 바뀝니다.</p>
+      <p>행을 선택하면 이 영역 위의 문서 전체가 해당 버전으로 바뀝니다.</p>
       <div class="policy-history" aria-label="${policy.title} 개정 이력">
-      <div class="policy-history-head" aria-hidden="true"><span>버전</span><span>제목</span><span>시행일</span><span>보기</span></div>
-      <div class="policy-history-row">
-        <span>${policy.version}</span><strong>${policy.subject}</strong><time>${policy.date}</time><button type="button" data-policy-version="${type}">${policy.status}</button>
-      </div>
-      <div class="policy-history-empty">이전 개정 이력이 없습니다.</div>
+      <div class="policy-history-head" aria-hidden="true"><span>버전</span><span>적용 기간</span></div>
+      ${rows}
       </div>
     </section>
   `;
 }
 
-function renderPolicyHistory(type) {
-  renderPolicyDocument(type);
-  policyContent.querySelector('.policy-history-section')?.scrollIntoView({ block: 'start' });
-}
-
-function renderPolicyDocument(type) {
+function renderPolicyDocument(type, selectedVersion = policyHistory[type].currentVersion) {
   const policy = policyHistory[type];
+  const selected = policy.versions.find((entry) => entry.version === selectedVersion) || policy.versions[0];
   const body = type === 'terms' ? `
     <h3>제1조 목적</h3><p>이 약관은 블라리요 서비스의 이용 조건과 운영자·이용자의 권리와 의무, 게시글 운영, 광고·제휴, 권리자 요청 기준을 정합니다.</p>
     <h3>제2조 정의</h3><p>회원은 네이버·카카오·Google·Apple 계정으로 가입을 완료한 이용자이며, 소셜 계정은 가입과 로그인에 사용하는 외부 인증 제공자 계정입니다.</p>
@@ -286,7 +309,7 @@ function renderPolicyDocument(type) {
     <h3>제6조 외부 콘텐츠와 출처</h3><p>외부 콘텐츠에는 확인 가능한 출처명과 원문 링크를 하단에 한 번 표시합니다. 출처 표시는 권리 확보나 이용 허락을 뜻하지 않습니다.</p>
     <h3>제7조 금지행위</h3><p>타인 계정 도용, 인증 조작, 접근 제한 우회, 과도한 자동 요청, 무단 복제·배포, 권리 침해와 광고 성과 조작을 금지합니다.</p>
     <h3>제8조 광고와 제휴</h3><p>광고와 제휴 콘텐츠는 일반 게시글과 구분하고 수수료 수취 가능성을 가까운 위치에 표시합니다. 광고 차단 안내를 닫은 뒤에는 열람을 제한하지 않습니다.</p>
-    <h3>제9조 권리자 요청</h3><p>요청이 접수되면 대상 글을 우선 숨기고 권리 관계와 출처를 확인한 뒤 재공개·수정·삭제 또는 비노출 유지를 결정합니다.</p>
+    <h3>제9조 권리자 요청</h3><p>푸터의 이메일로 권리 침해·게시 중단 요청을 받습니다. 운영자가 메일을 확인하면 대상 글을 우선 숨기고 권리 관계와 출처를 확인한 뒤 재공개·수정·삭제 또는 비노출 유지를 결정합니다.</p>
     <h3>제10조 지식재산권</h3><p>서비스 상호·화면·운영자 작성물의 권리는 운영자 또는 정당한 권리자에게, 외부 콘텐츠의 권리는 해당 권리자에게 귀속합니다.</p>
     <h3>제11조 개인정보와 쿠키</h3><p>소셜 인증 세션은 필수 기능으로 처리합니다. GA4와 광고 저장소는 각각 동의한 뒤 활성화하며 거부해도 공개 콘텐츠와 소셜 로그인을 이용할 수 있습니다.</p>
     <h3>제12조 서비스 변경과 중단</h3><p>유지보수, 장애, 보안, 법령 준수 또는 외부 제공자 변경으로 서비스를 변경·중단할 수 있으며 예측 가능한 중대한 변경은 미리 알립니다.</p>
@@ -312,26 +335,11 @@ function renderPolicyDocument(type) {
     <h3>15. 변경과 이력</h3><p>변경 내용과 시행일을 미리 알리고 현재 전문과 시행된 이전 전문을 하단 개정 이력에서 제공합니다.</p>
   `;
   policyContent.innerHTML = `
-    <div class="policy-document-nav"><strong>${policy.status}</strong><span>${policy.version} · ${policy.date}</span></div>
+    <div class="policy-document-nav"><strong>${selected.status}</strong><span>${selected.version} · ${selected.period}</span></div>
     <article class="policy-document">${body}</article>
-    ${policyHistoryMarkup(type)}
+    ${policyHistoryMarkup(type, selected.version)}
   `;
   policyDialog.scrollTo({ top: 0, behavior: 'auto' });
-}
-
-function renderRightsPolicy() {
-  policyContent.innerHTML = `
-    <form class="policy-form" id="rightsRequestForm">
-      <div class="policy-alert"><strong>접수 즉시 우선 숨김</strong><br>요청 대상 게시글은 먼저 숨긴 뒤 관리자가 재공개·수정·삭제 여부를 판단합니다.</div>
-      <div class="policy-field"><label for="rightsUrl">대상 게시글 URL</label><input id="rightsUrl" type="url" placeholder="https://__SERVICE_DOMAIN__/posts/1047"></div>
-      <div class="policy-field"><label for="rightsType">요청 유형</label><select id="rightsType"><option>게시 중단 요청</option><option>출처 정정 요청</option><option>기타 권리 요청</option></select></div>
-      <div class="policy-field"><label for="rightsEmail">회신 이메일</label><input id="rightsEmail" type="email" placeholder="name@example.com"></div>
-      <div class="policy-field"><label for="rightsReason">요청 내용</label><textarea id="rightsReason" placeholder="권리 관계와 요청 내용을 적어 주세요."></textarea><span class="policy-help">소명 자료 첨부 방식은 실제 접수 채널 확정 후 연결합니다.</span></div>
-      <label class="cookie-option"><span><strong>개인정보 수집·이용 동의 (필수)</strong><span>권리 확인과 결과 회신을 위해 이름·이메일·요청·소명 자료를 처리 완료 후 3년 보관합니다.</span></span><input type="checkbox" required data-rights-consent></label>
-      <button class="policy-submit" type="button" data-submit-rights>요청 접수 화면 확인</button>
-      <p class="policy-status" id="rightsStatus" aria-live="polite"></p>
-    </form>
-  `;
 }
 
 function renderCookiePolicy() {
@@ -352,10 +360,9 @@ function openPolicyModal(type) {
   currentPolicy = type;
   modalReturnFocus = document.activeElement;
   closeShareMenu(false);
-  policyTitle.textContent = policyHistory[type]?.title || (type === 'rights' ? '권리자 요청' : '쿠키 설정');
-  policyDescription.textContent = policyHistory[type]?.description || (type === 'rights' ? '권리 요청을 접수하고 처리 원칙을 확인합니다.' : '선택 쿠키의 사용 여부를 직접 관리합니다.');
+  policyTitle.textContent = policyHistory[type]?.title || '쿠키 설정';
+  policyDescription.textContent = policyHistory[type]?.description || '선택 쿠키의 사용 여부를 직접 관리합니다.';
   if (policyHistory[type]) renderPolicyDocument(type);
-  if (type === 'rights') renderRightsPolicy();
   if (type === 'cookies') renderCookiePolicy();
   policyModal.hidden = false;
   document.body.classList.add('modal-open');
@@ -434,22 +441,12 @@ document.addEventListener('click', (event) => {
   if (event.target.closest('[data-close-share]')) closeShareMenu();
 
   const versionButton = event.target.closest('[data-policy-version]');
-  if (versionButton) renderPolicyDocument(versionButton.dataset.policyVersion);
-
-  const historyButton = event.target.closest('[data-policy-history]');
-  if (historyButton) renderPolicyHistory(historyButton.dataset.policyHistory);
+  if (versionButton) renderPolicyDocument(versionButton.dataset.policyType, versionButton.dataset.policyVersion);
 
   const guideButton = event.target.closest('[data-toggle-adblock-guide]');
   if (guideButton) {
     adblockGuide.hidden = !adblockGuide.hidden;
     guideButton.setAttribute('aria-expanded', String(!adblockGuide.hidden));
-  }
-
-  if (event.target.closest('[data-submit-rights]')) {
-    const consent = policyContent.querySelector('[data-rights-consent]');
-    document.getElementById('rightsStatus').textContent = consent?.checked
-      ? '정적 퍼블리싱에서는 입력과 필수 동의, 접수 완료 상태만 확인합니다.'
-      : '개인정보 수집·이용 필수 동의를 확인해 주세요.';
   }
 
   if (event.target.closest('[data-save-cookies]')) {
@@ -464,7 +461,7 @@ document.addEventListener('click', (event) => {
   if (event.target.closest('[data-cookie-all]')) saveCookieConsent({ analytics: true, ads: true });
   if (event.target.closest('[data-cookie-settings]')) openPolicyModal('cookies');
 
-  if (shareMenu && !shareMenu.hidden && !shareMenu.contains(event.target) && event.target !== shareButton) closeShareMenu(false);
+  if (shareMenu && !shareMenu.hidden && !shareMenu.contains(event.target) && !shareButton.contains(event.target)) closeShareMenu(false);
 });
 
 screenTabs.forEach((tab, index) => tab.addEventListener('keydown', (event) => {

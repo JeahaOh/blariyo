@@ -57,11 +57,11 @@
     .history-section { margin-top: 28px; padding-top: 22px; border-top: 6px solid var(--line); }
     .history-section h2 { margin: 0 0 5px; font-size: 18px; }
     .history-section > p { margin: 0 0 13px; color: var(--muted); font-size: 12px; line-height: 1.55; }
-    .history-head, .history-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 100px 98px; align-items: center; gap: 10px; min-height: 48px; padding: 0 10px; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .history-head, .history-row { display: grid; grid-template-columns: 74px minmax(0, 1fr); align-items: center; gap: 10px; min-height: 48px; padding: 0 10px; border-bottom: 1px solid var(--line); font-size: 13px; }
     .history-head { min-height: 40px; color: var(--muted); background: #eef2f3; font-size: 12px; font-weight: 800; }
-    .history-row strong { overflow-wrap: anywhere; }
-    .history-row button { min-height: 34px; border: 1px solid var(--teal-dark); border-radius: 4px; color: var(--teal-dark); background: #fff; font-size: 12px; font-weight: 900; }
-    .empty-history { margin: 0; padding: 18px 10px; border-bottom: 1px solid var(--line); color: var(--muted); text-align: center; font-size: 12px; }
+    .history-row { width: 100%; border: 0; border-bottom: 1px solid var(--line); color: var(--charcoal); background: #fff; text-align: left; }
+    .history-row:hover, .history-row[aria-current="true"] { color: var(--teal-dark); background: #e2f4f3; font-weight: 900; }
+    .history-row span { text-align: center; }
     .policy-document h2 { margin: 0 0 12px; font-size: 20px; }
     .policy-document h3 { margin: 22px 0 8px; font-size: 16px; }
     .policy-document p, .policy-document li { color: #454d51; font-size: 14px; line-height: 1.75; }
@@ -81,7 +81,7 @@
     .cookie-row input { width: 20px; height: 20px; accent-color: var(--teal); }
     @media (max-width: 600px) {
       .review-bar { align-items: stretch; flex-direction: column; }
-      .tabs { display: grid; grid-template-columns: 1fr 1fr; }
+      .tabs { display: grid; grid-template-columns: repeat(3, 1fr); }
       .browser { width: 100%; min-height: calc(100vh - 116px); margin: 0; border: 0; border-radius: 0; }
       .chrome { display: none; }
       .modal-layer { align-items: center; }
@@ -90,8 +90,7 @@
       .policy-head h1 { font-size: 23px; }
       .policy-body { padding: 16px 18px 18px; }
       .history-head { display: none; }
-      .history-row { grid-template-columns: 58px minmax(0, 1fr) 84px; padding: 10px 4px; }
-      .history-row .date { display: none; }
+      .history-row { grid-template-columns: 58px minmax(0, 1fr); padding: 10px 4px; }
       .cookie-row { grid-template-columns: 1fr auto; }
     }
   </style>
@@ -102,7 +101,6 @@
     <div class="tabs" role="tablist" aria-label="정책 모달 선택">
       <button type="button" role="tab" aria-selected="true" data-policy="terms">이용약관</button>
       <button type="button" role="tab" aria-selected="false" data-policy="privacy">개인정보처리방침</button>
-      <button type="button" role="tab" aria-selected="false" data-policy="rights">권리자 요청</button>
       <button type="button" role="tab" aria-selected="false" data-policy="cookies">쿠키 설정</button>
     </div>
   </header>
@@ -135,16 +133,17 @@
 
   <template id="historyTemplate">
     <div class="history-board">
-      <div class="history-head"><span>버전</span><span>제목</span><span>시행일</span><span>보기</span></div>
-      <div class="history-row"><span>v0.1</span><strong data-history-subject></strong><span class="date">시행 전</span><button type="button" data-version>현재 초안</button></div>
-      <p class="empty-history">이전 개정 이력이 없습니다.</p>
+      <div class="history-head"><span>버전</span><span>적용 기간</span></div>
+      <button type="button" class="history-row" data-policy-version="v0.3"><span>v0.3</span><span>yyyy.mm.dd ~ 시행 중</span></button>
+      <button type="button" class="history-row" data-policy-version="v0.2"><span>v0.2</span><span>yyyy.mm.dd ~ yyyy.mm.dd</span></button>
+      <button type="button" class="history-row" data-policy-version="v0.1"><span>v0.1</span><span>yyyy.mm.dd ~ yyyy.mm.dd</span></button>
     </div>
   </template>
 
   <script>
     const policyData = {
-      terms: { title: '이용약관', description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.', subject: '블라리요 이용약관 초안' },
-      privacy: { title: '개인정보처리방침', description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.', subject: '블라리요 개인정보처리방침 초안' }
+      terms: { title: '이용약관', description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.' },
+      privacy: { title: '개인정보처리방침', description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.' }
     };
     const modal = document.getElementById('policyModal');
     const dialog = modal.querySelector('[role="dialog"]');
@@ -162,19 +161,20 @@
       if (open) dialog.focus();
     }
 
-    function createHistory(type) {
-      const data = policyData[type];
+    function createHistory(type, selectedVersion) {
       const section = document.createElement('section');
       section.className = 'history-section';
-      section.innerHTML = '<h2>개정 이력</h2><p>버전을 선택하면 위 문서 전체가 해당 버전으로 바뀝니다.</p>';
+      section.innerHTML = '<h2>개정 이력</h2><p>행을 선택하면 위 문서 전체가 해당 버전으로 바뀝니다.</p>';
       const fragment = document.getElementById('historyTemplate').content.cloneNode(true);
-      fragment.querySelector('[data-history-subject]').textContent = data.subject;
-      fragment.querySelector('[data-version]').dataset.version = type;
+      fragment.querySelectorAll('[data-policy-version]').forEach((row) => {
+        row.dataset.policyType = type;
+        row.setAttribute('aria-current', String(row.dataset.policyVersion === selectedVersion));
+      });
       section.appendChild(fragment);
       return section;
     }
 
-    function renderDocument(type) {
+    function renderDocument(type, selectedVersion = 'v0.3') {
       const data = policyData[type];
       title.textContent = data.title;
       description.textContent = data.description;
@@ -182,15 +182,10 @@
         ? ['목적', '정의', '약관 게시와 변경', '서비스와 소셜 계정', '게시글 선별과 발행', '외부 콘텐츠와 출처', '금지행위', '광고와 제휴', '권리자 요청', '지식재산권', '개인정보와 쿠키', '서비스 변경과 중단', '책임 제한', '통지와 분쟁 해결', '부칙']
         : ['처리 목적', '처리 항목과 수집 방법', '내부 식별자', '보유 기간', '제3자 제공과 소셜 제공자', '처리위탁', '국외이전', '파기', '정보주체 권리', '쿠키와 GA4', '자동화된 결정과 AI', '안전성 확보 조치', '보호책임자와 고충 처리', '권익침해 구제', '변경과 이력'];
       const policyText = sections.map((section, index) => `<h3>${type === 'terms' ? `제${index + 1}조 ` : `${index + 1}. `}${section}</h3><p>${index === 3 && type === 'terms' ? '네이버·카카오·Google·Apple 계정 가입, 별도 필수 동의, 탈퇴·연동 해제 기준을 공개합니다.' : index === 9 && type === 'privacy' ? '로그인 보안 저장소와 동의 후 GA4를 분리하고 회원·provider 식별자는 분석으로 보내지 않습니다.' : '현재 적용 전문을 이 위치에 생략 없이 표시합니다.'}</p>`).join('');
-      body.innerHTML = `<article class="policy-document"><h2>${data.subject}</h2><p>버전 v0.1 · 시행 전 · 현재 초안</p>${policyText}</article>`;
-      body.appendChild(createHistory(type));
+      const period = selectedVersion === 'v0.3' ? 'yyyy.mm.dd ~ 시행 중' : 'yyyy.mm.dd ~ yyyy.mm.dd';
+      body.innerHTML = `<article class="policy-document"><h2>${data.title}</h2><p>${selectedVersion} · ${period}</p>${policyText}</article>`;
+      body.appendChild(createHistory(type, selectedVersion));
       body.scrollTo({ top: 0, behavior: 'auto' });
-    }
-
-    function renderRights() {
-      title.textContent = '권리자 요청';
-      description.textContent = '게시 중단·출처 정정·개인정보 삭제 요청을 접수합니다.';
-      body.innerHTML = `<p class="request-note">요청이 접수되면 대상 게시글을 우선 숨기고 관리자가 재공개·수정·삭제를 판단합니다.</p><form class="form-grid"><label>대상 게시글 URL<input type="url" placeholder="https://__SERVICE_DOMAIN__/posts/1047"></label><label>요청 유형<select><option>게시 중단</option><option>출처 정정</option><option>개인정보 삭제</option></select></label><label>회신 이메일<input type="email" placeholder="name@example.com"></label><label>요청 내용<textarea placeholder="권리 관계와 요청 사유를 입력해 주세요."></textarea></label><label class="consent-check"><input type="checkbox" required><span>권리 확인·결과 회신을 위한 개인정보 수집·이용 동의 (필수)</span></label><button class="primary" type="button">요청 접수</button></form>`;
     }
 
     function renderCookies() {
@@ -200,10 +195,9 @@
     }
 
     function showPolicy(type) {
-      currentPolicy = ['terms', 'privacy', 'rights', 'cookies'].includes(type) ? type : 'terms';
+      currentPolicy = ['terms', 'privacy', 'cookies'].includes(type) ? type : 'terms';
       tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.policy === currentPolicy)));
       if (policyData[currentPolicy]) renderDocument(currentPolicy);
-      else if (currentPolicy === 'rights') renderRights();
       else renderCookies();
       history.replaceState(null, '', `#${currentPolicy}`);
       setModalState(true);
@@ -211,7 +205,8 @@
 
     tabs.forEach((tab) => tab.addEventListener('click', () => showPolicy(tab.dataset.policy)));
     body.addEventListener('click', (event) => {
-      if (event.target.matches('[data-version]')) renderDocument(event.target.dataset.version);
+      const versionRow = event.target.closest('[data-policy-version]');
+      if (versionRow) renderDocument(versionRow.dataset.policyType, versionRow.dataset.policyVersion);
       if (event.target.matches('[data-save-cookies]')) setModalState(false);
     });
     document.querySelector('[data-close]').addEventListener('click', () => setModalState(false));

@@ -1,7 +1,7 @@
 # 블라리요 분석·광고 계획
 
 - 문서 상태: 사용자 확정안 반영 정본
-- 기준일: 2026-08-12
+- 기준일: 2026-08-13
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
 
 ## 1. 화면 기준
@@ -10,7 +10,7 @@
 - `/`는 `/meme`으로 리다이렉트한다.
 - 추후 `익게/community`, `뉴스/news`와 다른 게시판을 추가할 수 있다.
 - 목록은 게시글 20개이며 광고 행은 개수에서 제외한다.
-- 상세 하단 목록은 현재 글과 같은 게시판에서 최대 20개다.
+- 상세 하단 목록은 현재 글과 같은 게시판에서 페이지당 최대 20개이며 페이지 번호 이동을 제공한다.
 
 ## 2. 분석 원칙
 
@@ -34,7 +34,7 @@
 | --- | --- | --- |
 | `FEED_VIEW` | `/meme` 목록 응답 성공 | `anonymous_id`, `session_id`, `board_code`, `occurred_at` |
 | `POST_VIEW` | 공개 상세 응답 성공 | 위 필드 + `post_no` |
-| `DETAIL_LIST_VIEW` | 상세 하단 목록 응답 성공 | 위 필드 + `post_no`, `item_count` |
+| `DETAIL_LIST_VIEW` | 상세 하단 목록 최초·페이지 이동 응답 성공 | 위 필드 + `post_no`, `list_page`, `item_count` |
 
 - `anonymous_id`는 무작위 값으로 만들고 회원 정보와 연결하지 않는다.
 - `session_id`는 탭 또는 일정 시간 무활동 단위로 갱신한다.

@@ -2,7 +2,7 @@
 
 > [!WARNING]
 > **대체됨 · 과거 비교용 기록**
-> 아래 내용은 2026-08-08 당시 결정이며 현행 요구사항이 아니다. 현재 정본은 [서비스 기획서](../planning/01-service-plan.md), [인프라 설계서](../planning/02-infra-plan.md), [화면 설계서](../planning/03-screen-design.md), [분석·광고 계획](../planning/04-analytics-ad-plan.md)과 [2026-08-12 정정 Tasklist](./2026-08-12-docs-correction-tasklist.md)를 따른다.
+> 아래 내용은 2026-08-08 당시 결정이며 현행 요구사항이 아니다. MySQL 결정은 [2026-08-14 PostgreSQL 전환 결정](./2026-08-14-postgresql-transition.md)으로 대체됐다. 현재 정본은 [서비스 기획서](../planning/01-service-plan.md), [인프라 설계서](../planning/02-infra-plan.md), [화면 설계서](../planning/03-screen-design.md), [분석·광고 계획](../planning/04-analytics-ad-plan.md)과 [2026-08-12 정정 Tasklist](./2026-08-12-docs-correction-tasklist.md)를 따른다.
 
 ## 1. 목적
 

@@ -2,7 +2,9 @@
 
 프로젝트 작업을 다시 시작할 때 필요한 결정과 상태를 날짜별로 기록한다.
 
-현재 게시판·운영 정책 정본: [2026-08-12-board-policy-correction.md](./2026-08-12-board-policy-correction.md)
+- 현재 게시판·운영 정책 정본: [2026-08-12-board-policy-correction.md](./2026-08-12-board-policy-correction.md)
+- 현재 데이터베이스 결정: [2026-08-14-postgresql-transition.md](./2026-08-14-postgresql-transition.md)
+- 현재 문서 책임·준비 상태 검토: [2026-08-14-planning-system-design-boundary-review.md](./2026-08-14-planning-system-design-boundary-review.md)
 
 ## 정본 우선순위
 

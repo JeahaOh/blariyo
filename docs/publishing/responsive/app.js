@@ -123,7 +123,7 @@ function createPostRow(post, { current = false } = {}) {
     row.setAttribute('aria-current', 'true');
     row.setAttribute('aria-disabled', 'true');
   } else {
-    row.href = `/posts/${post.no}`;
+    row.href = `/meme/posts/${post.no}`;
     row.dataset.go = 'detail';
   }
 
@@ -137,7 +137,7 @@ function createPostRow(post, { current = false } = {}) {
 function createNoticeRow(notice) {
   const row = document.createElement('a');
   row.className = 'post-row notice-row';
-  row.href = `/posts/${notice.no}`;
+  row.href = `/meme/posts/${notice.no}`;
   row.dataset.go = 'detail';
   row.innerHTML = `
     <span class="notice-line"><strong class="notice-badge">공지</strong><span class="post-title">${notice.title}</span></span>
@@ -187,7 +187,7 @@ function updateHeader(name) {
   detailHeaderTitle.textContent = postStateTitles[name] || '';
   boardTabs.hidden = isPostState;
 
-  const targetUrl = isPostState ? 'https://__SERVICE_DOMAIN__/posts/1047' : 'https://__SERVICE_DOMAIN__/meme';
+  const targetUrl = isPostState ? 'https://__SERVICE_DOMAIN__/meme/posts/1047' : 'https://__SERVICE_DOMAIN__/meme';
   const subject = encodeURIComponent('[블라리요] 권리 침해·게시 중단 문의');
   const body = encodeURIComponent(`대상 URL: ${targetUrl}\n요청 내용: `);
   rightsMailLink.href = `mailto:rights@__SERVICE_DOMAIN__?subject=${subject}&body=${body}`;
@@ -384,7 +384,7 @@ function announceShare(message) {
 }
 
 async function copyShareUrl() {
-  const url = 'https://__SERVICE_DOMAIN__/posts/1047';
+  const url = 'https://__SERVICE_DOMAIN__/meme/posts/1047';
   try {
     await navigator.clipboard.writeText(url);
     announceShare('게시글 링크를 복사했습니다.');
@@ -394,7 +394,7 @@ async function copyShareUrl() {
 }
 
 async function runShare(type) {
-  const url = 'https://__SERVICE_DOMAIN__/posts/1047';
+  const url = 'https://__SERVICE_DOMAIN__/meme/posts/1047';
   const title = '퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미';
 
   if (type === 'copy') await copyShareUrl();

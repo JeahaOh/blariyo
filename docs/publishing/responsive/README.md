@@ -43,11 +43,11 @@
 
 이 프로토타입은 `#home`, `#detail`처럼 한 HTML 안에서 검토 화면만 바꾼다. `<head>`에는 홈 canonical과 기본 OG만 있으므로 JavaScript 전환 결과를 SNS crawler의 게시글 미리보기 계약으로 사용하면 안 된다.
 
-실제 서비스의 `GET /posts/:postNo`는 첫 서버 응답 HTML에 아래 값을 게시글별로 렌더링한다.
+실제 서비스의 `GET /:boardSlug/posts/:postId`는 요청 게시판과 게시글 소속이 일치할 때 첫 서버 응답 HTML에 아래 값을 게시글별로 렌더링한다.
 
-- `<title>`, description, canonical `/posts/:postNo`
+- `<title>`, description, canonical `/:boardSlug/posts/:postId`
 - `og:type=article`, `og:title`, `og:description`, `og:url`
 - absolute HTTPS `og:image`, `og:image:alt`, image width·height
 - `twitter:card=summary_large_image`, title, description, image, image alt
 
-공개 게시글은 HTTP `200`을 반환한다. 없거나 숨김 처리된 게시글은 HTTP `404`, `noindex`를 반환하고 제목·본문·이미지·내부 검토 내용을 HTML에 넣지 않는다. `/meme`, `/terms`, `/privacy`, `/cookie-settings`도 route별 canonical을 가진 서버 응답 HTML을 제공한다. 권리 침해·게시 중단 문의는 푸터 이메일로 연결하고 `/`는 `/meme`으로 리다이렉트한다.
+공개 게시글은 HTTP `200`을 반환한다. 없거나 숨김 처리됐거나 URL 게시판과 소속 게시판이 다른 게시글은 HTTP `404`, `noindex`를 반환하고 제목·본문·이미지·내부 검토 내용을 HTML에 넣지 않는다. `/meme`, `/terms`, `/privacy`, `/cookie-settings`도 route별 canonical을 가진 서버 응답 HTML을 제공한다. 권리 침해·게시 중단 문의는 푸터 이메일로 연결하고 `/`는 `/meme`으로 리다이렉트한다.

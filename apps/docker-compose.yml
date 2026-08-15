@@ -1,107 +1,26 @@
 services:
-  # MongoDB
-  mongodb:
-    image: mongo:latest
-    container_name: blariyo-mongodb
-    restart: always
-    env_file: .env
-    command: mongod --auth
+  postgresql:
+    image: postgres:18
+    container_name: blariyo-postgresql
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:45432:5432'
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --auth-host=scram-sha-256
+      PGTZ: UTC
     volumes:
-      - ./data/mongodb:/data/db
-      - ./init/mongodb:/docker-entrypoint-initdb.d
+      - ./data/postgresql:/var/lib/postgresql
+      - ./init/postgresql/scripts:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - blariyo-network
-
-  # Mongo Express
-  mongo-express:
-    image: mongo-express
-    container_name: blariyo-mongo-express
-    restart: always
-    ports:
-      - '9001:8081'
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongodb
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
-      ME_CONFIG_BASICAUTH: false
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017
-    depends_on:
-      - mongodb
-    networks:
-      - blariyo-network
-
-  # MySQL
-  mysql:
-    image: mysql:8.0
-    container_name: blariyo-mysql
-    platform: linux/arm64/v8
-    restart: always
-    env_file: .env
-    ports:
-      - 43306:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      TZ: Asia/Seoul
-      LANG: C.UTF-8
-    volumes:
-      - ./data/mysql:/var/lib/mysql
-      - ./init/mysql/scripts:/docker-entrypoint-initdb.d
-      - ./init/mysql/config/my.conf:/etc/mysql/conf.d/my.conf
-    networks:
-      - blariyo-network
-
-  # phpMyAdmin
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    platform: linux/amd64
-    container_name: blariyo-phpmyadmin
-    restart: always
-    ports:
-      - 9000:80
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      PMA_USER: ${MYSQL_USER}
-      PMA_PASSWORD: ${MYSQL_PASSWORD}
-    depends_on:
-      - mysql
-    networks:
-      - blariyo-network
-
-  # Backend: Express.js
-  # api:
-  #   build: ./api
-  #   container_name: blariyo-api
-  #   ports:
-  #     - '4000:4000'
-  #   volumes:
-  #     - ./api:/app
-  #   depends_on:
-  #     - mysql
-  #     - mongo
-  #   environment:
-  #   command: npm run dev
-
-  # Frontend: Vue.js
-  #web:
-  #  build: ./web
-  #  container_name: blariyo-web
-  #  ports:
-  #    - '3000:3000'
-  #  volumes:
-  #    - ./web:/app
-  #  depends_on:
-  #    - api
-  #  command: npm run dev
 
 networks:
   blariyo-network:

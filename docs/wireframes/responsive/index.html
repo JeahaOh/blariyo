@@ -454,8 +454,8 @@
           <div class="page-heading"><div><h1>짤</h1><p class="heading-copy">관리자가 보기에 웃긴 짤을 빠르게 훑는 게시판형 목록</p></div><span class="count">20개 · 최신순 · 1쪽</span></div>
           <div class="board-list" id="homeWireList" aria-label="짤 게시판 최신 게시글 20개">
             <div class="board-row header" aria-hidden="true"><span class="board-cell">번호</span><span class="board-cell">게시판</span><span class="board-cell board-title">제목</span><span class="board-cell">조회</span><span class="board-cell">작성자</span><span class="board-cell">시간</span></div>
-            <a class="board-row notice" href="/posts/notice-12"><span class="board-cell">공지</span><span class="board-cell board-name">안내</span><span class="board-cell board-title">블라리요 운영 및 권리자 요청 안내</span><span class="board-cell board-muted">1,842</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 12일</span></a>
-            <a class="board-row notice" href="/posts/notice-11"><span class="board-cell">공지</span><span class="board-cell board-name">안내</span><span class="board-cell board-title">광고·제휴 콘텐츠 표시 기준 안내</span><span class="board-cell board-muted">936</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 12일</span></a>
+            <a class="board-row notice" href="/meme/posts/12"><span class="board-cell">공지</span><span class="board-cell board-name">안내</span><span class="board-cell board-title">블라리요 운영 및 권리자 요청 안내</span><span class="board-cell board-muted">1,842</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 12일</span></a>
+            <a class="board-row notice" href="/meme/posts/11"><span class="board-cell">공지</span><span class="board-cell board-name">안내</span><span class="board-cell board-title">광고·제휴 콘텐츠 표시 기준 안내</span><span class="board-cell board-muted">936</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 12일</span></a>
             <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1048</span><span class="board-cell board-name">짤</span><span class="board-cell board-title">회의 시작 5분 전에 모두가 갑자기 바빠지는 이유</span><span class="board-cell board-muted">812</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">14:30</span></div>
             <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1047</span><span class="board-cell board-name">짤</span><span class="board-cell board-title">퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미</span><span class="board-cell board-muted">1,248</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">13:45</span></div>
             <div class="board-row" tabindex="0" data-go="detail"><span class="board-cell board-muted">1046</span><span class="board-cell board-name">짤</span><span class="board-cell board-title">간식을 숨긴 위치를 정확히 기억하고 있던 고양이</span><span class="board-cell board-muted">967</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">12:10</span></div>
@@ -508,7 +508,7 @@
     const tabs = Array.from(document.querySelectorAll('[data-screen]'));
     const screens = Array.from(document.querySelectorAll('[data-view]'));
     const address = document.querySelector('.address');
-    const routes = { home: '/meme', detail: '/posts/1047', state: '/posts/unknown' };
+    const routes = { home: '/meme', detail: '/meme/posts/1047', state: '/meme/posts/999999' };
     const wireAdblockModal = document.getElementById('wireAdblockModal');
     const wireAdblockDialog = wireAdblockModal.querySelector('[role="dialog"]');
     const wireShareMenu = document.getElementById('wireShareMenu');
@@ -551,16 +551,16 @@
       homeWireList.querySelectorAll('.board-row[data-go]').forEach((oldRow) => {
         const link = document.createElement('a');
         link.className = oldRow.className;
-        link.href = `/posts/${oldRow.querySelector('.board-cell')?.textContent.trim()}`;
+        link.href = `/meme/posts/${oldRow.querySelector('.board-cell')?.textContent.trim()}`;
         link.innerHTML = oldRow.innerHTML;
         oldRow.replaceWith(link);
       });
       for (let index = 0; index < 14; index += 1) {
-        const postNo = 1042 - index;
+        const postId = 1042 - index;
         const row = document.createElement('a');
         row.className = 'board-row';
-        row.href = `/posts/${postNo}`;
-        row.innerHTML = `<span class="board-cell board-muted">${postNo}</span><span class="board-cell board-name">짤</span><span class="board-cell board-title">짤 게시판 최신 게시글 ${postNo}</span><span class="board-cell board-muted">${390 - index * 13}</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 11일</span>`;
+        row.href = `/meme/posts/${postId}`;
+        row.innerHTML = `<span class="board-cell board-muted">${postId}</span><span class="board-cell board-name">짤</span><span class="board-cell board-title">짤 게시판 최신 게시글 ${postId}</span><span class="board-cell board-muted">${390 - index * 13}</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 11일</span>`;
         homeWireList.appendChild(row);
       }
     }
@@ -568,7 +568,7 @@
     const contextList = document.getElementById('detailContextList');
     if (contextList) {
       for (let index = 0; index < 20; index += 1) {
-        const postNo = 1056 - index;
+        const postId = 1056 - index;
         if (index === 10) {
           const ad = document.createElement('div');
           ad.className = 'ad-slot feed-ad';
@@ -576,15 +576,15 @@
           ad.textContent = 'AD-DETAIL-LIST-INLINE · 게시글 20개 산정 제외';
           contextList.appendChild(ad);
         }
-        const row = document.createElement(postNo === 1047 ? 'div' : 'a');
-        row.className = `board-row${postNo === 1047 ? ' is-current' : ''}`;
-        if (postNo === 1047) {
+        const row = document.createElement(postId === 1047 ? 'div' : 'a');
+        row.className = `board-row${postId === 1047 ? ' is-current' : ''}`;
+        if (postId === 1047) {
           row.setAttribute('aria-current', 'true');
           row.setAttribute('aria-disabled', 'true');
         } else {
-          row.href = `/posts/${postNo}`;
+          row.href = `/meme/posts/${postId}`;
         }
-        row.innerHTML = `<span class="board-cell board-muted">${postNo}</span><span class="board-cell board-name">짤</span><span class="board-cell board-title">같은 짤 게시판의 현재 글 주변 게시글${postNo === 1047 ? ' (현재 글)' : ''}</span><span class="board-cell board-muted">${800 - index * 17}</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 11일</span>`;
+        row.innerHTML = `<span class="board-cell board-muted">${postId}</span><span class="board-cell board-name">짤</span><span class="board-cell board-title">같은 짤 게시판의 현재 글 주변 게시글${postId === 1047 ? ' (현재 글)' : ''}</span><span class="board-cell board-muted">${800 - index * 17}</span><span class="board-cell board-muted">운영자</span><span class="board-cell board-muted">8월 11일</span>`;
         contextList.appendChild(row);
       }
     }

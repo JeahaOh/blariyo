@@ -2,11 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpecs = require('./config/swagger');
+const setupSwagger = require('./config/swagger');
 require('dotenv').config();
+const { errorHandler } = require('./middlewares/errorHandler');
 
 const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
 const loggingMiddleware = require('./middlewares/loggingMiddleware');
 
 const app = express();
@@ -18,27 +19,29 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(loggingMiddleware);
+app.use(errorHandler);
 
 // Swagger UI 설정
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+setupSwagger(app);
 
 // 라우트 설정
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 // 에러 핸들러
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: '서버 오류가 발생했습니다.' 
+  res.status(500).json({
+    success: false,
+    message: '서버 오류가 발생했습니다.',
   });
 });
 
 // 404 핸들러
 app.use((req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: '요청한 리소스를 찾을 수 없습니다.' 
+  res.status(404).json({
+    success: false,
+    message: '요청한 리소스를 찾을 수 없습니다.',
   });
 });
 
@@ -50,4 +53,4 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-module.exports = app; 
+module.exports = app;

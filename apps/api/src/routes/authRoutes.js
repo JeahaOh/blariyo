@@ -1,22 +1,49 @@
 const express = require('express');
 const router = express.Router();
-const AuthController = require('../controllers/authController');
-const { validateLogin } = require('../middleware/validation');
-
-const authController = new AuthController();
+const authController = require('../controllers/authController');
+const { validateLogin } = require('../middlewares/loginValidator');
 
 /**
  * @swagger
- * /api/v1/users/login:
+ * tags:
+ *   name: Auth
+ *   description: 인증 관련 API
+ * components:
+ *   schemas:
+ *     Login:
+ *       type: object
+ *       required:
+ *         - user_id
+ *         - user_pswd
+ *       properties:
+ *         user_id:
+ *           type: string
+ *           description: 사용자 ID
+ *         user_pswd:
+ *           type: string
+ *           description: 사용자 비밀번호
+ */
+
+/**
+ * @swagger
+ * /api/v1/auth/login:
  *   post:
+ *     tags: [Auth]
  *     summary: 사용자 로그인
- *     tags: [Users]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Login'
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - user_pswd
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               user_pswd:
+ *                 type: string
  *     responses:
  *       200:
  *         description: 로그인 성공
@@ -28,4 +55,4 @@ router.post('/login', validateLogin, authController.login);
 // 로그아웃
 router.post('/logout', authController.logout);
 
-module.exports = router; 
+module.exports = router;

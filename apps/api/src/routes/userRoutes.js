@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { validateJoin, validateUpdate } = require('../middlewares/validateMiddleware');
-
+const { validateJoin, validateUpdate } = require('../middlewares/userMiddleware');
 /**
  * @swagger
+ * tags:
+ *   name: Users
+ *   description: 사용자 관련 API
  * components:
  *   schemas:
  *     User:
@@ -59,18 +61,6 @@ const { validateJoin, validateUpdate } = require('../middlewares/validateMiddlew
  *         user_id:
  *           type: string
  *           description: 사용자 ID
- *     Login:
- *       type: object
- *       required:
- *         - user_id
- *         - user_pswd
- *       properties:
- *         user_id:
- *           type: string
- *           description: 사용자 ID
- *         user_pswd:
- *           type: string
- *           description: 사용자 비밀번호
  *     UpdateUser:
  *       type: object
  *       properties:
@@ -223,4 +213,4 @@ router.put('/:user_id', validateUpdate, userController.updateUser);
  */
 router.delete('/:user_id', userController.deleteUser);
 
-module.exports = router; 
+module.exports = router;

@@ -1,4 +1,12 @@
-const logger = require('./logger');
+const logger = require('../utils/logger');
+
+// class ApiError extends Error {
+//   constructor(status, message) {
+//     super(message);
+//     this.status = status;
+//     this.name = 'ApiError';
+//   }
+// }
 
 const errorHandler = (err, req, res, next) => {
   logger.error(`[ERROR] ${err.stack}`);
@@ -14,4 +22,6 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-module.exports = errorHandler;
+module.exports = {
+  errorHandler,
+};

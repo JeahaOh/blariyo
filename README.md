@@ -1,270 +1,65 @@
-# 블라리요 (Blariyo)
+# Blariyo
 
-사용해보지 않았거나, 스킬 레벨이 낮은 기술을 사용하여 간단한 커뮤니티 게시판을 만드는 CMS(Content Management System) 개발.
+`블라리요`는 운영자가 선별한 유머 콘텐츠를 데스크톱·모바일 웹에서 연속해서 보는 서비스다.
 
-### 🏷️ 소개
+- 내부 코드명: `blariyo`
+- 공개 서비스명: `블라리요`
+- 현재 단계: M0 설계 검토 완료, 실행 산출물 작성 전
+- 현재 구현: Express·PostgreSQL 개발 skeleton이며 운영 가능한 M0가 아님
 
-쓸데없는 이야기부터 진지한 대화까지,  
-글 하나, 댓글 하나가 작은 우주가 됩니다.  
-Blariyo — 그냥 말하고 싶은 사람들을 위한 곳.
+## 문서 정본
 
-### 🏷️ 슬로건 및 배너 카피
+같은 내용을 README에 다시 정의하지 않고 아래 문서를 정본으로 사용한다.
 
-💬 모든 이야기의 시작, Blariyo.
+| 질문 | 정본 |
+| --- | --- |
+| 무엇을 어느 단계에 만드는가 | [서비스 기획서](docs/planning/01-service-plan.md) |
+| 화면에서 어떻게 동작하는가 | [화면 설계서](docs/planning/03-screen-design.md) |
+| 분석·광고를 언제 어떻게 적용하는가 | [분석·광고 계획](docs/planning/04-analytics-ad-plan.md) |
+| 어떤 기술 경계로 구현하는가 | [M0 시스템 설계](docs/system-design/README.md) |
+| PostgreSQL schema 계약은 무엇인가 | [M0 데이터 모델](docs/system-design/02-data-model.md) |
+| HTTP 계약은 무엇인가 | [M0 API 설계](docs/system-design/03-api-design.md) |
+| 어떻게 배포·백업·복구하는가 | [인프라 설계](docs/system-design/04-infrastructure-design.md), [보안·운영 설계](docs/system-design/05-security-operations.md) |
 
-----
+제품 범위는 planning, 구현 세부는 system-design, 실제 완료 여부는 migration·OpenAPI·source·test를 기준으로 판단한다.
 
-## ✅ 기능 요구사항 (Functional Requirements)
+현재 구현 목표는 M0다. 단계별 제품 범위와 기술 선택은 위 정본 문서에서만 변경한다.
 
-### 📌 1. 사용자 관리
+## 저장소 구조
 
-- 회원 가입 / 로그인 / 로그아웃 (JWT) / refresh token
-- 회원 정보 수정 / 탈퇴
-- 사용자 권한 구분 (관리자 / 일반 사용자)
-- OAuth 로그인 (시간이 된다면: Google, Naver, Kakao 등)
-
-### 📌 2. 게시판 기능
-
-- 게시글 목록 조회 (페이징 / 검색 / 정렬 포함)
-- 게시글 작성 / 수정 / 삭제
-- 게시글 상세 조회
-- 이미지 업로드 (S3 또는 로컬 저장소)
-- 게시글 카테고리 분류
-
-### 📌 3. 댓글 기능
-
-- 댓글 작성 / 수정 / 삭제
-- 대댓글 (Nested Comments)
-
-### 📌 4. 좋아요 / 싫어요 기능
-
-- 게시글 및 댓글에 대한 좋아요 / 싫어요 기능
-
-### 📌 5. 신고 기능
-
-- 게시글 및 댓글 신고
-- 관리자 페이지에서 신고 처리 기능
-
-### 📌 6. 관리자 기능
-
-- 유저 관리 (조회 / 정지 / 탈퇴 처리)
-- 게시글 및 댓글 모니터링 및 삭제
-- 신고 접수 및 조치
-- 게시판 생성 삭제 수정 등
-
-### 📌 7. 알림 기능 (선택사항)
-
-- 댓글, 대댓글, 좋아요 등에 대한 실시간 알림
-- 알림 목록 페이지
-
-----
-
-## ✅ 비기능 요구사항 (Non-functional Requirements)
-
-### 🔧 기술 스택 관련
-
--  Docker: 모든 서비스 컨테이너화
--  Nginx: Reverse Proxy + 정적 파일 서빙
--  MySQL: 사용자, 게시판, 댓글 등 관계형 데이터 저장
--  MongoDB: 로그, 통계 데이터 저장 (비정형 데이터)
--  Node.js + Express: API 서버
--  Nuxt.js 또는 Next.js: 프론트엔드 SSR or SSG 처리
-
-### 📈 시스템 아키텍처
-
-- RESTful API 설계 또는 GraphQL (선택 사항)
-- JWT 인증 기반 보안 처리
-- 로깅 및 모니터링 시스템 (예: Morgan, Winston, Prometheus)
-- 배포 자동화 (CI/CD, GitHub Actions or Jenkins)
-- 확장성 고려한 마이크로서비스 아키텍처(선택 사항)
-
-### 🛡 보안
-
--  비밀번호 해싱 (bcrypt 등)
--  CSRF / XSS / SQL Injection 방어
--  HTTPS 적용 (Let’s Encrypt)
--  관리자 페이지 접근 제한
-
-### 📊 성능 / 확장성
-
--  캐싱 (Redis 등)
--  DB 인덱싱 및 최적화
--  페이지네이션
--  파일 업로드 시 CDN 사용 고려
-
-----
-
-### ✅ 비기능 요구사항 추가 고려사항
-
--  반응형 디자인 (모바일/태블릿 지원)
--  다국어 지원 (i18n)
--  SEO 최적화 (Next.js/Nuxt.js SSR 기능 활용)
--  테스트 코드 작성 (Jest, Cypress 등)
-
-----
-
-## ✅ 설계
-
-### 1. 📌 인프라 아키텍쳐 (초안)
-
-```txt
-  [Client] <--> [Nginx (Reverse Proxy)]
-                         |
-        ┌────────────────┴──────────────────┐
-        |                                   |
-  [Frontend (Vue.js)]          [Backend (NestJS)]
-                                            |
-                                 ┌──────────┬─────────────┐
-                                 |                        |
-                             [MySQL]               [MongoDB (Optional, for logs)]
-```
-
-- Docker Compose로 모든 구성 요소를 컨테이너화
-- Nginx는 정적 파일 서빙 + API 요청 리버스 프록시
-- FE (미확정) : Vue 3 + Composition API + Vite
-- BE : NestJS
-- DB : MySQL, MongoDB
-
-### 2. 📌 어플리케이션 아키텍쳐 (BE)
-
-```txt
-   [Express Router]
-          |
-    [Controllers]
-          |
-     [Services]
-          |
-  [Repositories (DB Access)]
-          |
-       [MySQL]
-```
-
-- Controller : 요청 처리 및 응답
-- Service : 비즈니스 로직 처리
-- Repository : DB 쿼리 분리 (Sequeliae 또는 Knex)
-- 유효성 검증 : express-validator 또는 joi
-- 인증 : JWT (JSON Web Token)
-
-### 3. 📌 ERD 설계 (초안)
-
-```txt
-  Users
-  - id (PK)
-  - email
-  - username
-  - password
-  - role (user/admin)
-  - created_at
-  - updated_at
-
-  Posts
-  - id (PK)
-  - user_id (FK → Users)
-  - title
-  - content
-  - created_at
-  - updated_at
-
-  Comments
-  - id (PK)
-  - post_id (FK → Posts)
-  - user_id (FK → Users)
-  - parent_id (nullable, self FK)
-  - content
-  - created_at
-  - updated_at
-
-  Likes
-  - id (PK)
-  - user_id (FK → Users)
-  - post_id (FK → Posts, nullable)
-  - comment_id (FK → Comments, nullable)
-  - is_like (boolean)
-
-  Reports
-  - id (PK)
-  - user_id (FK → Users)
-  - post_id / comment_id
-  - reason
-  - created_at
-```
-
-### 4. 📌 API 명세서 (초안)
-
-| Method |  Endpoint |  Description |  Auth |  Body |
-| :--- | :--- | :--- | :---: | :--- |
-|POST   |  /api/auth/register  |  회원가입         | ❌ |  email, username, password |
-|POST   |  /api/auth/login     |  로그인           | ❌ |  email, password |
-|GET    |  /api/posts          |  게시글 목록 조회   | ❌ |  ?page=1&search=... |
-|GET    |  /api/posts/:id      |  게시글 상세        | ❌ |  - |
-|POST   |  /api/posts          |  게시글 작성       | ✅ |  title, content |
-|PUT    |  /api/posts/:id      |  게시글 수정        | ✅ |  title, content |
-|DELETE |  /api/posts/:id      |  게시글 삭제        | ✅ |  - |
-|POST   |  /api/posts/:id/like |  게시글 좋아요     | ✅ |  - |
-|POST   |  /api/comments       |  댓글 작성         | ✅ |  post_id, parent_id?, content |
-|GET    |  /api/users/me       |  내 정보 조회      | ✅ |  - |
-
-### 5. 📌 프로젝트 파일 구조
-
-단일 레포 기반 구성
-
-```txt
+```text
 blariyo/
-  ├── api.core/ # NestJS core API 서버
-  │   ├── src/
-  │   │   ├── app.module.ts # 루트 모듈
-  │   │   ├── main.ts # 앱 진입점
-  │   │   │
-  │   │   ├── config/ # 환경 설정 관련
-  │   │   │   ├── config.module.ts
-  │   │   │   └── config.service.ts
-  │   │   │
-  │   │   ├── common/ # 공통 모듈
-  │   │   │   ├── guards/
-  │   │   │   ├── filters/
-  │   │   │   ├── interceptors/
-  │   │   │   ├── decorators/
-  │   │   │   └── utils/
-  │   │   │
-  │   │   └── modules/ # 도메인 모듈
-  │   │       └── domain/ # 각 도메인별 모듈
-  │   │           ├── domain.module.ts
-  │   │           ├── domain.controller.ts
-  │   │           ├── domain.service.ts
-  │   │           ├── domain.repository.ts
-  │   │           └── dto/
-  │   │
-  │   ├── .env
-  │   └── Dockerfile
-  │
-  ├── frontend/                # Vue 3
-  │   ├── public/
-  │   ├── src/
-  │   │   ├── components/
-  │   │   ├── pages/
-  │   │   ├── router/
-  │   │   ├── store/
-  │   │   └── App.vue
-  │   ├── vite.config.js
-  │   └── Dockerfile
-  │
-  ├── nginx/                   # Nginx 설정
-  │   └── default.conf
-  │
-  ├── docker-compose.yml
-  └── README.md
+  apps/
+    api/                    Express development skeleton
+    data/postgresql/        local PostgreSQL data boundary
+    init/postgresql/        development connection schema
+    docker-compose.yml      local development Compose
+  docs/
+    planning/               product and stage decisions
+    system-design/          M0 implementation contracts
+    legal/                  release-blocking policy drafts
+    publishing/             responsive publishing prototype
+    wireframes/             screen references
+    session-log/            decision and review history
 ```
 
-----
+Nuxt application, production infrastructure, M0 migration과 M0 OpenAPI/routes는 아직 구현되지 않았다.
 
-### 🛠 도입 고려 라이브러리 / 툴
+## 다음 실행 산출물
 
--  ORM: Sequelize or Prisma (JS에서 추천)
--  DB 마이그레이션: Sequelize CLI
--  유효성 검증: express-validator or joi
--  인증: jsonwebtoken, bcrypt
--  로깅: winston, morgan
--  테스트: Jest or Vitest
--  API 문서화: Swagger (swagger-jsdoc + swagger-ui-express)
+1. PostgreSQL `V001` schema migration과 `V002` 게시판 seed
+2. migration 적용·경쟁 조건 integration test
+3. M0 OpenAPI `3.1.x` source와 example validation
+4. 공개 board·list·detail route
+5. 관리자 image·draft·publish·hide route
+6. Nuxt 목록·상세와 정책 화면
+7. backup restore drill과 배포 smoke test
 
-----
+data-model과 api-design의 미구현 gate는 각 문서 마지막 checklist에서 관리한다.
+
+## 주요 결정 기록
+
+- [세션 기록 규칙](docs/session-log/README.md)
+- [PostgreSQL 전환 결정](docs/session-log/2026-08-14-postgresql-transition.md)
+- [planning·system-design 경계 재검토](docs/session-log/2026-08-14-planning-system-design-boundary-review.md)
+- [게시판·권리 정책 정정](docs/session-log/2026-08-12-board-policy-correction.md)

@@ -1,7 +1,7 @@
 # 블라리요 분석·광고 계획
 
-- 문서 상태: 사용자 확정안 반영 정본
-- 기준일: 2026-08-13
+- 문서 상태: M0 내부 조회·후속 GA4/광고 요구사항 정본
+- 기준일: 2026-08-14
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
 
 ## 1. 화면 기준
@@ -19,10 +19,10 @@
 | 구분 | 목적 | 동의 |
 | --- | --- | --- |
 | 필수 내부 통계 | 서비스 동작과 게시글 소비 확인 | 서비스 운영에 필요한 최소 범위 |
-| 선택 GA4 | 유입 경로, 기기, 화면 흐름 분석 | 분석 동의 후 |
+| 선택 GA4 | 후속 단계의 유입 경로, 기기, 화면 흐름 분석 | 분석 동의 후 |
 
 - GA4에 동의하지 않아도 콘텐츠를 볼 수 있어야 한다.
-- GA4 동의 여부와 관계없이 네이버·카카오·Google·Apple 회원가입·로그인은 동작해야 한다.
+- M1 이후에는 GA4 동의 여부와 관계없이 네이버·카카오·Google·Apple 회원가입·로그인이 동작해야 한다.
 - 내부 식별자와 GA 식별자를 결합하지 않는다.
 - 이메일, 닉네임, 블라리요 회원 번호, 소셜 제공자·제공자 식별자, 본문, 댓글, 권리자 요청 내용을 분석 이벤트에 넣지 않는다.
 - GA4 User-ID는 초기에는 사용하지 않는다.
@@ -32,18 +32,18 @@
 
 | 이벤트 | 발생 시점 | 필드 |
 | --- | --- | --- |
-| `FEED_VIEW` | `/meme` 목록 응답 성공 | `anonymous_id`, `session_id`, `board_code`, `occurred_at` |
-| `POST_VIEW` | 공개 상세 응답 성공 | 위 필드 + `post_no` |
-| `DETAIL_LIST_VIEW` | 상세 하단 목록 최초·페이지 이동 응답 성공 | 위 필드 + `post_no`, `list_page`, `item_count` |
+| `FEED_VIEW` | `/meme` 목록 응답 성공 | `anonymousId`, `sessionId`, `boardSlug`, `listPage`, `itemCount`, `occurredAt` |
+| `POST_VIEW` | 공개 상세 응답 성공 | `anonymousId`, `sessionId`, `boardSlug`, `postId`, `occurredAt` |
+| `DETAIL_LIST_VIEW` | 상세 하단 목록 최초·페이지 이동 응답 성공 | `anonymousId`, `sessionId`, `boardSlug`, `postId`, `listPage`, `itemCount`, `occurredAt` |
 
-- `anonymous_id`는 무작위 값으로 만들고 회원 정보와 연결하지 않는다.
-- `session_id`는 탭 또는 일정 시간 무활동 단위로 갱신한다.
+- `anonymousId`는 무작위 값으로 만들고 회원 정보와 연결하지 않는다.
+- `sessionId`는 탭 또는 일정 시간 무활동 단위로 갱신한다.
 - 원문 IP와 User-Agent 전체 문자열을 제품 이벤트에 저장하지 않는다.
 - 구체적인 보관기간은 개인정보처리방침 확정값을 따른다.
 
 ## 4. 선택 GA4 이벤트
 
-분석 동의 후에만 다음 이벤트를 전송한다.
+GA4는 M0 배포 범위가 아니다. 후속 단계에서 활성화한 뒤 분석 동의가 있을 때만 다음 이벤트를 전송한다.
 
 | 이벤트 | 발생 시점 |
 | --- | --- |
@@ -70,6 +70,8 @@
 - 분석 동의 전에는 consent mode의 cookieless ping을 포함한 Google Analytics 요청을 전송하지 않는다.
 
 ## 6. 광고 위치
+
+광고는 M0 배포 범위가 아니다. 후속 단계에서 활성화할 때 아래 위치 계약을 적용한다.
 
 ### 목록
 
@@ -113,8 +115,8 @@
 
 | 이벤트 | 필드 |
 | --- | --- |
-| `ad_slot_request` | `slot`, `board_code`, `post_no` |
-| `ad_impression` | `slot`, `board_code`, `post_no` |
+| `ad_slot_request` | `slot`, `boardSlug`, `postId` |
+| `ad_impression` | `slot`, `boardSlug`, `postId` |
 | `ad_load_failed` | `slot`, `reason` |
 | `adblock_notice` | `action`, `placement` |
 
@@ -157,7 +159,14 @@ AFFILIATE_ENABLED=false
 
 ## 12. 검수 기준
 
+### M0
+
 - `/meme` 목록 조회가 한 번의 `FEED_VIEW`로 기록된다.
+- 숨김 게시글의 콘텐츠 정보가 내부 이벤트에 남지 않는다.
+- 게시판 추가 시 `boardSlug` 값만 확장되고 이벤트 구조는 바뀌지 않는다.
+
+### 후속 GA4·광고·M1
+
 - 분석 거부 시 Google tag 요청이 발생하지 않는다.
 - 분석 거부 상태에서도 네 provider 가입·로그인이 정상 동작한다.
 - 소셜 로그인·가입 이벤트에 회원 번호, provider subject, 이메일, 닉네임이 포함되지 않는다.
@@ -165,4 +174,3 @@ AFFILIATE_ENABLED=false
 - 상세 광고가 지정한 세 위치에만 있다.
 - 광고 실패·차단 상태에서도 콘텐츠를 볼 수 있다.
 - 숨김 게시글의 콘텐츠 정보가 분석·광고 이벤트에 남지 않는다.
-- 게시판 추가 시 `board_code` 값만 확장되고 이벤트 구조는 바뀌지 않는다.

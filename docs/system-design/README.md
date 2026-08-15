@@ -23,12 +23,12 @@
 | 영역 | 설계 문서 | 실행 산출물 | 현재 판정 |
 | --- | --- | --- | --- |
 | 시스템 경계 | 아키텍처 흐름 정의 | M0 route·service 미구현 | 설계 완료, 구현 전 |
-| 데이터 | PostgreSQL table·constraint·상태·보존 계약 | `V001`·`V002` migration 미구현 | 설계 검토 완료, 실행 불가 |
+| 데이터 | PostgreSQL table·constraint·상태·보존 계약 | `V001`·`V002`, checksum·lock runner, 빈 DB test | 기본 schema·seed 구현 완료 |
 | API | 외부 BFF·내부 Core request·response·오류 계약 | M0 OpenAPI·route·contract test 미구현 | 설계 검토 완료, 실행 불가 |
 | 인프라 | 공급자·network·resource 기준 | production 계정·domain 미확정 | 설계 완료, 배포 전 |
 | 보안·운영 | 접근·backup·restore·runbook | production restore drill 미실시 | 설계 완료, 운영 검증 전 |
 
-따라서 `02-data-model.md`와 `03-api-design.md`는 구현 방향의 정본이지만, migration과 OpenAPI가 만들어지고 빈 환경 검증을 통과하기 전에는 “구현 준비 완료”로 표시하지 않는다.
+`02-data-model.md`의 기본 schema·seed는 실행 산출물과 빈 PostgreSQL 18 검증까지 완료했다. API 계층은 OpenAPI와 route·contract test가 만들어지기 전까지 “구현 준비 완료”로 표시하지 않는다.
 
 ## 설계 범위
 

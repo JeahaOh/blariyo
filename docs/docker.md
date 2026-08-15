@@ -18,6 +18,16 @@
 - `init.sql`은 비어 있는 로컬 개발 DB의 연결 확인만 담당한다. M0 운영 스키마와 seed는 각각 `V001`, `V002` migration으로 적용한다.
 - MySQL·MariaDB container와 기존 `apps/data/mysql`은 현행 Compose 구성에 연결하지 않는다. 기존 로컬 MySQL 파일은 자동 변환하거나 초기화하지 않는다.
 
+M0 migration 적용과 전용 빈 DB 검증은 API 디렉터리에서 실행한다.
+
+```bash
+cd apps/api
+npm run db:migrate
+npm run test:migrate
+```
+
+`db:migrate`는 적용된 SQL의 checksum이 달라지면 중단한다. 적용 완료된 migration 파일을 수정하지 말고 다음 version을 추가한다.
+
 구성과 상태를 읽기 전용으로 확인한다.
 
 ```bash

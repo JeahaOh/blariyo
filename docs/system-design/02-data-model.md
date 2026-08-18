@@ -34,7 +34,7 @@
 | 수정자 | `updated_by` | `VARCHAR(100)` | 마지막 수정 actor key |
 | 수정일시 | `updated_at` | `TIMESTAMPTZ(3)` | 마지막 수정 시각, UTC |
 
-actor key는 `<주체 유형>:<식별값>` 형식으로 저장한다. migration·scheduler·event worker는 `system:migration`, `system:scheduler`, `system:event-ingest`, `system:event-aggregate`, `system:outbox-worker`처럼 고정된 이름을 사용한다. 운영자는 `admin:v<keyVersion>:<base64url(HMAC-SHA-256(Access sub))>`를 사용하며 Access subject 원문은 저장하지 않는다. M1 사용자 actor는 같은 형식의 `user:v<keyVersion>:<HMAC>`을 사용할 수 있다.
+actor key는 `<주체 유형>:<식별값>` 형식으로 저장한다. migration·scheduler·event worker는 `system:migration`, `system:scheduler`, `system:event-ingest`, `system:event-aggregate`, `system:outbox-worker`처럼 고정된 이름을 사용한다. 운영자는 `admin:v<keyVersion>:<base64url(HMAC-SHA-256(operatorId))>`를 사용한다. `operatorId`는 BFF adapter가 외부 identity와 분리해 유지하는 안정적인 내부 식별자이므로 provider를 바꿔도 같은 값을 사용한다. 외부 provider subject 원문은 저장하지 않는다. M1 사용자 actor는 같은 형식의 `user:v<keyVersion>:<HMAC>`을 사용할 수 있다.
 
 등록 시 두 actor와 두 시각은 각각 같은 값으로 시작하고, 변경 시 `updated_by`, `updated_at`만 갱신한다. 수정하지 않는 이력성 행도 네 컬럼을 유지하며 수정 값은 등록 값과 같다. 작성자·소유자처럼 업무상 필요한 주체는 감사 컬럼을 재사용하지 않고 별도 FK로 둔다.
 
@@ -292,7 +292,7 @@ INDEX ix_board_post__updated (updated_at, id)
 | `post_id` | `BIGINT` | Y | staging은 `NULL`, 연결 후 게시글 FK |
 | `private_storage_key` | `VARCHAR(512)` | N | 비공개 canonical 원본 key |
 | `public_storage_key` | `VARCHAR(512)` | Y | 공개 media object key |
-| `status` | `VARCHAR(20)` | N | staging·공개·삭제 상태 |
+| `status` | `VARCHAR(24)` | N | staging·공개·삭제 상태 |
 | `content_sha256` | `BYTEA` | N | 중복·무결성 확인 hash, 32 bytes |
 | `mime_type` | `VARCHAR(50)` | N | 검증된 MIME |
 | `byte_size` | `INTEGER` | N | 파일 크기, 양수 |
@@ -651,8 +651,11 @@ M0 migration은 [migrate.js](../../apps/api/src/db/migrate.js)가 관리한다. 
 - [x] 동일 migration 재실행 차단, checksum 변경 거부와 적용 version 확인 test
 - [ ] 이미지 선점 경쟁, 연결 image당 IMAGE block 정확히 한 건, 숨김 글 image 제거, block `alt_text`, 공지 순서 충돌, 낙관적 잠금, 멱등 key 경쟁 integration test
 - [ ] 상태별 시각 column과 정책 상태 제약 test
-- [ ] 이벤트 집계 job 재시작 시 `view_count` 중복 증가 방지와 여러 batch의 일별 순 사용자 중복 제거 test
-- [ ] 중단된 `RUNNING` outbox 회수와 실패 8회 `DEAD` 전환 test
+- [x] 이벤트 집계 job 재시작 시 `view_count` 중복 증가 방지와 여러 batch의 일별 순 사용자 중복 제거 test
+- [x] 집계 완료 후 90일이 지난 raw 이벤트 삭제와 일별 집계 보존 test
+- [x] 중단된 `RUNNING` outbox 회수와 실패 8회 `DEAD` 전환 test
+- [x] 재공개 시 최초 `published_at` 유지와 private image 재승격 test
+- [x] `REMOVED` 전이와 private 원본 30일 지연 삭제 test
 - [ ] rollback·restore 환경에 migration version 검증 추가
 
 모든 항목이 통과하기 전에는 데이터 계층을 “구현 준비 완료” 또는 “구현 완료”로 표시하지 않는다.

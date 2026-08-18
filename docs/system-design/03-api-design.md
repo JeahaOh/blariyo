@@ -1,6 +1,6 @@
 # M0 Web BFF API 설계
 
-- 문서 상태: 설계 계약 검토 완료 · M0 OpenAPI/route/contract test 미구현
+- 문서 상태: 공개·관리자 게시글 Core·BFF·전체 M0 OpenAPI·관리자 화면 구현 · 정책 화면 미구현
 - 기준일: 2026-08-15
 - base path: `/api/v1`
 - content type: `application/json; charset=utf-8`
@@ -11,7 +11,7 @@
 - Nuxt BFF만 Express Core API를 Docker app network에서 호출한다. 브라우저·Nginx·공개 DNS는 Core API에 직접 접근할 수 없다.
 - BFF는 인증·요청 검증·외부 응답 mapping만 담당하고 SQL·게시 상태 전이·transaction은 Core API에만 둔다.
 - 공개 API는 인증 없이 읽을 수 있다.
-- 관리자 API는 Cloudflare Access를 통과한 요청만 받는다.
+- 관리자 API의 외부 identity는 BFF adapter가 검증하고 Core는 BFF 내부 서비스 인증만 신뢰한다.
 - 식별자는 URL에서 `postId`처럼 표현하고 JSON은 `camelCase`를 사용한다.
 - 공개 게시글 목록·상세는 게시판 하위 resource로 두고 숫자 `boardId` 대신 `boardSlug`를 path에 사용한다.
 - 게시판 문맥이 없는 `/api/v1/posts`, `/api/v1/posts/:postId` 호환 route는 만들지 않는다.
@@ -21,7 +21,7 @@
 - `404`에서 숨김·삭제·미존재 원인을 구분하지 않는다.
 - 외부 OpenAPI는 BFF 구현과 같은 schema source에서 생성한다. production에서 Swagger UI는 공개하지 않는다.
 
-현재 `apps/api`의 회원·비밀번호 route와 Swagger는 개발 skeleton이며 이 M0 API의 구현이 아니다. 아래 계약을 구현한 BFF OpenAPI·Nuxt server route와 Express Core 기능이 추가되기 전에는 API를 “구현 준비 완료” 또는 “구현 완료”로 표시하지 않는다. Core API의 내부 route는 외부 호환 계약으로 취급하지 않지만 별도 schema와 contract test로 BFF 연동을 검증한다.
+기존 회원·비밀번호 route와 Swagger 개발 skeleton은 제거했다. 공개 Board/Post는 외부 BFF OpenAPI, Nuxt server route와 Express Core 내부 route를 구현했다. Core API의 내부 route는 외부 호환 계약으로 취급하지 않으며 PostgreSQL·Core·BFF 통합 테스트로 계층 간 계약을 검증한다.
 
 ### M0 endpoint 목록
 
@@ -315,10 +315,13 @@ GET /api/v1/policies/:type?version=v0.2
 ```
 
 - 서버는 두 ID를 secret HMAC으로 변환하고 원문을 저장하지 않는다.
+- 두 ID는 Web Crypto로 생성한 base64url·UUID 호환 문자열이며 길이는 `16~128`자다.
 - `occurredAt`이 서버 시각보다 10분 이상 미래이거나 24시간 이상 과거면 서버 수신 시각으로 대체한다.
 - 허용되지 않은 event·field는 `400`이다.
 - 정상 수신은 body 없이 `204`를 반환한다.
 - IP 단위 제한은 `60회/분`, session HMAC은 동일 event 중복을 10초 window에서 합친다.
+- M0 단일 Nuxt instance는 BFF 메모리에서 IP window를 제한한다. 수평 확장 시 공유 rate-limit 저장소로 교체한다.
+- BFF는 임의의 `X-Forwarded-For`를 신뢰하지 않는다. 배포 환경에서 명시한 단일 trusted client IP header만 사용하며, Cloudflare Tunnel 운영값은 `CF-Connecting-IP`다. header가 없거나 단일 IP가 아니면 연결 주소를 사용한다.
 
 | eventType | 필수 field | 금지 field |
 | --- | --- | --- |
@@ -337,12 +340,16 @@ GET /api/v1/policies/:type?version=v0.2
 /api/v1/admin/*
 ```
 
-Cloudflare Access가 운영자 identity를 검증한다. Origin은 tunnel만 허용하며 Nuxt BFF는 Access assertion의 서명, issuer, `aud`, `exp`를 검증한다. BFF는 원본 assertion을 Core API에 전달하고 Core API도 같은 항목을 다시 검증한다.
+Nuxt BFF의 `AdminIdentityProvider` adapter가 외부 운영자 identity를 검증한다. 초기 provider는 Cloudflare Access지만 adapter 밖의 route와 Core 계약은 provider claim을 사용하지 않는다.
 
 - 허용 identity는 운영자 이메일 allowlist 또는 지정 identity group이다.
-- API log에는 이메일 원문 대신 Access `sub`의 HMAC만 남긴다.
-- Access 장애 시 관리자 작업은 중지해도 공개 읽기는 계속 동작해야 한다.
+- BFF adapter는 외부 identity를 안정적인 내부 `operatorId`로 매핑하고 이를 별도 secret으로 HMAC해 `admin:vN:<base64url>` actor를 만든다.
+- BFF는 Core 관리자 요청에 `X-Blariyo-Service-Token`과 `X-Blariyo-Admin-Actor`만 전달한다. 외부 assertion·이메일·subject 원문은 전달하지 않는다.
+- Core는 서비스 토큰을 constant-time 비교하고 actor 형식만 확인한다. 외부 provider의 issuer·audience·JWKS를 검증하지 않는다.
+- 외부 인증 provider 장애 시 관리자 작업은 중지해도 공개 읽기는 계속 동작해야 한다.
 - 관리자 API를 Cloudflare 우회 주소나 공인 IP로 노출하지 않는다.
+
+`X-Blariyo-Service-Token`은 최소 32-byte 무작위 secret이며 BFF와 Core에만 주입한다. 이 내부 header는 외부 BFF 응답·log에 남기지 않는다. provider 교체 시 새 외부 identity를 기존 `operatorId`에 매핑하고 BFF adapter만 변경한다. Core route·service·DB actor와 기존 감사 이력은 유지한다.
 
 ## 5. 관리자 API
 
@@ -439,7 +446,7 @@ GET /api/v1/admin/images/:imageId/preview
 DELETE /api/v1/admin/images/:imageId
 ```
 
-- preview는 Access 인증 후 private object를 stream하고 `Cache-Control: private, no-store`를 사용한다.
+- preview는 BFF 관리자 인증 후 private object를 stream하고 `Cache-Control: private, no-store`를 사용한다.
 - preview에는 원본 object key나 signed R2 URL을 노출하지 않는다.
 - DELETE는 게시글 block에 연결되지 않은 `STAGED` image만 `PRIVATE_DELETE_PENDING`으로 바꾸고 `OBJECT_DELETE_PRIVATE` outbox를 생성한 뒤 `202`를 반환한다.
 - 연결된 image, `PUBLIC`·`PUBLIC_DELETE_PENDING`·`PRIVATE_REVIEW` image 또는 이미 private 삭제 중인 image는 `409 IMAGE_STATE_CONFLICT`다.
@@ -537,9 +544,9 @@ DELETE /api/v1/admin/images/:imageId
 - 동일 key와 동일 body는 기존 결과를 반환한다.
 - 동일 key에 다른 body는 `409 IDEMPOTENCY_CONFLICT`다.
 - 동일 key의 첫 요청이 아직 처리 중이면 `409 IDEMPOTENCY_IN_PROGRESS`와 `Retry-After: 1`을 반환한다.
-- key scope는 HTTP method, route pattern과 Access actor HMAC의 조합이며 완료 결과를 24시간 보존한다.
+- key scope는 HTTP method, route pattern과 provider-neutral admin actor의 조합이며 완료 결과를 24시간 보존한다.
 - `SCHEDULED`의 `scheduledAt`은 서버 수신 시각보다 최소 1분 이후여야 한다.
-- 성공 후 cache purge outbox를 생성한다.
+- 즉시 발행과 scheduler의 실제 공개 성공 후 cache purge outbox를 생성한다. 예약 등록만으로는 공개 cache를 변경하지 않는다.
 
 즉시 발행 성공:
 
@@ -602,7 +609,7 @@ DELETE /api/v1/admin/posts/:postId
 | HTTP | code | 의미 |
 | --- | --- | --- |
 | `400` | `VALIDATION_FAILED` | 요청 형식·값 오류 |
-| `401` | `ADMIN_AUTH_REQUIRED` | Access assertion 없음·만료 |
+| `401` | `ADMIN_AUTH_REQUIRED` | BFF 외부 관리자 identity 없음·만료·검증 실패 |
 | `403` | `ADMIN_FORBIDDEN` | 운영자 allowlist 불일치 |
 | `404` | `BOARD_NOT_FOUND` | 목록 요청의 비활성·미존재 게시판 |
 | `404` | `POST_NOT_FOUND` | 상세 요청의 게시판 불일치·미존재·비공개 게시글 |
@@ -617,6 +624,7 @@ DELETE /api/v1/admin/posts/:postId
 | `409` | `IMAGE_ALREADY_ATTACHED` | 다른 게시글이 staging image를 선점 |
 | `409` | `IMAGE_STATE_CONFLICT` | 현재 image 상태와 요청 command 충돌 |
 | `413` | `UPLOAD_TOO_LARGE` | 파일·요청 제한 초과 |
+| `413` | `REQUEST_TOO_LARGE` | JSON 요청 본문 크기 제한 초과 |
 | `415` | `UNSUPPORTED_MEDIA_TYPE` | 허용하지 않은 파일 |
 | `429` | `RATE_LIMITED` | 요청 제한 초과 |
 | `500` | `INTERNAL_ERROR` | 분류되지 않은 서버 오류 |
@@ -643,31 +651,46 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 2. boards와 공개 목록 BFF·Core query
 3. 상세와 context page 계산
 4. 정책 조회
-5. BFF·Core의 관리자 Access 이중 검증
+5. BFF 외부 관리자 인증 adapter와 Core 내부 서비스 인증
 6. 이미지 staging과 초안 command
-7. 발행·예약·예약 취소·숨김·outbox
+7. 발행·예약·예약 취소·숨김·재공개·최종 삭제·outbox
 8. 내부 이벤트와 일별 집계
 
 ## 9. 실행 준비 gate
 
-이 문서의 HTTP 계약 검토는 완료됐지만 다음 실행 산출물은 아직 없다.
+공개 Board/Post·정책 Core API, 내부 이벤트 수집·일별 집계, BFF 계약, 외부 관리자 인증 경계, 관리자 게시글 화면·검색·상세·이미지·초안·발행·예약·취소·숨김·재공개·최종 삭제 API와 outbox worker를 구현했다. [m0-bff.openapi.json](../../apps/api/openapi/m0-bff.openapi.json)은 공개·관리자 M0 endpoint와 관리자 인증·멱등·multipart·상태 전이 schema를 포함한다.
 
-- [ ] M0 endpoint만 포함한 OpenAPI `3.1.x` source 작성
+- [x] M0 endpoint만 포함한 OpenAPI `3.1.x` source 작성
 - [ ] request·response·error schema에서 문서 예시 자동 검증
 - [ ] Nuxt BFF route가 외부 OpenAPI validation을 공통 적용
-- [ ] BFF와 Express Core API의 내부 schema·contract test 작성
-- [ ] 공개 목록 0건·마지막 page·초과 page contract test
-- [ ] 목록의 미존재·비활성·잘못된 형식 `boardSlug`가 동일한 `404 BOARD_NOT_FOUND`인지 contract test
-- [ ] 상세의 게시판 불일치·잘못된 형식 `boardSlug`·`postId`가 동일한 `404 POST_NOT_FOUND`인지 contract test
-- [ ] 문맥 없는 `/api/v1/posts*`, `/posts/:postId`가 노출되지 않는지 route test
-- [ ] SSR `/:boardSlug/posts/:postId`의 게시판 불일치가 콘텐츠 없는 `404` HTML인지 integration test
-- [ ] SSR 상세의 canonical·OG·공유 URL이 `/:boardSlug/posts/:postId`로 일치하는지 integration test
-- [ ] 숨김·삭제·예약 글의 동일한 공개 `404` contract test
-- [ ] image upload·선점·preview·폐기 상태 경쟁 integration test
-- [ ] 숨김 글 block 교체 중 public 삭제 대기·private image 제거 contract test
-- [ ] `lockVersion`와 `Idempotency-Key` 동시 요청 integration test
-- [ ] BFF와 Core 각각 Access assertion 없음·만료·잘못된 issuer·`aud`에 대한 관리자 API test
-- [ ] `/health/ready` migration version 불일치 test
-- [ ] 현재 회원 skeleton Swagger를 제거하고 production에서 Swagger UI가 공개되지 않는지 test
+- [x] PostgreSQL·BFF·Express Core API의 내부 contract integration test
+- [x] Nuxt BFF 공개 boards·목록·상세 nested route와 mock Core contract test
+- [x] 공개 목록 0건·마지막 page·초과 page Core contract test
+- [x] 정책 현재·과거 버전 조회와 초안·예약본 비공개 Core/BFF contract test
+- [x] 이벤트별 field 조합·게시판 소속·비공개 게시글·HMAC·10초 중복 제거 contract test
+- [x] 이벤트 IP `60회/분` BFF rate-limit test
+- [x] 이벤트 여러 batch 집계와 재실행 시 일별 순 사용자·`view_count` 중복 방지 test
+- [x] 90일 초과 집계 완료 raw 이벤트 삭제·일별 집계 보존 test
+- [x] 목록의 미존재·비활성·잘못된 형식 `boardSlug`가 동일한 `404 BOARD_NOT_FOUND`인지 Core contract test
+- [x] 상세의 게시판 불일치·잘못된 형식 `boardSlug`·`postId`가 동일한 `404 POST_NOT_FOUND`인지 Core contract test
+- [x] 문맥 없는 `/api/v1/posts*`, `/posts/:postId`가 노출되지 않는지 route test
+- [x] SSR `/:boardSlug/posts/:postId`의 게시판 불일치가 콘텐츠 없는 `404` HTML인지 integration test
+- [x] SSR 상세의 canonical·OG·공유 URL이 `/:boardSlug/posts/:postId`로 일치하는지 integration test
+- [x] 숨김·삭제·예약 글의 동일한 Core `404` contract test
+- [x] image upload·선점·preview·폐기 상태 경쟁 integration test
+- [x] 숨김 글 block 교체 중 public 삭제 대기·private image 제거 contract test
+- [x] `lockVersion`와 `Idempotency-Key` 동시 요청 integration test
+- [x] 즉시 발행·숨김 404·public image 삭제 outbox Core contract test
+- [x] 재공개 시 최초 `publishedAt` 유지·private image 재승격 Core/BFF contract test
+- [x] 최종 삭제 `REMOVED` 전이·private 원본 30일 지연 삭제 outbox contract test
+- [x] 예약·취소·due scheduler 발행과 cache purge outbox contract test
+- [x] 중단된 outbox 회수·지수 backoff·8회 `DEAD` 전환 test
+- [x] Core 내부 서비스 토큰 없음·불일치와 provider-neutral actor 누락·형식 오류 test
+- [x] BFF 외부 관리자 adapter의 identity 없음·만료·잘못된 issuer·audience test
+- [x] 관리자 게시글 상태·게시판·제목 prefix·수정일·page 검색 Core contract test
+- [x] 관리자 게시글 상세의 비공개 상태·TEXT/IMAGE block·storage key 비노출 contract test
+- [x] BFF 관리자 query validation·응답 allowlist mapping·Core 내부 인증 header 전달 test
+- [x] `/internal/health/ready` migration version 불일치 test
+- [x] 현재 회원 skeleton Swagger를 제거하고 Core API에서 Swagger UI가 공개되지 않는지 test
 
 모든 항목이 통과하기 전에는 API 계층을 “구현 준비 완료” 또는 “구현 완료”로 표시하지 않는다.

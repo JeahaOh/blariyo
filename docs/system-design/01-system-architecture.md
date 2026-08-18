@@ -31,7 +31,7 @@
 [Cloudflare DNS/CDN/SSL]
       |
       v
-[Cloudflare Tunnel] ------ [Cloudflare Access] <------ [운영자]
+[Cloudflare Tunnel] ------ [외부 관리자 인증 provider] <------ [운영자]
       |                              |
       v                              v
 [Nginx] ------------------------ /admin*, /api/v1/admin/*
@@ -46,7 +46,7 @@
   +--------------------> [Cloudflare Cache Purge API]
 ```
 
-공개 사용자는 Cloudflare를 통해서만 원본 서버에 접근한다. 운영자 경로는 Cloudflare Access 인증을 통과해야 한다. VM의 80·443·5432 포트는 공용 인터넷에 열지 않고 `cloudflared`가 outbound tunnel을 만든다.
+공개 사용자는 Cloudflare를 통해서만 원본 서버에 접근한다. 운영자 경로는 현재 Cloudflare Access를 외부 인증 provider로 사용하지만 이 검증은 Nuxt BFF adapter에만 둔다. VM의 80·443·5432 포트는 공용 인터넷에 열지 않고 `cloudflared`가 outbound tunnel을 만든다.
 
 ## 3. 컨테이너 구성
 
@@ -60,6 +60,8 @@
 | `backup` | 정기 DB dump 암호화·R2 업로드 | outbound only |
 
 `worker`는 별도 상시 컨테이너로 시작하지 않는다. 예약 발행과 정리 작업은 API 이미지의 단발성 명령을 cron에서 실행한다. 자동 수집을 실제로 시작할 때만 별도 worker를 추가한다.
+
+M0 단발성 명령은 `npm run posts:publish-due`, `npm run outbox:run`, `npm run events:aggregate`다. 예약 발행과 outbox는 매분, 이벤트 집계는 5분마다 실행한다. 각 명령은 HTTP 관리자 경계를 우회하지 않고 동일한 repository·service와 전용 system actor를 사용한다.
 
 ## 4. 애플리케이션 컴포넌트
 
@@ -77,6 +79,7 @@ pages
 server adapters
   BffRouteHandler
   CoreApiClient
+  AdminIdentityProvider
 
 ui
   board-list
@@ -91,7 +94,8 @@ ui
 - 없는 글과 숨김 글은 같은 `404` HTML을 반환하고 콘텐츠 데이터를 포함하지 않는다.
 - 외부에 보이는 `/api/v1`은 Nuxt BFF 계약이다. 브라우저는 Express 주소나 Core API route를 알 수 없다.
 - SSR은 같은 BFF handler를 호출하고, 상세 하단 페이지 이동은 same-origin `/api/v1/boards/:boardSlug/posts`를 호출한다.
-- BFF는 공개 응답을 필요한 필드로 제한하고 관리자 요청의 Access assertion을 Core API에 전달한다.
+- BFF는 공개 응답을 필요한 필드로 제한하고 외부 관리자 identity를 provider adapter로 검증한다.
+- BFF는 외부 assertion을 Core에 전달하지 않는다. adapter가 외부 identity를 안정적인 내부 `operatorId`로 매핑하고 이를 HMAC actor로 변환해 내부 서비스 토큰과 함께 전달한다.
 - BFF에는 SQL, 게시 상태 전이, outbox 생성 같은 업무 규칙을 두지 않는다.
 
 ### Express Core API
@@ -118,7 +122,7 @@ repositories
 adapters
   ObjectStorage
   EdgeCache
-  AdminIdentity
+  InternalServiceAuth
   Clock
 ```
 
@@ -128,7 +132,7 @@ adapters
 - R2 업로드나 캐시 제거 같은 외부 I/O는 DB transaction 밖에서 수행하고 보상·재시도 상태를 남긴다.
 - host port, public DNS, Nginx upstream을 만들지 않는다. HTTP 호출자는 Docker app network의 `web` 하나로 제한한다.
 - cron은 외부·내부 HTTP route를 호출하지 않고 API image의 단발성 command로 같은 service·repository 계층을 실행한다.
-- 관리자 요청은 BFF에서 전달한 Access assertion의 서명·issuer·audience·expiry를 Core API에서도 다시 검증한다.
+- 관리자 route는 BFF와 공유한 내부 서비스 토큰과 `admin:vN:<HMAC>` actor 형식만 검증한다. Core는 외부 인증 provider, JWT claim과 JWKS를 알지 않는다.
 
 ## 5. 주요 흐름
 
@@ -167,7 +171,7 @@ GET /meme/posts/:postId
 ### 이미지 등록과 발행
 
 ```text
-운영자 -> Access 인증 -> 업로드 요청
+운영자 -> BFF 외부 인증 -> 업로드 요청
   -> API가 MIME·크기·decode 검증
   -> private 원본 key로 R2 저장
   -> 이미지 metadata 저장

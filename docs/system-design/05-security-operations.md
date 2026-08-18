@@ -11,7 +11,7 @@
 | --- | --- |
 | RPO | 최대 24시간 데이터 손실 |
 | RTO | 장애 확인 후 4시간 이내 공개 읽기 복구 |
-| 관리자 접근 | 등록 운영자만, Cloudflare Access 필수 |
+| 관리자 접근 | 등록 운영자만, BFF 외부 인증 adapter 필수 |
 | 공개 장애 감지 | 5분 이내 |
 | 권리 요청 숨김 | 운영자가 메일 확인 후 30분 이내 목표 |
 | 원시 이벤트 보존 | 90일 |
@@ -24,7 +24,7 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | 위협 | 통제 |
 | --- | --- |
 | origin 직접 공격 | Cloudflare Tunnel, inbound deny all |
-| 관리자 route 탈취 | Cloudflare Access allowlist, assertion 재검증, 짧은 session |
+| 관리자 route 탈취 | BFF 외부 identity 검증·allowlist, Core 서비스 토큰, 짧은 session |
 | SQL injection | parameterized query, validation, DB 최소 권한 |
 | 저장형 XSS | 게시글 TEXT는 plain text escape, 정책 HTML은 허용 목록 sanitize, CSP |
 | 악성 이미지 | MIME·magic byte·decode 검사, SVG 금지, 크기 제한 |
@@ -38,17 +38,20 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 
 ## 3. 관리자 접근
 
-### Cloudflare Access
+### 외부 관리자 인증 provider
 
-- `/admin*`, `/api/v1/admin/*`를 별도 Access application으로 보호한다.
+- `/admin*`, `/api/v1/admin/*`를 외부 관리자 인증 application으로 보호한다. 초기 provider는 Cloudflare Access다.
 - 허용 운영자 이메일 또는 identity group을 명시적으로 allowlist한다.
 - one-time PIN 또는 외부 IdP 로그인에 MFA를 적용한다.
 - session duration은 8시간 이하로 시작한다.
-- 퇴사·분실·침해 시 Access seat와 allowlist를 즉시 제거한다.
-- Nuxt BFF는 `Cf-Access-Jwt-Assertion`의 서명, issuer, audience, expiry를 검증하고 원본 assertion을 Express Core API에 전달한다. Core API도 같은 항목을 다시 검증한다.
-- 관리자 identity는 `sub`를 HMAC한 값으로만 상태 이력에 저장한다.
+- 퇴사·분실·침해 시 provider seat와 allowlist를 즉시 제거한다.
+- Nuxt BFF의 provider adapter만 외부 assertion의 서명, issuer, audience와 expiry를 검증한다.
+- BFF adapter는 외부 identity를 안정적인 내부 `operatorId`로 매핑하고 이를 HMAC한 admin actor와 내부 서비스 토큰만 Express Core API에 전달한다.
+- Core는 내부 서비스 토큰과 actor 형식만 검증하며 외부 assertion·provider 설정을 참조하지 않는다.
+- 관리자 identity 원문은 상태 이력에 저장하지 않는다.
+- 이벤트 IP 제한은 임의의 `X-Forwarded-For`를 사용하지 않는다. Cloudflare Tunnel 배포에서 `NUXT_TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip`를 명시하고, origin 직접 접근을 차단한 상태에서만 해당 값을 신뢰한다.
 
-Cloudflare Access Free의 dashboard activity log 보존이 짧아도 게시 상태 변경은 `content.board_post_status_history`에 별도로 남는다.
+외부 provider의 activity log 보존 기간과 무관하게 게시 상태 변경은 `content.board_post_status_history`에 별도로 남는다.
 
 ### 서버 관리
 
@@ -128,7 +131,9 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 | R2 backup key | backup bucket write/read, media·staging 접근 금지 |
 | cache purge token | 해당 zone cache purge only |
 | event HMAC secret | event service only |
-| Access audience/team | 검증 설정, 비밀값과 분리 |
+| admin actor HMAC secret | BFF only, 내부 `operatorId` 가명화 |
+| Core service token | BFF·Core만 공유, 외부 노출 금지 |
+| 외부 provider audience/team | BFF adapter 설정, 비밀값과 분리 |
 
 - `.env.template`에는 이름과 설명만 넣고 값은 넣지 않는다.
 - production secret 파일은 root 소유 `0600`으로 둔다.
@@ -239,7 +244,7 @@ cron이 5분마다 다음을 수집하고 임계 초과 시 이메일 또는 web
 | endpoint | 검사 | 공개 |
 | --- | --- | --- |
 | `/health/live` | Nuxt BFF process event loop 응답 | 예, 상세 없음 |
-| `/health/ready` | BFF에서 Core API·PostgreSQL `SELECT 1`·migration version 확인 | Access 또는 내부만 |
+| `/health/ready` | BFF에서 Core API·PostgreSQL `SELECT 1`·migration version 확인 | 외부 관리자 인증 또는 내부만 |
 | Core `/internal/health/ready` | Core process·PostgreSQL·migration version | Docker app network only |
 
 R2 장애는 공개 읽기의 ready 실패 조건으로 두지 않는다. 업로드·발행 command만 `503`으로 막는다.
@@ -350,6 +355,16 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 4. 조건부 command로 재실행
 5. 목록·상세 cache purge 확인
 
+운영 cron은 API image에서 다음 단발성 명령을 실행한다.
+
+```text
+매분    npm run posts:publish-due
+매분    npm run outbox:run
+5분마다 npm run events:aggregate
+```
+
+outbox worker는 중단된 `RUNNING`을 5분 뒤 회수하고 실패할 때마다 지수 backoff를 적용한다. 8회 실패한 `DEAD` 작업은 자동 재실행하지 않고 원인과 대상 object 상태를 확인한 뒤 운영자가 처리한다.
+
 ### 비용 이상
 
 1. compute, R2 storage, R2 operations를 분리 확인
@@ -364,7 +379,7 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 | --- | --- |
 | 매일 | backup, 외부 health, disk, outbox DEAD |
 | 매주 | container update 후보, R2 orphan, 예약 발행 결과 |
-| 매월 | 실제 restore, 비용, secret·Access 사용자, dependency audit |
+| 매월 | 실제 restore, 비용, secret·외부 관리자 사용자, dependency audit |
 | 분기 | 런타임 LTS patch, 보존 데이터 삭제, 공급자 가격·무료 정책 |
 
 Node patch는 검증 후 같은 LTS major 안에서 올린다. major 전환은 별도 호환성 테스트와 설계 변경으로 처리한다.

@@ -22,13 +22,13 @@
 
 | 영역 | 설계 문서 | 실행 산출물 | 현재 판정 |
 | --- | --- | --- | --- |
-| 시스템 경계 | 아키텍처 흐름 정의 | M0 route·service 미구현 | 설계 완료, 구현 전 |
-| 데이터 | PostgreSQL table·constraint·상태·보존 계약 | `V001`·`V002`, checksum·lock runner, 빈 DB test | 기본 schema·seed 구현 완료 |
-| API | 외부 BFF·내부 Core request·response·오류 계약 | M0 OpenAPI·route·contract test 미구현 | 설계 검토 완료, 실행 불가 |
+| 시스템 경계 | 아키텍처 흐름 정의 | Express Core API, Nuxt 공개 SSR와 관리자 게시글 화면 | 공개·관리자 Web 경계 구현 |
+| 데이터 | PostgreSQL table·constraint·상태·보존 계약 | `V001`·`V002`, checksum·lock runner, event 수집·집계 test | 기본 schema·seed·이벤트 집계 구현 |
+| API | 외부 BFF·내부 Core request·response·오류 계약 | 전체 M0 OpenAPI·Core/BFF route·SSR·관리자 command·lifecycle 통합 test | Board/Post·정책·이벤트·관리자 게시글 API와 OpenAPI 구현 |
 | 인프라 | 공급자·network·resource 기준 | production 계정·domain 미확정 | 설계 완료, 배포 전 |
 | 보안·운영 | 접근·backup·restore·runbook | production restore drill 미실시 | 설계 완료, 운영 검증 전 |
 
-`02-data-model.md`의 기본 schema·seed는 실행 산출물과 빈 PostgreSQL 18 검증까지 완료했다. API 계층은 OpenAPI와 route·contract test가 만들어지기 전까지 “구현 준비 완료”로 표시하지 않는다.
+`02-data-model.md`의 기본 schema·seed는 실행 산출물과 빈 PostgreSQL 18 검증까지 완료했다. 공개 Board/Post·정책, 내부 이벤트와 관리자 게시글 화면·lifecycle은 Core/BFF route, 전체 M0 OpenAPI와 contract test까지 구현했다. API 계층 전체는 example 자동 검증 등 남은 gate가 있어 완료로 표시하지 않는다.
 
 ## 설계 범위
 
@@ -66,7 +66,7 @@ M0 핵심 범위는 다음과 같다.
 | 이미지 | Cloudflare R2 Standard, 비공개 원본 bucket과 공개 media bucket 분리 |
 | 엣지 | Cloudflare Free DNS·CDN·Universal SSL |
 | 원본 연결 | Cloudflare Tunnel로 공개 inbound port 제거 |
-| 운영자 접근 | Cloudflare Access Free로 `/admin*`, `/api/v1/admin/*` 보호 |
+| 운영자 접근 | BFF의 교체 가능한 외부 인증 adapter, Core의 provider-neutral 서비스 토큰 검증 |
 | 배포 단위 | 단일 ARM64 또는 x86_64 VM의 Docker Compose |
 | 기본 비용안 | OCI 서울 Always Free를 우선 시험하고 실패 시 Lightsail 서울 2GB로 전환 |
 | 고가용성 | M0에서는 구성하지 않고 백업 복구로 대응 |

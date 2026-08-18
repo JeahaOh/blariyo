@@ -63,7 +63,7 @@ Redis, MongoDB, 별도 managed DB, Kubernetes, 다중 API instance와 다중 reg
 | `/api/v1/*` | Nuxt BFF의 나머지 공개·관리자 API |
 
 - PostgreSQL과 application container port는 인터넷에 직접 공개하지 않는다. Express Core API는 Nginx route·public DNS·host port 없이 Nuxt BFF만 HTTP로 호출한다. cron은 API image의 단발성 command로 실행한다.
-- 관리자 화면과 관리자 API는 Cloudflare Access를 통과해야 한다.
+- 관리자 화면과 관리자 API의 외부 identity는 Nuxt BFF의 교체 가능한 adapter가 검증한다. 초기 provider는 Cloudflare Access지만 Core API는 이에 종속되지 않는다.
 - 실제 service domain은 `__SERVICE_DOMAIN__` placeholder가 남아 있으면 배포하지 않는다.
 - `/community`, `/news`, `/login`, `/signup/consent`, `/account`는 해당 후속 단계가 시작될 때 활성화한다.
 
@@ -106,7 +106,8 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 - 실제 service domain
 - OCI A1 확보 여부와 OCI/Lightsail 최종 선택
 - R2 production account, bucket 이름과 public media custom domain
-- Cloudflare Access team·audience와 운영자 allowlist
+- 외부 관리자 인증 provider, audience·team, 운영자 allowlist와 안정적인 내부 `operatorId` 매핑
+- BFF·Core 내부 서비스 토큰과 admin actor HMAC secret
 - monitoring provider와 알림 수신 경로
 - PostgreSQL·R2 production credential 주입 경로
 

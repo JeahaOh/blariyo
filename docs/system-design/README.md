@@ -4,7 +4,7 @@
 - 기준일: 2026-08-15
 - 상위 기획: [서비스 기획서](../planning/01-service-plan.md)
 - UI 정본: [반응형 퍼블리싱](../publishing/responsive/README.md)
-- 데이터베이스 결정: [2026-08-14 PostgreSQL 전환 결정](../session-log/2026-08-14-postgresql-transition.md)
+- 데이터베이스 결정: [2026-08-14 PostgreSQL 전환 결정](../../worklog/session-log/2026-08-14-postgresql-transition.md)
 
 이 디렉터리는 확정된 기획을 구현 가능한 기술 계약으로 구체화한다. `docs/planning`은 무엇을 만들지 정의하고, 이 디렉터리는 컴포넌트 경계, 데이터 구조, API, 배포와 운영 방식을 정의한다.
 

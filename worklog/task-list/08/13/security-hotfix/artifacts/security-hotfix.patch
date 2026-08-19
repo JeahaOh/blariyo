@@ -1,0 +1,619 @@
+diff --git a/apps/api/src/app.js b/apps/api/src/app.js
+index 4c2f7a5..5395394 100644
+--- a/apps/api/src/app.js
++++ b/apps/api/src/app.js
+@@ -1,20 +1,20 @@
+ const express = require('express');
+ const cors = require('cors');
+ const helmet = require('helmet');
+-const morgan = require('morgan');
+ const swaggerUi = require('swagger-ui-express');
+ const swaggerSpecs = require('./config/swagger');
+ require('dotenv').config();
+ 
+ const userRoutes = require('./routes/userRoutes');
+ const loggingMiddleware = require('./middlewares/loggingMiddleware');
++const errorHandler = require('./middlewares/errorHandler');
++const logger = require('./utils/logger');
+ 
+ const app = express();
+ 
+ // 미들웨어 설정
+ app.use(helmet());
+ app.use(cors());
+-app.use(morgan('dev'));
+ app.use(express.json());
+ app.use(express.urlencoded({ extended: true }));
+ app.use(loggingMiddleware);
+@@ -25,15 +25,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+ // 라우트 설정
+ app.use('/api/v1/users', userRoutes);
+ 
+-// 에러 핸들러
+-app.use((err, req, res, next) => {
+-  console.error(err.stack);
+-  res.status(500).json({ 
+-    success: false, 
+-    message: '서버 오류가 발생했습니다.' 
+-  });
+-});
+-
+ // 404 핸들러
+ app.use((req, res) => {
+   res.status(404).json({ 
+@@ -42,12 +33,15 @@ app.use((req, res) => {
+   });
+ });
+ 
++// 에러 핸들러
++app.use(errorHandler);
++
+ // 테스트 환경이 아닐 때만 서버 시작
+ if (process.env.NODE_ENV !== 'test') {
+   const PORT = process.env.PORT || 3000;
+   app.listen(PORT, () => {
+-    console.log(`서버가 ${PORT} 포트에서 실행 중입니다.`);
++    logger.info('Server started', { port: Number(PORT) });
+   });
+ }
+ 
+-module.exports = app; 
+\ No newline at end of file
++module.exports = app;
+diff --git a/apps/api/src/controllers/userController.js b/apps/api/src/controllers/userController.js
+index ea03b2e..6b54daa 100644
+--- a/apps/api/src/controllers/userController.js
++++ b/apps/api/src/controllers/userController.js
+@@ -10,7 +10,6 @@ class UserController {
+         data: { user_id: userId }
+       });
+     } catch (error) {
+-      console.log('error : ', error);
+       res.status(400).json({
+         success: false,
+         message: error.message
+@@ -20,7 +19,6 @@ class UserController {
+ 
+   async login(req, res) {
+     try {
+-      console.log('req.body : ', req.body);
+       const { user_id, user_pswd } = req.body;
+       const result = await userService.login(user_id, user_pswd);
+       
+@@ -30,7 +28,6 @@ class UserController {
+         data: result
+       });
+     } catch (error) {
+-      console.log('error : ', error);
+       res.status(401).json({
+         success: false,
+         message: error.message
+@@ -55,7 +52,6 @@ class UserController {
+         data: user
+       });
+     } catch (error) {
+-      console.error('사용자 조회 에러:', error);
+       res.status(500).json({
+         success: false,
+         message: '사용자 조회 중 오류가 발생했습니다.'
+@@ -66,7 +62,6 @@ class UserController {
+   async updateUser(req, res) {
+     try {
+       const { user_id } = req.params;
+-      console.log('user_id : ', user_id);
+       await userService.updateUser(user_id, req.body);
+       res.json({
+         success: true,
+@@ -97,4 +92,4 @@ class UserController {
+   }
+ }
+ 
+-module.exports = new UserController(); 
+\ No newline at end of file
++module.exports = new UserController();
+diff --git a/apps/api/src/middlewares/errorHandler.js b/apps/api/src/middlewares/errorHandler.js
+index 3314e55..9412be8 100644
+--- a/apps/api/src/middlewares/errorHandler.js
++++ b/apps/api/src/middlewares/errorHandler.js
+@@ -1,17 +1,22 @@
+-const logger = require('./logger');
++const createErrorHandler = (errorLogger) => (err, req, res, next) => {
++  const statusCode = 500;
+ 
+-const errorHandler = (err, req, res, next) => {
+-  logger.error(`[ERROR] ${err.stack}`);
+-
+-  const statusCode = err.status || 500;
+-  const message = err.message || 'Internal Server Error';
+-
+-  logger.error(`${err.status || 500} - ${message} - ${req.originalUrl}`);
++  errorLogger.error('Request error', {
++    method: req.method,
++    requestId: req.requestId,
++    statusCode,
++    timestamp: new Date().toISOString()
++  });
+ 
+   res.status(statusCode).json({
+     success: false,
+-    message,
++    message: '서버 오류가 발생했습니다.',
+   });
+ };
+ 
++const errorHandler = (err, req, res, next) => createErrorHandler(
++  require('../utils/logger')
++)(err, req, res, next);
++errorHandler.createErrorHandler = createErrorHandler;
++
+ module.exports = errorHandler;
+diff --git a/apps/api/src/middlewares/loggingMiddleware.js b/apps/api/src/middlewares/loggingMiddleware.js
+index ab53d4b..5622f9f 100644
+--- a/apps/api/src/middlewares/loggingMiddleware.js
++++ b/apps/api/src/middlewares/loggingMiddleware.js
+@@ -1,28 +1,32 @@
+-const logger = require('../utils/logger');
++const { randomUUID } = require('crypto');
+ 
+-const loggingMiddleware = (req, res, next) => {
++const getRouteTemplate = (req) => {
++  if (!req.route || typeof req.route.path !== 'string') {
++    return 'unmatched';
++  }
++
++  return req.route.path || '/';
++};
++
++const createLoggingMiddleware = (requestLogger) => (req, res, next) => {
+   const start = Date.now();
+-  const { method, url, body, query, params } = req;
++  const requestId = randomUUID();
++  const { method } = req;
++  req.requestId = requestId;
+ 
+-  // 요청 시작 로그
+-  logger.info('\n\n\n');
+-  logger.info('Request Start', {
++  requestLogger.info('Request Start', {
+     method,
+-    url,
+-    body,
+-    query,
+-    params,
++    requestId,
+     timestamp: new Date().toISOString()
+   });
+ 
+-  // 응답 완료 시 로그
+-  res.on('finish', () => {
+-    const duration = Date.now() - start;
+-    logger.info('Request End', {
++  res.once('finish', () => {
++    requestLogger.info('Request End', {
+       method,
+-      url,
++      path: getRouteTemplate(req),
+       statusCode: res.statusCode,
+-      duration: `${duration}ms`,
++      durationMs: Date.now() - start,
++      requestId,
+       timestamp: new Date().toISOString()
+     });
+   });
+@@ -30,4 +34,9 @@ const loggingMiddleware = (req, res, next) => {
+   next();
+ };
+ 
+-module.exports = loggingMiddleware; 
+\ No newline at end of file
++const loggingMiddleware = (req, res, next) => createLoggingMiddleware(
++  require('../utils/logger')
++)(req, res, next);
++loggingMiddleware.createLoggingMiddleware = createLoggingMiddleware;
++
++module.exports = loggingMiddleware;
+diff --git a/apps/api/src/middlewares/validateMiddleware.js b/apps/api/src/middlewares/validateMiddleware.js
+index 6390a31..c636820 100644
+--- a/apps/api/src/middlewares/validateMiddleware.js
++++ b/apps/api/src/middlewares/validateMiddleware.js
+@@ -19,7 +19,6 @@ const validateJoin = (req, res, next) => {
+   });
+ 
+   const { error } = schema.validate(req.body);
+-  console.log('error : ', error);
+   if (error) {
+     return res.status(400).json({
+       success: false,
+@@ -62,4 +61,3 @@ module.exports = {
+   validateJoin,
+   validateUpdate
+ }; 
+-
+diff --git a/apps/api/src/services/userService.js b/apps/api/src/services/userService.js
+index f75aaa8..8b58f95 100644
+--- a/apps/api/src/services/userService.js
++++ b/apps/api/src/services/userService.js
+@@ -1,6 +1,5 @@
+ const pool = require('../config/database');
+ const bcrypt = require('bcrypt');
+-const jwt = require('jsonwebtoken');
+ 
+ class UserService {
+   static async hashPassword(password) {
+@@ -38,8 +37,6 @@ class UserService {
+       }
+ 
+       const hashedPassword = await this.hashPassword(userData.user_pswd);
+-
+-      console.log('userData : ', userData);
+       
+       const [result] = await connection.execute(
+         `INSERT INTO TU_USER (
+@@ -63,7 +60,6 @@ class UserService {
+   }
+ 
+   static async getUser(user_id) {
+-    console.log('user_id : ', user_id);
+     try {
+       const [rows] = await pool.execute(
+         'SELECT user_no, user_id, user_nm, email, role_code, status_code, pwd_rst_tkn, login_fail_cnt, reg_dttm, updator_no, upd_dttm, lst_accss_dttm FROM TU_USER WHERE user_id = ?',
+@@ -76,7 +72,6 @@ class UserService {
+ 
+       return rows[0];
+     } catch (error) {
+-      console.error('사용자 조회 서비스 에러:', error);
+       throw error;
+     }
+   }
+@@ -179,7 +174,6 @@ class UserService {
+       }
+ 
+       const user = rows[0];
+-      console.log('user : ', user);
+ 
+       switch (user.status_code) {
+         case 'DOR':
+@@ -207,4 +201,4 @@ class UserService {
+   }
+ }
+ 
+-module.exports = UserService; 
+\ No newline at end of file
++module.exports = UserService;
+diff --git a/apps/api/src/utils/logger.js b/apps/api/src/utils/logger.js
+index dc998e1..7db7f2e 100644
+--- a/apps/api/src/utils/logger.js
++++ b/apps/api/src/utils/logger.js
+@@ -1,21 +1,3 @@
+-const winston = require('winston');
++const { createAppLogger } = require('./loggerFactory');
+ 
+-const logger = winston.createLogger({
+-  level: 'info',
+-  format: winston.format.combine(
+-    winston.format.timestamp(),
+-    winston.format.json()
+-  ),
+-  transports: [
+-    new winston.transports.Console({
+-      format: winston.format.combine(
+-        winston.format.colorize(),
+-        winston.format.simple()
+-      )
+-    }),
+-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+-    new winston.transports.File({ filename: 'combined.log' })
+-  ]
+-});
+-
+-module.exports = logger; 
+\ No newline at end of file
++module.exports = createAppLogger();
+diff --git a/apps/api/tests/connection.test.js b/apps/api/tests/connection.test.js
+index bbfb062..5e504e1 100644
+--- a/apps/api/tests/connection.test.js
++++ b/apps/api/tests/connection.test.js
+@@ -5,14 +5,6 @@ describe('Database Connection Test', () => {
+   let connection;
+ 
+   beforeAll(async () => {
+-    console.log(`
+-      DB_HOST : ${process.env.DB_HOST}
+-      DB_PORT : ${process.env.DB_PORT}
+-      DB_USER : ${process.env.DB_USER}
+-      DB_PASSWORD : ${process.env.DB_PASSWORD}
+-      DB_NAME : ${process.env.DB_NAME}
+-    `);
+-
+     connection = await mysql.createConnection({
+       host: process.env.DB_HOST,
+       port: process.env.DB_PORT,
+@@ -27,7 +19,7 @@ describe('Database Connection Test', () => {
+       try {
+         await connection.end();
+       } catch (error) {
+-        console.error('연결 종료 중 에러:', error);
++        // 연결 종료 실패는 테스트 결과를 바꾸지 않으며 오류 원문은 로그에 남기지 않는다.
+       }
+     }
+   });
+@@ -122,4 +114,4 @@ describe('Database Connection Test', () => {
+     expect(Array.isArray(rows)).toBe(true);
+     console.log('TU_USER Table Structure:', rows);
+   });
+-}); 
+\ No newline at end of file
++});
+diff --git a/apps/api/tests/setup.js b/apps/api/tests/setup.js
+index f103559..939ac57 100644
+--- a/apps/api/tests/setup.js
++++ b/apps/api/tests/setup.js
+@@ -60,8 +60,7 @@ async function createTestDatabase() {
+       try {
+         await testPool.query(statement);
+       } catch (error) {
+-        console.error('SQL 실행 중 에러:', error.message);
+-        console.error('실패한 SQL:', statement);
++        console.error('테스트 스키마 초기화 실패');
+       }
+     }
+   } finally {
+@@ -120,4 +119,4 @@ global.testPool = testPool;
+ module.exports = {
+   setupTestDB,
+   cleanupTestDB
+-}; 
+\ No newline at end of file
++};
+diff --git a/apps/api/src/utils/loggerFactory.js b/apps/api/src/utils/loggerFactory.js
+new file mode 100644
+index 0000000..b04560b
+--- /dev/null
++++ b/apps/api/src/utils/loggerFactory.js
+@@ -0,0 +1,43 @@
++const winston = require('winston');
++
++const allowedFields = new Set([
++  'level',
++  'message',
++  'timestamp',
++  'method',
++  'path',
++  'statusCode',
++  'durationMs',
++  'requestId',
++  'port'
++]);
++
++const allowlistedMetadata = winston.format((info) => {
++  Object.keys(info).forEach((key) => {
++    if (!allowedFields.has(key)) {
++      delete info[key];
++    }
++  });
++  return info;
++});
++
++const createAppLogger = ({ transports } = {}) => winston.createLogger({
++  level: 'info',
++  format: winston.format.combine(
++    allowlistedMetadata(),
++    winston.format.timestamp(),
++    winston.format.json()
++  ),
++  transports: transports || [
++    new winston.transports.Console({
++      format: winston.format.combine(
++        winston.format.colorize(),
++        winston.format.simple()
++      )
++    }),
++    new winston.transports.File({ filename: 'error.log', level: 'error' }),
++    new winston.transports.File({ filename: 'combined.log' })
++  ]
++});
++
++module.exports = { createAppLogger };
+diff --git a/apps/api/tests/logging.security.test.js b/apps/api/tests/logging.security.test.js
+new file mode 100644
+index 0000000..4f8cef6
+--- /dev/null
++++ b/apps/api/tests/logging.security.test.js
+@@ -0,0 +1,155 @@
++const { Writable } = require('stream');
++const express = require('express');
++const request = require('supertest');
++const winston = require('winston');
++const { createAppLogger } = require('../src/utils/loggerFactory');
++const { createLoggingMiddleware } = require('../src/middlewares/loggingMiddleware');
++const { createErrorHandler } = require('../src/middlewares/errorHandler');
++
++const CANARY = 'BLARIYO_LOG_CANARY_DO_NOT_RECORD';
++
++const createMemoryLogger = () => {
++  const entries = [];
++  const stream = new Writable({
++    write(chunk, encoding, callback) {
++      entries.push(chunk.toString());
++      callback();
++    }
++  });
++  const logger = createAppLogger({
++    transports: [new winston.transports.Stream({ stream })]
++  });
++
++  return { entries, logger };
++};
++
++const createTestApp = (logger) => {
++  const app = express();
++  const router = express.Router();
++
++  app.use(express.json());
++  app.use(createLoggingMiddleware(logger));
++
++  router.post('/:user_id', (req, res) => res.status(204).end());
++  router.get('/error/:user_id', (req, res, next) => next(new Error(CANARY)));
++  app.use('/api/v1/users', router);
++  app.use((req, res) => res.status(404).json({ success: false }));
++  app.use(createErrorHandler(logger));
++
++  return app;
++};
++
++describe('민감정보 로그 차단', () => {
++  it('실제 Express matched route에서 입력값 없이 라우트 템플릿만 기록한다', async () => {
++    const { entries, logger } = createMemoryLogger();
++    const app = createTestApp(logger);
++
++    await request(app)
++      .post(`/api/v1/users/${CANARY}?token=${CANARY}`)
++      .set('Authorization', `Bearer ${CANARY}`)
++      .set('Cookie', `session=${CANARY}`)
++      .send({ user_pswd: CANARY, token: CANARY })
++      .expect(204);
++
++    await new Promise((resolve) => logger.on('finish', resolve).end());
++    const output = entries.join('');
++    const records = entries.map((entry) => JSON.parse(entry));
++
++    expect(output).not.toContain(CANARY);
++    expect(records).toHaveLength(2);
++    expect(records[0]).toEqual(expect.objectContaining({
++      level: 'info',
++      message: 'Request Start',
++      method: 'POST',
++      requestId: expect.any(String),
++      timestamp: expect.any(String)
++    }));
++    expect(records[1]).toEqual(expect.objectContaining({
++      level: 'info',
++      message: 'Request End',
++      method: 'POST',
++      path: '/:user_id',
++      statusCode: 204,
++      durationMs: expect.any(Number),
++      requestId: records[0].requestId,
++      timestamp: expect.any(String)
++    }));
++  });
++
++  it('실제 Express unmatched 요청은 raw URL 대신 unmatched로 기록한다', async () => {
++    const { entries, logger } = createMemoryLogger();
++    const app = createTestApp(logger);
++
++    await request(app)
++      .get(`/not-found/${CANARY}?token=${CANARY}`)
++      .set('Authorization', `Bearer ${CANARY}`)
++      .set('Cookie', `session=${CANARY}`)
++      .expect(404);
++
++    await new Promise((resolve) => logger.on('finish', resolve).end());
++    const output = entries.join('');
++    const records = entries.map((entry) => JSON.parse(entry));
++
++    expect(output).not.toContain(CANARY);
++    expect(records[1]).toEqual(expect.objectContaining({
++      path: 'unmatched',
++      statusCode: 404
++    }));
++  });
++
++  it('오류 원문과 모든 요청 입력 canary를 실제 Winston 출력에서 제거한다', async () => {
++    const { entries, logger } = createMemoryLogger();
++    const app = createTestApp(logger);
++
++    await request(app)
++      .get(`/api/v1/users/error/${CANARY}?token=${CANARY}`)
++      .set('Authorization', `Bearer ${CANARY}`)
++      .set('Cookie', `session=${CANARY}`)
++      .expect(500, {
++        success: false,
++        message: '서버 오류가 발생했습니다.'
++      });
++
++    await new Promise((resolve) => logger.on('finish', resolve).end());
++    const output = entries.join('');
++    const records = entries.map((entry) => JSON.parse(entry));
++
++    expect(output).not.toContain(CANARY);
++    expect(records).toEqual(expect.arrayContaining([
++      expect.objectContaining({
++        level: 'error',
++        message: 'Request error',
++        method: 'GET',
++        statusCode: 500
++      }),
++      expect.objectContaining({
++        level: 'info',
++        message: 'Request End',
++        path: '/error/:user_id',
++        statusCode: 500
++      })
++    ]));
++  });
++
++  it('오류 객체 status와 message에 관계없이 기존 500 응답 계약을 유지한다', async () => {
++    const { logger } = createMemoryLogger();
++    const app = express();
++
++    app.use(createLoggingMiddleware(logger));
++    app.get('/contract', (req, res, next) => {
++      const error = new Error(CANARY);
++      error.status = 401;
++      next(error);
++    });
++    app.use(createErrorHandler(logger));
++
++    await request(app)
++      .get('/contract')
++      .expect(500, {
++        success: false,
++        message: '서버 오류가 발생했습니다.'
++      });
++
++    await new Promise((resolve) => logger.on('finish', resolve).end());
++  });
++});
+diff --git a/apps/api/tests/sensitive-log-source.security.test.js b/apps/api/tests/sensitive-log-source.security.test.js
+new file mode 100644
+index 0000000..5f7fa1a
+--- /dev/null
++++ b/apps/api/tests/sensitive-log-source.security.test.js
+@@ -0,0 +1,36 @@
++const fs = require('fs');
++const path = require('path');
++
++const readSource = (relativePath) => fs.readFileSync(
++  path.join(__dirname, '..', relativePath),
++  'utf8'
++);
++
++describe('민감 로그 정적 회귀 방지', () => {
++  it.each([
++    'src/controllers/userController.js',
++    'src/services/userService.js',
++    'src/middlewares/validateMiddleware.js'
++  ])('%s에서 console 호출을 사용하지 않는다', (relativePath) => {
++    expect(readSource(relativePath)).not.toMatch(/console\.(?:log|error|warn|info|debug)\s*\(/);
++  });
++
++  it('연결 테스트가 DB 비밀번호 값을 출력하지 않는다', () => {
++    expect(readSource('tests/connection.test.js')).not.toMatch(
++      /DB_PASSWORD\s*:\s*\$\{process\.env\.DB_PASSWORD\}/
++    );
++  });
++
++  it('앱이 query string을 포함하는 morgan URL이나 error stack을 출력하지 않는다', () => {
++    const appSource = readSource('src/app.js');
++    expect(appSource).not.toMatch(/morgan\s*\(/);
++    expect(appSource).not.toMatch(/err(?:or)?\.stack/);
++  });
++
++  it('logger 메타데이터는 명시적인 allowlist를 사용한다', () => {
++    const loggerSource = readSource('src/utils/loggerFactory.js');
++    expect(loggerSource).toContain('allowedFields');
++    expect(loggerSource).toContain('allowlistedMetadata');
++    expect(loggerSource).not.toMatch(/\b(?:body|query|params|headers|authorization|cookie)\b/);
++  });
++});

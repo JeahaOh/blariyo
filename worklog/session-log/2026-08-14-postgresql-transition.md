@@ -37,11 +37,11 @@
 
 현행 구현 계약은 다음 순서로 확인한다.
 
-1. [시스템 설계 README](../system-design/README.md)
-2. [M0 데이터 모델](../system-design/02-data-model.md)
-3. [상세 인프라 설계](../system-design/04-infrastructure-design.md)
-4. [보안·운영 설계](../system-design/05-security-operations.md)
-5. [인프라 계획](../planning/02-infra-plan.md)
+1. [시스템 설계 README](../../docs/system-design/README.md)
+2. [M0 데이터 모델](../../docs/system-design/02-data-model.md)
+3. [상세 인프라 설계](../../docs/system-design/04-infrastructure-design.md)
+4. [보안·운영 설계](../../docs/system-design/05-security-operations.md)
+5. [인프라 계획](../../docs/planning/02-infra-plan.md)
 
 ## 5. 전환 감사 결과
 

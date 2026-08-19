@@ -2,7 +2,7 @@
 
 - 작성일: 2026-08-12
 - 상태: 현행 결정
-- 정본: [01-service-plan.md](../planning/01-service-plan.md)
+- 정본: [01-service-plan.md](../../docs/planning/01-service-plan.md)
 
 ## 확정 사항
 

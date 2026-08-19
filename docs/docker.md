@@ -36,7 +36,7 @@ docker compose ps postgresql
 docker compose exec postgresql pg_isready
 ```
 
-상세 계약은 [인프라 설계](./system-design/04-infrastructure-design.md), 백업·복원은 [보안·운영 설계](./system-design/05-security-operations.md), 전환 경계는 [PostgreSQL 전환 결정](./session-log/2026-08-14-postgresql-transition.md)을 따른다.
+상세 계약은 [인프라 설계](./system-design/04-infrastructure-design.md), 백업·복원은 [보안·운영 설계](./system-design/05-security-operations.md), 전환 경계는 [PostgreSQL 전환 결정](../worklog/session-log/2026-08-14-postgresql-transition.md)을 따른다.
 
 ## 2. 대상 확인
 

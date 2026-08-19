@@ -41,6 +41,8 @@ blariyo/
     legal/                  release-blocking policy drafts
     publishing/             responsive publishing prototype
     wireframes/             screen references
+  worklog/
+    task-list/              task scopes and verification artifacts
     session-log/            decision and review history
 ```
 
@@ -59,7 +61,8 @@ data-model과 api-design의 미구현 gate는 각 문서 마지막 checklist에�
 
 ## 주요 결정 기록
 
-- [세션 기록 규칙](docs/session-log/README.md)
-- [PostgreSQL 전환 결정](docs/session-log/2026-08-14-postgresql-transition.md)
-- [planning·system-design 경계 재검토](docs/session-log/2026-08-14-planning-system-design-boundary-review.md)
-- [게시판·권리 정책 정정](docs/session-log/2026-08-12-board-policy-correction.md)
+- [작업 기록 안내](worklog/README.md)
+- [세션 기록 규칙](worklog/session-log/README.md)
+- [PostgreSQL 전환 결정](worklog/session-log/2026-08-14-postgresql-transition.md)
+- [planning·system-design 경계 재검토](worklog/session-log/2026-08-14-planning-system-design-boundary-review.md)
+- [게시판·권리 정책 정정](worklog/session-log/2026-08-12-board-policy-correction.md)

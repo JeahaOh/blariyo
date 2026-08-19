@@ -62,7 +62,7 @@
 
 `worker`는 별도 상시 컨테이너로 시작하지 않는다. 예약 발행과 정리 작업은 API 이미지의 단발성 명령을 cron에서 실행한다. 자동 수집을 실제로 시작할 때만 별도 worker를 추가한다.
 
-M0 단발성 명령은 `npm run posts:publish-due`, `npm run outbox:run`, `npm run events:aggregate`다. 예약 발행과 outbox는 매분, 이벤트 집계는 5분마다 실행한다. 각 명령은 HTTP 관리자 경계를 우회하지 않고 동일한 repository·service와 전용 system actor를 사용한다.
+M0 반복 명령은 `npm run posts:publish-due`, `npm run outbox:run`, `npm run events:aggregate`다. 예약 발행과 outbox는 매분, 이벤트 집계는 5분마다 실행한다. 정책 시행은 자동 scheduler가 아니라 승인된 정책 release artifact를 사용하는 운영 단발성 명령 `npm run policies:publish`로 수행한다. 각 명령은 HTTP 관리자 경계를 우회하지 않고 동일한 repository·service와 전용 system actor를 사용한다.
 
 ## 4. 애플리케이션 컴포넌트
 
@@ -192,13 +192,13 @@ GET /meme/posts/:postId
   -> 운영자가 관리자 화면에서 숨김 실행
   -> PUBLISHED -> HIDDEN_REVIEW
   -> 상태 이력 기록
-  -> image PUBLIC_DELETE_PENDING + public object 삭제 outbox
-  -> /:boardSlug/posts/:postId, /:boardSlug cache purge
+  -> image PUBLIC_DELETE_PENDING + 이미지 URL purge·public object 삭제 outbox
+  -> /:boardSlug/posts/:postId, /:boardSlug HTML cache purge outbox
   -> 공개 API 즉시 404
-  -> worker가 public object·cache 삭제 후 PRIVATE_REVIEW 전환
+  -> worker가 public object 삭제 후 이미지 URL을 purge하고 PRIVATE_REVIEW 전환
 ```
 
-이메일 수신만으로 자동 숨김하지 않는다. 이메일 본문과 소명 자료는 애플리케이션 DB·로그에 복사하지 않는다. public object 삭제가 실패하면 공개 API는 계속 404를 유지하고 worker가 재시도한다. 재공개는 public 삭제가 끝난 뒤 private 원본에서 다시 promote한다.
+이메일 수신만으로 자동 숨김하지 않는다. 이메일 본문과 소명 자료는 애플리케이션 DB·로그에 복사하지 않는다. `OBJECT_DELETE_PUBLIC` 작업은 public object를 먼저 삭제하고 payload의 정확한 공개 이미지 URL을 purge한 뒤에만 성공 처리한다. 어느 단계든 실패하면 공개 API는 계속 404를 유지하고 worker가 전체 작업을 재시도한다. object 삭제는 멱등 처리하므로 purge 재시도 중 원본 cache가 다시 채워지지 않는다. 재공개는 public 삭제가 끝난 뒤 private 원본에서 다시 promote한다.
 
 ### 예약 발행
 

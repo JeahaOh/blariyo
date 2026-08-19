@@ -38,6 +38,7 @@ Board/Post BFF와 Core 내부 route가 향후 따라야 할 계약이며, 실제
 | 공개 | `GET` | `/api/v1/boards/:boardSlug/posts/:postId` | 게시판 소속을 검증한 상세와 하단 목록 context |
 | 공개 | `GET` | `/api/v1/policies/:type` | 현재·과거 정책 |
 | 공개 | `POST` | `/api/v1/events` | 최소 내부 조회 이벤트 |
+| 공개 | `POST` | `/api/v1/events/reset` | 현재 내부 통계 식별자의 보존 중 원시 이벤트 초기화 |
 | 관리자 | `GET` | `/api/v1/admin/posts` | 게시글 검색 |
 | 관리자 | `GET` | `/api/v1/admin/posts/:postId` | 초안 편집용 상세 |
 | 관리자 | `POST` | `/api/v1/admin/images` | staging 이미지 업로드 |
@@ -292,7 +293,7 @@ GET /api/v1/policies/:type?version=v0.2
     },
     "history": [
       { "version": "v0.3", "effectiveAt": "2026-08-13T00:00:00.000Z", "endedAt": null },
-      { "version": "v0.2", "effectiveAt": "2026-07-01T00:00:00.000Z", "endedAt": "2026-08-12T23:59:59.999Z" }
+      { "version": "v0.2", "effectiveAt": "2026-07-01T00:00:00.000Z", "endedAt": "2026-08-13T00:00:00.000Z" }
     ]
   },
   "meta": { "requestId": "01J..." }
@@ -313,27 +314,46 @@ GET /api/v1/policies/:type?version=v0.2
   "boardSlug": "meme",
   "postId": 1047,
   "listPage": 2,
-  "itemCount": 20,
   "occurredAt": "2026-08-14T01:20:30.000Z"
 }
 ```
 
-- 서버는 두 ID를 secret HMAC으로 변환하고 원문을 저장하지 않는다.
+- 서버는 `occurredAt`을 먼저 보정하고 그 UTC 시각을 포함하는 key schedule version의 secret HMAC으로 두 ID를 변환한다. key version만 함께 저장하며 원문을 저장하지 않는다.
 - 두 ID는 Web Crypto로 생성한 base64url·UUID 호환 문자열이며 길이는 `16~128`자다.
-- `occurredAt`이 서버 시각보다 10분 이상 미래이거나 24시간 이상 과거면 서버 수신 시각으로 대체한다.
+- `occurredAt`이 서버 시각보다 미래이거나 24시간 이상 과거면 서버 수신 시각으로 대체한다.
+- 보정된 `occurredAt`의 schedule이 보안 사고로 폐기돼 key를 사용할 수 없으면 `occurredAt`을 서버 수신 시각으로 다시 보정하고 현재 emergency version을 사용한다.
 - 허용되지 않은 event·field는 `400`이다.
 - 정상 수신은 body 없이 `204`를 반환한다.
 - IP 단위 제한은 `60회/분`, session HMAC은 동일 event 중복을 10초 window에서 합친다.
 - M0 단일 Nuxt instance는 BFF 메모리에서 IP window를 제한한다. 수평 확장 시 공유 rate-limit 저장소로 교체한다.
 - BFF는 임의의 `X-Forwarded-For`를 신뢰하지 않는다. 배포 환경에서 명시한 단일 trusted client IP header만 사용하며, Cloudflare Tunnel 운영값은 `CF-Connecting-IP`다. header가 없거나 단일 IP가 아니면 연결 주소를 사용한다.
+- `itemCount`는 client에서 받지 않는다. `FEED_VIEW`와 `DETAIL_LIST_VIEW`의 저장값은 Core가 같은 공개 목록 조건으로 계산하며, 요청과 처리 사이에 발행·숨김이 발생하면 처리 시점 값을 사용한다.
+- 공개 게시글·게시판 검증과 중복 완화는 측정값의 기본 무결성만 높인다. 자동화된 요청을 사람 조회로 보증하지 않으므로 조회 수는 운영 추세용이며 광고 정산이나 권리 판단에 사용하지 않는다.
 
 | eventType | 필수 field | 금지 field |
 | --- | --- | --- |
-| `FEED_VIEW` | `boardSlug`, `listPage`, `itemCount` | `postId` |
+| `FEED_VIEW` | `boardSlug`, `listPage` | `postId`, `itemCount` |
 | `POST_VIEW` | `boardSlug`, `postId` | `listPage`, `itemCount` |
-| `DETAIL_LIST_VIEW` | `boardSlug`, `postId`, `listPage`, `itemCount` | 없음 |
+| `DETAIL_LIST_VIEW` | `boardSlug`, `postId`, `listPage` | `itemCount` |
 
 서버는 `boardSlug`를 `content.board.id`로 변환해 이벤트의 `board_id`에 저장한다. `postId`가 있으면 공개 게시글의 `board_id`와 일치하는지도 확인한다. 비공개·미존재 게시글 이벤트는 내용을 구분하지 않고 `404 POST_NOT_FOUND`다.
+
+### 내부 통계 초기화
+
+`POST /api/v1/events/reset`
+
+```json
+{
+  "anonymousId": "browser-random-value",
+  "sessionId": "tab-random-value"
+}
+```
+
+- 두 ID는 이벤트 수집과 같은 형식으로 검증하고 보존 중인 모든 HMAC key version으로 변환한다.
+- event maintenance advisory lock을 얻은 한 transaction에서 key version과 `anonymous_hmac` 또는 `session_hmac`이 일치하는 보존 중 `analytics.raw_event`를 삭제한다.
+- 이미 개인·세션 식별자 없이 집계된 `analytics.daily_event_metric`과 `content.board_post.view_count`는 역산하지 않는다.
+- validation과 rate limit을 통과한 요청은 삭제 대상 존재 여부를 노출하지 않고 body 없는 `204`를 반환한다. 형식 오류는 `400`, 제한 초과는 `429`다.
+- BFF는 이벤트 수집과 별도로 IP당 `5회/시간`을 제한한다. 브라우저는 `204`를 받은 뒤에만 현재 `anonymousId`와 `sessionId`를 삭제한다.
 
 ## 4. 관리자 인증
 
@@ -599,7 +619,7 @@ DELETE /api/v1/admin/posts/:postId
 - `hide`: `PUBLISHED -> HIDDEN_REVIEW`
 - `republish`: `HIDDEN_REVIEW -> PUBLISHED`
 - `republish`는 최초 `publishedAt`을 유지해 목록 순서를 임의로 끌어올리지 않는다.
-- `hide` transaction은 연결 image를 `PUBLIC_DELETE_PENDING`으로 바꾸고 public object 삭제 outbox를 생성한다. 공개 API는 commit 직후 404이며 worker 완료 후 image는 `PRIVATE_REVIEW`가 된다.
+- `hide` transaction은 연결 image를 `PUBLIC_DELETE_PENDING`으로 바꾸고 이미지별 public CDN URL purge·object 삭제 outbox와 목록·상세 HTML cache purge outbox를 생성한다. 공개 API는 commit 직후 404이며 worker가 이미지 URL purge와 object 삭제를 모두 완료한 뒤 image는 `PRIVATE_REVIEW`가 된다.
 - `republish`는 참조 image가 모두 `PRIVATE_REVIEW` 또는 새 `STAGED`일 때만 private 원본을 public bucket으로 다시 copy한다. public 삭제가 처리 중이면 `409 IMAGE_STATE_CONFLICT`다.
 - `DELETE`: `HIDDEN_REVIEW -> REMOVED`; private 원본을 `PRIVATE_DELETE_PENDING`으로 바꾸고 복구 유예 30일 뒤 실행할 `OBJECT_DELETE_PRIVATE` task 생성
 - 물리 row 삭제 endpoint는 제공하지 않는다.
@@ -633,6 +653,7 @@ DELETE /api/v1/admin/posts/:postId
 | `429` | `RATE_LIMITED` | 요청 제한 초과 |
 | `500` | `INTERNAL_ERROR` | 분류되지 않은 서버 오류 |
 | `503` | `DEPENDENCY_UNAVAILABLE` | DB·R2 등 필수 의존성 장애 |
+| `503` | `MAINTENANCE_READ_ONLY` | 이전·복구를 위한 전체 DB 쓰기 차단, `Retry-After` 제공 |
 
 ## 7. Cache header
 
@@ -654,11 +675,11 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 1. BFF 공통 request ID·오류·validation·health와 Core API 내부 health
 2. boards와 공개 목록 BFF·Core query
 3. 상세와 context page 계산
-4. 정책 조회
+4. 정책 조회와 운영 단발성 정책 시행 command
 5. BFF 외부 관리자 인증 adapter와 Core 내부 서비스 인증
 6. 이미지 staging과 초안 command
 7. 발행·예약·예약 취소·숨김·재공개·최종 삭제·outbox
-8. 내부 이벤트와 일별 집계
+8. 내부 이벤트·식별자 초기화와 일별 집계
 
 ## 9. 실행 준비 gate
 
@@ -672,9 +693,13 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] PostgreSQL·BFF·Express Core API의 내부 contract integration test
 - [ ] Nuxt BFF 공개 boards·목록·상세 nested route와 mock Core contract test
 - [ ] 공개 목록 0건·마지막 page·초과 page Core contract test
-- [ ] 정책 현재·과거 버전 조회와 초안·예약본 비공개 Core/BFF contract test
-- [ ] 이벤트별 field 조합·게시판 소속·비공개 게시글·HMAC·10초 중복 제거 contract test
+- [ ] 정책 현재·과거 버전 조회와 초안 비공개 Core/BFF contract test
+- [ ] 정책 시행 command의 미래·5분 초과 과거 시각 거부, 반개방 기간 경계·유형별 잠금·cache purge outbox transaction test
+- [ ] 이벤트별 field 조합·게시판 소속·비공개 게시글·미래/과거/폐기 schedule의 `occurredAt` 보정·schedule HMAC·10초 중복 제거 contract test
+- [ ] `MAINTENANCE_READ_ONLY`에서 공개 GET 허용·모든 mutation `503`·`Retry-After`·`Cache-Control: no-store` contract test
 - [ ] 이벤트 IP `60회/분` BFF rate-limit test
+- [ ] client `itemCount` 거부와 서버 계산값 저장 contract test
+- [ ] 내부 통계 초기화의 여러 HMAC key version 일치 raw 삭제·집계 lock 경쟁·항상 `204`·IP `5회/시간` contract test
 - [ ] 이벤트 여러 batch 집계와 재실행 시 일별 순 사용자·`view_count` 중복 방지 test
 - [ ] 90일 초과 집계 완료 raw 이벤트 삭제·일별 집계 보존 test
 - [ ] 목록의 미존재·비활성·잘못된 형식 `boardSlug`가 동일한 `404 BOARD_NOT_FOUND`인지 Core contract test
@@ -686,7 +711,7 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] image upload·선점·preview·폐기 상태 경쟁 integration test
 - [ ] 숨김 글 block 교체 중 public 삭제 대기·private image 제거 contract test
 - [ ] `lockVersion`와 `Idempotency-Key` 동시 요청 integration test
-- [ ] 즉시 발행·숨김 404·public image 삭제 outbox Core contract test
+- [ ] 즉시 발행·숨김 404·public object 삭제 후 정확한 CDN 이미지 URL purge outbox Core contract test
 - [ ] 재공개 시 최초 `publishedAt` 유지·private image 재승격 Core/BFF contract test
 - [ ] 최종 삭제 `REMOVED` 전이·private 원본 30일 지연 삭제 outbox contract test
 - [ ] 예약·취소·due scheduler 발행과 cache purge outbox contract test

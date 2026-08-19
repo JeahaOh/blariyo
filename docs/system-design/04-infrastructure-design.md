@@ -229,27 +229,41 @@ M0에서는 별도 상시 staging 서버를 두지 않는다. 배포 후보는 C
 public config
   SERVICE_ORIGIN
   IMAGE_ORIGIN
+  DB_HOST
+  DB_PORT
+  DB_NAME
+  APP_DB_USER
+  MIGRATION_DB_USER
+  BACKUP_DB_USER
 
 runtime secret
-  DB_PASSWORD
-  EVENT_HMAC_SECRET
+  APP_DB_PASSWORD_FILE
+  MIGRATION_DB_PASSWORD_FILE
+  BACKUP_DB_PASSWORD_FILE
+  EVENT_HMAC_KEYS_FILE
   CORE_SERVICE_TOKEN
   NUXT_ADMIN_ACTOR_HMAC_SECRET
-  R2_ACCESS_KEY_ID
-  R2_SECRET_ACCESS_KEY
   NUXT_ADMIN_IDENTITY_PROVIDER
   NUXT_ADMIN_OPERATOR_ID
   NUXT_CLOUDFLARE_ACCESS_AUDIENCE
   NUXT_CLOUDFLARE_ACCESS_TEAM_DOMAIN
+  R2_PRIVATE_ACCESS_KEY_ID
+  R2_PRIVATE_SECRET_ACCESS_KEY
+  R2_PRIVATE_MEDIA_BUCKET
   R2_PUBLIC_ACCESS_KEY_ID
   R2_PUBLIC_SECRET_ACCESS_KEY
-  R2_PRIVATE_MEDIA_BUCKET
   R2_PUBLIC_MEDIA_BUCKET
+  R2_BACKUP_ACCESS_KEY_ID
+  R2_BACKUP_SECRET_ACCESS_KEY
+  R2_BACKUP_BUCKET
+  BACKUP_AGE_RECIPIENT
   CF_ZONE_ID
   CF_CACHE_PURGE_TOKEN
 ```
 
-`.env`는 서버에서 root만 읽을 수 있게 두고 저장소·Docker image·CI log에 넣지 않는다.
+DB username은 각 역할의 고정된 비밀 아닌 설정이고 password 값은 환경변수에 직접 넣지 않는다. API와 application command에는 `APP_DB_*`, migration 단발성 container에는 `MIGRATION_DB_*`, backup container에는 `BACKUP_DB_*`만 주입한다. 각 `*_PASSWORD_FILE`은 해당 container에만 읽기 전용으로 mount한 secret 경로이며 세 역할은 credential을 재사용하지 않는다.
+
+`EVENT_HMAC_KEYS_FILE`은 version별 `version`, `secret`, `activeFrom`, `activeUntil` UTC schedule을 가진 keyring을 event 처리 container에만 읽기 전용 secret으로 mount한 경로이며 값 자체를 환경변수에 넣지 않는다. 현재와 보존 중 raw가 참조하는 이전 schedule을 포함하고, 정상 rotation schedule이 겹치거나 비어 있으면 event 처리를 시작하지 않는다. 침해로 폐기한 schedule은 `revoked: true` metadata만 남기고 secret을 제거하며, 해당 구간의 지연 이벤트에는 API 설계의 emergency version 재보정 규칙을 적용한다. host 원본은 root 소유 `0600`으로 둔다. private media·public media·backup credential은 서로 다른 bucket에만 접근할 수 있는 별도 key다. `BACKUP_AGE_RECIPIENT`는 암호화용 공개 recipient이며 복호화 private key는 서버 환경변수에 두지 않고 서버와 다른 위치에 오프라인 보관한다. `.env`는 서버에서 root만 읽을 수 있게 두고 저장소·Docker image·CI log에 넣지 않는다.
 
 ## 7. 빌드와 배포
 
@@ -284,7 +298,7 @@ M0 기본은 다음과 같다.
 - `REMOVED` 게시글의 private canonical 원본은 30일 복구 유예 뒤 삭제한다.
 - image당 최대 10MiB, 한 게시글 최대 20개로 제한한다.
 - R2 저장량 7GB에서 알림, 9GB에서 새 업로드 차단 또는 유료 전환을 결정한다.
-- DB backup은 daily 14개, weekly 8개를 유지하고 총 2GB 예산을 잡는다.
+- DB backup은 12시간 간격 최근 28개(14일), weekly 8개를 유지하고 총 4GB 예산을 잡는다.
 
 ## 9. 비용 전환 기준
 
@@ -309,11 +323,16 @@ OCI와 Lightsail은 같은 Compose·환경 변수·multi-arch image를 사용한
 
 1. 새 VM 준비와 tunnel connector 추가
 2. 새 PostgreSQL 18에 최신 full backup 복원
-3. 기존 서버 쓰기 잠금
-4. final incremental dump 복원
-5. 새 서버 ready·smoke 확인
-6. Cloudflare tunnel route를 새 connector로 전환
-7. cache purge
-8. 24시간 관찰 후 기존 VM 삭제
+3. 기존 BFF·Core를 `MAINTENANCE_READ_ONLY`로 전환해 공개 GET만 허용하고 관리자 command, 정책 시행, 이벤트 수집·초기화를 포함한 모든 DB 쓰기를 `503`으로 차단
+4. scheduler·outbox·집계 cron을 중지하고 진행 중 DB transaction이 종료됐는지 확인
+5. 기존 서버에서 최종 full custom-format dump 생성·암호화·checksum 검증
+6. 새 PostgreSQL 18을 비우고 최종 full dump를 한 번 복원
+7. 새 서버도 쓰기 차단 상태에서 게시글 수·최신 글·정책·상태 이력과 ready·공개 GET smoke 확인
+8. Cloudflare tunnel route를 새 connector로 전환
+9. 새 서버의 쓰기 차단을 해제하고 쓰기 경로 readiness를 확인한 뒤 scheduler·outbox·집계 cron 시작 상태 확인
+10. cache purge 후 기존 서버는 read-only로 보존
+11. 24시간 관찰 후 기존 VM 삭제
 
 이미지는 R2에 있으므로 compute 이전 시 복사하지 않는다. DNS TTL과 원본 IP 변경도 Cloudflare tunnel 사용으로 최소화한다.
+
+쓰기 차단 응답은 `503 MAINTENANCE_READ_ONLY`, `Retry-After: 60`, `Cache-Control: no-store`를 사용한다. 최종 dump 시작 후 기존 서버에는 어떤 쓰기도 허용하지 않는다. 특히 `/api/v1/events/reset`을 기존 서버에서 성공 처리한 뒤 이전 snapshot으로 되돌리는 상황이 없어야 한다.

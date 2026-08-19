@@ -31,7 +31,7 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | 악성 이미지 | MIME·magic byte·decode 검사, SVG 금지, 크기 제한 |
 | SSRF | source URL은 metadata로만 저장, 서버 fetch 금지 |
 | secret 유출 | 저장소·image·log 제외, provider별 최소 권한 key |
-| 숨김 콘텐츠 cache 잔존 | 상태 transaction 직후 URL purge, 404 no-store |
+| 숨김 콘텐츠 cache 잔존 | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store |
 | VM·disk 소실 | R2 암호화 DB backup, image 원본 R2 저장 |
 | 무료 계정 정지·capacity 부족 | provider-neutral Compose, Lightsail 전환 runbook |
 | 이벤트 재식별 | browser ID 원문 미저장, HMAC, 90일 삭제 |
@@ -131,7 +131,7 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 | R2 public media key | public media bucket object write/delete, bucket 관리 금지 |
 | R2 backup key | backup bucket write/read, media·staging 접근 금지 |
 | cache purge token | 해당 zone cache purge only |
-| event HMAC secret | event service only |
+| event HMAC keyring | event service only, active version과 보존 중 raw가 참조하는 이전 version만 포함 |
 | admin actor HMAC secret | BFF only, 내부 `operatorId` 가명화 |
 | Core service token | BFF·Core만 공유, 외부 노출 금지 |
 | 외부 provider audience/team | BFF adapter 설정, 비밀값과 분리 |
@@ -142,6 +142,8 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 - token·password·private key를 command argument와 process list에 노출하지 않는다.
 - 90일마다 사용 여부를 점검하고 침해·운영자 변경 시 즉시 rotation한다.
 - backup 암호화 복구 key는 서버와 다른 위치에 오프라인 보관한다.
+
+event HMAC의 정상 rotation은 UTC 날짜 경계에서 끝나는 기존 schedule과 같은 시각에 시작하는 새 schedule을 배포한다. 수신 시각이 아니라 보정된 `occurredAt`이 포함된 schedule을 선택해 지연 이벤트도 원래 UTC 날짜의 key를 사용한다. 이전 key는 해당 version의 raw 보존 기간이 끝날 때까지만 유지한 뒤 삭제한다. 침해가 의심되는 key는 시각과 관계없이 즉시 비활성화하고 그 version을 참조하는 raw 이벤트를 삭제한 뒤 일별 비식별 집계만 유지한다. 폐기 schedule을 가리키는 지연 이벤트는 서버 수신 시각과 현재 emergency version으로 다시 보정한다. raw row의 key version 없이 secret만 교체하지 않는다.
 
 ## 6. DB 권한
 
@@ -163,6 +165,7 @@ blariyo_backup
 ```
 
 - application은 root 계정을 사용하지 않는다.
+- API·application command, migration, backup container는 각각 `blariyo_app`, `blariyo_migrator`, `blariyo_backup` credential만 받고 password file을 서로 mount하지 않는다.
 - application SQL은 schema-qualified 물리명을 사용하고 `public` schema의 `CREATE` 권한은 회수한다.
 - PostgreSQL은 Docker data network에서만 listen하고 `pg_hba.conf`는 application·migration·backup role의 database 접근만 허용한다.
 - production seed에 공용 비밀번호와 샘플 회원을 넣지 않는다.
@@ -236,7 +239,7 @@ cron이 5분마다 다음을 수집하고 임계 초과 시 이메일 또는 web
 | container restart | 1회/시간 | 3회/시간 |
 | API 5xx | 1%/5분 | 5%/5분 |
 | p95 응답 | 1초 | 3초 |
-| DB backup 나이 | 26시간 | 36시간 |
+| DB backup 나이 | 18시간 | 24시간 |
 | outbox DEAD | 1건 | 5건 |
 | R2 사용량 | 7GB | 9GB |
 
@@ -245,7 +248,7 @@ cron이 5분마다 다음을 수집하고 임계 초과 시 이메일 또는 web
 | endpoint | 검사 | 공개 |
 | --- | --- | --- |
 | `/health/live` | Nuxt BFF process event loop 응답 | 예, 상세 없음 |
-| `/health/ready` | BFF에서 Core API·PostgreSQL `SELECT 1`·migration version 확인 | 외부 관리자 인증 또는 내부만 |
+| `/health/ready` | BFF가 Core `/internal/health/ready`를 호출하고 결과만 일반화해 전달 | 외부 관리자 인증 또는 내부만 |
 | Core `/internal/health/ready` | Core process·PostgreSQL·migration version | Docker app network only |
 
 R2 장애는 공개 읽기의 ready 실패 조건으로 두지 않는다. 업로드·발행 command만 `503`으로 막는다.
@@ -256,7 +259,7 @@ R2 장애는 공개 읽기의 ready 실패 조건으로 두지 않는다. 업로
 
 | 작업 | 일정 | 보존 |
 | --- | --- | --- |
-| PostgreSQL custom-format logical dump | 매일 03:30 KST | daily 14개 |
+| PostgreSQL custom-format logical dump | 매일 03:30·15:30 KST | 최근 28개(14일) |
 | 주간 보존 복사 | 매주 월요일 | 8개 |
 | backup manifest 검증 | 매일 dump 후 | backup과 동일 |
 | 실제 복원 시험 | 매월 첫째 주 | 결과 1년 |
@@ -321,7 +324,7 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 - lint·unit·integration·migration test 통과
 - secret scan 통과
 - multi-arch image build 성공
-- DB backup 최근 26시간 이내
+- DB backup 최근 18시간 이내
 - production placeholder `__SERVICE_DOMAIN__` 없음
 
 현재 `.gitignore`는 `package-lock.json`을 제외하지 않지만 `yarn.lock`은 제외한다. npm을 표준
@@ -344,7 +347,7 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 2. 관리자에서 게시글 번호·현재 상태 확인
 3. `RIGHTS_EMAIL`로 숨김
 4. 공개 상세 `404`와 목록 제거 확인
-5. 이미지·HTML cache purge 상태 확인
+5. 연결된 모든 이미지 URL과 목록·상세 HTML cache purge 상태 확인
 6. 요청자에게 접수·비노출 회신
 7. 재공개·수정·삭제 결정
 
@@ -365,6 +368,8 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 매분    npm run outbox:run
 5분마다 npm run events:aggregate
 ```
+
+정책 시행은 cron에 등록하지 않는다. 승인된 정책 release artifact의 checksum과 시행 시각을 운영자가 확인한 뒤 시행 시각부터 5분 안에 `npm run policies:publish -- --artifact=<path>`를 한 번 실행하고 `/api/v1/policies/:type`, `/terms` 또는 `/privacy`의 현재 버전·이력과 cache purge 결과를 확인한다. window를 놓치면 과거 시행 시각을 강제하지 않고 새 시행 시각으로 법무 문서·artifact를 다시 승인한다. 정책 본문·버전·시행 시각을 command argument에 직접 넣지 않는다. host artifact는 root 소유 `0600`으로 보관하고 실행 시 command container에만 읽기 전용 secret으로 mount하며 종료 후 mount와 임시 파일을 제거한다.
 
 outbox worker는 중단된 `RUNNING`을 5분 뒤 회수하고 실패할 때마다 지수 backoff를 적용한다. 8회 실패한 `DEAD` 작업은 자동 재실행하지 않고 원인과 대상 object 상태를 확인한 뒤 운영자가 처리한다.
 

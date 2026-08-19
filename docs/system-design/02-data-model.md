@@ -35,7 +35,7 @@
 | 수정자 | `updated_by` | `VARCHAR(100)` | 마지막 수정 actor key |
 | 수정일시 | `updated_at` | `TIMESTAMPTZ(3)` | 마지막 수정 시각, UTC |
 
-actor key는 `<주체 유형>:<식별값>` 형식으로 저장한다. migration·scheduler·event worker는 `system:migration`, `system:scheduler`, `system:event-ingest`, `system:event-aggregate`, `system:outbox-worker`처럼 고정된 이름을 사용한다. 운영자는 `admin:v<keyVersion>:<base64url(HMAC-SHA-256(operatorId))>`를 사용한다. `operatorId`는 BFF adapter가 외부 identity와 분리해 유지하는 안정적인 내부 식별자이므로 provider를 바꿔도 같은 값을 사용한다. 외부 provider subject 원문은 저장하지 않는다. M1 사용자 actor는 같은 형식의 `user:v<keyVersion>:<HMAC>`을 사용할 수 있다.
+actor key는 `<주체 유형>:<식별값>` 형식으로 저장한다. migration·scheduler·event worker는 `system:migration`, `system:scheduler`, `system:policy-publisher`, `system:event-ingest`, `system:event-aggregate`, `system:outbox-worker`처럼 고정된 이름을 사용한다. 운영자는 `admin:v<keyVersion>:<base64url(HMAC-SHA-256(operatorId))>`를 사용한다. `operatorId`는 BFF adapter가 외부 identity와 분리해 유지하는 안정적인 내부 식별자이므로 provider를 바꿔도 같은 값을 사용한다. 외부 provider subject 원문은 저장하지 않는다. M1 사용자 actor는 같은 형식의 `user:v<keyVersion>:<HMAC>`을 사용할 수 있다.
 
 등록 시 두 actor와 두 시각은 각각 같은 값으로 시작하고, 변경 시 `updated_by`, `updated_at`만 갱신한다. 수정하지 않는 이력성 행도 네 컬럼을 유지하며 수정 값은 등록 값과 같다. 작성자·소유자처럼 업무상 필요한 주체는 감사 컬럼을 재사용하지 않고 별도 FK로 둔다.
 
@@ -147,6 +147,7 @@ erDiagram
     varchar type "이벤트 유형"
     bytea anonymous_hmac "익명 식별 HMAC"
     bytea session_hmac "세션 식별 HMAC"
+    smallint hmac_key_version "HMAC key 버전"
     bigint board_id FK "게시판 ID"
     bigint post_id FK "게시글 ID"
     timestamptz occurred_at "발생일시"
@@ -404,7 +405,7 @@ CHECK actor_type IN ('ADMIN','SYSTEM')
 | `version_label` | `VARCHAR(20)` | N | 공개 버전, 예: `v0.3` |
 | `title` | `VARCHAR(200)` | N | 버전별 문서 제목 |
 | `body_html` | `TEXT` | N | 정제된 버전별 HTML 전문 |
-| `status` | `VARCHAR(20)` | N | 초안·예약·시행·종료 상태 |
+| `status` | `VARCHAR(20)` | N | 초안·시행·종료 상태 |
 | `effective_at` | `TIMESTAMPTZ(3)` | Y | 시행 시작 시각 |
 | `ended_at` | `TIMESTAMPTZ(3)` | Y | 시행 종료 시각 |
 | `created_by` | `VARCHAR(100)` | N | 등록자 actor key |
@@ -421,14 +422,15 @@ UNIQUE INDEX uq_policy_version__effective_one (policy_type)
 CHECK policy_type IN ('TERMS','PRIVACY')
 CHECK length(trim(title)) BETWEEN 1 AND 200
 CHECK length(trim(body_html)) > 0
-CHECK status IN ('DRAFT','SCHEDULED','EFFECTIVE','RETIRED')
+CHECK status IN ('DRAFT','EFFECTIVE','RETIRED')
 CHECK (status='DRAFT' AND effective_at IS NULL AND ended_at IS NULL)
-   OR (status='SCHEDULED' AND effective_at IS NOT NULL AND ended_at IS NULL)
    OR (status='EFFECTIVE' AND effective_at IS NOT NULL AND ended_at IS NULL)
    OR (status='RETIRED' AND effective_at IS NOT NULL AND ended_at IS NOT NULL AND ended_at > effective_at)
 ```
 
-유형별 `EFFECTIVE`는 한 건만 허용한다. 시행된 본문은 수정하지 않고 새 버전을 만든다. `body_html`은 제한된 문서용 태그와 안전한 링크만 허용하도록 저장 전에 sanitize한다.
+유형별 `EFFECTIVE`는 한 건만 허용한다. 시행된 본문은 수정하지 않고 새 버전을 만든다. 정책 적용 기간은 시작을 포함하고 종료를 포함하지 않는 `[effective_at, ended_at)` 반개방 구간이다. 새 버전의 `effective_at`과 이전 버전의 `ended_at`은 같은 경계 시각을 사용한다. `body_html`은 제한된 문서용 태그와 안전한 링크만 허용하도록 저장 전에 sanitize한다.
+
+M0 정책 시행은 관리자 API나 예약 scheduler로 제공하지 않는다. 승인된 정책 release artifact를 배포 서버에 전달하고 `npm run policies:publish -- --artifact=<path>` 단발성 명령으로 실행한다. artifact에는 유형·버전·제목·정제 전 본문·시행 시각과 checksum을 포함하며, command가 schema와 checksum을 검증하고 본문을 허용 목록으로 sanitize한다. command는 artifact 시행 시각이 서버 현재 시각보다 미래이거나 5분 넘게 과거면 거부한다. 허용 범위에서는 advisory lock으로 정책 유형을 잠근 한 transaction에서 기존 `EFFECTIVE`를 새 버전 `effective_at`과 같은 시각으로 `RETIRED` 처리하고 새 버전을 `EFFECTIVE`로 insert한 뒤 정책 URL cache purge outbox를 기록한다. 시행 시각 이전 자동 전환은 M0 범위가 아니므로 운영자는 고지된 시행 시각에 명령을 실행한다. 5분 window를 놓치면 과거 시각을 강제로 기록하지 않고 새 시행 시각을 반영한 artifact를 다시 승인한다. 실패하면 전체 DB 변경을 rollback하고 기존 정책을 유지한다.
 
 M1의 정책 동의 이력은 문자열 label이 아니라 `legal.policy_version.id`를 FK로 참조한다.
 
@@ -442,10 +444,11 @@ M1의 정책 동의 이력은 문자열 label이 아니라 `legal.policy_version
 | `type` | `VARCHAR(30)` | N | 이벤트 유형 |
 | `anonymous_hmac` | `BYTEA` | N | 익명 ID HMAC, 32 bytes |
 | `session_hmac` | `BYTEA` | N | session ID HMAC, 32 bytes |
+| `hmac_key_version` | `SMALLINT` | N | 보정된 `occurred_at`이 속한 schedule의 key 버전 |
 | `board_id` | `BIGINT` | N | 게시판 FK |
 | `post_id` | `BIGINT` | Y | 대상 게시글 FK |
 | `list_page` | `INTEGER` | Y | 조회한 목록 페이지 |
-| `item_count` | `SMALLINT` | Y | 응답 항목 수 |
+| `item_count` | `SMALLINT` | Y | Core가 계산한 공개 응답 항목 수 |
 | `dedupe_hmac` | `BYTEA` | N | 10초 중복 제거 HMAC, 32 bytes |
 | `occurred_at` | `TIMESTAMPTZ(3)` | N | 보정된 이벤트 시각 |
 | `aggregated_at` | `TIMESTAMPTZ(3)` | Y | 집계 반영 완료 시각 |
@@ -458,7 +461,8 @@ M1의 정책 동의 이력은 문자열 label이 아니라 `legal.policy_version
 PK (id)
 INDEX ix_raw_event__occurred (occurred_at, id)
 INDEX ix_raw_event__type_occurred (type, occurred_at)
-INDEX ix_raw_event__anonymous_occurred (anonymous_hmac, occurred_at)
+INDEX ix_raw_event__anonymous_occurred (hmac_key_version, anonymous_hmac, occurred_at)
+INDEX ix_raw_event__session (hmac_key_version, session_hmac)
 INDEX ix_raw_event__unaggregated (id) WHERE aggregated_at IS NULL
 UK uq_raw_event__dedupe_hmac (dedupe_hmac)
 FK (board_id) -> content.board(id) ON DELETE RESTRICT
@@ -466,6 +470,7 @@ FK (post_id) -> content.board_post(id) ON DELETE RESTRICT
 CHECK octet_length(anonymous_hmac) = 32
 CHECK octet_length(session_hmac) = 32
 CHECK octet_length(dedupe_hmac) = 32
+CHECK hmac_key_version >= 1
 CHECK list_page IS NULL OR list_page >= 1
 CHECK item_count IS NULL OR item_count BETWEEN 0 AND 20
 CHECK type IN ('FEED_VIEW','POST_VIEW','DETAIL_LIST_VIEW')
@@ -476,6 +481,8 @@ CHECK (type='FEED_VIEW' AND post_id IS NULL AND list_page IS NOT NULL AND item_c
 
 `dedupe_hmac`은 이벤트 정보와 서버 수신 시각의 10초 bucket으로 만든다. 중복 요청은 `204`로 처리하며 제목·본문·전체 URL·원본 IP·User-Agent는 저장하지 않는다.
 
+내부 통계 초기화 요청은 보존 중인 모든 HMAC key version으로 전달된 `anonymous_id`와 `session_id`를 계산한 뒤 version과 HMAC이 일치하는 raw 행을 한 transaction에서 삭제한다. 이미 식별자 없이 집계된 일별 수치와 게시글 `view_count`는 역산하지 않는다. API는 삭제 행 수와 식별자 존재 여부를 반환하지 않는다.
+
 ### 일별 이벤트 집계 — `analytics.daily_event_metric`
 
 | 열 | 타입 | Null | 설명 |
@@ -484,7 +491,7 @@ CHECK (type='FEED_VIEW' AND post_id IS NULL AND list_page IS NOT NULL AND item_c
 | `event_type` | `VARCHAR(30)` | N | 이벤트 유형 |
 | `board_id` | `BIGINT` | N | 게시판 FK |
 | `event_count` | `BIGINT` | N | 중복 제거 후 이벤트 수 |
-| `unique_anonymous_count` | `BIGINT` | N | 일별 distinct 익명 HMAC 수 |
+| `unique_anonymous_count` | `BIGINT` | N | 일별 distinct `(hmac_key_version, anonymous_hmac)` 수 |
 | `created_by` | `VARCHAR(100)` | N | 집계 job actor key |
 | `created_at` | `TIMESTAMPTZ(3)` | N | 등록일시, UTC |
 | `updated_by` | `VARCHAR(100)` | N | 집계 job actor key |
@@ -498,7 +505,7 @@ CHECK event_count >= 0
 CHECK unique_anonymous_count >= 0
 ```
 
-5분 집계 job은 advisory lock으로 한 번에 하나만 실행한다. `event_count`와 게시글 조회수는 새로 처리한 raw 행만 더하고, `unique_anonymous_count`는 영향받은 날짜·이벤트·게시판의 보존 중인 raw 전체에서 다시 계산한다. 이 변경과 `aggregated_at` 기록은 같은 transaction에서 처리한다. raw 데이터는 90일 후 삭제하며 daily에는 개인·세션 식별자를 남기지 않는다.
+5분 집계 job은 event maintenance advisory lock으로 한 번에 하나만 실행한다. 내부 통계 초기화도 같은 lock을 transaction 동안 사용해 집계 대상 선택과 raw 삭제가 겹치지 않게 한다. `event_count`와 게시글 조회수는 새로 처리한 raw 행만 더하고, `unique_anonymous_count`는 영향받은 날짜·이벤트·게시판의 보존 중인 raw 전체에서 `(hmac_key_version, anonymous_hmac)` distinct를 다시 계산한다. 정상 rotation은 UTC 날짜 경계와 key schedule을 일치시키므로 같은 UTC 일자의 동일 ID는 같은 version을 사용한다. 이 변경과 `aggregated_at` 기록은 같은 transaction에서 처리한다. raw 데이터는 90일 후 삭제하며 daily에는 개인·세션 식별자를 남기지 않는다.
 
 ## 6. 외부 작업 재시도
 
@@ -511,7 +518,7 @@ DB commit 이후 실행해야 하는 외부 작업을 기록한다.
 | `id` | `BIGINT GENERATED BY DEFAULT AS IDENTITY` | N | PK, 작업 식별자 |
 | `type` | `VARCHAR(30)` | N | cache·object 작업 유형 |
 | `status` | `VARCHAR(20)` | N | 대기·실행·성공·실패·중단 상태 |
-| `aggregate_type` | `VARCHAR(20)` | N | `POST`, `IMAGE` |
+| `aggregate_type` | `VARCHAR(20)` | N | `POST`, `IMAGE`, `POLICY` |
 | `aggregate_id` | `BIGINT` | N | 대상 aggregate 식별자 |
 | `payload` | `JSONB` | N | 실행 payload, token·개인정보 금지 |
 | `attempt_count` | `SMALLINT` | N | 실패 누적 횟수, 초기 `0` |
@@ -530,8 +537,8 @@ INDEX ix_outbox_task__running (updated_at, id)
   WHERE status='RUNNING'
 CHECK type IN ('CACHE_PURGE','OBJECT_DELETE_PUBLIC','OBJECT_DELETE_PRIVATE')
 CHECK status IN ('PENDING','RUNNING','SUCCEEDED','FAILED','DEAD')
-CHECK aggregate_type IN ('POST','IMAGE')
-CHECK (type='CACHE_PURGE' AND aggregate_type='POST')
+CHECK aggregate_type IN ('POST','IMAGE','POLICY')
+CHECK (type='CACHE_PURGE' AND aggregate_type IN ('POST','POLICY'))
    OR (type IN ('OBJECT_DELETE_PUBLIC','OBJECT_DELETE_PRIVATE') AND aggregate_type='IMAGE')
 CHECK aggregate_id > 0
 CHECK jsonb_typeof(payload) = 'object'
@@ -539,6 +546,8 @@ CHECK attempt_count BETWEEN 0 AND 8
 ```
 
 worker는 처리할 행을 `FOR UPDATE SKIP LOCKED`로 선점하고 `RUNNING`, `updated_at=now()`로 바꾼 뒤 외부 작업을 실행한다. `RUNNING`이 5분 넘게 유지되면 중단된 작업으로 보고 `FAILED`로 회수한다. 실패·회수 때 `attempt_count`를 올려 지수 backoff를 적용하고 실패가 8회 누적되면 `DEAD`로 전환해 운영 알림을 만든다. cache purge와 object 삭제는 재실행해도 같은 결과가 되도록 처리한다.
+
+`OBJECT_DELETE_PUBLIC` payload에는 token이 아닌 public storage key와 그 key로 결정되는 정확한 CDN URL을 넣는다. worker는 public object를 멱등 삭제한 뒤 CDN URL을 purge하고, 두 작업이 모두 성공한 경우에만 image를 `PRIVATE_REVIEW`로 바꾼다. purge 또는 삭제가 실패하면 image는 `PUBLIC_DELETE_PENDING`에 남고 같은 전체 순서를 재시도한다. object를 먼저 삭제하므로 purge 재시도 중 원본에서 cache가 다시 채워지지 않는다. `CACHE_PURGE`의 `POST` payload는 영향받는 목록·상세 URL을 담는다. `POLICY` payload는 `/api/v1/policies/:type`과 해당 `/terms` 또는 `/privacy` 직접 경로를 함께 담는다.
 
 ### 멱등 요청 기록 — `ops.idempotency_request`
 
@@ -659,7 +668,7 @@ filename, SHA-256 checksum과 적용 시각을 기록한다. runner는 PostgreSQ
 - [ ] 동일 migration 재실행 차단, checksum 변경 거부와 적용 version 확인 test
 - [ ] 이미지 선점 경쟁, 연결 image당 IMAGE block 정확히 한 건, 숨김 글 image 제거, block `alt_text`, 공지 순서 충돌, 낙관적 잠금, 멱등 key 경쟁 integration test
 - [ ] 상태별 시각 column과 정책 상태 제약 test
-- [ ] 이벤트 집계 job 재시작 시 `view_count` 중복 증가 방지와 여러 batch의 일별 순 사용자 중복 제거 test
+- [ ] 이벤트 집계 job 재시작 시 `view_count` 중복 증가 방지, 여러 batch의 일별 순 사용자 중복 제거와 key version별 초기화 경쟁 test
 - [ ] 집계 완료 후 90일이 지난 raw 이벤트 삭제와 일별 집계 보존 test
 - [ ] 중단된 `RUNNING` outbox 회수와 실패 8회 `DEAD` 전환 test
 - [ ] 재공개 시 최초 `published_at` 유지와 private image 재승격 test

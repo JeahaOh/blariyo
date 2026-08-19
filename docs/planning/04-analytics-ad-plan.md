@@ -33,14 +33,17 @@
 
 | 이벤트 | 발생 시점 | 필드 |
 | --- | --- | --- |
-| `FEED_VIEW` | `/meme` 목록 응답 성공 | `anonymousId`, `sessionId`, `boardSlug`, `listPage`, `itemCount`, `occurredAt` |
+| `FEED_VIEW` | `/meme` 목록 응답 성공 | `anonymousId`, `sessionId`, `boardSlug`, `listPage`, `occurredAt` |
 | `POST_VIEW` | 공개 상세 응답 성공 | `anonymousId`, `sessionId`, `boardSlug`, `postId`, `occurredAt` |
-| `DETAIL_LIST_VIEW` | 상세 하단 목록 최초·페이지 이동 응답 성공 | `anonymousId`, `sessionId`, `boardSlug`, `postId`, `listPage`, `itemCount`, `occurredAt` |
+| `DETAIL_LIST_VIEW` | 상세 하단 목록 최초·페이지 이동 응답 성공 | `anonymousId`, `sessionId`, `boardSlug`, `postId`, `listPage`, `occurredAt` |
 
 - `anonymousId`는 무작위 값으로 만들고 회원 정보와 연결하지 않는다.
 - `sessionId`는 탭 또는 일정 시간 무활동 단위로 갱신한다.
 - 원문 IP와 User-Agent 전체 문자열을 제품 이벤트에 저장하지 않는다.
 - 구체적인 보관기간은 개인정보처리방침 확정값을 따른다.
+- 목록 항목 수는 client 값을 받지 않고 서버가 공개 목록 조회 규칙으로 계산한다.
+- 내부 이벤트는 자동화된 요청을 완전히 배제한 사람 단위 측정값이 아니다. 운영 추세 확인에만 사용하고 광고 정산·권리 판단·사업 KPI의 단독 근거로 사용하지 않는다.
+- 쿠키 설정의 `내부 통계 초기화`는 현재 `anonymousId`와 `sessionId`에 해당하는 보존 중 원시 이벤트 삭제를 서버에 요청한 뒤 브라우저 식별자를 삭제한다. 개인 식별자를 보유하지 않는 기존 일별 집계와 게시글 누적 조회 수는 역산하지 않는다.
 
 ## 4. 선택 GA4 이벤트
 

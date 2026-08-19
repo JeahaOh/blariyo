@@ -1,9 +1,11 @@
 # 블라리요 M0 시스템 설계
 
-- 문서 상태: M0 기술 계약 정본 · 실행 산출물은 별도 상태 관리
+- 문서 상태: M0 기술 계약 정본 · 현행 실행 산출물 없음
 - 기준일: 2026-08-15
+- 정합성 검토일: 2026-08-19
 - 상위 기획: [서비스 기획서](../planning/01-service-plan.md)
-- UI 정본: [반응형 퍼블리싱](../publishing/responsive/README.md)
+- 화면 상위 정본: [화면 설계](../planning/03-screen-design.md)
+- 정적 검토물: [반응형 퍼블리싱](../publishing/responsive/README.md)
 - 데이터베이스 결정: [2026-08-14 PostgreSQL 전환 결정](../../worklog/session-log/2026-08-14-postgresql-transition.md)
 
 이 디렉터리는 확정된 기획을 구현 가능한 기술 계약으로 구체화한다. `docs/planning`은 무엇을 만들지 정의하고, 이 디렉터리는 컴포넌트 경계, 데이터 구조, API, 배포와 운영 방식을 정의한다.
@@ -22,13 +24,16 @@
 
 | 영역 | 설계 문서 | 실행 산출물 | 현재 판정 |
 | --- | --- | --- | --- |
-| 시스템 경계 | 아키텍처 흐름 정의 | Express Core API, Nuxt 공개 SSR와 관리자 게시글 화면 | 공개·관리자 Web 경계 구현 |
-| 데이터 | PostgreSQL table·constraint·상태·보존 계약 | `V001`·`V002`, checksum·lock runner, event 수집·집계 test | 기본 schema·seed·이벤트 집계 구현 |
-| API | 외부 BFF·내부 Core request·response·오류 계약 | 전체 M0 OpenAPI·Core/BFF route·SSR·관리자 command·lifecycle 통합 test | Board/Post·정책·이벤트·관리자 게시글 API와 OpenAPI 구현 |
-| 인프라 | 공급자·network·resource 기준 | production 계정·domain 미확정 | 설계 완료, 배포 전 |
-| 보안·운영 | 접근·backup·restore·runbook | production restore drill 미실시 | 설계 완료, 운영 검증 전 |
+| 시스템 경계 | 아키텍처 흐름 정의 | 없음 | 설계 계약 유지, 구현 미검증 |
+| 데이터 | PostgreSQL table·constraint·상태·보존 계약 | 없음 | 설계 계약 유지, migration·test 미검증 |
+| API | 외부 BFF·내부 Core request·response·오류 계약 | 없음 | 설계 계약 유지, OpenAPI·route·test 미검증 |
+| 인프라 | 공급자·network·resource 기준 | production 계정·domain 미확정 | 설계 완료, 배포 미검증 |
+| 보안·운영 | 접근·backup·restore·runbook | production restore drill 미실시 | 설계 완료, 운영 미검증 |
 
-`02-data-model.md`의 기본 schema·seed는 실행 산출물과 빈 PostgreSQL 18 검증까지 완료했다. 공개 Board/Post·정책, 내부 이벤트와 관리자 게시글 화면·lifecycle은 Core/BFF route, 전체 M0 OpenAPI와 contract test까지 구현했다. API 계층 전체는 example 자동 검증 등 남은 gate가 있어 완료로 표시하지 않는다.
+현재 브랜치에는 애플리케이션 source, migration, OpenAPI와 실행 테스트가 없다. Git 전체 이력에서도
+문서가 가리키던 M0 migration runner·`V001`·`V002`·OpenAPI 파일은 추적 이력을 확인하지 못했다.
+따라서 이 디렉터리는 구현 방향을 정의하는 설계 계약으로만 사용하며, 실행 준비 gate는 향후
+실제 산출물과 새 검증 결과가 생길 때 다시 판정한다.
 
 ## 설계 범위
 

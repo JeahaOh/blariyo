@@ -2,8 +2,9 @@
 
 - 문서 상태: 사용자 확정안 반영 정본
 - 기준일: 2026-08-14
+- 정합성 검토일: 2026-08-19
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [02-infra-plan.md](./02-infra-plan.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
-- 구현 대상: 데스크톱·모바일 반응형 웹
+- 설계 대상: 데스크톱·모바일 반응형 웹
 
 ## 1. 화면 원칙
 
@@ -23,23 +24,23 @@
 | 화면 | 경로 | 상태 |
 | --- | --- | --- |
 | 루트 | `/` | `/meme` 리다이렉트 |
-| 짤 목록 | `/meme` | 초기 구현 |
-| 게시글 상세 | `/:boardSlug/posts/:postId` | 초기 구현, 짤은 `/meme/posts/:postId` |
-| 로그인 | `/login` | M1 구현 |
-| 가입 동의 | `/signup/consent` | M1 구현 |
-| 계정 관리 | `/account` | M1 구현 |
-| 이용약관 | `/terms` | 초기 구현 |
-| 개인정보처리방침 | `/privacy` | 초기 구현 |
-| 권리 침해·게시 중단 문의 | 푸터 이메일 | 초기 구현 |
-| 쿠키 설정 | `/cookie-settings` | 초기 구현 |
-| 익게 | `/community` | 추후 구현 |
-| 뉴스 | `/news` | 추후 구현 |
+| 짤 목록 | `/meme` | M0 범위 |
+| 게시글 상세 | `/:boardSlug/posts/:postId` | M0 범위, 짤은 `/meme/posts/:postId` |
+| 로그인 | `/login` | M1 범위 |
+| 가입 동의 | `/signup/consent` | M1 범위 |
+| 계정 관리 | `/account` | M1 범위 |
+| 이용약관 | `/terms` | M0 범위 |
+| 개인정보처리방침 | `/privacy` | M0 범위 |
+| 권리 침해·게시 중단 문의 | 푸터 이메일 | M0 범위 |
+| 쿠키 설정 | `/cookie-settings` | M0 범위 |
+| 익게 | `/community` | M1.5 이후 범위 |
+| 뉴스 | `/news` | 후속 범위 |
 
 ### 관리자 게시글 화면
 
 | 화면 | 경로 | 상태 |
 | --- | --- | --- |
-| 게시글 검색·작성·상태 관리 | `/admin` | M0 구현 |
+| 게시글 검색·작성·상태 관리 | `/admin` | M0 범위 |
 
 - Cloudflare Access 인증을 통과한 운영자만 접근한다.
 - 데스크톱은 왼쪽 검색 목록과 오른쪽 편집 영역을 함께 표시하고, 모바일은 목록과 편집 영역을 위아래로 배치한다.
@@ -159,7 +160,8 @@
 - 원본 비율을 유지하고 콘텐츠 폭을 넘지 않는다.
 - 이미지 대체 텍스트를 제공한다.
 - 이미지 로딩 전 비율 공간을 확보한다.
-- 실제 저장 사업자는 아직 확정하지 않는다.
+- M0 저장 사업자는 Cloudflare R2 Standard로 결정했다. 실제 production account, bucket 이름과
+  public media custom domain은 배포 전에 확정한다.
 
 ### 출처
 
@@ -288,10 +290,12 @@
 
 ### 쿠키 설정 `/cookie-settings`
 
-- 저장된 선택이 없는 최초 접속에는 화면 하단에 쿠키 배너를 표시하되 콘텐츠 클릭과 스크롤은 막지 않는다.
-- 배너는 `필수만 사용`, `설정`, `모두 허용`을 제공하고 `설정`을 누르면 쿠키 설정 modal을 연다.
-- 필수 쿠키는 항상 활성 상태로 표시한다.
-- 분석·광고 쿠키는 각각 선택하고 저장할 수 있다.
+- M0에서는 필수 내부 통계 저장소의 목적·기간과 초기화만 제공하며 선택 동의 배너를 띄우지 않는다.
+- GA4 또는 광고 중 하나라도 활성화할 때 저장된 선택이 없는 최초 접속에는 화면 하단에 쿠키
+  배너를 표시하되 콘텐츠 클릭과 스크롤은 막지 않는다.
+- 선택 기능 활성화 뒤 배너는 `필수만 사용`, `설정`, `모두 허용`을 제공하고 `설정`을 누르면
+  쿠키 설정 modal을 연다.
+- 필수 저장소는 항상 활성 상태로 표시하고, 실제 활성화한 분석·광고 항목만 선택할 수 있게 한다.
 - 선택 저장 후 modal과 배너를 닫고 이후 접속에는 다시 자동 표시하지 않는다.
 
 ## 11. 추후 게시판 화면
@@ -310,13 +314,14 @@
 
 ## 12. 와이어프레임과 퍼블리싱 기준
 
-- 현행 정본: [../wireframes/responsive/index.html](../wireframes/responsive/index.html)
+- 반응형 시각 참고: [../wireframes/responsive/index.html](../wireframes/responsive/index.html)
 - 광고 참고: [../wireframes/ads/index.html](../wireframes/ads/index.html)
 - 정책 참고: [../wireframes/legal/index.html](../wireframes/legal/index.html)
 - 추후 사용자 게시판 참고: [../wireframes/community/index.html](../wireframes/community/index.html)
 - 퍼블리싱 프로토타입: [../publishing/responsive/index.html](../publishing/responsive/index.html)
 
 archive 디렉터리는 과거 비교용이며 현행 화면 계약으로 사용하지 않는다.
+이 절의 HTML은 시각 비교 자료이며 화면 계약과 단계 판정은 이 문서 본문이 우선한다.
 
 ## 13. 검수 기준
 
@@ -324,6 +329,7 @@ archive 디렉터리는 과거 비교용이며 현행 화면 계약으로 사용
 
 - `/`가 `/meme`으로 이동한다.
 - 초기 헤더와 목록에 `익게`, `뉴스`가 노출되지 않는다.
+- 초기 헤더에 로그인·계정 진입이 없고 GA4·광고 선택 배너가 표시되지 않는다.
 - `/meme` 목록에 일반 게시글 20개와 고정 공지 0~3건이 분리돼 보인다.
 - 상세 출처가 하단에 한 번만 나온다.
 - 상세 하단 목록은 같은 게시판 20개이며 현재 글을 포함하고 페이지네이션을 제공한다.

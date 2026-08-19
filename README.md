@@ -4,8 +4,8 @@
 
 - 내부 코드명: `blariyo`
 - 공개 서비스명: `블라리요`
-- 현재 단계: M0 구현 진행 중
-- 현재 구현: PostgreSQL migration·seed 완료, Express Core API와 Nuxt BFF 구현 전
+- 현재 단계: M0 기획·시스템 설계 재정비
+- 현재 상태: 애플리케이션 source를 제거하고 문서와 정적 화면 프로토타입만 유지
 
 ## 문서 정본
 
@@ -20,6 +20,7 @@
 | PostgreSQL schema 계약은 무엇인가 | [M0 데이터 모델](docs/system-design/02-data-model.md) |
 | HTTP 계약은 무엇인가 | [M0 API 설계](docs/system-design/03-api-design.md) |
 | 어떻게 배포·백업·복구하는가 | [인프라 설계](docs/system-design/04-infrastructure-design.md), [보안·운영 설계](docs/system-design/05-security-operations.md) |
+| AI가 어떤 순서와 근거로 작업하는가 | [AI 작업 안내](docs/ai/README.md) |
 
 제품 범위는 planning, 구현 세부는 system-design, 실제 완료 여부는 migration·OpenAPI·source·test를 기준으로 판단한다.
 
@@ -29,13 +30,12 @@
 
 ```text
 blariyo/
-  apps/
-    api/                    Express Core API와 M0 migration
-      db/migrations/        versioned PostgreSQL SQL
-    data/postgresql/        local PostgreSQL data boundary
-    init/postgresql/        development connection schema
-    docker-compose.yml      local development Compose
+  AGENTS.md                 AI agent rules and canonical boundaries
+  CLAUDE.md                 Claude entry pointer
+  GEMINI.md                 Gemini entry pointer
   docs/
+    ai/                     canonical map and evidence contract
+      skills/               project-local AI workflows
     planning/               product and stage decisions
     system-design/          M0 implementation contracts
     legal/                  release-blocking policy drafts
@@ -46,7 +46,7 @@ blariyo/
     session-log/            decision and review history
 ```
 
-Nuxt application, production infrastructure와 M0 OpenAPI/routes는 아직 구현되지 않았다.
+애플리케이션 source, production infrastructure와 실행 가능한 M0 OpenAPI/routes는 현재 저장소에 없다.
 
 ## 다음 실행 산출물
 

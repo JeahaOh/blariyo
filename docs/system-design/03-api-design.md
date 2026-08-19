@@ -1,7 +1,8 @@
 # M0 Web BFF API 설계
 
-- 문서 상태: 공개·관리자 게시글 Core·BFF·전체 M0 OpenAPI·관리자 화면 구현 · 정책 화면 미구현
+- 문서 상태: M0 API 설계 계약 · 현행 Core·BFF·OpenAPI·test 산출물 없음
 - 기준일: 2026-08-15
+- 정합성 검토일: 2026-08-19
 - base path: `/api/v1`
 - content type: `application/json; charset=utf-8`
 
@@ -21,7 +22,10 @@
 - `404`에서 숨김·삭제·미존재 원인을 구분하지 않는다.
 - 외부 OpenAPI는 BFF 구현과 같은 schema source에서 생성한다. production에서 Swagger UI는 공개하지 않는다.
 
-기존 회원·비밀번호 route와 Swagger 개발 skeleton은 제거했다. 공개 Board/Post는 외부 BFF OpenAPI, Nuxt server route와 Express Core 내부 route를 구현했다. Core API의 내부 route는 외부 호환 계약으로 취급하지 않으며 PostgreSQL·Core·BFF 통합 테스트로 계층 간 계약을 검증한다.
+현재 브랜치에는 기존 실험 source를 포함한 애플리케이션 source가 없다. 아래 내용은 공개
+Board/Post BFF와 Core 내부 route가 향후 따라야 할 계약이며, 실제 OpenAPI·route·통합 테스트가
+생기기 전에는 구현 완료로 판정하지 않는다. Core API의 내부 route는 외부 호환 계약으로
+취급하지 않으며 PostgreSQL·Core·BFF 통합 테스트로 계층 간 계약을 검증해야 한다.
 
 ### M0 endpoint 목록
 
@@ -658,39 +662,41 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 
 ## 9. 실행 준비 gate
 
-공개 Board/Post·정책 Core API, 내부 이벤트 수집·일별 집계, BFF 계약, 외부 관리자 인증 경계, 관리자 게시글 화면·검색·상세·이미지·초안·발행·예약·취소·숨김·재공개·최종 삭제 API와 outbox worker를 구현했다. [m0-bff.openapi.json](../../apps/api/openapi/m0-bff.openapi.json)은 공개·관리자 M0 endpoint와 관리자 인증·멱등·multipart·상태 전이 schema를 포함한다.
+현재 브랜치에는 Core API, BFF, 관리자 화면, outbox worker와 M0 OpenAPI source가 없다. 과거
+문서가 참조한 `m0-bff.openapi.json`도 Git 전체 이력에서 추적된 파일을 확인하지 못했다.
+아래 항목은 향후 구현·검증 gate이며 실제 산출물과 실행 결과를 확인한 항목만 완료로 바꾼다.
 
-- [x] M0 endpoint만 포함한 OpenAPI `3.1.x` source 작성
+- [ ] M0 endpoint만 포함한 OpenAPI `3.1.x` source 작성
 - [ ] request·response·error schema에서 문서 예시 자동 검증
 - [ ] Nuxt BFF route가 외부 OpenAPI validation을 공통 적용
-- [x] PostgreSQL·BFF·Express Core API의 내부 contract integration test
-- [x] Nuxt BFF 공개 boards·목록·상세 nested route와 mock Core contract test
-- [x] 공개 목록 0건·마지막 page·초과 page Core contract test
-- [x] 정책 현재·과거 버전 조회와 초안·예약본 비공개 Core/BFF contract test
-- [x] 이벤트별 field 조합·게시판 소속·비공개 게시글·HMAC·10초 중복 제거 contract test
-- [x] 이벤트 IP `60회/분` BFF rate-limit test
-- [x] 이벤트 여러 batch 집계와 재실행 시 일별 순 사용자·`view_count` 중복 방지 test
-- [x] 90일 초과 집계 완료 raw 이벤트 삭제·일별 집계 보존 test
-- [x] 목록의 미존재·비활성·잘못된 형식 `boardSlug`가 동일한 `404 BOARD_NOT_FOUND`인지 Core contract test
-- [x] 상세의 게시판 불일치·잘못된 형식 `boardSlug`·`postId`가 동일한 `404 POST_NOT_FOUND`인지 Core contract test
-- [x] 문맥 없는 `/api/v1/posts*`, `/posts/:postId`가 노출되지 않는지 route test
-- [x] SSR `/:boardSlug/posts/:postId`의 게시판 불일치가 콘텐츠 없는 `404` HTML인지 integration test
-- [x] SSR 상세의 canonical·OG·공유 URL이 `/:boardSlug/posts/:postId`로 일치하는지 integration test
-- [x] 숨김·삭제·예약 글의 동일한 Core `404` contract test
-- [x] image upload·선점·preview·폐기 상태 경쟁 integration test
-- [x] 숨김 글 block 교체 중 public 삭제 대기·private image 제거 contract test
-- [x] `lockVersion`와 `Idempotency-Key` 동시 요청 integration test
-- [x] 즉시 발행·숨김 404·public image 삭제 outbox Core contract test
-- [x] 재공개 시 최초 `publishedAt` 유지·private image 재승격 Core/BFF contract test
-- [x] 최종 삭제 `REMOVED` 전이·private 원본 30일 지연 삭제 outbox contract test
-- [x] 예약·취소·due scheduler 발행과 cache purge outbox contract test
-- [x] 중단된 outbox 회수·지수 backoff·8회 `DEAD` 전환 test
-- [x] Core 내부 서비스 토큰 없음·불일치와 provider-neutral actor 누락·형식 오류 test
-- [x] BFF 외부 관리자 adapter의 identity 없음·만료·잘못된 issuer·audience test
-- [x] 관리자 게시글 상태·게시판·제목 prefix·수정일·page 검색 Core contract test
-- [x] 관리자 게시글 상세의 비공개 상태·TEXT/IMAGE block·storage key 비노출 contract test
-- [x] BFF 관리자 query validation·응답 allowlist mapping·Core 내부 인증 header 전달 test
-- [x] `/internal/health/ready` migration version 불일치 test
-- [x] 현재 회원 skeleton Swagger를 제거하고 Core API에서 Swagger UI가 공개되지 않는지 test
+- [ ] PostgreSQL·BFF·Express Core API의 내부 contract integration test
+- [ ] Nuxt BFF 공개 boards·목록·상세 nested route와 mock Core contract test
+- [ ] 공개 목록 0건·마지막 page·초과 page Core contract test
+- [ ] 정책 현재·과거 버전 조회와 초안·예약본 비공개 Core/BFF contract test
+- [ ] 이벤트별 field 조합·게시판 소속·비공개 게시글·HMAC·10초 중복 제거 contract test
+- [ ] 이벤트 IP `60회/분` BFF rate-limit test
+- [ ] 이벤트 여러 batch 집계와 재실행 시 일별 순 사용자·`view_count` 중복 방지 test
+- [ ] 90일 초과 집계 완료 raw 이벤트 삭제·일별 집계 보존 test
+- [ ] 목록의 미존재·비활성·잘못된 형식 `boardSlug`가 동일한 `404 BOARD_NOT_FOUND`인지 Core contract test
+- [ ] 상세의 게시판 불일치·잘못된 형식 `boardSlug`·`postId`가 동일한 `404 POST_NOT_FOUND`인지 Core contract test
+- [ ] 문맥 없는 `/api/v1/posts*`, `/posts/:postId`가 노출되지 않는지 route test
+- [ ] SSR `/:boardSlug/posts/:postId`의 게시판 불일치가 콘텐츠 없는 `404` HTML인지 integration test
+- [ ] SSR 상세의 canonical·OG·공유 URL이 `/:boardSlug/posts/:postId`로 일치하는지 integration test
+- [ ] 숨김·삭제·예약 글의 동일한 Core `404` contract test
+- [ ] image upload·선점·preview·폐기 상태 경쟁 integration test
+- [ ] 숨김 글 block 교체 중 public 삭제 대기·private image 제거 contract test
+- [ ] `lockVersion`와 `Idempotency-Key` 동시 요청 integration test
+- [ ] 즉시 발행·숨김 404·public image 삭제 outbox Core contract test
+- [ ] 재공개 시 최초 `publishedAt` 유지·private image 재승격 Core/BFF contract test
+- [ ] 최종 삭제 `REMOVED` 전이·private 원본 30일 지연 삭제 outbox contract test
+- [ ] 예약·취소·due scheduler 발행과 cache purge outbox contract test
+- [ ] 중단된 outbox 회수·지수 backoff·8회 `DEAD` 전환 test
+- [ ] Core 내부 서비스 토큰 없음·불일치와 provider-neutral actor 누락·형식 오류 test
+- [ ] BFF 외부 관리자 adapter의 identity 없음·만료·잘못된 issuer·audience test
+- [ ] 관리자 게시글 상태·게시판·제목 prefix·수정일·page 검색 Core contract test
+- [ ] 관리자 게시글 상세의 비공개 상태·TEXT/IMAGE block·storage key 비노출 contract test
+- [ ] BFF 관리자 query validation·응답 allowlist mapping·Core 내부 인증 header 전달 test
+- [ ] `/internal/health/ready` migration version 불일치 test
+- [ ] M0에 포함하지 않는 legacy 회원 endpoint와 Swagger UI가 Core API에서 공개되지 않는지 test
 
 모든 항목이 통과하기 전에는 API 계층을 “구현 준비 완료” 또는 “구현 완료”로 표시하지 않는다.

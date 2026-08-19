@@ -1,7 +1,8 @@
 # M0 데이터 모델
 
-- 문서 상태: 설계 계약 검토 완료 · `V001`/`V002` migration 구현·빈 DB 검증 완료
+- 문서 상태: 설계 계약 검토 완료 · 현행 migration·DB 검증 산출물 없음
 - 기준일: 2026-08-15
+- 정합성 검토일: 2026-08-19
 - DBMS: PostgreSQL 18
 - 문자 인코딩: 데이터베이스 `UTF8`
 - 시간 기준: `TIMESTAMPTZ(3)`로 절대 시각을 저장하고 DB·session timezone은 UTC, 화면에서 Asia/Seoul 변환
@@ -631,31 +632,38 @@ list_page = FLOOR(newer_count / 20) + 1
 
 ## 10. 기존 DB와 migration 경계
 
-현재 [init.sql](../../apps/init/postgresql/scripts/init.sql)은 기존 회원 CMS 실험 스키마를 PostgreSQL 개발 연결 확인용으로 옮긴 것이다. `TU_USER`, 공통 코드와 seed를 M0 운영 스키마의 정본으로 간주하지 않는다.
+현재 브랜치에는 DB 초기화 파일과 M0 migration 실행 산출물이 없다. 과거 `init.sql`은 기존 회원
+CMS 실험 스키마를 PostgreSQL 개발 연결 확인용으로 옮긴 파일이었으며 M0 운영 스키마의 정본이
+아니었다. 문서가 이전에 참조한 `migrate.js`, `V001`, `V002`는 Git 전체 이력에서도 추적된
+파일을 확인하지 못했으므로 구현 완료 증거로 사용하지 않는다.
 
-M0 migration은 [migrate.js](../../apps/api/src/db/migrate.js)가 관리한다. 파일명은 `V001__name.sql` 형식이며 `ops.schema_migration`에 version, filename, SHA-256 checksum과 적용 시각을 기록한다. runner는 PostgreSQL advisory lock으로 동시 실행을 직렬화하고 migration 한 건을 한 transaction으로 적용한다. 이미 적용된 파일이 없어지거나 checksum이 바뀌면 실행을 중단한다.
+향후 M0 migration은 `V001__name.sql` 형식으로 관리하고 `ops.schema_migration`에 version,
+filename, SHA-256 checksum과 적용 시각을 기록한다. runner는 PostgreSQL advisory lock으로
+동시 실행을 직렬화하고 migration 한 건을 한 transaction으로 적용한다. 이미 적용된 파일이
+없어지거나 checksum이 바뀌면 실행을 중단해야 한다.
 
-- [V001__create_m0_schema.sql](../../apps/api/db/migrations/V001__create_m0_schema.sql): `content`, `legal`, `analytics`, `ops`와 M0 애플리케이션 테이블·제약·인덱스
-- [V002__seed_m0_reference_data.sql](../../apps/api/db/migrations/V002__seed_m0_reference_data.sql): `meme / 짤 / true / ADMIN / 10` seed
-- 개발 연결 확인용 `init.sql`은 운영 Compose에서 사용하지 않는다.
+- `V001__create_m0_schema.sql`: `content`, `legal`, `analytics`, `ops`와 M0 애플리케이션 테이블·제약·인덱스
+- `V002__seed_m0_reference_data.sql`: `meme / 짤 / true / ADMIN / 10` seed
+- 개발 연결 확인용 init SQL은 운영 migration과 분리한다.
 - 출시할 약관·개인정보처리방침은 본문 확정 후 별도 순번 seed migration으로 추가한다.
 
 ## 11. 실행 준비 gate
 
-기본 schema와 seed는 구현했으며, 다음 데이터 기능·검증은 아직 남아 있다.
+현재 실행 산출물이 없으므로 아래 항목은 모두 미검증 상태다. 향후 실제 migration·test 파일과
+실행 결과를 함께 확인한 항목만 완료로 바꾼다.
 
-- [x] `V001`에 application schema, 모든 table·constraint·partial index·composite FK를 PostgreSQL DDL로 구현
-- [x] `V002`에 `meme / 짤 / true / ADMIN / 10` seed 구현
+- [ ] `V001`에 application schema, 모든 table·constraint·partial index·composite FK를 PostgreSQL DDL로 구현
+- [ ] `V002`에 `meme / 짤 / true / ADMIN / 10` seed 구현
 - [ ] 출시 확정된 약관·개인정보처리방침 version을 별도 seed migration으로 구현
-- [x] 빈 PostgreSQL 18에 `V001 -> V002` 순차·동시 적용 test
-- [x] 동일 migration 재실행 차단, checksum 변경 거부와 적용 version 확인 test
+- [ ] 빈 PostgreSQL 18에 `V001 -> V002` 순차·동시 적용 test
+- [ ] 동일 migration 재실행 차단, checksum 변경 거부와 적용 version 확인 test
 - [ ] 이미지 선점 경쟁, 연결 image당 IMAGE block 정확히 한 건, 숨김 글 image 제거, block `alt_text`, 공지 순서 충돌, 낙관적 잠금, 멱등 key 경쟁 integration test
 - [ ] 상태별 시각 column과 정책 상태 제약 test
-- [x] 이벤트 집계 job 재시작 시 `view_count` 중복 증가 방지와 여러 batch의 일별 순 사용자 중복 제거 test
-- [x] 집계 완료 후 90일이 지난 raw 이벤트 삭제와 일별 집계 보존 test
-- [x] 중단된 `RUNNING` outbox 회수와 실패 8회 `DEAD` 전환 test
-- [x] 재공개 시 최초 `published_at` 유지와 private image 재승격 test
-- [x] `REMOVED` 전이와 private 원본 30일 지연 삭제 test
+- [ ] 이벤트 집계 job 재시작 시 `view_count` 중복 증가 방지와 여러 batch의 일별 순 사용자 중복 제거 test
+- [ ] 집계 완료 후 90일이 지난 raw 이벤트 삭제와 일별 집계 보존 test
+- [ ] 중단된 `RUNNING` outbox 회수와 실패 8회 `DEAD` 전환 test
+- [ ] 재공개 시 최초 `published_at` 유지와 private image 재승격 test
+- [ ] `REMOVED` 전이와 private 원본 30일 지연 삭제 test
 - [ ] rollback·restore 환경에 migration version 검증 추가
 
 모든 항목이 통과하기 전에는 데이터 계층을 “구현 준비 완료” 또는 “구현 완료”로 표시하지 않는다.

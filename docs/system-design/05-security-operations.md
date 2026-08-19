@@ -1,7 +1,8 @@
 # M0 보안·운영 설계
 
-- 문서 상태: 구현 기준안
+- 문서 상태: M0 보안·운영 설계 계약 · 현행 운영 검증 산출물 없음
 - 기준일: 2026-08-15
+- 정합성 검토일: 2026-08-19
 - 운영 인원: 초기 1명
 - 가용성 방식: 고가용성 대신 감지·백업·복구
 
@@ -323,7 +324,9 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 - DB backup 최근 26시간 이내
 - production placeholder `__SERVICE_DOMAIN__` 없음
 
-현재 `.gitignore`가 `package-lock.json`을 제외하고 있으므로 첫 구현 전에 이를 바로잡고 API·Web lockfile을 추적해야 한다.
+현재 `.gitignore`는 `package-lock.json`을 제외하지 않지만 `yarn.lock`은 제외한다. npm을 표준
+package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하고 `npm ci`로 검증한다.
+다른 package manager로 바꾸려면 `.gitignore`, CI 명령과 lockfile 정책을 함께 갱신한다.
 
 ### rollback
 

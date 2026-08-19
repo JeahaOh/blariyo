@@ -2,6 +2,7 @@
 
 - 문서 상태: M0 인프라 의사결정 정본
 - 기준일: 2026-08-15
+- 정합성 검토일: 2026-08-19
 - 역할: 배포 방향·비용 경계·공급자 선택을 정의한다. 스키마, API payload, container 자원값과 운영 명령은 정의하지 않는다.
 - 관련 문서: [서비스 기획서](./01-service-plan.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
 

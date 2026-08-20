@@ -9,31 +9,33 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "DEBUG=express:* nodemon --inspect src/app.js",
-    "test": "docker compose -f docker-compose.test.yml up -d --wait && NODE_ENV=test jest && docker compose -f docker-compose.test.yml down",
-    "test:watch": "NODE_ENV=test jest --watch",
-    "test:coverage": "NODE_ENV=test jest --coverage",
-    "test:setup": "NODE_ENV=test node src/tests/setup.js",
-    "test:docker:up": "docker compose -f docker-compose.test.yml up -d --wait",
-    "test:docker:down": "docker compose -f docker-compose.test.yml down"
+    "db:migrate": "node src/db/migrate.js",
+    "events:aggregate": "node src/jobs/runEventAggregation.js",
+    "outbox:run": "node src/jobs/runOutboxWorker.js",
+    "posts:publish-due": "node src/jobs/runScheduledPublishing.js",
+    "test": "npm run test:unit && npm run test:migrate && npm run test:public-api",
+    "test:unit": "jest tests/migrate.test.js tests/openapi.test.js tests/adminPostCommand.test.js tests/adminPostLifecycle.test.js tests/outboxProcessor.test.js --runInBand",
+    "test:migrate:unit": "jest tests/migrate.test.js --runInBand",
+    "test:openapi": "jest tests/openapi.test.js --runInBand",
+    "test:migrate": "docker compose -f docker-compose.migration-test.yml up -d --wait && RUN_MIGRATION_INTEGRATION=1 jest tests/migrations.integration.test.js --runInBand; status=$?; docker compose -f docker-compose.migration-test.yml down -v; exit $status",
+    "test:public-api": "docker compose -f docker-compose.migration-test.yml up -d --wait && RUN_PUBLIC_API_INTEGRATION=1 jest tests/publicContent.integration.test.js --runInBand; status=$?; docker compose -f docker-compose.migration-test.yml down -v; exit $status",
+    "test:watch": "jest tests/migrate.test.js tests/openapi.test.js --watch",
+    "test:coverage": "jest tests/migrate.test.js tests/openapi.test.js --coverage"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^5.1.1",
-    "cors": "^2.8.5",
+    "@aws-sdk/client-s3": "^3.1111.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "helmet": "^7.1.0",
-    "joi": "^17.11.0",
-    "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0",
+    "multer": "^2.2.0",
     "pg": "^8.23.0",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "winston": "^3.11.0"
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
+    "@readme/openapi-parser": "^7.0.1",
     "jest": "^29.7.0",
     "nodemon": "^3.0.2",
     "supertest": "^6.3.4"

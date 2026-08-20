@@ -5,7 +5,7 @@
 - 내부 코드명: `blariyo`
 - 공개 서비스명: `블라리요`
 - 현재 단계: M0 구현 진행 중
-- 현재 구현: PostgreSQL migration·seed 완료, Express Core API와 Nuxt BFF 구현 전
+- 현재 구현: PostgreSQL migration·seed, 공개 Board/Post·정책 Core/BFF API, SSR 목록/상세, 내부 이벤트 수집·일별 집계, 관리자 게시글 화면·command·lifecycle·outbox worker, 전체 M0 OpenAPI
 
 ## 문서 정본
 
@@ -32,6 +32,8 @@ blariyo/
   apps/
     api/                    Express Core API와 M0 migration
       db/migrations/        versioned PostgreSQL SQL
+    web/                    Nuxt SSR Web와 외부 BFF
+      server/api/v1/        same-origin 공개 API
     data/postgresql/        local PostgreSQL data boundary
     init/postgresql/        development connection schema
     docker-compose.yml      local development Compose
@@ -44,16 +46,13 @@ blariyo/
     session-log/            decision and review history
 ```
 
-Nuxt application, production infrastructure와 M0 OpenAPI/routes는 아직 구현되지 않았다.
+Nuxt의 공개 Board/Post·정책 BFF route, 반응형 SSR 목록·상세 page, 내부 이벤트 수집·일별 집계, BFF 외부 관리자 인증 경계, 관리자 게시글 화면·API·outbox worker와 전체 M0 OpenAPI는 구현됐다. 정책 화면과 production infrastructure는 아직 구현되지 않았다.
 
 ## 다음 실행 산출물
 
-1. M0 OpenAPI `3.1.x` source와 example validation
-2. 공개 board·list·detail Core API
-3. Nuxt BFF의 nested 공개 route
-4. 관리자 image·draft·publish·hide route
-5. Nuxt 목록·상세와 정책 화면
-6. backup restore drill과 배포 smoke test
+1. 정책 화면
+2. OpenAPI example 자동 validation
+3. backup restore drill과 배포 smoke test
 
 data-model과 api-design의 미구현 gate는 각 문서 마지막 checklist에서 관리한다.
 

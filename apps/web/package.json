@@ -1,0 +1,28 @@
+{
+  "name": "blariyo-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.18.x"
+  },
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "test": "vitest run tests/admin-auth.unit.test.ts tests/admin-post.unit.test.ts tests/public-bff.e2e.test.ts",
+    "test:integration:bff-core": "docker compose -f ../api/docker-compose.migration-test.yml up -d --wait && RUN_BFF_CORE_INTEGRATION=1 vitest run --config vitest.integration.config.ts --reporter verbose; status=$?; docker compose -f ../api/docker-compose.migration-test.yml down -v; exit $status",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "jose": "^6.2.9",
+    "nuxt": "4.5.2"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "4.1.0",
+    "@types/node": "^24.10.0",
+    "typescript": "^5.9.3",
+    "vitest": "4.1.10",
+    "vue-tsc": "^3.2.0"
+  }
+}

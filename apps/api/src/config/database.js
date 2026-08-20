@@ -10,7 +10,7 @@ const pool = new Pool({
   max: Number(process.env.DB_POOL_MAX || 10),
   connectionTimeoutMillis: 5000,
   idleTimeoutMillis: 30000,
-  application_name: 'blariyo-api',
+  application_name: 'blariyo-core-api',
   options: '-c timezone=UTC -c statement_timeout=5000 -c lock_timeout=2000 -c idle_in_transaction_session_timeout=10000',
 });
 

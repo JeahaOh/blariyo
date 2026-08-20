@@ -1,8 +1,8 @@
 # 블라리요 분석·광고 계획
 
 - 문서 상태: M0 내부 조회·후속 GA4/광고 요구사항 정본
-- 기준일: 2026-08-14
-- 정합성 검토일: 2026-08-19
+- 기준일: 2026-08-20
+- 정합성 검토일: 2026-08-20
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
 
 ## 1. 화면 기준
@@ -138,18 +138,24 @@ GA4는 M0 배포 범위가 아니다. 후속 단계에서 활성화한 뒤 분�
 - 외부 쇼핑몰 이동임을 버튼 문구에서 알 수 있게 한다.
 - 제휴 클릭은 `affiliate_click`으로 기록할 수 있다.
 
-## 10. 자동 수집 분석
+## 10. 수집 운영 측정
 
-- 후보 수집량과 실패는 내부 운영 로그로만 본다.
-- 후보 제목, 본문, 원문 URL을 GA4로 보내지 않는다.
-- 수집 worker는 초안·예약·발행 권한을 갖지 않는다.
+수집은 M0 범위이지만 제품 분석 이벤트가 아니라 운영 지표로만 다룬다.
+
+- 후보 수집량, 승격·반려 수, 실패와 차단은 내부 운영 로그·지표로만 본다.
+- 후보 제목, 본문, 원문 URL을 GA4나 제품 이벤트에 보내지 않는다.
+- 수집 실행 주체는 초안·예약·발행 권한을 갖지 않는다.
 - 운영자가 확인한 뒤 이미지 저장, 초안, 즉시 또는 예약 발행을 실행한다.
+- 출처별 요청 수, 오류율, 차단 응답은 출처 단위로 집계해 상한과 자동 비활성 판단에 사용한다.
+- 수집 지표는 `analytics` 제품 이벤트 schema를 사용하지 않는다.
 
 ## 11. Feature flag 제안
 
 ```text
 ANALYTICS_ENABLED=true
 GA4_ENABLED=false
+COLLECT_MANUAL_URL_ENABLED=true
+COLLECT_LIST_CRAWL_ENABLED=false
 SOCIAL_LOGIN_NAVER_ENABLED=false
 SOCIAL_LOGIN_KAKAO_ENABLED=false
 SOCIAL_LOGIN_GOOGLE_ENABLED=false
@@ -163,6 +169,8 @@ ADS_ADBLOCK_NOTICE_ENABLED=false
 AFFILIATE_ENABLED=false
 ```
 
+`COLLECT_LIST_CRAWL_ENABLED`는 출처별 활성 여부와 별개인 전체 차단 스위치다. 목록 수집은 출처의 robots 확인 결과가 허용일 때만 출처 단위로 켠다.
+
 광고와 GA4를 실제로 시작하는 날짜나 트래픽 기준은 아직 정하지 않았다. 정하지 않은 MAU, PV, 수익 목표를 시작 조건으로 사용하지 않는다.
 
 ## 12. 검수 기준
@@ -173,6 +181,7 @@ AFFILIATE_ENABLED=false
 - 숨김 게시글의 콘텐츠 정보가 내부 이벤트에 남지 않는다.
 - 게시판 추가 시 `boardSlug` 값만 확장되고 이벤트 구조는 바뀌지 않는다.
 - GA4·광고 tag와 선택 동의 배너가 로드되지 않는다.
+- 수집 후보와 출처 정보가 제품 분석 이벤트에 남지 않는다.
 
 ### 후속 GA4·광고·M1
 

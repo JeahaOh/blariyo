@@ -1,8 +1,8 @@
 # 블라리요 M0 시스템 설계
 
 - 문서 상태: M0 기술 계약 정본 · 현행 실행 산출물 없음
-- 기준일: 2026-08-15
-- 정합성 검토일: 2026-08-19
+- 기준일: 2026-08-20
+- 정합성 검토일: 2026-08-20
 - 상위 기획: [서비스 기획서](../planning/01-service-plan.md)
 - 화면 상위 정본: [화면 설계](../planning/03-screen-design.md)
 - 정적 검토물: [반응형 퍼블리싱](../publishing/responsive/README.md)
@@ -27,6 +27,7 @@
 | 시스템 경계 | 아키텍처 흐름 정의 | 없음 | 설계 계약 유지, 구현 미검증 |
 | 데이터 | PostgreSQL table·constraint·상태·보존 계약 | 없음 | 설계 계약 유지, migration·test 미검증 |
 | API | 외부 BFF·내부 Core request·response·오류 계약 | 없음 | 설계 계약 유지, OpenAPI·route·test 미검증 |
+| 수집 | 출처·후보 큐·검수·요청 상한 계약 | 없음 | 설계 계약 유지, fetch·robots·승격 test 미검증 |
 | 인프라 | 공급자·network·resource 기준 | production 계정·domain 미확정 | 설계 완료, 배포 미검증 |
 | 보안·운영 | 접근·backup·restore·runbook | production restore drill 미실시 | 설계 완료, 운영 미검증 |
 
@@ -44,16 +45,17 @@ M0 핵심 범위는 다음과 같다.
 - 운영자 전용 게시글 초안·예약·발행·숨김
 - 복수 본문 이미지, 출처, 정책 버전
 - 최소 내부 조회 이벤트
+- 운영자 URL 지정 수집과 허용 출처 목록 수집, 후보 큐와 검수·초안 승격
 - 외부 이미지 저장소, 백업과 복구
 - 단일 서버·단일 리전 저비용 운영
 
-소셜 회원가입·로그인, 사용자 작성 게시판, 자동 수집, 광고와 GA4는 확장 지점만 정의한다. M0 핵심을 배포하기 전 필수 의존성으로 만들지 않는다.
+소셜 회원가입·로그인, 사용자 작성 게시판, 광고와 GA4는 확장 지점만 정의한다. M0 핵심을 배포하기 전 필수 의존성으로 만들지 않는다. 수집은 M0 핵심에 포함하되 공개 읽기 경로와 분리해, 수집이 멈춰도 공개 목록·상세와 운영자 발행이 계속 동작하게 한다.
 
 ## 문서 구성
 
 | 문서 | 역할 |
 | --- | --- |
-| [01-system-architecture.md](./01-system-architecture.md) | 시스템 경계, 컴포넌트, 요청·발행·숨김 흐름 |
+| [01-system-architecture.md](./01-system-architecture.md) | 시스템 경계, 컴포넌트, 요청·발행·숨김·수집 흐름 |
 | [02-data-model.md](./02-data-model.md) | ERD, 테이블·인덱스·상태 전이·보존 계약 |
 | [03-api-design.md](./03-api-design.md) | 공개·관리자 API와 공통 응답·오류 계약 |
 | [04-infrastructure-design.md](./04-infrastructure-design.md) | 저비용 사업자 비교, 배포 토폴로지와 비용 상한 |
@@ -67,8 +69,9 @@ M0 핵심 범위는 다음과 같다.
 | 웹·BFF | Nuxt SSR + same-origin `/api/v1` 외부 계약 |
 | Core API | Express, Docker app network에서 Web만 HTTP 접근; cron은 단발성 command |
 | 데이터베이스 | PostgreSQL 18 단일 인스턴스 |
-| DB schema | `content`, `legal`, `analytics`, `ops`; M1 이후 schema는 단계별 migration에서 추가 |
+| DB schema | `content`, `legal`, `analytics`, `ops`, `collect`; M1 이후 schema는 단계별 migration에서 추가 |
 | 이미지 | Cloudflare R2 Standard, 비공개 원본 bucket과 공개 media bucket 분리 |
+| 수집 | Core API의 `SourceFetcher` adapter, 출처 allowlist·robots·요청 상한 강제, 목록 수집은 API image 단발성 command |
 | 엣지 | Cloudflare Free DNS·CDN·Universal SSL |
 | 원본 연결 | Cloudflare Tunnel로 공개 inbound port 제거 |
 | 운영자 접근 | BFF의 교체 가능한 외부 인증 adapter, Core의 provider-neutral 서비스 토큰 검증 |

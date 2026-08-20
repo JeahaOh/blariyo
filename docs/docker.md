@@ -1,7 +1,7 @@
 # 개발 환경 재개 전 안전 기준
 
 - 문서 상태: 설계 전용 브랜치 기준 · 현행 실행 환경 없음
-- 정합성 검토일: 2026-08-19
+- 정합성 검토일: 2026-08-20
 
 현재 브랜치에는 `apps/`, Docker Compose, 애플리케이션 source, migration, seed와 로컬 DB
 초기화 파일이 없다. 따라서 이 저장소에서 실행할 수 있는 Docker 기동·초기화·migration 명령도
@@ -17,7 +17,7 @@
 
 1. [인프라 계획](./planning/02-infra-plan.md): PostgreSQL 18, Docker Compose와 저장소 방향
 2. [데이터 모델](./system-design/02-data-model.md): schema, migration과 seed 계약
-3. [인프라 설계](./system-design/04-infrastructure-design.md): container, network와 volume 계약
+3. [인프라 설계](./system-design/04-infrastructure-design.md): container, network, volume과 수집 outbound 경계 계약
 4. [보안·운영 설계](./system-design/05-security-operations.md): 권한, backup, restore와 배포 gate
 
 위 문서는 구현 계약이며 실행 완료 증거가 아니다. 실제 Compose·migration·test 파일과 실행

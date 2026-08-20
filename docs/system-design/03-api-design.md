@@ -1,8 +1,8 @@
 # M0 Web BFF API 설계
 
 - 문서 상태: M0 API 설계 계약 · 현행 Core·BFF·OpenAPI·test 산출물 없음
-- 기준일: 2026-08-15
-- 정합성 검토일: 2026-08-19
+- 기준일: 2026-08-20
+- 정합성 검토일: 2026-08-20
 - base path: `/api/v1`
 - content type: `application/json; charset=utf-8`
 
@@ -51,6 +51,14 @@ Board/Post BFF와 Core 내부 route가 향후 따라야 할 계약이며, 실제
 | 관리자 | `POST` | `/api/v1/admin/posts/:postId/hide` | 공개 글 우선 숨김 |
 | 관리자 | `POST` | `/api/v1/admin/posts/:postId/republish` | 숨김 글 재공개 |
 | 관리자 | `DELETE` | `/api/v1/admin/posts/:postId` | 숨김 글 최종 제거 |
+| 관리자 | `GET` | `/api/v1/admin/collect/sources` | 수집 출처 목록 |
+| 관리자 | `PATCH` | `/api/v1/admin/collect/sources/:sourceId` | 출처 활성·수집 방식·상한·robots 확인 결과 수정 |
+| 관리자 | `GET` | `/api/v1/admin/collect/candidates` | 수집 후보 검색 |
+| 관리자 | `GET` | `/api/v1/admin/collect/candidates/:candidateId` | 후보 상세와 이미지 후보 |
+| 관리자 | `POST` | `/api/v1/admin/collect/candidates` | 운영자 URL 지정 후보 생성 |
+| 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/retry` | 실패 후보 재수집 |
+| 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/reject` | 후보 반려 |
+| 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/draft` | 후보를 초안으로 승격 |
 
 M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
 
@@ -570,6 +578,7 @@ DELETE /api/v1/admin/images/:imageId
 - 동일 key의 첫 요청이 아직 처리 중이면 `409 IDEMPOTENCY_IN_PROGRESS`와 `Retry-After: 1`을 반환한다.
 - key scope는 HTTP method, route pattern과 provider-neutral admin actor의 조합이며 완료 결과를 24시간 보존한다.
 - `SCHEDULED`의 `scheduledAt`은 서버 수신 시각보다 최소 1분 이후여야 한다.
+- 예약·즉시 발행 모두 같은 게시판의 `SCHEDULED`·`PUBLISHED` 공지 위치 중복을 이 시점에 검증하고 겹치면 `409 PINNED_ORDER_CONFLICT`다. due scheduler가 공지 위치 때문에 실패하지 않게 한다.
 - 즉시 발행과 scheduler의 실제 공개 성공 후 cache purge outbox를 생성한다. 예약 등록만으로는 공개 cache를 변경하지 않는다.
 
 즉시 발행 성공:
@@ -624,9 +633,134 @@ DELETE /api/v1/admin/posts/:postId
 - `DELETE`: `HIDDEN_REVIEW -> REMOVED`; private 원본을 `PRIVATE_DELETE_PENDING`으로 바꾸고 복구 유예 30일 뒤 실행할 `OBJECT_DELETE_PRIVATE` task 생성
 - 물리 row 삭제 endpoint는 제공하지 않는다.
 - 세 command 모두 `Idempotency-Key`를 요구한다.
-- `republish` body는 `{ "lockVersion": 5, "pinnedPosition": null }`, `DELETE` body는 `{ "lockVersion": 5, "reasonCode": "RIGHTS_EMAIL" }`을 사용한다.
+- `republish` body는 `{ "lockVersion": 5, "pinnedPosition": null }`, `DELETE` body는 `{ "lockVersion": 5, "reasonCode": "REMOVE" }`을 사용한다.
+- command별 허용 `reasonCode`는 [데이터 모델 §7](./02-data-model.md)의 표를 따른다. 허용 목록 밖의 값은 `400 VALIDATION_FAILED`다. `hide`는 `RIGHTS_EMAIL`·`EDIT`, `DELETE`는 `REMOVE`만 받는다.
+- `republish` 시 지정한 `pinnedPosition`이 같은 게시판의 `SCHEDULED`·`PUBLISHED` 공지와 겹치면 `409 PINNED_ORDER_CONFLICT`다.
 - 각 성공 응답은 `postId`, 변경된 `status`, 증가한 `lockVersion`, `updatedAt`을 반환한다.
 - cache purge는 DB 상태 변경과 outbox 기록이 commit된 뒤 수행한다. purge 실패는 공개 상태를 rollback하지 않고 outbox retry로 복구한다.
+
+## 5-1. 수집 관리자 API
+
+수집 API는 모두 관리자 인증이 필요하고 공개 API에 노출하지 않는다. 외부 사이트 요청은 Core의 `SourceFetcher` adapter만 수행한다.
+
+### 수집 출처
+
+`GET /api/v1/admin/collect/sources`
+
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "sourceId": 3,
+        "name": "출처 표시명",
+        "host": "example.com",
+        "fetchMode": "URL_ONLY",
+        "listUrl": null,
+        "parserType": "MANUAL",
+        "isActive": true,
+        "isListCrawlEnabled": false,
+        "robotsAllowed": null,
+        "robotsCheckedAt": null,
+        "requestIntervalMs": 5000,
+        "dailyFetchLimit": 200,
+        "lastFetchedAt": null,
+        "lastErrorCode": null,
+        "disabledReasonCode": null,
+        "lockVersion": 1
+      }
+    ]
+  },
+  "meta": { "requestId": "01J..." }
+}
+```
+
+`PATCH /api/v1/admin/collect/sources/:sourceId` 는 `lockVersion`과 함께 `isActive`, `fetchMode`, `listUrl`, `parserType`, `isListCrawlEnabled`, `robotsAllowed`, `requestIntervalMs`, `dailyFetchLimit` 만 수정한다.
+
+- `isListCrawlEnabled: true` 는 `fetchMode=LIST_CRAWL`, `listUrl` 존재, `robotsAllowed=true` 를 모두 만족할 때만 허용하고 그 외에는 `409 SOURCE_STATE_CONFLICT`다.
+- `robotsAllowed` 를 바꾸면 서버가 `robotsCheckedAt` 을 현재 시각으로 기록한다. 클라이언트가 확인 시각을 직접 보내지 않는다.
+- `requestIntervalMs` 는 `1000` 이상, `dailyFetchLimit` 는 `1~10000`이다.
+- `host` 와 `baseUrl` 은 수정 대상이 아니다. 다른 host를 쓰려면 새 출처를 만든다.
+- 출처 생성·삭제 endpoint는 M0에 두지 않는다. 출처 추가는 순번 seed migration으로 처리하고, 중단은 `isActive=false`로 표현한다.
+
+### 후보 검색과 상세
+
+`GET /api/v1/admin/collect/candidates?status=NEW&page=1`
+
+| query | 타입 | 기본값 | 규칙 |
+| --- | --- | --- | --- |
+| `status` | string | 없음 | 생략 또는 단일 후보 상태 |
+| `sourceId` | integer | 없음 | 생략 또는 출처 식별자 |
+| `discoveryMode` | string | 없음 | `MANUAL_URL`, `LIST_CRAWL` |
+| `duplicateOnly` | boolean | `false` | 중복 표시된 후보만 |
+| `page` | integer | `1` | `1~10000` |
+
+page size는 50으로 고정하고 `fetchedAt DESC, candidateId DESC`로 정렬한다. item은 `candidateId`, `sourceId`, `sourceName`, `originUrl`, `title`, `status`, `discoveryMode`, `imageCandidateCount`, `duplicatePostId`, `postId`, `rejectReasonCode`, `fetchErrorCode`, `fetchedAt`, `lockVersion`을 포함한다.
+
+`GET /api/v1/admin/collect/candidates/:candidateId` 는 위 필드에 이미지 후보 목록을 더한다. 각 이미지 후보는 `candidateImageId`, `position`, `remoteUrl`, `status`, `imageId`, `previewPath`(저장된 경우), `fetchErrorCode`를 가진다. 응답에 원문 응답 HTML, 내부 예외 메시지와 storage key를 넣지 않는다.
+
+### 운영자 URL 지정 후보 생성
+
+`POST /api/v1/admin/collect/candidates`
+
+```json
+{ "originUrl": "https://example.com/board/12345" }
+```
+
+- `Idempotency-Key` header를 필수로 받고 post command와 같은 actor·scope·key 규칙을 적용한다.
+- `originUrl`은 `https`만 허용하고 최대 2048자다. 서버가 정규화한 뒤 처리한다.
+- 정규화 URL의 host가 활성 수집 출처와 일치하지 않으면 `403 SOURCE_NOT_ALLOWED`다.
+- 출처의 `robots.txt`가 해당 경로를 금지하면 `403 ROBOTS_DISALLOWED`다.
+- 출처의 요청 간격 또는 일일 상한을 넘으면 `429 SOURCE_RATE_LIMITED`와 `Retry-After`를 반환한다.
+- 정규화 URL이 이미 후보로 있으면 기존 후보를 `409 CANDIDATE_DUPLICATE`와 함께 알리고 새로 만들지 않는다.
+- 대상 응답이 실패·timeout·비HTML이거나 파싱에서 제목·이미지 후보를 얻지 못하면 후보를 `FETCH_FAILED`로 만들고 `201`을 반환한다. 운영자가 화면에서 사유를 보고 재시도 또는 반려할 수 있게 한다.
+- 이미 발행된 게시글과 같은 원문 URL이면 `duplicatePostId`를 채워 반환한다. 생성 자체를 막지 않는다.
+- 성공은 `201`과 `candidateId`, `status`, `lockVersion=1`, `duplicatePostId`, 이미지 후보 수를 반환한다.
+- 이 요청은 외부 사이트를 1회만 호출한다. redirect는 같은 출처 host 안에서 최대 3회까지 따르고 그 밖은 실패로 처리한다.
+
+### 재수집과 반려
+
+```text
+POST /api/v1/admin/collect/candidates/:candidateId/retry
+POST /api/v1/admin/collect/candidates/:candidateId/reject
+```
+
+- `retry` body는 `{ "lockVersion": 1 }`이며 `FETCH_FAILED`에서만 허용한다. 다른 상태는 `409 CANDIDATE_STATE_CONFLICT`다.
+- `retry`도 출처 allowlist·robots·요청 상한을 다시 확인한다.
+- `reject` body는 `{ "lockVersion": 1, "reasonCode": "LOW_QUALITY" }`이며 허용 코드는 `DUPLICATE`, `LOW_QUALITY`, `RIGHTS_RISK`, `NOT_FUNNY`, `SOURCE_GONE`, `OTHER`다.
+- `reject`는 `NEW`와 `FETCH_FAILED`에서만 허용하고 성공 시 `status=REJECTED`, `reviewedAt`, 증가한 `lockVersion`을 반환한다.
+
+### 후보 초안 승격
+
+`POST /api/v1/admin/collect/candidates/:candidateId/draft`
+
+```json
+{
+  "lockVersion": 1,
+  "boardSlug": "meme",
+  "title": "게시글 제목",
+  "source": { "name": "출처명", "url": "https://example.com/board/12345" },
+  "candidateImageIds": [77, 78],
+  "leadText": "본문 첫 문단",
+  "acknowledgeDuplicate": false
+}
+```
+
+- `Idempotency-Key` header를 필수로 받는다.
+- `NEW` 상태에서만 허용한다. 그 외에는 `409 CANDIDATE_STATE_CONFLICT`다.
+- `candidateImageIds`는 해당 후보의 이미지 후보여야 하고 1~20건이다. 순서가 본문 IMAGE block 순서가 된다.
+- `leadText`를 보내면 첫 TEXT block으로 넣는다. 생략하면 IMAGE block만으로 초안을 만든다.
+- `title`을 생략하면 후보 제목을 사용한다. 후보 제목도 없으면 `400 VALIDATION_FAILED`다.
+- `source`를 생략하면 출처명은 출처 표시명, URL은 후보 `originUrl`을 사용한다.
+- `duplicatePostId`가 있는 후보는 `acknowledgeDuplicate: true` 없이는 `409 CANDIDATE_DUPLICATE`다.
+- 서버는 선택한 이미지 후보를 `SourceFetcher`로 가져와 관리자 업로드와 같은 MIME·magic byte·decode·pixel·재인코딩 검증을 적용하고 private 원본 bucket에 저장한다. 하나도 저장하지 못하면 후보를 `NEW`로 유지하고 `502 SOURCE_FETCH_FAILED`를 반환한다.
+- 이미지 저장 후 초안 생성·이미지 선점·block insert·상태 이력·후보 `APPROVED` 전환을 한 transaction에서 commit한다. transaction 실패 시 후보 상태는 바뀌지 않고 저장된 이미지는 staging orphan 정리 대상이 된다.
+- 성공은 `201`과 `postId`, `status=DRAFT`, `lockVersion=1`, `candidateId`, `storedImageIds`를 반환한다. 이후 편집·발행은 기존 게시글 command를 사용한다.
+
+### 목록 수집 실행
+
+목록 수집은 HTTP endpoint로 제공하지 않는다. `npm run collect:crawl-due` 단발성 command가 활성 출처를 읽어 후보를 적재하며, 같은 service·repository와 `system:collector` actor를 사용한다. 연속 실패·차단이 누적되면 command가 해당 출처의 목록 수집을 비활성하고 `disabledReasonCode`를 기록한다.
 
 ## 6. 상태 코드와 오류 코드
 
@@ -647,6 +781,17 @@ DELETE /api/v1/admin/posts/:postId
 | `409` | `IDEMPOTENCY_IN_PROGRESS` | 같은 key의 첫 요청 처리 중 |
 | `409` | `IMAGE_ALREADY_ATTACHED` | 다른 게시글이 staging image를 선점 |
 | `409` | `IMAGE_STATE_CONFLICT` | 현재 image 상태와 요청 command 충돌 |
+| `403` | `SOURCE_NOT_ALLOWED` | 등록·활성된 수집 출처가 아닌 대상 |
+| `403` | `ROBOTS_DISALLOWED` | 출처 `robots.txt`가 금지한 경로 |
+| `404` | `SOURCE_NOT_FOUND` | 수집 출처 미존재 |
+| `404` | `CANDIDATE_NOT_FOUND` | 수집 후보 미존재 |
+| `409` | `SOURCE_STATE_CONFLICT` | 목록 수집 활성 조건 미충족 등 출처 상태 충돌 |
+| `409` | `SOURCE_VERSION_CONFLICT` | 출처 낙관적 잠금 충돌 |
+| `409` | `CANDIDATE_STATE_CONFLICT` | 현재 후보 상태에서 command 불가 |
+| `409` | `CANDIDATE_VERSION_CONFLICT` | 후보 낙관적 잠금 충돌 |
+| `409` | `CANDIDATE_DUPLICATE` | 같은 원문 URL의 후보·게시글 존재 |
+| `429` | `SOURCE_RATE_LIMITED` | 출처 요청 간격·일일 상한 초과 |
+| `502` | `SOURCE_FETCH_FAILED` | 대상 사이트 응답·파싱·이미지 저장 실패 |
 | `413` | `UPLOAD_TOO_LARGE` | 파일·요청 제한 초과 |
 | `413` | `REQUEST_TOO_LARGE` | JSON 요청 본문 크기 제한 초과 |
 | `415` | `UNSUPPORTED_MEDIA_TYPE` | 허용하지 않은 파일 |
@@ -665,6 +810,7 @@ DELETE /api/v1/admin/posts/:postId
 | policies | `public, max-age=60, s-maxage=300` |
 | events | `no-store` |
 | admin | `private, no-store` |
+| admin collect | `private, no-store` |
 | health | `no-store` |
 | error·404 | `no-store` |
 
@@ -680,6 +826,9 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 6. 이미지 staging과 초안 command
 7. 발행·예약·예약 취소·숨김·재공개·최종 삭제·outbox
 8. 내부 이벤트·식별자 초기화와 일별 집계
+9. 수집 출처 조회·수정과 운영자 URL 지정 후보 생성
+10. 후보 검색·상세·재수집·반려와 초안 승격
+11. 목록 수집 단발성 command와 출처 자동 비활성
 
 ## 9. 실행 준비 gate
 
@@ -722,6 +871,17 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] 관리자 게시글 상세의 비공개 상태·TEXT/IMAGE block·storage key 비노출 contract test
 - [ ] BFF 관리자 query validation·응답 allowlist mapping·Core 내부 인증 header 전달 test
 - [ ] `/internal/health/ready` migration version 불일치 test
+- [ ] 수집 endpoint가 관리자 인증 없이 호출될 때 `401`·`403`인지, 공개 route에 노출되지 않는지 test
+- [ ] 미등록·비활성 host, robots 금지 경로, 사설·loopback IP 대상 요청 거부 contract test
+- [ ] 출처 요청 간격·일일 상한 초과 시 `429`와 `Retry-After` contract test
+- [ ] 정규화 URL 중복 요청의 `409 CANDIDATE_DUPLICATE`와 동시 요청 경쟁 test
+- [ ] fetch·파싱 실패가 `FETCH_FAILED` 후보로 기록되고 재수집이 상태를 되돌리는 contract test
+- [ ] 후보 반려 사유 코드 허용 목록과 상태 전이 test
+- [ ] 후보 승격이 이미지 검증·재인코딩을 거쳐 초안·이미지·상태 이력·후보 상태를 한 transaction으로 commit하는 integration test
+- [ ] 후보 승격 실패 시 후보 상태 유지와 저장 이미지 orphan 분류 test
+- [ ] 중복 후보의 `acknowledgeDuplicate` 없는 승격 차단 test
+- [ ] 수집 응답에 원문 HTML·storage key·내부 오류 상세가 없는지 응답 allowlist test
+- [ ] redirect 3회 초과·비HTML·응답 크기 초과 거부 test
 - [ ] M0에 포함하지 않는 legacy 회원 endpoint와 Swagger UI가 Core API에서 공개되지 않는지 test
 
 모든 항목이 통과하기 전에는 API 계층을 “구현 준비 완료” 또는 “구현 완료”로 표시하지 않는다.

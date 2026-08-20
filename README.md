@@ -54,8 +54,9 @@ blariyo/
 2. 공개 board·list·detail Core API
 3. Nuxt BFF의 nested 공개 route
 4. 관리자 image·draft·publish·hide route
-5. Nuxt 목록·상세와 정책 화면
-6. backup restore drill과 배포 smoke test
+5. 수집 출처·후보 Core API와 `SourceFetcher` adapter
+6. Nuxt 목록·상세, 정책 화면과 관리자 후보 검수 화면
+7. backup restore drill과 배포 smoke test
 
 data-model과 api-design의 미구현 gate는 각 문서 마지막 checklist에서 관리한다.
 

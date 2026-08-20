@@ -11,6 +11,7 @@
 | 인프라 방향과 비용 전제 | [인프라 계획](../planning/02-infra-plan.md) |
 | 화면 흐름과 상태 | [화면 설계](../planning/03-screen-design.md) |
 | 분석·광고 적용 시점 | [분석·광고 계획](../planning/04-analytics-ad-plan.md) |
+| 콘텐츠 수집 범위와 규칙 | [서비스 기획 §8](../planning/01-service-plan.md), [시스템 아키텍처](../system-design/01-system-architecture.md), [보안·운영](../system-design/05-security-operations.md) |
 | 비교 기준과 수용 조건 | [벤치마크 명세](../planning/05-benchmark-spec.md) |
 | 문구와 색상 후보 | [문구 후보](../planning/06-copy-candidates.md), [색상표](../planning/07-color-palette.md) |
 | 시스템 경계·DB·API·운영 | [시스템 설계](../system-design/README.md) |

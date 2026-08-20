@@ -1,8 +1,8 @@
 # M0 저비용 인프라 설계
 
 - 문서 상태: M0 인프라 설계 계약 · 현행 배포 산출물 없음
-- 기준일: 2026-08-15
-- 정합성 검토일: 2026-08-19
+- 기준일: 2026-08-20
+- 정합성 검토일: 2026-08-20
 - 가격 기준: 2026-08-14, USD, 세금·환율·도메인·메일 비용 제외
 - 관련 문서: [시스템 아키텍처](./01-system-architecture.md), [보안·운영](./05-security-operations.md)
 
@@ -184,6 +184,8 @@ Internet
 - `edge`에는 `cloudflared`·`nginx`·`web`, `app`에는 `web`·`api`, `data`에는 `api`·`postgresql`만 연결한다.
 - Nginx에는 `api` upstream을 두지 않는다. `web`만 `api`에, `api`만 `postgresql`에 접근한다.
 - backup job은 `postgresql`과 R2 endpoint에만 접근한다.
+- 외부 사이트로 나가는 수집 outbound HTTP는 `api` container에서만 허용한다. `web`, `nginx`, `postgresql`은 외부 사이트를 호출하지 않는다.
+- 수집 요청은 등록된 출처 host로만 나가고, 사설·loopback·link-local·metadata 주소(`169.254.169.254` 포함)로 해석되는 대상은 adapter가 차단한다.
 
 ## 5. Docker Compose 자원 기준
 
@@ -197,6 +199,7 @@ Internet
 | api | 0.75 | 512MB |
 | postgresql | 1.25 | 2GB |
 | backup 단발성 | 0.50 | 512MB |
+| collect 단발성 | 0.50 | 384MB |
 
 합계 limit은 물리 CPU보다 클 수 있지만 reservation은 설정하지 않는다. PostgreSQL과 SSR이 동시에 폭주하지 않는 M0 저트래픽을 전제로 한다.
 
@@ -229,6 +232,13 @@ M0에서는 별도 상시 staging 서버를 두지 않는다. 배포 후보는 C
 public config
   SERVICE_ORIGIN
   IMAGE_ORIGIN
+  NUXT_TRUSTED_CLIENT_IP_HEADER
+  NUXT_KAKAO_JS_KEY
+  COLLECT_USER_AGENT
+  COLLECT_MANUAL_URL_ENABLED
+  COLLECT_LIST_CRAWL_ENABLED
+  COLLECT_FETCH_TIMEOUT_MS
+  COLLECT_MAX_RESPONSE_BYTES
   DB_HOST
   DB_PORT
   DB_NAME
@@ -244,7 +254,7 @@ runtime secret
   CORE_SERVICE_TOKEN
   NUXT_ADMIN_ACTOR_HMAC_SECRET
   NUXT_ADMIN_IDENTITY_PROVIDER
-  NUXT_ADMIN_OPERATOR_ID
+  NUXT_ADMIN_OPERATOR_MAP_FILE
   NUXT_CLOUDFLARE_ACCESS_AUDIENCE
   NUXT_CLOUDFLARE_ACCESS_TEAM_DOMAIN
   R2_PRIVATE_ACCESS_KEY_ID
@@ -260,6 +270,10 @@ runtime secret
   CF_ZONE_ID
   CF_CACHE_PURGE_TOKEN
 ```
+
+`NUXT_TRUSTED_CLIENT_IP_HEADER`는 이벤트 IP 제한에 사용할 단일 header 이름이며 Cloudflare Tunnel 운영값은 `cf-connecting-ip`다. `NUXT_KAKAO_JS_KEY`는 카카오 공유 script에 전달하는 공개 key로 비밀값이 아니지만 도메인 등록과 함께 관리한다. `COLLECT_USER_AGENT`는 블라리요를 식별할 수 있는 문자열과 연락 수단을 포함하고, `COLLECT_MANUAL_URL_ENABLED`·`COLLECT_LIST_CRAWL_ENABLED`는 출처별 설정과 별개인 전체 차단 스위치다. 출처별 요청 간격·일일 상한·robots 확인 결과는 환경변수가 아니라 `collect.source` 데이터로 관리한다.
+
+`NUXT_ADMIN_OPERATOR_MAP_FILE`은 외부 identity를 안정적인 내부 `operatorId`로 매핑하는 파일 경로다. 운영자가 여러 명일 수 있으므로 단일 값 환경변수를 사용하지 않는다. 파일은 `{"identity": "<외부 식별값>", "operatorId": "<내부 식별자>", "active": true}` 항목의 목록이며 BFF container에만 읽기 전용으로 mount한다. identity를 제거해도 기존 `operatorId`는 재사용하지 않고 감사 이력을 보존한다. provider를 교체하면 identity 값만 새 provider 기준으로 바꾸고 `operatorId`는 유지한다.
 
 DB username은 각 역할의 고정된 비밀 아닌 설정이고 password 값은 환경변수에 직접 넣지 않는다. API와 application command에는 `APP_DB_*`, migration 단발성 container에는 `MIGRATION_DB_*`, backup container에는 `BACKUP_DB_*`만 주입한다. 각 `*_PASSWORD_FILE`은 해당 container에만 읽기 전용으로 mount한 secret 경로이며 세 역할은 credential을 재사용하지 않는다.
 
@@ -289,6 +303,8 @@ DB username은 각 역할의 고정된 비밀 아닌 설정이고 password 값�
 public 배포본 월 약 0.47GB
 private canonical 원본 포함 월 약 0.94GB
 ```
+
+수집 후보는 원문 URL·제목·이미지 후보 URL만 DB에 저장하므로 object storage를 쓰지 않는다. 이미지 저장은 승격 시점에만 발생하고 위 예산에 이미 포함된다. 후보 행은 30일 보존 기준으로 정리한다.
 
 M0 기본은 다음과 같다.
 

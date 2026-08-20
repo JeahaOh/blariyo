@@ -2,6 +2,7 @@
 
 - 문서 상태: 카피 결정 보류, 4차 감사 정합성 확인
 - 기준일: 2026-08-12
+- 정합성 검토일: 2026-08-20
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
 - 서비스 명칭: `블라리요`
 

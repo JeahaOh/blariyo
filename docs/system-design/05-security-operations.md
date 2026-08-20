@@ -1,8 +1,8 @@
 # M0 보안·운영 설계
 
 - 문서 상태: M0 보안·운영 설계 계약 · 현행 운영 검증 산출물 없음
-- 기준일: 2026-08-15
-- 정합성 검토일: 2026-08-19
+- 기준일: 2026-08-20
+- 정합성 검토일: 2026-08-20
 - 운영 인원: 초기 1명
 - 가용성 방식: 고가용성 대신 감지·백업·복구
 
@@ -17,6 +17,8 @@
 | 권리 요청 숨김 | 운영자가 메일 확인 후 30분 이내 목표 |
 | 원시 이벤트 보존 | 90일 |
 | 보안 로그 보존 | 90일 |
+| 수집 후보 보존 | 미승격 후보 30일 |
+| 수집 출처 robots 재확인 | 90일마다 또는 차단 발생 시 |
 
 RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 검증에서 24시간 RPO를 받아들일 수 없게 되면 WAL archive와 point-in-time recovery 또는 관리형 DB 비용을 추가한다.
 
@@ -29,7 +31,9 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | SQL injection | parameterized query, validation, DB 최소 권한 |
 | 저장형 XSS | 게시글 TEXT는 plain text escape, 정책 HTML은 허용 목록 sanitize, CSP |
 | 악성 이미지 | MIME·magic byte·decode 검사, SVG 금지, 크기 제한 |
-| SSRF | source URL은 metadata로만 저장, 서버 fetch 금지 |
+| SSRF | 외부 fetch는 `SourceFetcher` adapter만 수행. 등록 출처 host allowlist, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 비HTML·비이미지 content-type 거부 |
+| 수집 대상 사이트 과부하·차단 | 출처별 요청 간격·일일 상한, 식별 가능한 User-Agent, `robots.txt` 준수, `403`·`429` 누적 시 자동 비활성 |
+| 수집 콘텐츠를 통한 저장형 공격 | 후보 제목은 plain text로 저장·escape, 원문 HTML 미저장, 이미지는 승격 시 magic byte·decode·재인코딩 |
 | secret 유출 | 저장소·image·log 제외, provider별 최소 권한 key |
 | 숨김 콘텐츠 cache 잔존 | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store |
 | VM·disk 소실 | R2 암호화 DB backup, image 원본 R2 저장 |
@@ -85,7 +89,14 @@ Content-Security-Policy:
   form-action 'self'
 ```
 
-GA4·광고·소셜 로그인을 활성화하기 전 CSP domain을 기능별로 검토한다. 편의를 위해 `*`나 광범위한 `unsafe-eval`을 추가하지 않는다.
+M0 공유 기능은 카카오 공유 script를 사용하므로 `script-src`에 카카오 script 호스트, `connect-src`에 카카오 API 호스트를 명시한다. 실제 호스트 값은 배포 전 카카오 개발자 문서로 확인해 고정하고, 확인 전에는 `(미정)`으로 두고 카카오 항목을 비활성한 상태로 배포한다. script를 불러올 수 없으면 공유 popup은 카카오 항목 없이 동작해야 한다.
+
+```text
+script-src 'self' (미정: 카카오 공유 script 호스트);
+connect-src 'self' (미정: 카카오 공유 API 호스트)
+```
+
+GA4·광고·소셜 로그인을 활성화하기 전 CSP domain을 기능별로 검토한다. 편의를 위해 `*`나 광범위한 `unsafe-eval`을 추가하지 않는다. 수집은 서버에서 수행하므로 CSP `connect-src`에 수집 대상 도메인을 추가하지 않는다.
 
 ### 입력 검증
 
@@ -93,10 +104,13 @@ GA4·광고·소셜 로그인을 활성화하기 전 CSP domain을 기능별로 
 - 관리자 이미지 multipart만 별도 최대 `100MiB/request`
 - title·IMAGE block alt·source 길이는 API schema와 DB 길이를 일치시킨다.
 - source URL은 `https`만 허용하고 사용자 클릭 링크에 `rel="noopener noreferrer"`를 사용한다.
-- source URL을 API 서버가 자동 fetch하지 않는다.
+- 게시글에 저장된 출처 URL을 서버가 배경에서 자동 fetch하지 않는다. 외부 요청은 운영자 요청 또는 목록 수집 command에서 `SourceFetcher` adapter를 통해서만 발생한다.
 - 게시글 TEXT block은 HTML·Markdown으로 해석하지 않고 출력 시 escape한다.
 - 정책 `body_html`은 저장·미리보기에 같은 허용 목록 sanitizer를 사용한다. script·style·iframe·form·SVG·`on*` 속성·inline style을 허용하지 않는다.
 - 정책 링크는 `https`, `mailto`, 서비스 내부 상대 경로와 `#` anchor만 허용하고 외부 새 창 링크에는 `rel="noopener noreferrer"`를 강제한다.
+- 수집 대상 URL은 `https`만 허용하고 최대 2048자다. 서버가 정규화한 뒤 등록 출처 host와 대조한다.
+- 수집으로 얻은 제목은 plain text로만 저장하고 원문 응답 HTML 전체는 저장하지 않는다.
+- 수집 응답의 content-type이 예상과 다르거나 `COLLECT_MAX_RESPONSE_BYTES`를 넘으면 즉시 중단한다.
 - 모든 DB query는 placeholder를 사용한다.
 
 ### 이미지
@@ -121,11 +135,29 @@ GA4·광고·소셜 로그인을 활성화하기 전 CSP domain을 기능별로 
 
 GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외부 참조 위험 때문에 M0에서 받지 않는다.
 
+### 수집
+
+수집은 외부 사이트에 요청을 보내는 유일한 경로이므로 아래 통제를 코드로 강제한다.
+
+1. 대상 URL 정규화 후 등록·활성 출처의 host와 정확히 일치하는지 확인
+2. 출처 `robots.txt` 판정 확인. 금지 경로와 미확인 출처의 목록 수집은 거부
+3. 출처별 최소 요청 간격과 일일 상한 확인
+4. DNS 해석 결과가 공인 주소인지 확인. 사설·loopback·link-local·metadata 주소는 거부
+5. timeout, 응답 크기 상한, redirect 최대 3회, 같은 출처 host 이탈 금지
+6. content-type 확인. 문서 요청은 HTML, 이미지 요청은 허용 이미지 형식만 수용
+7. 이미지는 관리자 업로드와 같은 magic byte·decode·pixel·재인코딩 절차 적용
+
+- 요청에는 `COLLECT_USER_AGENT`를 사용하고 서비스명과 연락 수단을 포함한다.
+- 로그인, CAPTCHA, 유료 담장, 접근 차단을 우회하지 않는다. 인증이 필요한 페이지는 수집하지 않는다.
+- `403`, `429`, robots 금지, timeout이 출처 기준 연속 임계를 넘으면 해당 출처의 목록 수집을 자동 비활성하고 사유를 기록한다. 재활성화는 운영자 확인 후에만 가능하다.
+- 대상 사이트가 중단 요청을 보내면 해당 출처를 즉시 비활성하고 이미 발행된 게시글은 권리 문의 절차로 처리한다.
+- 수집 실패·차단은 공개 읽기 ready 조건에 넣지 않는다. 수집이 멈춰도 공개 목록·상세와 운영자 발행은 계속 동작해야 한다.
+
 ## 5. Secret 관리
 
 | secret | 권한 |
 | --- | --- |
-| PostgreSQL app password | `content`·`legal`·`analytics`·`ops` DML·sequence 사용, migration 권한 없음 |
+| PostgreSQL app password | `content`·`legal`·`analytics`·`ops`·`collect` DML·sequence 사용, migration 권한 없음 |
 | PostgreSQL migration password | schema 변경, 배포 시에만 주입 |
 | R2 private media key | private 원본 bucket object read/write/delete, bucket 관리 금지 |
 | R2 public media key | public media bucket object write/delete, bucket 관리 금지 |
@@ -135,6 +167,8 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 | admin actor HMAC secret | BFF only, 내부 `operatorId` 가명화 |
 | Core service token | BFF·Core만 공유, 외부 노출 금지 |
 | 외부 provider audience/team | BFF adapter 설정, 비밀값과 분리 |
+| 운영자 identity·`operatorId` 매핑 파일 | BFF only, 읽기 전용 mount, 비밀값 아님이나 접근 제한 |
+| 카카오 공유 JavaScript key | 공개 config, 허용 도메인 등록으로 오용 제한 |
 
 - `.env.template`에는 이름과 설명만 넣고 값은 넣지 않는다.
 - production secret 파일은 root 소유 `0600`으로 둔다.
@@ -150,9 +184,10 @@ event HMAC의 정상 rotation은 UTC 날짜 경계에서 끝나는 기존 schedu
 ```text
 blariyo_app
   CONNECT
-  USAGE on content, legal, analytics, ops
+  USAGE on content, legal, analytics, ops, collect
   SELECT, INSERT, UPDATE, DELETE on M0 application tables
   USAGE, SELECT on M0 identity sequences
+  no access on ops.schema_migration
   no CREATE on application schemas or public
 
 blariyo_migrator
@@ -160,7 +195,7 @@ blariyo_migrator
 
 blariyo_backup
   CONNECT
-  USAGE on content, legal, analytics, ops
+  USAGE on content, legal, analytics, ops, collect
   SELECT on M0 application tables and sequences
 ```
 
@@ -196,6 +231,7 @@ blariyo_backup
 - password, OAuth code·token, cookie, Authorization header
 - 이메일 원문, provider subject, 권리 문의 내용
 - 게시글 본문, source URL 전체, image binary
+- 수집 대상의 응답 HTML 원문과 후보 제목 전체
 - DB connection string, R2 key
 
 IP는 보안 log에서만 최소 기간 90일 사용하고 product event와 결합하지 않는다. 일반 access log에는 Cloudflare request ID와 축약 경로를 사용한다.
@@ -240,6 +276,9 @@ cron이 5분마다 다음을 수집하고 임계 초과 시 이메일 또는 web
 | API 5xx | 1%/5분 | 5%/5분 |
 | p95 응답 | 1초 | 3초 |
 | DB backup 나이 | 18시간 | 24시간 |
+| 수집 출처 연속 실패 | 3회 | 5회 |
+| 수집 차단 응답(`403`·`429`) | 1회 | 3회 |
+| 목록 수집 미실행 시간 | 1시간 | 3시간 |
 | outbox DEAD | 1건 | 5건 |
 | R2 사용량 | 7GB | 9GB |
 
@@ -326,6 +365,9 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 - multi-arch image build 성공
 - DB backup 최근 18시간 이내
 - production placeholder `__SERVICE_DOMAIN__` 없음
+- `NUXT_TRUSTED_CLIENT_IP_HEADER`, `NUXT_KAKAO_JS_KEY`, `NUXT_ADMIN_OPERATOR_MAP_FILE`, `COLLECT_USER_AGENT` 주입 확인
+- 카카오 공유 CSP 호스트가 확정값이거나 카카오 공유가 비활성 상태
+- 목록 수집을 켠 출처의 `robots_allowed`·`robots_checked_at` 기록 존재
 
 현재 `.gitignore`는 `package-lock.json`을 제외하지 않지만 `yarn.lock`은 제외한다. npm을 표준
 package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하고 `npm ci`로 검증한다.
@@ -364,14 +406,27 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 운영 cron은 API image에서 다음 단발성 명령을 실행한다.
 
 ```text
-매분    npm run posts:publish-due
-매분    npm run outbox:run
-5분마다 npm run events:aggregate
+매분     npm run posts:publish-due
+매분     npm run outbox:run
+5분마다  npm run events:aggregate
+10분마다 npm run collect:crawl-due
 ```
 
 정책 시행은 cron에 등록하지 않는다. 승인된 정책 release artifact의 checksum과 시행 시각을 운영자가 확인한 뒤 시행 시각부터 5분 안에 `npm run policies:publish -- --artifact=<path>`를 한 번 실행하고 `/api/v1/policies/:type`, `/terms` 또는 `/privacy`의 현재 버전·이력과 cache purge 결과를 확인한다. window를 놓치면 과거 시행 시각을 강제하지 않고 새 시행 시각으로 법무 문서·artifact를 다시 승인한다. 정책 본문·버전·시행 시각을 command argument에 직접 넣지 않는다. host artifact는 root 소유 `0600`으로 보관하고 실행 시 command container에만 읽기 전용 secret으로 mount하며 종료 후 mount와 임시 파일을 제거한다.
 
 outbox worker는 중단된 `RUNNING`을 5분 뒤 회수하고 실패할 때마다 지수 backoff를 적용한다. 8회 실패한 `DEAD` 작업은 자동 재실행하지 않고 원인과 대상 object 상태를 확인한 뒤 운영자가 처리한다.
+
+### 수집 실패와 차단
+
+1. 알림의 출처와 오류 코드 확인
+2. `disabledReasonCode`로 자동 비활성 여부 확인
+3. 대상 사이트의 `robots.txt`와 접근 정책 변경 여부 확인
+4. 차단이면 목록 수집을 끄고 운영자 URL 지정 경로만 유지
+5. 파싱 실패면 후보를 반려하고 파서 수정 여부를 판단
+6. 재활성화 전에 요청 간격·일일 상한을 다시 확인
+7. 대상 사이트의 중단 요청은 권리 문의 runbook과 같은 절차로 처리
+
+수집 후보는 30일이 지나면 삭제되므로 보류가 필요한 후보는 초안으로 승격해 둔다. 후보 화면과 로그에 원문 응답 HTML을 남기지 않는다.
 
 ### 비용 이상
 
@@ -387,7 +442,7 @@ outbox worker는 중단된 `RUNNING`을 5분 뒤 회수하고 실패할 때마�
 | --- | --- |
 | 매일 | backup, 외부 health, disk, outbox DEAD |
 | 매주 | container update 후보, R2 orphan, 예약 발행 결과 |
-| 매월 | 실제 restore, 비용, secret·외부 관리자 사용자, dependency audit |
-| 분기 | 런타임 LTS patch, 보존 데이터 삭제, 공급자 가격·무료 정책 |
+| 매월 | 실제 restore, 비용, secret·외부 관리자 사용자, dependency audit, 수집 출처 오류·차단 추세 |
+| 분기 | 런타임 LTS patch, 보존 데이터 삭제, 공급자 가격·무료 정책, 수집 출처 `robots.txt`·이용약관 재확인 |
 
 Node patch는 검증 후 같은 LTS major 안에서 올린다. major 전환은 별도 호환성 테스트와 설계 변경으로 처리한다.

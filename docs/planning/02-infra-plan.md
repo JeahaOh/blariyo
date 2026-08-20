@@ -1,8 +1,8 @@
 # 블라리요 인프라 계획
 
 - 문서 상태: M0 인프라 의사결정 정본
-- 기준일: 2026-08-15
-- 정합성 검토일: 2026-08-19
+- 기준일: 2026-08-20
+- 정합성 검토일: 2026-08-20
 - 역할: 배포 방향·비용 경계·공급자 선택을 정의한다. 스키마, API payload, container 자원값과 운영 명령은 정의하지 않는다.
 - 관련 문서: [서비스 기획서](./01-service-plan.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
 
@@ -27,7 +27,8 @@
 - 초기 트래픽에서는 단일 서버·단일 리전으로 비용을 제한한다.
 - 서버가 사라져도 PostgreSQL backup과 공개 이미지 원본으로 복구할 수 있게 한다.
 - 고가용성보다 검증 가능한 백업·복원과 공급자 이전 경로를 우선한다.
-- 소셜 로그인, 사용자 작성 게시판, 자동 수집, 광고와 GA4는 M0 runtime·schema·API에 포함하지 않는다.
+- 운영자 URL 지정 수집과 허용 출처 목록 수집을 M0 runtime·schema·API에 포함한다. 수집은 서버에서 외부 HTTP로 나가는 유일한 콘텐츠 경로이므로 대상 허용 범위와 요청 상한을 설계로 제한한다.
+- 소셜 로그인, 사용자 작성 게시판, 광고와 GA4는 M0 runtime·schema·API에 포함하지 않는다.
 
 ## 3. 확정 기술 선택
 
@@ -60,8 +61,10 @@ Redis, MongoDB, 별도 managed DB, Kubernetes, 다중 API instance와 다중 reg
 | `/meme` | 짤 게시판 목록 |
 | `/:boardSlug/posts/:postId` | 해당 게시판의 게시글 상세 |
 | `/terms`, `/privacy`, `/cookie-settings` | 정책 화면 직접 진입 |
+| `/admin*` | 운영자 화면. 외부 관리자 인증 필수, 검색 엔진 비노출 |
 | `/api/v1/boards/:boardSlug/posts*` | Nuxt BFF의 게시판 하위 공개 목록·상세 API |
-| `/api/v1/*` | Nuxt BFF의 나머지 공개·관리자 API |
+| `/api/v1/admin/*` | 게시글·이미지·수집 후보 관리자 API. 외부 관리자 인증 필수 |
+| `/api/v1/*` | Nuxt BFF의 나머지 공개 API |
 
 - PostgreSQL과 application container port는 인터넷에 직접 공개하지 않는다. Express Core API는 Nginx route·public DNS·host port 없이 Nuxt BFF만 HTTP로 호출한다. cron은 API image의 단발성 command로 실행한다.
 - 관리자 화면과 관리자 API의 외부 identity는 Nuxt BFF의 교체 가능한 adapter가 검증한다. 초기 provider는 Cloudflare Access지만 Core API는 이에 종속되지 않는다.
@@ -86,11 +89,12 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 | 단계 | 기능 | 인프라 영향 |
 | --- | --- | --- |
 | M0 | 공개 짤 목록·상세, 운영자 발행·숨김, 정책, 최소 내부 조회 | 현재 단일 VM·PostgreSQL·R2 구성 |
+| M0 | 운영자 URL 지정·허용 출처 목록 수집과 후보 검수 | 외부 outbound HTTP 허용 범위, 수집 상한, 후보 이미지 저장 예산, 수집 cron |
 | M1 | 소셜 가입·로그인·탈퇴 | provider secret, callback, session store 계약 추가 |
 | M1.5 | 익게 작성·댓글·신고·moderation | 사용자 쓰기 부하와 abuse 방어 재산정 |
-| 후속 | 자동 수집·광고·GA4 | worker 제한, consent, 외부 script와 CSP 검토 |
+| 후속 | 광고·GA4 | consent, 외부 script와 CSP 검토 |
 
-후속 기능의 테이블과 endpoint를 M0 schema·API에 미리 넣지 않는다. 단계 착수 전에 planning을 확정하고 system-design을 별도로 확장한다.
+후속 기능의 테이블과 endpoint를 M0 schema·API에 미리 넣지 않는다. 단계 착수 전에 planning을 확정하고 system-design을 별도로 확장한다. 수집은 이 규칙의 예외가 아니라 M0로 승격된 기능이므로 M0 schema·API·운영 절차에 포함한다.
 
 ## 8. 운영·보안 의사결정
 
@@ -111,6 +115,9 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 - BFF·Core 내부 서비스 토큰과 admin actor HMAC secret
 - monitoring provider와 알림 수신 경로
 - PostgreSQL·R2 production credential 주입 경로
+- 카카오톡 공유용 JavaScript key와 허용할 카카오 script·연결 도메인
+- 수집 요청 User-Agent 문자열과 출처별 요청 간격·일일 상한
+- 수집 대상 출처 목록과 출처별 `robots.txt` 확인 결과
 
 이 값들은 계정과 도메인을 실제로 확보한 뒤 배포 secret·설정에 주입한다. placeholder나 예시 credential을 production 값처럼 사용하지 않는다.
 
@@ -118,6 +125,7 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 
 - 빈 PostgreSQL 18에서 migration과 seed가 성공한다.
 - 목록·상세·운영자 발행·숨김 smoke test가 통과한다.
+- 운영자 URL 지정 수집과 후보 검수·초안 승격 smoke test가 통과하고, 허용하지 않은 대상 요청이 거부된다.
 - 외부 공개 port가 의도한 HTTP endpoint로만 제한된다.
 - 암호화 DB backup을 새 PostgreSQL 18에 실제 복원한다.
 - VM 전체를 잃어도 문서화된 절차로 DB와 media를 재연결할 수 있다.

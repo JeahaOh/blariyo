@@ -1,9 +1,10 @@
 # 블라리요 M0 시스템 설계
 
 - 문서 상태: M0 기술 계약 정본 · 현행 실행 산출물 없음
-- 기준일: 2026-08-20
-- 정합성 검토일: 2026-08-20
+- 기준일: 2026-09-02
+- 정합성 검토일: 2026-09-02
 - 상위 기획: [서비스 기획서](../planning/01-service-plan.md)
+- 수집 상위 기획: [콘텐츠 수집 기획](../planning/content-collection/README.md)
 - 화면 상위 정본: [화면 설계](../planning/03-screen-design.md)
 - 정적 검토물: [반응형 퍼블리싱](../publishing/responsive/README.md)
 - 데이터베이스 결정: [2026-08-14 PostgreSQL 전환 결정](../../worklog/session-log/2026-08-14-postgresql-transition.md)
@@ -38,18 +39,23 @@
 
 ## 설계 범위
 
-M0 핵심 범위는 다음과 같다.
+M0 전체 기술 범위는 다음과 같다.
 
 - 공개 `짤/meme` 목록과 페이지네이션
 - 게시글 상세와 같은 게시판의 하단 목록 페이지네이션
 - 운영자 전용 게시글 초안·예약·발행·숨김
 - 복수 본문 이미지, 출처, 정책 버전
-- 최소 내부 조회 이벤트
-- 운영자 URL 지정 수집과 허용 출처 목록 수집, 후보 큐와 검수·초안 승격
+- 게시글 참고용 조회 수와 기본 비활성 GA4 연동
+- `M0 수집 보조`의 운영자 URL 지정·후보 큐·검수·초안 승격
+- `M0 자동 수집`의 승인된 출처 목록 수집과 실패 시 출처 비활성
 - 외부 이미지 저장소, 백업과 복구
 - 단일 서버·단일 리전 저비용 운영
 
-소셜 회원가입·로그인, 사용자 작성 게시판, 광고와 GA4는 확장 지점만 정의한다. M0 핵심을 배포하기 전 필수 의존성으로 만들지 않는다. 수집은 M0 핵심에 포함하되 공개 읽기 경로와 분리해, 수집이 멈춰도 공개 목록·상세와 운영자 발행이 계속 동작하게 한다.
+`M0 Core`는 수집 없이 먼저 구현·공개할 수 있다. 수집 보조와 자동 수집은 각 단계 gate 뒤에
+feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈춰도 공개 목록·상세와 운영자
+발행이 계속 동작하게 한다. GA4는 M0 Web에 기본 비활성 연동으로 포함하고 운영 gate를 통과한
+환경에서도 분석 동의 후에만 로드하며 자체 분석 DB·API를 만들지 않는다. GA4 활성화는 M0 Core
+공개 완료 조건이 아니다. 소셜 회원가입·로그인, 사용자 작성 게시판과 광고는 확장 지점만 정의한다.
 
 ## 문서 구성
 
@@ -69,7 +75,7 @@ M0 핵심 범위는 다음과 같다.
 | 웹·BFF | Nuxt SSR + same-origin `/api/v1` 외부 계약 |
 | Core API | Express, Docker app network에서 Web만 HTTP 접근; cron은 단발성 command |
 | 데이터베이스 | PostgreSQL 18 단일 인스턴스 |
-| DB schema | `content`, `legal`, `analytics`, `ops`, `collect`; M1 이후 schema는 단계별 migration에서 추가 |
+| DB schema | `M0 Core`: `content`, `legal`, `ops`; `M0 수집 보조`: `collect`; 이후 schema는 단계별 migration에서 추가 |
 | 이미지 | Cloudflare R2 Standard, 비공개 원본 bucket과 공개 media bucket 분리 |
 | 수집 | Core API의 `SourceFetcher` adapter, 출처 allowlist·robots·요청 상한 강제, 목록 수집은 API image 단발성 command |
 | 엣지 | Cloudflare Free DNS·CDN·Universal SSL |

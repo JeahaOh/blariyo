@@ -1,8 +1,8 @@
 # M0 Web BFF API 설계
 
 - 문서 상태: M0 API 설계 계약 · 현행 Core·BFF·OpenAPI·test 산출물 없음
-- 기준일: 2026-08-20
-- 정합성 검토일: 2026-08-20
+- 기준일: 2026-09-02
+- 정합성 검토일: 2026-09-02
 - base path: `/api/v1`
 - content type: `application/json; charset=utf-8`
 
@@ -36,9 +36,8 @@ Board/Post BFF와 Core 내부 route가 향후 따라야 할 계약이며, 실제
 | 공개 | `GET` | `/api/v1/boards` | 활성 게시판 |
 | 공개 | `GET` | `/api/v1/boards/:boardSlug/posts` | 해당 게시판 목록 |
 | 공개 | `GET` | `/api/v1/boards/:boardSlug/posts/:postId` | 게시판 소속을 검증한 상세와 하단 목록 context |
+| 공개 | `POST` | `/api/v1/boards/:boardSlug/posts/:postId/views` | 참고용 조회 수 1 증가 |
 | 공개 | `GET` | `/api/v1/policies/:type` | 현재·과거 정책 |
-| 공개 | `POST` | `/api/v1/events` | 최소 내부 조회 이벤트 |
-| 공개 | `POST` | `/api/v1/events/reset` | 현재 내부 통계 식별자의 보존 중 원시 이벤트 초기화 |
 | 관리자 | `GET` | `/api/v1/admin/posts` | 게시글 검색 |
 | 관리자 | `GET` | `/api/v1/admin/posts/:postId` | 초안 편집용 상세 |
 | 관리자 | `POST` | `/api/v1/admin/images` | staging 이미지 업로드 |
@@ -61,6 +60,8 @@ Board/Post BFF와 Core 내부 route가 향후 따라야 할 계약이며, 실제
 | 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/draft` | 후보를 초안으로 승격 |
 
 M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
+위 목록의 수집 endpoint는 `M0 Core` OpenAPI와 route에 넣지 않고 `M0 수집 보조` 착수 때
+추가한다. 목록 수집 command는 출처별 gate를 통과한 `M0 자동 수집` 단계에서 활성화한다.
 
 ### Health 응답
 
@@ -219,7 +220,9 @@ M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
 - `boardSlug`에 해당하는 활성 게시판이 없으면 `404 BOARD_NOT_FOUND`다.
 - 활성 게시판에 공개 게시글이 0건이면 page 1에서 `200`과 빈 `pinnedItems`, `items`를 반환한다.
 - page가 totalPages를 넘으면 성공 빈 목록이 아니라 `404 PAGE_NOT_FOUND`를 반환한다. 단, 게시글이 0건일 때 page 1은 빈 목록 `200`이다.
-- M0의 `viewCount`는 검증된 `POST_VIEW`를 5분 batch로 반영한 `content.board_post.view_count`다. 정확한 실시간 수치가 아니며 최대 5분 지연될 수 있다.
+- M0의 `viewCount`는 공개 상세 화면에서 별도 endpoint가 증가시킨
+  `content.board_post.view_count`다. 방문자 중복을 제거하지 않는 참고용 누적값이며 목록·상세
+  cache가 만료되기 전까지 화면 값이 늦게 보일 수 있다.
 
 ### 게시글 상세
 
@@ -310,58 +313,20 @@ GET /api/v1/policies/:type?version=v0.2
 
 `bodyHtml`은 `legal.policy_version.body_html`에 저장된 허용 목록 정제 완료 HTML이다. 공개 API는 초안 원문이나 정제 전 HTML을 반환하지 않는다.
 
-### 내부 이용 이벤트
+### 게시글 조회 수 증가
 
-`POST /api/v1/events`
+`POST /api/v1/boards/:boardSlug/posts/:postId/views`
 
-```json
-{
-  "eventType": "DETAIL_LIST_VIEW",
-  "anonymousId": "browser-random-value",
-  "sessionId": "tab-random-value",
-  "boardSlug": "meme",
-  "postId": 1047,
-  "listPage": 2,
-  "occurredAt": "2026-08-14T01:20:30.000Z"
-}
-```
-
-- 서버는 `occurredAt`을 먼저 보정하고 그 UTC 시각을 포함하는 key schedule version의 secret HMAC으로 두 ID를 변환한다. key version만 함께 저장하며 원문을 저장하지 않는다.
-- 두 ID는 Web Crypto로 생성한 base64url·UUID 호환 문자열이며 길이는 `16~128`자다.
-- `occurredAt`이 서버 시각보다 미래이거나 24시간 이상 과거면 서버 수신 시각으로 대체한다.
-- 보정된 `occurredAt`의 schedule이 보안 사고로 폐기돼 key를 사용할 수 없으면 `occurredAt`을 서버 수신 시각으로 다시 보정하고 현재 emergency version을 사용한다.
-- 허용되지 않은 event·field는 `400`이다.
-- 정상 수신은 body 없이 `204`를 반환한다.
-- IP 단위 제한은 `60회/분`, session HMAC은 동일 event 중복을 10초 window에서 합친다.
-- M0 단일 Nuxt instance는 BFF 메모리에서 IP window를 제한한다. 수평 확장 시 공유 rate-limit 저장소로 교체한다.
-- BFF는 임의의 `X-Forwarded-For`를 신뢰하지 않는다. 배포 환경에서 명시한 단일 trusted client IP header만 사용하며, Cloudflare Tunnel 운영값은 `CF-Connecting-IP`다. header가 없거나 단일 IP가 아니면 연결 주소를 사용한다.
-- `itemCount`는 client에서 받지 않는다. `FEED_VIEW`와 `DETAIL_LIST_VIEW`의 저장값은 Core가 같은 공개 목록 조건으로 계산하며, 요청과 처리 사이에 발행·숨김이 발생하면 처리 시점 값을 사용한다.
-- 공개 게시글·게시판 검증과 중복 완화는 측정값의 기본 무결성만 높인다. 자동화된 요청을 사람 조회로 보증하지 않으므로 조회 수는 운영 추세용이며 광고 정산이나 권리 판단에 사용하지 않는다.
-
-| eventType | 필수 field | 금지 field |
-| --- | --- | --- |
-| `FEED_VIEW` | `boardSlug`, `listPage` | `postId`, `itemCount` |
-| `POST_VIEW` | `boardSlug`, `postId` | `listPage`, `itemCount` |
-| `DETAIL_LIST_VIEW` | `boardSlug`, `postId`, `listPage` | `itemCount` |
-
-서버는 `boardSlug`를 `content.board.id`로 변환해 이벤트의 `board_id`에 저장한다. `postId`가 있으면 공개 게시글의 `board_id`와 일치하는지도 확인한다. 비공개·미존재 게시글 이벤트는 내용을 구분하지 않고 `404 POST_NOT_FOUND`다.
-
-### 내부 통계 초기화
-
-`POST /api/v1/events/reset`
-
-```json
-{
-  "anonymousId": "browser-random-value",
-  "sessionId": "tab-random-value"
-}
-```
-
-- 두 ID는 이벤트 수집과 같은 형식으로 검증하고 보존 중인 모든 HMAC key version으로 변환한다.
-- event maintenance advisory lock을 얻은 한 transaction에서 key version과 `anonymous_hmac` 또는 `session_hmac`이 일치하는 보존 중 `analytics.raw_event`를 삭제한다.
-- 이미 개인·세션 식별자 없이 집계된 `analytics.daily_event_metric`과 `content.board_post.view_count`는 역산하지 않는다.
-- validation과 rate limit을 통과한 요청은 삭제 대상 존재 여부를 노출하지 않고 body 없는 `204`를 반환한다. 형식 오류는 `400`, 제한 초과는 `429`다.
-- BFF는 이벤트 수집과 별도로 IP당 `5회/시간`을 제한한다. 브라우저는 `204`를 받은 뒤에만 현재 `anonymousId`와 `sessionId`를 삭제한다.
+- request body와 query parameter를 받지 않는다. 값이 있으면 `400 VALIDATION_ERROR`다.
+- Core는 활성 게시판과 공개 게시글의 소속을 다시 확인하고 `view_count = view_count + 1`을 원자적으로
+  실행한 뒤 body 없는 `204`를 반환한다.
+- 비공개·숨김·삭제·예약·미존재·게시판 불일치는 동일한 `404 POST_NOT_FOUND`다.
+- 브라우저는 상세 화면을 정상 표시한 뒤 page lifecycle당 한 번만 호출하고 자동 재시도하지 않는다.
+- 별도 방문자·세션 식별자, IP, User-Agent와 조회 이력을 application DB에 저장하지 않는다.
+- BFF는 신뢰한 client IP 기준 `60회/분`으로 남용을 제한하지만 중복 제거에는 사용하지 않는다.
+- endpoint 실패는 상세 화면을 실패시키지 않으며 이미 렌더링한 `viewCount`를 변경하지 않는다.
+- 자동화 요청과 반복 새로고침을 완전히 제거하지 않으므로 광고 정산·권리 판단·사람 수의 근거로
+  사용하지 않는다.
 
 ## 4. 관리자 인증
 
@@ -760,7 +725,11 @@ POST /api/v1/admin/collect/candidates/:candidateId/reject
 
 ### 목록 수집 실행
 
-목록 수집은 HTTP endpoint로 제공하지 않는다. `npm run collect:crawl-due` 단발성 command가 활성 출처를 읽어 후보를 적재하며, 같은 service·repository와 `system:collector` actor를 사용한다. 연속 실패·차단이 누적되면 command가 해당 출처의 목록 수집을 비활성하고 `disabledReasonCode`를 기록한다.
+목록 수집은 HTTP endpoint로 제공하지 않는다. `npm run collect:crawl-due` 단발성 command가
+활성 출처의 승인된 최신 목록·feed 범위를 읽고 새 원문 URL을 찾는다. 목록 metadata에 제목과
+이미지 후보가 부족한 새 URL만 출처별 요청 상한 안에서 상세 조회한 뒤 후보를 적재하며, 같은
+service·repository와 `system:collector` actor를 사용한다. 연속 실패·차단이 누적되면 command가
+해당 출처의 목록 수집을 비활성하고 `disabledReasonCode`를 기록한다.
 
 ## 6. 상태 코드와 오류 코드
 
@@ -808,7 +777,7 @@ POST /api/v1/admin/collect/candidates/:candidateId/reject
 | posts list | `public, max-age=15, s-maxage=60` |
 | post detail | `public, max-age=30, s-maxage=300` |
 | policies | `public, max-age=60, s-maxage=300` |
-| events | `no-store` |
+| post views | `no-store` |
 | admin | `private, no-store` |
 | admin collect | `private, no-store` |
 | health | `no-store` |
@@ -821,11 +790,11 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 1. BFF 공통 request ID·오류·validation·health와 Core API 내부 health
 2. boards와 공개 목록 BFF·Core query
 3. 상세와 context page 계산
-4. 정책 조회와 운영 단발성 정책 시행 command
-5. BFF 외부 관리자 인증 adapter와 Core 내부 서비스 인증
-6. 이미지 staging과 초안 command
-7. 발행·예약·예약 취소·숨김·재공개·최종 삭제·outbox
-8. 내부 이벤트·식별자 초기화와 일별 집계
+4. 게시글 조회 수 증가 endpoint
+5. 정책 조회와 운영 단발성 정책 시행 command
+6. BFF 외부 관리자 인증 adapter와 Core 내부 서비스 인증
+7. 이미지 staging과 초안 command
+8. 발행·예약·예약 취소·숨김·재공개·최종 삭제·outbox
 9. 수집 출처 조회·수정과 운영자 URL 지정 후보 생성
 10. 후보 검색·상세·재수집·반려와 초안 승격
 11. 목록 수집 단발성 command와 출처 자동 비활성
@@ -844,13 +813,9 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] 공개 목록 0건·마지막 page·초과 page Core contract test
 - [ ] 정책 현재·과거 버전 조회와 초안 비공개 Core/BFF contract test
 - [ ] 정책 시행 command의 미래·5분 초과 과거 시각 거부, 반개방 기간 경계·유형별 잠금·cache purge outbox transaction test
-- [ ] 이벤트별 field 조합·게시판 소속·비공개 게시글·미래/과거/폐기 schedule의 `occurredAt` 보정·schedule HMAC·10초 중복 제거 contract test
+- [ ] 조회 수 endpoint의 empty payload·공개 상태·게시판 소속 검증과 원자 증가 contract test
 - [ ] `MAINTENANCE_READ_ONLY`에서 공개 GET 허용·모든 mutation `503`·`Retry-After`·`Cache-Control: no-store` contract test
-- [ ] 이벤트 IP `60회/분` BFF rate-limit test
-- [ ] client `itemCount` 거부와 서버 계산값 저장 contract test
-- [ ] 내부 통계 초기화의 여러 HMAC key version 일치 raw 삭제·집계 lock 경쟁·항상 `204`·IP `5회/시간` contract test
-- [ ] 이벤트 여러 batch 집계와 재실행 시 일별 순 사용자·`view_count` 중복 방지 test
-- [ ] 90일 초과 집계 완료 raw 이벤트 삭제·일별 집계 보존 test
+- [ ] 조회 수 endpoint IP `60회/분` BFF rate-limit과 실패 시 상세 화면 유지 test
 - [ ] 목록의 미존재·비활성·잘못된 형식 `boardSlug`가 동일한 `404 BOARD_NOT_FOUND`인지 Core contract test
 - [ ] 상세의 게시판 불일치·잘못된 형식 `boardSlug`·`postId`가 동일한 `404 POST_NOT_FOUND`인지 Core contract test
 - [ ] 문맥 없는 `/api/v1/posts*`, `/posts/:postId`가 노출되지 않는지 route test

@@ -1,8 +1,8 @@
 # M0 저비용 인프라 설계
 
 - 문서 상태: M0 인프라 설계 계약 · 현행 배포 산출물 없음
-- 기준일: 2026-08-20
-- 정합성 검토일: 2026-08-20
+- 기준일: 2026-09-02
+- 정합성 검토일: 2026-09-02
 - 가격 기준: 2026-08-14, USD, 세금·환율·도메인·메일 비용 제외
 - 관련 문서: [시스템 아키텍처](./01-system-architecture.md), [보안·운영](./05-security-operations.md)
 
@@ -17,7 +17,9 @@
 | 초기 공개 검증 | `$0~12` | 단일 VM, 단일 리전, 백업 복구 |
 | 유료 안정안 | `$12~24` | Lightsail 서울 2GB, 필요 시 4GB |
 
-도메인 등록비와 권리 문의용 메일 주소는 인프라 월 비용에서 분리한다. 광고·GA4·소셜 provider 심사 비용도 M0 핵심 비용에 넣지 않는다.
+도메인 등록비와 권리 문의용 메일 주소는 인프라 월 비용에서 분리한다. 광고·소셜 provider 심사
+비용도 M0 핵심 비용에 넣지 않는다. M0 GA4 연동은 기본 비활성이고 자체 분석 서버·DB 용량을
+추가하지 않으며, 운영 gate를 통과한 환경에서 Web의 동의 기반 외부 tag로만 활성화한다.
 
 ## 2. 사업자 비교
 
@@ -234,6 +236,8 @@ public config
   IMAGE_ORIGIN
   NUXT_TRUSTED_CLIENT_IP_HEADER
   NUXT_KAKAO_JS_KEY
+  NUXT_PUBLIC_GA4_ENABLED
+  NUXT_PUBLIC_GA4_MEASUREMENT_ID
   COLLECT_USER_AGENT
   COLLECT_MANUAL_URL_ENABLED
   COLLECT_LIST_CRAWL_ENABLED
@@ -250,7 +254,6 @@ runtime secret
   APP_DB_PASSWORD_FILE
   MIGRATION_DB_PASSWORD_FILE
   BACKUP_DB_PASSWORD_FILE
-  EVENT_HMAC_KEYS_FILE
   CORE_SERVICE_TOKEN
   NUXT_ADMIN_ACTOR_HMAC_SECRET
   NUXT_ADMIN_IDENTITY_PROVIDER
@@ -271,13 +274,23 @@ runtime secret
   CF_CACHE_PURGE_TOKEN
 ```
 
-`NUXT_TRUSTED_CLIENT_IP_HEADER`는 이벤트 IP 제한에 사용할 단일 header 이름이며 Cloudflare Tunnel 운영값은 `cf-connecting-ip`다. `NUXT_KAKAO_JS_KEY`는 카카오 공유 script에 전달하는 공개 key로 비밀값이 아니지만 도메인 등록과 함께 관리한다. `COLLECT_USER_AGENT`는 블라리요를 식별할 수 있는 문자열과 연락 수단을 포함하고, `COLLECT_MANUAL_URL_ENABLED`·`COLLECT_LIST_CRAWL_ENABLED`는 출처별 설정과 별개인 전체 차단 스위치다. 출처별 요청 간격·일일 상한·robots 확인 결과는 환경변수가 아니라 `collect.source` 데이터로 관리한다.
+`NUXT_TRUSTED_CLIENT_IP_HEADER`는 조회 수 endpoint의 IP 제한에 사용할 단일 header 이름이며
+Cloudflare Tunnel 운영값은 `cf-connecting-ip`다. `NUXT_KAKAO_JS_KEY`와
+`NUXT_PUBLIC_GA4_MEASUREMENT_ID`는 브라우저에 전달되는 공개 설정으로 비밀값이 아니지만 승인된
+도메인·GA4 속성과 함께 변경 이력을 관리한다. measurement ID·속성 보관 설정·국외이전 고지가
+확정되지 않으면 `NUXT_PUBLIC_GA4_ENABLED=false`로 배포한다. `COLLECT_USER_AGENT`는 블라리요를
+식별할 수 있는 문자열과 연락 수단을 포함하고, `COLLECT_MANUAL_URL_ENABLED`·
+`COLLECT_LIST_CRAWL_ENABLED`는 출처별 설정과 별개인 전체 차단 스위치다. 출처별 요청 간격·일일
+상한·robots 확인 결과는 환경변수가 아니라 `collect.source` 데이터로 관리한다.
 
 `NUXT_ADMIN_OPERATOR_MAP_FILE`은 외부 identity를 안정적인 내부 `operatorId`로 매핑하는 파일 경로다. 운영자가 여러 명일 수 있으므로 단일 값 환경변수를 사용하지 않는다. 파일은 `{"identity": "<외부 식별값>", "operatorId": "<내부 식별자>", "active": true}` 항목의 목록이며 BFF container에만 읽기 전용으로 mount한다. identity를 제거해도 기존 `operatorId`는 재사용하지 않고 감사 이력을 보존한다. provider를 교체하면 identity 값만 새 provider 기준으로 바꾸고 `operatorId`는 유지한다.
 
 DB username은 각 역할의 고정된 비밀 아닌 설정이고 password 값은 환경변수에 직접 넣지 않는다. API와 application command에는 `APP_DB_*`, migration 단발성 container에는 `MIGRATION_DB_*`, backup container에는 `BACKUP_DB_*`만 주입한다. 각 `*_PASSWORD_FILE`은 해당 container에만 읽기 전용으로 mount한 secret 경로이며 세 역할은 credential을 재사용하지 않는다.
 
-`EVENT_HMAC_KEYS_FILE`은 version별 `version`, `secret`, `activeFrom`, `activeUntil` UTC schedule을 가진 keyring을 event 처리 container에만 읽기 전용 secret으로 mount한 경로이며 값 자체를 환경변수에 넣지 않는다. 현재와 보존 중 raw가 참조하는 이전 schedule을 포함하고, 정상 rotation schedule이 겹치거나 비어 있으면 event 처리를 시작하지 않는다. 침해로 폐기한 schedule은 `revoked: true` metadata만 남기고 secret을 제거하며, 해당 구간의 지연 이벤트에는 API 설계의 emergency version 재보정 규칙을 적용한다. host 원본은 root 소유 `0600`으로 둔다. private media·public media·backup credential은 서로 다른 bucket에만 접근할 수 있는 별도 key다. `BACKUP_AGE_RECIPIENT`는 암호화용 공개 recipient이며 복호화 private key는 서버 환경변수에 두지 않고 서버와 다른 위치에 오프라인 보관한다. `.env`는 서버에서 root만 읽을 수 있게 두고 저장소·Docker image·CI log에 넣지 않는다.
+private media·public media·backup credential은 서로 다른 bucket에만 접근할 수 있는 별도 key다.
+`BACKUP_AGE_RECIPIENT`는 암호화용 공개 recipient이며 복호화 private key는 서버 환경변수에 두지
+않고 서버와 다른 위치에 오프라인 보관한다. `.env`는 서버에서 root만 읽을 수 있게 두고
+저장소·Docker image·CI log에 넣지 않는다.
 
 ## 7. 빌드와 배포
 
@@ -339,16 +352,16 @@ OCI와 Lightsail은 같은 Compose·환경 변수·multi-arch image를 사용한
 
 1. 새 VM 준비와 tunnel connector 추가
 2. 새 PostgreSQL 18에 최신 full backup 복원
-3. 기존 BFF·Core를 `MAINTENANCE_READ_ONLY`로 전환해 공개 GET만 허용하고 관리자 command, 정책 시행, 이벤트 수집·초기화를 포함한 모든 DB 쓰기를 `503`으로 차단
-4. scheduler·outbox·집계 cron을 중지하고 진행 중 DB transaction이 종료됐는지 확인
+3. 기존 BFF·Core를 `MAINTENANCE_READ_ONLY`로 전환해 공개 GET만 허용하고 관리자 command, 정책 시행, 조회 수 증가를 포함한 모든 DB 쓰기를 `503`으로 차단
+4. scheduler·outbox·수집 cron을 중지하고 진행 중 DB transaction이 종료됐는지 확인
 5. 기존 서버에서 최종 full custom-format dump 생성·암호화·checksum 검증
 6. 새 PostgreSQL 18을 비우고 최종 full dump를 한 번 복원
 7. 새 서버도 쓰기 차단 상태에서 게시글 수·최신 글·정책·상태 이력과 ready·공개 GET smoke 확인
 8. Cloudflare tunnel route를 새 connector로 전환
-9. 새 서버의 쓰기 차단을 해제하고 쓰기 경로 readiness를 확인한 뒤 scheduler·outbox·집계 cron 시작 상태 확인
+9. 새 서버의 쓰기 차단을 해제하고 쓰기 경로 readiness를 확인한 뒤 scheduler·outbox·수집 cron 시작 상태 확인
 10. cache purge 후 기존 서버는 read-only로 보존
 11. 24시간 관찰 후 기존 VM 삭제
 
 이미지는 R2에 있으므로 compute 이전 시 복사하지 않는다. DNS TTL과 원본 IP 변경도 Cloudflare tunnel 사용으로 최소화한다.
 
-쓰기 차단 응답은 `503 MAINTENANCE_READ_ONLY`, `Retry-After: 60`, `Cache-Control: no-store`를 사용한다. 최종 dump 시작 후 기존 서버에는 어떤 쓰기도 허용하지 않는다. 특히 `/api/v1/events/reset`을 기존 서버에서 성공 처리한 뒤 이전 snapshot으로 되돌리는 상황이 없어야 한다.
+쓰기 차단 응답은 `503 MAINTENANCE_READ_ONLY`, `Retry-After: 60`, `Cache-Control: no-store`를 사용한다. 최종 dump 시작 후 기존 서버에는 조회 수 증가를 포함한 어떤 쓰기도 허용하지 않는다.

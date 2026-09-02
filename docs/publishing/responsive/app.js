@@ -60,6 +60,16 @@ const policyContent = document.getElementById('policyContent');
 const cookieBanner = document.getElementById('cookieBanner');
 const rightsMailLink = document.getElementById('rightsMailLink');
 const cookieConsentKey = 'blariyo_consent';
+const prototypeParams = new URLSearchParams(location.search);
+const prototypeFeatures = {
+  analytics: prototypeParams.get('ga4') === '1',
+  ads: prototypeParams.get('ads') === '1'
+};
+const hasOptionalFeatures = prototypeFeatures.analytics || prototypeFeatures.ads;
+const activeConsentScope = Object.entries(prototypeFeatures)
+  .filter(([, enabled]) => enabled)
+  .map(([feature]) => feature)
+  .join(',');
 const modalBackground = [
   document.querySelector('.review-toolbar'),
   document.querySelector('.site-header'),
@@ -74,7 +84,7 @@ let currentPolicy = null;
 function readCookieConsent() {
   try {
     const saved = JSON.parse(localStorage.getItem(cookieConsentKey));
-    return saved?.version === 1 ? saved : null;
+    return saved?.version === 2 && saved.scope === activeConsentScope ? saved : null;
   } catch {
     return null;
   }
@@ -83,7 +93,13 @@ function readCookieConsent() {
 let cookieConsent = readCookieConsent();
 
 function saveCookieConsent({ analytics, ads }) {
-  cookieConsent = { version: 1, analytics: Boolean(analytics), ads: Boolean(ads), savedAt: new Date().toISOString() };
+  cookieConsent = {
+    version: 2,
+    scope: activeConsentScope,
+    analytics: prototypeFeatures.analytics && Boolean(analytics),
+    ads: prototypeFeatures.ads && Boolean(ads),
+    savedAt: new Date().toISOString()
+  };
   try {
     localStorage.setItem(cookieConsentKey, JSON.stringify(cookieConsent));
   } catch {
@@ -311,17 +327,17 @@ function renderPolicyDocument(type, selectedVersion = policyHistory[type].curren
     <h3>제8조 광고와 제휴</h3><p>광고와 제휴 콘텐츠는 일반 게시글과 구분하고 수수료 수취 가능성을 가까운 위치에 표시합니다. 광고 차단 안내를 닫은 뒤에는 열람을 제한하지 않습니다.</p>
     <h3>제9조 권리자 요청</h3><p>푸터의 이메일로 권리 침해·게시 중단 요청을 받습니다. 운영자가 메일을 확인하면 대상 글을 우선 숨기고 권리 관계와 출처를 확인한 뒤 재공개·수정·삭제 또는 비노출 유지를 결정합니다.</p>
     <h3>제10조 지식재산권</h3><p>서비스 상호·화면·운영자 작성물의 권리는 운영자 또는 정당한 권리자에게, 외부 콘텐츠의 권리는 해당 권리자에게 귀속합니다.</p>
-    <h3>제11조 개인정보와 쿠키</h3><p>소셜 인증 세션은 필수 기능으로 처리합니다. GA4와 광고 저장소는 각각 동의한 뒤 활성화하며 거부해도 공개 콘텐츠와 소셜 로그인을 이용할 수 있습니다.</p>
+    <h3>제11조 개인정보와 쿠키</h3><p>소셜 인증 세션은 필수 기능으로 처리합니다. GA4와 광고는 운영 gate를 통과한 기능만 표시하고 각각 동의한 뒤 활성화하며, 거부해도 공개 콘텐츠와 소셜 로그인을 이용할 수 있습니다.</p>
     <h3>제12조 서비스 변경과 중단</h3><p>유지보수, 장애, 보안, 법령 준수 또는 외부 제공자 변경으로 서비스를 변경·중단할 수 있으며 예측 가능한 중대한 변경은 미리 알립니다.</p>
     <h3>제13조 책임 제한</h3><p>통제하기 어려운 외부 제공자 장애와 외부 거래 결과에 관한 책임은 관련 법령 범위에서 정하며 운영자의 고의·중대한 과실 책임을 배제하지 않습니다.</p>
     <h3>제14조 통지와 분쟁 해결</h3><p>서비스 공지는 목록 상단 또는 화면에 표시하고 분쟁은 우선 성실히 협의한 뒤 대한민국 법과 관련 법령상 관할에 따릅니다.</p>
     <h3>제15조 부칙</h3><p>운영자 정보와 시행일이 확정된 v0.1부터 적용하며 과거 전문은 하단 개정 이력에서 확인할 수 있습니다.</p>
   ` : `
-    <h3>1. 처리 목적</h3><p>소셜 가입·로그인·계정 관리, 콘텐츠 제공, 보안·오류 대응, 최소 운영 통계, 동의한 GA4·광고, 권리자 요청 처리를 위해 필요한 범위에서 처리합니다.</p>
+    <h3>1. 처리 목적</h3><p>소셜 가입·로그인·계정 관리, 콘텐츠 제공, 보안·오류 대응, 동의한 GA4·광고, 권리자 요청 처리를 위해 필요한 범위에서 처리합니다.</p>
     <h3>2. 처리 항목과 수집 방법</h3><p>네이버·카카오·Google·Apple의 provider 고유 식별자와 이용자가 동의한 이메일·닉네임·프로필 이미지, Blariyo 회원 번호·동의 이력·로그인 기록을 처리합니다. 소셜 비밀번호는 수신·저장하지 않습니다.</p>
     <p>네이버는 애플리케이션별 id, 카카오는 서비스별 회원번호, Google은 OIDC sub, Apple은 sub를 계정 연결 키로 사용합니다. Apple 이름은 최초 승인 때만 전달될 수 있고 이메일 가리기 중계 주소가 전달될 수 있습니다.</p>
-    <h3>3. 내부 식별자</h3><p>내부 통계용 anonymous_id·session_id는 회원 번호, provider 식별자, 이메일, GA client ID와 결합하지 않습니다. GA4에는 회원·소셜 프로필 값을 전송하지 않습니다.</p>
-    <h3>4. 보유 기간</h3><p>회원·소셜 연동 정보는 탈퇴까지, OAuth state·nonce·PKCE는 callback 또는 10분 이내, 로그인용 token은 세션 발급까지, 접속·보안 로그와 원시 운영 이벤트는 90일, 쿠키 선택은 12개월 보관합니다.</p>
+    <h3>3. 조회 수와 최소 수집</h3><p>게시글 조회 수는 참고용 누적값만 유지하고 방문자·세션 식별자, IP 원문, User-Agent, 개별 조회 이력과 자체 원시 이벤트를 저장하지 않습니다. GA4에는 회원·소셜 프로필 값을 전송하지 않습니다.</p>
+    <h3>4. 보유 기간</h3><p>회원·소셜 연동 정보는 탈퇴까지, OAuth state·nonce·PKCE는 callback 또는 10분 이내, 로그인용 token은 세션 발급까지, 접속·보안 로그는 90일, 쿠키 선택은 12개월 보관합니다.</p>
     <h3>5. 제3자 제공과 소셜 제공자</h3><p>상시 제3자 제공은 하지 않습니다. 소셜 로그인에서는 인증 protocol에 필요한 요청만 provider에 보내고 provider가 이용자 동의에 따라 최소 프로필을 Blariyo에 전달합니다.</p>
     <h3>6. 처리위탁</h3><p>호스팅·이미지·이메일 수탁자와 GA4의 실제 계약 법인·업무·기간을 출시 전에 확정해 공개합니다.</p>
     <h3>7. 국외이전</h3><p>Google·Apple 로그인과 GA4의 실제 이전받는 자, 국가, 항목, 시점·방법, 기간과 거부 효과를 확정하고 적법 근거를 갖춘 뒤 활성화합니다.</p>
@@ -345,12 +361,18 @@ function renderPolicyDocument(type, selectedVersion = policyHistory[type].curren
 function renderCookiePolicy() {
   const analyticsChecked = cookieConsent?.analytics ? ' checked' : '';
   const adsChecked = cookieConsent?.ads ? ' checked' : '';
+  const analyticsOption = prototypeFeatures.analytics
+    ? `<label class="cookie-option"><span><strong>분석 쿠키</strong><span>동의 후 GA4로 방문 흐름과 화면 이용 현황을 분석합니다. 회원·소셜 식별자는 보내지 않습니다.</span></span><input type="checkbox" data-cookie="analytics"${analyticsChecked}></label>`
+    : '';
+  const adsOption = prototypeFeatures.ads
+    ? `<label class="cookie-option"><span><strong>광고 쿠키</strong><span>광고 노출과 성과 측정에 사용합니다.</span></span><input type="checkbox" data-cookie="ads"${adsChecked}></label>`
+    : '';
+  const selectionControls = hasOptionalFeatures
+    ? `<label class="cookie-option"><span><strong>설정 저장소</strong><span>활성 기능의 선택과 선택 시각을 12개월 동안 기억합니다.</span></span><input type="checkbox" checked disabled></label>${analyticsOption}${adsOption}<button class="policy-submit" type="button" data-save-cookies>선택 저장</button>`
+    : '<p class="policy-status">현재 활성화된 선택 분석·광고 기능과 자체 방문 통계 저장소가 없습니다.</p>';
   policyContent.innerHTML = `
     <div class="cookie-list">
-      <label class="cookie-option"><span><strong>필수 쿠키</strong><span>보안, 소셜 로그인 세션, OAuth 위조 방지, 쿠키 선택 저장에 사용합니다.</span></span><input type="checkbox" checked disabled></label>
-      <label class="cookie-option"><span><strong>분석 쿠키</strong><span>동의 후 GA4로 방문 흐름과 화면 이용 현황을 분석합니다. 회원·소셜 식별자는 보내지 않습니다.</span></span><input type="checkbox" data-cookie="analytics"${analyticsChecked}></label>
-      <label class="cookie-option"><span><strong>광고 쿠키</strong><span>광고 노출과 성과 측정에 사용합니다.</span></span><input type="checkbox" data-cookie="ads"${adsChecked}></label>
-      <button class="policy-submit" type="button" data-save-cookies>선택 저장</button>
+      ${selectionControls}
       <p class="policy-status" id="cookieStatus" aria-live="polite"></p>
     </div>
   `;
@@ -458,7 +480,7 @@ document.addEventListener('click', (event) => {
   }
 
   if (event.target.closest('[data-cookie-essential]')) saveCookieConsent({ analytics: false, ads: false });
-  if (event.target.closest('[data-cookie-all]')) saveCookieConsent({ analytics: true, ads: true });
+  if (event.target.closest('[data-cookie-all]')) saveCookieConsent(prototypeFeatures);
   if (event.target.closest('[data-cookie-settings]')) openPolicyModal('cookies');
 
   if (shareMenu && !shareMenu.hidden && !shareMenu.contains(event.target) && !shareButton.contains(event.target)) closeShareMenu(false);
@@ -509,4 +531,4 @@ document.addEventListener('keydown', (event) => {
 
 const requestedScreen = location.hash.slice(1);
 showScreen(screens.some((screen) => screen.dataset.view === requestedScreen) ? requestedScreen : 'home');
-cookieBanner.hidden = Boolean(cookieConsent);
+cookieBanner.hidden = !hasOptionalFeatures || Boolean(cookieConsent);

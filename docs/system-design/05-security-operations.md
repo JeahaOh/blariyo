@@ -1,8 +1,8 @@
 # M0 보안·운영 설계
 
 - 문서 상태: M0 보안·운영 설계 계약 · 현행 운영 검증 산출물 없음
-- 기준일: 2026-08-20
-- 정합성 검토일: 2026-08-20
+- 기준일: 2026-09-02
+- 정합성 검토일: 2026-09-02
 - 운영 인원: 초기 1명
 - 가용성 방식: 고가용성 대신 감지·백업·복구
 
@@ -15,7 +15,6 @@
 | 관리자 접근 | 등록 운영자만, BFF 외부 인증 adapter 필수 |
 | 공개 장애 감지 | 5분 이내 |
 | 권리 요청 숨김 | 운영자가 메일 확인 후 30분 이내 목표 |
-| 원시 이벤트 보존 | 90일 |
 | 보안 로그 보존 | 90일 |
 | 수집 후보 보존 | 미승격 후보 30일 |
 | 수집 출처 robots 재확인 | 90일마다 또는 차단 발생 시 |
@@ -38,7 +37,7 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | 숨김 콘텐츠 cache 잔존 | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store |
 | VM·disk 소실 | R2 암호화 DB backup, image 원본 R2 저장 |
 | 무료 계정 정지·capacity 부족 | provider-neutral Compose, Lightsail 전환 runbook |
-| 이벤트 재식별 | browser ID 원문 미저장, HMAC, 90일 삭제 |
+| 분석 데이터 재식별 | GA4 User-ID 미사용, 회원·소셜 식별자·본문·수집 후보 정보 전송 금지 |
 | dependency 변조 | lockfile 추적, `npm ci`, image digest 고정, 주기 audit |
 
 ## 3. 관리자 접근
@@ -96,7 +95,9 @@ script-src 'self' (미정: 카카오 공유 script 호스트);
 connect-src 'self' (미정: 카카오 공유 API 호스트)
 ```
 
-GA4·광고·소셜 로그인을 활성화하기 전 CSP domain을 기능별로 검토한다. 편의를 위해 `*`나 광범위한 `unsafe-eval`을 추가하지 않는다. 수집은 서버에서 수행하므로 CSP `connect-src`에 수집 대상 도메인을 추가하지 않는다.
+M0 GA4를 활성화하기 전에 Google tag의 실제 CSP domain을 확정하고, 광고·소셜 로그인은 해당
+기능을 활성화하기 전에 별도로 검토한다. 편의를 위해 `*`나 광범위한 `unsafe-eval`을 추가하지
+않는다. 수집은 서버에서 수행하므로 CSP `connect-src`에 수집 대상 도메인을 추가하지 않는다.
 
 ### 입력 검증
 
@@ -157,13 +158,12 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 
 | secret | 권한 |
 | --- | --- |
-| PostgreSQL app password | `content`·`legal`·`analytics`·`ops`·`collect` DML·sequence 사용, migration 권한 없음 |
+| PostgreSQL app password | `content`·`legal`·`ops`·`collect` DML·sequence 사용, migration 권한 없음 |
 | PostgreSQL migration password | schema 변경, 배포 시에만 주입 |
 | R2 private media key | private 원본 bucket object read/write/delete, bucket 관리 금지 |
 | R2 public media key | public media bucket object write/delete, bucket 관리 금지 |
 | R2 backup key | backup bucket write/read, media·staging 접근 금지 |
 | cache purge token | 해당 zone cache purge only |
-| event HMAC keyring | event service only, active version과 보존 중 raw가 참조하는 이전 version만 포함 |
 | admin actor HMAC secret | BFF only, 내부 `operatorId` 가명화 |
 | Core service token | BFF·Core만 공유, 외부 노출 금지 |
 | 외부 provider audience/team | BFF adapter 설정, 비밀값과 분리 |
@@ -177,14 +177,12 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 - 90일마다 사용 여부를 점검하고 침해·운영자 변경 시 즉시 rotation한다.
 - backup 암호화 복구 key는 서버와 다른 위치에 오프라인 보관한다.
 
-event HMAC의 정상 rotation은 UTC 날짜 경계에서 끝나는 기존 schedule과 같은 시각에 시작하는 새 schedule을 배포한다. 수신 시각이 아니라 보정된 `occurredAt`이 포함된 schedule을 선택해 지연 이벤트도 원래 UTC 날짜의 key를 사용한다. 이전 key는 해당 version의 raw 보존 기간이 끝날 때까지만 유지한 뒤 삭제한다. 침해가 의심되는 key는 시각과 관계없이 즉시 비활성화하고 그 version을 참조하는 raw 이벤트를 삭제한 뒤 일별 비식별 집계만 유지한다. 폐기 schedule을 가리키는 지연 이벤트는 서버 수신 시각과 현재 emergency version으로 다시 보정한다. raw row의 key version 없이 secret만 교체하지 않는다.
-
 ## 6. DB 권한
 
 ```text
 blariyo_app
   CONNECT
-  USAGE on content, legal, analytics, ops, collect
+  USAGE on content, legal, ops, collect
   SELECT, INSERT, UPDATE, DELETE on M0 application tables
   USAGE, SELECT on M0 identity sequences
   no access on ops.schema_migration
@@ -195,7 +193,7 @@ blariyo_migrator
 
 blariyo_backup
   CONNECT
-  USAGE on content, legal, analytics, ops, collect
+  USAGE on content, legal, ops, collect
   SELECT on M0 application tables and sequences
 ```
 
@@ -408,7 +406,6 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 ```text
 매분     npm run posts:publish-due
 매분     npm run outbox:run
-5분마다  npm run events:aggregate
 10분마다 npm run collect:crawl-due
 ```
 

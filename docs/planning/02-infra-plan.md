@@ -1,10 +1,10 @@
 # 블라리요 인프라 계획
 
 - 문서 상태: M0 인프라 의사결정 정본
-- 기준일: 2026-08-20
-- 정합성 검토일: 2026-08-20
+- 기준일: 2026-09-02
+- 정합성 검토일: 2026-09-02
 - 역할: 배포 방향·비용 경계·공급자 선택을 정의한다. 스키마, API payload, container 자원값과 운영 명령은 정의하지 않는다.
-- 관련 문서: [서비스 기획서](./01-service-plan.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
+- 관련 문서: [서비스 기획서](./01-service-plan.md), [콘텐츠 수집 기획](./content-collection/README.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
 
 ## 1. 문서 경계
 
@@ -27,8 +27,13 @@
 - 초기 트래픽에서는 단일 서버·단일 리전으로 비용을 제한한다.
 - 서버가 사라져도 PostgreSQL backup과 공개 이미지 원본으로 복구할 수 있게 한다.
 - 고가용성보다 검증 가능한 백업·복원과 공급자 이전 경로를 우선한다.
-- 운영자 URL 지정 수집과 허용 출처 목록 수집을 M0 runtime·schema·API에 포함한다. 수집은 서버에서 외부 HTTP로 나가는 유일한 콘텐츠 경로이므로 대상 허용 범위와 요청 상한을 설계로 제한한다.
-- 소셜 로그인, 사용자 작성 게시판, 광고와 GA4는 M0 runtime·schema·API에 포함하지 않는다.
+- `M0 Core`는 외부 콘텐츠 자동 fetch 없이 운영자 수동 작성으로 공개할 수 있게 한다. 운영자 URL
+  지정은 `M0 수집 보조`, 허용 출처 목록 수집은 `M0 자동 수집`에서 runtime·schema·API를
+  활성화한다. 수집은 서버에서 외부 HTTP로 나가는 유일한 콘텐츠 경로이므로 대상 허용 범위와
+  요청 상한을 설계로 제한한다.
+- 소셜 로그인, 사용자 작성 게시판과 광고는 M0 runtime·schema·API에 포함하지 않는다. GA4는
+  M0 Web에 기본 비활성 연동으로 포함하고, 활성 환경에서도 분석 동의 후에만 로드하며 자체 분석
+  schema·API는 만들지 않는다.
 
 ## 3. 확정 기술 선택
 
@@ -88,13 +93,16 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 
 | 단계 | 기능 | 인프라 영향 |
 | --- | --- | --- |
-| M0 | 공개 짤 목록·상세, 운영자 발행·숨김, 정책, 최소 내부 조회 | 현재 단일 VM·PostgreSQL·R2 구성 |
-| M0 | 운영자 URL 지정·허용 출처 목록 수집과 후보 검수 | 외부 outbound HTTP 허용 범위, 수집 상한, 후보 이미지 저장 예산, 수집 cron |
+| M0 Core | 공개 짤 목록·상세, 운영자 발행·숨김, 정책, 참고용 조회 수, 기본 비활성 GA4 연동 | 현재 단일 VM·PostgreSQL·R2와 조건부 Google tag CSP·동의 설정 |
+| M0 수집 보조 | 운영자 URL 지정과 후보 검수 | 승인된 외부 outbound HTTP, 후보 schema·API |
+| M0 자동 수집 | 허용 출처 목록 수집 | 출처별 parser·수집 상한·수집 cron·Discord 운영 연동 검토 |
 | M1 | 소셜 가입·로그인·탈퇴 | provider secret, callback, session store 계약 추가 |
 | M1.5 | 익게 작성·댓글·신고·moderation | 사용자 쓰기 부하와 abuse 방어 재산정 |
-| 후속 | 광고·GA4 | consent, 외부 script와 CSP 검토 |
+| 후속 | 광고 | consent, 외부 script와 CSP 검토 |
 
-후속 기능의 테이블과 endpoint를 M0 schema·API에 미리 넣지 않는다. 단계 착수 전에 planning을 확정하고 system-design을 별도로 확장한다. 수집은 이 규칙의 예외가 아니라 M0로 승격된 기능이므로 M0 schema·API·운영 절차에 포함한다.
+후속 기능의 테이블과 endpoint를 앞 단계 schema·API에 미리 넣지 않는다. 단계 착수 전에
+planning을 확정하고 system-design을 대조한다. 수집 계약은 M0 전체 시스템 설계에 정의돼 있어도
+`M0 Core` production에서 feature flag와 출처별 활성값을 켜지 않는다.
 
 ## 8. 운영·보안 의사결정
 
@@ -102,7 +110,8 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 - 관리자 identity, DB role, R2 bucket, backup credential을 최소 권한으로 분리한다.
 - DB logical backup과 실제 restore test를 운영 필수 작업으로 둔다.
 - token·비밀번호·개인정보·권리자 소명 자료를 application log에 남기지 않는다.
-- 광고·GA4·소셜 provider를 활성화할 때마다 consent, CSP, callback allowlist를 다시 검토한다.
+- GA4를 M0에서 활성화하기 전에 consent와 CSP를 검토하고, 광고·소셜 provider를 활성화할 때마다
+  consent, CSP, callback allowlist를 다시 검토한다.
 
 구체적인 제한값과 runbook은 [보안·운영 설계](../system-design/05-security-operations.md)를 따른다.
 

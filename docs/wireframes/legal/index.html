@@ -180,7 +180,7 @@
       description.textContent = data.description;
       const sections = type === 'terms'
         ? ['목적', '정의', '약관 게시와 변경', '서비스와 소셜 계정', '게시글 선별과 발행', '외부 콘텐츠와 출처', '금지행위', '광고와 제휴', '권리자 요청', '지식재산권', '개인정보와 쿠키', '서비스 변경과 중단', '책임 제한', '통지와 분쟁 해결', '부칙']
-        : ['처리 목적', '처리 항목과 수집 방법', '내부 식별자', '보유 기간', '제3자 제공과 소셜 제공자', '처리위탁', '국외이전', '파기', '정보주체 권리', '쿠키와 GA4', '자동화된 결정과 AI', '안전성 확보 조치', '보호책임자와 고충 처리', '권익침해 구제', '변경과 이력'];
+        : ['처리 목적', '처리 항목과 수집 방법', '조회 수와 최소 수집', '보유 기간', '제3자 제공과 소셜 제공자', '처리위탁', '국외이전', '파기', '정보주체 권리', '쿠키와 GA4', '자동화된 결정과 AI', '안전성 확보 조치', '보호책임자와 고충 처리', '권익침해 구제', '변경과 이력'];
       const policyText = sections.map((section, index) => `<h3>${type === 'terms' ? `제${index + 1}조 ` : `${index + 1}. `}${section}</h3><p>${index === 3 && type === 'terms' ? '네이버·카카오·Google·Apple 계정 가입, 별도 필수 동의, 탈퇴·연동 해제 기준을 공개합니다.' : index === 9 && type === 'privacy' ? '로그인 보안 저장소와 동의 후 GA4를 분리하고 회원·provider 식별자는 분석으로 보내지 않습니다.' : '현재 적용 전문을 이 위치에 생략 없이 표시합니다.'}</p>`).join('');
       const period = selectedVersion === 'v0.3' ? 'yyyy.mm.dd ~ 시행 중' : 'yyyy.mm.dd ~ yyyy.mm.dd';
       body.innerHTML = `<article class="policy-document"><h2>${data.title}</h2><p>${selectedVersion} · ${period}</p>${policyText}</article>`;

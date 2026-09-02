@@ -1,8 +1,8 @@
 # M0 시스템 아키텍처
 
 - 문서 상태: M0 아키텍처 설계 계약 · 현행 구현 산출물 없음
-- 기준일: 2026-08-20
-- 정합성 검토일: 2026-08-20
+- 기준일: 2026-09-02
+- 정합성 검토일: 2026-09-02
 - 관련 문서: [데이터 모델](./02-data-model.md), [API 설계](./03-api-design.md), [인프라 설계](./04-infrastructure-design.md), [보안·운영](./05-security-operations.md)
 
 ## 1. 목표와 제약
@@ -21,14 +21,17 @@
 - M0에는 무중단 배포와 다중 리전이 없다.
 - 페이지 번호 방식은 낮은 데이터 규모를 전제로 `OFFSET`을 사용한다.
 - 원본 이미지 변환·동영상 호스팅·실시간 알림은 없다.
-- 소셜 로그인, 광고와 GA4는 M0 runtime·schema·API에 포함하지 않는다.
-- 수집은 M0에 포함하지만 외부 사이트 구조 변경에 취약하다. 파싱 실패를 장애가 아닌 후보 실패로 처리하고 운영자 수동 입력 경로를 항상 유지한다.
+- 소셜 로그인과 광고는 M0 runtime·schema·API에 포함하지 않는다. GA4는 M0 Web에 기본 비활성
+  연동으로 포함하고 운영 gate를 통과한 환경에서도 분석 동의 후에만 로드하며 Core API와
+  PostgreSQL에 자체 분석 저장 경로를 만들지 않는다.
+- 수집은 `M0 Core` 뒤의 수집 보조·자동 수집 단계에 포함하지만 외부 사이트 구조 변경에
+  취약하다. 파싱 실패를 장애가 아닌 후보 실패로 처리하고 운영자 수동 작성 경로를 항상 유지한다.
 - 수집 대상은 등록된 출처와 그 하위 경로로만 제한하고, 임의 URL을 서버가 무제한 fetch하지 않는다.
 
 ## 2. 시스템 컨텍스트
 
 ```text
-[공개 사용자]
+[공개 사용자 브라우저] -- 기능 활성 + 분석 동의 후 --> [Google Analytics 4]
       |
       v
 [Cloudflare DNS/CDN/SSL]
@@ -60,14 +63,20 @@
 | `nginx` | 내부 reverse proxy, 보안 header, 요청 크기 제한 | tunnel 내부 |
 | `web` | Nuxt SSR, SEO·OG HTML, 외부 `/api/v1` BFF | Nginx 경유 |
 | `api` | Core API, 조회·발행·숨김 transaction과 단발성 cron command | Docker app network에서 Web만 HTTP 접근 |
-| `postgresql` | 게시글·정책·이벤트 저장 | Docker private network only |
+| `postgresql` | 게시글·정책·운영 작업 저장 | Docker private network only |
 | `backup` | 정기 DB dump 암호화·R2 업로드 | outbound only |
 
 수집은 별도 컨테이너를 만들지 않는다. 운영자 URL 지정 후보 생성은 `api`의 요청 처리 안에서, 허용 출처 목록 수집은 `api` image의 단발성 command에서 같은 service·repository 계층으로 실행한다.
 
 `worker`는 별도 상시 컨테이너로 시작하지 않는다. 예약 발행, 정리 작업과 목록 수집은 API 이미지의 단발성 명령을 cron에서 실행한다. 수집 출처가 늘어 목록 수집이 API 응답에 영향을 주면 그때 별도 worker를 추가한다.
 
-M0 반복 명령은 `npm run posts:publish-due`, `npm run outbox:run`, `npm run events:aggregate`, `npm run collect:crawl-due`다. 예약 발행과 outbox는 매분, 이벤트 집계는 5분마다, 목록 수집은 출처별 요청 간격을 지키는 10분 주기로 실행한다. 정책 시행은 자동 scheduler가 아니라 승인된 정책 release artifact를 사용하는 운영 단발성 명령 `npm run policies:publish`로 수행한다. 각 명령은 HTTP 관리자 경계를 우회하지 않고 동일한 repository·service와 전용 system actor를 사용한다.
+M0 반복 명령은 `npm run posts:publish-due`, `npm run outbox:run`,
+`npm run collect:crawl-due`다. 예약 발행과 outbox는 매분 실행한다. 목록
+수집 command의 10분 tick은 실행 대상 출처가 due인지 확인하는 주기이며 각 출처를 10분마다
+요청한다는 뜻이 아니다. 실제 요청 간격·일일 상한·활성 시간은 승인된 출처 명세를 따른다. 정책
+시행은 자동 scheduler가 아니라 승인된 정책 release artifact를 사용하는 운영 단발성 명령
+`npm run policies:publish`로 수행한다. 각 명령은 HTTP 관리자 경계를 우회하지 않고 동일한
+repository·service와 전용 system actor를 사용한다.
 
 ## 4. 애플리케이션 컴포넌트
 
@@ -106,6 +115,10 @@ ui
 - BFF는 외부 assertion을 Core에 전달하지 않는다. adapter가 외부 identity를 안정적인 내부 `operatorId`로 매핑하고 이를 HMAC actor로 변환해 내부 서비스 토큰과 함께 전달한다.
 - BFF에는 SQL, 게시 상태 전이, outbox 생성 같은 업무 규칙을 두지 않는다.
 - 카카오톡 공유는 브라우저에서 카카오 공유 script를 사용한다. script와 연결 도메인은 CSP allowlist에 명시하고 JavaScript key는 공개 config로 주입한다. script를 불러오지 못하면 공유 popup은 카카오 항목 없이 동작한다.
+- GA4 feature flag 기본값은 `false`다. Measurement ID·속성 보관 설정·국외이전 고지가 확정된
+  환경에서만 켜고, 저장된 분석 동의가 있기 전에는 Google tag를 로드하지 않는다. `page_view`,
+  `select_content`, `share`, `scroll`은 브라우저에서 GA4로 직접 보내며 BFF·Core·PostgreSQL에
+  복제하지 않는다.
 - 수집 관련 화면과 API는 게시글 관리자 경로와 같은 인증 경계를 사용하고, 외부 사이트 fetch는 BFF가 직접 수행하지 않는다.
 
 ### Express Core API
@@ -124,7 +137,6 @@ services
   PostQueryService
   PostCommandService
   PolicyQueryService
-  EventService
 
 repositories
   PostgreSQL query and transaction
@@ -181,6 +193,10 @@ GET /meme/posts/:postId
 - `PUBLISHED`이며 `published_at <= now()`인 글만 공개한다.
 - `HIDDEN_REVIEW`, `REMOVED`, 존재하지 않는 번호와 게시판 불일치는 동일한 `404` 응답이다.
 - 상세 하단의 다른 페이지를 누르면 본문은 유지하고 목록 API만 다시 호출한다.
+- 상세 화면을 정상 표시한 브라우저는 payload 없는 조회 수 endpoint를 페이지 lifecycle당 한 번
+  호출한다. endpoint는 공개 상태를 다시 확인하고 `view_count`를 원자적으로 증가시킨다.
+- 조회 수 호출 실패는 상세 화면을 실패시키지 않는다. 별도 방문자·세션 식별자와 조회 이력은
+  저장하지 않으므로 새로고침·자동화 요청을 사람 단위로 보정하지 않는다.
 
 ### 이미지 등록과 발행
 
@@ -247,7 +263,9 @@ R2 copy 동안 DB row lock이나 transaction을 유지하지 않는다. 여러 s
 10분 cron: collect:crawl-due
   -> 목록 수집이 활성이고 요청 간격이 지난 출처 선택
   -> 출처 목록·피드 1회 GET
-  -> 새 원문 URL만 후보로 적재(상세 페이지는 승격 시점에 가져옴)
+  -> 새 원문 URL의 목록·feed metadata 확인
+  -> 후보 정보가 부족한 새 URL만 요청 상한 안에서 상세 페이지 GET
+  -> 제목·이미지 후보 URL을 갖춘 후보로 적재
   -> 출처의 최근 수집 시각·오류·요청 수 갱신
 ```
 

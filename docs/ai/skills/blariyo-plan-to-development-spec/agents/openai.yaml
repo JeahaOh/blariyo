@@ -1,0 +1,4 @@
+interface:
+  display_name: "Blariyo Markdown 개발 Spec"
+  short_description: "기획에서 개발 보강서, API, D01, D08 Spec 생성"
+  default_prompt: "$blariyo-plan-to-development-spec를 사용해 Blariyo 기획과 관련 정본을 대조하고 기능별 Markdown 개발 Spec 번들을 작성해줘."

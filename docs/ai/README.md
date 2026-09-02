@@ -15,6 +15,7 @@
 | 비교 기준과 수용 조건 | [벤치마크 명세](../planning/05-benchmark-spec.md) |
 | 문구와 색상 후보 | [문구 후보](../planning/06-copy-candidates.md), [색상표](../planning/07-color-palette.md) |
 | 시스템 경계·DB·API·운영 | [시스템 설계](../system-design/README.md) |
+| 화면·기능별 개발 보강서·API·D01·D08 | `docs/development-specs/<milestone>/<feature-slug>/` — Spec 생성 후 기능별 구현 계약 |
 | 약관·개인정보·권리·쿠키 | [법무 문서](../legal/README.md) |
 | 정적 화면의 현재 표현 | [퍼블리싱 프로토타입](../publishing/responsive/README.md), [와이어프레임](../wireframes/) — 단계는 화면 설계와 재대조 |
 | 과거 작업과 다음 시작점 | [작업 기록](../../worklog/README.md) — 비정본 |
@@ -66,14 +67,18 @@ planning의 화면 규칙과 publishing·wireframe을 함께 비교한다. HTML�
 
 - [blariyo-task-start](./skills/blariyo-task-start/SKILL.md): 비단순 작업의 범위·정본·검증 계획 수립
 - [blariyo-docs-audit](./skills/blariyo-docs-audit/SKILL.md): 문서 정합성, 누락, 과장과 stale 상태 검수
+- [blariyo-plan-to-development-spec](./skills/blariyo-plan-to-development-spec/SKILL.md): 기획·기술 정본에서 개발 보강서, API, D01, D08 Markdown Spec 번들 작성
 
-`docs/ai/skills/`가 Blariyo 프로젝트 스킬의 편집 정본이다. 현재 Codex 전역 배치본은 아래처럼
-`~/.agents/skills/`에 두며, 다른 저장소에서 잘못 적용하지 않도록 각 스킬의 Blariyo 범위를 유지한다.
+`docs/ai/skills/`가 Blariyo 프로젝트 스킬의 편집 정본이다. Codex 전역 배치본은 아래 위치에 두며,
+다른 저장소에서 잘못 적용하지 않도록 각 스킬의 Blariyo 범위를 유지한다. 미배치 스킬은 프로젝트
+`AGENTS.md`의 요청 매핑으로 직접 읽을 수 있지만 `$스킬명` 자동 발견에는 나타나지 않는다.
 
-| 원본 | 현재 Codex 전역 배치 경로 |
-| --- | --- |
-| `docs/ai/skills/blariyo-task-start/SKILL.md` | `~/.agents/skills/blariyo-task-start/SKILL.md` |
-| `docs/ai/skills/blariyo-docs-audit/SKILL.md` | `~/.agents/skills/blariyo-docs-audit/SKILL.md` |
+| 원본 | Codex 전역 배치 경로 | 상태 |
+| --- | --- | --- |
+| `docs/ai/skills/blariyo-task-start/SKILL.md` | `~/.agents/skills/blariyo-task-start/SKILL.md` | 배치 |
+| `docs/ai/skills/blariyo-docs-audit/SKILL.md` | `~/.agents/skills/blariyo-docs-audit/SKILL.md` | 배치 |
+| `docs/ai/skills/blariyo-plan-to-development-spec/SKILL.md` | `~/.agents/skills/blariyo-plan-to-development-spec/SKILL.md` | 미배치 |
 
-스킬은 `docs/ai/skills/`에서만 수정하고 전역 배치본을 다시 복사한다. 복사 후 두 파일을 `diff`
-또는 SHA-256으로 비교해 동일성을 확인한다. `~/.agents/skills/`의 배치본을 별도 정본으로 운영하지 않는다.
+스킬은 `docs/ai/skills/`에서만 수정하고 전역 배치 폴더를 다시 복사한다. `references/`와 `agents/`가
+있으면 함께 배치하고, 복사 후 원본·배치 폴더 전체를 `diff` 또는 SHA-256으로 비교한다.
+`~/.agents/skills/`의 배치본을 별도 정본으로 운영하지 않는다.

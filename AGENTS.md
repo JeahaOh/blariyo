@@ -22,6 +22,7 @@
 | 제품 범위·운영 정책 | `docs/planning/` | 무엇을 만들지 결정 |
 | 약관·개인정보·권리 정책 | `docs/legal/` | 법무 초안과 출시 차단 조건 |
 | 아키텍처·DB·API·인프라 | `docs/system-design/` | 어떻게 구현할지 정한 기술 계약 |
+| 기능별 개발 명세 | `docs/development-specs/` | planning·system-design을 기능별 API·D01·D08 구현 계약으로 구체화 |
 | 정적 화면 검토물 | `docs/publishing/`, `docs/wireframes/` | planning 화면 계약의 시각 비교 자료, 제품 정본 아님 |
 | AI 절차 | `docs/ai/` | 정본 탐색, 작업 순서와 증거 계약 |
 | 작업 이력 | `worklog/` | 과거 작업·검증 기록, 현행 정본 아님 |
@@ -45,6 +46,7 @@
 | --- | --- | --- |
 | 비단순 기획·설계 작업 착수, 범위와 정본 선정 | `docs/ai/skills/blariyo-task-start/SKILL.md` | `~/.agents/skills/blariyo-task-start/SKILL.md` |
 | 기획·설계·법무·화면 문서 감사와 정합성 검토 | `docs/ai/skills/blariyo-docs-audit/SKILL.md` | `~/.agents/skills/blariyo-docs-audit/SKILL.md` |
+| 기획·기술 정본에서 기능별 Markdown 개발 Spec 번들 작성 | `docs/ai/skills/blariyo-plan-to-development-spec/SKILL.md` | 미배치 (`~/.agents/skills/blariyo-plan-to-development-spec/SKILL.md` 예정) |
 
 해당 요청이면 스킬 파일을 처음부터 끝까지 읽고 따른다. `docs/ai/skills/`가 편집 정본이고
 `~/.agents/skills/`는 현재 Codex가 자동 발견하는 전역 복사본이다. 전역 복사본을 독립 편집하지

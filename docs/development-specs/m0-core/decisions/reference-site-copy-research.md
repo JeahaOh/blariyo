@@ -46,6 +46,9 @@
 | 루리웹 | https://www.ruliweb.com/ | `루리웹 RULIWEB` | `들어올 땐 마음대로인 루리웹 메인으로 들어오도록 해` | 오래 유지된 내부 밈성 문구 사용 |
 | 고급유머 | https://www.humorworld.net/ | `유머월드 - HumorWorld` | `HumorWorld` | 단순 title 중심 |
 | 이토랜드 | https://www.etoland.co.kr/ | `이토랜드` | `유머, 연예, 정보, 이슈를 빠르게 공유하는 커뮤니티입니다.` | 카테고리와 커뮤니티 성격 직접 설명 |
+| 율도 | https://yul-do.com/ | `YULDO` | 확인 가능한 meta description 없음 | 영문 서비스명 단독 title |
+| 디미토리 | https://www.dmitory.com/ | `디미토리` | `익명 정보 커뮤니티 사이트` | 서비스명 단독 title과 짧은 설명 |
+| 피지알21 | https://pgr21.com/ | `PGR21.com · 연결 확인 중` | 실제 홈 meta/OG description 자동 확인 제한 | Anubis 보호 화면으로 실제 홈 카피 확인 불가 |
 
 ## 4. 블라리요 적용 판단
 
@@ -76,4 +79,6 @@
 
 - 일부 사이트는 접근 환경에 따라 bot 차단, redirect, 구형 encoding 이슈가 있었다.
 - 뽐뿌는 직접 HTTPS 요청이 403이어서 검색 노출 결과와 접근 가능한 URL을 참고했다.
+- 율도는 공식 도메인 첫 HTML에서 `YULDO` title만 확인했고, 별도 meta description은 확인되지 않았다.
+- 피지알21은 공식 도메인과 주요 게시판 경로가 자동 접근에서 `연결 확인 중` 화면으로 응답해 실제 홈 title/meta를 확인하지 못했다.
 - 각 사이트의 문구는 확인일 기준이며, 이후 변경될 수 있다.

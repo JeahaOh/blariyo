@@ -1,0 +1,67 @@
+# URL 후보 생성과 검수 D01
+
+## 1. 프로세스 목적과 범위
+
+- 문서 상태: `초안`
+- milestone: `M0 수집 보조`
+- 기능: `collection-assist`
+- 기준일: 2026-09-03
+- 입력 근거: [수집 보조 개발 보강서](../collection-assist.dev.md)
+- 미검증: source, test, browser, 실제 출처 fetch
+
+운영자가 원문 URL을 입력해 후보를 만들고, 후보 목록·상세에서 결과를 확인한다.
+
+## 2. 행위자·시작 조건·선행 조건
+
+- 행위자: 인증된 운영자
+- 시작 조건: `/admin/collect` 진입 후 원문 URL 입력
+- 선행 조건: 승인된 출처와 parser, 관리자 인증, M0 Core 수동 초안 경로
+
+## 3. 정상 흐름
+
+1. 운영자가 원문 URL을 입력하고 `후보 만들기`를 선택한다.
+2. 화면은 중복 제출을 막고 생성 중 상태를 표시한다.
+3. BFF는 `POST /api/v1/admin/collect/candidates`를 호출한다.
+4. Core는 출처·robots·요청 상한·DNS 안전성·redirect 경계를 확인한다.
+5. Core는 상세 페이지를 1회 fetch하고 parser를 실행한다.
+6. Core는 후보와 이미지 후보 metadata를 저장한다.
+7. 화면은 후보 목록에 새 후보를 표시한다.
+8. 운영자는 원문 링크, 제목, 이미지 후보, 중복 표시, 실패 사유를 확인한다.
+
+## 4. 대안·실패 흐름
+
+- 등록되지 않은 host: 후보를 만들지 않고 허용되지 않은 출처로 표시한다.
+- robots 금지: 후보를 만들지 않고 수집 금지로 표시한다.
+- 요청 상한 초과: `Retry-After` 기준으로 재시도 가능 시점을 표시한다.
+- fetch·parser 실패: `FETCH_FAILED` 후보를 표시하고 재시도·반려만 허용한다.
+- 중복 후보: 기존 후보를 안내하고 새 후보를 만들지 않는다.
+
+## 5. 단계별 호출 API 매핑
+
+| 단계 | API |
+| --- | --- |
+| 3~6 | [운영자 URL 지정 후보 생성](../api/create-candidate-from-url.md) |
+
+## 6. 데이터·상태 전이
+
+- 없음 -> `NEW`: 제목·이미지 후보 추출 성공
+- 없음 -> `FETCH_FAILED`: 요청 허용 후 fetch·parser 실패
+- 후보 이미지 metadata는 `DISCOVERED`로 저장한다.
+
+## 7. 권한·트랜잭션·멱등성·재시도
+
+- 관리자 인증과 Core service token·actor가 필요하다.
+- 생성 API는 `Idempotency-Key`를 사용한다.
+- 같은 정규화 URL은 unique constraint로 중복 생성을 막는다.
+
+## 8. 완료 조건과 수용 기준
+
+- 후보 또는 명시적 실패 상태로 끝난다.
+- 원문 HTML 전체와 내부 오류 상세를 화면·로그에 노출하지 않는다.
+- 수집 실패가 공개 목록·상세와 수동 게시를 막지 않는다.
+
+## 9. 미정·차단·미검증 항목
+
+- 차단: 출처별 약관·robots·parser spec 전 production 활성화 불가
+- 미검증: source, contract test, browser
+

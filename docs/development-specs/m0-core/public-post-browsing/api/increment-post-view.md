@@ -5,9 +5,9 @@
 - 문서 상태: `초안`
 - milestone: `M0 Core`
 - 기능: `public-post-browsing`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [API 설계 §3 조회 수](../../../../system-design/03-api-design.md), [분석·광고 계획 §3](../../../../planning/04-analytics-ad-plan.md)
-- 미검증: 오류 code 확정, OpenAPI, source, rate-limit·동시성 test
+- 미검증: OpenAPI, source, rate-limit·동시성 test
 
 ## 1. 목적과 호출 경계
 
@@ -41,8 +41,7 @@ error envelope를 사용한다.
 
 ## 5. Validation과 정규화
 
-payload가 있으면 `400`이다. 오류 code는 API 본문의 `VALIDATION_ERROR`와 공통표의
-`VALIDATION_FAILED`가 충돌하므로 `(결정 필요)`다.
+payload가 있으면 `400 VALIDATION_FAILED`다.
 
 ## 6. 정상 처리와 데이터 전이
 
@@ -89,4 +88,4 @@ Cache-Control: no-store
 ## 11. Contract test와 미검증
 
 - 빈 payload, payload 거부, 동시 증가, 공개 상태 재검증, rate-limit, UI 비차단을 검증한다.
-- 오류 code가 상위 계약에서 통일되기 전 문서 상태는 `초안`이다.
+- 현재 실행 증거는 없다.

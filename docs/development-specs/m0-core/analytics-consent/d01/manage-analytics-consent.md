@@ -5,7 +5,7 @@
 - 문서 상태: `작성 완료`
 - milestone: `M0 Core`
 - 기능: `analytics-consent`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [분석 계획 §5](../../../../planning/04-analytics-ad-plan.md), [쿠키 안내 §3~§5](../../../../legal/cookie-settings.md), [퍼블리싱 동의 저장 비교물](../../../../publishing/responsive/app.js)
 - 미검증: browser storage·tag/network test
 
@@ -69,7 +69,8 @@ API 해당 없음. browser localStorage와 tag loader만 사용한다.
 
 ## 8. 완료 조건과 수용 기준
 
-flag false·거부·철회에서 Google 요청과 `_ga*`가 없고 공개 기능이 유지되어야 한다. 깨진 JSON,
+flag false·미저장·거부·철회에서 방문자 수·page open을 포함한 Google tag/request·cookieless ping과
+`_ga*`가 0건이고 공개 기능이 유지되어야 한다. 깨진 JSON,
 미지원 version, scope 순서 변경, 12개월 경계와 저장 실패도 거부 기본값으로 처리해야 한다.
 
 ## 9. 미정·차단·미검증

@@ -5,7 +5,7 @@
 - 문서 상태: `차단`
 - milestone: `M0 Core` (`m0-core`)
 - 기능: `policy-and-rights` — 약관·개인정보 버전 조회와 권리 문의 진입
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 미검증: 법률 확정, 실제 정책 artifact, 접수 이메일, policy command/API/source/runtime
 - 주요 근거:
   - [서비스 기획 §3·§11·§14](../../../planning/01-service-plan.md)
@@ -23,7 +23,8 @@
 
 - 공개 이용자: footer의 이용약관·개인정보처리방침·권리 문의, `/terms`, `/privacy`
 - 운영자: 승인된 policy release artifact를 시행 시각부터 5분 안에 단발성 command로 발행
-- 선행: 실제 사업자·운영자·시행일·문의·수탁자와 권리 접수값의 법률 승인
+- 선행: 운영자 표시명·시행일·일반 문의·권리 침해 신고/요청·개인정보 문의 이메일,
+  개인정보 보호책임자 또는 담당자, 실제 사용 수탁자 실값 확정과 법률 검토
 
 ## 4. 범위와 범위 밖
 
@@ -32,11 +33,12 @@
 - `terms`,`privacy` 현재·과거 버전 조회와 본문·이력 UI
 - modal focus·scroll 제어와 직접 route fallback
 - 정책 시행 command의 checksum·sanitize·version 전환·cache purge
-- footer `권리 문의` mailto와 관리자 우선 숨김 프로세스 연결
+- footer `권리 문의` mailto·항상 접근 가능한 `이메일 주소 복사`와 관리자 우선 숨김 프로세스 연결
 
 범위 밖:
 
 - 권리 문의 form·`/rights`·권리 요청 API
+- mail client 실행 성공·실패 감지, 별도 접수 DB
 - 법률 문구 자체 확정, 이메일 사업자 선정, ticket/민감자료 저장
 - 쿠키 선택 UI는 [analytics-consent](../analytics-consent/analytics-consent.dev.md)가 소유한다.
 
@@ -48,8 +50,10 @@
 | 시행된 본문 불변·버전 보관 | 확정 | 데이터 모델 §4 | publish-policy, D08 command | 반영 |
 | modal·직접 route 동등 내용 | 확정 | 서비스 기획 §11 | policy-viewer | 반영 |
 | 현재 URL을 넣은 권리 mailto | 확정 | 화면 설계 §10 | submit-rights-inquiry, rights-entry | 반영 |
-| 실제 사업자·시행일·접수 채널 | 결정 필요 | legal README 출시 차단 | 전체 | `[출시 차단]` |
-| mail client를 열 수 없을 때 대체 접수 UX | 결정 필요 | planning에 대안 없음 | rights D01·D08 | 상위 계약 누락 |
+| 법무·문의 실값의 properties/config 주입 | 확정 | OD-M0-006·legal README | policy D01·D08 | 실값 미입력으로 `[출시 차단]` 유지 |
+| 사업자등록 전 사업자 정보 보류 | 확정 | OD-M0-006·legal README | policy D01·D08 | `(미정)` 유지 |
+| mailto와 독립적인 이메일 주소 복사 | 확정 | 사용자 결정·legal README | rights D01·D08 | 주소만 복사, 제목·본문 제외 |
+| mail client 실행 결과 감지 없음 | 확정 | 사용자 결정·legal README | rights D01·D08 | 성공·실패 분기 미생성 |
 | form·API | 범위 밖 | 서비스 기획 §11 | 전체 | 생성 안 함 |
 
 ## 6. 업무 규칙과 수용 조건
@@ -58,6 +62,9 @@
 - 본문은 허용 목록으로 sanitize한 `bodyHtml`만 반환하고 초안·원문은 공개하지 않는다.
 - 현재 적용 기간은 `시행 중`, 과거는 시작~종료이며 행 선택 시 같은 modal 본문을 교체한다.
 - 권리 mailto에는 현재 URL과 요청 내용 입력란만 미리 넣고 개인정보 원문을 자동 수집하지 않는다.
+- 권리 mailto와 `이메일 주소 복사`는 `BLARIYO_RIGHTS_CONTACT_EMAIL` 실값만 사용한다. 복사 동작은
+  mailto 실행 결과와 무관하게 항상 노출하고 이메일 주소만 복사한다. client 실행 성공·실패를
+  감지하거나 form·API·접수 DB로 분기하지 않는다.
 
 ## 7. 데이터·권한·법무 영향
 
@@ -85,7 +92,9 @@
 
 ## 11. 결정·가정·미정·차단 항목
 
-- 출시 차단: legal README의 M0 사업자·운영자·시행일·수탁자·문의·권리 접수 실값.
-- 결정 필요: mail client를 열 수 없는 환경의 대체 접수 UX. 별도 form/API는 현 범위에서 만들지 않는다.
+- 출시 차단: legal README의 운영자 표시명·시행일·수탁자·일반 문의·권리·개인정보 접수 이메일과
+  개인정보 보호책임자 또는 담당자 실값. 사업자 정보는 사업자등록 또는 거래 기능 확정 전까지 보류한다.
+- 확정: mail client 실행 결과를 감지하지 않고 `이메일 주소 복사`를 항상 제공한다. 복사 범위는
+  이메일 주소뿐이며 제목·본문은 제외한다.
 - 미검증: 법률 자문, 실제 release artifact/checksum, SMTP/mail client, policy cache purge.
 - 문서 계약은 작성했지만 실값이 없으므로 상태를 `차단`으로 유지한다.

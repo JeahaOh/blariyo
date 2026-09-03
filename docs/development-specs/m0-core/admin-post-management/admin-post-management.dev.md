@@ -5,7 +5,7 @@
 - 문서 상태: `초안`
 - milestone: `M0 Core` (`m0-core`)
 - 기능: `admin-post-management` — 검색·이미지·초안·발행·예약·숨김·삭제
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 미검증: `/admin` source, 외부 관리자 adapter, migration, OpenAPI, test, R2·outbox·scheduler runtime
 - 주요 근거:
   - [서비스 기획 §3~§5, §10, §14](../../../planning/01-service-plan.md)
@@ -50,12 +50,13 @@
 | 상태·게시판·제목 prefix 검색 | 확정 | 화면 설계 §2 | `search-posts`, D08 | 반영 |
 | TEXT/IMAGE·출처·공지 편집 | 확정 | 화면 설계 §2 | create/update API, D08 | 반영 |
 | 즉시·예약·예약 취소 | 확정 | API 설계 §5 | publish/unschedule, D01 | 반영 |
+| 기본 예약 슬롯·임의 예약·장애 복구 | 확정 | 인프라 계획 §8, 보안·운영 §12 | publish, D01 | `07:30`·`17:30` KST와 매분 due 처리 반영 |
 | 숨김 후 재공개·최종 제거 | 확정 | 서비스 기획 §3 | hide/republish/remove, D01 | 반영 |
 | 이미지 검증·private/public 분리 | 확정 | 보안 §4, 아키텍처 §5 | image API, D01 | 반영 |
-| multi-file upload 일부 실패 응답 | 결정 필요 | API 설계 §5 | `upload-images` | 상위 계약 누락 |
-| 관리자 검색의 전체 page 초과 처리 | 결정 필요 | API 설계 §5 | `search-posts` | 상위 계약 누락 |
-| 관리자 `postId` 형식 오류 처리 | 결정 필요 | API 설계 §5 | `get-post-editor` | 상위 계약 누락 |
-| staging 이미지 폐기 `202` 성공 body | 결정 필요 | API 설계 §5 | `discard-image` | 상위 계약 누락 |
+| multi-file upload validation·object 회수 | 확정 | 데이터 모델 §5, API 설계 §5, 보안·운영 §4 | `upload-images`, D01·D08 | 요청 gate fields 없음·파일별 413 우선순위·503 fields 미제공·cleanup 반영 |
+| 관리자 검색의 전체 page 초과 처리 | 확정 | API 설계 §5 | `search-posts` | `200` 빈 items 반영 |
+| 관리자 `postId` 형식 오류 처리 | 확정 | API 설계 §5 | `get-post-editor` | `404 POST_NOT_FOUND` 반영 |
+| staging 이미지 폐기 `202` 성공 body | 확정 | API 설계 §5 | `discard-image` | 공통 성공 envelope 반영 |
 | 실제 R2·관리자 provider 운영값 | 미검증 | infra·보안 정본 | 전체 | 실행 전 확인 |
 | 수집·회원·광고 | 범위 밖 | 서비스 기획 §1 | 전체 | 제외 |
 
@@ -66,6 +67,9 @@
 - `REMOVED`는 terminal이며 물리 삭제하지 않는다. 최종 제거 전 되돌릴 수 없음을 확인한다.
 - 숨김 commit 직후 공개 API는 404이고 image 삭제·purge 실패는 outbox로 재시도한다.
 - public image 삭제 대기 중에는 재공개·최종 제거와 숨김 글 block 교체를 막는다.
+- 기본 예약 슬롯은 `07:30`, `17:30` KST(`Asia/Seoul`)이며 게시글별 임의 미래 시각도 허용한다.
+- scheduler는 매분 due 글을 확인하고 장애 중 지난 예약도 복구 후 처리한다. 일시 장애는 첫 실패부터
+  알림 후 성공 또는 운영자 취소까지 재시도하며, 영구 업무 오류는 알림 후 자동 재시도하지 않는다.
 
 ## 7. 데이터·권한·법무 영향
 
@@ -94,10 +98,21 @@
 
 ## 11. 결정·가정·미정·차단 항목
 
-- 결정 필요: 한 multipart 요청에서 일부 파일만 잘못됐을 때 전체 실패인지 유효 파일 성공인지 상위 API 계약에 없다.
-- 결정 필요: 관리자 검색에서 `page`가 전체 page를 넘을 때 빈 `200`인지 `404 PAGE_NOT_FOUND`인지 상위 API 계약에 없다.
-- 결정 필요: 관리자 상세의 `postId` 형식 오류를 `400`으로 볼지 미존재와 같은 `404`로 일반화할지 상위 API 계약에 없다.
-- 결정 필요: staging 이미지 폐기의 성공 body를 생략할지 공통 성공 envelope로 반환할지 상위 API 계약에 없다.
+- 확정: 다중 파일 업로드는 all-or-nothing이며 하나라도 실패하면 성공 item 없이 전체 실패한다.
+  요청 단위 파일 개수·전체 합계 gate 초과는 `413`이며 `fields`를 넣지 않는다. gate를 통과한 뒤
+  storage 전에 모든 파일 validation을 끝낸다. 개별 크기 오류가 하나라도 있으면 top-level `413`, 그 외
+  형식·decode 오류는 `415`이며 `fields[]`에는 모든 실패 파일 index와 일반화 reason을 넣는다. R2·DB
+  `503`에도 `fields`를 넣지 않는다. storage 중 생성된 image row는 rollback하고 저장된 object는 즉시
+  보상 삭제한다. 즉시 삭제 실패는 rollback과 분리된 `STORAGE_OBJECT` cleanup outbox가 처리하고,
+  outbox 전 process crash는 식별 가능한 `staging/` key의 24시간 inventory가 회수한다. rollback된 image
+  ID는 참조하지 않는다.
+- 확정: 관리자 검색의 유효한 `page`가 전체 page를 넘으면 `200`과 빈 `items`를 반환한다.
+- 확정: 관리자 상세의 `postId` 형식 오류·미존재·접근 불가는 `404 POST_NOT_FOUND`로 일반화한다.
+- 확정: staging 이미지 폐기는 `202 Accepted`와 `imageId`, `PRIVATE_DELETE_PENDING`, `requestId`를
+  담은 공통 성공 envelope를 반환하고 실제 object 삭제는 outbox가 처리한다.
+- 확정: 기본 예약 발행 슬롯은 `07:30`, `17:30` KST이며 per-post 임의 시각을 허용한다. scheduler는
+  매분 due 글과 장애 중 지난 예약을 처리하고 일시 실패와 영구 업무 오류의 재시도 경계를 분리한다.
 - 미정: 실제 관리자 allowlist·provider 운영 설정과 R2 production 식별값.
-- 차단: 위 네 가지 상위 API 계약을 확정하기 전 번들을 `작성 완료`로 승격하지 않는다.
 - 미검증: 앱 source가 없는 현재 브랜치에서 구현·test·runtime은 확인하지 않았다.
+- 후속 원칙: 일반 사용자 업로드를 추가할 때도 같은 all-or-nothing·보상 삭제를 적용하되 M0 Core에는
+  해당 endpoint를 추가하지 않는다.

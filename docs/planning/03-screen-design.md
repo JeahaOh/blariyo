@@ -1,8 +1,8 @@
 # 블라리요 반응형 웹 화면 설계서
 
 - 문서 상태: 사용자 확정안 반영 정본
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 기준일: 2026-09-03
+- 정합성 검토일: 2026-09-03
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [02-infra-plan.md](./02-infra-plan.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
 - 설계 대상: 데스크톱·모바일 반응형 웹
 
@@ -214,7 +214,10 @@
 
 - 모바일은 `navigator.share`를 먼저 시도한다.
 - 모든 환경에서 링크 복사를 제공한다.
-- 카카오톡 공유를 제공한다. 외부 공유 script를 사용하므로 허용 도메인과 key 계약은 [보안·운영 설계](../system-design/05-security-operations.md)를 따르고, script를 불러올 수 없으면 카카오톡 항목을 숨기고 링크 복사로 대체한다.
+- 카카오톡 공유는 Kakao JavaScript SDK로 제공한다. 실제 JavaScript key와 카카오 개발자 콘솔 Web
+  domain 등록을 확인한 환경에서만 활성화한다. SDK script URL·SRI integrity·JavaScript key·CSP host는
+  배포 환경 properties/config로 관리하며, 비활성 또는 script 로드 실패 시 카카오톡 항목만 숨기고
+  링크 복사와 브라우저 기본 공유를 유지한다. 세부 계약은 [보안·운영 설계](../system-design/05-security-operations.md)를 따른다.
 - X/Twitter 공유를 제공한다.
 - 공유 성공·실패 결과를 화면에 알린다.
 - 공유 진입점은 상세 고정 헤더 오른쪽 한 곳에만 둔다.
@@ -224,8 +227,9 @@
 
 ### URL
 
-- 목록 canonical: `https://__SERVICE_DOMAIN__/meme`
-- 상세 canonical: `https://__SERVICE_DOMAIN__/{boardSlug}/posts/{postId}`
+- 서비스 공개 기준 URL: `https://blariyo.com/`
+- 목록 canonical: `https://blariyo.com/meme`
+- 상세 canonical: `https://blariyo.com/{boardSlug}/posts/{postId}`
 - `/`는 `/meme` 리다이렉트이므로 별도 canonical 페이지로 만들지 않는다.
 - 숨김·삭제 글은 `noindex` 처리한다.
 
@@ -237,7 +241,18 @@
 - `og:site_name`, `og:type`, `og:url`, `og:title`, `og:description`, `og:image`
 - `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`
 
-카피는 [06-copy-candidates.md](./06-copy-candidates.md)에서 확정 전 상태로 관리한다.
+정상 상세 metadata는 다음 우선순위를 따른다.
+
+- `og:image`와 `twitter:image`는 첫 공개 IMAGE block의 절대 HTTPS URL을 사용한다. 공개 IMAGE block이
+  없으면 `/og/blariyo-default.png`를 서비스 기준 URL과 결합한 절대 URL을 사용한다.
+- `description`, `og:description`, `twitter:description`은 모두 첫 공개 TEXT block의 plain text에서
+  앞뒤 Unicode whitespace를 제거하고, 내부의 하나 이상 연속된 Unicode whitespace를 단일 U+0020
+  space로 치환한 같은 값을 사용한다. 이 정리 뒤 grapheme 수를 센다. 120자 이하면 길이가 80자
+  미만이어도 문구를 덧붙이지 않고 그대로 사용한다. 120자를 초과하면 Unicode grapheme cluster 기준
+  앞 119자 뒤에 단일 `…`를 붙여 총 120자 이하로 만든다. UTF-16 code unit이나 byte 수로 자르지
+  않는다. 공개 TEXT block도 없으면 확정 서비스 기본 문구 `블라리요에서 블라블라블라`를 사용한다.
+
+홈·OG·푸터 카피와 properties/config key는 [06-copy-contract.md](./06-copy-contract.md)의 확정 계약을 따른다.
 
 ## 8. 후속 광고
 
@@ -303,7 +318,12 @@
 
 - 푸터 링크를 누르면 권리자 요청 이메일 작성 화면을 연다.
 - 제목에는 서비스명과 문의 유형, 본문에는 현재 화면 URL과 요청 내용 입력란을 미리 넣는다.
-- 푸터에는 이메일 주소를 길게 노출하지 않고 `권리 문의` 문구만 표시하며 `mailto` 클릭 기능은 유지한다.
+- 푸터에는 이메일 주소를 길게 노출하지 않고 `권리 문의`와 `이메일 주소 복사`를 각각 표시한다.
+- `권리 문의`는 `mailto`를 열고, `이메일 주소 복사`는
+  `BLARIYO_RIGHTS_CONTACT_EMAIL`의 이메일 주소만 복사한다. 제목·본문은 복사하지 않는다.
+- 두 동작은 항상 함께 접근할 수 있어야 하며 browser에서 mail client 실행 성공·실패를 감지해
+  복사 동작을 뒤늦게 표시하는 분기를 만들지 않는다.
+- 주소 복사 성공·실패는 `aria-live`로 알리되 mail client 실행·메일 전송 성공 여부는 추측하지 않는다.
 - 운영자가 메일을 확인한 뒤 대상 게시글을 우선 숨기고 재공개, 수정, 삭제 또는 비노출 유지를 결정한다.
 - 처리 결과는 요청자에게 이메일로 회신한다.
 

@@ -5,7 +5,7 @@
 - 문서 상태: `작성 완료`
 - milestone: `M0 Core`
 - 기능: `public-post-browsing`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [화면 설계 §2·§5·§13](../../../../planning/03-screen-design.md), [퍼블리싱 기준](../../../../publishing/responsive/README.md)
 - 미검증: 실제 Nuxt 화면, browser visual·accessibility test
 
@@ -19,7 +19,9 @@
 
 ## 3. UI 영역과 구성요소
 
-헤더, 제목 `짤`, 공지 0~3건, 일반 글 최대 20건, page navigation, 정책·권리 footer 순서다.
+헤더 로고 `블라리요`, 홈 보조 문구 `블라블라블라`, 제목 `짤`, 공지 0~3건, 일반 글 최대 20건,
+page navigation, 브랜드 문구 `블라블라블라`와 정책·권리 footer 순서다. footer의 권리 영역에는
+`권리 문의` mailto와 항상 접근 가능한 `이메일 주소 복사`를 함께 둔다.
 
 ## 4. 필드·표시값·validation
 
@@ -62,11 +64,16 @@ page는 1 이상만 허용한다.
 
 ## 9. 메시지와 피드백
 
-empty·error 문구는 화면 설계를 사용한다. 미확정 마케팅 카피는 확정값처럼 넣지 않는다.
+empty·error 문구는 화면 설계를 사용한다. 홈 `<title>`은 `블라리요 - 블라블라블라`, 홈
+`description`과 `og:description`은 `블라리요에서 블라블라블라`, `og:title`은 `블라리요`를 사용한다.
+카피는 `NUXT_PUBLIC_SITE_NAME`, `NUXT_PUBLIC_HOME_TAGLINE`, `NUXT_PUBLIC_HOME_TITLE`,
+`NUXT_PUBLIC_HOME_DESCRIPTION`, `NUXT_PUBLIC_HOME_OG_DESCRIPTION`,
+`NUXT_PUBLIC_FOOTER_TAGLINE`의 public config로 주입한다.
 
 ## 10. 화면 수용 조건
 
 공지와 일반 글 수·정렬·page가 분리되고 M1 로그인·후속 광고·미활성 게시판이 렌더링되지 않는다.
+권리 이메일 복사는 제목·본문 없이 `BLARIYO_RIGHTS_CONTACT_EMAIL` 주소만 clipboard로 전달한다.
 
 ## 11. 미정·차단·미검증
 

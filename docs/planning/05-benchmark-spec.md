@@ -1,8 +1,8 @@
 # 블라리요 고급유머 벤치마킹 스펙
 
 - 문서 상태: 벤치마킹 파생 참고자료 · 제품·화면 정본 아님
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 기준일: 2026-09-03
+- 정합성 검토일: 2026-09-03
 - 벤치마킹 대상: 고급유머 웹
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md)
 
@@ -162,12 +162,13 @@
 
 - 푸터의 이용약관·개인정보처리방침·쿠키 설정은 현재 화면 위 modal로 열고 직접 URL도 유지한다.
 - 이용약관과 개인정보처리방침은 현재 적용 본문 전체를 먼저 보여주고 하단의 `버전 / 적용 기간` 행을 선택해 다른 버전을 연다.
-- 권리 침해·게시 중단 문의는 푸터에 `권리 문의`로 짧게 표시하고 이메일 작성으로 연결한다.
+- 권리 침해·게시 중단 문의는 푸터의 `권리 문의` mailto와 항상 보이는 `이메일 주소 복사`로 제공한다.
+  주소 복사는 접수 이메일 주소만 대상으로 하며 제목·본문은 복사하지 않는다.
 
 ## 10. 공유·SEO 스펙
 
-- 목록 canonical: `https://__SERVICE_DOMAIN__/meme`
-- 상세 canonical: `https://__SERVICE_DOMAIN__/{boardSlug}/posts/{postId}`
+- 목록 canonical: `https://blariyo.com/meme`
+- 상세 canonical: `https://blariyo.com/{boardSlug}/posts/{postId}`
 - 목록과 상세 모두 SSR 첫 응답에 OG와 Twitter Card를 제공한다.
 - 상세 공유 이미지는 서버 저장 이미지를 기반으로 생성한다.
 - 숨김 또는 삭제된 글은 404와 `noindex`를 사용한다.

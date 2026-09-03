@@ -5,7 +5,7 @@
 - 문서 상태: `작성 완료`
 - milestone: `M0 Core`
 - 기능: `public-post-browsing`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [API 설계 §3 게시글 상세](../../../../system-design/03-api-design.md), [데이터 모델 §3·§8](../../../../system-design/02-data-model.md)
 - 미검증: OpenAPI, SSR·Core source, contract·security test
 
@@ -57,6 +57,12 @@ query·body: 해당 없음.
 ## 5. Validation과 정규화
 
 형식 오류, 게시판 불일치, 비활성 게시판, 비공개·미존재 글을 모두 `404 POST_NOT_FOUND`로 일반화한다.
+API는 공개 TEXT block의 plain text를 반환하며 metadata 전용 요약 필드를 별도로 만들지 않는다.
+Nuxt SSR은 첫 공개 TEXT block plain text의 앞뒤 Unicode whitespace를 제거하고 내부의 하나 이상
+연속된 Unicode whitespace를 단일 U+0020 space로 치환한 뒤 grapheme 수를 센다. 결과가 120자 이하면
+80자 미만이어도 그대로 사용한다. 120자 초과는 Unicode grapheme cluster 기준 앞 119자와 단일 `…`로
+총 120자 이하를 만들며 UTF-16 code unit·byte 기준으로 자르지 않는다. 같은 값을 `description`,
+`og:description`, `twitter:description`에 사용한다.
 
 ## 6. 정상 처리와 데이터 전이
 
@@ -102,7 +108,7 @@ GET /api/v1/boards/meme/posts/1047
         {
           "type": "IMAGE",
           "image": {
-            "url": "https://img.__SERVICE_DOMAIN__/posts/1047/hash.webp",
+            "url": "https://media.example.invalid/posts/1047/hash.webp",
             "alt": "이미지 설명",
             "width": 1200,
             "height": 900
@@ -110,7 +116,7 @@ GET /api/v1/boards/meme/posts/1047
         }
       ],
       "source": null,
-      "shareUrl": "https://__SERVICE_DOMAIN__/meme/posts/1047"
+      "shareUrl": "https://blariyo.com/meme/posts/1047"
     },
     "context": {
       "pinnedItems": [],
@@ -124,6 +130,9 @@ GET /api/v1/boards/meme/posts/1047
   "meta": { "requestId": "01JEXAMPLE0000000000000000" }
 }
 ```
+
+`media.example.invalid`는 문서 전용 예시 origin이다. 실제 응답의 절대 HTTPS 이미지 URL은 배포 환경
+설정 `IMAGE_ORIGIN`을 기준으로 생성하며, 이 예시를 실제 origin으로 사용하지 않는다.
 
 실패 `404`는 공통 오류 envelope와 `POST_NOT_FOUND`만 반환하며 제목·본문·상태·숨김 사유를 넣지 않는다.
 

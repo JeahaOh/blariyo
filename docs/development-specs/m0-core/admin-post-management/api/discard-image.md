@@ -5,7 +5,7 @@
 - 문서 상태: `초안`
 - milestone: `M0 Core`
 - 기능: `admin-post-management`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [API 설계 §5 preview·폐기](../../../../system-design/03-api-design.md), [데이터 모델 §5](../../../../system-design/02-data-model.md)
 - 미검증: outbox·object delete integration test
 
@@ -28,15 +28,14 @@ body·query 없음.
 
 ## 4. Response
 
-성공 `202`; [API 설계 §2](../../../../system-design/03-api-design.md)의 공통 envelope 적용 여부와 결과
-schema는 상위 API source에서 검증한다.
-
-상위 API 설계는 성공 body field를 확정하지 않았다. 구현은 임의의 `imageId`·상태 body를 만들지 않고
-OpenAPI 작성 전에 body 없는 `202`인지 공통 envelope인지 상위 계약으로 확정해야 한다.
+성공은 `202 Accepted`와 [API 설계 §2](../../../../system-design/03-api-design.md)의 공통 성공 envelope다.
+`data.imageId`, `data.status=PRIVATE_DELETE_PENDING`, `meta.requestId`를 반환한다.
 
 | 항목 | 타입 | 필수 | 제약 | 출처·소유권 | 설명 |
 | --- | --- | --- | --- | --- | --- |
-| response body | `(결정 필요)` | - | body 없음 또는 공통 성공 envelope | 상위 API 계약 | `202` 처리 결과 |
+| `data.imageId` | integer | Y | 요청한 image ID | image | 폐기 예약 대상 |
+| `data.status` | enum | Y | `PRIVATE_DELETE_PENDING` | image | 삭제 대기 상태 |
+| `meta.requestId` | string | Y | 공통 request ID | BFF | 요청 추적 |
 | `Cache-Control` | header | Y | `private, no-store` | API 계약 | 저장 금지 |
 
 ## 5. Validation과 정규화
@@ -46,6 +45,7 @@ OpenAPI 작성 전에 body 없는 `202`인지 공통 envelope인지 상위 계�
 ## 6. 정상 처리와 데이터 전이
 
 한 transaction에서 `STAGED→PRIVATE_DELETE_PENDING`과 `OBJECT_DELETE_PRIVATE` outbox를 기록한다.
+실제 private object 삭제는 응답 전에 수행하지 않고 outbox worker가 처리한다.
 
 ## 7. 오류·권한·부분 실패
 
@@ -61,13 +61,22 @@ Idempotency-Key 계약 없음. 상태 조건부 update로 경쟁을 막고 202 �
 
 ## 10. 예시
 
-Request와 현재 확정된 응답 범위:
+Request와 성공 응답:
 
 ```http
 DELETE /api/v1/admin/images/501
 
 HTTP/1.1 202 Accepted
 Cache-Control: private, no-store
+
+{
+  "success": true,
+  "data": {
+    "imageId": 501,
+    "status": "PRIVATE_DELETE_PENDING"
+  },
+  "meta": { "requestId": "01JEXAMPLE0000000000000000" }
+}
 ```
 
 실패 `409`는 공통 오류 envelope와 `IMAGE_STATE_CONFLICT`를 사용하고 object key를 노출하지 않는다.
@@ -82,5 +91,5 @@ Cache-Control: private, no-store
 
 ## 11. Contract test와 미검증
 
-초안 선점과 동시 폐기, outbox commit, worker 재시도·DEAD를 검증한다. 성공 body 계약은 상위 문서
-확인이 필요하며 실행은 미실행이다.
+초안 선점과 동시 폐기, `202` 성공 envelope, outbox commit, worker 재시도·DEAD를 검증한다.
+실행은 미실행이다.

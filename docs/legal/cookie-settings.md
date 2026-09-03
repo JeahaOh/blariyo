@@ -1,7 +1,7 @@
 # 블라리요 쿠키 설정 안내 초안
 
 - 문서 상태: 출시 전 확정 필요
-- 정합성 검토일: 2026-09-02
+- 정합성 검토일: 2026-09-03
 - 시행일: `[출시 차단: 시행일 입력 필요]`
 - 서비스명: `블라리요`
 
@@ -34,8 +34,11 @@ production에서 로드하지 않는다.
 
 ## 3. 기능 활성화 경계
 
-- `NUXT_PUBLIC_GA4_ENABLED=false`인 환경에서는 Google tag, `_ga*`, 분석 선택 항목과 선택 배너를 노출하지 않는다.
-- GA4 measurement ID·속성 보관 설정·국외이전 고지가 확정된 환경에서만 분석 선택을 활성화한다.
+- `NUXT_PUBLIC_GA4_ENABLED=false`인 환경에서는 Google tag, `_ga*`, 분석 선택 항목과 선택 배너를 노출하지
+  않고 `NUXT_PUBLIC_GA4_MEASUREMENT_ID`를 public runtime config에서 unset한다.
+- GA4 Measurement ID·속성 보관 설정·국외이전 고지·실제 Google 계약 법인·Google tag/CSP domain이
+  모두 확정된 환경에서만 분석 선택을 활성화한다. 하나라도 미확정이면
+  `NUXT_PUBLIC_GA4_ENABLED=false`를 유지하며 이 gate는 M0 Core 공개 자체를 막지 않는다.
 - 광고 기능이 비활성이면 광고 저장소와 광고 선택 항목을 노출하지 않고 사전 동의를 받지 않는다.
 - 선택 기능이 하나도 활성화되지 않은 환경에서는 `blariyo_consent`를 생성하기 위한 선택을 요구하지 않는다.
 
@@ -58,10 +61,17 @@ GA4 또는 광고 같은 선택 기능이 모두 비활성이면 선택 동의 �
 
 ## 5. GA4 적용 계약
 
-- Google tag와 GA4 설정은 저장된 `analytics=true`를 확인한 뒤에만 로드한다.
+- Google tag와 GA4 설정은 저장된 `analytics=true`를 확인한 뒤 browser에서 한 번 동적 로드한다.
+- 동의 전에는 방문자 수·page open을 포함한 Google tag/request와 cookieless ping을 0건으로 유지한다.
+- 허용 custom parameter는 `page_view`의 `page_type`,`route_template`, `select_content`의
+  `board_slug`,`content_type`,`list_position_bucket`, `share`의 `share_method`,`board_slug`,
+  `scroll`의 `page_type`,`scroll_depth_bucket`뿐이다.
 - GA4에는 이메일, 이름, 닉네임, 프로필 이미지, 블라리요 회원 번호, 네이버·카카오·Google·Apple 제공자 식별자를 전송하지 않는다.
+- 게시글 제목·본문·원문 URL·내부 `postId`, IP와 수집 후보 정보도 전송하지 않는다.
 - GA4 User-ID는 초기에는 사용하지 않는다. 추후 사용하려면 소셜 식별자와 직접 연결되지 않는 별도 가명값, 처리 목적과 보유 기간을 개인정보처리방침에 먼저 반영한다.
 - consent mode를 사용하더라도 분석 동의 전 cookieless ping을 보내지 않는 차단형 기본값을 적용한다.
+- tag 로드나 event 전송이 실패하면 event를 drop하고 공개 기능을 유지하며 자체 분석 DB나 재시도
+  queue로 대체하지 않는다.
 - 분석 동의를 철회하면 추가 전송을 즉시 중지하고 현재 도메인의 `_ga`, `_ga_*`를 삭제한다. 이미 Google에 전송된 정보의 삭제·보유 범위는 확정된 GA4 설정과 처리방침에 따른다.
 
 ## 6. 광고 실패와 확정 차단

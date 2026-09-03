@@ -5,7 +5,7 @@
 - 문서 상태: `초안`
 - milestone: `M0 Core`
 - 기능: `admin-post-management`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [API 설계 §4·§5 게시글 검색](../../../../system-design/03-api-design.md)
 - 미검증: OpenAPI, auth adapter, source, contract test
 
@@ -51,7 +51,7 @@ page size 50. item은 `postId, boardSlug, title, status, lockVersion, scheduledA
 
 ## 5. Validation과 정규화
 
-query 형식·상태·날짜 오류는 `400 VALIDATION_FAILED`. BFF와 Core가 같은 schema를 검증한다.
+query 형식·상태·날짜·`page` 범위 오류는 `400 VALIDATION_FAILED`. BFF와 Core가 같은 schema를 검증한다.
 
 ## 6. 정상 처리와 데이터 전이
 
@@ -67,8 +67,10 @@ query 형식·상태·날짜 오류는 `400 VALIDATION_FAILED`. BFF와 Core가 �
 
 ## 9. Pagination·cache·호환성
 
-page size 50 고정, `private, no-store`. 전체 page를 초과했을 때 빈 `200`인지
-`404 PAGE_NOT_FOUND`인지 상위 계약에 없어 `(결정 필요)`다.
+page size 50 고정, `private, no-store`. `page`가 `1~10000` 범위 안이지만 전체 page를 초과하면
+`200`과 빈 `data.items`를 반환한다. 요청한 `meta.page`와 실제 count의 `meta.totalItems`,
+`meta.totalPages`를 유지하고 `meta.hasPrevious=page>1`, `meta.hasNext=false`로 계산한다.
+공개 목록의 `404 PAGE_NOT_FOUND` 정책은 적용하지 않는다.
 
 ## 10. 예시
 
@@ -109,8 +111,7 @@ GET /api/v1/admin/posts?status=DRAFT&page=1
 }
 ```
 
-실패 예시는 상위 계약이 확정된 오류만 사용한다. 잘못된 query는 `400 VALIDATION_FAILED`; 초과 page
-응답은 `(결정 필요)`라 예시를 만들지 않는다.
+잘못된 query는 `400 VALIDATION_FAILED`다.
 
 ```json
 {
@@ -124,7 +125,25 @@ GET /api/v1/admin/posts?status=DRAFT&page=1
 }
 ```
 
+유효한 초과 page 성공 `200`:
+
+```json
+{
+  "success": true,
+  "data": { "items": [] },
+  "meta": {
+    "requestId": "01JEXAMPLE0000000000000000",
+    "page": 3,
+    "pageSize": 50,
+    "totalItems": 1,
+    "totalPages": 1,
+    "hasPrevious": true,
+    "hasNext": false
+  }
+}
+```
+
 ## 11. Contract test와 미검증
 
-필터 조합·정렬·인증·응답 allowlist·storage key 비노출과 확정된 초과 page 처리를 검증한다.
-상위 계약 확정 전 문서 상태는 `초안`이며 실행도 미실행이다.
+필터 조합·정렬·인증·응답 allowlist·storage key 비노출과 초과 page의 `200` 빈 결과를 검증한다.
+실행은 미실행이다.

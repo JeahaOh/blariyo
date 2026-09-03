@@ -2,10 +2,10 @@
 
 ## 문서 정보
 
-- 문서 상태: `초안`
+- 문서 상태: `작성 완료`
 - milestone: `M0 Core`
 - 기능: `analytics-consent`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [분석 계획 §2·§4·§11](../../../../planning/04-analytics-ad-plan.md), [보안·운영 §4 CSP](../../../../system-design/05-security-operations.md)
 - 미검증: Measurement ID·CSP·GA4 network·DebugView
 
@@ -15,7 +15,8 @@
 
 ## 2. 진입·이탈·권한 조건
 
-flag true + analytics consent true + 승인 설정이 모두 필요하다. 하나라도 아니면 외부 script/request를 만들지 않는다.
+flag true + 저장된 analytics consent true + 승인 설정이 모두 필요하다. 하나라도 아니면 방문자 수·
+page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는다.
 
 ## 3. UI 영역과 구성요소
 
@@ -23,11 +24,14 @@ flag true + analytics consent true + 승인 설정이 모두 필요하다. 하�
 
 ## 4. 필드·표시값·validation
 
-공개 Measurement ID 형식, 승인된 Google CSP host allowlist, current consent scope를 검사한다. secret은 없다.
+공개 Measurement ID 형식, 확정된 GA4 property 보관 설정·국외이전 고지·Google 계약 법인, 승인된
+Google tag/CSP domain allowlist와 current consent scope를 검사한다. Measurement ID는 secret이
+아니지만 미확정값이나 placeholder를 노출하지 않는다.
 
 ## 5. 이벤트·후처리
 
-동의 true 전환 시 1회 load, false 전환 시 추가 전송 중지·cookie 삭제. route/interaction은 event D01을 따른다.
+동의 true 전환 시 browser에서 Google tag를 1회 동적 load하고, false 전환 시 추가 전송 중지·cookie
+삭제. load 실패 시 event를 drop하고 공개 기능을 유지한다. route/interaction은 event D01을 따른다.
 
 ## 6. 프로그램 상태
 
@@ -47,8 +51,12 @@ provider 내부 오류를 이용자에게 노출하지 않고 선택 저장/철�
 
 ## 10. 프로그램 수용 조건
 
-flag false·미동의·철회 Google 요청 0건, 동의 뒤 1회 load, loader 실패 시 공개 기능 유지가 필요하다.
+flag false·미동의·철회에서 방문자 수·page open을 포함한 Google tag/request·cookieless ping 0건,
+동의 뒤 1회 동적 load, loader 실패 시 event drop·공개 기능 유지가 필요하다.
 
 ## 11. 미정·차단·미검증
 
-Measurement ID·CSP domain·국외이전·event custom parameter가 미정이라 `초안`이다.
+event custom parameter 계약은 확정됐다. Measurement ID·property 보관 설정·국외이전 고지·Google
+계약 법인·Google tag/CSP domain은 활성화 차단 실값이며, 모두 확정되기 전 production은
+`NUXT_PUBLIC_GA4_ENABLED=false`다. flag가 false인 환경은 원인과 관계없이 Measurement ID를 public
+runtime config에서 unset한다. source·browser·network는 미검증이다.

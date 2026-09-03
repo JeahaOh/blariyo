@@ -1,8 +1,8 @@
 # M0 시스템 아키텍처
 
 - 문서 상태: M0 아키텍처 설계 계약 · 현행 구현 산출물 없음
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 기준일: 2026-09-03
+- 정합성 검토일: 2026-09-03
 - 관련 문서: [데이터 모델](./02-data-model.md), [API 설계](./03-api-design.md), [인프라 설계](./04-infrastructure-design.md), [보안·운영](./05-security-operations.md)
 
 ## 1. 목표와 제약
@@ -108,6 +108,12 @@ ui
 ```
 
 - 공개 페이지는 SSR 응답에 실제 목록·본문·canonical·OG 정보를 포함한다.
+- 상세 SSR의 `description`, `og:description`, `twitter:description`은 첫 공개 TEXT block plain text의
+  앞뒤 Unicode whitespace를 제거하고 내부의 하나 이상 연속된 Unicode whitespace를 단일 U+0020
+  space로 치환한 같은 값을 사용한다. 이 정리 뒤 grapheme 수가 120자 이하면 80자 미만이어도 문구를
+  덧붙이지 않고 그대로 두며, 120자 초과는 Unicode grapheme cluster 기준 앞 119자와 단일 `…`로
+  최대 120자를 만든다. UTF-16 code unit·byte 기준으로 자르지 않는다. 공개 TEXT block이 없으면
+  확정 서비스 기본 문구를 사용한다.
 - 없는 글과 숨김 글은 같은 `404` HTML을 반환하고 콘텐츠 데이터를 포함하지 않는다.
 - 외부에 보이는 `/api/v1`은 Nuxt BFF 계약이다. 브라우저는 Express 주소나 Core API route를 알 수 없다.
 - SSR은 같은 BFF handler를 호출하고, 상세 하단 페이지 이동은 same-origin `/api/v1/boards/:boardSlug/posts`를 호출한다.
@@ -115,8 +121,8 @@ ui
 - BFF는 외부 assertion을 Core에 전달하지 않는다. adapter가 외부 identity를 안정적인 내부 `operatorId`로 매핑하고 이를 HMAC actor로 변환해 내부 서비스 토큰과 함께 전달한다.
 - BFF에는 SQL, 게시 상태 전이, outbox 생성 같은 업무 규칙을 두지 않는다.
 - 카카오톡 공유는 브라우저에서 카카오 공유 script를 사용한다. script와 연결 도메인은 CSP allowlist에 명시하고 JavaScript key는 공개 config로 주입한다. script를 불러오지 못하면 공유 popup은 카카오 항목 없이 동작한다.
-- GA4 feature flag 기본값은 `false`다. Measurement ID·속성 보관 설정·국외이전 고지가 확정된
-  환경에서만 켜고, 저장된 분석 동의가 있기 전에는 Google tag를 로드하지 않는다. `page_view`,
+- GA4 feature flag 기본값과 운영 활성화 gate는 [분석·광고 계획 §2·§11](../planning/04-analytics-ad-plan.md)을
+  따른다. gate를 통과한 환경도 저장된 분석 동의가 있기 전에는 Google tag를 로드하지 않는다. `page_view`,
   `select_content`, `share`, `scroll`은 브라우저에서 GA4로 직접 보내며 BFF·Core·PostgreSQL에
   복제하지 않는다.
 - 수집 관련 화면과 API는 게시글 관리자 경로와 같은 인증 경계를 사용하고, 외부 사이트 fetch는 BFF가 직접 수행하지 않는다.

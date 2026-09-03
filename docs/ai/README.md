@@ -13,7 +13,7 @@
 | 분석·광고 적용 시점 | [분석·광고 계획](../planning/04-analytics-ad-plan.md) |
 | 콘텐츠 수집 범위와 규칙 | [콘텐츠 수집 기획](../planning/content-collection/README.md), [서비스 기획 §8](../planning/01-service-plan.md), [시스템 아키텍처](../system-design/01-system-architecture.md), [보안·운영](../system-design/05-security-operations.md) |
 | 비교 기준과 수용 조건 | [벤치마크 명세](../planning/05-benchmark-spec.md) |
-| 문구와 색상 후보 | [문구 후보](../planning/06-copy-candidates.md), [색상표](../planning/07-color-palette.md) |
+| 카피 계약과 색상 기준 | [카피 계약](../planning/06-copy-contract.md), [색상표](../planning/07-color-palette.md) |
 | 시스템 경계·DB·API·운영 | [시스템 설계](../system-design/README.md) |
 | 화면·기능별 개발 보강서·API·D01·D08 | `docs/development-specs/<milestone>/<feature-slug>/` — Spec 생성 후 기능별 구현 계약 |
 | 약관·개인정보·권리·쿠키 | [법무 문서](../legal/README.md) |

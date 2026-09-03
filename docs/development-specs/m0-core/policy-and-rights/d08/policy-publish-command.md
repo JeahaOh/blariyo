@@ -5,7 +5,7 @@
 - 문서 상태: `차단`
 - milestone: `M0 Core`
 - 기능: `policy-and-rights`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [데이터 모델 §4](../../../../system-design/02-data-model.md), [보안·운영 §12](../../../../system-design/05-security-operations.md)
 - 미검증: CLI source·artifact·runtime
 
@@ -23,7 +23,10 @@ CLI 입력은 artifact path만 받는다. stdout/stderr에는 단계·일반 오
 
 ## 4. 필드·표시값·validation
 
-artifact의 type, version, title, raw body, effectiveAt, checksum schema를 검증한다. 값은 command argument로 직접 받지 않는다.
+artifact의 type, version, title, raw body, effectiveAt, checksum schema를 검증한다. 운영자 표시명·일반
+문의·권리·개인정보 접수 이메일과 개인정보 보호책임자 또는 담당자 config 실값이 반영됐는지,
+필수값 placeholder가 남지 않았는지도 검증한다. 사업자등록 전 보류한 사업자 정보 placeholder는 허용한다.
+값은 command argument로 직접 받지 않는다.
 
 ## 5. 이벤트·이동·후처리
 
@@ -31,7 +34,8 @@ validate→sanitize→lock/transaction→outbox→결과 확인 순서다. 성�
 
 ## 6. 프로그램 상태
 
-검증 실패, 시행 window 오류, lock/DB 오류, purge pending, 성공을 exit code와 일반 메시지로 구분한다.
+schema·필수 실값·placeholder 검증 실패, 시행 window 오류, lock/DB 오류, purge pending, 성공을 exit
+code와 일반 메시지로 구분한다.
 
 ## 7. 반응형과 접근성
 
@@ -47,7 +51,8 @@ CLI이므로 반응형 해당 없음. 색 없이도 exit code·텍스트로 상�
 
 ## 10. 프로그램 수용 조건
 
-실패 rollback, 유형별 current 한 건, 이력 경계, purge outbox, artifact 제거를 검증해야 한다.
+필수 법무·문의 실값과 placeholder 부재, 실패 rollback, 유형별 current 한 건, 이력 경계, purge
+outbox, artifact 제거를 검증해야 한다.
 
 ## 11. 미정·차단·미검증
 

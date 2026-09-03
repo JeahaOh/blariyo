@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>블라리요 퍼블 프로토타입</title>
-  <link rel="canonical" href="https://__SERVICE_DOMAIN__/meme">
-  <meta name="description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
+  <title>블라리요 - 블라블라블라</title>
+  <link rel="canonical" href="https://blariyo.com/meme">
+  <meta name="description" content="블라리요에서 블라블라블라">
   <meta property="og:site_name" content="블라리요">
   <meta property="og:locale" content="ko_KR">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://__SERVICE_DOMAIN__/meme">
+  <meta property="og:url" content="https://blariyo.com/meme">
   <meta property="og:title" content="블라리요">
-  <meta property="og:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
-  <meta property="og:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
+  <meta property="og:description" content="블라리요에서 블라블라블라">
+  <meta property="og:image" content="https://blariyo.com/og/blariyo-default.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="블라리요 기본 공유 이미지">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="블라리요">
-  <meta name="twitter:description" content="운영자가 고른 최신 유머를 짧게 연속 소비하는 웹 피드">
-  <meta name="twitter:image" content="https://__SERVICE_DOMAIN__/og/default-1200x630.jpg">
+  <meta name="twitter:description" content="블라리요에서 블라블라블라">
+  <meta name="twitter:image" content="https://blariyo.com/og/blariyo-default.png">
   <meta name="twitter:image:alt" content="블라리요 기본 공유 이미지">
   <link rel="stylesheet" href="./styles.css?v=20260813-4">
 </head>
@@ -32,7 +32,7 @@
       <button type="button" role="tab" aria-selected="false" tabindex="-1" class="review-tab" data-screen="loading">로딩</button>
       <button type="button" role="tab" aria-selected="false" tabindex="-1" class="review-tab" data-screen="empty">빈 목록</button>
       <button type="button" role="tab" aria-selected="false" tabindex="-1" class="review-tab" data-screen="error">오류</button>
-      <button type="button" role="tab" aria-selected="false" tabindex="-1" class="review-tab" data-screen="hidden">숨김</button>
+      <button type="button" role="tab" aria-selected="false" tabindex="-1" class="review-tab" data-screen="hidden">404</button>
       <button type="button" class="review-tab" data-open-adblock>차단 팝업</button>
     </nav>
   </aside>
@@ -60,7 +60,7 @@
   <main class="site-shell">
     <section class="screen is-active" data-view="home" role="tabpanel">
       <header class="list-heading">
-        <div><h1 tabindex="-1">짤</h1><p>관리자가 고른 최신 게시글</p></div>
+        <div><h1 tabindex="-1">짤</h1><p>블라블라블라</p></div>
         <p class="publish-cycle">하루 2회 · 회당 10~20개</p>
       </header>
 
@@ -144,18 +144,20 @@
     </section>
 
     <section class="screen" data-view="hidden" role="tabpanel" hidden>
-      <section class="state-panel"><h1 tabindex="-1">볼 수 없는 게시글입니다</h1><p>존재하지 않거나 권리자 요청으로 검토 중인 게시글입니다.</p><a href="/meme" data-go="home">짤 목록으로</a></section>
+      <section class="state-panel"><h1 tabindex="-1">볼 수 없는 게시글입니다</h1><p>요청한 게시글을 볼 수 없습니다.</p><a href="/meme" data-go="home">짤 목록으로</a></section>
     </section>
   </main>
 
   <footer class="site-footer">
-    <strong>블라리요</strong>
+    <div class="footer-brand"><strong>블라리요</strong><span>블라블라블라</span></div>
     <nav aria-label="푸터">
       <a href="/terms" data-policy="terms">이용약관</a>
       <a href="/privacy" data-policy="privacy">개인정보처리방침</a>
-      <a id="rightsMailLink" href="mailto:rights@__SERVICE_DOMAIN__">권리 문의</a>
+      <a id="rightsMailLink" href="mailto:__BLARIYO_RIGHTS_CONTACT_EMAIL__">권리 문의</a>
+      <button type="button" id="rightsEmailCopyButton">이메일 주소 복사</button>
       <a href="/cookie-settings" data-policy="cookies">쿠키 설정</a>
     </nav>
+    <p class="sr-only" id="rightsContactStatus" aria-live="polite"></p>
   </footer>
 
   <section class="cookie-banner" id="cookieBanner" aria-label="쿠키 선택 안내" hidden>

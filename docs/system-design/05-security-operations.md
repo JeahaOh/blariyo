@@ -1,8 +1,8 @@
 # M0 보안·운영 설계
 
 - 문서 상태: M0 보안·운영 설계 계약 · 현행 운영 검증 산출물 없음
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 기준일: 2026-09-03
+- 정합성 검토일: 2026-09-03
 - 운영 인원: 초기 1명
 - 가용성 방식: 고가용성 대신 감지·백업·복구
 
@@ -79,7 +79,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: camera=(), microphone=(), geolocation=()
 Content-Security-Policy:
   default-src 'self';
-  img-src 'self' https://img.__SERVICE_DOMAIN__ data:;
+  img-src 'self' (배포 설정 IMAGE_ORIGIN) data:;
   script-src 'self';
   style-src 'self' 'unsafe-inline';
   connect-src 'self';
@@ -88,14 +88,21 @@ Content-Security-Policy:
   form-action 'self'
 ```
 
-M0 공유 기능은 카카오 공유 script를 사용하므로 `script-src`에 카카오 script 호스트, `connect-src`에 카카오 API 호스트를 명시한다. 실제 호스트 값은 배포 전 카카오 개발자 문서로 확인해 고정하고, 확인 전에는 `(미정)`으로 두고 카카오 항목을 비활성한 상태로 배포한다. script를 불러올 수 없으면 공유 popup은 카카오 항목 없이 동작해야 한다.
+M0 카카오톡 공유는 Kakao JavaScript SDK를 사용한다. SDK script URL·SRI integrity·JavaScript key와
+`script-src`·`connect-src` CSP host는 배포 환경 properties/config로 관리한다. 실제 JavaScript key와
+카카오 개발자 콘솔 Web domain 등록을 확인하고 SDK URL·SRI·CSP host를 고정하기 전에는 카카오톡
+항목을 비활성한 상태로 배포한다. 비활성 또는 script 로드 실패 시 공유 popup은 카카오 항목 없이
+열리고 링크 복사와 브라우저 기본 공유는 동작해야 한다.
 
 ```text
 script-src 'self' (미정: 카카오 공유 script 호스트);
 connect-src 'self' (미정: 카카오 공유 API 호스트)
 ```
 
-M0 GA4를 활성화하기 전에 Google tag의 실제 CSP domain을 확정하고, 광고·소셜 로그인은 해당
+M0 GA4는 Measurement ID·속성 보관 설정·국외이전 고지·실제 Google 계약 법인·Google tag/CSP
+domain이 모두 확정된 환경에서만 활성화한다. 하나라도 미확정이면
+`NUXT_PUBLIC_GA4_ENABLED=false`를 유지한다. 활성 환경에서도 저장된 분석 동의 전에는 방문자 수·
+page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는다. 광고·소셜 로그인은 해당
 기능을 활성화하기 전에 별도로 검토한다. 편의를 위해 `*`나 광범위한 `unsafe-eval`을 추가하지
 않는다. 수집은 서버에서 수행하므로 CSP `connect-src`에 수집 대상 도메인을 추가하지 않는다.
 
@@ -123,6 +130,19 @@ M0 GA4를 활성화하기 전에 Google tag의 실제 CSP domain을 확정하고
 5. metadata 제거 후 안전한 형식으로 재인코딩
 6. SHA-256 계산
 7. private 원본 bucket 저장
+
+다중 업로드는 all-or-nothing이다. 중간 실패 시 image row transaction을 rollback한 뒤 이미 저장한
+private object를 즉시 보상 삭제한다. 즉시 삭제가 실패하면 rollback과 분리된 cleanup transaction에서
+`OBJECT_DELETE_PRIVATE` outbox를 남긴다. 이 outbox는 rollback된 image ID 대신
+`aggregate_type=STORAGE_OBJECT`, `aggregate_id=NULL`을 사용하고 payload에는 `privateStorageKey`,
+`objectCreatedAt`, `cleanupReason=UPLOAD_ROLLBACK`만 둔다. 원본 파일명·관리자 identity·token은 넣지 않는다.
+
+upload object key는 `staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}`로 식별한다.
+`uploadRequestId`는 서버 생성 고유값이고 SHA-256은 재인코딩한 bytes 기준이다. 매일 inventory는 생성 후
+24시간이 지난 `staging/` object를 DB image의 private key와 미완료(`PENDING`,`RUNNING`,`FAILED`,`DEAD`)
+cleanup outbox의 key에 대조하고, 어느 쪽에도 없는 object만 삭제한다. 따라서 process crash로 outbox가
+생성되지 않은 object도 회수하며, 후속 일반 사용자 업로드에도 같은 격리·보상 삭제 원칙을 적용한다.
+M0에는 일반 사용자 업로드 endpoint를 추가하지 않는다.
 
 기본 제한:
 
@@ -255,8 +275,8 @@ M0는 유료 APM을 사용하지 않는다.
 무료 구간이 있는 외부 HTTP monitor 한 곳에서 5분마다 확인한다.
 
 ```text
-GET https://__SERVICE_DOMAIN__/health/live
-GET https://__SERVICE_DOMAIN__/meme
+GET https://blariyo.com/health/live
+GET https://blariyo.com/meme
 ```
 
 외부 monitor 사업자는 배포 시 선택한다. 자기 서버에서 자기 자신만 확인하는 방식은 전체 VM 장애를 감지하지 못하므로 단독 사용하지 않는다.
@@ -301,6 +321,7 @@ R2 장애는 공개 읽기의 ready 실패 조건으로 두지 않는다. 업로
 | backup manifest 검증 | 매일 dump 후 | backup과 동일 |
 | 실제 복원 시험 | 매월 첫째 주 | 결과 1년 |
 | R2 media inventory | 매주 | 8주 |
+| R2 private staging orphan inventory | 매일 1회 | 실행 결과 90일 |
 
 ### 형식
 
@@ -362,9 +383,14 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 - secret scan 통과
 - multi-arch image build 성공
 - DB backup 최근 18시간 이내
-- production placeholder `__SERVICE_DOMAIN__` 없음
-- `NUXT_TRUSTED_CLIENT_IP_HEADER`, `NUXT_KAKAO_JS_KEY`, `NUXT_ADMIN_OPERATOR_MAP_FILE`, `COLLECT_USER_AGENT` 주입 확인
-- 카카오 공유 CSP 호스트가 확정값이거나 카카오 공유가 비활성 상태
+- production URL placeholder 없음
+- `SERVICE_PUBLIC_BASE_URL=https://blariyo.com/`, `NUXT_TRUSTED_CLIENT_IP_HEADER`, `NUXT_ADMIN_OPERATOR_MAP_FILE`, `COLLECT_USER_AGENT` 주입 확인
+- 카카오 공유 활성 환경은 JavaScript key, 개발자 콘솔 Web domain 등록, SDK script URL·SRI integrity와 CSP host 확인
+- 위 카카오 운영값이나 등록 확인이 하나라도 없으면 `NUXT_PUBLIC_KAKAO_SHARE_ENABLED=false`
+- GA4 활성 환경은 Measurement ID·속성 보관 설정·국외이전 고지·실제 Google 계약 법인·Google
+  tag/CSP domain 확정 확인
+- 위 GA4 운영값이나 고지가 하나라도 없으면 `NUXT_PUBLIC_GA4_ENABLED=false`; 원인과 관계없이 false인
+  환경은 `NUXT_PUBLIC_GA4_MEASUREMENT_ID`를 public runtime config에서 unset
 - 목록 수집을 켠 출처의 `robots_allowed`·`robots_checked_at` 기록 존재
 
 현재 `.gitignore`는 `package-lock.json`을 제외하지 않지만 `yarn.lock`은 제외한다. npm을 표준
@@ -395,10 +421,20 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 
 ### 예약 발행 실패
 
-1. scheduler last run과 due row 확인
-2. 중복 발행 여부 확인
-3. R2 image 상태 확인
-4. 조건부 command로 재실행
+기본 예약 발행 운영 슬롯은 `07:30`, `17:30` KST(`Asia/Seoul`)이며 게시글별 임의 미래 시각도
+허용한다. scheduler는 매분 `scheduled_at <= now()`인 `SCHEDULED` 글을 확인하므로 중단 중 지난
+예약도 복구 후 다음 실행의 due 대상에 포함한다.
+
+일시적인 R2·DB·network 실패는 글을 `SCHEDULED`로 유지하고 다음 분 실행에서 다시 시도한다.
+첫 실패부터 게시글 ID·예약 시각·오류 코드·시도 시각을 운영 알림으로 보내되 본문·source URL·
+관리자 identity 원문은 넣지 않으며, 같은 게시글과 오류의 반복 알림은 묶는다. 자동 재시도 횟수는
+제한하지 않고 성공하거나 운영자가 예약을 취소할 때까지 계속한다. 반면 공지 위치 충돌처럼 같은
+입력으로 성공할 수 없는 업무 제약 오류는 `DRAFT`로 되돌리고 한 번 알린 뒤 자동 재시도하지 않는다.
+
+1. scheduler last successful run과 overdue due row 확인
+2. 같은 게시글의 중복 발행 여부 확인
+3. R2 image와 DB 상태 확인
+4. 일시 실패면 조건부 command로 재실행하고, 영구 업무 오류면 운영자가 수정 후 다시 예약
 5. 목록·상세 cache purge 확인
 
 운영 cron은 API image에서 다음 단발성 명령을 실행한다.
@@ -407,6 +443,7 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 매분     npm run posts:publish-due
 매분     npm run outbox:run
 10분마다 npm run collect:crawl-due
+매일 1회 npm run images:cleanup-orphans
 ```
 
 정책 시행은 cron에 등록하지 않는다. 승인된 정책 release artifact의 checksum과 시행 시각을 운영자가 확인한 뒤 시행 시각부터 5분 안에 `npm run policies:publish -- --artifact=<path>`를 한 번 실행하고 `/api/v1/policies/:type`, `/terms` 또는 `/privacy`의 현재 버전·이력과 cache purge 결과를 확인한다. window를 놓치면 과거 시행 시각을 강제하지 않고 새 시행 시각으로 법무 문서·artifact를 다시 승인한다. 정책 본문·버전·시행 시각을 command argument에 직접 넣지 않는다. host artifact는 root 소유 `0600`으로 보관하고 실행 시 command container에만 읽기 전용 secret으로 mount하며 종료 후 mount와 임시 파일을 제거한다.
@@ -437,8 +474,8 @@ outbox worker는 중단된 `RUNNING`을 5분 뒤 회수하고 실패할 때마�
 
 | 주기 | 점검 |
 | --- | --- |
-| 매일 | backup, 외부 health, disk, outbox DEAD |
-| 매주 | container update 후보, R2 orphan, 예약 발행 결과 |
+| 매일 | backup, 외부 health, disk, outbox DEAD, private staging orphan inventory 결과 |
+| 매주 | container update 후보, R2 orphan 추세, 예약 발행 결과 |
 | 매월 | 실제 restore, 비용, secret·외부 관리자 사용자, dependency audit, 수집 출처 오류·차단 추세 |
 | 분기 | 런타임 LTS patch, 보존 데이터 삭제, 공급자 가격·무료 정책, 수집 출처 `robots.txt`·이용약관 재확인 |
 

@@ -1,8 +1,8 @@
 # M0 저비용 인프라 설계
 
 - 문서 상태: M0 인프라 설계 계약 · 현행 배포 산출물 없음
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 기준일: 2026-09-03
+- 정합성 검토일: 2026-09-03
 - 가격 기준: 2026-08-14, USD, 세금·환율·도메인·메일 비용 제외
 - 관련 문서: [시스템 아키텍처](./01-system-architecture.md), [보안·운영](./05-security-operations.md)
 
@@ -78,6 +78,7 @@ blariyo-media-public
 
 blariyo-media-private
   drafts/{postId|draftId}/{uuid}
+  staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}
 
 blariyo-backup
   postgresql/daily/YYYY/MM/DD/{timestamp}.dump.age
@@ -231,13 +232,39 @@ M0에서는 별도 상시 staging 서버를 두지 않는다. 배포 후보는 C
 환경 변수는 다음 범주로 나눈다.
 
 ```text
-public config
-  SERVICE_ORIGIN
-  IMAGE_ORIGIN
-  NUXT_TRUSTED_CLIENT_IP_HEADER
-  NUXT_KAKAO_JS_KEY
+browser public config
+  SERVICE_PUBLIC_BASE_URL=https://blariyo.com/
+  IMAGE_ORIGIN=(배포 시 확정한 public media origin)
+  NUXT_PUBLIC_SITE_NAME
+  NUXT_PUBLIC_HOME_TAGLINE
+  NUXT_PUBLIC_HOME_TITLE
+  NUXT_PUBLIC_HOME_DESCRIPTION
+  NUXT_PUBLIC_HOME_OG_DESCRIPTION
+  NUXT_PUBLIC_FOOTER_TAGLINE
+  NUXT_PUBLIC_KAKAO_SHARE_ENABLED
+  NUXT_PUBLIC_KAKAO_SDK_SCRIPT_URL
+  NUXT_PUBLIC_KAKAO_SDK_SRI
+  NUXT_PUBLIC_KAKAO_JS_KEY
   NUXT_PUBLIC_GA4_ENABLED
   NUXT_PUBLIC_GA4_MEASUREMENT_ID
+
+server runtime config
+  NUXT_TRUSTED_CLIENT_IP_HEADER
+  KAKAO_CSP_SCRIPT_HOST
+  KAKAO_CSP_CONNECT_HOST
+  BLARIYO_OPERATOR_DISPLAY_NAME
+  BLARIYO_GENERAL_CONTACT_EMAIL
+  BLARIYO_RIGHTS_CONTACT_EMAIL
+  BLARIYO_PRIVACY_CONTACT_EMAIL
+  BLARIYO_PRIVACY_OFFICER_NAME
+  BLARIYO_PRIVACY_OFFICER_TITLE
+  BLARIYO_PRIVACY_DEPARTMENT
+  BLARIYO_BUSINESS_NAME
+  BLARIYO_REPRESENTATIVE_NAME
+  BLARIYO_BUSINESS_REGISTRATION_NUMBER
+  BLARIYO_MAIL_ORDER_REGISTRATION_NUMBER
+  BLARIYO_OPERATOR_ADDRESS
+  BLARIYO_OPERATOR_PHONE
   COLLECT_USER_AGENT
   COLLECT_MANUAL_URL_ENABLED
   COLLECT_LIST_CRAWL_ENABLED
@@ -274,11 +301,27 @@ runtime secret
   CF_CACHE_PURGE_TOKEN
 ```
 
+`SERVICE_PUBLIC_BASE_URL`의 production 값은 `https://blariyo.com/`이다. `IMAGE_ORIGIN`은 public
+media custom domain을 배포할 때 확정하며 이 문서에서 실값을 추측하지 않는다. `browser public config`는
+브라우저에 전달해도 되는 값만 둔다. 홈·OG·푸터 카피는
+`NUXT_PUBLIC_SITE_NAME`, `NUXT_PUBLIC_HOME_TAGLINE`, `NUXT_PUBLIC_HOME_TITLE`,
+`NUXT_PUBLIC_HOME_DESCRIPTION`, `NUXT_PUBLIC_HOME_OG_DESCRIPTION`,
+`NUXT_PUBLIC_FOOTER_TAGLINE`으로 주입하며 [카피 계약](../planning/06-copy-contract.md)의 값을 사용한다.
+
 `NUXT_TRUSTED_CLIENT_IP_HEADER`는 조회 수 endpoint의 IP 제한에 사용할 단일 header 이름이며
-Cloudflare Tunnel 운영값은 `cf-connecting-ip`다. `NUXT_KAKAO_JS_KEY`와
+Cloudflare Tunnel 운영값은 `cf-connecting-ip`다. server runtime config는 비밀값은 아니지만
+브라우저로 자동 노출하지 않는 운영 설정이다.
+
+`NUXT_PUBLIC_KAKAO_JS_KEY`, `NUXT_PUBLIC_KAKAO_SDK_SCRIPT_URL`, `NUXT_PUBLIC_KAKAO_SDK_SRI`와
 `NUXT_PUBLIC_GA4_MEASUREMENT_ID`는 브라우저에 전달되는 공개 설정으로 비밀값이 아니지만 승인된
-도메인·GA4 속성과 함께 변경 이력을 관리한다. measurement ID·속성 보관 설정·국외이전 고지가
-확정되지 않으면 `NUXT_PUBLIC_GA4_ENABLED=false`로 배포한다. `COLLECT_USER_AGENT`는 블라리요를
+도메인·provider 설정과 함께 변경 이력을 관리한다. 실제 Kakao JavaScript key와 개발자 콘솔 Web
+domain 등록을 확인하고 SDK URL·SRI·CSP host를 고정하기 전에는
+`NUXT_PUBLIC_KAKAO_SHARE_ENABLED=false`로 배포한다. GA4 Measurement ID·속성 보관 설정·국외이전
+고지·실제 Google 계약 법인·Google tag/CSP domain 중 하나라도 확정되지 않으면
+`NUXT_PUBLIC_GA4_ENABLED=false`로 배포한다. gate 충족 여부와 관계없이 flag가 false인 환경은
+`NUXT_PUBLIC_GA4_MEASUREMENT_ID`를 public runtime config에서 unset해 응답 payload와 client bundle에
+provider 값을 노출하지 않는다. GA4를 켠 환경에서도
+저장된 분석 동의 전에는 Google tag/request와 cookieless ping을 만들지 않는다. `COLLECT_USER_AGENT`는 블라리요를
 식별할 수 있는 문자열과 연락 수단을 포함하고, `COLLECT_MANUAL_URL_ENABLED`·
 `COLLECT_LIST_CRAWL_ENABLED`는 출처별 설정과 별개인 전체 차단 스위치다. 출처별 요청 간격·일일
 상한·robots 확인 결과는 환경변수가 아니라 `collect.source` 데이터로 관리한다.
@@ -323,7 +366,17 @@ M0 기본은 다음과 같다.
 
 - 사용자가 올린 raw bytes는 검증·재인코딩 후 보관하지 않는다.
 - 재인코딩한 private canonical 원본과 public 배포본을 유지해 숨김·재공개를 지원한다.
-- 게시글에 연결되지 않은 private orphan은 24시간 뒤 삭제 대상으로 분류한다.
+- 업로드 요청이 만드는 미연결 object는
+  `staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}`에 둔다. key에는 원본 파일명·관리자
+  identity를 넣지 않는다. `uploadRequestId`는 서버가 생성한 불투명한 고유값이고 SHA-256은 재인코딩한
+  bytes 기준이다. `objectCreatedAt`은 provider metadata 또는 inventory timestamp로 확인한다.
+- 다중 업로드 실패 시 DB transaction을 rollback한 뒤 이미 저장한 object를 즉시 보상 삭제한다. 삭제가
+  실패하면 rollback과 분리된 cleanup transaction에서 private key 기반 `OBJECT_DELETE_PRIVATE` outbox를
+  commit한다. rollback된 image ID를 aggregate나 payload에 넣지 않는다.
+- 매일 inventory는 생성 후 24시간이 지난 `staging/` object 가운데 DB image row의
+  `private_storage_key`와 미완료(`PENDING`,`RUNNING`,`FAILED`,`DEAD`) cleanup outbox의
+  `privateStorageKey` 어느 쪽에도 없는 key만 orphan으로 삭제한다. process crash로 보상 삭제와 outbox가
+  모두 남지 않은 object도 이 경계로 회수한다.
 - `REMOVED` 게시글의 private canonical 원본은 30일 복구 유예 뒤 삭제한다.
 - image당 최대 10MiB, 한 게시글 최대 20개로 제한한다.
 - R2 저장량 7GB에서 알림, 9GB에서 새 업로드 차단 또는 유료 전환을 결정한다.

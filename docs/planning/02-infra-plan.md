@@ -1,8 +1,8 @@
 # 블라리요 인프라 계획
 
 - 문서 상태: M0 인프라 의사결정 정본
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 기준일: 2026-09-03
+- 정합성 검토일: 2026-09-03
 - 역할: 배포 방향·비용 경계·공급자 선택을 정의한다. 스키마, API payload, container 자원값과 운영 명령은 정의하지 않는다.
 - 관련 문서: [서비스 기획서](./01-service-plan.md), [콘텐츠 수집 기획](./content-collection/README.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
 
@@ -73,7 +73,7 @@ Redis, MongoDB, 별도 managed DB, Kubernetes, 다중 API instance와 다중 reg
 
 - PostgreSQL과 application container port는 인터넷에 직접 공개하지 않는다. Express Core API는 Nginx route·public DNS·host port 없이 Nuxt BFF만 HTTP로 호출한다. cron은 API image의 단발성 command로 실행한다.
 - 관리자 화면과 관리자 API의 외부 identity는 Nuxt BFF의 교체 가능한 adapter가 검증한다. 초기 provider는 Cloudflare Access지만 Core API는 이에 종속되지 않는다.
-- 실제 service domain은 `__SERVICE_DOMAIN__` placeholder가 남아 있으면 배포하지 않는다.
+- 실제 service domain 설정에 미확정 placeholder가 남아 있으면 배포하지 않는다.
 - `/community`, `/news`, `/login`, `/signup/consent`, `/account`는 해당 후속 단계가 시작될 때 활성화한다.
 
 endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network와 health check는 [상세 인프라 설계](../system-design/04-infrastructure-design.md)를 따른다.
@@ -107,6 +107,9 @@ planning을 확정하고 system-design을 대조한다. 수집 계약은 M0 전�
 ## 8. 운영·보안 의사결정
 
 - 공개 읽기 장애와 운영자 쓰기 장애를 분리한다. Access나 R2 private media 장애가 기존 공개 읽기를 중단시키지 않게 한다.
+- 하루 두 차례 게시 묶음의 기본 예약 발행 시각은 출근·등교 전후와 퇴근·하교 전후를 겨냥해
+  `07:30`, `17:30` KST(`Asia/Seoul`)로 둔다. 이는 운영 기본 슬롯이며 게시글별 임의 미래 시각
+  예약을 제한하지 않는다. scheduler는 매분 due 게시글을 확인한다.
 - 관리자 identity, DB role, R2 bucket, backup credential을 최소 권한으로 분리한다.
 - DB logical backup과 실제 restore test를 운영 필수 작업으로 둔다.
 - token·비밀번호·개인정보·권리자 소명 자료를 application log에 남기지 않는다.

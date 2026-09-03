@@ -5,7 +5,7 @@
 - 문서 상태: `작성 완료`
 - milestone: `M0 Core`
 - 기능: `analytics-consent`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [화면 설계 §10](../../../../planning/03-screen-design.md), [쿠키 안내](../../../../legal/cookie-settings.md), [퍼블리싱 동의 저장 비교물](../../../../publishing/responsive/app.js)
 - 미검증: actual modal/direct route·storage test
 
@@ -26,6 +26,8 @@
 - `blariyo_consent`: [분석 선택 D01](../d01/manage-analytics-consent.md)의 `version=2`, 고정 순서 `scope`,
   `analytics`, `ads`, UTC `savedAt` JSON. `savedAt`부터 달력 기준 12개월 뒤 만료한다.
 - 분석 option은 GA4 flag true일 때만 표시한다.
+- GA4 운영값과 법무 고지가 모두 확정되지 않아 flag가 false인 환경에서는 Measurement ID나 provider
+  placeholder를 노출하지 않는다.
 - M0에서 광고가 비활성이면 광고 option·cookie를 표시하거나 만들지 않는다.
 
 ## 5. 이벤트·버튼·이동·후처리
@@ -55,4 +57,6 @@ modal/direct route 동등 내용, 비활성 option 미노출, 12개월 scope, �
 
 ## 11. 미정·차단·미검증
 
-GA4 실제 cookie 만료·property 보관·국외이전은 활성화 차단값이다. 화면 runtime은 미검증이다.
+GA4 실제 cookie 만료·property 보관·국외이전 고지·Google 계약 법인·Google tag/CSP domain은 활성화
+차단값이다. 모두 확정되기 전 production flag는 false이며 M0 Core 공개 자체는 막지 않는다. 화면
+runtime은 미검증이다.

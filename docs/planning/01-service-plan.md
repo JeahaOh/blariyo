@@ -1,10 +1,10 @@
 # 블라리요 서비스 기획서
 
 - 문서 상태: 제품 요구사항 정본
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 기준일: 2026-09-03
+- 정합성 검토일: 2026-09-03
 - 서비스명: `블라리요`
-- 관련 문서: [02-infra-plan.md](./02-infra-plan.md), [03-screen-design.md](./03-screen-design.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md), [05-benchmark-spec.md](./05-benchmark-spec.md), [06-copy-candidates.md](./06-copy-candidates.md), [07-color-palette.md](./07-color-palette.md), [콘텐츠 수집 기획](./content-collection/README.md), [시스템 설계](../system-design/README.md)
+- 관련 문서: [02-infra-plan.md](./02-infra-plan.md), [03-screen-design.md](./03-screen-design.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md), [05-benchmark-spec.md](./05-benchmark-spec.md), [06-copy-contract.md](./06-copy-contract.md), [07-color-palette.md](./07-color-palette.md), [콘텐츠 수집 기획](./content-collection/README.md), [시스템 설계](../system-design/README.md)
 
 ## 1. 서비스 정의
 
@@ -87,7 +87,9 @@
 - 하루 2회 게시한다.
 - 1회당 10~20개를 게시한다.
 - 하루 게시량은 20~40개다.
-- 정확한 게시 시각은 운영 설정으로 두고 기획에서 고정하지 않는다.
+- 기본 예약 발행 운영 시각은 `07:30`, `17:30` KST(`Asia/Seoul`)로 둔다. 출근·등교 전후와
+  퇴근·하교 전후에 게시 묶음을 제공하려는 기본값이며, 운영자는 게시글별로 다른 미래 시각을
+  예약할 수 있다.
 - 예약 발행은 운영자가 각 게시 묶음을 준비하는 용도로 사용할 수 있다.
 
 ### 출처
@@ -214,7 +216,12 @@ PUBLISHED
 
 목록의 canonical URL은 `/meme`이다. `/`는 `/meme`으로 리다이렉트하므로 별도 목록 canonical로 사용하지 않는다. 게시글 canonical URL은 `/:boardSlug/posts/:postId`이며 초기 짤 게시판은 `/meme/posts/:postId`다.
 
-슬로건, 홈 title, OG title, OG description 문구는 [06-copy-candidates.md](./06-copy-candidates.md)에서 보류 상태로 관리한다.
+서비스 공개 기준 URL은 `https://blariyo.com/`이다. 카카오톡 공유는 Kakao JavaScript SDK를 사용하며,
+실제 JavaScript key와 카카오 개발자 콘솔 Web domain 등록을 확인하기 전에는 카카오톡 항목을
+활성화하지 않는다. 이때도 링크 복사와 브라우저 기본 공유는 유지한다. SDK script URL·SRI integrity·
+JavaScript key·CSP host는 배포 환경 properties/config로 관리한다.
+
+홈·OG·푸터 카피는 [06-copy-contract.md](./06-copy-contract.md)의 확정값을 사용한다.
 
 ## 8. 콘텐츠 수집
 
@@ -320,10 +327,13 @@ planning은 화면과 운영 흐름이 필요로 하는 동작만 정의한다. 
 - 적용 기간은 현재 버전은 `yyyy.mm.dd ~ 시행 중`, 이전 버전은 `yyyy.mm.dd ~ yyyy.mm.dd`로 표시한다.
 - 개정 이력 행 전체를 선택하면 같은 modal의 전체 본문을 해당 버전으로 교체한다.
 - 시행 중인 버전과 과거 버전의 본문을 덮어쓰지 않고 각각 보관한다.
-- 권리 침해·게시 중단 문의는 푸터에 `권리 문의`로 짧게 표시하고, 클릭하면 현재 화면의 URL을 본문에 미리 넣은 이메일 작성 화면으로 연결한다.
+- 권리 침해·게시 중단 문의는 푸터의 `권리 문의`로 현재 화면 URL을 본문에 미리 넣은 이메일 작성
+  화면을 연다. 이와 별도로 모든 공개 화면에 항상 접근 가능한 `이메일 주소 복사`를 제공하며,
+  접수 이메일 주소만 복사하고 제목·본문은 복사하지 않는다. browser가 mail client 실행 성공·실패를
+  감지한다고 가정하지 않는다.
 - 요청 form, `/rights` 화면과 권리자 요청 API는 초기 범위에서 제외하고 필요성이 확인되면 후속 단계에서 검토한다.
-- M0 Core에는 GA4 연동과 동의 제어를 구현하되 운영 기본값은 비활성으로 둔다. Measurement ID,
-  속성 보관 설정과 국외이전 고지가 확정된 환경에서만 선택 분석을 활성화한다.
+- M0 Core에는 GA4 연동과 동의 제어를 구현하되 운영 기본값은 비활성으로 둔다. 운영 활성화 조건과
+  비활성 기본값은 [분석·광고 계획 §2·§11](./04-analytics-ad-plan.md)을 따른다.
 - GA4 또는 광고처럼 동의가 필요한 선택 기능을 실제 활성화한 환경에서만, 저장된 선택이 없는
   최초 접속에 화면 하단 비차단형 쿠키 배너를 표시한다.
 - 하단 배너는 `필수만 사용`, `설정`, `모두 허용`을 제공하고 `설정`은 쿠키 설정 modal을 연다.
@@ -355,13 +365,10 @@ planning은 화면과 운영 흐름이 필요로 하는 동작만 정의한다. 
 
 ## 13. 아직 미정인 항목
 
-- 실제 서비스 도메인 문자열
-- 슬로건, 서브 카피, OG title, OG description
-- 하루 두 차례의 정확한 게시 시각
 - 익게와 뉴스의 공개 시점 및 세부 기능
 - 14세 미만 회원가입 허용 여부와 연령 확인 방식
 - 소셜 제공자별 production application, callback URL과 동의 항목 검수 결과
-- GA4 속성 보관 기간과 국외이전 고지 확정값
+- GA4 운영 활성화에 필요한 실값과 법무·CSP 조건은 [분석·광고 계획](./04-analytics-ad-plan.md)에서 추적
 - 향후 추가 게시판의 이름과 운영 방식
 - 수집 출처별 `robots.txt`·이용약관 확인 결과와 목록 수집 활성화 여부
 - 수집 요청 User-Agent 문자열과 연락 수단

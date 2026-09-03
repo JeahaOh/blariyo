@@ -5,7 +5,7 @@
 - 문서 상태: `초안`
 - milestone: `M0 Core`
 - 기능: `admin-post-management`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [화면 설계 §2 관리자 게시글 화면](../../../../planning/03-screen-design.md), [관리 API](../admin-post-management.dev.md)
 - 미검증: publishing 산출물 없음, 실제 UI·browser·accessibility test
 
@@ -25,6 +25,7 @@
 - 편집: 제목, source pair, TEXT/IMAGE block 추가·제거·순서, alt, 공지 위치
 - 이미지: upload, 인증 preview, 미사용 폐기
 - 상태 action: 저장, 즉시 발행, 예약, 예약 취소, 숨김, 재공개, 최종 제거
+- 예약: `07:30`, `17:30` KST(`Asia/Seoul`) 기본 슬롯과 게시글별 임의 미래 시각 입력
 - desktop 좌측 목록/우측 편집; mobile 상하 배치
 
 ## 4. 필드·표시값·validation
@@ -35,9 +36,16 @@ image file 10MiB·요청 10개/100MiB. 오류는 field 가까이에 표시한다
 ## 5. 이벤트·버튼·이동·후처리
 
 - 검색·글 선택: 목록/상세 API.
-- 이미지 선택: upload 후 preview; 제거는 block과 asset 상태를 구분한다.
+- 이미지 선택: upload 요청 전체가 성공한 뒤에만 모든 preview를 표시한다. 하나라도 실패하면 성공한
+  파일도 표시하지 않는다. 파일 개수·전체 합계 gate의 `413`은 `fields` 없이 요청 단위 제한으로
+  안내한다. gate 통과 뒤 파일별 `413`·`415` validation 응답은 `fields[]`의 모든 실패 index와 일반화
+  reason을 해당 파일 가까이에 표시한다. 크기·형식이 섞인 `413`에서도 형식 오류 파일을 빠뜨리지 않는다.
+  R2·DB `503`은 특정 파일 오류로 표시하지 않고 요청 단위 장애와 전체 재시도를 안내한다. 제거는 block과
+  asset 상태를 구분한다.
 - 저장: 새 글 create, 기존 글 patch 후 version 갱신.
 - 상태 action: 저장되지 않은 변경이 없고 현재 상태에 허용된 버튼만 활성.
+- 예약: 기본 슬롯을 바로 선택하거나 offset이 포함된 임의 미래 시각을 입력한다. 기본 슬롯 외 시각도
+  허용하며 API 응답의 UTC 정규화 시각을 현재 예약 상태에 반영한다.
 - 최종 제거: `REMOVED`가 되돌릴 수 없음을 명시한 확인창 후 실행.
 
 ## 6. 화면 상태
@@ -75,4 +83,6 @@ label·오류 연결, block 순서 키보드 조작 대안, dialog focus trap/re
 
 ## 11. 미정·차단·미검증
 
-관리자 화면 publishing 증거가 없고 upload 일부 실패 UX가 상위 계약에서 미정이므로 `초안`이다.
+upload 실패 UX는 all-or-nothing, 요청 단위 gate `413`의 `fields` 없음, 파일별 `413`·`415`의 모든
+실패 파일 표시, `503`의 파일 표시 없음으로 확정됐다. 관리자 화면 publishing과 실제 UI·browser 증거가
+없어 `초안`이다.

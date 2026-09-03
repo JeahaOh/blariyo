@@ -536,7 +536,9 @@ a.notice-row:hover { background: #f4e8c7; }
   font-size: 11px;
 }
 .site-footer nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; }
-.site-footer a { text-decoration: underline; }
+.footer-brand { display: grid; gap: 3px; }
+.site-footer a,
+.site-footer nav button { padding: 0; border: 0; color: inherit; background: transparent; text-decoration: underline; }
 .cookie-banner {
   position: fixed;
   z-index: 120;

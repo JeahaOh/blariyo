@@ -59,6 +59,9 @@ const policyDescription = document.getElementById('policyDescription');
 const policyContent = document.getElementById('policyContent');
 const cookieBanner = document.getElementById('cookieBanner');
 const rightsMailLink = document.getElementById('rightsMailLink');
+const rightsEmailCopyButton = document.getElementById('rightsEmailCopyButton');
+const rightsContactStatus = document.getElementById('rightsContactStatus');
+const rightsContactEmail = '__BLARIYO_RIGHTS_CONTACT_EMAIL__';
 const cookieConsentKey = 'blariyo_consent';
 const prototypeParams = new URLSearchParams(location.search);
 const prototypeFeatures = {
@@ -190,7 +193,7 @@ function updateHeader(name) {
     detail: '퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미',
     loading: '불러오는 중',
     error: '불러오기 오류',
-    hidden: '볼 수 없는 게시글'
+    hidden: '볼 수 없는 게시글입니다'
   };
   const isPostState = Object.hasOwn(postStateTitles, name);
 
@@ -203,10 +206,19 @@ function updateHeader(name) {
   detailHeaderTitle.textContent = postStateTitles[name] || '';
   boardTabs.hidden = isPostState;
 
-  const targetUrl = isPostState ? 'https://__SERVICE_DOMAIN__/meme/posts/1047' : 'https://__SERVICE_DOMAIN__/meme';
+  const targetUrl = isPostState ? 'https://blariyo.com/meme/posts/1047' : 'https://blariyo.com/meme';
   const subject = encodeURIComponent('[블라리요] 권리 침해·게시 중단 문의');
   const body = encodeURIComponent(`대상 URL: ${targetUrl}\n요청 내용: `);
-  rightsMailLink.href = `mailto:rights@__SERVICE_DOMAIN__?subject=${subject}&body=${body}`;
+  rightsMailLink.href = `mailto:${rightsContactEmail}?subject=${subject}&body=${body}`;
+}
+
+async function copyRightsEmail() {
+  try {
+    await navigator.clipboard.writeText(rightsContactEmail);
+    rightsContactStatus.textContent = '권리 문의 이메일 주소를 복사했습니다.';
+  } catch {
+    rightsContactStatus.textContent = `복사할 수 없습니다. 이메일 주소: ${rightsContactEmail}`;
+  }
 }
 
 function showScreen(name, { focus = false } = {}) {
@@ -406,7 +418,7 @@ function announceShare(message) {
 }
 
 async function copyShareUrl() {
-  const url = 'https://__SERVICE_DOMAIN__/meme/posts/1047';
+  const url = 'https://blariyo.com/meme/posts/1047';
   try {
     await navigator.clipboard.writeText(url);
     announceShare('게시글 링크를 복사했습니다.');
@@ -416,14 +428,14 @@ async function copyShareUrl() {
 }
 
 async function runShare(type) {
-  const url = 'https://__SERVICE_DOMAIN__/meme/posts/1047';
+  const url = 'https://blariyo.com/meme/posts/1047';
   const title = '퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미';
 
   if (type === 'copy') await copyShareUrl();
   if (type === 'x') window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
   if (type === 'kakao') {
     if (window.Kakao?.Share) {
-      window.Kakao.Share.sendDefault({ objectType: 'feed', content: { title, description: '블라리요 게시글', imageUrl: 'https://__SERVICE_DOMAIN__/og/posts/1047-1200x630.jpg', link: { mobileWebUrl: url, webUrl: url } } });
+      window.Kakao.Share.sendDefault({ objectType: 'feed', content: { title, description: '블라리요 게시글', imageUrl: 'https://media.example.invalid/posts/1047/hash.webp', link: { mobileWebUrl: url, webUrl: url } } });
     } else {
       announceShare('정적 프로토타입에서는 카카오 공유 실행 대신 배치만 확인합니다.');
     }
@@ -503,6 +515,7 @@ shareButton.addEventListener('click', () => {
   if (shareMenu.hidden) openShareMenu();
   else closeShareMenu();
 });
+rightsEmailCopyButton.addEventListener('click', copyRightsEmail);
 
 window.addEventListener('resize', () => { if (!shareMenu.hidden) positionShareMenu(); });
 window.addEventListener('scroll', () => { if (!shareMenu.hidden) positionShareMenu(); }, { passive: true });

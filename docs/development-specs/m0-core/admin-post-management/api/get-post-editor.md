@@ -5,7 +5,7 @@
 - 문서 상태: `초안`
 - milestone: `M0 Core`
 - 기능: `admin-post-management`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [API 설계 §5 초안 편집 상세](../../../../system-design/03-api-design.md)
 - 미검증: OpenAPI, source, contract test
 
@@ -53,8 +53,8 @@ createdAt, updatedAt`. IMAGE block은 `alt, imageId, status, width, height, prev
 
 ## 5. Validation과 정규화
 
-미존재·접근 불가는 동일 `404 POST_NOT_FOUND`다. `postId` 형식 오류를 `400 VALIDATION_FAILED`로
-처리할지 `404 POST_NOT_FOUND`로 일반화할지는 상위 관리자 API 계약에 없어 `(결정 필요)`다.
+`postId` 형식 오류·범위 초과, 미존재와 접근 불가는 모두 `404 POST_NOT_FOUND`로 일반화한다.
+형식 오류에 별도 `400 VALIDATION_FAILED`를 반환하지 않는다.
 
 ## 6. 정상 처리와 데이터 전이
 
@@ -103,8 +103,7 @@ GET /api/v1/admin/posts/1047
 }
 ```
 
-실패 `404`는 공통 오류 envelope와 `POST_NOT_FOUND`를 사용한다. path 형식 오류 예시는 상위 계약
-확정 전 만들지 않는다.
+실패 `404`는 형식 오류·미존재·접근 불가 모두 공통 오류 envelope와 `POST_NOT_FOUND`를 사용한다.
 
 ```json
 {
@@ -116,5 +115,5 @@ GET /api/v1/admin/posts/1047
 
 ## 11. Contract test와 미검증
 
-모든 상태, TEXT/IMAGE mapping, previewPath, storage key 비노출과 확정된 path 형식 오류를 검증한다.
-상위 계약 확정 전 문서 상태는 `초안`이며 실행도 미실행이다.
+모든 상태, TEXT/IMAGE mapping, previewPath, storage key 비노출과 path 형식 오류의 동일한 `404`를
+검증한다. 실행은 미실행이다.

@@ -2,10 +2,10 @@
 
 ## 1. 문서 정보와 입력 근거
 
-- 문서 상태: `초안`
+- 문서 상태: `작성 완료`
 - milestone: `M0 Core` (`m0-core`)
 - 기능: `public-post-browsing` — 공개 게시판 목록·상세·공유·조회 수
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 미검증: Nuxt·BFF·Core source, migration, OpenAPI, test, runtime, 실제 CDN·공유 provider
 - 주요 근거:
   - [서비스 기획 §1, §2, §5, §7, §10, §14](../../../planning/01-service-plan.md)
@@ -58,9 +58,9 @@
 | 정상 상세 표시 뒤 조회 수 1 증가, 실패는 비차단 | 확정 | 분석 계획 §3 | `increment-post-view`, D01 `view-post` | 반영 |
 | 공유 popup/sheet와 provider fallback | 확정 | 화면 설계 §7 | D01 `share-post`, D08 `post-detail` | 반영 |
 | 상세 SSR canonical·OG·Twitter metadata와 404 `noindex` | 확정 | 화면 설계 §7, 퍼블리싱 SSR 계약 | D01 `view-post`, D08 `post-detail`, SSR integration test | 반영 |
-| payload 오류 code 이름 | 결정 필요 | API 설계 §3·§6 | `increment-post-view` | 상위 계약 불일치 |
-| IMAGE 없는 상세의 OG fallback·description 생성 규칙 | 결정 필요 | 화면 설계 §7 | D08 `post-detail` | 상위 계약 누락 |
-| 실제 서비스 도메인·카카오 CSP host/key | 결정 필요 | 서비스 기획 §13, 보안·운영 §4 | D08 `post-detail` | `(미정)` |
+| payload 오류 code 이름 | 확정 | API 설계 §3·§6 | `increment-post-view` | `VALIDATION_FAILED` 반영 |
+| IMAGE 없는 상세의 OG fallback·description 생성 규칙 | 확정 | 화면 설계 §7 | D08 `post-detail` | 기본 이미지·TEXT 요약 반영 |
+| 서비스 도메인·카카오 공유 방식 | 확정·활성화 차단 | 서비스 기획 §7, 보안·운영 §4 | D01 `share-post`, D08 `post-detail` | 도메인·SDK 방식 반영, 운영값 전 활성화 차단 |
 | 로그인·광고·수집 | 범위 밖 | 서비스 기획 §1 | 모든 산출물 | 제외 |
 
 ## 6. 업무 규칙과 수용 조건
@@ -69,7 +69,19 @@
 - page는 1부터 시작하고 page 1의 0건은 `200`, 전체 page를 넘으면 `404 PAGE_NOT_FOUND`다.
 - 상세는 요청 게시판과 글 소속을 함께 검증하고 비공개 원인을 HTML·API에 노출하지 않는다.
 - 상세 하단 페이지 이동은 본문과 스크롤 위치를 유지하고 목록만 교체한다.
-- 카카오 script 실패는 카카오 항목만 숨기고 링크 복사와 다른 공유 수단을 유지한다.
+- 첫 공개 IMAGE block이 있으면 해당 절대 HTTPS URL을 OG·Twitter 이미지로 사용하고, 없으면
+  `https://blariyo.com/og/blariyo-default.png`를 사용한다.
+- 첫 공개 TEXT block plain text의 앞뒤 Unicode whitespace를 제거하고 내부의 하나 이상 연속된
+  Unicode whitespace를 단일 U+0020 space로 치환한 뒤 grapheme 수를 센다. 이 값을 `description`,
+  `og:description`, `twitter:description`에 동일하게 사용한다. 120자 이하는 80자 미만이어도 그대로
+  두고, 120자 초과는 Unicode grapheme cluster 기준 앞 119자와 단일 `…`로 총 120자 이하를 만든다.
+  UTF-16 code unit·byte 기준으로 자르지 않는다. 공개 TEXT가 없으면
+  `NUXT_PUBLIC_HOME_OG_DESCRIPTION`의 `블라리요에서 블라블라블라`를 사용한다.
+- 카카오톡 공유는 Kakao JavaScript SDK를 사용한다. 실제 JavaScript key와 카카오 개발자 콘솔 Web
+  domain 등록 확인 전에는 카카오 항목을 활성화하지 않으며, 비활성 또는 script 실패 시 링크 복사와
+  브라우저 기본 공유를 유지한다.
+- 목록·상세 footer에는 `권리 문의` mailto와 항상 접근 가능한 `이메일 주소 복사`를 함께 제공한다.
+  복사는 권리 접수 이메일 주소만 대상으로 하며 mailto 제목·본문은 포함하지 않는다.
 - 360px·768px·1280px에서 가로 스크롤이 없고 키보드로 목록·공유·페이지 이동이 가능해야 한다.
 
 ## 7. 데이터·권한·법무 영향
@@ -99,8 +111,9 @@
 
 ## 11. 결정·가정·미정·차단 항목
 
-- 결정 필요: 조회 수 endpoint의 payload 오류 code를 `VALIDATION_FAILED`로 통일할지 확정한다.
-- 결정 필요: IMAGE가 없는 글의 OG fallback 자산과 description 생성 규칙을 확정한다.
-- 미정: 실제 서비스 도메인, 확정 카피, 카카오 공유 CSP host와 공개 JavaScript key.
+- 확정: 조회 수 endpoint의 payload 오류 code는 `VALIDATION_FAILED`다.
+- 확정: 서비스 공개 기준 URL은 `https://blariyo.com/`이며 홈·OG·푸터 카피와 상세 metadata fallback을 반영했다.
+- 확정: 카카오톡 공유는 Kakao JavaScript SDK를 사용하고 provider가 비활성이어도 링크 복사·브라우저 기본 공유를 유지한다.
+- 실값 필요: Kakao JavaScript key, 개발자 콘솔 Web domain 등록 확인, SDK script URL·SRI integrity와 CSP host.
 - 미검증: 정적 프로토타입은 혼합 단계 검토물이며 실제 SSR·API·접근성·공유 동작 증거가 아니다.
-- 차단: 위 오류 code 불일치와 SSR metadata 미정값이 해결되기 전 이 번들은 `작성 완료`로 승격하지 않는다.
+- 활성화 차단: 위 카카오 운영값과 Web domain 등록을 확인하기 전에는 카카오톡 공유 항목을 켜지 않는다.

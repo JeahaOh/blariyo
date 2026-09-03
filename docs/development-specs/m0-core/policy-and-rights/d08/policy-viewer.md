@@ -5,7 +5,7 @@
 - 문서 상태: `차단`
 - milestone: `M0 Core`
 - 기능: `policy-and-rights`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [화면 설계 §10](../../../../planning/03-screen-design.md), [퍼블리싱 기준](../../../../publishing/responsive/README.md)
 - 미검증: 승인 본문, actual browser·accessibility test
 
@@ -23,7 +23,9 @@
 
 ## 4. 필드·표시값·validation
 
-현재는 `yyyy.mm.dd ~ 시행 중`, 과거는 `yyyy.mm.dd ~ yyyy.mm.dd`. 허용 HTML만 렌더링하며 외부 link는 안전 속성을 사용한다.
+현재는 `yyyy.mm.dd ~ 시행 중`, 과거는 `yyyy.mm.dd ~ yyyy.mm.dd`. 허용 HTML만 렌더링하며 외부
+link는 안전 속성을 사용한다. 운영자 표시명과 문의·책임자 공개값은 승인된 policy artifact에
+properties/config 실값이 반영된 결과만 표시한다.
 
 ## 5. 이벤트·버튼·이동·후처리
 
@@ -51,4 +53,6 @@ modal/direct route의 version·전문이 같고 focus·scroll·history 전환이
 
 ## 11. 미정·차단·미검증
 
-법무 승인·시행일·사업자 실값이 없어 production은 차단된다.
+법무 승인·시행일·운영자 표시명·일반 문의·권리·개인정보 접수 이메일과 개인정보 보호책임자 또는
+담당자 실값이 없어 production은 차단된다. 사업자 정보는 사업자등록 또는 거래 기능 확정 전까지
+`(미정)`으로 보류한다.

@@ -5,7 +5,7 @@
 - 문서 상태: `초안`
 - milestone: `M0 Core`
 - 기능: `public-post-browsing`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [화면 설계 §6](../../../../planning/03-screen-design.md), [상세 API](../api/get-post.md), [조회 수 API](../api/increment-post-view.md)
 - 미검증: SSR·조회 수 호출 lifecycle·cache purge integration
 
@@ -21,7 +21,11 @@
 
 1. SSR이 상세 API를 호출한다.
 2. Core가 게시판 소속·공개 조건을 검증하고 본문·출처·하단 context를 반환한다.
-3. SSR이 canonical·OG와 실제 본문이 든 HTML을 표시한다.
+3. SSR이 canonical·OG와 실제 본문이 든 HTML을 표시한다. 첫 공개 TEXT block plain text의 앞뒤
+   Unicode whitespace를 제거하고 내부의 하나 이상 연속된 Unicode whitespace를 단일 U+0020 space로
+   치환한 뒤 grapheme 수를 센다. 120자 이하면 그대로 사용하고, 120자 초과면 Unicode grapheme
+   cluster 기준 앞 119자와 단일 `…`로 최대 120자를 만들어 `description`, `og:description`,
+   `twitter:description`에 동일하게 넣는다.
 4. 정상 표시 뒤 브라우저가 조회 수 API를 page lifecycle당 한 번 호출한다.
 5. 이용자가 하단 page를 누르면 목록 API만 호출해 본문·스크롤을 유지하고 목록을 교체한다.
 6. 다른 글을 고르면 해당 상세 route로 이동한다. 현재 글 행은 동작하지 않는다.
@@ -50,8 +54,10 @@
 
 ## 8. 완료 조건과 수용 기준
 
-상세·출처 1회·현재 글 하단 목록·동일 404·비차단 조회 수 증가가 계약대로 연결되면 완료다.
+상세·출처 1회·현재 글 하단 목록·동일 404·비차단 조회 수 증가가 계약대로 연결돼야 한다. metadata
+description은 80자 미만도 padding하지 않고, 120자 초과 시 UTF-16 code unit·byte가 아닌 Unicode
+grapheme cluster 기준으로만 잘라 세 metadata 값이 일치해야 한다.
 
 ## 9. 미정·차단·미검증
 
-조회 수 payload 오류 code 결정이 남아 문서 상태는 `초안`이다. runtime은 미검증이다.
+조회 수 payload 오류는 `400 VALIDATION_FAILED`로 확정·동기화됐다. runtime은 미검증이다.

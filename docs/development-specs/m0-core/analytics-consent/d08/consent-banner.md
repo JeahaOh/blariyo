@@ -5,7 +5,7 @@
 - 문서 상태: `작성 완료`
 - milestone: `M0 Core`
 - 기능: `analytics-consent`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [화면 설계 §10 쿠키 설정](../../../../planning/03-screen-design.md), [쿠키 안내 §4](../../../../legal/cookie-settings.md)
 - 미검증: actual browser·viewport·accessibility test
 
@@ -15,7 +15,8 @@
 
 ## 2. 진입·이탈·권한 조건
 
-인증 없음. 활성 선택 기능이 있고 해당 scope 저장값이 없을 때만 표시한다. flag false면 미노출이다.
+인증 없음. 활성 선택 기능이 있고 해당 scope 저장값이 없을 때만 표시한다. flag false면 미노출이며,
+banner 표시만으로 Google tag/request나 cookieless ping을 만들지 않는다.
 
 ## 3. UI 영역과 구성요소
 

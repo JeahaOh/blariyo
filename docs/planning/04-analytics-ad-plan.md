@@ -1,8 +1,8 @@
 # 블라리요 분석·광고 계획
 
 - 문서 상태: M0 GA4·게시글 조회 수·후속 광고 요구사항 정본
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 기준일: 2026-09-03
+- 정합성 검토일: 2026-09-03
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
 
 ## 1. 화면 기준
@@ -17,10 +17,14 @@
 
 - M0 Core에 GA4 연동과 동의 제어를 구현하되 production 기본값은 비활성으로 둔다. 자체 이용
   이벤트 수집 API·원시 이벤트 테이블·일별 집계 테이블은 만들지 않는다.
+- M0에서 운영하는 자체 수치는 기존 참고용 게시글 조회 수뿐이며, 보안·오류 로그는 방문 분석이
+  아니라 장애 대응과 비정상 요청 차단 목적으로만 유지한다.
 - GA4 운영 활성화는 M0 Core 완료 조건과 분리한다. Measurement ID·속성 보관 설정·국외이전
-  고지가 확정된 환경에서만 feature flag를 켠다.
-- GA4는 저장된 분석 동의가 있을 때만 Google tag를 로드하는 기본 동의 방식으로 사용한다.
-- 동의 전에는 cookieless ping을 포함한 Google 요청을 보내지 않고, 거부해도 콘텐츠를 볼 수 있어야 한다.
+  고지·실제 Google 계약 법인·Google tag/CSP domain이 모두 확정된 환경에서만 feature flag를 켠다.
+- GA4는 저장된 분석 동의가 있을 때만 browser에서 Google tag를 한 번 동적 로드하는 기본 동의
+  방식으로 사용한다.
+- 동의 전에는 방문자 수·page open을 포함해 Google tag/request와 consent mode의 cookieless ping을
+  0건으로 유지하고, 거부해도 콘텐츠를 볼 수 있어야 한다.
 - 이메일, 닉네임, 블라리요 회원 번호, 소셜 제공자·제공자 식별자, 본문, 댓글, 권리자 요청
   내용을 분석 이벤트에 넣지 않는다.
 - GA4 User-ID는 초기에는 사용하지 않는다.
@@ -44,17 +48,21 @@
 
 GA4를 활성화한 환경에서 분석 동의가 있을 때만 다음 이벤트를 전송한다.
 
-| 이벤트 | 발생 시점 |
-| --- | --- |
-| `page_view` | route별 첫 화면 표시 |
-| `select_content` | 목록에서 게시글 선택 |
-| `share` | 공유 방식 선택 |
-| `scroll` | 상세 주요 구간 도달 |
+| 이벤트 | 발생 시점 | 허용 custom parameter |
+| --- | --- | --- |
+| `page_view` | route별 첫 화면 표시 | `page_type`, `route_template` |
+| `select_content` | 목록에서 게시글 선택 | `board_slug`, `content_type`, `list_position_bucket` |
+| `share` | 공유 방식 선택 | `share_method`, `board_slug` |
+| `scroll` | 상세 주요 구간 도달 | `page_type`, `scroll_depth_bucket` |
 
 - `/`에서 `/meme`으로 이동할 때 중복 `page_view`를 보내지 않는다.
-- 숨김·삭제 게시글의 제목과 번호를 GA4에 보내지 않는다.
+- 위 표에 없는 custom parameter는 추가하지 않는다.
+- 게시글 제목·본문·원문 URL·내부 `postId`, 회원·소셜 식별자, IP, GA4 User-ID와 수집 후보
+  정보는 GA4에 보내지 않는다.
+- 숨김·삭제 게시글의 콘텐츠와 내부 식별자를 GA4에 보내지 않는다.
 - 카카오톡, X/Twitter 공유 URL에 내부 식별자를 붙이지 않는다.
-- `login`, `sign_up` 이벤트를 사용하더라도 `method`에는 `naver`, `kakao`, `google`, `apple` 같은 제공자 코드만 보내고 계정 식별자·이메일·프로필 값은 보내지 않는다.
+- tag 로드나 이벤트 전송이 실패하면 재시도 queue나 자체 분석 fallback을 만들지 않고 event를
+  drop하며 공개 기능은 유지한다.
 
 ## 5. 동의 UI
 
@@ -168,8 +176,11 @@ AFFILIATE_ENABLED=false
 `COLLECT_MANUAL_URL_ENABLED`는 `M0 수집 보조` gate가 끝난 뒤에만 켠다. `M0 Core` production의
 두 수집 flag 기본값은 모두 `false`다.
 
-GA4 measurement ID·속성 보관 설정·국외이전 고지가 확정되지 않으면 M0 Core production에서
-`NUXT_PUBLIC_GA4_ENABLED`를 켜지 않는다. gate가 끝난 뒤 M0 운영 중에도 별도 배포 설정으로
+GA4 Measurement ID·속성 보관 설정·국외이전 고지·실제 Google 계약 법인·Google tag/CSP domain 중
+하나라도 확정되지 않으면 M0 Core production에서 `NUXT_PUBLIC_GA4_ENABLED=false`를 유지한다.
+원인과 관계없이 `NUXT_PUBLIC_GA4_ENABLED=false`인 환경은 `NUXT_PUBLIC_GA4_MEASUREMENT_ID`를
+public runtime config에서 unset해 응답 payload와 client bundle에 provider 값을 노출하지 않는다.
+gate가 끝난 뒤 M0 운영 중에도 별도 배포 설정으로
 `true`로 전환할 수 있으며, 이 gate는 M0 Core 첫 공개를 차단하지 않는다. gate가 늦어져도 자체
 분석 테이블로 대체하지 않고 게시글 조회 수만 운영한다. 광고를 실제로 시작하는 날짜나 트래픽
 기준은 아직 정하지 않았다.
@@ -185,8 +196,10 @@ GA4 measurement ID·속성 보관 설정·국외이전 고지가 확정되지 �
 ### GA4 운영 활성화 gate
 
 - GA4 활성 환경에서 저장된 선택이 없으면 비차단형 배너가 표시되고, 분석 거부 상태에서는
-  Google tag 요청과 `_ga*` 생성이 없다.
+  방문자 수·page open을 포함한 Google tag/request·cookieless ping과 `_ga*` 생성이 0건이다.
 - 분석 동의 뒤에만 `page_view`, `select_content`, `share`, `scroll` 이벤트가 전송된다.
+- 전송 event의 custom parameter가 §4 allowlist 안에 있고 금지값이 포함되지 않는다.
+- tag 로드 실패 시 event를 drop하고 공개 기능을 유지한다.
 - 숨김 게시글의 콘텐츠와 수집 후보·출처 정보가 GA4 이벤트에 남지 않는다.
 
 ### 후속 광고·M1

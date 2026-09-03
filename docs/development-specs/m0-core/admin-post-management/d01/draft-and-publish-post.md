@@ -5,9 +5,9 @@
 - 문서 상태: `초안`
 - milestone: `M0 Core`
 - 기능: `admin-post-management`
-- 기준일: 2026-09-02
+- 기준일: 2026-09-03
 - 입력 근거: [아키텍처 §5 이미지 등록과 발행](../../../../system-design/01-system-architecture.md), [관리 API](../admin-post-management.dev.md)
-- 미검증: upload 부분 실패 계약, UI·R2·DB·outbox runtime
+- 미검증: UI·R2·DB·outbox runtime
 
 ## 1. 프로세스 목적과 범위
 
@@ -30,7 +30,18 @@
 
 ## 4. 대안·실패 흐름
 
-- upload 실패: 해당 파일 오류를 표시하고 초안 생성에 포함하지 않는다. multipart 일부 실패 처리 방식은 결정 필요다.
+- upload 요청 gate 실패: 파일 개수 10개 또는 전체 합계 100MiB를 초과하면 `413`으로 반환하고
+  `fields`는 표시하지 않는다. 파일별 validation과 storage를 시작하지 않는다.
+- upload 파일 validation 실패: 요청 gate 통과 뒤 storage 전에 모든 파일을 검사하고 성공 파일도
+  반환·preview·초안 생성에 사용하지 않는다. 개별 크기 오류가 하나라도 있으면 `413`, 그 외
+  형식·decode 오류는 `415`이며 `fields[]`의 모든 실패 index와 일반화 reason을 표시한다.
+  validation 실패에는 storage가 없다.
+- upload dependency 실패: validation 통과 뒤 R2·DB 장애는 `503`으로 반환하고 `fields`는 표시하지 않는다.
+  생성된 image row는 rollback하고 저장된 object는 즉시 보상 삭제한다. 삭제 실패는 rollback과 분리된
+  cleanup transaction에서 `aggregate_type=STORAGE_OBJECT`, `aggregate_id=NULL`인
+  `OBJECT_DELETE_PRIVATE` outbox로 재시도한다.
+  process crash로 outbox도 없으면 생성 후 24시간이 지난 `staging/` object inventory가 DB image key와
+  미완료 cleanup outbox key에 없는 object만 회수한다.
 - image 선점·version 충돌: 최신 편집 상세를 다시 읽고 운영자가 병합한다.
 - R2 실패: 글은 DRAFT에 남고 공개 성공으로 표시하지 않는다.
 - purge 실패: 발행 성공을 유지하고 운영 상태로 재시도한다.
@@ -54,4 +65,6 @@
 
 ## 9. 미정·차단·미검증
 
-upload 일부 실패 계약 확정 전 `초안`. 실제 공개·cache·object 증거는 없다.
+upload all-or-nothing·storage 전 전체 validation·오류 우선순위·즉시 보상 삭제·별도 cleanup
+transaction·24시간 orphan inventory 계약은 확정됐다. 실제 공개·cache·object·보상 삭제·inventory
+실행 증거는 없다.

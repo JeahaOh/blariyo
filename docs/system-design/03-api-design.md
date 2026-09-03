@@ -1,8 +1,8 @@
 # M0 Web BFF API 설계
 
 - 문서 상태: M0 API 설계 계약 · 현행 Core·BFF·OpenAPI·test 산출물 없음
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 기준일: 2026-09-03
+- 정합성 검토일: 2026-09-03
 - base path: `/api/v1`
 - content type: `application/json; charset=utf-8`
 
@@ -108,8 +108,7 @@ M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
   "success": false,
   "error": {
     "code": "POST_NOT_FOUND",
-    "message": "게시글을 찾을 수 없습니다.",
-    "fields": []
+    "message": "게시글을 찾을 수 없습니다."
   },
   "meta": {
     "requestId": "01J..."
@@ -119,7 +118,9 @@ M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
 
 - `message`는 사용자에게 표시 가능한 일반 문장이다.
 - SQL, stack, object key, provider 응답과 내부 상태는 포함하지 않는다.
-- 입력 오류만 `fields`를 제공한다.
+- `fields`는 선택 필드다. 이미지 업로드에서는 요청 단위 개수·전체 크기 gate를 통과한 뒤 발견한
+  파일별 크기·형식 validation 오류에만 제공한다. 요청 단위 gate의 `413 UPLOAD_TOO_LARGE`와 R2·DB
+  장애를 포함한 `503 DEPENDENCY_UNAVAILABLE`에는 필드 자체를 넣지 않는다.
 
 ```json
 {
@@ -246,7 +247,7 @@ M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
         {
           "type": "IMAGE",
           "image": {
-            "url": "https://img.__SERVICE_DOMAIN__/posts/1047/hash.webp",
+            "url": "https://media.example.invalid/posts/1047/hash.webp",
             "alt": "퇴근 직전 질문을 받은 사람의 표정",
             "width": 1200,
             "height": 900
@@ -257,7 +258,7 @@ M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
         "name": "example.com · funny-office-story",
         "url": "https://example.com/original/funny-office-story"
       },
-      "shareUrl": "https://__SERVICE_DOMAIN__/meme/posts/1047"
+      "shareUrl": "https://blariyo.com/meme/posts/1047"
     },
     "context": {
       "pinnedItems": [],
@@ -278,6 +279,9 @@ M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
 - 서버는 `boardSlug`로 활성 게시판을 찾고 `post.id=:postId AND post.board_id=board.id`를 함께 확인한다.
 - 게시판 미존재·비활성, 게시판과 게시글 소속 불일치, 숨김·삭제·예약·초안·게시글 미존재는 모두 `404 POST_NOT_FOUND`다.
 - 공개 상세 응답에는 `status`, 내부 이력과 storage key를 넣지 않는다.
+
+위 image URL은 문서용 `.invalid` 예시다. 실제 응답은 배포 설정 `IMAGE_ORIGIN`과 public storage key로
+만들며 `IMAGE_ORIGIN` 실값을 문서에서 추측하지 않는다.
 
 ### 정책
 
@@ -317,7 +321,7 @@ GET /api/v1/policies/:type?version=v0.2
 
 `POST /api/v1/boards/:boardSlug/posts/:postId/views`
 
-- request body와 query parameter를 받지 않는다. 값이 있으면 `400 VALIDATION_ERROR`다.
+- request body와 query parameter를 받지 않는다. 값이 있으면 `400 VALIDATION_FAILED`다.
 - Core는 활성 게시판과 공개 게시글의 소속을 다시 확인하고 `view_count = view_count + 1`을 원자적으로
   실행한 뒤 body 없는 `204`를 반환한다.
 - 비공개·숨김·삭제·예약·미존재·게시판 불일치는 동일한 `404 POST_NOT_FOUND`다.
@@ -364,6 +368,11 @@ Nuxt BFF의 `AdminIdentityProvider` adapter가 외부 운영자 identity를 검�
 | `page` | integer | `1` | `1~10000` |
 
 page size는 50으로 고정하고 `updatedAt DESC, postId DESC`로 정렬한다.
+query 형식·상태·날짜·범위 오류는 `400 VALIDATION_FAILED`다. `page`가 `1~10000` 범위 안이지만
+필터 결과의 전체 page를 넘으면 `200`과 빈 `data.items`를 반환한다. 이때 요청한 `meta.page`를
+유지하고 `meta.totalItems`, `meta.totalPages`는 실제 count 결과를 반환하며
+`meta.hasPrevious=page>1`, `meta.hasNext=false`로 계산한다. 공개 목록의
+`404 PAGE_NOT_FOUND` 정책은 관리자 검색에 적용하지 않는다.
 
 ```json
 {
@@ -400,7 +409,8 @@ page size는 50으로 고정하고 `updatedAt DESC, postId DESC`로 정렬한다
 
 공개 여부와 관계없이 운영자가 편집할 게시글을 조회한다. 응답은 `postId`, `boardSlug`, `title`, `source`, `blocks`, `pinnedPosition`, `status`, `scheduledAt`, `publishedAt`, `lockVersion`, `createdAt`, `updatedAt`을 포함한다. IMAGE block에는 `content.board_post_block.alt_text`에서 가져온 `alt`와 `imageId`, `status`, `width`, `height`, `previewPath`를 제공하고 storage key는 반환하지 않는다.
 
-미존재는 `404 POST_NOT_FOUND`, 존재하지만 현재 운영자가 접근할 수 없는 경우도 내부 정보 노출을 줄이기 위해 같은 오류를 사용한다.
+`postId` 형식 오류·범위 초과, 미존재와 현재 운영자 접근 불가는 내부 정보 노출을 줄이기 위해
+모두 `404 POST_NOT_FOUND`로 일반화한다. 이 경우 별도 `400 VALIDATION_FAILED` 분기를 만들지 않는다.
 
 ### 이미지 업로드
 
@@ -434,6 +444,31 @@ page size는 50으로 고정하고 `updatedAt DESC, postId DESC`로 정렬한다
 
 storage key와 staging URL은 응답하지 않는다. 관리자 preview는 인증된 image proxy endpoint를 사용한다.
 
+다중 파일 업로드는 `all-or-nothing`이다. 먼저 요청 단위 파일 개수 10개·전체 합계 100MiB gate를
+검사한다. 하나라도 초과하면 `413 UPLOAD_TOO_LARGE`를 반환하고 `fields`는 제공하지 않는다. 이 gate를
+통과한 요청만 모든 파일의 개별 크기·선언 MIME·magic byte·decode·pixel·GIF 자원 제한·재인코딩 가능
+여부를 끝까지 검증한다. validation 오류가 하나라도 있으면 R2 object와 image row를 만들지 않고 성공
+파일 item도 반환하지 않는다.
+
+개별 파일 크기 계열 오류가 하나라도 있으면 top-level은 `413 UPLOAD_TOO_LARGE`다. 여기에는 파일
+10MiB, 40MP와 GIF decode 자원 제한 초과가 포함된다. 이 오류가 없고 형식·decode 계열 오류만 있으면
+`415 UNSUPPORTED_MEDIA_TYPE`이다. `fields[]`에는 실패한 모든 파일의 `files[index]`와 일반화된
+`reason`을 넣으며, 크기·형식이 섞여 `413`을 반환해도 형식 실패 파일을 빠뜨리지 않는다. 같은 파일에서
+여러 검증이 실패해도 file index와 reason 조합을 중복하지 않는다. object key, decoder·provider 원문과
+내부 상세는 노출하지 않는다.
+
+모든 validation이 성공한 뒤 R2·DB storage 단계에서 실패하면 `503 DEPENDENCY_UNAVAILABLE`을 반환하고
+`fields`는 제공하지 않는다. validation 실패는 storage를 시작하지 않으므로 `413`·`415`와 `503`을 한
+응답에 혼합하지 않는다. storage 중간 실패로 요청 중 생성한 image row는 transaction rollback하고,
+이미 저장한 private object는 즉시 보상 삭제한다. 즉시 삭제가 실패하면 rollback과 분리된 cleanup
+transaction에서 `OBJECT_DELETE_PRIVATE` outbox를 commit한다. rollback된 image ID는 참조하지 않고
+`aggregate_type=STORAGE_OBJECT`, `aggregate_id=NULL`, `privateStorageKey`, `objectCreatedAt`,
+`cleanupReason=UPLOAD_ROLLBACK`을 사용한다. outbox commit 전 process crash로 삭제 기록도 남지 않은
+object는 24시간 orphan inventory가 회수한다.
+
+후속 단계에서 일반 사용자 업로드를 추가할 때도 같은 all-or-nothing·보상 삭제 원칙을 적용한다.
+이는 M0 Core에 일반 사용자 업로드 endpoint를 미리 추가한다는 뜻이 아니다.
+
 업로드 직후 이미지는 특정 게시글에 연결되지 않은 `STAGED` 상태다. 초안 생성·수정 command가 image를 transaction 안에서 선점한다. 이미 다른 게시글에 연결된 image는 `409 IMAGE_ALREADY_ATTACHED`다.
 
 ### staging 이미지 preview·폐기
@@ -445,7 +480,21 @@ DELETE /api/v1/admin/images/:imageId
 
 - preview는 BFF 관리자 인증 후 private object를 stream하고 `Cache-Control: private, no-store`를 사용한다.
 - preview에는 원본 object key나 signed R2 URL을 노출하지 않는다.
-- DELETE는 게시글 block에 연결되지 않은 `STAGED` image만 `PRIVATE_DELETE_PENDING`으로 바꾸고 `OBJECT_DELETE_PRIVATE` outbox를 생성한 뒤 `202`를 반환한다.
+- DELETE는 게시글 block에 연결되지 않은 `STAGED` image만 `PRIVATE_DELETE_PENDING`으로 바꾸고
+  `OBJECT_DELETE_PRIVATE` outbox를 생성한 뒤 `202 Accepted`와 공통 성공 envelope를 반환한다.
+  `data`는 `imageId`와 `status=PRIVATE_DELETE_PENDING`, `meta`는 `requestId`를 포함한다. 실제 private
+  object 삭제는 응답 전에 직접 수행하지 않고 outbox worker가 처리한다.
+
+```json
+{
+  "success": true,
+  "data": {
+    "imageId": 501,
+    "status": "PRIVATE_DELETE_PENDING"
+  },
+  "meta": { "requestId": "01J..." }
+}
+```
 - 연결된 image, `PUBLIC`·`PUBLIC_DELETE_PENDING`·`PRIVATE_REVIEW` image 또는 이미 private 삭제 중인 image는 `409 IMAGE_STATE_CONFLICT`다.
 
 ### 초안 생성
@@ -542,7 +591,8 @@ DELETE /api/v1/admin/images/:imageId
 - 동일 key에 다른 body는 `409 IDEMPOTENCY_CONFLICT`다.
 - 동일 key의 첫 요청이 아직 처리 중이면 `409 IDEMPOTENCY_IN_PROGRESS`와 `Retry-After: 1`을 반환한다.
 - key scope는 HTTP method, route pattern과 provider-neutral admin actor의 조합이며 완료 결과를 24시간 보존한다.
-- `SCHEDULED`의 `scheduledAt`은 서버 수신 시각보다 최소 1분 이후여야 한다.
+- `SCHEDULED`의 `scheduledAt`은 UTC offset을 포함한 ISO 8601 문자열이어야 하며 서버 수신 시각보다
+  최소 1분 이후여야 한다. 수신 offset은 보존값으로 사용하지 않고 같은 절대 시각의 UTC로 정규화해 저장한다.
 - 예약·즉시 발행 모두 같은 게시판의 `SCHEDULED`·`PUBLISHED` 공지 위치 중복을 이 시점에 검증하고 겹치면 `409 PINNED_ORDER_CONFLICT`다. due scheduler가 공지 위치 때문에 실패하지 않게 한다.
 - 즉시 발행과 scheduler의 실제 공개 성공 후 cache purge outbox를 생성한다. 예약 등록만으로는 공개 cache를 변경하지 않는다.
 
@@ -761,9 +811,9 @@ service·repository와 `system:collector` actor를 사용한다. 연속 실패·
 | `409` | `CANDIDATE_DUPLICATE` | 같은 원문 URL의 후보·게시글 존재 |
 | `429` | `SOURCE_RATE_LIMITED` | 출처 요청 간격·일일 상한 초과 |
 | `502` | `SOURCE_FETCH_FAILED` | 대상 사이트 응답·파싱·이미지 저장 실패 |
-| `413` | `UPLOAD_TOO_LARGE` | 파일·요청 제한 초과 |
+| `413` | `UPLOAD_TOO_LARGE` | 이미지 파일·요청 개수·전체 크기·decode 자원 제한 초과 |
 | `413` | `REQUEST_TOO_LARGE` | JSON 요청 본문 크기 제한 초과 |
-| `415` | `UNSUPPORTED_MEDIA_TYPE` | 허용하지 않은 파일 |
+| `415` | `UNSUPPORTED_MEDIA_TYPE` | 이미지 형식·decode validation 실패 |
 | `429` | `RATE_LIMITED` | 요청 제한 초과 |
 | `500` | `INTERNAL_ERROR` | 분류되지 않은 서버 오류 |
 | `503` | `DEPENDENCY_UNAVAILABLE` | DB·R2 등 필수 의존성 장애 |
@@ -813,7 +863,8 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] 공개 목록 0건·마지막 page·초과 page Core contract test
 - [ ] 정책 현재·과거 버전 조회와 초안 비공개 Core/BFF contract test
 - [ ] 정책 시행 command의 미래·5분 초과 과거 시각 거부, 반개방 기간 경계·유형별 잠금·cache purge outbox transaction test
-- [ ] 조회 수 endpoint의 empty payload·공개 상태·게시판 소속 검증과 원자 증가 contract test
+- [ ] 조회 수 endpoint의 empty payload·payload 존재 시 `400 VALIDATION_FAILED`·공개 상태·게시판 소속
+  검증과 원자 증가 contract test
 - [ ] `MAINTENANCE_READ_ONLY`에서 공개 GET 허용·모든 mutation `503`·`Retry-After`·`Cache-Control: no-store` contract test
 - [ ] 조회 수 endpoint IP `60회/분` BFF rate-limit과 실패 시 상세 화면 유지 test
 - [ ] 목록의 미존재·비활성·잘못된 형식 `boardSlug`가 동일한 `404 BOARD_NOT_FOUND`인지 Core contract test
@@ -821,8 +872,16 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] 문맥 없는 `/api/v1/posts*`, `/posts/:postId`가 노출되지 않는지 route test
 - [ ] SSR `/:boardSlug/posts/:postId`의 게시판 불일치가 콘텐츠 없는 `404` HTML인지 integration test
 - [ ] SSR 상세의 canonical·OG·공유 URL이 `/:boardSlug/posts/:postId`로 일치하는지 integration test
+- [ ] SSR 상세의 앞뒤·내부 연속 Unicode whitespace, 80자 미만·120자·120자 초과 TEXT와 결합 문자·
+  emoji 사례에서 whitespace를 정규화한 뒤 padding 없이 Unicode grapheme cluster 기준으로만 최대
+  120자를 만들고 `description`·`og:description`·`twitter:description`이 일치하는지 integration test
 - [ ] 숨김·삭제·예약 글의 동일한 Core `404` contract test
-- [ ] image upload·선점·preview·폐기 상태 경쟁 integration test
+- [ ] 다중 image upload의 요청 개수·전체 크기 gate `413`과 `fields` 미제공, gate 통과 뒤 storage 전
+  전체 파일 validation, 개별 크기·형식 혼합 시 `413` 우선, 형식만 실패 시 `415`, 모든 실패
+  index·일반화 reason, validation 실패 시 storage 0건, R2·DB `503`의 `fields` 미제공 test
+- [ ] storage 중간 실패 시 image row rollback·즉시 object 보상 삭제·별도 cleanup transaction과
+  24시간 orphan inventory integration test
+- [ ] image 선점·preview·폐기 상태 경쟁과 폐기 `202` 성공 envelope·outbox 삭제 integration test
 - [ ] 숨김 글 block 교체 중 public 삭제 대기·private image 제거 contract test
 - [ ] `lockVersion`와 `Idempotency-Key` 동시 요청 integration test
 - [ ] 즉시 발행·숨김 404·public object 삭제 후 정확한 CDN 이미지 URL purge outbox Core contract test
@@ -832,8 +891,10 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] 중단된 outbox 회수·지수 backoff·8회 `DEAD` 전환 test
 - [ ] Core 내부 서비스 토큰 없음·불일치와 provider-neutral actor 누락·형식 오류 test
 - [ ] BFF 외부 관리자 adapter의 identity 없음·만료·잘못된 issuer·audience test
-- [ ] 관리자 게시글 상태·게시판·제목 prefix·수정일·page 검색 Core contract test
-- [ ] 관리자 게시글 상세의 비공개 상태·TEXT/IMAGE block·storage key 비노출 contract test
+- [ ] 관리자 게시글 상태·게시판·제목 prefix·수정일·page 검색과 형식 오류 `400`·유효한 초과 page
+  `200` 빈 결과 Core contract test
+- [ ] 관리자 게시글 상세의 `postId` 형식 오류·미존재·접근 불가 동일 `404`, 비공개 상태·TEXT/IMAGE
+  block·storage key 비노출 contract test
 - [ ] BFF 관리자 query validation·응답 allowlist mapping·Core 내부 인증 header 전달 test
 - [ ] `/internal/health/ready` migration version 불일치 test
 - [ ] 수집 endpoint가 관리자 인증 없이 호출될 때 `401`·`403`인지, 공개 route에 노출되지 않는지 test

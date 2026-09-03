@@ -54,14 +54,15 @@ Board/Post BFF와 Core 내부 route가 향후 따라야 할 계약이며, 실제
 | 관리자 | `PATCH` | `/api/v1/admin/collect/sources/:sourceId` | 출처 활성·수집 방식·상한·robots 확인 결과 수정 |
 | 관리자 | `GET` | `/api/v1/admin/collect/candidates` | 수집 후보 검색 |
 | 관리자 | `GET` | `/api/v1/admin/collect/candidates/:candidateId` | 후보 상세와 이미지 후보 |
-| 관리자 | `POST` | `/api/v1/admin/collect/candidates` | 운영자 URL 지정 후보 생성 |
+| 관리자 | `POST` | `/api/v1/admin/collect/candidates` | Discord·운영자 URL 지정 후보 생성 |
 | 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/retry` | 실패 후보 재수집 |
 | 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/reject` | 후보 반려 |
 | 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/draft` | 후보를 초안으로 승격 |
 
 M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
 위 목록의 수집 endpoint는 `M0 Core` OpenAPI와 route에 넣지 않고 `M0 수집 보조` 착수 때
-추가한다. 목록 수집 command는 출처별 gate를 통과한 `M0 자동 수집` 단계에서 활성화한다.
+추가한다. M0 수집 보조는 Discord `/collect url` 또는 관리자 URL 입력으로 단일 상세 페이지 1건만
+처리한다. 목록 수집 command는 후속 `M0 자동 수집` 단계에서 활성화한다.
 
 ### Health 응답
 
@@ -656,7 +657,10 @@ DELETE /api/v1/admin/posts/:postId
 
 ## 5-1. 수집 관리자 API
 
-수집 API는 모두 관리자 인증이 필요하고 공개 API에 노출하지 않는다. 외부 사이트 요청은 Core의 `SourceFetcher` adapter만 수행한다.
+수집 API는 모두 관리자 인증이 필요하고 공개 API에 노출하지 않는다. Discord `/collect url`은 공개
+Interactions endpoint에서 Discord 서명·guild·channel·user 권한을 검증한 뒤 같은 내부 후보 생성
+service를 호출한다. Discord incoming webhook은 결과 알림용이며 URL 수신용으로 사용하지 않는다.
+외부 사이트 요청은 Core의 `SourceFetcher` adapter만 수행한다.
 
 ### 수집 출처
 
@@ -707,15 +711,15 @@ DELETE /api/v1/admin/posts/:postId
 | --- | --- | --- | --- |
 | `status` | string | 없음 | 생략 또는 단일 후보 상태 |
 | `sourceId` | integer | 없음 | 생략 또는 출처 식별자 |
-| `discoveryMode` | string | 없음 | `MANUAL_URL`, `LIST_CRAWL` |
+| `discoveryMode` | string | 없음 | M0 수집 보조는 `MANUAL_URL`; 후속 자동 수집은 `LIST_CRAWL` |
 | `duplicateOnly` | boolean | `false` | 중복 표시된 후보만 |
 | `page` | integer | `1` | `1~10000` |
 
 page size는 50으로 고정하고 `fetchedAt DESC, candidateId DESC`로 정렬한다. item은 `candidateId`, `sourceId`, `sourceName`, `originUrl`, `title`, `status`, `discoveryMode`, `imageCandidateCount`, `duplicatePostId`, `postId`, `rejectReasonCode`, `fetchErrorCode`, `fetchedAt`, `lockVersion`을 포함한다.
 
-`GET /api/v1/admin/collect/candidates/:candidateId` 는 위 필드에 이미지 후보 목록을 더한다. 각 이미지 후보는 `candidateImageId`, `position`, `remoteUrl`, `status`, `imageId`, `previewPath`(저장된 경우), `fetchErrorCode`를 가진다. 응답에 원문 응답 HTML, 내부 예외 메시지와 storage key를 넣지 않는다.
+`GET /api/v1/admin/collect/candidates/:candidateId` 는 위 필드에 이미지 후보 목록을 더한다. 각 이미지 후보는 `candidateImageId`, `position`, `remoteUrl`, `status`, `imageId`, `previewPath`(Python 작업 경로 임시 preview가 있는 경우), `fetchErrorCode`를 가진다. `previewPath`는 관리자 인증 경계 안의 프록시 경로이며 내부 절대 경로가 아니다. 응답에 원문 응답 HTML, 내부 예외 메시지, 임시 파일 절대 경로와 storage key를 넣지 않는다.
 
-### 운영자 URL 지정 후보 생성
+### Discord·운영자 URL 지정 후보 생성
 
 `POST /api/v1/admin/collect/candidates`
 
@@ -731,8 +735,8 @@ page size는 50으로 고정하고 `fetchedAt DESC, candidateId DESC`로 정렬�
 - 정규화 URL이 이미 후보로 있으면 기존 후보를 `409 CANDIDATE_DUPLICATE`와 함께 알리고 새로 만들지 않는다.
 - 대상 응답이 실패·timeout·비HTML이거나 파싱에서 제목·이미지 후보를 얻지 못하면 후보를 `FETCH_FAILED`로 만들고 `201`을 반환한다. 운영자가 화면에서 사유를 보고 재시도 또는 반려할 수 있게 한다.
 - 이미 발행된 게시글과 같은 원문 URL이면 `duplicatePostId`를 채워 반환한다. 생성 자체를 막지 않는다.
-- 성공은 `201`과 `candidateId`, `status`, `lockVersion=1`, `duplicatePostId`, 이미지 후보 수를 반환한다.
-- 이 요청은 외부 사이트를 1회만 호출한다. redirect는 같은 출처 host 안에서 최대 3회까지 따르고 그 밖은 실패로 처리한다.
+- 성공은 `201`과 `candidateId`, `status`, `lockVersion=1`, `duplicatePostId`, 이미지 후보 수를 반환한다. 이미지 후보 미리보기 파일은 Python extractor 작업 경로에 임시 저장할 수 있으나 영구 저장소 업로드나 DB image row 생성은 하지 않는다.
+- 이 요청은 입력된 단일 상세 페이지 1건만 외부 호출한다. 목록·feed·pagination은 호출하지 않는다. redirect는 같은 출처 host 안에서 최대 3회까지 따르고 그 밖은 실패로 처리한다.
 
 ### 재수집과 반려
 
@@ -742,7 +746,7 @@ POST /api/v1/admin/collect/candidates/:candidateId/reject
 ```
 
 - `retry` body는 `{ "lockVersion": 1 }`이며 `FETCH_FAILED`에서만 허용한다. 다른 상태는 `409 CANDIDATE_STATE_CONFLICT`다.
-- `retry`도 출처 allowlist·robots·요청 상한을 다시 확인한다.
+- `retry`도 출처 등록/활성·robots·요청 상한을 다시 확인한다.
 - `reject` body는 `{ "lockVersion": 1, "reasonCode": "LOW_QUALITY" }`이며 허용 코드는 `DUPLICATE`, `LOW_QUALITY`, `RIGHTS_RISK`, `NOT_FUNNY`, `SOURCE_GONE`, `OTHER`다.
 - `reject`는 `NEW`와 `FETCH_FAILED`에서만 허용하고 성공 시 `status=REJECTED`, `reviewedAt`, 증가한 `lockVersion`을 반환한다.
 
@@ -769,17 +773,16 @@ POST /api/v1/admin/collect/candidates/:candidateId/reject
 - `title`을 생략하면 후보 제목을 사용한다. 후보 제목도 없으면 `400 VALIDATION_FAILED`다.
 - `source`를 생략하면 출처명은 출처 표시명, URL은 후보 `originUrl`을 사용한다.
 - `duplicatePostId`가 있는 후보는 `acknowledgeDuplicate: true` 없이는 `409 CANDIDATE_DUPLICATE`다.
-- 서버는 선택한 이미지 후보를 `SourceFetcher`로 가져와 관리자 업로드와 같은 MIME·magic byte·decode·pixel·재인코딩 검증을 적용하고 private 원본 bucket에 저장한다. 하나도 저장하지 못하면 후보를 `NEW`로 유지하고 `502 SOURCE_FETCH_FAILED`를 반환한다.
-- 이미지 저장 후 초안 생성·이미지 선점·block insert·상태 이력·후보 `APPROVED` 전환을 한 transaction에서 commit한다. transaction 실패 시 후보 상태는 바뀌지 않고 저장된 이미지는 staging orphan 정리 대상이 된다.
+- 서버는 선택한 이미지 후보의 Python 임시 파일이 있으면 이를 우선 사용하고, 없거나 만료됐으면 `SourceFetcher`로 원격 이미지를 다시 가져온다. 이후 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 적용하고 private 원본 bucket에 저장한다. 하나도 저장하지 못하면 후보를 `NEW`로 유지하고 `502 SOURCE_FETCH_FAILED`를 반환한다.
+- 이미지 저장 후 초안 생성·이미지 선점·block insert·상태 이력·후보 `APPROVED` 전환을 한 transaction에서 commit한다. transaction 실패 시 후보 상태는 바뀌지 않고 저장된 이미지는 staging orphan 정리 대상이 된다. 후보 반려·만료·재시도 교체 시 Python 임시 이미지 파일은 삭제 대상이다.
 - 성공은 `201`과 `postId`, `status=DRAFT`, `lockVersion=1`, `candidateId`, `storedImageIds`를 반환한다. 이후 편집·발행은 기존 게시글 command를 사용한다.
 
-### 목록 수집 실행
+### 후속 목록 수집 실행
 
-목록 수집은 HTTP endpoint로 제공하지 않는다. `npm run collect:crawl-due` 단발성 command가
-활성 출처의 승인된 최신 목록·feed 범위를 읽고 새 원문 URL을 찾는다. 목록 metadata에 제목과
-이미지 후보가 부족한 새 URL만 출처별 요청 상한 안에서 상세 조회한 뒤 후보를 적재하며, 같은
-service·repository와 `system:collector` actor를 사용한다. 연속 실패·차단이 누적되면 command가
-해당 출처의 목록 수집을 비활성하고 `disabledReasonCode`를 기록한다.
+목록 수집은 M0 수집 보조 범위가 아니며 HTTP endpoint로 제공하지 않는다. 후속 `M0 자동 수집`에서
+`npm run collect:crawl-due` 단발성 command를 도입할 때 활성 출처의 사용 결정된 최신 목록·feed 범위를
+읽고 새 원문 URL을 찾는다. command는 같은 service·repository와 `system:collector` actor를 사용하되
+기본 비활성으로 둔다.
 
 ## 6. 상태 코드와 오류 코드
 
@@ -845,9 +848,9 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 6. BFF 외부 관리자 인증 adapter와 Core 내부 서비스 인증
 7. 이미지 staging과 초안 command
 8. 발행·예약·예약 취소·숨김·재공개·최종 삭제·outbox
-9. 수집 출처 조회·수정과 운영자 URL 지정 후보 생성
+9. 수집 출처 조회·수정과 Discord·운영자 URL 지정 후보 생성
 10. 후보 검색·상세·재수집·반려와 초안 승격
-11. 목록 수집 단발성 command와 출처 자동 비활성
+11. 후속 `M0 자동 수집`에서 목록 수집 단발성 command와 출처 자동 비활성 별도 설계
 
 ## 9. 실행 준비 gate
 

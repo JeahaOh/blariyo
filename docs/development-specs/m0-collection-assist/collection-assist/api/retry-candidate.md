@@ -34,10 +34,11 @@
 
 1. 후보가 존재하고 `FETCH_FAILED`인지 확인한다.
 2. `lockVersion`을 비교한다.
-3. 출처 allowlist, robots, 요청 상한을 다시 확인한다.
-4. 원문 URL을 다시 fetch하고 parser를 실행한다.
-5. 성공하면 기존 이미지 후보 metadata를 새 결과로 교체하고 `NEW`로 바꾼다.
+3. 출처 등록·활성 상태, robots, 요청 상한을 다시 확인한다.
+4. 기존 후보의 단일 상세 페이지 원문 URL만 다시 fetch하고 parser를 실행한다. 목록·feed·pagination은 호출하지 않는다.
+5. 성공하면 기존 이미지 후보 metadata와 Python 임시 preview 파일을 새 결과로 교체하고 `NEW`로 바꾼다.
 6. 실패하면 `FETCH_FAILED`를 유지하고 실패 분류와 `lockVersion`을 갱신한다.
+7. 교체되거나 더 이상 참조하지 않는 Python 임시 이미지 파일은 삭제 대상에 넣는다.
 
 ## 6. 오류·동시성
 
@@ -46,7 +47,7 @@
 | `404` | `CANDIDATE_NOT_FOUND` | 후보 없음 |
 | `409` | `CANDIDATE_STATE_CONFLICT` | `FETCH_FAILED`가 아님 |
 | `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치 |
-| `403` | `SOURCE_NOT_ALLOWED` | 출처 비활성 또는 미승인 |
+| `403` | `SOURCE_NOT_ALLOWED` | 출처 비활성 또는 사용 결정 전 |
 | `403` | `ROBOTS_DISALLOWED` | robots 금지 |
 | `429` | `SOURCE_RATE_LIMITED` | 요청 상한 초과 |
 
@@ -57,4 +58,3 @@
 - 재시도 성공 시 `NEW`
 - 재시도 실패 시 `FETCH_FAILED`
 - 실제 source·OpenAPI·runtime 미검증
-

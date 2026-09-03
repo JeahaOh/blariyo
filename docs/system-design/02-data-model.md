@@ -587,7 +587,9 @@ command transaction은 actor·scope·key의 hash로 `pg_try_advisory_xact_lock`�
 
 ## 6. 수집 데이터
 
-수집 출처와 후보는 게시글과 분리된 `collect` schema에 둔다. 후보 단계에서는 원문 URL과 metadata만 저장하고, 이미지 binary는 초안 승격 시점에 `content.board_post_image`로 들어간다.
+수집 출처와 후보는 게시글과 분리된 `collect` schema에 둔다. 후보 단계에서는 원문 URL과 metadata만
+DB에 저장한다. Python extractor 작업 경로의 임시 이미지 파일은 DB image row가 아니며, 이미지 binary는
+초안 승격 시점에 검증·재인코딩 후 `content.board_post_image`로 들어간다.
 
 ### 수집 출처 — `collect.source`
 
@@ -597,8 +599,8 @@ command transaction은 actor·scope·key의 hash로 `pg_try_advisory_xact_lock`�
 | `name` | `VARCHAR(50)` | N | 운영자 표시명 |
 | `base_url` | `VARCHAR(2048)` | N | 출처 기준 `https` URL |
 | `host` | `VARCHAR(255)` | N | `base_url`의 소문자 host, 매칭 키 |
-| `fetch_mode` | `VARCHAR(16)` | N | `URL_ONLY`, `LIST_CRAWL` |
-| `list_url` | `VARCHAR(2048)` | Y | 목록·피드 주소, `LIST_CRAWL`에서 필수 |
+| `fetch_mode` | `VARCHAR(16)` | N | M0 수집 보조는 `URL_ONLY`; 후속 자동 수집은 `LIST_CRAWL` |
+| `list_url` | `VARCHAR(2048)` | Y | M0 수집 보조에서는 `NULL`; 후속 `LIST_CRAWL`에서 목록·피드 주소 |
 | `parser_type` | `VARCHAR(24)` | N | `RSS`, `HTML_LIST`, `MANUAL` |
 | `is_active` | `BOOLEAN` | N | 출처 활성 여부 |
 | `is_list_crawl_enabled` | `BOOLEAN` | N | 목록 수집 활성 여부 |
@@ -633,11 +635,12 @@ CHECK consecutive_error_count >= 0
 CHECK disabled_reason_code IS NULL OR disabled_reason_code IN ('ROBOTS_DISALLOWED','BLOCKED','FETCH_ERROR','OPERATOR')
 ```
 
-`robots_allowed`가 `true`이고 확인 시각이 있어야 목록 수집을 켤 수 있다는 규칙은 DB CHECK로
+`robots_allowed`가 `true`이고 확인 시각이 있어야 후속 목록 수집을 켤 수 있다는 규칙은 DB CHECK로
 강제한다. 차단·실패가 연속 누적되면 command가 `is_list_crawl_enabled=false`와
 `disabled_reason_code`를 기록하고, 재활성화는 운영자 요청으로만 수행한다. 출처 seed는 출처별
-명세가 승인된 뒤 추가하며 최초 상태는 `fetch_mode=URL_ONLY`, `is_list_crawl_enabled=false`,
-`robots_allowed=NULL`이다. robots 확인 결과를 채우기 전에는 목록 수집을 켤 수 없다.
+명세에서 사용 결정된 뒤 추가하며 최초 상태는 `fetch_mode=URL_ONLY`, `is_list_crawl_enabled=false`,
+`robots_allowed=NULL`이다. M0 수집 보조는 단일 상세 페이지만 처리하며, robots 확인 결과를 채우기
+전에는 후속 목록 수집을 켤 수 없다.
 
 ### 수집 후보 — `collect.candidate`
 
@@ -685,7 +688,7 @@ CHECK lock_version >= 1
 
 `origin_url` 정규화는 scheme·host 소문자화, 기본 port 제거, fragment 제거, 추적용 query(`utm_*` 등) 제거, 경로 끝 `/` 정리까지만 수행하고 나머지 query는 유지한다. 정규화 규칙을 바꾸면 기존 해시와 충돌하므로 migration에서 재계산한다.
 
-후보 제목·URL 외에 원문 본문 전체와 응답 HTML은 저장하지 않는다. 반려 사유 코드는 `DUPLICATE`, `LOW_QUALITY`, `RIGHTS_RISK`, `NOT_FUNNY`, `SOURCE_GONE`, `OTHER`를 사용한다.
+후보 제목·URL 외에 원문 본문 전체와 응답 HTML은 저장하지 않는다. 반려 사유 코드는 `DUPLICATE`, `LOW_QUALITY`, `RIGHTS_RISK`, `NOT_FUNNY`, `SOURCE_GONE`, `OTHER`를 사용한다. 후보 반려·보존 기간 만료·재시도 교체 시 연결된 Python 임시 이미지 파일은 삭제 대상이다.
 
 ### 수집 후보 이미지 — `collect.candidate_image`
 
@@ -716,13 +719,16 @@ CHECK (status='STORED' AND image_id IS NOT NULL) OR (status <> 'STORED' AND imag
 CHECK status <> 'FAILED' OR fetch_error_code IS NOT NULL
 ```
 
-한 후보의 이미지 후보는 최대 20건까지 저장한다. 초과분은 저장하지 않고 후보 상세에 잘렸다는 사실만 표시한다.
+한 후보의 이미지 후보는 최대 20건까지 저장한다. 여기서 저장한다는 뜻은 `remote_url`, 순서, 상태 같은
+metadata 저장이며 image binary 저장이 아니다. 초과분은 저장하지 않고 후보 상세에 잘렸다는 사실만
+표시한다. 운영자 미리보기가 필요하면 Python extractor 작업 경로의 임시 파일을 `previewPath`로
+제공하되, 내부 절대 경로와 storage key는 응답하지 않는다.
 
 ### 수집 후보 상태 전이
 
 | 현재 | 허용 다음 상태 | 추가 조건 |
 | --- | --- | --- |
-| 없음 | `NEW` | 출처 매칭·robots 허용·요청 상한 통과, 정규화 URL 중복 없음 |
+| 없음 | `NEW` | 등록·활성 출처 매칭·robots 허용·요청 상한 통과, 정규화 URL 중복 없음 |
 | 없음 | `FETCH_FAILED` | 요청은 허용됐지만 응답·파싱 실패 |
 | `FETCH_FAILED` | `NEW` | 운영자 재시도 성공 |
 | `NEW` | `APPROVED` | 초안 생성 transaction 성공, 이미지 1건 이상 `STORED` 또는 TEXT block 존재 |
@@ -842,7 +848,7 @@ filename, SHA-256 checksum과 적용 시각을 기록한다. runner는 PostgreSQ
 - `V001__create_m0_core_schema.sql`: `content`, `legal`, `ops`와 M0 Core 애플리케이션 테이블·제약·인덱스
 - `V002__seed_m0_core_reference_data.sql`: `meme / 짤 / true / ADMIN / 10` 게시판 seed
 - `M0 수집 보조` 착수 migration(version `(미정)`): `collect` schema·출처·후보 테이블을 추가하고
-  승인 전 출처는 `URL_ONLY`, 목록 수집 비활성, robots 미확인 상태로 seed
+  모든 출처는 `URL_ONLY`, 목록 수집 비활성, robots 미확인 상태로 seed
 - 개발 연결 확인용 init SQL은 운영 migration과 분리한다.
 - 출시할 약관·개인정보처리방침은 본문 확정 후 별도 순번 seed migration으로 추가한다.
 
@@ -863,7 +869,7 @@ filename, SHA-256 checksum과 적용 시각을 기록한다. runner는 PostgreSQ
 - [ ] upload rollback 뒤 별도 cleanup transaction의 `STORAGE_OBJECT` outbox와 image ID 비참조 test
 - [ ] 재공개 시 최초 `published_at` 유지와 private image 재승격 test
 - [ ] `REMOVED` 전이와 private 원본 30일 지연 삭제 test
-- [ ] 수집 출처의 목록 수집 활성 조건(`robots_allowed`·`list_url`) CHECK 위반 거부 test
+- [ ] M0 수집 보조에서 출처가 `URL_ONLY`와 목록 수집 비활성으로 생성되는지 test
 - [ ] 정규화 URL 중복 후보 거부와 동시 요청 경쟁 test
 - [ ] 후보 승격 transaction 실패 시 후보 상태 원복과 staging 이미지 orphan 분류 test
 - [ ] 후보 이미지 20건 초과 절단과 `STORED` 이미지의 `image_id` 유일성 test

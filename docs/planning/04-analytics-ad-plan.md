@@ -158,6 +158,7 @@ GA4를 활성화한 환경에서 분석 동의가 있을 때만 다음 이벤트
 ```text
 NUXT_PUBLIC_GA4_ENABLED=false
 COLLECT_MANUAL_URL_ENABLED=false
+COLLECT_DISCORD_COMMAND_ENABLED=false
 COLLECT_LIST_CRAWL_ENABLED=false
 SOCIAL_LOGIN_NAVER_ENABLED=false
 SOCIAL_LOGIN_KAKAO_ENABLED=false
@@ -172,9 +173,11 @@ ADS_ADBLOCK_NOTICE_ENABLED=false
 AFFILIATE_ENABLED=false
 ```
 
-`COLLECT_LIST_CRAWL_ENABLED`는 출처별 활성 여부와 별개인 전체 차단 스위치다. 목록 수집은 출처의 robots 확인 결과가 허용일 때만 출처 단위로 켠다.
-`COLLECT_MANUAL_URL_ENABLED`는 `M0 수집 보조` gate가 끝난 뒤에만 켠다. `M0 Core` production의
-두 수집 flag 기본값은 모두 `false`다.
+`COLLECT_MANUAL_URL_ENABLED`와 `COLLECT_DISCORD_COMMAND_ENABLED`는 `M0 수집 보조` gate가 끝난 뒤에만
+켠다. 두 경로 모두 입력된 단일 상세 페이지 1건만 처리하고 목록·feed·pagination·scheduler를
+호출하지 않는다. `COLLECT_LIST_CRAWL_ENABLED`는 후속 `M0 자동 수집` 전역 차단 스위치이며, 자동
+수집 단계 도입 전까지 `false`로 유지한다. `M0 Core` production의 수집 관련 flag 기본값은 모두
+`false`다.
 
 GA4 Measurement ID·속성 보관 설정·국외이전 고지·실제 Google 계약 법인·Google tag/CSP domain 중
 하나라도 확정되지 않으면 M0 Core production에서 `NUXT_PUBLIC_GA4_ENABLED=false`를 유지한다.

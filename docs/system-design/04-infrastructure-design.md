@@ -267,6 +267,7 @@ server runtime config
   BLARIYO_OPERATOR_PHONE
   COLLECT_USER_AGENT
   COLLECT_MANUAL_URL_ENABLED
+  COLLECT_DISCORD_COMMAND_ENABLED
   COLLECT_LIST_CRAWL_ENABLED
   COLLECT_FETCH_TIMEOUT_MS
   COLLECT_MAX_RESPONSE_BYTES
@@ -323,7 +324,9 @@ domain 등록을 확인하고 SDK URL·SRI·CSP host를 고정하기 전에는
 provider 값을 노출하지 않는다. GA4를 켠 환경에서도
 저장된 분석 동의 전에는 Google tag/request와 cookieless ping을 만들지 않는다. `COLLECT_USER_AGENT`는 블라리요를
 식별할 수 있는 문자열과 연락 수단을 포함하고, `COLLECT_MANUAL_URL_ENABLED`·
-`COLLECT_LIST_CRAWL_ENABLED`는 출처별 설정과 별개인 전체 차단 스위치다. 출처별 요청 간격·일일
+`COLLECT_MANUAL_URL_ENABLED`는 관리자 화면 URL 지정, `COLLECT_DISCORD_COMMAND_ENABLED`는 Discord
+`/collect url` 명령의 전체 차단 스위치다. 두 경로 모두 입력된 단일 상세 페이지 1건만 처리한다.
+`COLLECT_LIST_CRAWL_ENABLED`는 후속 자동 수집 도입 전까지 false로 유지한다. 출처별 요청 간격·일일
 상한·robots 확인 결과는 환경변수가 아니라 `collect.source` 데이터로 관리한다.
 
 `NUXT_ADMIN_OPERATOR_MAP_FILE`은 외부 identity를 안정적인 내부 `operatorId`로 매핑하는 파일 경로다. 운영자가 여러 명일 수 있으므로 단일 값 환경변수를 사용하지 않는다. 파일은 `{"identity": "<외부 식별값>", "operatorId": "<내부 식별자>", "active": true}` 항목의 목록이며 BFF container에만 읽기 전용으로 mount한다. identity를 제거해도 기존 `operatorId`는 재사용하지 않고 감사 이력을 보존한다. provider를 교체하면 identity 값만 새 provider 기준으로 바꾸고 `operatorId`는 유지한다.
@@ -360,7 +363,10 @@ public 배포본 월 약 0.47GB
 private canonical 원본 포함 월 약 0.94GB
 ```
 
-수집 후보는 원문 URL·제목·이미지 후보 URL만 DB에 저장하므로 object storage를 쓰지 않는다. 이미지 저장은 승격 시점에만 발생하고 위 예산에 이미 포함된다. 후보 행은 30일 보존 기준으로 정리한다.
+수집 후보는 원문 URL·제목·이미지 후보 URL과 임시 preview 식별자만 DB에 저장하므로 후보 단계에서
+object storage를 쓰지 않는다. Python extractor 작업 경로에는 운영자 검수 미리보기용 이미지 임시
+파일을 둘 수 있지만 영구 원본이 아니며, 반려·만료·재시도 교체 시 삭제한다. 이미지 저장은 승격
+시점에만 발생하고 위 예산에 이미 포함된다. 후보 행은 30일 보존 기준으로 정리한다.
 
 M0 기본은 다음과 같다.
 

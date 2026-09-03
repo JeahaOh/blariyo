@@ -47,7 +47,7 @@ M0 전체 기술 범위는 다음과 같다.
 - 복수 본문 이미지, 출처, 정책 버전
 - 게시글 참고용 조회 수와 기본 비활성 GA4 연동
 - `M0 수집 보조`의 운영자 URL 지정·후보 큐·검수·초안 승격
-- `M0 자동 수집`의 승인된 출처 목록 수집과 실패 시 출처 비활성
+- `M0 자동 수집`의 사용 결정된 출처 목록 수집과 실패 시 출처 비활성
 - 외부 이미지 저장소, 백업과 복구
 - 단일 서버·단일 리전 저비용 운영
 
@@ -77,7 +77,7 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 | 데이터베이스 | PostgreSQL 18 단일 인스턴스 |
 | DB schema | `M0 Core`: `content`, `legal`, `ops`; `M0 수집 보조`: `collect`; 이후 schema는 단계별 migration에서 추가 |
 | 이미지 | Cloudflare R2 Standard, 비공개 원본 bucket과 공개 media bucket 분리 |
-| 수집 | Core API의 `SourceFetcher` adapter, 출처 allowlist·robots·요청 상한 강제, 목록 수집은 API image 단발성 command |
+| 수집 | M0 수집 보조는 Discord `/collect url` 또는 관리자 URL 입력의 단일 상세 페이지 1건만 Core `SourceFetcher` adapter로 처리. 출처 등록/활성·robots·요청 상한 강제. 목록 수집은 후속 자동 수집 단계 |
 | 엣지 | Cloudflare Free DNS·CDN·Universal SSL |
 | 원본 연결 | Cloudflare Tunnel로 공개 inbound port 제거 |
 | 운영자 접근 | BFF의 교체 가능한 외부 인증 adapter, Core의 provider-neutral 서비스 토큰 검증 |

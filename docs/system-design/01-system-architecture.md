@@ -26,7 +26,7 @@
   PostgreSQL에 자체 분석 저장 경로를 만들지 않는다.
 - 수집은 `M0 Core` 뒤의 수집 보조·자동 수집 단계에 포함하지만 외부 사이트 구조 변경에
   취약하다. 파싱 실패를 장애가 아닌 후보 실패로 처리하고 운영자 수동 작성 경로를 항상 유지한다.
-- 수집 대상은 등록된 출처와 그 하위 경로로만 제한하고, 임의 URL을 서버가 무제한 fetch하지 않는다.
+- 수집 대상은 등록·활성 출처와 그 하위 경로로만 제한하고, 임의 URL을 서버가 무제한 fetch하지 않는다.
 
 ## 2. 시스템 컨텍스트
 
@@ -51,6 +51,7 @@
   +--------------------> [Cloudflare R2]
   +--------------------> [Cloudflare Cache Purge API]
   +--------------------> [등록된 수집 출처] (outbound only, allowlist)
+  +<-------------------- [Discord Interactions] (/collect url, 운영자 명령)
 ```
 
 공개 사용자는 Cloudflare를 통해서만 원본 서버에 접근한다. 운영자 경로는 현재 Cloudflare Access를 외부 인증 provider로 사용하지만 이 검증은 Nuxt BFF adapter에만 둔다. VM의 80·443·5432 포트는 공용 인터넷에 열지 않고 `cloudflared`가 outbound tunnel을 만든다.
@@ -66,14 +67,14 @@
 | `postgresql` | 게시글·정책·운영 작업 저장 | Docker private network only |
 | `backup` | 정기 DB dump 암호화·R2 업로드 | outbound only |
 
-수집은 별도 컨테이너를 만들지 않는다. 운영자 URL 지정 후보 생성은 `api`의 요청 처리 안에서, 허용 출처 목록 수집은 `api` image의 단발성 command에서 같은 service·repository 계층으로 실행한다.
+수집은 별도 컨테이너를 만들지 않는다. M0 수집 보조의 Discord `/collect url`과 관리자 URL 지정 후보 생성은 `api`의 요청 처리 안에서 단일 상세 페이지 1건만 처리한다. 허용 출처 목록 수집은 후속 `M0 자동 수집` 단계에서 `api` image의 단발성 command로 검토한다.
 
-`worker`는 별도 상시 컨테이너로 시작하지 않는다. 예약 발행, 정리 작업과 목록 수집은 API 이미지의 단발성 명령을 cron에서 실행한다. 수집 출처가 늘어 목록 수집이 API 응답에 영향을 주면 그때 별도 worker를 추가한다.
+`worker`는 별도 상시 컨테이너로 시작하지 않는다. 예약 발행과 정리 작업은 API 이미지의 단발성 명령을 cron에서 실행한다. 목록 수집은 M0 수집 보조 범위가 아니며, 후속 자동 수집에서 API 응답에 영향을 주면 그때 별도 worker를 추가한다.
 
-M0 반복 명령은 `npm run posts:publish-due`, `npm run outbox:run`,
-`npm run collect:crawl-due`다. 예약 발행과 outbox는 매분 실행한다. 목록
-수집 command의 10분 tick은 실행 대상 출처가 due인지 확인하는 주기이며 각 출처를 10분마다
-요청한다는 뜻이 아니다. 실제 요청 간격·일일 상한·활성 시간은 승인된 출처 명세를 따른다. 정책
+M0 Core 반복 명령은 `npm run posts:publish-due`, `npm run outbox:run`이다. 예약 발행과 outbox는
+매분 실행한다. `npm run collect:crawl-due` 같은 목록 수집 command는 후속 `M0 자동 수집` 범위다.
+M0 수집 보조는 Discord 또는 관리자 화면에서 들어온 URL 한 건만 요청하며 scheduler가 목록을 돌지
+않는다. 실제 요청 간격·일일 상한은 사용 결정된 출처 명세를 따른다. 정책
 시행은 자동 scheduler가 아니라 승인된 정책 release artifact를 사용하는 운영 단발성 명령
 `npm run policies:publish`로 수행한다. 각 명령은 HTTP 관리자 경계를 우회하지 않고 동일한
 repository·service와 전용 system actor를 사용한다.
@@ -164,7 +165,7 @@ services에는 `CollectSourceService`와 `CollectCandidateService`를 둔다. `C
 - host port, public DNS, Nginx upstream을 만들지 않는다. HTTP 호출자는 Docker app network의 `web` 하나로 제한한다.
 - cron은 외부·내부 HTTP route를 호출하지 않고 API image의 단발성 command로 같은 service·repository 계층을 실행한다.
 - 관리자 route는 BFF와 공유한 내부 서비스 토큰과 `admin:vN:<HMAC>` actor 형식만 검증한다. Core는 외부 인증 provider, JWT claim과 JWKS를 알지 않는다.
-- 외부 사이트로 나가는 HTTP 요청은 `SourceFetcher` adapter만 수행한다. adapter는 등록된 출처 allowlist, `robots.txt` 판정, 요청 간격·일일 상한, redirect·응답 크기·timeout 제한과 사설 IP 차단을 강제한다. service·controller가 adapter를 우회해 직접 fetch하지 않는다.
+- 외부 사이트로 나가는 HTTP 요청은 `SourceFetcher` adapter만 수행한다. adapter는 등록·활성 출처 매칭, `robots.txt` 판정, 요청 간격·일일 상한, redirect·응답 크기·timeout 제한과 사설 IP 차단을 강제한다. service·controller가 adapter를 우회해 직접 fetch하지 않는다.
 
 ## 5. 주요 흐름
 
@@ -255,36 +256,38 @@ R2 copy 동안 DB row lock이나 transaction을 유지하지 않는다. 여러 s
 ### 수집 후보 생성
 
 ```text
-운영자 URL 지정
+Discord /collect url 또는 관리자 URL 지정
   -> BFF 외부 인증
   -> Core가 URL 정규화·출처 매칭
-  -> 출처 allowlist·robots·요청 상한 확인
-  -> SourceFetcher가 해당 페이지 1회 GET
+  -> 출처 등록/활성·robots·요청 상한 확인
+  -> SourceFetcher가 단일 상세 페이지 1회 GET
   -> 제목·이미지 후보 URL 추출
+  -> Python extractor 작업 경로에 이미지 후보 임시 preview 저장
   -> 원문 URL 중복·기존 게시글 중복 확인
   -> 후보 + 이미지 후보 metadata 저장
 ```
 
 ```text
-10분 cron: collect:crawl-due
-  -> 목록 수집이 활성이고 요청 간격이 지난 출처 선택
-  -> 출처 목록·피드 1회 GET
-  -> 새 원문 URL의 목록·feed metadata 확인
-  -> 후보 정보가 부족한 새 URL만 요청 상한 안에서 상세 페이지 GET
-  -> 제목·이미지 후보 URL을 갖춘 후보로 적재
-  -> 출처의 최근 수집 시각·오류·요청 수 갱신
+후속 M0 자동 수집
+  -> 별도 사용 결정 뒤 목록·feed·pagination·scheduler 설계
+  -> M0 수집 보조 service와 후보 큐는 재사용
+  -> 기본 비활성
 ```
 
-후보 생성은 원문 URL과 metadata까지만 저장하고 이미지 binary는 저장하지 않는다. 이미지 저장은 운영자가 후보를 초안으로 승격할 때 수행하며, 그 시점에 기존 관리자 업로드와 같은 MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에 넣는다. 즉 검수하지 않은 외부 이미지가 블라리요 저장소에 남지 않는다.
+후보 생성은 원문 URL과 metadata까지만 DB에 저장한다. Python extractor는 운영자 검수 미리보기를
+위해 이미지 후보를 작업 경로에 임시 파일로 둘 수 있지만, 이 파일은 영구 object storage와 DB image
+row가 아니다. 이미지 영구 저장은 운영자가 후보를 초안으로 승격할 때 수행하며, 그 시점에 기존 관리자
+업로드와 같은 MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에 넣는다. 즉 검수하지
+않은 외부 이미지가 블라리요 저장소에 남지 않는다.
 
-같은 원문 URL의 후보는 정규화된 URL 기준으로 한 건만 유지한다. `403`, `429`, robots 금지, timeout이 연속으로 발생하면 해당 출처의 목록 수집을 자동 비활성하고 운영 알림을 만든다. 자동 비활성 해제는 운영자 확인이 필요하다.
+같은 원문 URL의 후보는 정규화된 URL 기준으로 한 건만 유지한다. `403`, `429`, robots 금지, timeout이 발생하면 해당 단건 후보를 실패로 남기고 운영 알림을 만든다. 목록 수집 자동 비활성은 후속 `M0 자동 수집`에서만 적용한다.
 
 ### 후보 초안 승격
 
 ```text
 운영자 승격 요청
   -> 후보 상태·중복 재확인
-  -> 선택한 이미지 후보를 SourceFetcher로 가져와 검증·재인코딩
+  -> 선택한 이미지 후보의 임시 파일 또는 원격 URL을 검증·재인코딩
   -> private 원본 bucket 저장과 이미지 metadata insert
   -> 초안 생성 transaction(제목·block·출처·이미지 선점·상태 이력)
   -> 후보를 APPROVED로 바꾸고 생성된 게시글 연결

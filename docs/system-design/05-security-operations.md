@@ -30,9 +30,9 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | SQL injection | parameterized query, validation, DB 최소 권한 |
 | 저장형 XSS | 게시글 TEXT는 plain text escape, 정책 HTML은 허용 목록 sanitize, CSP |
 | 악성 이미지 | MIME·magic byte·decode 검사, SVG 금지, 크기 제한 |
-| SSRF | 외부 fetch는 `SourceFetcher` adapter만 수행. 등록 출처 host allowlist, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 비HTML·비이미지 content-type 거부 |
+| SSRF | 외부 fetch는 `SourceFetcher` adapter만 수행. 등록·활성 출처 host 매칭, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 비HTML·비이미지 content-type 거부 |
 | 수집 대상 사이트 과부하·차단 | 출처별 요청 간격·일일 상한, 식별 가능한 User-Agent, `robots.txt` 준수, `403`·`429` 누적 시 자동 비활성 |
-| 수집 콘텐츠를 통한 저장형 공격 | 후보 제목은 plain text로 저장·escape, 원문 HTML 미저장, 이미지는 승격 시 magic byte·decode·재인코딩 |
+| 수집 콘텐츠를 통한 저장형 공격 | 후보 제목은 plain text로 저장·escape, 원문 HTML 미저장, 이미지는 Python 작업 경로에 임시 저장 후 승격 시 magic byte·decode·metadata 제거·재인코딩 |
 | secret 유출 | 저장소·image·log 제외, provider별 최소 권한 key |
 | 숨김 콘텐츠 cache 잔존 | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store |
 | VM·disk 소실 | R2 암호화 DB backup, image 원본 R2 저장 |
@@ -112,12 +112,14 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
 - 관리자 이미지 multipart만 별도 최대 `100MiB/request`
 - title·IMAGE block alt·source 길이는 API schema와 DB 길이를 일치시킨다.
 - source URL은 `https`만 허용하고 사용자 클릭 링크에 `rel="noopener noreferrer"`를 사용한다.
-- 게시글에 저장된 출처 URL을 서버가 배경에서 자동 fetch하지 않는다. 외부 요청은 운영자 요청 또는 목록 수집 command에서 `SourceFetcher` adapter를 통해서만 발생한다.
+- 게시글에 저장된 출처 URL을 서버가 배경에서 자동 fetch하지 않는다. M0 수집 보조의 외부 요청은 Discord `/collect url` 또는 관리자 화면 URL 입력에서 `SourceFetcher` adapter를 통해서만 발생한다. 목록 수집 command는 후속 자동 수집 범위다.
 - 게시글 TEXT block은 HTML·Markdown으로 해석하지 않고 출력 시 escape한다.
 - 정책 `body_html`은 저장·미리보기에 같은 허용 목록 sanitizer를 사용한다. script·style·iframe·form·SVG·`on*` 속성·inline style을 허용하지 않는다.
 - 정책 링크는 `https`, `mailto`, 서비스 내부 상대 경로와 `#` anchor만 허용하고 외부 새 창 링크에는 `rel="noopener noreferrer"`를 강제한다.
 - 수집 대상 URL은 `https`만 허용하고 최대 2048자다. 서버가 정규화한 뒤 등록 출처 host와 대조한다.
 - 수집으로 얻은 제목은 plain text로만 저장하고 원문 응답 HTML 전체는 저장하지 않는다.
+- 운영자 검수 미리보기용 이미지는 Python extractor 작업 경로에 임시 저장할 수 있지만 내부 절대 경로,
+  image binary와 storage key를 application log·Discord·공개 API에 남기지 않는다.
 - 수집 응답의 content-type이 예상과 다르거나 `COLLECT_MAX_RESPONSE_BYTES`를 넘으면 즉시 중단한다.
 - 모든 DB query는 placeholder를 사용한다.
 
@@ -161,16 +163,16 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 수집은 외부 사이트에 요청을 보내는 유일한 경로이므로 아래 통제를 코드로 강제한다.
 
 1. 대상 URL 정규화 후 등록·활성 출처의 host와 정확히 일치하는지 확인
-2. 출처 `robots.txt` 판정 확인. 금지 경로와 미확인 출처의 목록 수집은 거부
+2. 출처 `robots.txt` 판정 확인. 금지 경로와 미확인 출처의 단건 페이지 수집은 거부
 3. 출처별 최소 요청 간격과 일일 상한 확인
 4. DNS 해석 결과가 공인 주소인지 확인. 사설·loopback·link-local·metadata 주소는 거부
 5. timeout, 응답 크기 상한, redirect 최대 3회, 같은 출처 host 이탈 금지
 6. content-type 확인. 문서 요청은 HTML, 이미지 요청은 허용 이미지 형식만 수용
-7. 이미지는 관리자 업로드와 같은 magic byte·decode·pixel·재인코딩 절차 적용
+7. 이미지는 Python 작업 경로에 임시 저장한 뒤 관리자 업로드와 같은 magic byte·decode·pixel·metadata 제거·재인코딩 절차 적용
 
 - 요청에는 `COLLECT_USER_AGENT`를 사용하고 서비스명과 연락 수단을 포함한다.
 - 로그인, CAPTCHA, 유료 담장, 접근 차단을 우회하지 않는다. 인증이 필요한 페이지는 수집하지 않는다.
-- `403`, `429`, robots 금지, timeout이 출처 기준 연속 임계를 넘으면 해당 출처의 목록 수집을 자동 비활성하고 사유를 기록한다. 재활성화는 운영자 확인 후에만 가능하다.
+- `403`, `429`, robots 금지, timeout이 발생하면 단건 후보를 실패로 기록한다. 후속 자동 수집에서는 출처 기준 연속 임계를 넘으면 해당 출처의 목록 수집을 자동 비활성하고 사유를 기록한다.
 - 대상 사이트가 중단 요청을 보내면 해당 출처를 즉시 비활성하고 이미 발행된 게시글은 권리 문의 절차로 처리한다.
 - 수집 실패·차단은 공개 읽기 ready 조건에 넣지 않는다. 수집이 멈춰도 공개 목록·상세와 운영자 발행은 계속 동작해야 한다.
 
@@ -391,7 +393,7 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
   tag/CSP domain 확정 확인
 - 위 GA4 운영값이나 고지가 하나라도 없으면 `NUXT_PUBLIC_GA4_ENABLED=false`; 원인과 관계없이 false인
   환경은 `NUXT_PUBLIC_GA4_MEASUREMENT_ID`를 public runtime config에서 unset
-- 목록 수집을 켠 출처의 `robots_allowed`·`robots_checked_at` 기록 존재
+- Discord `/collect url` 또는 관리자 URL 입력의 단일 페이지 수집 gate 확인
 
 현재 `.gitignore`는 `package-lock.json`을 제외하지 않지만 `yarn.lock`은 제외한다. npm을 표준
 package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하고 `npm ci`로 검증한다.
@@ -442,7 +444,6 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 ```text
 매분     npm run posts:publish-due
 매분     npm run outbox:run
-10분마다 npm run collect:crawl-due
 매일 1회 npm run images:cleanup-orphans
 ```
 
@@ -455,7 +456,7 @@ outbox worker는 중단된 `RUNNING`을 5분 뒤 회수하고 실패할 때마�
 1. 알림의 출처와 오류 코드 확인
 2. `disabledReasonCode`로 자동 비활성 여부 확인
 3. 대상 사이트의 `robots.txt`와 접근 정책 변경 여부 확인
-4. 차단이면 목록 수집을 끄고 운영자 URL 지정 경로만 유지
+4. 차단이면 해당 단건 후보를 실패 처리한다. 후속 자동 수집이 켜져 있으면 목록 수집을 끄고 Discord·관리자 URL 지정 경로만 유지한다.
 5. 파싱 실패면 후보를 반려하고 파서 수정 여부를 판단
 6. 재활성화 전에 요청 간격·일일 상한을 다시 확인
 7. 대상 사이트의 중단 요청은 권리 문의 runbook과 같은 절차로 처리

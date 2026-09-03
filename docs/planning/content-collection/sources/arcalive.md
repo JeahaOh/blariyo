@@ -1,27 +1,10 @@
-# 콘텐츠 수집 출처 명세 템플릿
+# 아카라이브 수집 명세
 
-- 문서 상태: 템플릿
-- 기준일: 2026-09-02
-- 상위 정본: [콘텐츠 수집 기획](./README.md)
-
-이 파일을 직접 출처 명세로 사용하지 않는다. 출처를 검토할 때 같은 디렉터리의 `sources/` 아래에
-`<source-key>.md`로 복사하고 실제 확인한 값과 확인일을 채운다. 추측값과 예시 URL은 사용 결정 근거로
-사용하지 않는다.
-
-원문 HTML 전체, 이미지 binary, credential, cookie, token과 개인정보는 명세나 Git에 저장하지
-않는다. 운영자 검수 미리보기를 위한 이미지는 Python extractor 작업 경로에만 임시 저장할 수 있고,
-게시 확정 전 DB와 영구 object storage에는 저장하지 않는다. 테스트 fixture는 원문 콘텐츠를 복제하지
-않은 최소 synthetic 구조를 사용한다.
-
----
-
-# `(미정: 출처 표시명)` 수집 명세
-
-- 명세 상태: 검토 전
-- source key: `(미정)`
-- 작성일: `(미정)`
-- 최종 확인일: `(미정)`
-- 확인 담당자: `(미정)`
+- 명세 상태: 정책 확인 후 비활성
+- source key: `arcalive`
+- 작성일: 2026-09-03
+- 최종 확인일: 2026-09-03
+- 확인 담당자: Codex
 - 활성 단계: 비활성
 - parser version: `(미정)`
 
@@ -29,28 +12,28 @@
 
 | 항목 | 확인값 |
 | --- | --- |
-| 출처 표시명 | `(미정)` |
-| 운영 주체 | `(미정)` |
-| 기준 URL | `(미정)` |
-| 허용 host | `(미정)` |
-| 허용 path | `(미정)` |
-| 제외 path | `(미정)` |
-| 수집 목적 | `(미정)` |
+| 출처 표시명 | 아카라이브 |
+| 운영 주체 | umanle S.R.L. |
+| 기준 URL | https://arca.live/ |
+| 허용 host | `arca.live` |
+| 허용 path | `/b/{channel}`, `/b/{channel}/{articleId}` 후보. 사용 결정 전 production 비활성. |
+| 제외 path | `/u/`, `/b/my`, edit/delete 경로, 로그인·개인·관리 경로 |
+| 수집 목적 | 커뮤니티 게시글 후보 검토 |
 
 ## 2. 정책·권리 확인
 
 | 항목 | 확인값 |
 | --- | --- |
-| 이용약관 URL | `(미정)` |
-| 이용약관 확인일 | `(미정)` |
-| 수집 관련 조항 판단 | `(미정)` |
-| `robots.txt` URL | `(미정)` |
-| `robots.txt` 확인일 | `(미정)` |
-| User-Agent 적용 결과 | `(미정)` |
-| 공개 API·RSS 제공 여부 | `(미정)` |
-| 문의·중단 요청 채널 | `(미정)` |
+| 이용약관 URL | https://arca.live/policy |
+| 이용약관 확인일 | 2026-09-03 |
+| 수집 관련 조항 판단 | footer의 `POLITICA DE PRIVACIDAD Y REGLAS DE USO` 링크는 확인했으나 `/policy`는 Cloudflare challenge로 본문 직접 확인 실패. |
+| `robots.txt` URL | https://arca.live/robots.txt |
+| `robots.txt` 확인일 | 2026-09-03 |
+| User-Agent 적용 결과 | `User-agent: *`는 `Allow: /`, `/u/`, `/b/my`, edit/delete 경로 제외. |
+| 공개 API·RSS 제공 여부 | 공개 API·RSS 미확인 |
+| 문의·중단 요청 채널 | `support@arca.live`, https://support.arca.live |
 | 운영 위험 판정자 | `(미정)` |
-| 운영 위험도 | `(미정: 낮음 / 중간 / 높음 / 대상 아님)` |
+| 운영 위험도 | 중간 |
 
 확인 결과가 불명확하거나 기술 gate를 통과하지 못하면 `활성 단계`를 `비활성`으로 유지한다.
 
@@ -58,24 +41,24 @@
 
 | 단계 | 사용 여부 | 방식·이유 |
 | --- | --- | --- |
-| Discord·운영자 URL 수집 보조 | `(미정: 사용 / 보류 / 차단)` | 단일 상세 페이지 1건만 추출 |
+| Discord·운영자 URL 수집 보조 | 보류 | robots는 일부 공개 경로 허용이나 정책 본문 확인 실패. |
 | 공식 공개 API·feed | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
 | RSS·Atom | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
 | server-rendered HTML 목록 | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
 | headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외 |
 
-선택 parser type: `MANUAL_URL`
+선택 parser type: `HTML_LIST`
 
 ## 4. URL 규칙
 
 | 항목 | 확인값 |
 | --- | --- |
 | 목록·feed URL | 사용하지 않음 |
-| 상세 URL pattern | `(미정)` |
-| canonical URL 위치 | `(미정)` |
-| 허용 redirect | `(미정)` |
-| 제거할 query parameter | `(미정)` |
-| 유지할 query parameter | `(미정)` |
+| 상세 URL pattern | `https://arca.live/b/{channel}/{numericArticleId}` |
+| canonical URL 위치 | `<link rel="canonical">` 확인 |
+| 허용 redirect | `arca.live` 내부 https redirect만 후보 |
+| 제거할 query parameter | `mode`, pagination query 등은 중복 키에서 제거 후보. 확정 전 보류 |
+| 유지할 query parameter | 상세 식별에 필요한 값 없음으로 추정하나 미검증 |
 | pagination 방식·최대 범위 | 사용하지 않음 |
 
 ## 5. 목록·feed 추출 규칙
@@ -102,19 +85,20 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 
 | 대상 | 추출 규칙 | 우선순위 | 실패 처리 |
 | --- | --- | --- | --- |
-| canonical URL | `(미정)` | `(미정)` | 요청 URL 사용 또는 실패 |
-| 제목 | `(미정)` | `(미정)` | 후보 실패 |
-| 본문 이미지 | `(미정)` | `(미정)` | 후보 실패 또는 운영자 보정 |
-| 이미지 순서 | `(미정)` | `(미정)` | DOM 순서 |
-| 게시 시각 | `(미정)` | `(미정)` | `null` |
+| canonical URL | `<link rel="canonical">` | 1 | 요청 URL 사용 또는 실패 |
+| 제목 | meta title 또는 article title 후보 | 1 | 후보 실패 |
+| 본문 이미지 | article 본문 이미지 후보 | 1 | 후보 실패 또는 운영자 보정 |
+| 이미지 순서 | DOM 순서 | 1 | DOM 순서 |
+| 게시 시각 | `<time datetime>` | 1 | `null` |
 
 이미지 제외 규칙:
 
-- 로고·프로필·이모티콘: `(미정)`
-- 광고·추적 pixel: `(미정)`
-- 추천글 thumbnail: `(미정)`
+- 로고·프로필·이모티콘: static icon, profile, channel icon 제외
+- 광고·추적 pixel: ad, analytics, captcha asset 제외
+- 추천글 thumbnail: sidebar/link-list 영역 제외
 - 최소 크기·허용 MIME: `(미정)`
-- 외부 CDN host 허용 범위: `(미정)`
+- 외부 CDN host 허용 범위: `ac.arca.live`, `arca.live` 후보. 사용 결정 전 보류
+
 
 ## 6-1. 이미지 임시 저장·승격 규칙
 
@@ -122,8 +106,7 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 - 임시 파일 경로는 내부 구현값이며 공개 화면, 로그, Discord 보고와 Git에 남기지 않는다.
 - DB에는 원격 URL, 순서, 추출·검증 상태와 preview 식별자만 저장하고 image binary는 저장하지 않는다.
 - 후보 반려, 보존 기간 만료, 재시도 교체, parser 실패 전환 시 임시 파일은 삭제 대상이다.
-- 게시글 초안 승격이 결정되면 선택 이미지에 한해 관리자 업로드와 같은 MIME·magic byte·decode·pixel·
-  metadata 제거·재인코딩 검증을 거쳐 블라리요 저장소에 저장한다.
+- 게시글 초안 승격이 결정되면 선택 이미지에 한해 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 거쳐 블라리요 저장소에 저장한다.
 - 승격 transaction 실패 시 저장된 이미지는 staging orphan 정리 대상으로 분류한다.
 
 ## 7. 요청·운영 제한
@@ -137,7 +120,7 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 | 자동 수집 실행 시간 | 사용하지 않음 |
 | redirect 상한 | `(미정)` |
 | timeout·응답 크기 상한 | `(미정)` |
-| 연속 실패 자동 비활성 기준 | `(미정)` |
+| 연속 실패 자동 비활성 기준 | 기본 비활성 |
 
 ## 8. 검증 fixture와 결과
 
@@ -145,18 +128,15 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 | --- | --- | --- | --- |
 | 정상 목록 | 해당 없음 | M0 수집 보조 범위 밖 | 해당 없음 |
 | 빈 목록 | 해당 없음 | M0 수집 보조 범위 밖 | 해당 없음 |
-| 정상 상세 | `(미정)` | 제목·이미지 후보 추출 | `(미정)` |
-| 이미지 없는 상세 | `(미정)` | 명시적 실패 또는 운영자 보정 | `(미정)` |
-| 삭제·차단 | `(미정)` | 실패 기록·재시도 제한 | `(미정)` |
-| 구조 변경 | synthetic fixture | parser 실패 감지 | `(미정)` |
-| 중복 URL | `(미정)` | 새 후보 생성 안 함 | `(미정)` |
-
-실제 원문 URL을 기록할 때 공개 URL과 확인일만 남긴다. 페이지 본문·이미지는 문서에 복제하지
-않는다.
+| 정상 상세 | `/b/{channel}/{id}` 후보 | 제목·이미지 후보 추출 | 미수행 |
+| 이미지 없는 상세 | synthetic fixture | 명시적 실패 또는 운영자 보정 | 미수행 |
+| 삭제·차단 | synthetic fixture | 실패 기록·재시도 제한 | 미수행 |
+| 구조 변경 | synthetic fixture | parser 실패 감지 | 미수행 |
+| 중복 URL | canonical 후보 | 새 후보 생성 안 함 | 미수행 |
 
 ## 9. 활성화 판정
 
-- [ ] 운영 주체와 기준 URL 확인
+- [x] 운영 주체와 기준 URL 확인
 - [ ] 이용약관·`robots.txt` 확인
 - [ ] Discord·운영자 URL 수집 보조 fixture 검증
 - [ ] 목록·feed fixture 검증 해당 없음
@@ -168,13 +148,13 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 
 판정:
 
-- Discord·운영자 URL 수집 보조: `(미정: 사용 / 보류 / 차단)`
-- 자동 수집: 차단 (M0 수집 보조 범위 밖)
-- 판정일·운영 위험 판정자: `(미정)`
-- 보류·차단 사유: `(미정)`
+- Discord·운영자 URL 수집 보조: 보류
+- 자동 수집: 차단
+- 판정일·운영 위험 판정자: 2026-09-03 / `(미정)`
+- 보류·차단 사유: 정책 본문 Cloudflare challenge로 직접 확인 실패, 권리·재사용 위험 판정 없음, fixture 미검증.
 
 ## 10. 변경 이력
 
 | 날짜 | parser version | 변경 내용 | 재검증 결과 |
 | --- | --- | --- | --- |
-| `(미정)` | `(미정)` | 최초 검토 | `(미정)` |
+| 2026-09-03 | `(미정)` | 최초 검토 | 비활성 |

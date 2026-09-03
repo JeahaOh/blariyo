@@ -27,8 +27,8 @@
 - 초기 트래픽에서는 단일 서버·단일 리전으로 비용을 제한한다.
 - 서버가 사라져도 PostgreSQL backup과 공개 이미지 원본으로 복구할 수 있게 한다.
 - 고가용성보다 검증 가능한 백업·복원과 공급자 이전 경로를 우선한다.
-- `M0 Core`는 외부 콘텐츠 자동 fetch 없이 운영자 수동 작성으로 공개할 수 있게 한다. 운영자 URL
-  지정은 `M0 수집 보조`, 허용 출처 목록 수집은 `M0 자동 수집`에서 runtime·schema·API를
+- `M0 Core`는 외부 콘텐츠 자동 fetch 없이 운영자 수동 작성으로 공개할 수 있게 한다. Discord `/collect url`
+  또는 관리자 URL 지정은 `M0 수집 보조`, 허용 출처 목록 수집은 후속 `M0 자동 수집`에서 runtime·schema·API를
   활성화한다. 수집은 서버에서 외부 HTTP로 나가는 유일한 콘텐츠 경로이므로 대상 허용 범위와
   요청 상한을 설계로 제한한다.
 - 소셜 로그인, 사용자 작성 게시판과 광고는 M0 runtime·schema·API에 포함하지 않는다. GA4는
@@ -94,8 +94,8 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 | 단계 | 기능 | 인프라 영향 |
 | --- | --- | --- |
 | M0 Core | 공개 짤 목록·상세, 운영자 발행·숨김, 정책, 참고용 조회 수, 기본 비활성 GA4 연동 | 현재 단일 VM·PostgreSQL·R2와 조건부 Google tag CSP·동의 설정 |
-| M0 수집 보조 | 운영자 URL 지정과 후보 검수 | 승인된 외부 outbound HTTP, 후보 schema·API |
-| M0 자동 수집 | 허용 출처 목록 수집 | 출처별 parser·수집 상한·수집 cron·Discord 운영 연동 검토 |
+| M0 수집 보조 | Discord·관리자 URL 지정 단일 페이지 추출과 후보 검수 | 외부 outbound HTTP, 후보 schema·API, Discord Interactions |
+| M0 자동 수집 | 후속 허용 출처 목록 수집 | 출처별 parser·수집 상한·수집 cron 검토 |
 | M1 | 소셜 가입·로그인·탈퇴 | provider secret, callback, session store 계약 추가 |
 | M1.5 | 익게 작성·댓글·신고·moderation | 사용자 쓰기 부하와 abuse 방어 재산정 |
 | 후속 | 광고 | consent, 외부 script와 CSP 검토 |

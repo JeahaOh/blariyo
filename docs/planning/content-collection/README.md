@@ -17,21 +17,23 @@
 - `fixture`: parser가 같은 결과를 내는지 반복 확인하는 최소 테스트 샘플
 - `feature flag`: 배포와 기능 활성화를 분리하는 전체 on·off 설정
 - `metadata`: 원문·이미지 자체가 아니라 URL·제목·크기처럼 대상을 설명하는 정보
+- `temporary image`: 운영자 검수 미리보기를 위해 Python extractor 작업 경로에만 두는 임시 이미지 파일
 - `gate`: 다음 단계로 넘어가기 전에 반드시 통과해야 하는 확인 조건
 
 ## 1. 핵심 결정
 
 1. 첫 공개는 수집 기능 없이도 운영 가능한 `M0 Core` 플랫폼을 먼저 완성한다.
-2. 수집 기능은 `M0 수집 보조`, `M0 자동 수집` 순서로 활성화한다.
-3. 자동 수집기 전체를 먼저 만들지 않는다. 출처 한 곳의 비운영 시험 프로그램으로 가능성만
-   먼저 확인한다.
+2. 수집 기능의 첫 단계는 Discord `/collect url`과 관리자 화면 URL 입력으로 들어오는 단일 상세 페이지
+   1건 추출이다.
+3. 자동 수집기 전체를 먼저 만들지 않는다. 목록·feed·pagination·scheduler는 후속 `M0 자동 수집`
+   단계로 분리한다.
 4. 운영자의 수동 게시글 작성 경로는 항상 유지한다. 수집 장애가 공개 목록·상세와 수동 발행을
    중단시키면 안 된다.
 5. 수집 결과는 후보일 뿐이다. 운영자 검수와 초안 승격 없이 게시글을 자동 발행하지 않는다.
-6. 자동 수집은 전역과 출처별로 기본 비활성이다. 승인 gate를 통과한 출처만 개별 활성화한다.
+6. M0 수집 보조는 페이지 단위 추출만 수행한다. 자동 목록 수집은 전역과 출처별로 기본 비활성이다.
 7. 로그인, CAPTCHA, 유료 장벽, 접근 차단과 수집 거부를 우회하지 않는다.
-8. 확인하지 못한 출처 URL, 이용약관 판단, `robots.txt`, 요청 간격과 연락 수단은 `(미정)`으로
-   두고 기능을 활성화하지 않는다.
+8. 출처 이용약관은 자동 사용 결정 조건이 아니라 운영 위험 참고값으로 기록한다. 단, 확인하지 못한 출처 URL,
+   `robots.txt`, 요청 간격과 연락 수단은 `(미정)`으로 두고 기능을 활성화하지 않는다.
 
 ## 2. 개발·활성화 단계
 
@@ -42,11 +44,11 @@
 | --- | --- | --- | --- |
 | 0 | 수집 가능성 검증 | 출처 한 곳의 공개 목록·상세 구조, 허용 범위와 metadata 추출 가능성 확인 | 플랫폼 공개를 차단하지 않음 |
 | 1 | M0 Core | 수동 초안·이미지·발행·숨김, 공개 목록·상세, 출처·정책·권리 대응 | 첫 공개 필수 |
-| 2 | M0 수집 보조 | 운영자 URL 입력, metadata 후보 생성, 검수·반려·초안 승격 | 별도 기능 활성화만 차단 |
-| 3 | M0 자동 수집 | 승인된 출처 목록·피드 주기 확인, 후보 적재, 실패 시 자동 비활성 | 출처별 기능 활성화만 차단 |
+| 2 | M0 수집 보조 | Discord `/collect url` 또는 관리자 URL 입력, 단일 상세 페이지 metadata 후보 생성, 검수·반려·초안 승격 | 별도 기능 활성화만 차단 |
+| 3 | M0 자동 수집 | 후속 단계. 사용 결정된 출처 목록·피드 주기 확인, 후보 적재, 실패 시 자동 비활성 | 출처별 기능 활성화만 차단 |
 
 수집 가능성 검증은 production scraper가 아니다. 실제 DB·후보 큐·scheduler에 연결하지 않고,
-승인된 공개 샘플에서 아래 공통 결과를 만들 수 있는지만 확인한다.
+사용 결정된 공개 샘플에서 아래 공통 결과를 만들 수 있는지만 확인한다.
 
 ```json
 {
@@ -60,7 +62,7 @@
 }
 ```
 
-예시의 host와 값은 계약 설명용이며 실제 수집 출처로 승인된 값이 아니다.
+예시의 host와 값은 계약 설명용이며 실제 수집 출처로 사용 결정된 값이 아니다.
 
 ## 3. 수집 방법 선택
 
@@ -70,11 +72,13 @@
 않으며 `M0 Core`의 기본 운영 경로다. 모든 수집 기능이 꺼지거나 실패해도 이 경로로 게시할 수
 있어야 한다.
 
-### 3.2 운영자 URL 수집 보조
+### 3.2 Discord·운영자 URL 단일 페이지 수집 보조
 
-운영자가 공개 원문 URL을 한 건 입력하면 서버가 승인된 출처인지 확인하고 해당 상세 페이지를
-한 번 가져온다. 제목과 이미지 후보 URL을 추출해 검수 화면에 채우며, 운영자는 값을 수정하고
-사용할 이미지를 선택하거나 후보를 반려한다.
+운영자가 관리자 화면 또는 Discord `/collect url:<원문URL>` 명령으로 공개 원문 URL을 한 건 입력하면
+서버가 등록·활성 출처인지, robots·요청 상한·SSRF 방어 gate를 통과하는지 확인하고 해당 상세 페이지를
+한 번 가져온다. 제목과 이미지 후보 URL을 추출해 검수 화면에 채우며, Python extractor는 미리보기에
+필요한 이미지 후보만 작업 경로에 임시 저장할 수 있다. 운영자는 값을 수정하고 사용할 이미지를
+선택하거나 후보를 반려한다.
 
 다음 조건에서는 자동 보정을 추측하지 않고 실패 사유를 보여준다.
 
@@ -85,22 +89,22 @@
 - 제목 또는 사용할 이미지 후보를 얻지 못한 페이지
 - 허용하지 않은 host로 redirect되는 페이지
 
-### 3.3 허용 출처 자동 수집
+### 3.3 후속 자동 수집
 
-자동 수집은 다음 우선순위로 출처별 방법을 선택한다.
+자동 수집은 M0 수집 보조 범위가 아니다. 후속 단계에서 다음 우선순위로 출처별 방법을 선택한다.
 
 | 우선순위 | 방법 | 선택 조건 | 초기 판단 |
 | --- | --- | --- | --- |
-| 1 | 공식 공개 API·feed | 운영 주체가 공개하고 사용 조건이 수집 목적과 맞음 | 가장 우선 |
-| 2 | RSS·Atom | 원문 URL과 제목을 안정적으로 제공하고 이용 조건을 확인함 | 우선 사용 |
+| 1 | 공식 공개 API·feed | 운영 주체가 공개하고 수집 목적과 운영 위험을 확인함 | 가장 우선 |
+| 2 | RSS·Atom | 원문 URL과 제목을 안정적으로 제공하고 운영 위험을 확인함 | 우선 사용 |
 | 3 | server-rendered HTML 목록 | 인증 없이 HTML에 원문 링크가 있고 구조를 안정적으로 식별 가능 | 출처별 parser 필요 |
 | 제외 | headless browser·로그인 자동화·차단 우회 | JavaScript 실행, 계정, CAPTCHA 우회가 필요함 | 초기 범위에서 사용하지 않음 |
 
-자동 수집 한 주기의 기본 흐름은 다음과 같다.
+후속 자동 수집 한 주기의 기본 흐름은 다음과 같다.
 
 ```text
 전역·출처별 활성 여부 확인
-  -> 승인된 목록·feed 한 번 조회
+  -> 사용 결정된 목록·feed 한 번 조회
   -> 원문 URL 정규화와 기존 후보·게시글 중복 제거
   -> 새 URL의 제목·이미지 후보 metadata 확인
   -> 목록·feed 정보가 부족한 새 URL만 허용 범위 안에서 상세 조회
@@ -108,7 +112,7 @@
   -> 운영자 검수(승격 또는 반려)
 ```
 
-목록 페이지의 과거 페이지를 무제한 순회하지 않는다. 초기 자동 수집은 출처 명세에서 승인한
+목록 페이지의 과거 페이지를 무제한 순회하지 않는다. 초기 자동 수집은 출처 명세에서 사용 결정한
 최신 범위만 확인하고, 이전 실행 이후 새 항목만 후보로 만든다. pagination, 최대 탐색 범위와
 실행 간격은 출처 명세에서 따로 확정한다.
 
@@ -120,18 +124,21 @@
 
 | 항목 | 규칙 |
 | --- | --- |
-| 출처 | 승인된 출처 식별자와 표시명 |
+| 출처 | 사용 결정된 출처 식별자와 표시명 |
 | 원문 URL | 정규화한 `https` URL |
-| 발견 방식 | `MANUAL_URL` 또는 `LIST_CRAWL` |
+| 발견 방식 | M0 수집 보조는 `MANUAL_URL`. 후속 자동 수집은 `LIST_CRAWL` |
 | 제목 | 원문에서 추출한 후보값, 운영자 수정 가능 |
-| 이미지 후보 | 원격 URL·순서·추출 경고. binary는 저장하지 않음 |
+| 이미지 후보 | 원격 URL·순서·추출 경고와 임시 preview 경로. DB에는 image binary를 저장하지 않음 |
 | 원문 게시 시각 | 신뢰할 수 있을 때만 저장, 없으면 `null` |
 | 수집 시각 | 서버 기준 시각 |
 | parser 버전 | 어떤 출처 규칙으로 추출했는지 추적 가능한 값 |
 | 경고·실패 사유 | 누락, 차단, 구조 변경과 중복 판단 근거 |
 
-후보 단계에서는 원문 HTML 전체, 이미지 binary, 댓글, 작성자 프로필과 불필요한 개인정보를
-저장하지 않는다. 이미지 binary는 운영자가 초안으로 승격할 때만 검증·재인코딩한 뒤 저장한다.
+후보 단계에서는 원문 HTML 전체, 댓글, 작성자 프로필과 불필요한 개인정보를 저장하지 않는다.
+이미지는 Python extractor가 실행되는 작업 경로에 임시 파일로만 둘 수 있고, DB와 영구 object
+storage에는 저장하지 않는다. 임시 파일은 후보 반려·만료·재시도 교체 시 삭제 대상이며, 운영자가
+초안으로 승격하기로 결정한 이미지에 한해 관리자 업로드와 같은 검증·재인코딩 후 블라리요 저장소에
+저장한다.
 
 ### 4.2 추출 우선순위
 
@@ -140,9 +147,9 @@
 
 | 대상 | 공통 후보 순서 |
 | --- | --- |
-| 원문 URL | 승인된 canonical URL, 없으면 정규화한 요청 URL |
-| 제목 | 구조화된 feed 값, 승인된 Open Graph 값, 출처별 제목 selector |
-| 이미지 | 구조화된 feed enclosure, 승인된 Open Graph 이미지, 출처별 본문 이미지 selector |
+| 원문 URL | 사용 결정된 canonical URL, 없으면 정규화한 요청 URL |
+| 제목 | 구조화된 feed 값, 사용 결정된 Open Graph 값, 출처별 제목 selector |
+| 이미지 | 구조화된 feed enclosure, 사용 결정된 Open Graph 이미지, 출처별 본문 이미지 selector |
 | 게시 시각 | 구조화된 feed 값 또는 출처별 명시 시각, 추정값 사용 금지 |
 
 광고, 로고, 프로필, 이모티콘, 추천 콘텐츠, 공지와 추적 pixel은 이미지 후보에서 제외한다.
@@ -153,25 +160,28 @@
 - 정규화한 원문 URL이 같으면 같은 후보로 본다.
 - tracking query, fragment와 불필요한 trailing slash 제거 범위는 출처별로 확정한다.
 - redirect 뒤 canonical URL이 기존 후보와 같으면 새 후보를 만들지 않는다.
-- 이미지 hash는 실제 image binary를 가져오는 초안 승격 단계에서 비교한다.
+- 이미지 hash는 Python 임시 파일 또는 승격 시 다시 가져온 image binary를 검증·재인코딩하는 단계에서
+  계산한다. 게시 확정 전 hash는 중복 경고용이며 영구 저장 증거가 아니다.
 - 제목 유사도는 운영자에게 주는 경고일 뿐 자동 반려·승격 기준으로 사용하지 않는다.
 
-## 5. 출처 등록과 승인 절차
+## 5. 출처 등록과 운영 위험 판정 절차
 
-출처 이름만 DB에 넣었다고 승인된 것이 아니다. 출처마다
-[출처 명세](./source-spec-template.md)를 작성하고 다음 gate를 순서대로 통과한다.
+출처 이름만 DB에 넣었다고 사용할 수 있는 것이 아니다. 출처마다
+[출처 명세](./source-spec-template.md)를 작성하고 다음 gate를 순서대로 통과한다. 이용약관은 자동
+차단 조건이 아니라 운영 위험 판단 자료로 기록한다. `robots.txt` 금지, 차단 응답, 로그인·CAPTCHA·
+유료 장벽 우회 필요, 요청 상한 초과와 SSRF 위험은 기술 gate로 유지한다.
 
 1. **운영 후보 등록**: 출처명, 운영 주체, 기준 URL과 목적을 기록한다.
-2. **정책 확인**: 이용약관, `robots.txt`, 공개 API·RSS 제공 여부와 확인일을 기록한다.
+2. **정책·위험 확인**: 이용약관, `robots.txt`, 공개 API·RSS 제공 여부와 확인일, 운영 위험도를 기록한다.
 3. **기술 검증**: 정상·빈 결과·삭제·차단·구조 변경 샘플에서 추출 결과를 확인한다.
-4. **수집 보조 승인**: 상세 URL 한 건 조회의 허용 범위와 parser가 검증돼야 한다.
-5. **자동 수집 승인**: 목록·feed 범위, pagination, 간격·일일 상한과 실패 중단 조건까지
+4. **수집 보조 사용 결정**: Discord 또는 관리자 화면에서 입력한 상세 URL 한 건 조회의 사용 범위와 parser가 검증돼야 한다.
+5. **후속 자동 수집 사용 결정**: 목록·feed 범위, pagination, 간격·일일 상한과 실패 중단 조건까지
    확정해야 한다.
 6. **기본 비활성 배포**: parser와 설정을 배포해도 feature flag와 출처 활성값은 끈 상태로 둔다.
 7. **제한 활성화**: 운영자가 소량 결과와 요청 로그를 확인한 뒤 해당 출처만 켠다.
-8. **정기 재검토**: 구조, `robots.txt`, 이용약관 또는 응답 정책이 바뀌면 다시 승인한다.
+8. **정기 재검토**: 구조, `robots.txt`, 이용약관 또는 응답 정책이 바뀌면 다시 판정한다.
 
-수집 보조 승인과 자동 수집 승인은 별개다. URL 한 건을 보조할 수 있어도 목록 수집을 허용한
+수집 보조 사용 결정과 자동 수집 사용 결정은 별개다. URL 한 건을 보조할 수 있어도 목록 수집을 허용한
 것으로 보지 않는다.
 
 ## 6. 운영자 검수
@@ -180,7 +190,7 @@
 
 - 출처와 원문을 새 창에서 확인
 - 후보 제목 수정
-- 이미지 후보 preview와 사용할 이미지 선택
+- Python 임시 preview를 통한 이미지 후보 확인과 사용할 이미지 선택
 - 원문 URL·이미지·기존 게시글 중복 확인
 - `중복`, `품질 부족`, `권리 위험`, `재미 없음`, `원문 삭제`, `기타` 사유로 반려
 - parser 실패·차단 사유 확인과 재시도
@@ -195,7 +205,7 @@ parser가 가져온 제목·이미지는 신뢰된 게시물 값이 아니라 �
 - 연속 실패 기준을 넘으면 자동 수집만 끄고 수동 작성 경로는 유지한다.
 - 재활성화는 운영자가 원인을 확인하고 출처 명세의 확인일·parser version을 갱신한 뒤 수행한다.
 - 목록 수집 실패를 무한 재시도하지 않는다.
-- 외부 응답 HTML과 이미지 binary를 application log에 기록하지 않는다.
+- 외부 응답 HTML과 이미지 binary, Python 임시 파일 경로의 내부 절대 경로를 application log에 기록하지 않는다.
 - 출처가 삭제·차단·이용 조건 변경을 요청하면 자동 수집을 먼저 끄고 기존 게시글은 권리 처리
   절차에 따라 판단한다.
 
@@ -209,13 +219,14 @@ Discord가 중단돼도 scheduler, 관리자 화면, 수동 게시와 공개 서
 | 목적 | 방식 | 이유 |
 | --- | --- | --- |
 | 정기·실행 결과 보고 | Discord incoming webhook | 수집 시스템이 지정 채널로 단방향 메시지를 보내는 가장 단순한 경로 |
-| 운영 명령 | Discord App slash command와 HTTP Interactions endpoint | 호출자·서버·채널과 명령 option을 검증하고 응답할 수 있음 |
+| 운영 명령 | Discord App slash command와 HTTP Interactions endpoint | 호출자·서버·채널과 URL option을 검증하고 응답할 수 있음 |
 
 일반 webhook URL만으로 slash command를 받을 수 없다. 명령을 받으려면 Discord Application을
 등록하고 공개 HTTPS Interactions endpoint에서 요청을 검증해야 한다. Discord의 공식
 [Interactions 문서](https://docs.discord.com/developers/interactions/receiving-and-responding)와
 [Application Commands 문서](https://docs.discord.com/developers/interactions/application-commands)를
-구현 시점에 다시 확인한다.
+구현 시점에 다시 확인한다. Incoming webhook은 블라리요가 Discord로 결과를 보내는 발신 용도로만
+사용하고, Discord에서 URL을 받는 수신 용도로 사용하지 않는다.
 
 ```text
 정기 보고
@@ -224,45 +235,46 @@ scheduler·수집 command
   -> 보고서 생성
   -> Discord webhook
 
-실행 명령
-Discord /collect run
+URL 후보 생성 명령
+Discord /collect url:<원문URL>
   -> 공개 Interactions endpoint
   -> Discord 서명·guild·channel·사용자 권한 검증
-  -> 실행 확인
+  -> URL 정규화·출처 등록/활성·robots·요청 상한·SSRF gate 확인
   -> 3초 안에 deferred response
-  -> 내부 수집 command 요청
-  -> 15분 안에 job id 후속 응답
+  -> 내부 후보 생성 service 요청
+  -> 후보 id 또는 실패 사유 후속 응답
   -> 완료 결과는 보고 webhook으로 원래 운영 채널·thread에 전송
 ```
 
 Interactions endpoint는 Discord 요청의 `X-Signature-Ed25519`와 `X-Signature-Timestamp`를 raw
 request body 기준으로 매번 검증하고 허용 시간창을 벗어난 요청을 거부한다. 긴 수집 작업을 HTTP
-요청 안에서 실행하지 않고 3초 안에 deferred response를 보낸 뒤 내부 job으로 처리한다. job id는
-15분 안에 interaction 후속 응답으로 알리되, 완료 보고에는 유효 시간이 15분인 interaction token을
-사용하지 않는다. 초기에는 명령 허용 channel과 결과 보고 webhook channel을 같은 운영 channel 한
-곳으로 고정하고, thread에서 실행한 명령은 검증한 thread id를 job 실행 정보에 저장해 완료 보고
-webhook의 대상으로 사용한다. Discord의 interaction id는 멱등 key로 사용해 같은 명령의 중복
-실행을 막는다.
+요청 안에서 오래 실행하지 않고 3초 안에 deferred response를 보낸 뒤 내부 후보 생성 job으로 처리한다.
+job id는 15분 안에 interaction 후속 응답으로 알리되, 완료 보고에는 유효 시간이 15분인 interaction
+token을 사용하지 않는다. 초기에는 명령 허용 channel과 결과 보고 webhook channel을 같은 운영 channel
+한 곳으로 고정하고, thread에서 실행한 명령은 검증한 thread id를 job 실행 정보에 저장해 완료 보고
+webhook의 대상으로 사용한다. Discord의 interaction id는 멱등 key로 사용해 같은 명령의 중복 실행을
+막는다.
 
 ### 8.2 초기 명령 범위
 
 | 명령 | 역할 | 상태 변경 |
 | --- | --- | --- |
-| `/collect status` | 최근 실행, 대기 후보, 실패·비활성 출처 요약 | 없음 |
-| `/collect report period:today|7d` | 저장된 실행 결과로 당일·7일 보고서 생성 | 없음 |
-| `/collect run source:<source-key>` | 승인·활성 상태인 출처 한 곳을 1회 실행 | 있음, 확인 필요 |
+| `/collect url:<원문URL>` | 운영자가 지정한 URL 한 건으로 수집 후보 생성 | 있음 |
+| `/collect status` | 최근 생성 job, 대기 후보, 실패·비활성 출처 요약 | 없음 |
 
 초기에는 다음 명령을 제공하지 않는다.
 
-- Discord 메시지로 임의 URL을 받아 fetch
+- 일반 Discord 채널 메시지를 감시해 임의 URL을 받아 fetch
 - 모든 출처를 한 번에 강제 실행
 - 출처 신규 등록·삭제
 - `robots.txt` 확인값, 요청 상한과 parser 설정 변경
-- 비활성 출처 활성화 또는 법무·운영 gate 우회
-- 후보 승인·게시글 발행·숨김·삭제
+- 비활성 출처 활성화 또는 운영 위험·기술 gate 우회
+- 후보 검수·게시글 발행·숨김·삭제
+- 목록 수집 강제 실행, 보고서 생성, 재시도, 반려
 
-출처 활성화와 설정 변경, 후보 검수·발행은 관리자 화면에서만 처리한다. `/collect run`의
-`source` option은 승인된 source key 목록에서만 선택하며 URL 문자열을 받지 않는다.
+출처 활성화와 설정 변경, 후보 검수·발행은 관리자 화면에서만 처리한다. `/collect url`은 관리자 화면의
+운영자 URL 지정 후보 생성과 같은 service를 호출하며, 일반 메시지 감시나 별도 scraper 경로를 만들지
+않는다.
 
 ### 8.3 권한과 실행 통제
 
@@ -272,14 +284,14 @@ webhook의 대상으로 사용한다. Discord의 interaction id는 멱등 key로
   대조해 다시 판단한다.
 - 상태 변경 명령은 실행 대상·예상 요청 범위·현재 출처 상태를 보여준 뒤 확인 interaction을
   거친다.
-- 확인 뒤에도 전역 feature flag, 출처 활성·승인 상태, 요청 간격과 일일 상한을 다시 검사한다.
-- Discord 호출자는 내부 `system:collector` 권한을 직접 받지 않는다. 승인된 application
+- 확인 뒤에도 전역 feature flag, 출처 활성·운영 위험 판정 상태, robots, 요청 간격과 일일 상한을 다시 검사한다.
+- Discord 호출자는 내부 `system:collector` 권한을 직접 받지 않는다. 설정된 application
   service가 같은 수집 command를 실행하고 Discord user id는 감사 actor로만 연결한다.
 - interaction id, Discord user id, guild·channel id, source key, 요청·확인·시작·종료 시각,
-  결과와 job id를 감사 기록으로 남긴다.
+  결과와 job id를 감사 기록으로 남긴다. 일반 메시지 content는 저장하지 않는다.
 
 Discord webhook URL과 command 등록 credential은 서로 분리한 secret으로 관리한다. application
-public key와 application·guild·channel id는 비밀값은 아니지만 승인된 설정으로 변경 이력을
+public key와 application·guild·channel id는 비밀값은 아니지만 확정된 설정으로 변경 이력을
 관리한다. secret은 문서, Discord 메시지, application log와 Git에 값을 남기지 않는다.
 
 ### 8.4 정기 보고 내용
@@ -292,7 +304,7 @@ public key와 application·guild·channel id는 비밀값은 아니지만 승인
 - `403`, `429`, robots 금지, timeout, parser 실패 분류
 - 자동 비활성 출처와 운영자 확인 필요 항목
 - 다음 예정 실행 또는 scheduler 지연 여부
-- Discord 명령으로 시작한 경우 내부 운영자 alias, source key와 job id
+- Discord 명령으로 시작한 경우 내부 운영자 alias, source key, URL hash와 job id
 
 후보 제목·본문·이미지, 원문 URL 전체, 원문 HTML, 내부 예외 stack, secret과 개인정보는 보고서에
 넣지 않는다. 상세 조사가 필요하면 job id로 관리자 화면과 내부 로그를 확인한다.
@@ -312,7 +324,7 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 - [ ] 모든 명령이 3초 안에 deferred response를 받고 job id가 15분 안에 후속 응답됨
 - [ ] 권한 없는 guild·channel·user·role 명령이 거부됨
 - [ ] 중복 interaction이 같은 수집 job을 두 번 만들지 않음
-- [ ] `/collect run`이 확인 뒤 승인된 출처 한 곳만 실행함
+- [ ] `/collect url`이 등록·활성 출처의 URL 한 건만 후보 생성함
 - [ ] 15분 넘게 실행된 job도 interaction token 없이 보고 webhook으로 원래 운영 channel·thread에
   결과를 남김
 - [ ] Discord 장애가 수집 job과 공개 서비스 상태를 바꾸지 않음
@@ -331,32 +343,34 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 ### M0 수집 보조
 
 - [ ] `M0 Core`의 수동 초안·이미지·발행·숨김 흐름이 먼저 검증됨
-- [ ] 승인된 host와 금지 경로를 구분함
-- [ ] URL 한 건이 후보 또는 명시적 실패 상태로 끝남
+- [ ] Discord `/collect url` 또는 관리자 화면 URL 입력 한 건만 처리함
+- [ ] 등록·활성 host와 차단 경로를 구분함
+- [ ] 단일 상세 페이지 1건이 후보 또는 명시적 실패 상태로 끝남
 - [ ] 후보 수정·반려·재시도·초안 승격을 검증함
+- [ ] 목록·feed·pagination·scheduler를 호출하지 않음
 - [ ] 수집 기능을 꺼도 수동 게시와 공개 읽기가 정상 동작함
 
 ### M0 자동 수집
 
-- [ ] 출처별 자동 수집 승인과 법무·운영 gate가 완료됨
+- [ ] 출처별 자동 수집 사용 결정과 운영 위험·기술 gate가 완료됨
 - [ ] 전역·출처별 기본값이 비활성임
 - [ ] 반복 실행이 같은 URL의 후보를 중복 생성하지 않음
 - [ ] 요청 간격·일일 상한·pagination 한계를 지킴
 - [ ] 차단·연속 실패 시 해당 출처가 자동 비활성됨
-- [ ] 후보가 운영자 승인 없이 게시글로 공개되지 않음
+- [ ] 후보가 운영자 검수 없이 게시글로 공개되지 않음
 
 ## 10. 현재 미정·차단 항목
 
 - 첫 가능성 검증 대상 출처
-- 출처별 실제 기준 URL, 목록·feed URL과 허용 path
-- 출처별 이용약관·`robots.txt` 확인 결과와 확인일
+- 출처별 실제 기준 URL, 상세 URL pattern과 허용 path
+- 출처별 이용약관 위험 판단, `robots.txt` 확인 결과와 확인일
 - 출처별 parser 방식과 selector
 - 수집 User-Agent 문자열과 연락 수단
-- 출처별 요청 간격, 일일 상한, 실행 시간과 pagination 범위
+- 출처별 요청 간격, 일일 상한과 단건 상세 페이지 timeout·응답 크기 상한
 - 구조 변경을 담당하고 출처를 재활성화할 운영자
 - 수집 보조와 자동 수집의 production 활성화 일자
 - Discord Application, guild·channel·운영 역할과 명령 권한
-- Discord 정기 보고 주기·발송 시각, 보고·명령 감사 기록 보존 기간
+- Discord 보고 webhook, `/collect url` 명령, 감사 기록 보존 기간
 
 위 항목이 미정이어도 `M0 Core` 플랫폼 개발과 공개는 진행할 수 있다. 다만 수집 보조 또는 자동
 수집 기능은 관련 항목과 해당 단계의 gate가 끝나기 전에는 활성화할 수 없다.
@@ -366,10 +380,10 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 이 기획을 구현하기 전에 다음 기술 계약을 다시 대조한다.
 
 - `SourceFetcher`와 출처별 parser의 책임 분리
-- 목록·feed metadata가 부족할 때 새 상세 URL을 가져오는 조건
+- Discord·관리자 화면 URL 입력이 같은 후보 생성 service를 호출하는 조건
 - parser version과 경고·실패 사유 저장 위치
 - feature flag와 출처별 활성값의 우선순위
-- 출처별 request budget 계산과 scheduler tick의 관계
+- 출처별 request budget 계산과 Discord interaction 멱등성의 관계
 - source fixture, contract test와 구조 변경 감지 방식
 - Discord Interactions endpoint의 공개 경계·서명 public key 검증·내부 service 호출
 - Discord 명령 job·멱등성·확인·감사 actor, 3초 초기 응답·15분 token 한계와 보고 webhook 전환

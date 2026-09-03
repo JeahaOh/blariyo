@@ -108,12 +108,14 @@
 [콘텐츠 수집 기획](./content-collection/README.md)과 [서비스 기획서 §8](./01-service-plan.md)이다.
 
 ```text
-운영자 URL 지정 또는 허용 출처 목록 수집
+Discord /collect url 또는 관리자 URL 지정
+  -> 단일 상세 페이지 1건 요청
   -> 원문 URL·제목·이미지 후보 metadata
+  -> Python 작업 경로의 임시 이미지 preview
   -> 후보 큐
   -> 중복 표시
   -> 운영자 검수(승격 또는 반려)
-  -> 이미지 서버 저장
+  -> 선택 이미지 검증·재인코딩·서버 저장
   -> 초안
   -> 즉시 또는 예약 발행
 ```
@@ -121,6 +123,7 @@
 - 이토랜드, 펨코, 개드립넷 등을 수집 출처 후보로 검토하고 실제 대상은 수집 출처 데이터로 관리한다.
 - 고급유머는 기능과 화면 벤치마킹 대상이며 수집 출처로 등록하지 않는다.
 - 수집 결과를 즉시 공개하지 않는다.
+- M0 수집 보조는 목록·feed·pagination 없이 단일 상세 페이지 1건만 요청한다.
 - 로그인, CAPTCHA, 403·429 차단을 우회하지 않고 `robots.txt` 금지 경로는 수집하지 않는다.
 - 출처별 요청 간격과 일일 상한을 지키고 식별 가능한 User-Agent를 사용한다.
 - 동일 원문 URL과 동일 이미지 hash는 중복으로 표시한다.
@@ -128,7 +131,8 @@
 
 ## 8. 이미지 스펙
 
-- 외부 이미지는 블라리요 서버 측 저장소에 저장한다.
+- 외부 이미지는 게시가 결정된 선택 이미지에 한해 블라리요 서버 측 저장소에 저장한다.
+- 후보 검수 미리보기용 이미지는 Python extractor 작업 경로의 임시 파일로만 보관하고, 반려·만료·재시도 교체 시 삭제한다.
 - 외부 사이트 이미지를 직접 핫링크하지 않는다.
 - M0 저장소는 Cloudflare R2 Standard를 사용하고 private 원본과 public media를 분리한다.
   production account, bucket 이름과 custom domain은 배포 전에 확정한다.
@@ -183,7 +187,7 @@
 | `POST` | `/api/v1/admin/posts` | 초안 생성 |
 | `PATCH` | `/api/v1/admin/posts/:postId` | 게시글·출처·예약 수정 |
 | `POST` | `/api/v1/admin/posts/:postId/publish` | 즉시 또는 예약 발행 |
-| `POST` | `/api/v1/admin/collect/candidates` | 운영자 URL 지정 후보 생성 |
+| `POST` | `/api/v1/admin/collect/candidates` | Discord·운영자 URL 지정 후보 생성 |
 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/draft` | 후보를 초안으로 승격 |
 
 공개 조건은 `status=PUBLISHED`와 `publishedAt <= 현재 시각`이다. 별도 권리 확인 완료 상태를 요구하지 않는다.

@@ -5,13 +5,13 @@
 - 문서 상태: `초안`
 - milestone: `M0 수집 보조`
 - 기능: `collection-assist`
-- route: `/admin/collect`, 로컬 collector의 Discord `/collect url`
+- route: `/admin/collect`
 - 기준일: 2026-09-04
 - 입력 근거: [화면 설계 §2 수집 후보 검수 화면](../../../../planning/03-screen-design.md), [수집 보조 개발 보강서](../collection-assist.dev.md)
 - 미검증: source, browser, 접근성, 실제 image preview
 
-운영자가 관리자 화면 또는 로컬 collector의 Discord `/collect url`로 후보를 만들고, 생성된 후보를 관리자 화면에서
-검수·반려·초안 승격한다.
+운영자가 관리자 화면에서 후보를 만들거나 [로컬 Collector 프로그램](local-collector.md)이 Discord
+`/collect url`로 만든 후보를 관리자 화면에서 검수·반려·초안 승격한다.
 
 ## 2. 진입·이탈·권한 조건
 
@@ -67,7 +67,8 @@
 
 | UI 이벤트 | D01 | API |
 | --- | --- | --- |
-| 후보 만들기 또는 Discord `/collect url` | [URL 후보 생성과 검수](../d01/create-and-review-candidate.md) | [create-candidate-from-url](../api/create-candidate-from-url.md), [collector-internal-api](../api/collector-internal-api.md) |
+| 후보 만들기 | [URL 후보 생성과 검수](../d01/create-and-review-candidate.md) | [create-candidate-from-url](../api/create-candidate-from-url.md) |
+| Discord `/collect url` 결과 검수 | [URL 후보 생성과 검수](../d01/create-and-review-candidate.md) | [collector-internal-api](../api/collector-internal-api.md), [로컬 Collector 프로그램](local-collector.md) |
 | 재시도 | [후보 재시도와 반려](../d01/retry-or-reject-candidate.md) | [retry-candidate](../api/retry-candidate.md) |
 | 반려 | [후보 재시도와 반려](../d01/retry-or-reject-candidate.md) | [reject-candidate](../api/reject-candidate.md) |
 | 초안으로 승격 | [후보 초안 승격](../d01/promote-candidate-to-draft.md) | [promote-candidate-to-draft](../api/promote-candidate-to-draft.md) |

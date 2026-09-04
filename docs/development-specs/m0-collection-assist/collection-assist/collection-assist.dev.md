@@ -111,6 +111,7 @@
 ## 10. D08 화면·프로그램 목록
 
 - [수집 후보 검수 화면](d08/collect-candidate-review.md)
+- [로컬 Collector 프로그램](d08/local-collector.md)
 
 ## 11. 결정·가정·미정·차단 항목
 

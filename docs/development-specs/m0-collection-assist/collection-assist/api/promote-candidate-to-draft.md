@@ -5,7 +5,7 @@
 - 문서 상태: `초안`
 - milestone: `M0 수집 보조`
 - 기능: `collection-assist`
-- 기준일: 2026-09-03
+- 기준일: 2026-09-04
 - 호출 주체: Nuxt BFF 관리자 화면
 - 제공 주체: Express Core API
 - 입력 근거: [API 설계 §5 후보 초안 승격](../../../../system-design/03-api-design.md)
@@ -44,12 +44,12 @@
 1. 후보가 `NEW`인지 확인한다.
 2. `lockVersion`과 중복 확인 값을 검증한다.
 3. 선택 이미지가 모두 해당 후보의 이미지 후보인지 확인한다.
-4. 선택 이미지의 Python 임시 파일이 있으면 우선 사용하고, 없거나 만료됐으면 `SourceFetcher`로 원격 이미지를 다시 가져온다.
-5. 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 적용한다.
+4. 선택 이미지에 로컬 collector가 제출한 검증 파일 또는 운영자 업로드 파일이 있는지 확인한다.
+5. BE는 원격 이미지를 직접 fetch하지 않고, 제출된 파일에 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 적용한다.
 6. private 원본 bucket에 저장한다.
 7. 기존 게시글 초안 생성 command를 재사용해 title, source, TEXT/IMAGE block을 만든다.
 8. 같은 transaction에서 후보를 `APPROVED`로 바꾸고 `postId`를 연결한다.
-9. 승격 성공 뒤 해당 후보의 Python 임시 이미지 파일은 삭제 대상에 넣는다.
+9. 승격 성공 뒤 해당 후보의 로컬 Python 임시 이미지 파일은 collector 삭제 대상에 넣는다.
 
 ## 6. 오류·부분 실패
 
@@ -65,7 +65,7 @@
 | `503` | `DEPENDENCY_UNAVAILABLE` | DB·R2 장애 |
 
 하나도 저장하지 못하면 후보를 `NEW`로 유지하고 `502 SOURCE_FETCH_FAILED`를 반환한다. DB transaction
-실패 시 후보 상태는 바꾸지 않고 저장된 이미지는 staging orphan 정리 대상으로 둔다. Python 임시
+실패 시 후보 상태는 바꾸지 않고 저장된 이미지는 staging orphan 정리 대상으로 둔다. 로컬 Python 임시
 이미지 파일은 영구 저장 성공 여부와 별개로 내부 절대 경로를 노출하지 않는다.
 
 ## 7. 멱등성·동시성·재시도
@@ -79,7 +79,7 @@
 - 중복 후보 확인 누락 시 `409`
 - 선택 이미지 0건·21건 validation 실패
 - 이미지 fetch 실패 시 후보 `NEW` 유지
-- Python 임시 파일 만료 시 원격 재fetch 또는 명시적 실패 처리
+- Python 임시 파일 만료 시 로컬 collector 재제출 또는 명시적 실패 처리
 - 초안 생성 성공 시 후보 `APPROVED`
 - transaction 실패와 orphan cleanup 분류
 - 실제 source·OpenAPI·R2 runtime 미검증

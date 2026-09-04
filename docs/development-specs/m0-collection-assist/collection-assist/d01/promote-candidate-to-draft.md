@@ -5,7 +5,7 @@
 - 문서 상태: `초안`
 - milestone: `M0 수집 보조`
 - 기능: `collection-assist`
-- 기준일: 2026-09-03
+- 기준일: 2026-09-04
 - 입력 근거: [수집 보조 개발 보강서](../collection-assist.dev.md)
 - 미검증: source, R2 runtime, transaction/orphan cleanup test, browser
 
@@ -23,8 +23,8 @@
 2. 중복 게시글이 있으면 기존 게시글을 확인하고 승격 의사를 다시 확인한다.
 3. 화면은 `POST /api/v1/admin/collect/candidates/{candidateId}/draft`를 호출한다.
 4. Core는 후보 상태, lockVersion, 중복 확인, 게시판을 검증한다.
-5. Core는 선택 이미지의 Python 임시 파일을 우선 사용하고, 없거나 만료됐으면 원격 URL을 다시 fetch한다.
-6. Core는 관리자 업로드와 같은 검증·metadata 제거·재인코딩을 적용한다.
+5. Core는 선택 이미지에 로컬 collector가 제출한 검증 파일 또는 운영자 업로드 파일이 있는지 확인한다.
+6. Core는 원격 URL을 직접 fetch하지 않고 제출된 파일에 관리자 업로드와 같은 검증·metadata 제거·재인코딩을 적용한다.
 7. Core는 private 원본 bucket에 저장한다.
 8. Core는 기존 초안 생성 command를 재사용해 게시글과 block을 만든다.
 9. Core는 후보를 `APPROVED`로 바꾸고 생성 `postId`를 연결한다.
@@ -33,8 +33,8 @@
 ## 4. 대안·실패 흐름
 
 - 중복 확인 누락: 기존 게시글 확인을 요구한다.
-- 이미지 fetch 실패: 후보를 `NEW`로 유지하고 오류를 표시한다.
-- Python 임시 이미지 파일 만료: 원격 재fetch를 시도하고 실패하면 후보를 `NEW`로 유지한다.
+- 이미지 파일 제출 실패: 후보를 `NEW`로 유지하고 오류를 표시한다.
+- Python 임시 이미지 파일 만료: 로컬 collector 재제출이 필요하다고 표시하고 후보를 `NEW`로 유지한다.
 - transaction 실패: 후보를 `NEW`로 유지하고 저장된 이미지는 orphan 정리 대상으로 둔다.
 - terminal 후보: 승격 버튼을 노출하지 않는다.
 
@@ -49,7 +49,7 @@
 - `NEW` -> `APPROVED`
 - `collect.candidate.post_id`에 생성된 `content.board_post.id` 연결
 - 선택 이미지 후보는 저장 성공 후 `STORED`와 `image_id`를 가진다.
-- 승격 성공·반려·만료·재시도 교체 시 Python 임시 이미지 파일은 삭제 대상이다.
+- 승격 성공·반려·만료·재시도 교체 시 로컬 Python 임시 이미지 파일은 삭제 대상이다.
 
 ## 7. 권한·트랜잭션·멱등성·재시도
 

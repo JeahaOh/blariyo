@@ -1,7 +1,7 @@
 # 블라리요 콘텐츠 수집 기획
 
 - 문서 상태: 수집 방법 제품 정본 · 출처별 검증 전
-- 기준일: 2026-09-02
+- 기준일: 2026-09-04
 - 상위 정본: [서비스 기획서 §8](../01-service-plan.md#8-콘텐츠-수집)
 - 화면 계약: [화면 설계](../03-screen-design.md)
 - 기술 계약: [시스템 설계](../../system-design/README.md)
@@ -13,6 +13,8 @@
 [출처 명세 템플릿](./source-spec-template.md)으로 검증한 뒤 확정한다.
 
 - `scraper`: 외부 공개 페이지를 요청해 수집 후보를 만드는 프로그램
+- `collector`: 운영자 로컬 컴퓨터에서 실행하는 Discord 연결 scraper 프로세스. Discord 명령 수신,
+  외부 페이지 fetch, parser 실행과 후보 결과 제출을 담당한다.
 - `parser`: HTML·feed에서 URL·제목·이미지 후보를 추출하는 출처별 규칙
 - `fixture`: parser가 같은 결과를 내는지 반복 확인하는 최소 테스트 샘플
 - `feature flag`: 배포와 기능 활성화를 분리하는 전체 on·off 설정
@@ -23,8 +25,8 @@
 ## 1. 핵심 결정
 
 1. 첫 공개는 수집 기능 없이도 운영 가능한 `M0 Core` 플랫폼을 먼저 완성한다.
-2. 수집 기능의 첫 단계는 Discord `/collect url`과 관리자 화면 URL 입력으로 들어오는 단일 상세 페이지
-   1건 추출이다.
+2. 수집 기능의 첫 단계는 운영자 로컬 컴퓨터의 `collector`가 Discord `/collect url` 또는 관리자 화면
+   URL 입력 작업을 받아 단일 상세 페이지 1건만 추출하는 방식이다.
 3. 자동 수집기 전체를 먼저 만들지 않는다. 목록·feed·pagination·scheduler는 후속 `M0 자동 수집`
    단계로 분리한다.
 4. 운영자의 수동 게시글 작성 경로는 항상 유지한다. 수집 장애가 공개 목록·상세와 수동 발행을
@@ -74,11 +76,14 @@
 
 ### 3.2 Discord·운영자 URL 단일 페이지 수집 보조
 
-운영자가 관리자 화면 또는 Discord `/collect url:<원문URL>` 명령으로 공개 원문 URL을 한 건 입력하면
-서버가 등록·활성 출처인지, robots·요청 상한·SSRF 방어 gate를 통과하는지 확인하고 해당 상세 페이지를
-한 번 가져온다. 제목과 이미지 후보 URL을 추출해 검수 화면에 채우며, Python extractor는 미리보기에
-필요한 이미지 후보만 작업 경로에 임시 저장할 수 있다. 운영자는 값을 수정하고 사용할 이미지를
-선택하거나 후보를 반려한다.
+운영자가 관리자 화면에 공개 원문 URL을 입력하면 BE는 후보 작업을 `PENDING`으로 접수하고 외부
+사이트를 직접 fetch하지 않는다. 운영자 로컬 컴퓨터에서 실행 중인 `collector`가 BE에서 대기 작업을
+가져와 등록·활성 출처, robots, 요청 상한, SSRF 방어 gate를 확인한 뒤 해당 상세 페이지를 한 번
+가져온다. Discord `/collect url:<원문URL>` 명령은 같은 로컬 `collector`가 Discord App으로 받아
+동일한 검증·추출 흐름을 실행한다. 제목과 이미지 후보 URL을 추출해 BE에 결과를 제출하면 관리자
+검수 화면에 표시된다. Python extractor는 로컬 작업 경로에만 임시 파일을 만들 수 있고, BE·FE에는
+내부 경로나 원본 binary를 넘기지 않는다. 운영자는 값을 수정하고 사용할 이미지를 선택하거나 후보를
+반려한다.
 
 다음 조건에서는 자동 보정을 추측하지 않고 실패 사유를 보여준다.
 
@@ -128,17 +133,18 @@
 | 원문 URL | 정규화한 `https` URL |
 | 발견 방식 | M0 수집 보조는 `MANUAL_URL`. 후속 자동 수집은 `LIST_CRAWL` |
 | 제목 | 원문에서 추출한 후보값, 운영자 수정 가능 |
-| 이미지 후보 | 원격 URL·순서·추출 경고와 임시 preview 경로. DB에는 image binary를 저장하지 않음 |
+| 이미지 후보 | 원격 URL·순서·추출 경고와 인증 preview 경로. DB에는 image binary를 저장하지 않음 |
 | 원문 게시 시각 | 신뢰할 수 있을 때만 저장, 없으면 `null` |
-| 수집 시각 | 서버 기준 시각 |
+| 요청·수집 시각 | BE 접수 시각과 collector 결과 제출 시각을 분리 |
 | parser 버전 | 어떤 출처 규칙으로 추출했는지 추적 가능한 값 |
 | 경고·실패 사유 | 누락, 차단, 구조 변경과 중복 판단 근거 |
 
 후보 단계에서는 원문 HTML 전체, 댓글, 작성자 프로필과 불필요한 개인정보를 저장하지 않는다.
-이미지는 Python extractor가 실행되는 작업 경로에 임시 파일로만 둘 수 있고, DB와 영구 object
-storage에는 저장하지 않는다. 임시 파일은 후보 반려·만료·재시도 교체 시 삭제 대상이며, 운영자가
-초안으로 승격하기로 결정한 이미지에 한해 관리자 업로드와 같은 검증·재인코딩 후 블라리요 저장소에
-저장한다.
+이미지는 Python extractor가 실행되는 로컬 작업 경로에 임시 파일로 둘 수 있고, 관리자 미리보기가
+필요하면 collector가 BE private staging object로 24시간 preview를 업로드한다. DB에는 image binary를
+저장하지 않는다. 임시 파일과 preview object는 후보 반려·만료·재시도 교체 시 삭제 대상이며,
+운영자가 초안으로 승격하기로 결정한 이미지에 한해 관리자 업로드와 같은 검증·재인코딩 후 블라리요
+저장소에 저장한다.
 
 ### 4.2 추출 우선순위
 
@@ -190,7 +196,7 @@ storage에는 저장하지 않는다. 임시 파일은 후보 반려·만료·�
 
 - 출처와 원문을 새 창에서 확인
 - 후보 제목 수정
-- Python 임시 preview를 통한 이미지 후보 확인과 사용할 이미지 선택
+- collector preview 또는 원격 URL metadata를 통한 이미지 후보 확인과 사용할 이미지 선택
 - 원문 URL·이미지·기존 게시글 중복 확인
 - `중복`, `품질 부족`, `권리 위험`, `재미 없음`, `원문 삭제`, `기타` 사유로 반려
 - parser 실패·차단 사유 확인과 재시도
@@ -219,10 +225,10 @@ Discord가 중단돼도 scheduler, 관리자 화면, 수동 게시와 공개 서
 | 목적 | 방식 | 이유 |
 | --- | --- | --- |
 | 정기·실행 결과 보고 | Discord incoming webhook | 수집 시스템이 지정 채널로 단방향 메시지를 보내는 가장 단순한 경로 |
-| 운영 명령 | Discord App slash command와 HTTP Interactions endpoint | 호출자·서버·채널과 URL option을 검증하고 응답할 수 있음 |
+| 운영 명령 | Discord App slash command와 로컬 collector의 Gateway 연결 | 호출자·서버·채널과 URL option을 검증하고 응답할 수 있음 |
 
-일반 webhook URL만으로 slash command를 받을 수 없다. 명령을 받으려면 Discord Application을
-등록하고 공개 HTTPS Interactions endpoint에서 요청을 검증해야 한다. Discord의 공식
+일반 webhook URL만으로 slash command를 받을 수 없다. M0에서는 Discord Application을 등록하고
+운영자 로컬 collector가 Gateway `INTERACTION_CREATE` event를 받아 처리한다. Discord의 공식
 [Interactions 문서](https://docs.discord.com/developers/interactions/receiving-and-responding)와
 [Application Commands 문서](https://docs.discord.com/developers/interactions/application-commands)를
 구현 시점에 다시 확인한다. Incoming webhook은 블라리요가 Discord로 결과를 보내는 발신 용도로만
@@ -230,25 +236,27 @@ Discord가 중단돼도 scheduler, 관리자 화면, 수동 게시와 공개 서
 
 ```text
 정기 보고
-scheduler·수집 command
+로컬 collector
   -> 실행 결과 저장
   -> 보고서 생성
   -> Discord webhook
 
 URL 후보 생성 명령
 Discord /collect url:<원문URL>
-  -> 공개 Interactions endpoint
-  -> Discord 서명·guild·channel·사용자 권한 검증
-  -> URL 정규화·출처 등록/활성·robots·요청 상한·SSRF gate 확인
+  -> 운영자 로컬 collector의 Discord App 연결
+  -> guild·channel·사용자 권한 검증
   -> 3초 안에 deferred response
-  -> 내부 후보 생성 service 요청
+  -> URL 정규화·출처 등록/활성·robots·요청 상한·SSRF gate 확인
+  -> 단일 상세 페이지 fetch·parser 실행
+  -> BE collector 제출 API로 후보 결과 전송
   -> 후보 id 또는 실패 사유 후속 응답
   -> 완료 결과는 보고 webhook으로 원래 운영 채널·thread에 전송
 ```
 
-Interactions endpoint는 Discord 요청의 `X-Signature-Ed25519`와 `X-Signature-Timestamp`를 raw
-request body 기준으로 매번 검증하고 허용 시간창을 벗어난 요청을 거부한다. 긴 수집 작업을 HTTP
-요청 안에서 오래 실행하지 않고 3초 안에 deferred response를 보낸 뒤 내부 후보 생성 job으로 처리한다.
+M0 수집 보조에서는 BE에 공개 Discord Interactions endpoint를 두지 않는다. Discord 연결, 명령 수신과
+외부 fetch/parser는 운영자 로컬 `collector`가 담당하고, BE는 관리자 화면·후보 저장·검수·초안 승격
+API만 제공한다. 긴 수집 작업은 Discord 응답 시간 안에서 오래 실행하지 않고 3초 안에 deferred
+response를 보낸 뒤 로컬 collector job으로 처리한다.
 job id는 15분 안에 interaction 후속 응답으로 알리되, 완료 보고에는 유효 시간이 15분인 interaction
 token을 사용하지 않는다. 초기에는 명령 허용 channel과 결과 보고 webhook channel을 같은 운영 channel
 한 곳으로 고정하고, thread에서 실행한 명령은 검증한 thread id를 job 실행 정보에 저장해 완료 보고
@@ -272,27 +280,27 @@ webhook의 대상으로 사용한다. Discord의 interaction id는 멱등 key로
 - 후보 검수·게시글 발행·숨김·삭제
 - 목록 수집 강제 실행, 보고서 생성, 재시도, 반려
 
-출처 활성화와 설정 변경, 후보 검수·발행은 관리자 화면에서만 처리한다. `/collect url`은 관리자 화면의
-운영자 URL 지정 후보 생성과 같은 service를 호출하며, 일반 메시지 감시나 별도 scraper 경로를 만들지
-않는다.
+출처 활성화와 설정 변경, 후보 검수·발행은 관리자 화면에서만 처리한다. `/collect url`은 로컬
+collector가 처리해 BE의 후보 결과 제출 API를 호출하며, 일반 메시지 감시나 BE 내부 scraper 경로를
+만들지 않는다.
 
 ### 8.3 권한과 실행 통제
 
 - 허용 Discord guild와 channel을 고정하고 DM·다른 서버 명령을 거부한다.
 - Discord command permission은 노출 범위를 줄이는 1차 통제로 사용한다.
-- 실제 실행 권한은 서버가 interaction의 guild, channel, user와 role을 내부 allowlist에
+- 실제 실행 권한은 로컬 collector가 interaction의 guild, channel, user와 role을 내부 allowlist에
   대조해 다시 판단한다.
 - 상태 변경 명령은 실행 대상·예상 요청 범위·현재 출처 상태를 보여준 뒤 확인 interaction을
   거친다.
 - 확인 뒤에도 전역 feature flag, 출처 활성·운영 위험 판정 상태, robots, 요청 간격과 일일 상한을 다시 검사한다.
-- Discord 호출자는 내부 `system:collector` 권한을 직접 받지 않는다. 설정된 application
-  service가 같은 수집 command를 실행하고 Discord user id는 감사 actor로만 연결한다.
+- Discord 호출자는 내부 `system:collector` 권한을 직접 받지 않는다. 로컬 collector가 collector
+  service token으로 수집 command를 실행하고 Discord user id는 감사 actor로만 연결한다.
 - interaction id, Discord user id, guild·channel id, source key, 요청·확인·시작·종료 시각,
   결과와 job id를 감사 기록으로 남긴다. 일반 메시지 content는 저장하지 않는다.
 
-Discord webhook URL과 command 등록 credential은 서로 분리한 secret으로 관리한다. application
-public key와 application·guild·channel id는 비밀값은 아니지만 확정된 설정으로 변경 이력을
-관리한다. secret은 문서, Discord 메시지, application log와 Git에 값을 남기지 않는다.
+Discord webhook URL, bot token과 collector service token은 서로 분리한 secret으로 관리한다.
+application·guild·channel id는 비밀값은 아니지만 확정된 설정으로 변경 이력을 관리한다. secret은
+문서, Discord 메시지, application log와 Git에 값을 남기지 않는다.
 
 ### 8.4 정기 보고 내용
 
@@ -319,8 +327,8 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 ### 8.5 Discord 연동 완료 조건
 
 - [ ] Discord Application, 허용 guild·channel과 운영 역할이 확정됨
-- [ ] 보고 webhook URL과 command 등록 credential이 분리되고 public key 설정이 고정됨
-- [ ] 모든 interaction 서명·timestamp 검증과 `PING` 응답이 통과함
+- [ ] 보고 webhook URL, Discord application id와 bot token, collector service token이 분리 관리됨
+- [ ] 로컬 collector의 Discord 연결, guild·channel·user 권한 검증과 명령 응답이 통과함
 - [ ] 모든 명령이 3초 안에 deferred response를 받고 job id가 15분 안에 후속 응답됨
 - [ ] 권한 없는 guild·channel·user·role 명령이 거부됨
 - [ ] 중복 interaction이 같은 수집 job을 두 번 만들지 않음
@@ -343,7 +351,7 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 ### M0 수집 보조
 
 - [ ] `M0 Core`의 수동 초안·이미지·발행·숨김 흐름이 먼저 검증됨
-- [ ] Discord `/collect url` 또는 관리자 화면 URL 입력 한 건만 처리함
+- [ ] 로컬 collector가 Discord `/collect url` 또는 관리자 화면 URL 입력 한 건만 처리함
 - [ ] 등록·활성 host와 차단 경로를 구분함
 - [ ] 단일 상세 페이지 1건이 후보 또는 명시적 실패 상태로 끝남
 - [ ] 후보 수정·반려·재시도·초안 승격을 검증함
@@ -371,6 +379,7 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 - 수집 보조와 자동 수집의 production 활성화 일자
 - Discord Application, guild·channel·운영 역할과 명령 권한
 - Discord 보고 webhook, `/collect url` 명령, 감사 기록 보존 기간
+- 로컬 collector 실행 PC, 실행 계정, service token 발급·회전·분실 대응 절차
 
 위 항목이 미정이어도 `M0 Core` 플랫폼 개발과 공개는 진행할 수 있다. 다만 수집 보조 또는 자동
 수집 기능은 관련 항목과 해당 단계의 gate가 끝나기 전에는 활성화할 수 없다.
@@ -379,13 +388,13 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 
 이 기획을 구현하기 전에 다음 기술 계약을 다시 대조한다.
 
-- `SourceFetcher`와 출처별 parser의 책임 분리
-- Discord·관리자 화면 URL 입력이 같은 후보 생성 service를 호출하는 조건
+- 로컬 collector와 BE 후보 저장 service의 책임 분리
+- Discord·관리자 화면 URL 입력이 같은 로컬 collector 추출 흐름을 사용하는 조건
 - parser version과 경고·실패 사유 저장 위치
 - feature flag와 출처별 활성값의 우선순위
 - 출처별 request budget 계산과 Discord interaction 멱등성의 관계
 - source fixture, contract test와 구조 변경 감지 방식
-- Discord Interactions endpoint의 공개 경계·서명 public key 검증·내부 service 호출
+- 로컬 collector의 Discord Gateway 연결 방식·권한 검증·BE 제출 API 호출
 - Discord 명령 job·멱등성·확인·감사 actor, 3초 초기 응답·15분 token 한계와 보고 webhook 전환
 - Discord 보고 webhook 재시도·보존·secret 분리
 

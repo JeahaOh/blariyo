@@ -1,8 +1,8 @@
 # M0 저비용 인프라 설계
 
 - 문서 상태: M0 인프라 설계 계약 · 현행 배포 산출물 없음
-- 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-03
+- 기준일: 2026-09-04
+- 정합성 검토일: 2026-09-04
 - 가격 기준: 2026-08-14, USD, 세금·환율·도메인·메일 비용 제외
 - 관련 문서: [시스템 아키텍처](./01-system-architecture.md), [보안·운영](./05-security-operations.md)
 
@@ -109,6 +109,12 @@ OCI ap-seoul-1 Always Free A1
         |
 Cloudflare R2 Standard
   public media + private original + encrypted DB backup
+
+운영자 로컬 PC
+  collector
+    -> Discord API/Webhook
+    -> 등록된 수집 출처
+    -> Blariyo BE collector API
 ```
 
 월 예상:
@@ -187,8 +193,9 @@ Internet
 - `edge`에는 `cloudflared`·`nginx`·`web`, `app`에는 `web`·`api`, `data`에는 `api`·`postgresql`만 연결한다.
 - Nginx에는 `api` upstream을 두지 않는다. `web`만 `api`에, `api`만 `postgresql`에 접근한다.
 - backup job은 `postgresql`과 R2 endpoint에만 접근한다.
-- 외부 사이트로 나가는 수집 outbound HTTP는 `api` container에서만 허용한다. `web`, `nginx`, `postgresql`은 외부 사이트를 호출하지 않는다.
-- 수집 요청은 등록된 출처 host로만 나가고, 사설·loopback·link-local·metadata 주소(`169.254.169.254` 포함)로 해석되는 대상은 adapter가 차단한다.
+- 외부 사이트로 나가는 수집 outbound HTTP는 운영자 로컬 collector에서만 허용한다. `web`, `api`,
+  `nginx`, `postgresql`은 외부 사이트를 호출하지 않는다.
+- 수집 요청은 등록된 출처 host로만 나가고, 사설·loopback·link-local·metadata 주소(`169.254.169.254` 포함)로 해석되는 대상은 로컬 collector가 차단한다.
 
 ## 5. Docker Compose 자원 기준
 
@@ -202,7 +209,6 @@ Internet
 | api | 0.75 | 512MB |
 | postgresql | 1.25 | 2GB |
 | backup 단발성 | 0.50 | 512MB |
-| collect 단발성 | 0.50 | 384MB |
 
 합계 limit은 물리 CPU보다 클 수 있지만 reservation은 설정하지 않는다. PostgreSQL과 SSR이 동시에 폭주하지 않는 M0 저트래픽을 전제로 한다.
 
@@ -228,6 +234,10 @@ PostgreSQL 18 공식 image는 영속 volume을 `/var/lib/postgresql`에 mount하
 | production | OCI 또는 Lightsail 단일 VM, 공개 media·비공개 원본·backup R2 bucket |
 
 M0에서는 별도 상시 staging 서버를 두지 않는다. 배포 후보는 CI 통합 테스트와 production의 `preview` Compose project에서 ephemeral smoke test 후 전환한다.
+
+수집 보조 환경은 BE·FE runtime과 분리한다. 운영자 로컬 PC에서 `collector`를 실행하고, Discord bot
+token·webhook URL·collector service token은 서버 `.env`와 별도 secret으로 관리한다. production
+서버는 collector가 없어도 공개 읽기, 관리자 수동 작성, 예약 발행과 백업을 계속 수행해야 한다.
 
 환경 변수는 다음 범주로 나눈다.
 

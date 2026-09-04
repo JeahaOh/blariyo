@@ -1,8 +1,8 @@
 # M0 보안·운영 설계
 
 - 문서 상태: M0 보안·운영 설계 계약 · 현행 운영 검증 산출물 없음
-- 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-03
+- 기준일: 2026-09-04
+- 정합성 검토일: 2026-09-04
 - 운영 인원: 초기 1명
 - 가용성 방식: 고가용성 대신 감지·백업·복구
 
@@ -30,7 +30,7 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | SQL injection | parameterized query, validation, DB 최소 권한 |
 | 저장형 XSS | 게시글 TEXT는 plain text escape, 정책 HTML은 허용 목록 sanitize, CSP |
 | 악성 이미지 | MIME·magic byte·decode 검사, SVG 금지, 크기 제한 |
-| SSRF | 외부 fetch는 `SourceFetcher` adapter만 수행. 등록·활성 출처 host 매칭, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 비HTML·비이미지 content-type 거부 |
+| SSRF | BE·FE는 외부 수집 URL을 직접 fetch하지 않는다. 외부 fetch는 운영자 로컬 collector만 수행하고, collector는 등록·활성 출처 host 매칭, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 비HTML·비이미지 content-type 거부를 강제한다 |
 | 수집 대상 사이트 과부하·차단 | 출처별 요청 간격·일일 상한, 식별 가능한 User-Agent, `robots.txt` 준수, `403`·`429` 누적 시 자동 비활성 |
 | 수집 콘텐츠를 통한 저장형 공격 | 후보 제목은 plain text로 저장·escape, 원문 HTML 미저장, 이미지는 Python 작업 경로에 임시 저장 후 승격 시 magic byte·decode·metadata 제거·재인코딩 |
 | secret 유출 | 저장소·image·log 제외, provider별 최소 권한 key |
@@ -104,7 +104,8 @@ domain이 모두 확정된 환경에서만 활성화한다. 하나라도 미확�
 `NUXT_PUBLIC_GA4_ENABLED=false`를 유지한다. 활성 환경에서도 저장된 분석 동의 전에는 방문자 수·
 page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는다. 광고·소셜 로그인은 해당
 기능을 활성화하기 전에 별도로 검토한다. 편의를 위해 `*`나 광범위한 `unsafe-eval`을 추가하지
-않는다. 수집은 서버에서 수행하므로 CSP `connect-src`에 수집 대상 도메인을 추가하지 않는다.
+않는다. 수집은 브라우저가 아니라 로컬 collector에서 수행하므로 CSP `connect-src`에 수집 대상
+도메인을 추가하지 않는다.
 
 ### 입력 검증
 
@@ -112,11 +113,14 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
 - 관리자 이미지 multipart만 별도 최대 `100MiB/request`
 - title·IMAGE block alt·source 길이는 API schema와 DB 길이를 일치시킨다.
 - source URL은 `https`만 허용하고 사용자 클릭 링크에 `rel="noopener noreferrer"`를 사용한다.
-- 게시글에 저장된 출처 URL을 서버가 배경에서 자동 fetch하지 않는다. M0 수집 보조의 외부 요청은 Discord `/collect url` 또는 관리자 화면 URL 입력에서 `SourceFetcher` adapter를 통해서만 발생한다. 목록 수집 command는 후속 자동 수집 범위다.
+- 게시글에 저장된 출처 URL을 서버가 배경에서 자동 fetch하지 않는다. M0 수집 보조의 외부 요청은
+  운영자 로컬 collector가 Discord `/collect url` 또는 관리자 화면 URL 입력 작업을 처리할 때만
+  발생한다. 목록 수집 command는 후속 자동 수집 범위다.
 - 게시글 TEXT block은 HTML·Markdown으로 해석하지 않고 출력 시 escape한다.
 - 정책 `body_html`은 저장·미리보기에 같은 허용 목록 sanitizer를 사용한다. script·style·iframe·form·SVG·`on*` 속성·inline style을 허용하지 않는다.
 - 정책 링크는 `https`, `mailto`, 서비스 내부 상대 경로와 `#` anchor만 허용하고 외부 새 창 링크에는 `rel="noopener noreferrer"`를 강제한다.
-- 수집 대상 URL은 `https`만 허용하고 최대 2048자다. 서버가 정규화한 뒤 등록 출처 host와 대조한다.
+- 수집 대상 URL은 `https`만 허용하고 최대 2048자다. BE는 접수 시 정규화한 뒤 등록 출처 host와
+  대조하고, collector는 실행 직전 활성 상태·robots·DNS·redirect 경계를 다시 확인한다.
 - 수집으로 얻은 제목은 plain text로만 저장하고 원문 응답 HTML 전체는 저장하지 않는다.
 - 운영자 검수 미리보기용 이미지는 Python extractor 작업 경로에 임시 저장할 수 있지만 내부 절대 경로,
   image binary와 storage key를 application log·Discord·공개 API에 남기지 않는다.
@@ -160,7 +164,8 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 
 ### 수집
 
-수집은 외부 사이트에 요청을 보내는 유일한 경로이므로 아래 통제를 코드로 강제한다.
+수집은 외부 사이트에 요청을 보내는 유일한 경로이므로 아래 통제를 로컬 collector 코드와 BE 제출
+검증으로 강제한다.
 
 1. 대상 URL 정규화 후 등록·활성 출처의 host와 정확히 일치하는지 확인
 2. 출처 `robots.txt` 판정 확인. 금지 경로와 미확인 출처의 단건 페이지 수집은 거부
@@ -168,13 +173,16 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 4. DNS 해석 결과가 공인 주소인지 확인. 사설·loopback·link-local·metadata 주소는 거부
 5. timeout, 응답 크기 상한, redirect 최대 3회, 같은 출처 host 이탈 금지
 6. content-type 확인. 문서 요청은 HTML, 이미지 요청은 허용 이미지 형식만 수용
-7. 이미지는 Python 작업 경로에 임시 저장한 뒤 관리자 업로드와 같은 magic byte·decode·pixel·metadata 제거·재인코딩 절차 적용
+7. 이미지는 로컬 Python 작업 경로에 임시 저장한 뒤 초안 승격 시 관리자 업로드와 같은 magic
+   byte·decode·pixel·metadata 제거·재인코딩 절차 적용
 
 - 요청에는 `COLLECT_USER_AGENT`를 사용하고 서비스명과 연락 수단을 포함한다.
 - 로그인, CAPTCHA, 유료 담장, 접근 차단을 우회하지 않는다. 인증이 필요한 페이지는 수집하지 않는다.
 - `403`, `429`, robots 금지, timeout이 발생하면 단건 후보를 실패로 기록한다. 후속 자동 수집에서는 출처 기준 연속 임계를 넘으면 해당 출처의 목록 수집을 자동 비활성하고 사유를 기록한다.
 - 대상 사이트가 중단 요청을 보내면 해당 출처를 즉시 비활성하고 이미 발행된 게시글은 권리 문의 절차로 처리한다.
 - 수집 실패·차단은 공개 읽기 ready 조건에 넣지 않는다. 수집이 멈춰도 공개 목록·상세와 운영자 발행은 계속 동작해야 한다.
+- collector service token은 로컬 PC에만 저장하고 BE에는 token hash 또는 검증용 secret만 둔다. 분실,
+  PC 교체, 운영자 변경 시 즉시 rotation한다.
 
 ## 5. Secret 관리
 
@@ -188,6 +196,7 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 | cache purge token | 해당 zone cache purge only |
 | admin actor HMAC secret | BFF only, 내부 `operatorId` 가명화 |
 | Core service token | BFF·Core만 공유, 외부 노출 금지 |
+| Collector service token | 로컬 collector만 보유, 후보 작업 claim·결과 제출 전용 |
 | 외부 provider audience/team | BFF adapter 설정, 비밀값과 분리 |
 | 운영자 identity·`operatorId` 매핑 파일 | BFF only, 읽기 전용 mount, 비밀값 아님이나 접근 제한 |
 | 카카오 공유 JavaScript key | 공개 config, 허용 도메인 등록으로 오용 제한 |

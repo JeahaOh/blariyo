@@ -5,19 +5,19 @@
 - 문서 상태: `초안`
 - milestone: `M0 수집 보조`
 - 기능: `collection-assist`
-- route: `/admin/collect`, Discord `/collect url`
-- 기준일: 2026-09-03
+- route: `/admin/collect`, 로컬 collector의 Discord `/collect url`
+- 기준일: 2026-09-04
 - 입력 근거: [화면 설계 §2 수집 후보 검수 화면](../../../../planning/03-screen-design.md), [수집 보조 개발 보강서](../collection-assist.dev.md)
 - 미검증: source, browser, 접근성, 실제 image preview
 
-운영자가 관리자 화면 또는 Discord `/collect url`로 후보를 만들고, 생성된 후보를 관리자 화면에서
+운영자가 관리자 화면 또는 로컬 collector의 Discord `/collect url`로 후보를 만들고, 생성된 후보를 관리자 화면에서
 검수·반려·초안 승격한다.
 
 ## 2. 진입·이탈·권한 조건
 
 - 외부 관리자 인증 allowlist 통과 필요.
 - 공개 경로에서 접근할 수 없다.
-- Discord 명령은 허용 guild·channel·user만 사용할 수 있고 일반 메시지 감시는 하지 않는다.
+- Discord 명령은 로컬 collector가 허용 guild·channel·user만 처리하고 일반 메시지 감시는 하지 않는다.
 - 초안 승격 성공 시 관리자 게시글 편집기로 이동한다.
 
 ## 3. UI 영역과 구성요소
@@ -25,7 +25,7 @@
 - 원문 URL 입력란과 `후보 만들기`
 - Discord `/collect url`로 생성된 후보의 상태 표시
 - 후보 목록: 출처명, 제목, 원문 링크, 이미지 후보 수, 수집 시각, 상태, 중복 표시
-- 후보 상세: 제목 편집, 원문 링크, Python 임시 preview를 통한 이미지 후보 확인, 선택 checkbox, 실패·경고 요약
+- 후보 상세: 제목 편집, 원문 링크, 로컬 collector preview 또는 원격 URL metadata를 통한 이미지 후보 확인, 선택 checkbox, 실패·경고 요약
 - 작업 버튼: `재시도`, `반려`, `초안으로 승격`
 - 중복 확인 영역: 기존 게시글 링크와 확인 checkbox
 
@@ -41,7 +41,7 @@
 
 | 이벤트 | 처리 |
 | --- | --- |
-| 후보 만들기 | 관리자 화면 또는 Discord Interactions handler가 `create-candidate-from-url` 호출 |
+| 후보 만들기 | 관리자 화면은 후보 작업 접수, 로컬 collector는 Discord 명령 처리와 결과 제출 |
 | 재시도 | `retry-candidate` 호출 |
 | 반려 | 사유 선택 후 `reject-candidate` 호출 |
 | 초안으로 승격 | 중복 확인·선택 이미지 검증 후 `promote-candidate-to-draft` 호출 |
@@ -67,7 +67,7 @@
 
 | UI 이벤트 | D01 | API |
 | --- | --- | --- |
-| 후보 만들기 또는 Discord `/collect url` | [URL 후보 생성과 검수](../d01/create-and-review-candidate.md) | [create-candidate-from-url](../api/create-candidate-from-url.md) |
+| 후보 만들기 또는 Discord `/collect url` | [URL 후보 생성과 검수](../d01/create-and-review-candidate.md) | [create-candidate-from-url](../api/create-candidate-from-url.md), [collector-internal-api](../api/collector-internal-api.md) |
 | 재시도 | [후보 재시도와 반려](../d01/retry-or-reject-candidate.md) | [retry-candidate](../api/retry-candidate.md) |
 | 반려 | [후보 재시도와 반려](../d01/retry-or-reject-candidate.md) | [reject-candidate](../api/reject-candidate.md) |
 | 초안으로 승격 | [후보 초안 승격](../d01/promote-candidate-to-draft.md) | [promote-candidate-to-draft](../api/promote-candidate-to-draft.md) |

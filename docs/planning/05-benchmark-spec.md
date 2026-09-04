@@ -109,9 +109,9 @@
 
 ```text
 Discord /collect url 또는 관리자 URL 지정
-  -> 단일 상세 페이지 1건 요청
+  -> 로컬 collector가 단일 상세 페이지 1건 요청
   -> 원문 URL·제목·이미지 후보 metadata
-  -> Python 작업 경로의 임시 이미지 preview
+  -> 로컬 Python 작업 경로의 임시 이미지 preview
   -> 후보 큐
   -> 중복 표시
   -> 운영자 검수(승격 또는 반려)
@@ -187,7 +187,7 @@ Discord /collect url 또는 관리자 URL 지정
 | `POST` | `/api/v1/admin/posts` | 초안 생성 |
 | `PATCH` | `/api/v1/admin/posts/:postId` | 게시글·출처·예약 수정 |
 | `POST` | `/api/v1/admin/posts/:postId/publish` | 즉시 또는 예약 발행 |
-| `POST` | `/api/v1/admin/collect/candidates` | Discord·운영자 URL 지정 후보 생성 |
+| `POST` | `/api/v1/admin/collect/candidates` | 관리자 URL 지정 후보 작업 접수 |
 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/draft` | 후보를 초안으로 승격 |
 
 공개 조건은 `status=PUBLISHED`와 `publishedAt <= 현재 시각`이다. 별도 권리 확인 완료 상태를 요구하지 않는다.

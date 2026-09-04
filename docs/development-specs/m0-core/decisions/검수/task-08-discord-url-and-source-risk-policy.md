@@ -3,7 +3,7 @@
 ## 1. 요청
 
 - 운영자가 Discord에서 URL을 지정하면 해당 메시지를 기반으로 스크래핑을 실행할 수 있는 구조를 문서화한다.
-- Discord incoming webhook만으로 URL 수신을 처리하지 않고, Discord slash command와 Interactions endpoint를 사용한다.
+- Discord incoming webhook만으로 URL 수신을 처리하지 않고, 운영자 로컬 collector의 Discord App 연결을 사용한다.
 - 출처 사이트 이용약관은 자동 차단 조건이 아니라 운영 위험 참고값으로 낮춘다.
 - `robots.txt`, 차단 우회 금지, 요청 상한, SSRF 방어는 기술 gate로 유지한다.
 - 이미지는 Python extractor 작업 경로에 임시 저장하고, 게시가 결정되면 블라리요 저장소에 올린다.
@@ -13,7 +13,7 @@
 - Discord 입력은 `/collect url:<원문URL>` 명령만 M0 수집 보조 범위로 둔다.
 - 일반 Discord 채널 메시지를 감시해 URL을 추출하지 않는다.
 - Discord incoming webhook은 처리 결과 알림용으로만 사용한다.
-- Discord Interactions handler는 서명, timestamp, guild, channel, user 권한을 검증한 뒤 관리자 화면과 같은 후보 생성 service를 호출한다.
+- 운영자 로컬 collector는 Discord guild, channel, user 권한을 검증한 뒤 BE collector 제출 API로 후보 결과를 전송한다.
 - source spec 판정 체계는 `사용 / 보류 / 차단`과 `운영 위험도`로 정리한다.
 - 이용약관은 운영 위험 참고값이며, `robots.txt` 금지·차단 응답·로그인/CAPTCHA/유료 장벽 우회 필요·요청 상한 초과·SSRF 위험은 기술 gate다.
 
@@ -41,7 +41,7 @@
 
 ## 4. 검수 포인트
 
-- Discord URL 입력은 관리자 화면 URL 입력과 같은 후보 생성 service를 사용한다.
+- Discord URL 입력과 관리자 화면 URL 입력은 같은 로컬 collector 추출·제출 흐름을 사용한다.
 - Incoming webhook을 URL 수신 수단으로 잘못 문서화하지 않는다.
 - 일반 메시지 감시와 Message Content intent 의존 구조를 만들지 않는다.
 - 출처 이용약관을 자동 승인/차단 gate로 표현하지 않는다.
@@ -51,7 +51,7 @@
 
 ## 5. 미검증
 
-- 실제 Discord Application, command 등록, public key, guild/channel/user 설정은 미검증이다.
+- 실제 Discord Application, command 등록, collector 실행 PC, guild/channel/user 설정은 미검증이다.
 - 실제 Python extractor, 임시 파일 cleanup, R2 저장, parser, browser, runtime은 미검증이다.
 - 실제 source, migration, OpenAPI, contract test는 현재 브랜치에 없다.
 

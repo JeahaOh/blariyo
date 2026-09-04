@@ -1,8 +1,8 @@
 # M0 데이터 모델
 
 - 문서 상태: 설계 계약 검토 완료 · 현행 migration·DB 검증 산출물 없음
-- 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-03
+- 기준일: 2026-09-04
+- 정합성 검토일: 2026-09-04
 - DBMS: PostgreSQL 18
 - 문자 인코딩: 데이터베이스 `UTF8`
 - 시간 기준: `TIMESTAMPTZ(3)`로 절대 시각을 저장하고 DB·session timezone은 UTC, 화면에서 Asia/Seoul 변환
@@ -212,13 +212,19 @@ erDiagram
     varchar origin_url "원문 URL"
     bytea origin_url_sha256 UK "원문 URL 해시"
     varchar title "후보 제목"
-    varchar status "검수 상태"
+    varchar status "수집·검수 상태"
     varchar discovery_mode "수집 경로"
     bigint duplicate_post_id FK "중복 게시글 ID"
     bigint post_id FK "승격 게시글 ID"
     varchar reject_reason_code "반려 사유 코드"
+    varchar fetch_error_code "수집 오류 코드"
+    varchar collector_id "collector ID"
+    timestamptz requested_at "요청일시"
+    timestamptz claimed_at "선점일시"
+    timestamptz lease_until "lease 만료일시"
     timestamptz fetched_at "수집일시"
     timestamptz reviewed_at "검수일시"
+    int attempt_count "시도 횟수"
     int lock_version "잠금 버전"
     varchar(100) created_by "등록자"
     timestamptz created_at "등록일시"
@@ -230,6 +236,8 @@ erDiagram
     bigint candidate_id FK "수집 후보 ID"
     smallint position "후보 순서"
     varchar remote_url "원격 이미지 URL"
+    varchar preview_storage_key "미리보기 저장 key"
+    timestamptz preview_expires_at "미리보기 만료일시"
     bigint image_id FK "저장된 이미지 ID"
     varchar status "상태"
     varchar(100) created_by "등록자"
@@ -651,14 +659,19 @@ CHECK disabled_reason_code IS NULL OR disabled_reason_code IN ('ROBOTS_DISALLOWE
 | `origin_url` | `VARCHAR(2048)` | N | 정규화한 원문 `https` URL |
 | `origin_url_sha256` | `BYTEA` | N | 정규화 URL SHA-256, 32 bytes |
 | `title` | `VARCHAR(300)` | Y | 추출한 후보 제목 |
-| `status` | `VARCHAR(16)` | N | 후보 검수 상태 |
+| `status` | `VARCHAR(16)` | N | 후보 수집·검수 상태 |
 | `discovery_mode` | `VARCHAR(16)` | N | `MANUAL_URL`, `LIST_CRAWL` |
 | `duplicate_post_id` | `BIGINT` | Y | 중복으로 판단한 기존 게시글 |
 | `post_id` | `BIGINT` | Y | 승격으로 생성된 게시글 |
 | `reject_reason_code` | `VARCHAR(30)` | Y | 반려 사유 코드 |
 | `fetch_error_code` | `VARCHAR(50)` | Y | 마지막 fetch 실패 분류 |
-| `fetched_at` | `TIMESTAMPTZ(3)` | N | 후보 수집 시각 |
+| `collector_id` | `VARCHAR(100)` | Y | 마지막으로 claim한 collector 식별자 |
+| `requested_at` | `TIMESTAMPTZ(3)` | N | 관리자 입력 또는 Discord 명령 접수 시각 |
+| `claimed_at` | `TIMESTAMPTZ(3)` | Y | collector가 작업을 선점한 시각 |
+| `lease_until` | `TIMESTAMPTZ(3)` | Y | collector 작업 lease 만료 시각 |
+| `fetched_at` | `TIMESTAMPTZ(3)` | Y | 후보 수집 완료 시각. `PENDING`·`RUNNING`에서는 `NULL` |
 | `reviewed_at` | `TIMESTAMPTZ(3)` | Y | 승격·반려 시각 |
+| `attempt_count` | `INTEGER` | N | collector 처리 시도 횟수, 초기 `0` |
 | `lock_version` | `INTEGER` | N | 낙관적 잠금 값, 초기 `1` |
 | `created_by` | `VARCHAR(100)` | N | 등록자 actor key |
 | `created_at` | `TIMESTAMPTZ(3)` | N | 등록일시, UTC |
@@ -674,21 +687,34 @@ UK uq_collect_candidate__origin_url (origin_url_sha256)
 UNIQUE INDEX uq_collect_candidate__post (post_id) WHERE post_id IS NOT NULL
 INDEX ix_collect_candidate__status_fetched (status, fetched_at DESC)
 INDEX ix_collect_candidate__source_fetched (source_id, fetched_at DESC)
+INDEX ix_collect_candidate__claimable (status, lease_until, requested_at)
+  WHERE status IN ('PENDING','RUNNING')
 CHECK origin_url ~ '^https://'
 CHECK octet_length(origin_url_sha256) = 32
-CHECK status IN ('NEW','FETCH_FAILED','APPROVED','REJECTED')
+CHECK status IN ('PENDING','RUNNING','NEW','FETCH_FAILED','APPROVED','REJECTED')
 CHECK discovery_mode IN ('MANUAL_URL','LIST_CRAWL')
 CHECK title IS NULL OR length(trim(title)) BETWEEN 1 AND 300
 CHECK (status='APPROVED' AND post_id IS NOT NULL AND reviewed_at IS NOT NULL AND reject_reason_code IS NULL)
    OR (status='REJECTED' AND post_id IS NULL AND reviewed_at IS NOT NULL AND reject_reason_code IS NOT NULL)
-   OR (status IN ('NEW','FETCH_FAILED') AND post_id IS NULL AND reviewed_at IS NULL AND reject_reason_code IS NULL)
+   OR (status IN ('PENDING','RUNNING','NEW','FETCH_FAILED') AND post_id IS NULL AND reviewed_at IS NULL AND reject_reason_code IS NULL)
 CHECK status <> 'FETCH_FAILED' OR fetch_error_code IS NOT NULL
+CHECK status <> 'RUNNING' OR (collector_id IS NOT NULL AND claimed_at IS NOT NULL AND lease_until IS NOT NULL)
+CHECK status = 'RUNNING' OR lease_until IS NULL
+CHECK status IN ('PENDING','RUNNING') OR fetched_at IS NOT NULL
+CHECK attempt_count >= 0
 CHECK lock_version >= 1
 ```
 
 `origin_url` 정규화는 scheme·host 소문자화, 기본 port 제거, fragment 제거, 추적용 query(`utm_*` 등) 제거, 경로 끝 `/` 정리까지만 수행하고 나머지 query는 유지한다. 정규화 규칙을 바꾸면 기존 해시와 충돌하므로 migration에서 재계산한다.
 
-후보 제목·URL 외에 원문 본문 전체와 응답 HTML은 저장하지 않는다. 반려 사유 코드는 `DUPLICATE`, `LOW_QUALITY`, `RIGHTS_RISK`, `NOT_FUNNY`, `SOURCE_GONE`, `OTHER`를 사용한다. 후보 반려·보존 기간 만료·재시도 교체 시 연결된 Python 임시 이미지 파일은 삭제 대상이다.
+후보 제목·URL 외에 원문 본문 전체와 응답 HTML은 저장하지 않는다. `PENDING`은 BE가 관리자 URL 입력을
+접수했지만 로컬 collector가 아직 처리하지 않은 상태이고, `RUNNING`은 collector가 claim한 상태다.
+collector는 작업을 claim할 때 `collector_id`, `claimed_at`, `lease_until`, `attempt_count`를 갱신한다.
+`lease_until`이 지난 `RUNNING`은 중단된 작업으로 보고 다시 `PENDING`으로 회수하거나 운영자 확인이
+필요한 `FETCH_FAILED`로 전환한다.
+반려 사유 코드는 `DUPLICATE`, `LOW_QUALITY`, `RIGHTS_RISK`, `NOT_FUNNY`, `SOURCE_GONE`, `OTHER`를
+사용한다. 후보 반려·보존 기간 만료·재시도 교체 시 연결된 로컬 Python 임시 이미지 파일은 삭제
+대상이다.
 
 ### 수집 후보 이미지 — `collect.candidate_image`
 
@@ -698,6 +724,8 @@ CHECK lock_version >= 1
 | `candidate_id` | `BIGINT` | N | `collect.candidate` FK |
 | `position` | `SMALLINT` | N | 후보 내 순서, 1부터 연속 |
 | `remote_url` | `VARCHAR(2048)` | N | 원격 이미지 `https` URL |
+| `preview_storage_key` | `VARCHAR(500)` | Y | collector가 업로드한 24시간 미리보기 object key |
+| `preview_expires_at` | `TIMESTAMPTZ(3)` | Y | 미리보기 object 만료 시각 |
 | `image_id` | `BIGINT` | Y | 저장 성공 시 `content.board_post_image` FK |
 | `status` | `VARCHAR(16)` | N | `DISCOVERED`, `STORED`, `SKIPPED`, `FAILED` |
 | `fetch_error_code` | `VARCHAR(50)` | Y | 저장 실패 분류 |
@@ -716,21 +744,26 @@ CHECK position >= 1
 CHECK remote_url ~ '^https://'
 CHECK status IN ('DISCOVERED','STORED','SKIPPED','FAILED')
 CHECK (status='STORED' AND image_id IS NOT NULL) OR (status <> 'STORED' AND image_id IS NULL)
+CHECK (preview_storage_key IS NULL) = (preview_expires_at IS NULL)
 CHECK status <> 'FAILED' OR fetch_error_code IS NOT NULL
 ```
 
 한 후보의 이미지 후보는 최대 20건까지 저장한다. 여기서 저장한다는 뜻은 `remote_url`, 순서, 상태 같은
 metadata 저장이며 image binary 저장이 아니다. 초과분은 저장하지 않고 후보 상세에 잘렸다는 사실만
-표시한다. 운영자 미리보기가 필요하면 Python extractor 작업 경로의 임시 파일을 `previewPath`로
-제공하되, 내부 절대 경로와 storage key는 응답하지 않는다.
+표시한다. 운영자 미리보기가 필요하면 로컬 collector가 thumbnail 또는 재인코딩 가능한 preview 파일을
+BE collector preview upload API로 제출하고, BE는 private staging object로 최대 24시간 보관한다.
+관리자 응답에는 `previewPath`만 제공하고 로컬 임시 파일의 내부 절대 경로와 `preview_storage_key`는
+응답하지 않는다. preview가 만료되면 원격 URL metadata만 표시하거나 collector 재처리를 요청한다.
 
 ### 수집 후보 상태 전이
 
 | 현재 | 허용 다음 상태 | 추가 조건 |
 | --- | --- | --- |
-| 없음 | `NEW` | 등록·활성 출처 매칭·robots 허용·요청 상한 통과, 정규화 URL 중복 없음 |
-| 없음 | `FETCH_FAILED` | 요청은 허용됐지만 응답·파싱 실패 |
-| `FETCH_FAILED` | `NEW` | 운영자 재시도 성공 |
+| 없음 | `PENDING` | 관리자 URL 입력 접수, 정규화 URL 중복 없음 |
+| `PENDING` | `RUNNING` | 로컬 collector가 작업 claim |
+| `PENDING` 또는 `RUNNING` | `NEW` | 등록·활성 출처 매칭·robots 허용·요청 상한 통과, 정규화 URL 중복 없음, 추출 성공 |
+| `PENDING` 또는 `RUNNING` | `FETCH_FAILED` | 요청은 허용됐지만 응답·파싱 실패 |
+| `FETCH_FAILED` | `PENDING` | 운영자 재시도 접수 |
 | `NEW` | `APPROVED` | 초안 생성 transaction 성공, 이미지 1건 이상 `STORED` 또는 TEXT block 존재 |
 | `NEW` | `REJECTED` | 운영자 반려, 사유 코드 필수 |
 | `FETCH_FAILED` | `REJECTED` | 운영자 반려 |
@@ -824,6 +857,7 @@ list_page = FLOOR(newer_count / 20) + 1
 | public image | 숨김 후 우선순위 outbox로 삭제하고 cache purge |
 | private 원본 | 게시글 `REMOVED` 후 30일 복구 유예 뒤 삭제 |
 | private staging orphan object | 생성 후 24시간이 지났고 DB image row·미완료(`PENDING`,`RUNNING`,`FAILED`,`DEAD`) cleanup outbox에 key가 없으면 inventory가 삭제 |
+| 수집 후보 `PENDING`·`RUNNING` | 24시간 이상 미완료 시 운영 알림 후 `PENDING` 회수 또는 `FETCH_FAILED` 전환 |
 | 수집 후보 `NEW`·`FETCH_FAILED` | 수집 후 30일, 이후 삭제 |
 | 수집 후보 `REJECTED` | 반려 후 30일, 이후 삭제 |
 | 수집 후보 `APPROVED` | 승격 게시글이 남아 있는 동안 유지 |

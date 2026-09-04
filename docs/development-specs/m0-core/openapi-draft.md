@@ -4,10 +4,11 @@
 - milestone: `M0 Core` (`m0-core`)
 - 기준일: 2026-09-03
 - 입력 근거: [API 설계](../../system-design/03-api-design.md), [M0 Core 구현 Backlog](./implementation-backlog.md)
-- 미검증: 실제 OpenAPI 파일, schema validator, generated client/server, contract test
+- 미검증: schema validator, generated client/server, contract test
 
-이 문서는 실제 OpenAPI YAML을 만들기 전의 작성 기준이다. 현재 브랜치에 source 구조가 없으므로
-OpenAPI 파일을 구현 완료 증거처럼 만들지 않는다.
+이 문서는 M0 Core OpenAPI YAML의 작성 기준이다. 현재 문서 계약용 초안은
+[openapi/m0-core.yaml](./openapi/m0-core.yaml)에 둔다. 현재 브랜치에 애플리케이션 source 구조가
+없으므로 OpenAPI 파일을 구현 완료 증거처럼 만들지 않는다.
 
 ## 1. 파일 배치 제안
 
@@ -50,12 +51,12 @@ test, 문서 검증에서 공유하기 쉽다.
 | `GET` | `/api/v1/admin/images/{imageId}/preview` | `previewImage` | [preview-image](./admin-post-management/api/preview-image.md) |
 | `DELETE` | `/api/v1/admin/images/{imageId}` | `discardImage` | [discard-image](./admin-post-management/api/discard-image.md) |
 | `POST` | `/api/v1/admin/posts` | `createPost` | [create-post](./admin-post-management/api/create-post.md) |
-| `PUT` | `/api/v1/admin/posts/{postId}` | `updatePost` | [update-post](./admin-post-management/api/update-post.md) |
+| `PATCH` | `/api/v1/admin/posts/{postId}` | `updatePost` | [update-post](./admin-post-management/api/update-post.md) |
 | `POST` | `/api/v1/admin/posts/{postId}/publish` | `publishPost` | [publish-post](./admin-post-management/api/publish-post.md) |
 | `POST` | `/api/v1/admin/posts/{postId}/unschedule` | `unschedulePost` | [unschedule-post](./admin-post-management/api/unschedule-post.md) |
 | `POST` | `/api/v1/admin/posts/{postId}/hide` | `hidePost` | [hide-post](./admin-post-management/api/hide-post.md) |
 | `POST` | `/api/v1/admin/posts/{postId}/republish` | `republishPost` | [republish-post](./admin-post-management/api/republish-post.md) |
-| `POST` | `/api/v1/admin/posts/{postId}/remove` | `removePost` | [remove-post](./admin-post-management/api/remove-post.md) |
+| `DELETE` | `/api/v1/admin/posts/{postId}` | `removePost` | [remove-post](./admin-post-management/api/remove-post.md) |
 
 ## 4. 작성 규칙
 
@@ -74,4 +75,3 @@ test, 문서 검증에서 공유하기 쉽다.
 - API Spec 파일의 path·method·status code와 OpenAPI 대조
 - BFF route, Core route, contract test operationId 일치
 - generated client/server가 공통 envelope를 임의 변경하지 않는지 확인
-

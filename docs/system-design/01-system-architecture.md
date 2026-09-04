@@ -1,8 +1,8 @@
 # M0 시스템 아키텍처
 
 - 문서 상태: M0 아키텍처 설계 계약 · 현행 구현 산출물 없음
-- 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-03
+- 기준일: 2026-09-04
+- 정합성 검토일: 2026-09-04
 - 관련 문서: [데이터 모델](./02-data-model.md), [API 설계](./03-api-design.md), [인프라 설계](./04-infrastructure-design.md), [보안·운영](./05-security-operations.md)
 
 ## 1. 목표와 제약
@@ -26,7 +26,8 @@
   PostgreSQL에 자체 분석 저장 경로를 만들지 않는다.
 - 수집은 `M0 Core` 뒤의 수집 보조·자동 수집 단계에 포함하지만 외부 사이트 구조 변경에
   취약하다. 파싱 실패를 장애가 아닌 후보 실패로 처리하고 운영자 수동 작성 경로를 항상 유지한다.
-- 수집 대상은 등록·활성 출처와 그 하위 경로로만 제한하고, 임의 URL을 서버가 무제한 fetch하지 않는다.
+- 수집 대상은 등록·활성 출처와 그 하위 경로로만 제한하고, 임의 URL을 로컬 collector가 무제한
+  fetch하지 않는다. BE·FE는 외부 사이트를 직접 fetch하지 않는다.
 
 ## 2. 시스템 컨텍스트
 
@@ -50,8 +51,10 @@
   |
   +--------------------> [Cloudflare R2]
   +--------------------> [Cloudflare Cache Purge API]
-  +--------------------> [등록된 수집 출처] (outbound only, allowlist)
-  +<-------------------- [Discord Interactions] (/collect url, 운영자 명령)
+  +<-------------------- [운영자 로컬 collector] (Discord /collect url, 외부 fetch/parser)
+                            |
+                            +----> [Discord API/Webhook]
+                            +----> [등록된 수집 출처] (outbound only, allowlist)
 ```
 
 공개 사용자는 Cloudflare를 통해서만 원본 서버에 접근한다. 운영자 경로는 현재 Cloudflare Access를 외부 인증 provider로 사용하지만 이 검증은 Nuxt BFF adapter에만 둔다. VM의 80·443·5432 포트는 공용 인터넷에 열지 않고 `cloudflared`가 outbound tunnel을 만든다.
@@ -67,14 +70,19 @@
 | `postgresql` | 게시글·정책·운영 작업 저장 | Docker private network only |
 | `backup` | 정기 DB dump 암호화·R2 업로드 | outbound only |
 
-수집은 별도 컨테이너를 만들지 않는다. M0 수집 보조의 Discord `/collect url`과 관리자 URL 지정 후보 생성은 `api`의 요청 처리 안에서 단일 상세 페이지 1건만 처리한다. 허용 출처 목록 수집은 후속 `M0 자동 수집` 단계에서 `api` image의 단발성 command로 검토한다.
+수집은 서버 VM에 별도 컨테이너를 만들지 않는다. M0 수집 보조의 Discord `/collect url`과 관리자 URL
+지정 후보 생성은 운영자 로컬 컴퓨터에서 실행하는 `collector`가 처리한다. `api`는 URL 작업 접수,
+collector 인증, 후보 결과 저장, 검수와 초안 승격만 담당한다. 허용 출처 목록 수집은 후속
+`M0 자동 수집` 단계에서 로컬 collector의 반복 실행 또는 별도 worker 도입 여부를 다시 결정한다.
 
-`worker`는 별도 상시 컨테이너로 시작하지 않는다. 예약 발행과 정리 작업은 API 이미지의 단발성 명령을 cron에서 실행한다. 목록 수집은 M0 수집 보조 범위가 아니며, 후속 자동 수집에서 API 응답에 영향을 주면 그때 별도 worker를 추가한다.
+`worker`는 별도 상시 컨테이너로 시작하지 않는다. 예약 발행과 정리 작업은 API 이미지의 단발성
+명령을 cron에서 실행한다. 수집용 상시 worker는 M0 서버에 두지 않고 로컬 collector로 분리한다.
+후속 자동 수집에서 로컬 PC 의존성이 운영 병목이 되면 그때 서버 worker를 추가할지 결정한다.
 
 M0 Core 반복 명령은 `npm run posts:publish-due`, `npm run outbox:run`이다. 예약 발행과 outbox는
-매분 실행한다. `npm run collect:crawl-due` 같은 목록 수집 command는 후속 `M0 자동 수집` 범위다.
-M0 수집 보조는 Discord 또는 관리자 화면에서 들어온 URL 한 건만 요청하며 scheduler가 목록을 돌지
-않는다. 실제 요청 간격·일일 상한은 사용 결정된 출처 명세를 따른다. 정책
+매분 실행한다. `npm run collect:crawl-due` 같은 서버 목록 수집 command는 M0 수집 보조 범위에
+두지 않는다. M0 수집 보조는 로컬 collector가 Discord 또는 관리자 화면에서 들어온 URL 한 건만
+요청하며 scheduler가 목록을 돌지 않는다. 실제 요청 간격·일일 상한은 사용 결정된 출처 명세를 따른다. 정책
 시행은 자동 scheduler가 아니라 승인된 정책 release artifact를 사용하는 운영 단발성 명령
 `npm run policies:publish`로 수행한다. 각 명령은 HTTP 관리자 경계를 우회하지 않고 동일한
 repository·service와 전용 system actor를 사용한다.
@@ -152,7 +160,7 @@ adapters
   ObjectStorage
   EdgeCache
   InternalServiceAuth
-  SourceFetcher
+  CollectorAuth
   Clock
 ```
 
@@ -165,7 +173,9 @@ services에는 `CollectSourceService`와 `CollectCandidateService`를 둔다. `C
 - host port, public DNS, Nginx upstream을 만들지 않는다. HTTP 호출자는 Docker app network의 `web` 하나로 제한한다.
 - cron은 외부·내부 HTTP route를 호출하지 않고 API image의 단발성 command로 같은 service·repository 계층을 실행한다.
 - 관리자 route는 BFF와 공유한 내부 서비스 토큰과 `admin:vN:<HMAC>` actor 형식만 검증한다. Core는 외부 인증 provider, JWT claim과 JWKS를 알지 않는다.
-- 외부 사이트로 나가는 HTTP 요청은 `SourceFetcher` adapter만 수행한다. adapter는 등록·활성 출처 매칭, `robots.txt` 판정, 요청 간격·일일 상한, redirect·응답 크기·timeout 제한과 사설 IP 차단을 강제한다. service·controller가 adapter를 우회해 직접 fetch하지 않는다.
+- Core API에는 외부 사이트 fetch adapter를 두지 않는다. 외부 fetch와 parser 실행은 로컬 collector의
+  책임이다. Core는 collector service token, 후보 상태 전이, 출처 활성 상태, 요청 상한 기록,
+  제출된 metadata schema와 중복만 검증한다.
 
 ## 5. 주요 흐름
 
@@ -256,15 +266,23 @@ R2 copy 동안 DB row lock이나 transaction을 유지하지 않는다. 여러 s
 ### 수집 후보 생성
 
 ```text
-Discord /collect url 또는 관리자 URL 지정
+관리자 URL 지정
   -> BFF 외부 인증
   -> Core가 URL 정규화·출처 매칭
+  -> 후보 작업 PENDING 저장
+  -> 로컬 collector가 작업 claim
   -> 출처 등록/활성·robots·요청 상한 확인
-  -> SourceFetcher가 단일 상세 페이지 1회 GET
+  -> 로컬 collector가 단일 상세 페이지 1회 GET과 parser 실행
   -> 제목·이미지 후보 URL 추출
-  -> Python extractor 작업 경로에 이미지 후보 임시 preview 저장
+  -> 로컬 Python 작업 경로에 이미지 후보 임시 preview 저장
+  -> Core collector 제출 API로 후보 결과 전송
   -> 원문 URL 중복·기존 게시글 중복 확인
   -> 후보 + 이미지 후보 metadata 저장
+
+Discord /collect url
+  -> 로컬 collector의 Discord App 연결
+  -> guild·channel·user 권한 검증
+  -> 같은 단일 상세 페이지 추출과 Core 제출 흐름 실행
 ```
 
 ```text
@@ -275,10 +293,11 @@ Discord /collect url 또는 관리자 URL 지정
 ```
 
 후보 생성은 원문 URL과 metadata까지만 DB에 저장한다. Python extractor는 운영자 검수 미리보기를
-위해 이미지 후보를 작업 경로에 임시 파일로 둘 수 있지만, 이 파일은 영구 object storage와 DB image
-row가 아니다. 이미지 영구 저장은 운영자가 후보를 초안으로 승격할 때 수행하며, 그 시점에 기존 관리자
-업로드와 같은 MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에 넣는다. 즉 검수하지
-않은 외부 이미지가 블라리요 저장소에 남지 않는다.
+위해 로컬 작업 경로에 이미지 후보를 임시 파일로 둘 수 있지만, 이 파일은 BE filesystem, 영구 object
+storage와 DB image row가 아니다. 이미지 영구 저장은 운영자가 후보를 초안으로 승격할 때 수행하며,
+그 시점에 로컬 collector가 다시 제출하거나 운영자가 업로드한 파일을 기존 관리자 업로드와 같은
+MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에 넣는다. 즉 검수하지 않은 외부
+이미지가 블라리요 저장소에 남지 않는다.
 
 같은 원문 URL의 후보는 정규화된 URL 기준으로 한 건만 유지한다. `403`, `429`, robots 금지, timeout이 발생하면 해당 단건 후보를 실패로 남기고 운영 알림을 만든다. 목록 수집 자동 비활성은 후속 `M0 자동 수집`에서만 적용한다.
 
@@ -287,7 +306,7 @@ row가 아니다. 이미지 영구 저장은 운영자가 후보를 초안으로
 ```text
 운영자 승격 요청
   -> 후보 상태·중복 재확인
-  -> 선택한 이미지 후보의 임시 파일 또는 원격 URL을 검증·재인코딩
+  -> collector preview upload 또는 운영자 업로드 파일 검증·재인코딩
   -> private 원본 bucket 저장과 이미지 metadata insert
   -> 초안 생성 transaction(제목·block·출처·이미지 선점·상태 이력)
   -> 후보를 APPROVED로 바꾸고 생성된 게시글 연결
@@ -320,7 +339,7 @@ HTML은 짧게 cache하고 이미지는 불변 key로 길게 cache한다. 게시
 | 월 공개 요청이 단일 VM 처리량의 60% 초과 | Web BFF·Core API 컴퓨트 분리 또는 Core API replica 검토 |
 | 배포 중단이 사업 손실로 이어짐 | 2대 구성·관리형 DB·load balancer 검토 |
 | M0 검증 조건 충족 | 소셜 계정·참여 기능 설계 활성화 |
-| 수집 출처가 5곳을 넘거나 목록 수집이 API 응답 지연을 만듦 | 수집을 별도 worker 컨테이너로 분리 |
+| 로컬 collector 운영 시간이 병목이거나 자동 수집이 공개 운영에 필요해짐 | 서버 worker 컨테이너 또는 외부 job runner 도입 검토 |
 | 특정 출처의 차단·파싱 실패가 반복됨 | 해당 출처 목록 수집 중단, 운영자 URL 지정만 유지 |
 
 Redis, queue broker, Kubernetes, Elasticsearch는 위 조건과 직접 연결된 필요가 확인되기 전에는 도입하지 않는다.

@@ -235,7 +235,7 @@ JavaScript key·CSP host는 배포 환경 properties/config로 관리한다.
 
 | 경로 | 시작 | 활성화 단계·기본값 |
 | --- | --- | --- |
-| Discord·운영자 URL 지정 | 운영자가 Discord `/collect url` 또는 관리자 화면으로 원문 URL을 입력하면 서버가 해당 상세 페이지 한 건만 가져온다 | `M0 수집 보조`, 단계 전 비활성 |
+| Discord·운영자 URL 지정 | 운영자가 Discord `/collect url` 또는 관리자 화면으로 원문 URL을 입력하면 운영자 로컬 컴퓨터의 collector가 해당 상세 페이지 한 건만 가져와 BE에 후보 결과를 제출한다 | `M0 수집 보조`, 단계 전 비활성 |
 | 사용 결정 출처 목록 수집 | 후속 단계. 등록된 수집 출처의 공개 목록·피드를 주기적으로 읽어 후보를 적재한다 | `M0 자동 수집`, 전역·출처별 기본 비활성 |
 
 두 경로의 결과는 같은 후보 큐에 들어가고 같은 검수 절차를 따른다.
@@ -272,9 +272,9 @@ JavaScript key·CSP host는 배포 환경 properties/config로 관리한다.
 
 ```text
 Discord /collect url 또는 관리자 URL 지정
-  -> 단일 상세 페이지 1건 요청
+  -> 로컬 collector가 단일 상세 페이지 1건 요청
   -> 후보 큐 저장(원문 URL·제목·이미지 후보 metadata)
-  -> Python 작업 경로의 임시 이미지 preview
+  -> 로컬 Python 작업 경로의 임시 이미지 preview
   -> 중복 표시
   -> 운영자 검수(승격 또는 반려)
   -> 선택 이미지 검증·재인코딩·서버 저장

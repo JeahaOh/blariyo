@@ -5,7 +5,7 @@
 - 문서 상태: `초안`
 - milestone: `M0 수집 보조`
 - 기능: `collection-assist`
-- 기준일: 2026-09-03
+- 기준일: 2026-09-04
 - 입력 근거: [수집 보조 개발 보강서](../collection-assist.dev.md)
 - 미검증: source, test, browser
 
@@ -21,7 +21,7 @@
 
 1. 운영자가 `FETCH_FAILED` 후보에서 재시도를 선택한다.
 2. 화면은 현재 `lockVersion`으로 retry API를 호출한다.
-3. 성공하면 후보가 `NEW` 또는 갱신된 `FETCH_FAILED`로 표시된다.
+3. 성공하면 후보가 `PENDING`으로 돌아가고 로컬 collector 처리 대기 상태로 표시된다.
 4. 운영자가 `NEW` 또는 `FETCH_FAILED` 후보에서 반려를 선택한다.
 5. 화면은 반려 사유를 선택하게 한다.
 6. Core는 `REJECTED`와 `reviewedAt`을 기록한다.
@@ -41,15 +41,17 @@
 
 ## 6. 데이터·상태 전이
 
-- `FETCH_FAILED` -> `NEW`
-- `FETCH_FAILED` -> `FETCH_FAILED`
+- `FETCH_FAILED` -> `PENDING`
+- `PENDING` 또는 `RUNNING` -> `NEW`
+- `PENDING` 또는 `RUNNING` -> `FETCH_FAILED`
 - `NEW` -> `REJECTED`
 - `FETCH_FAILED` -> `REJECTED`
 
 ## 7. 권한·트랜잭션·멱등성·재시도
 
 - 관리자 인증 필수.
-- retry는 외부 fetch를 다시 수행하므로 출처 상한과 robots를 재확인한다.
+- retry API는 외부 fetch를 직접 수행하지 않고 로컬 collector 작업을 다시 대기시킨다. collector는
+  출처 상한과 robots를 재확인한다.
 - reject는 외부 fetch를 수행하지 않는다.
 
 ## 8. 완료 조건과 수용 기준
@@ -61,4 +63,3 @@
 ## 9. 미정·차단·미검증 항목
 
 - 미검증: source, contract test, browser
-

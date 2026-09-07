@@ -1,11 +1,11 @@
 # 개발 환경 재개 전 안전 기준
 
-- 문서 상태: 설계 전용 브랜치 기준 · 현행 실행 환경 없음
+- 문서 상태: 초기 Compose 존재 · production 배포 미검증
 - 정합성 검토일: 2026-08-20
 
-현재 브랜치에는 `apps/`, Docker Compose, 애플리케이션 source, migration, seed와 로컬 DB
-초기화 파일이 없다. 따라서 이 저장소에서 실행할 수 있는 Docker 기동·초기화·migration 명령도
-현재는 없다. 과거 `apps/` 경로와 명령을 현행 절차로 사용하지 않는다.
+2026-09-07 구현 worktree에는 `apps/`, `compose.yaml`, migration·seed와 package script가 있다.
+파일 존재는 실행·배포 성공 증거가 아니다. 실행 대상은 현재 checkout의 Compose와 package script로
+확인하고 과거 경로·명령을 그대로 재사용하지 않는다. 실제 secret·환경값은 이 문서에 기록하지 않는다.
 
 이 문서는 애플리케이션 개발을 다시 시작할 때 기존 로컬·운영 데이터를 훼손하지 않기 위한
 안전 경계만 정의한다. 구체적인 파일 경로와 명령은 실제 구현 산출물이 생긴 뒤 그 구조를 직접
@@ -79,7 +79,7 @@ Compose·DB 확인 명령은 실제 Compose 파일과 service가 만들어진 �
 
 ## 금지 사항
 
-- 현재 존재하지 않는 `apps/` 경로나 package script를 실행 가능한 절차처럼 안내
+- 현재 checkout에서 확인하지 않은 경로나 package script를 실행 가능한 절차처럼 안내
 - 운영 서버에서 개발 초기화 수행
 - 대상 확인 없이 volume 또는 bind mount 정리
 - backup·restore 확인 전 기존 데이터 제거

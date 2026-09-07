@@ -10,7 +10,7 @@
 이 문서는 콘텐츠를 어디서 어떻게 후보로 가져오고, 어떤 순서와 조건으로 수집 기능을
 활성화할지 결정한다. DB 자료형, endpoint payload, container와 cron 명령은 시스템 설계의
 책임이다. 실제 출처별 URL·파싱·허용 범위는 이 디렉터리의
-[출처 명세 템플릿](./source-spec-template.md)으로 검증한 뒤 확정한다.
+[출처 명세 템플릿](source-spec-template.md)으로 검증한 뒤 확정한다.
 
 - `scraper`: 외부 공개 페이지를 요청해 수집 후보를 만드는 프로그램
 - `collector`: 운영자 로컬 컴퓨터에서 실행하는 Discord 연결 scraper 프로세스. Discord 명령 수신,
@@ -80,9 +80,9 @@
 사이트를 직접 fetch하지 않는다. 운영자 로컬 컴퓨터에서 실행 중인 `collector`가 BE에서 대기 작업을
 가져와 등록·활성 출처, robots, 요청 상한, SSRF 방어 gate를 확인한 뒤 해당 상세 페이지를 한 번
 가져온다. Discord `/collect url:<원문URL>` 명령은 같은 로컬 `collector`가 Discord App으로 받아
-동일한 검증·추출 흐름을 실행한다. 제목과 이미지 후보 URL을 추출해 BE에 결과를 제출하면 관리자
+BE에 URL 작업을 먼저 접수하고 해당 후보를 선점한 뒤 동일한 검증·추출 흐름을 실행한다. 제목과 이미지 후보 URL을 추출해 BE에 결과를 제출하면 관리자
 검수 화면에 표시된다. Python extractor는 로컬 작업 경로에만 임시 파일을 만들 수 있고, BE·FE에는
-내부 경로나 원본 binary를 넘기지 않는다. 운영자는 값을 수정하고 사용할 이미지를 선택하거나 후보를
+내부 경로나 원본 binary를 결과 metadata에 넣지 않는다. 관리자 preview가 필요하면 별도 인증 업로드로 검증·재인코딩한 파일만 전달한다. 운영자는 값을 수정하고 사용할 이미지를 선택하거나 후보를
 반려한다.
 
 다음 조건에서는 자동 보정을 추측하지 않고 실패 사유를 보여준다.
@@ -173,7 +173,7 @@
 ## 5. 출처 등록과 운영 위험 판정 절차
 
 출처 이름만 DB에 넣었다고 사용할 수 있는 것이 아니다. 출처마다
-[출처 명세](./source-spec-template.md)를 작성하고 다음 gate를 순서대로 통과한다. 이용약관은 자동
+[출처 명세](source-spec-template.md)를 작성하고 다음 gate를 순서대로 통과한다. 이용약관은 자동
 차단 조건이 아니라 운영 위험 판단 자료로 기록한다. `robots.txt` 금지, 차단 응답, 로그인·CAPTCHA·
 유료 장벽 우회 필요, 요청 상한 초과와 SSRF 위험은 기술 gate로 유지한다.
 
@@ -246,6 +246,7 @@ Discord /collect url:<원문URL>
   -> 운영자 로컬 collector의 Discord App 연결
   -> guild·channel·사용자 권한 검증
   -> 3초 안에 deferred response
+  -> BE에 URL 작업 접수(PENDING)·후보 id 수신·작업 선점
   -> URL 정규화·출처 등록/활성·robots·요청 상한·SSRF gate 확인
   -> 단일 상세 페이지 fetch·parser 실행
   -> BE collector 제출 API로 후보 결과 전송
@@ -398,5 +399,34 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 - Discord 명령 job·멱등성·확인·감사 actor, 3초 초기 응답·15분 token 한계와 보고 webhook 전환
 - Discord 보고 webhook 재시도·보존·secret 분리
 
-현재 브랜치에는 source, migration, OpenAPI와 실행 테스트가 없으므로 이 문서 작성은 구현 완료나
+수집 단계의 새 source·migration·OpenAPI·실행 테스트는 별도로 작성해야 하므로 이 문서 작성은 구현 완료나
 수집 가능성 검증을 뜻하지 않는다.
+
+<a id="source-common-rules"></a>
+
+### 출처별 공통 추출·임시 파일 규칙
+
+다음은 20개 출처 명세에서 공통으로 참조하는 기존 규칙이다. 출처별 URL·정책 판단·fixture·제한값과 활성화 상태는 각 명세를 따른다.
+
+M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Discord `/collect url` 또는 관리자 화면에서
+입력된 단일 상세 페이지 1건만 추출한다. 목록 수집을 도입하려면 별도 `M0 자동 수집` 단계에서 이 절을
+다시 작성하고 fixture를 검증한다.
+
+| 대상 | 추출 규칙 | 필수 여부 | 실패 처리 |
+| --- | --- | --- | --- |
+| 원문 URL | 사용하지 않음 | 해당 없음 | 후보 생성 안 함 |
+| 제목 | 사용하지 않음 | 해당 없음 | 상세 페이지 추출 규칙 사용 |
+| thumbnail URL | 사용하지 않음 | 해당 없음 | 상세 페이지 추출 규칙 사용 |
+| 게시 시각 | 사용하지 않음 | 해당 없음 | `null` |
+| 다음 페이지 | 사용하지 않음 | 해당 없음 | 종료 |
+
+- 목록·feed·pagination: M0 수집 보조 범위 밖
+- 공지·광고·추천 콘텐츠: 목록에서 추출하지 않음
+- 같은 목록의 중복 링크: 목록에서 추출하지 않음
+
+- 후보 생성 시 Python extractor는 미리보기에 필요한 이미지 후보만 작업 경로에 임시 저장할 수 있다.
+- 임시 파일 경로는 내부 구현값이며 공개 화면, 로그, Discord 보고와 Git에 남기지 않는다.
+- DB에는 원격 URL, 순서, 추출·검증 상태와 preview 식별자만 저장하고 image binary는 저장하지 않는다.
+- 후보 반려, 보존 기간 만료, 재시도 교체, parser 실패 전환 시 임시 파일은 삭제 대상이다.
+- 게시글 초안 승격이 결정되면 선택 이미지에 한해 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 거쳐 블라리요 저장소에 저장한다.
+- 승격 transaction 실패 시 저장된 이미지는 staging orphan 정리 대상으로 분류한다.

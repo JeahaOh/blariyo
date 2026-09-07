@@ -1,6 +1,6 @@
 # M0 시스템 아키텍처
 
-- 문서 상태: M0 아키텍처 설계 계약 · 현행 구현 산출물 없음
+- 문서 상태: M0 아키텍처 설계 계약 · 프로토타입 폐기 후 신규 개발 기준
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-04
 - 관련 문서: [데이터 모델](./02-data-model.md), [API 설계](./03-api-design.md), [인프라 설계](./04-infrastructure-design.md), [보안·운영](./05-security-operations.md)
@@ -20,7 +20,7 @@
 - 단일 VM과 단일 PostgreSQL은 단일 장애 지점이다.
 - M0에는 무중단 배포와 다중 리전이 없다.
 - 페이지 번호 방식은 낮은 데이터 규모를 전제로 `OFFSET`을 사용한다.
-- 원본 이미지 변환·동영상 호스팅·실시간 알림은 없다.
+- 업로드 안전성 확보를 위한 metadata 제거·재인코딩은 필수다. 다중 해상도 파생 이미지 서비스·동영상 호스팅·실시간 알림은 없다.
 - 소셜 로그인과 광고는 M0 runtime·schema·API에 포함하지 않는다. GA4는 M0 Web에 기본 비활성
   연동으로 포함하고 운영 gate를 통과한 환경에서도 분석 동의 후에만 로드하며 Core API와
   PostgreSQL에 자체 분석 저장 경로를 만들지 않는다.
@@ -51,10 +51,9 @@
   |
   +--------------------> [Cloudflare R2]
   +--------------------> [Cloudflare Cache Purge API]
-  +<-------------------- [운영자 로컬 collector] (Discord /collect url, 외부 fetch/parser)
-                            |
-                            +----> [Discord API/Webhook]
-                            +----> [등록된 수집 출처] (outbound only, allowlist)
+  +<---- [Nuxt collector 전용 중계] <---- [운영자 로컬 collector] (Discord /collect url, 외부 fetch/parser)
+[운영자 로컬 collector] ----> [Discord API/Webhook]
+[운영자 로컬 collector] ----> [등록된 수집 출처] (outbound only, allowlist)
 ```
 
 공개 사용자는 Cloudflare를 통해서만 원본 서버에 접근한다. 운영자 경로는 현재 Cloudflare Access를 외부 인증 provider로 사용하지만 이 검증은 Nuxt BFF adapter에만 둔다. VM의 80·443·5432 포트는 공용 인터넷에 열지 않고 `cloudflared`가 outbound tunnel을 만든다.
@@ -84,7 +83,7 @@ M0 Core 반복 명령은 `npm run posts:publish-due`, `npm run outbox:run`이다
 두지 않는다. M0 수집 보조는 로컬 collector가 Discord 또는 관리자 화면에서 들어온 URL 한 건만
 요청하며 scheduler가 목록을 돌지 않는다. 실제 요청 간격·일일 상한은 사용 결정된 출처 명세를 따른다. 정책
 시행은 자동 scheduler가 아니라 승인된 정책 release artifact를 사용하는 운영 단발성 명령
-`npm run policies:publish`로 수행한다. 각 명령은 HTTP 관리자 경계를 우회하지 않고 동일한
+`npm run policies:publish`로 수행한다. 각 명령은 공개 HTTP endpoint를 추가하지 않고 서버의 승인된 실행 경로에서 동일한
 repository·service와 전용 system actor를 사용한다.
 
 ## 4. 애플리케이션 컴포넌트
@@ -177,22 +176,39 @@ services에는 `CollectSourceService`와 `CollectCandidateService`를 둔다. `C
   책임이다. Core는 collector service token, 후보 상태 전이, 출처 활성 상태, 요청 상한 기록,
   제출된 metadata schema와 중복만 검증한다.
 
+### Collector 전용 중계 경계
+
+M0 수집 보조에서만 `https://<service-origin>/api/collector/v1/*`를 Nuxt의 기계 호출 전용
+중계 경로로 연다. Nginx는 기존처럼 Web에만 연결하며, Web은 명시한 method·path만
+Core `/internal/collect/*`로 매핑한다. 공개 브라우저 `/api/v1`와 관리자 session 계약에 섞지 않는다.
+collector bearer token은 이 경로에서만 Core CollectorAuth로 전달하고 외부 입력의 Core service token·
+admin actor header는 제거한다. Core는 token의 해시·scope·collectorId 매핑을 검증하며 관리자 권한을
+부여하지 않는다. CORS는 허용하지 않고 TLS·요청 크기 제한·token별 rate limit을 적용한다.
+전체 flag가 false이면 중계 route를 등록하지 않고 404다. Core 직접 공개 포트와 DNS는 만들지 않는다.
+
+이 방식은 기존 Tunnel·Web 경계를 재사용한다. private network 신규 도입보다 구성이 작지만 Web이
+collector 파일 중계 부하를 받으므로 preview를 파일당 10MiB로 제한한다. 운영상 병목이 확인되면
+전용 ingress 또는 private network로 이전하되 Core의 후보 서비스와 token 권한은 유지한다.
+실제 origin·token·rate-limit 운영값은 배포 전에 확정하며 기능 활성화 전까지 미검증이다.
+
+GA4 기본 `page_title`, `page_location`, `page_referrer`도 [분석 계획 §4](../planning/04-analytics-ad-plan.md)의 고정값 규칙을 따른다. 자동 page view와 향상된 측정을 끄고, 실제 제목·URL·postId가 기본 필드로 전송되지 않는지 network 검증을 운영 활성화 조건에 포함한다.
+
 ## 5. 주요 흐름
 
 ### 목록 조회
 
 ```text
 GET /meme
-  -> Cloudflare cache miss
+  -> Cloudflare cache bypass
   -> Nuxt SSR
   -> Nuxt BFF GET /api/v1/boards/meme/posts?page=1
   -> Express Core API
   -> PostgreSQL: 공지 0~3 + 일반 글 20 + total count
   -> SSR HTML
-  -> Cloudflare short cache
+  -> Cache-Control: no-store
 ```
 
-- 공개 목록 cache TTL은 `60초`부터 시작한다.
+- M0 공개 게시글 목록·상세 API와 HTML은 `no-store`이며 CDN cache rule도 이를 덮어쓰지 않는다.
 - 게시·숨김 성공 시 `/meme`와 영향을 받는 상세 URL을 URL 단위로 purge한다.
 - 공지는 모든 목록 페이지에 동일하게 붙고 일반 글 20개 계산에서 제외한다.
 
@@ -282,6 +298,7 @@ R2 copy 동안 DB row lock이나 transaction을 유지하지 않는다. 여러 s
 Discord /collect url
   -> 로컬 collector의 Discord App 연결
   -> guild·channel·user 권한 검증
+  -> collector 전용 중계로 URL 접수(PENDING) 후 해당 candidateId claim
   -> 같은 단일 상세 페이지 추출과 Core 제출 흐름 실행
 ```
 
@@ -293,11 +310,13 @@ Discord /collect url
 ```
 
 후보 생성은 원문 URL과 metadata까지만 DB에 저장한다. Python extractor는 운영자 검수 미리보기를
-위해 로컬 작업 경로에 이미지 후보를 임시 파일로 둘 수 있지만, 이 파일은 BE filesystem, 영구 object
-storage와 DB image row가 아니다. 이미지 영구 저장은 운영자가 후보를 초안으로 승격할 때 수행하며,
+위해 로컬 작업 경로에 이미지 후보를 임시 파일로 둔다. 관리자 preview는 검증·재인코딩 후 별도
+`collect-preview/` private object로 최대 24시간 저장할 수 있으며 영구 원본·content image row와 구분한다.
+반려·만료·재시도 교체·승격 시 preview를 삭제하고 만료 object는 매일 정리한다. 이미지 영구 저장은
+운영자가 후보를 초안으로 승격할 때 수행하며,
 그 시점에 로컬 collector가 다시 제출하거나 운영자가 업로드한 파일을 기존 관리자 업로드와 같은
-MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에 넣는다. 즉 검수하지 않은 외부
-이미지가 블라리요 저장소에 남지 않는다.
+MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에 넣는다. 검수 전 파일은
+접근이 제한되고 만료가 있는 preview로만 보관한다.
 
 같은 원문 URL의 후보는 정규화된 URL 기준으로 한 건만 유지한다. `403`, `429`, robots 금지, timeout이 발생하면 해당 단건 후보를 실패로 남기고 운영 알림을 만든다. 목록 수집 자동 비활성은 후속 `M0 자동 수집`에서만 적용한다.
 
@@ -318,14 +337,18 @@ MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에
 
 | 대상 | 기본값 | 비고 |
 | --- | --- | --- |
-| `/meme?page=n` | CDN `60초` | publish·hide 시 관련 URL purge |
-| `/:boardSlug/posts/:postId` | CDN `300초` | hide 시 해당 URL 즉시 purge |
+| `/meme?page=n` | `no-store` | 모든 query 변형 포함 |
+| `/:boardSlug/posts/:postId` | `no-store` | 상세와 내장 목록 포함 |
 | 정책 현재 본문 | CDN `300초` | 새 버전 시행 시 purge |
 | 404·오류 | `no-store` | 숨김 정보가 cache에 남지 않게 함 |
 | R2 공개 이미지 | `public, max-age=31536000, immutable` | storage key에 content hash 포함 |
 | 관리자·계정 화면 | `private, no-store` | CDN cache 금지 |
 
-HTML은 짧게 cache하고 이미지는 불변 key로 길게 cache한다. 게시글 이미지가 바뀌면 기존 key를 덮어쓰지 않고 새 key를 발급한다.
+게시글 API·HTML은 저장하지 않고 이미지는 불변 key로 길게 cache한다. 게시글 이미지가 바뀌면 기존 key를 덮어쓰지 않고 새 key를 발급한다.
+숨김 commit 이후 시작된 조회는 목록에서 제외하고 상세는 일반화된 404를 반환한다.
+이미 진행 중인 응답과 내려받은 콘텐츠의 회수는 보장하지 않는다. 이미지 원본 삭제·CDN purge는
+별도 outbox 완료로 추적하며 즉시 차단을 보장하지 않는다. 기존 cache가 있는 환경에 적용할 때는
+게시글 API·HTML의 모든 query 변형을 제거해야 한다. 기존 HTML purge outbox는 방어적으로 유지한다.
 
 ## 7. 확장 경계
 

@@ -137,7 +137,7 @@ planning을 확정하고 system-design을 대조한다. 수집 계약은 M0 전�
 
 - 빈 PostgreSQL 18에서 migration과 seed가 성공한다.
 - 목록·상세·운영자 발행·숨김 smoke test가 통과한다.
-- 운영자 URL 지정 수집과 후보 검수·초안 승격 smoke test가 통과하고, 허용하지 않은 대상 요청이 거부된다.
+- M0 수집 보조 활성화 시에만 운영자 URL 지정 수집과 후보 검수·초안 승격 smoke test가 통과하고, 허용하지 않은 대상 요청이 거부된다. M0 Core 첫 공개는 수집 없이 검증한다.
 - 외부 공개 port가 의도한 HTTP endpoint로만 제한된다.
 - 암호화 DB backup을 새 PostgreSQL 18에 실제 복원한다.
 - VM 전체를 잃어도 문서화된 절차로 DB와 media를 재연결할 수 있다.

@@ -186,12 +186,13 @@ Internet
 ```
 
 - VM cloud firewall inbound rule은 기본 `deny all`이다.
-- `cloudflared`가 outbound 443으로 연결한다.
+- `cloudflared`의 터널 연결은 Cloudflare 지정 목적지의 outbound `7844/UDP`(QUIC) 또는 `7844/TCP`(HTTP/2)를 허용한다. 업데이트·관리 API 등 HTTPS 통신의 `443/TCP`와 구분한다. 목적지 목록은 [공식 Tunnel 방화벽 요구사항](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/configure-tunnels/tunnel-with-firewall/)을 배포 시 확인한다.
 - 긴급 복구 SSH가 필요하면 운영자 고정 IP에만 22를 임시 허용하고 작업 후 닫는다.
 - PostgreSQL·Nuxt·Express container port는 host public interface에 bind하지 않는다.
 - Docker network를 `edge`, `app`, `data`로 분리한다.
 - `edge`에는 `cloudflared`·`nginx`·`web`, `app`에는 `web`·`api`, `data`에는 `api`·`postgresql`만 연결한다.
 - Nginx에는 `api` upstream을 두지 않는다. `web`만 `api`에, `api`만 `postgresql`에 접근한다.
+- 로컬 collector는 Tunnel→Nginx→Web의 `/api/collector/v1/*` 전용 중계를 사용한다. Web이 Core `/internal/collect/*`로 매핑하며 token 검증은 Core CollectorAuth가 수행한다. 경계·허용 목록은 [아키텍처](./01-system-architecture.md)의 Collector 전용 중계를 따른다.
 - backup job은 `postgresql`과 R2 endpoint에만 접근한다.
 - 외부 사이트로 나가는 수집 outbound HTTP는 운영자 로컬 collector에서만 허용한다. `web`, `api`,
   `nginx`, `postgresql`은 외부 사이트를 호출하지 않는다.
@@ -333,8 +334,7 @@ domain 등록을 확인하고 SDK URL·SRI·CSP host를 고정하기 전에는
 `NUXT_PUBLIC_GA4_MEASUREMENT_ID`를 public runtime config에서 unset해 응답 payload와 client bundle에
 provider 값을 노출하지 않는다. GA4를 켠 환경에서도
 저장된 분석 동의 전에는 Google tag/request와 cookieless ping을 만들지 않는다. `COLLECT_USER_AGENT`는 블라리요를
-식별할 수 있는 문자열과 연락 수단을 포함하고, `COLLECT_MANUAL_URL_ENABLED`·
-`COLLECT_MANUAL_URL_ENABLED`는 관리자 화면 URL 지정, `COLLECT_DISCORD_COMMAND_ENABLED`는 Discord
+식별할 수 있는 문자열과 연락 수단을 포함한다. `COLLECT_MANUAL_URL_ENABLED`는 관리자 화면 URL 지정, `COLLECT_DISCORD_COMMAND_ENABLED`는 Discord
 `/collect url` 명령의 전체 차단 스위치다. 두 경로 모두 입력된 단일 상세 페이지 1건만 처리한다.
 `COLLECT_LIST_CRAWL_ENABLED`는 후속 자동 수집 도입 전까지 false로 유지한다. 출처별 요청 간격·일일
 상한·robots 확인 결과는 환경변수가 아니라 `collect.source` 데이터로 관리한다.
@@ -373,10 +373,13 @@ public 배포본 월 약 0.47GB
 private canonical 원본 포함 월 약 0.94GB
 ```
 
-수집 후보는 원문 URL·제목·이미지 후보 URL과 임시 preview 식별자만 DB에 저장하므로 후보 단계에서
-object storage를 쓰지 않는다. Python extractor 작업 경로에는 운영자 검수 미리보기용 이미지 임시
-파일을 둘 수 있지만 영구 원본이 아니며, 반려·만료·재시도 교체 시 삭제한다. 이미지 저장은 승격
-시점에만 발생하고 위 예산에 이미 포함된다. 후보 행은 30일 보존 기준으로 정리한다.
+수집 후보 metadata와 별도로 관리자 preview는 private bucket의
+`collect-preview/{candidateId}/{candidateImageId}/{uploadId}`에 최대 24시간 저장한다. public domain을
+연결하지 않고 인증된 관리자 proxy로만 읽는다. 반려·만료·재시도 교체·승격 시 삭제하며 24시간 TTL
+청소는 후보 30일 보존과 독립적으로 실행한다. cleanup 실패는 outbox·운영 알림으로 추적한다.
+preview 저장량과 PUT/GET/DELETE 비용은 위 영구 원본 예산에 포함되지 않으므로 수집 보조 활성화 때
+별도 산정한다. 로컬 임시 파일도 같은 생명주기에 맞춰 collector가 삭제한다. source가 검증되지 않아
+실제 후보량과 preview 평균 크기는 `(미정)`이며 활성화 전 비용 검증 항목이다.
 
 M0 기본은 다음과 같다.
 

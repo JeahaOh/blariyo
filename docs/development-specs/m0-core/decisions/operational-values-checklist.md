@@ -63,7 +63,7 @@ runtime 동작을 확인했을 때만 완료로 바꾼다.
 
 | 항목 | config key 또는 확인 위치 | 현재 상태 | 검증 방법 |
 | --- | --- | --- | --- |
-| 서비스 공개 URL | `SERVICE_PUBLIC_BASE_URL=https://blariyo.com/` | 완료 | SSR canonical·share URL 확인 |
+| 서비스 공개 URL | `SERVICE_PUBLIC_BASE_URL=https://blariyo.com/` | 필요 — 값 확정, 운영 검증 미완 | 실제 배포의 SSR canonical·share URL 확인 |
 | Kakao JavaScript key | `NUXT_PUBLIC_KAKAO_JS_KEY` | 필요 | 카카오 개발자 console의 JavaScript key 확인 |
 | Web domain 등록 | 카카오 개발자 console | 필요 | `https://blariyo.com` 등록 확인 |
 | SDK script URL | `NUXT_PUBLIC_KAKAO_SDK_SCRIPT_URL` | 필요 | 공식 SDK URL 재확인 |

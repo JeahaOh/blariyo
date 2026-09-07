@@ -4,7 +4,7 @@ info:
   version: 0.1.0-draft
   description: |
     M0 Core same-origin Nuxt BFF API 계약 초안이다.
-    현재 저장소에는 실제 BFF/Core source, generated client/server, contract test가 없으므로
+    기존 프로토타입을 승계하지 않고 새 BFF/Core와 생성 타입을 이 계약에서 만든다.
     이 파일은 구현 완료 증거가 아니라 구현 입력 계약이다.
 servers:
   - url: https://blariyo.com
@@ -312,6 +312,15 @@ paths:
           $ref: "#/components/responses/AdminAuthRequired"
         "403":
           $ref: "#/components/responses/AdminForbidden"
+        "404":
+          description: BOARD_NOT_FOUND — active target board does not exist.
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/PrivateNoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
         "409":
           $ref: "#/components/responses/PostConflict"
         "500":
@@ -730,11 +739,11 @@ components:
     PublicListCache:
       schema:
         type: string
-        const: public, max-age=15, s-maxage=60
+        const: no-store
     PublicDetailCache:
       schema:
         type: string
-        const: public, max-age=30, s-maxage=300
+        const: no-store
     PublicPolicyCache:
       schema:
         type: string
@@ -781,6 +790,7 @@ components:
         default: 1
     IdempotencyKey:
       name: Idempotency-Key
+      description: Same actor, method and route pattern retain the key for 24 hours. Replay requires identical path parameters and normalized body; a different target or body returns 409 IDEMPOTENCY_CONFLICT.
       in: header
       required: true
       schema:
@@ -964,7 +974,7 @@ components:
                 required: [data]
                 properties:
                   data:
-                    $ref: "#/components/schemas/PostCommandResult"
+                    $ref: "#/components/schemas/UpdatedPostCommandResult"
   schemas:
     HealthLiveResponse:
       type: object
@@ -1059,9 +1069,9 @@ components:
           type: string
     BoardSlug:
       type: string
-      pattern: "^[a-z0-9-]+$"
+      pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
       minLength: 1
-      maxLength: 80
+      maxLength: 32
     BoardSummary:
       type: object
       required: [slug, displayName]
@@ -1179,6 +1189,9 @@ components:
         - $ref: "#/components/schemas/PublicImageBlock"
       discriminator:
         propertyName: type
+        mapping:
+          TEXT: "#/components/schemas/PublicTextBlock"
+          IMAGE: "#/components/schemas/PublicImageBlock"
     PublicTextBlock:
       type: object
       required: [type, text]
@@ -1225,6 +1238,8 @@ components:
         url:
           type: string
           format: uri
+          pattern: "^https://"
+          maxLength: 2048
     PostContext:
       type: object
       required: [pinnedItems, listPage, items, pageSize, totalItems, totalPages]
@@ -1265,8 +1280,11 @@ components:
       allOf:
         - $ref: "#/components/schemas/PolicyHistoryItem"
         - type: object
-          required: [title, bodyHtml]
+          required: [type, title, bodyHtml]
           properties:
+            type:
+              type: string
+              enum: [terms, privacy]
             title:
               type: string
             bodyHtml:
@@ -1274,11 +1292,8 @@ components:
               description: Sanitized HTML.
     PolicyHistoryItem:
       type: object
-      required: [type, version, effectiveAt, endedAt]
+      required: [version, effectiveAt, endedAt]
       properties:
-        type:
-          type: string
-          enum: [terms, privacy]
         version:
           type: string
         effectiveAt:
@@ -1348,6 +1363,9 @@ components:
         - $ref: "#/components/schemas/AdminImageBlock"
       discriminator:
         propertyName: type
+        mapping:
+          TEXT: "#/components/schemas/AdminTextBlock"
+          IMAGE: "#/components/schemas/AdminImageBlock"
     AdminTextBlock:
       type: object
       required: [type, text]
@@ -1362,6 +1380,20 @@ components:
     AdminImageBlock:
       type: object
       required: [type, imageId, alt, status, width, height, previewPath]
+      allOf:
+        - if:
+            properties:
+              status:
+                enum: [PRIVATE_DELETE_PENDING, DELETED]
+            required: [status]
+          then:
+            properties:
+              previewPath:
+                type: "null"
+          else:
+            properties:
+              previewPath:
+                type: string
       properties:
         type:
           type: string
@@ -1382,7 +1414,7 @@ components:
           type: integer
           minimum: 1
         previewPath:
-          type: string
+          type: [string, "null"]
     CreatePostRequest:
       type: object
       required: [boardSlug, title, source, blocks, pinnedPosition]
@@ -1398,11 +1430,7 @@ components:
             - $ref: "#/components/schemas/Source"
             - type: "null"
         blocks:
-          type: array
-          minItems: 1
-          maxItems: 40
-          items:
-            $ref: "#/components/schemas/EditBlock"
+          $ref: "#/components/schemas/EditBlocks"
         pinnedPosition:
           $ref: "#/components/schemas/PinnedPosition"
     UpdatePostRequest:
@@ -1421,19 +1449,32 @@ components:
             - $ref: "#/components/schemas/Source"
             - type: "null"
         blocks:
-          type: array
-          minItems: 1
-          maxItems: 40
-          items:
-            $ref: "#/components/schemas/EditBlock"
+          $ref: "#/components/schemas/EditBlocks"
         pinnedPosition:
           $ref: "#/components/schemas/PinnedPosition"
+    EditBlocks:
+      type: array
+      minItems: 1
+      maxItems: 40
+      items:
+        $ref: "#/components/schemas/EditBlock"
+      contains:
+        type: object
+        required: [type]
+        properties:
+          type:
+            const: IMAGE
+      minContains: 0
+      maxContains: 20
     EditBlock:
       oneOf:
         - $ref: "#/components/schemas/EditTextBlock"
         - $ref: "#/components/schemas/EditImageBlock"
       discriminator:
         propertyName: type
+        mapping:
+          TEXT: "#/components/schemas/EditTextBlock"
+          IMAGE: "#/components/schemas/EditImageBlock"
     EditTextBlock:
       type: object
       required: [type, text]
@@ -1462,6 +1503,17 @@ components:
     PublishPostRequest:
       type: object
       required: [lockVersion, mode]
+      allOf:
+        - if:
+            properties:
+              mode:
+                const: SCHEDULED
+            required: [mode]
+          then:
+            required: [scheduledAt]
+          else:
+            not:
+              required: [scheduledAt]
       properties:
         lockVersion:
           type: integer
@@ -1524,6 +1576,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+    UpdatedPostCommandResult:
+      allOf:
+        - $ref: "#/components/schemas/PostCommandResult"
+        - type: object
+          required: [updatedAt]
     PublishPostResult:
       allOf:
         - $ref: "#/components/schemas/PostCommandResult"
@@ -1616,6 +1673,7 @@ components:
         - PUBLIC_DELETE_PENDING
         - PRIVATE_REVIEW
         - PRIVATE_DELETE_PENDING
+        - DELETED
     ErrorCode:
       type: string
       enum:

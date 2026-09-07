@@ -30,12 +30,11 @@
   - 이토랜드
   - 율도
   - 디미토리
-  - 알지롱
   - 피지알21
 
 ## 3. 산출물
 
-다음 21개 문서를 생성했다.
+다음 20개 문서를 생성했다.
 
 - `docs/planning/content-collection/sources/arcalive.md`
 - `docs/planning/content-collection/sources/bobaedream.md`
@@ -53,7 +52,6 @@
 - `docs/planning/content-collection/sources/natepann.md`
 - `docs/planning/content-collection/sources/pgr21.md`
 - `docs/planning/content-collection/sources/ppomppu.md`
-- `docs/planning/content-collection/sources/rgrong.md`
 - `docs/planning/content-collection/sources/ruliweb.md`
 - `docs/planning/content-collection/sources/theqoo.md`
 - `docs/planning/content-collection/sources/todayhumor.md`
@@ -65,9 +63,9 @@
 
 | 판정 | 사이트 |
 | --- | --- |
-| Discord·운영자 URL 수집 보조 차단 / 자동 수집 차단 | 디시인사이드, MLBPARK, 인스티즈, 네이트판, 웃긴대학, 고급유머, 알지롱, 피지알21 |
-| Discord·운영자 URL 수집 보조 보류 / 자동 수집 보류 | 에펨코리아, 뽐뿌, 클리앙, 인벤, 오늘의유머, 보배드림, 개드립, 더쿠, 아카라이브 |
-| Discord·운영자 URL 수집 보조 보류 / 자동 수집 차단 | 루리웹, 이토랜드, 율도, 디미토리 |
+| Discord·운영자 URL 수집 보조 차단 / 자동 수집 차단 | 디시인사이드, MLBPARK, 인스티즈, 네이트판, 웃긴대학, 고급유머, 피지알21 |
+| Discord·운영자 URL 수집 보조 보류 / 자동 수집 보류 | 에펨코리아, 뽐뿌, 클리앙, 인벤, 오늘의유머, 보배드림, 더쿠, 아카라이브 |
+| Discord·운영자 URL 수집 보조 보류 / 자동 수집 차단 | 개드립, 루리웹, 이토랜드, 율도, 디미토리 |
 
 ## 5. 루트 검수 정정
 
@@ -86,7 +84,7 @@
 
 - `git diff --check`: 통과
 - 문서 상대 링크 검사: 통과
-- 생성 파일 수 검사: 21개 확인
+- 생성 파일 수 검사: 20개 확인
 - 모든 source spec의 기본 활성 단계: `비활성`
 - 비밀값·토큰·쿠키 원문 패턴 검사: source spec 기준 발견 없음
 

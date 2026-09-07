@@ -1,20 +1,20 @@
 # M0 Core 구현 Backlog
 
-- 문서 상태: `초안`
+- 문서 상태: 신규 M0 Core 개발 순서
 - milestone: `M0 Core` (`m0-core`)
 - 기준일: 2026-09-03
 - 입력 근거: [서비스 기획](../../planning/01-service-plan.md), [시스템 설계](../../system-design/README.md), [API 설계](../../system-design/03-api-design.md), [M0 Core 결정 색인](./decisions/open-decisions.md)
-- 미검증: source, migration, OpenAPI 파일, test, build, runtime, browser, deployment
+- 미검증: 새 source·migration·생성 타입·test·build·runtime·browser·deployment
 
 이 문서는 이미 작성된 M0 Core 개발 Spec을 구현 순서로 묶는 실행 준비 backlog다. 제품 범위나 API
 계약을 새로 확정하지 않고 각 기능 Spec과 system-design의 계약을 따라 구현 단위를 정렬한다.
 
 ## 1. 구현 전제
 
-- 현재 브랜치에는 애플리케이션 source, migration, OpenAPI와 실행 테스트가 없다.
+- [새 개발 전제](../../system-design/README.md#현재-준비-상태)에 따라 빈 애플리케이션 구조에서 시작한다. 기존 프로토타입 동기화·수정 작업을 선행 조건으로 두지 않는다.
 - 구현 완료는 이 문서가 아니라 실제 source, migration, test, build, runtime 증거로 판정한다.
 - `M0 Core`는 수집 보조·자동 수집 없이 공개 가능해야 한다.
-- `policy-and-rights`는 법무·문의 실값 전까지 문서 상태 `차단`을 유지한다.
+- `policy-and-rights`의 법무·문의 실값 `차단`은 production 공개 조건이다. 조회·시행 command·UI 개발은 테스트 fixture로 진행한다.
 - Kakao, GA4, 광고는 구현 경계와 운영 활성화 gate를 분리한다.
 
 ## 2. Backlog 순서
@@ -30,7 +30,7 @@
 | 7 | 관리자 인증 경계 | BFF external identity adapter, Core service token/actor | Cloudflare Access 또는 fake adapter | auth contract test |
 | 8 | 관리자 이미지/초안 | upload all-or-nothing, preview, discard, draft create/update | R2 adapter fake/real 경계 | image/storage rollback test |
 | 9 | 발행/예약/숨김 | publish, schedule, unschedule, hide, republish, remove, outbox | 게시글 편집 구현 | 상태 전이·outbox test |
-| 10 | 정책 시행 command | sanitized policy artifact publish, version switch, cache purge | 법무 실값·artifact 승인 | command/integration test |
+| 10 | 정책 시행 command | sanitized policy artifact publish, version switch, cache purge | 로컬 fixture로 구현, 실제 시행은 법무 실값·artifact 승인 후 | command/integration test |
 | 11 | analytics consent | 기본 비활성, 동의 UI, GA4 loader gate | [analytics-consent](./analytics-consent/analytics-consent.dev.md) | browser network test |
 | 12 | 운영 smoke | health, backup, restore, scheduler, browser QA | production-like preview compose | smoke checklist |
 
@@ -45,8 +45,7 @@
 
 ## 4. OpenAPI 작성 범위
 
-OpenAPI 초안은 [openapi-draft.md](./openapi-draft.md)를 따른다. 첫 파일은 `docs`가 아니라 실제
-source repository 구조가 생긴 뒤 구현 브랜치에서 만든다.
+문서 입력 계약은 [openapi/m0-core.yaml](./openapi/m0-core.yaml), 배치 기준은 [openapi-draft.md](./openapi-draft.md)를 따른다. 새 구현의 공유 계약은 `packages/contracts/openapi/m0-core.yaml`에 두고 docs 원본과 같게 시작한다. 생성 타입은 이 파일에서 새로 만든다.
 
 초기 OpenAPI에는 다음만 포함한다.
 
@@ -67,4 +66,3 @@ source repository 구조가 생긴 뒤 구현 브랜치에서 만든다.
 - 활성화 차단: OD-M0-009 Kakao 운영값, OD-M0-011 GA4 운영값
 - 미검증: source, migration, OpenAPI, test, build, runtime, browser, deployment
 - 보류: 수집 보조·자동 수집, 회원, 광고, 제휴는 별도 milestone에서 진행
-

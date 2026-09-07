@@ -36,17 +36,9 @@
 
 ## 출력 라우팅
 
-기능별 출력 루트는 `docs/development-specs/<milestone>/<feature-slug>/`다.
-
-| 산출물 | 소유하는 내용 | 주 입력 |
-| --- | --- | --- |
-| `<feature-slug>.dev.md` | 요구사항 추적, 범위, 결정, 미정·차단, API·프로세스·화면 목록 | planning·legal·관련 system-design |
-| `api/<operation>.md` | 한 작업의 API 구현 계약 | 개발 보강서, API 공통 계약, 데이터·보안 계약 |
-| `d01/<process>.md` | 행위자와 시스템의 순차 처리·실패·상태 전이 | 개발 보강서와 API Spec |
-| `d08/<screen-or-program>.md` | 화면·프로그램의 UI 상태·이벤트·API 매핑 | 화면 기획, 정적 비교 자료, 개발 보강서, API·D01 |
-
-API가 없으면 `api/`에 빈 파일을 만들지 않는다. 프로세스나 화면·프로그램이 여러 개면 D01과 D08을
-각각 분리한다. 파일명은 URL이나 표시명을 그대로 쓰지 않고 안정적인 lowercase kebab-case slug를 쓴다.
+`docs/development-specs/<milestone>/<feature-slug>/<feature-slug>.dev.md` 하나에 API 보충·처리 흐름·화면 계약을 연결한다.
+API·D01·D08별 독립 파일은 만들지 않는다. Core 필드 형식은 docs의 M0 Core OpenAPI를 참조하고,
+OpenAPI에 없는 수집 계약과 업무 규칙은 기술 정본·기능 절에 보존한다. DB 열·제약은 데이터 모델을 참조한다.
 
 ## 충돌 처리
 

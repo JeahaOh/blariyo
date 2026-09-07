@@ -4,6 +4,7 @@
 - 대상 결정: [OD-M0-013](./open-decisions.md)
 - 현행 카피 정본: [카피 계약](../../../planning/06-copy-contract.md)
 - 확인일: 2026-09-03
+- 정정일: 2026-09-04 (고급유머 기준 URL)
 
 ## 1. 목적
 
@@ -44,7 +45,7 @@
 | 아카라이브 | https://arca.live/ | `아카라이브` | `다양하고 자유로운 커뮤니티 아카라이브` | 서비스명 + 짧은 커뮤니티 설명 |
 | 웃긴대학 | https://web.humoruniv.com/ | `행복한 유머, 웃긴대학에 오셨습니다.` | 전통 유머 사이트 설명 | 브랜드 문장과 유머 정체성 직접 표기 |
 | 루리웹 | https://www.ruliweb.com/ | `루리웹 RULIWEB` | `들어올 땐 마음대로인 루리웹 메인으로 들어오도록 해` | 오래 유지된 내부 밈성 문구 사용 |
-| 고급유머 | https://www.humorworld.net/ | `유머월드 - HumorWorld` | `HumorWorld` | 단순 title 중심 |
+| 고급유머 | https://www.goodgag.net/ | `(미정)` | `(미정)` | 기준 URL 정정 완료. title·meta 문구 재확인 필요 |
 | 이토랜드 | https://www.etoland.co.kr/ | `이토랜드` | `유머, 연예, 정보, 이슈를 빠르게 공유하는 커뮤니티입니다.` | 카테고리와 커뮤니티 성격 직접 설명 |
 | 율도 | https://yul-do.com/ | `YULDO` | 확인 가능한 meta description 없음 | 영문 서비스명 단독 title |
 | 디미토리 | https://www.dmitory.com/ | `디미토리` | `익명 정보 커뮤니티 사이트` | 서비스명 단독 title과 짧은 설명 |

@@ -132,7 +132,7 @@ Discord /collect url 또는 관리자 URL 지정
 ## 8. 이미지 스펙
 
 - 외부 이미지는 게시가 결정된 선택 이미지에 한해 블라리요 서버 측 저장소에 저장한다.
-- 후보 검수 미리보기용 이미지는 Python extractor 작업 경로의 임시 파일로만 보관하고, 반려·만료·재시도 교체 시 삭제한다.
+- 후보 검수 preview는 로컬 임시 파일과 최대 24시간의 서버 private staging으로 보관하고, 반려·만료·재시도 교체·승격 시 삭제한다. 상세 계약은 콘텐츠 수집 기획을 따른다.
 - 외부 사이트 이미지를 직접 핫링크하지 않는다.
 - M0 저장소는 Cloudflare R2 Standard를 사용하고 private 원본과 public media를 분리한다.
   production account, bucket 이름과 custom domain은 배포 전에 확정한다.

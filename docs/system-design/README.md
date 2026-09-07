@@ -1,6 +1,6 @@
 # 블라리요 M0 시스템 설계
 
-- 문서 상태: M0 기술 계약 정본 · 현행 실행 산출물 없음
+- 문서 상태: M0 기술 계약 정본 · 프로토타입 폐기 후 신규 개발 기준
 - 기준일: 2026-09-02
 - 정합성 검토일: 2026-09-02
 - 상위 기획: [서비스 기획서](../planning/01-service-plan.md)
@@ -23,19 +23,15 @@
 
 ## 현재 준비 상태
 
-| 영역 | 설계 문서 | 실행 산출물 | 현재 판정 |
-| --- | --- | --- | --- |
-| 시스템 경계 | 아키텍처 흐름 정의 | 없음 | 설계 계약 유지, 구현 미검증 |
-| 데이터 | PostgreSQL table·constraint·상태·보존 계약 | 없음 | 설계 계약 유지, migration·test 미검증 |
-| API | 외부 BFF·내부 Core request·response·오류 계약 | 없음 | 설계 계약 유지, OpenAPI·route·test 미검증 |
-| 수집 | 출처·후보 큐·검수·요청 상한 계약 | 없음 | 설계 계약 유지, fetch·robots·승격 test 미검증 |
-| 인프라 | 공급자·network·resource 기준 | production 계정·domain 미확정 | 설계 완료, 배포 미검증 |
-| 보안·운영 | 접근·backup·restore·runbook | production restore drill 미실시 | 설계 완료, 운영 미검증 |
+2026-09-07 사용자 결정에 따라 기존 애플리케이션 프로토타입을 이어 개발하지 않고 새로 구현한다.
+기존 source·migration·생성 타입·테스트 결과는 새 구현의 완료 근거로 승계하지 않는다.
+오늘 작업은 docs 확정이며 실제 프로토타입 삭제·소스 생성은 수행하지 않는다.
 
-현재 브랜치에는 애플리케이션 source, migration, OpenAPI와 실행 테스트가 없다. Git 전체 이력에서도
-문서가 가리키던 M0 migration runner·`V001`·`V002`·OpenAPI 파일은 추적 이력을 확인하지 못했다.
-따라서 이 디렉터리는 구현 방향을 정의하는 설계 계약으로만 사용하며, 실행 준비 gate는 향후
-실제 산출물과 새 검증 결과가 생길 때 다시 판정한다.
+- 개발 입력: planning → system-design → 기능 명세와 docs OpenAPI.
+- 첫 구현 범위: M0 Core. 수집 보조·자동 수집·M1 기능은 각 단계로 분리한다.
+- 구현 시작 순서와 완료 조건: [구현 Backlog](../development-specs/m0-core/implementation-backlog.md).
+- 법무 실값·production 계정·복구 훈련은 공개 전 조건이다. 로컬 개발과 가짜 외부 adapter를 이용한 테스트는 시작할 수 있다.
+- 문서 검증과 새 구현의 test·build·runtime·브라우저·배포 검증은 별도다.
 
 ## 설계 범위
 

@@ -64,6 +64,14 @@ GA4를 활성화한 환경에서 분석 동의가 있을 때만 다음 이벤트
 - tag 로드나 이벤트 전송이 실패하면 재시도 queue나 자체 분석 fallback을 만들지 않고 event를
   drop하며 공개 기능은 유지한다.
 
+### GA4 기본 필드와 자동 측정 제한
+
+사용자 정의 parameter 제한은 GA4 기본 필드에도 적용한다. 동의 후 첫 설정부터 `send_page_view: false`를 지정하고, GA4 향상된 측정의 자동 page view·scroll·외부 링크 등 자동 이벤트를 비활성화한 설정을 활성화 gate로 확인한다. 허용된 네 이벤트만 adapter에서 명시적으로 보낸다.
+
+모든 이벤트에서 `page_title`은 고정값 `블라리요`, `page_referrer`는 빈 문자열로 덮어쓴다. `page_location`은 서비스 origin에 정해진 분석용 경로(`/analytics/list`, `/analytics/detail`, `/analytics/policy`, `/analytics/other`)만 붙인 값으로 설정한다. 이 경로는 분석용 분류값이며 실제 화면 route가 아니다. 실제 URL·query·hash·postId를 복사하지 않는다. route 변경마다 전송 전에 이 값을 갱신하고 Google tag 설정·이벤트 어디에서도 실제 document.title이나 location.href를 넘기지 않는다. 관리자 경로에서는 tag를 load하거나 이벤트를 보내지 않는다.
+
+GA4는 기본적으로 문서 제목과 현재 URL을 page view에 넣으므로 설정 생략은 허용하지 않는다. [Google의 page view 측정 안내](https://developers.google.com/analytics/devguides/collection/ga4/views)를 근거로 하며, 실제 network에서 금지값 누출·자동 중복 이벤트가 없는지 확인하기 전에는 운영 활성화하지 않는다. SDK가 생성하는 기술 필드까지 네 custom parameter로 제한된다는 의미는 아니다.
+
 ## 5. 동의 UI
 
 - M0 Core에 아래 선택 UI를 구현하되, 동의가 필요한 선택 기능이 모두 비활성이면 배너를 표시하지 않는다.

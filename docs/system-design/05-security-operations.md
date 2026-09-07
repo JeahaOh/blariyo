@@ -40,6 +40,8 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | 분석 데이터 재식별 | GA4 User-ID 미사용, 회원·소셜 식별자·본문·수집 후보 정보 전송 금지 |
 | dependency 변조 | lockfile 추적, `npm ci`, image digest 고정, 주기 audit |
 
+GA4 기본 `page_title`, `page_location`, `page_referrer`도 [분석 계획 §4](../planning/04-analytics-ad-plan.md)의 고정값 규칙을 따른다. 자동 page view와 향상된 측정을 끄고, 실제 제목·URL·postId가 기본 필드로 전송되지 않는지 network 검증을 운영 활성화 조건에 포함한다.
+
 ## 3. 관리자 접근
 
 ### 외부 관리자 인증 provider
@@ -181,7 +183,7 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 - `403`, `429`, robots 금지, timeout이 발생하면 단건 후보를 실패로 기록한다. 후속 자동 수집에서는 출처 기준 연속 임계를 넘으면 해당 출처의 목록 수집을 자동 비활성하고 사유를 기록한다.
 - 대상 사이트가 중단 요청을 보내면 해당 출처를 즉시 비활성하고 이미 발행된 게시글은 권리 문의 절차로 처리한다.
 - 수집 실패·차단은 공개 읽기 ready 조건에 넣지 않는다. 수집이 멈춰도 공개 목록·상세와 운영자 발행은 계속 동작해야 한다.
-- collector service token은 로컬 PC에만 저장하고 BE에는 token hash 또는 검증용 secret만 둔다. 분실,
+- collector service token은 로컬 PC에 저장하고 BE에는 token hash와 collectorId·scope 매핑만 둔다. Web 전용 중계가 요청 중 전달할 수 있으나 보관·로그하지 않는다. 분실,
   PC 교체, 운영자 변경 시 즉시 rotation한다.
 
 ## 5. Secret 관리
@@ -196,7 +198,7 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 | cache purge token | 해당 zone cache purge only |
 | admin actor HMAC secret | BFF only, 내부 `operatorId` 가명화 |
 | Core service token | BFF·Core만 공유, 외부 노출 금지 |
-| Collector service token | 로컬 collector만 보유, 후보 작업 claim·결과 제출 전용 |
+| Collector service token | 로컬 collector 보유, 전용 Web 중계에서만 Core로 전달. 후보 접수·claim·heartbeat·결과·preview 전용, 관리자 권한 없음 |
 | 외부 provider audience/team | BFF adapter 설정, 비밀값과 분리 |
 | 운영자 identity·`operatorId` 매핑 파일 | BFF only, 읽기 전용 mount, 비밀값 아님이나 접근 제한 |
 | 카카오 공유 JavaScript key | 공개 config, 허용 도메인 등록으로 오용 제한 |
@@ -216,7 +218,8 @@ blariyo_app
   USAGE on content, legal, ops, collect
   SELECT, INSERT, UPDATE, DELETE on M0 application tables
   USAGE, SELECT on M0 identity sequences
-  no access on ops.schema_migration
+  no direct access on ops.schema_migration
+  EXECUTE on ops.is_schema_ready(TEXT) only (Boolean readiness)
   no CREATE on application schemas or public
 
 blariyo_migrator
@@ -236,6 +239,8 @@ blariyo_backup
 - migrator는 향후 생성되는 table·sequence에도 역할별 default privilege를 설정한다.
 - migration은 배포 한 번에 한 process만 실행하도록 `pg_advisory_lock`을 사용한다.
 - production database와 application role의 `timezone`은 `UTC`로 고정하고 API 연결에 `statement_timeout`, `lock_timeout`, `idle_in_transaction_session_timeout`을 설정한다.
+
+readiness 함수의 소유권·고정 search_path·PUBLIC EXECUTE 회수는 [데이터 모델 §6](./02-data-model.md)을 따른다. API에 migrator credential을 주입하지 않는다.
 
 ## 7. 로깅
 
@@ -395,14 +400,16 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 - multi-arch image build 성공
 - DB backup 최근 18시간 이내
 - production URL placeholder 없음
-- `SERVICE_PUBLIC_BASE_URL=https://blariyo.com/`, `NUXT_TRUSTED_CLIENT_IP_HEADER`, `NUXT_ADMIN_OPERATOR_MAP_FILE`, `COLLECT_USER_AGENT` 주입 확인
+- `SERVICE_PUBLIC_BASE_URL=https://blariyo.com/`, `NUXT_TRUSTED_CLIENT_IP_HEADER`, `NUXT_ADMIN_OPERATOR_MAP_FILE` 주입 확인. `COLLECT_USER_AGENT`는 수집 보조 활성 환경에서만 필수
 - 카카오 공유 활성 환경은 JavaScript key, 개발자 콘솔 Web domain 등록, SDK script URL·SRI integrity와 CSP host 확인
 - 위 카카오 운영값이나 등록 확인이 하나라도 없으면 `NUXT_PUBLIC_KAKAO_SHARE_ENABLED=false`
 - GA4 활성 환경은 Measurement ID·속성 보관 설정·국외이전 고지·실제 Google 계약 법인·Google
   tag/CSP domain 확정 확인
 - 위 GA4 운영값이나 고지가 하나라도 없으면 `NUXT_PUBLIC_GA4_ENABLED=false`; 원인과 관계없이 false인
   환경은 `NUXT_PUBLIC_GA4_MEASUREMENT_ID`를 public runtime config에서 unset
-- Discord `/collect url` 또는 관리자 URL 입력의 단일 페이지 수집 gate 확인
+- M0 Core는 수집 flag를 모두 false로 유지하며 수집 gate 미완료가 공개를 막지 않음
+- M0 수집 보조 활성화 시에만 Discord·관리자 URL 접수, collector 중계·인증·출처·preview gate 확인
+- M0 자동 수집 활성화 시에만 별도 목록·feed·scheduler gate 확인
 
 현재 `.gitignore`는 `package-lock.json`을 제외하지 않지만 `yarn.lock`은 제외한다. npm을 표준
 package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하고 `npm ci`로 검증한다.

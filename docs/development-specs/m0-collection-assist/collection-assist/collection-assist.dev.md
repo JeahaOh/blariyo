@@ -1,11 +1,11 @@
-# 수집 보조 개발 보강서
+# 수집 보조 기능 명세
 
 ## 1. 문서 정보와 입력 근거
 
 - 문서 상태: `초안`
 - milestone: `M0 수집 보조` (`m0-collection-assist`)
 - 기능: `collection-assist` — 로컬 collector 기반 Discord·운영자 URL 지정 후보 생성·검수·반려·초안 승격
-- 기준일: 2026-09-04
+- 기준일: 2026-09-07
 - 미검증: source, migration, OpenAPI, test, runtime, browser, 실제 출처별 운영 위험·robots 확인
 - 주요 근거:
   - [콘텐츠 수집 기획](../../../planning/content-collection/README.md)
@@ -73,7 +73,7 @@
 - URL은 `https`만 허용하고 정규화 뒤 중복 후보를 검사한다.
 - 같은 출처 host 안에서만 최대 3회 redirect를 따른다.
 - 사설·loopback·link-local·metadata 주소로 해석되는 대상은 거부한다.
-- `robots.txt` 금지 또는 미확인 경로는 후보를 만들지 않는다.
+- `robots.txt` 금지 또는 미확인 경로는 fetch하지 않고 성공 후보 `NEW`로 만들지 않는다. 이미 접수된 작업은 `FETCH_FAILED`로 기록한다.
 - 요청 간격과 일일 상한을 넘으면 collector가 fetch하지 않고 `SOURCE_RATE_LIMITED` 결과를 제출한다.
 - fetch 실패·timeout·비HTML·parser 실패는 `FETCH_FAILED` 후보로 남겨 운영자가 재시도 또는 반려한다.
 - 후보 단계에는 원문 URL, 제목, 이미지 후보 URL, 경고·실패 사유 metadata와 관리자 preview 식별자만 저장한다.
@@ -93,25 +93,24 @@
 
 ## 8. API 작업 목록
 
-- [수집 작업 접수와 후보 결과 생성](api/create-candidate-from-url.md)
-- [Collector 내부 API](api/collector-internal-api.md)
-- [후보 재시도](api/retry-candidate.md)
-- [후보 반려](api/reject-candidate.md)
-- [후보 초안 승격](api/promote-candidate-to-draft.md)
+- [수집 작업 접수와 후보 결과 생성](#api-create-candidate-from-url)
+- [Collector 내부 API](#api-collector-internal-api)
+- [후보 재시도](#api-retry-candidate)
+- [후보 반려](#api-reject-candidate)
+- [후보 초안 승격](#api-promote-candidate-to-draft)
 
-출처 조회·수정 API는 상위 API 설계에 구현 순서로 언급되어 있으나 세부 request·response가 아직
-분리되어 있지 않다. 출처 관리 UI를 구현하려면 system-design API 계약을 먼저 보강한다.
+- [출처 조회·설정과 관리 화면](#api-source-management)
 
-## 9. D01 프로세스 목록
+## 9. 처리 흐름 찾아보기
 
-- [URL 후보 생성과 검수](d01/create-and-review-candidate.md)
-- [후보 재시도와 반려](d01/retry-or-reject-candidate.md)
-- [후보 초안 승격](d01/promote-candidate-to-draft.md)
+- [URL 후보 생성과 검수](#d01-create-and-review-candidate)
+- [후보 재시도와 반려](#d01-retry-or-reject-candidate)
+- [후보 초안 승격](#d01-promote-candidate-to-draft)
 
-## 10. D08 화면·프로그램 목록
+## 10. 화면·프로그램 찾아보기
 
-- [수집 후보 검수 화면](d08/collect-candidate-review.md)
-- [로컬 Collector 프로그램](d08/local-collector.md)
+- [수집 후보 검수 화면](#d08-collect-candidate-review)
+- [로컬 Collector 프로그램](#d08-local-collector)
 
 ## 11. 결정·가정·미정·차단 항목
 
@@ -120,6 +119,917 @@
 - 확정: 후보 단계에서 이미지는 Python 작업 경로에 임시 저장할 수 있고, 영구 저장소에는 초안 승격 때만 저장한다.
 - 확정: Discord 연결 scraper는 운영자 로컬 컴퓨터에서 별도 프로세스로 실행하고 BE·FE runtime과 분리한다.
 - 결정 필요: 첫 출처별 source spec, 실제 사용 URL, selector, 요청 간격, 일일 상한.
-- 결정 필요: 출처 관리 API의 세부 request·response.
+- 출처 조회·수정 계약은 [시스템 API](../../../system-design/03-api-design.md#수집-출처)를 따른다.
 - 차단: 출처별 운영 위험 판정·robots 확인 전 production 활성화 불가.
 - 미검증: source, migration, OpenAPI, test, runtime, browser.
+
+## 12. 기능 계약 상세
+
+아래 API·처리 흐름·화면 절을 이 파일에서 함께 관리한다. 각 절의 미검증·차단 조건은 유지하며, 문서 통합은 구현 완료를 뜻하지 않는다.
+
+<a id="api-collector-internal-api"></a>
+
+### Collector 내부 API
+
+- 계약 상태: `초안`
+
+#### 작업 목적과 호출 경계
+
+- 입력 근거: [API 설계 §5-1](../../../system-design/03-api-design.md), [아키텍처](../../../system-design/01-system-architecture.md), [데이터 모델](../../../system-design/02-data-model.md)
+- 미검증: source, OpenAPI, contract test, 실제 Discord Gateway·출처 fetch
+
+로컬 collector는 service origin의 `/api/collector/v1/*`를 HTTPS로 호출한다. Web은 허용 method·path를
+Core `/internal/collect/*`로 중계한다. 예를 들어 `/api/collector/v1/candidates/claim`은
+`/internal/collect/candidates/claim`으로 매핑한다. Core 직접 공개 주소는 만들지 않는다.
+이 경로는 관리자 session·공개 브라우저 API와 분리하며 M0 Core에서는 등록하지 않는다.
+
+#### Endpoint 목록
+
+| Method | Core path | 역할 |
+| --- | --- | --- |
+| `POST` | `/internal/collect/candidates` | Discord URL 작업 접수 |
+| `POST` | `/internal/collect/candidates/claim` | 처리 가능한 후보 선점 |
+| `POST` | `/internal/collect/candidates/{candidateId}/heartbeat` | 처리 중 lease 연장 |
+| `POST` | `/internal/collect/candidates/{candidateId}/result` | 추출 성공·실패 결과 제출 |
+| `POST` | `/internal/collect/candidates/{candidateId}/images/{candidateImageId}/preview` | 관리자 preview 파일 업로드 |
+
+#### 공통 인증·응답·권한
+
+- `Authorization: Bearer <collector service token>` 필수. Core가 token hash·scope와 등록 collectorId를 검증한다.
+- Web은 외부 입력의 Core service token·admin actor header를 제거한다. collector token으로 관리자 API를 호출할 수 없다.
+- token·원문 HTML·storage key·로컬 경로는 응답·로그·Discord 메시지에 남기지 않는다.
+- JSON 응답은 공통 envelope와 `meta.requestId`, `Cache-Control: private, no-store`를 사용한다.
+- 접수·result는 `Idempotency-Key` 필수. collectorId별 scope와 `{params, body}` 해시로 24시간 성공 결과를 보존한다.
+  재전송 기록 확인은 후보 상태·lease 검증보다 먼저 한다. 같은 key의 다른 요청은 `409 IDEMPOTENCY_CONFLICT`다.
+- DB actor는 `system:collector`다. Discord 권한 검증과 원본 interaction 정보는 로컬 collector가 책임진다.
+
+#### Discord URL 작업 접수
+
+`POST /internal/collect/candidates`
+
+```json
+{ "collectorId": "local-macbook-main", "originUrl": "https://example.com/board/12345" }
+```
+
+Discord guild·channel·user 검증과 확인 interaction 후 호출한다. key는
+`discord:<interactionId>`를 사용하되 일반 로그에 기록하지 않는다. Core는 Discord 수집 flag,
+등록·활성 출처, HTTPS·길이·정규화 URL 중복을 확인한다. 외부 fetch는 수행하지 않는다.
+성공은 `202`와 `data.candidateId`, `status=PENDING`, `lockVersion=1`이다. 같은 정규화 URL은
+`409 CANDIDATE_DUPLICATE`다. 관리자 접수와 같은 후보 서비스를 사용하며 멱등 결과의 resource_type은 CANDIDATE다.
+
+collector는 받은 candidateId를 다음 claim 요청에 넣는다. 이미 다른 collector가 선점했으면 직접
+fetch하지 않고 해당 실행에 맡긴다. 접수 이전이나 claim 성공 이전에는 출처를 요청하지 않는다.
+
+#### 후보 Claim
+
+`POST /internal/collect/candidates/claim`
+
+```json
+{ "collectorId": "local-macbook-main", "maxItems": 1, "leaseSeconds": 300 }
+```
+
+- `maxItems`: 1~5, `leaseSeconds`: 60~900초.
+- 선택 필드 `candidateId`가 있으면 그 작업만 대상으로 하고 maxItems는 1이다.
+- PENDING 또는 lease가 만료된 RUNNING을 `FOR UPDATE SKIP LOCKED`로 선점한다.
+- `status=RUNNING`, collector_id, claimed_at, lease_until, attempt_count+1, lock_version+1을 저장한다.
+- 성공은 `200`, `data.items[]`에 candidateId, sourceId, sourceHost, originUrl, discoveryMode,
+  attemptCount, **lockVersion**, leaseUntil, requestIntervalMs, dailyFetchLimit, robotsAllowed,
+  robotsCheckedAt을 반환한다. 대상이 없거나 이미 선점됐으면 빈 items다.
+- 출처 flag·활성·robots·요청 상한은 fetch 직전 다시 검증한다. 금지·상한 초과는 fetch 없이 실패 결과로 제출한다.
+
+#### Heartbeat
+
+`POST /internal/collect/candidates/{candidateId}/heartbeat`
+
+```json
+{ "collectorId": "local-macbook-main", "leaseSeconds": 300, "lockVersion": 4 }
+```
+
+RUNNING·collector_id·lockVersion·유효 lease가 일치할 때만 연장한다. `200`과 candidateId,
+status=RUNNING, 갱신된 lockVersion·leaseUntil을 반환한다. 이후 요청은 새 version을 사용한다.
+heartbeat와 result는 같은 후보에서 직렬 실행한다. 만료·다른 선점·version 불일치는
+`409 CANDIDATE_LEASE_CONFLICT`이며 해당 실행을 중단한다.
+
+#### Result Submit
+
+`POST /internal/collect/candidates/{candidateId}/result`
+
+```json
+{
+  "collectorId": "local-macbook-main",
+  "lockVersion": 5,
+  "status": "NEW",
+  "title": "후보 제목",
+  "canonicalUrl": "https://example.com/board/12345",
+  "sourcePublishedAt": null,
+  "parserVersion": "example-v1",
+  "warnings": [],
+  "imageCandidates": [{ "position": 1, "remoteUrl": "https://example.com/image/1.jpg" }]
+}
+```
+
+실패 body는 collectorId, lockVersion, status=FETCH_FAILED, fetchErrorCode, warnings를 가진다.
+성공 status는 NEW, 실패는 FETCH_FAILED만 허용한다. 원문 HTML·binary·local path는 받지 않는다.
+
+- 첫 처리 시 RUNNING·collector_id·lockVersion·유효 lease를 확인한다.
+- canonicalUrl은 같은 등록 출처의 정규화 HTTPS URL이어야 한다. 기존 후보와 중복이면 새 결과를
+  연결하지 않고 `409 CANDIDATE_DUPLICATE`다. 성공 시 origin_url과 해시를 같이 갱신한다.
+- title은 trim 1~300자, parserVersion은 trim 1~100자, sourcePublishedAt은 UTC로 정규화하거나 null이다.
+- warnings는 최대 20개 일반화 코드(각 1~100자)로 제한한다. 원문·개인정보를 담지 않는다.
+- 성공 결과의 이미지 metadata는 1~20건, position은 1부터 연속이며 remoteUrl은 HTTPS·최대 2048자다.
+- 성공 시 기존 이미지 metadata를 교체한다. 이전 preview는 cleanup 대상으로 기록한다.
+- 실패는 fetch_error_code 필수다. 성공·실패 모두 fetched_at을 기록하고 lease_until을 NULL로 비우며 version을 증가시킨다.
+- 성공 응답은 `200`, data에 candidateId, status, **lockVersion**, imageCandidates를 반환한다.
+  imageCandidates는 `{position, candidateImageId}` 매핑이며 실패 시 빈 배열이다.
+- 상태 변경·이미지 metadata·멱등 결과는 한 transaction으로 commit한다. 응답 유실 시 같은 key로
+  재전송하며 새 key로 이미 완료된 결과를 다시 쓰지 않는다.
+
+#### Preview Upload와 관리자 읽기
+
+`POST /internal/collect/candidates/{candidateId}/images/{candidateImageId}/preview`
+
+- multipart 필드: collectorId, lockVersion, file. 파일은 10MiB 이하 JPEG·PNG·WebP·GIF다.
+- result 성공 뒤 NEW·같은 collector_id·현재 lockVersion·후보 이미지 소속을 확인한다. lease는 이미 종료됐으므로 요구하지 않는다.
+- 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 적용한다.
+- private `collect-preview/` object에 저장하고 preview_storage_key·preview_expires_at=now()+24h를 기록한다.
+- DB commit 직전에 상태·version을 재확인하고 후보 version을 증가시킨다. 충돌 시 저장 object를 보상 삭제한다.
+- 성공은 `200`, candidateImageId, previewPath, previewExpiresAt, **lockVersion**을 반환한다.
+  복수 파일은 순차 업로드하며 매번 새 version을 사용한다. storage key·signed URL은 반환하지 않는다.
+- 만료 preview 재업로드는 같은 NEW 후보에서 가능하다. 교체 전 object는 삭제 대상으로 기록한다.
+- 관리자 읽기는 `GET /api/v1/admin/collect/candidates/{candidateId}/images/{candidateImageId}/preview`를
+  사용한다. 관리자 인증 후 stream하고 `private, no-store`를 반환한다. 미존재·만료는 `404 IMAGE_NOT_FOUND`다.
+- 반려·만료·재시도 교체·승격 시 preview 삭제, 매일 TTL 청소와 실패 재시도를 수행한다.
+
+#### 오류·수용 기준
+
+| HTTP | code | 조건 |
+| --- | --- | --- |
+| 400 | VALIDATION_FAILED | schema·형식 오류 |
+| 401 | COLLECTOR_AUTH_REQUIRED | token 없음·불일치 |
+| 403 | COLLECTOR_FORBIDDEN | scope·collectorId 불일치 |
+| 403 | SOURCE_NOT_ALLOWED | 접수 출처 미등록·비활성 |
+| 404 | CANDIDATE_NOT_FOUND / IMAGE_NOT_FOUND | 대상 없음 |
+| 409 | CANDIDATE_LEASE_CONFLICT | claim 이후 lease·version 충돌 |
+| 409 | CANDIDATE_STATE_CONFLICT | preview 업로드 중 반려·재수집 등 상태 충돌 |
+| 409 | CANDIDATE_DUPLICATE | 정규화 URL 중복 |
+| 409 | IDEMPOTENCY_CONFLICT / IDEMPOTENCY_IN_PROGRESS | 재전송 충돌·진행 중 |
+| 413 | UPLOAD_TOO_LARGE | preview 크기·decode 자원 제한 |
+| 415 | UNSUPPORTED_MEDIA_TYPE | 형식·decode 실패 |
+| 503 | DEPENDENCY_UNAVAILABLE / MAINTENANCE_READ_ONLY | DB·R2 장애 또는 유지보수 |
+
+- Discord 신규 접수→claim→heartbeat→result→preview를 응답값만으로 이어갈 수 있어야 한다.
+- 응답 유실 후 result 재전송은 중복 image row 없이 같은 ID 매핑을 반환해야 한다.
+- 반려·재수집과 preview 경쟁 시 고아 object를 회수해야 한다.
+- lease 만료 뒤 다른 collector가 재선점할 수 있고 공개 서비스는 collector 중단과 무관하게 동작해야 한다.
+- 실제 source·OpenAPI·통합 검증은 아직 수행하지 않았다.
+
+<a id="api-create-candidate-from-url"></a>
+
+### 수집 작업 접수와 후보 결과 생성 API
+
+- 계약 상태: `초안`
+
+#### 작업 목적과 호출 주체·제공 주체
+
+- 호출 주체: Nuxt BFF 관리자 화면, 운영자 로컬 collector
+- 제공 주체: Express Core API
+- 입력 근거: [API 설계 §5 관리자 URL 지정 수집 작업 접수](../../../system-design/03-api-design.md)
+- 미검증: source, OpenAPI, contract test, 실제 출처 fetch
+
+운영자가 관리자 화면에서 입력한 단일 상세 페이지 원문 URL은 BE가 `PENDING` 후보 작업으로 접수한다.
+운영자 로컬 collector는 관리자 접수 작업을 claim한다. Discord `/collect url`도 먼저 작업을 접수하고 claim한 뒤 등록·활성
+출처 규칙으로 한 번 조회해 후보 결과를 BE에 제출한다. 목록·feed·pagination은 이 API 범위에서
+호출하지 않는다.
+
+#### Method·path·인증·권한
+
+- `POST /api/v1/admin/collect/candidates`
+- 관리자 인증 필수
+- `Idempotency-Key` 필수
+- cache: `private, no-store`
+
+Discord에서 시작한 경우에도 BE 공개 Interactions endpoint를 추가하지 않는다. 로컬 collector가 Discord
+guild·channel·user 권한을 검증한 뒤 collector service token으로 BE에 후보 결과를 제출한다. Discord
+incoming webhook은 처리 결과 알림용으로만 사용한다.
+
+#### Request
+
+| 필드 | 타입 | 필수 | 제약 | 출처·소유권 | 설명 |
+| --- | --- | --- | --- | --- | --- |
+| `originUrl` | string | Y | `https`, 최대 2048자 | 입력값 | 운영자가 지정한 원문 URL |
+
+```json
+{ "originUrl": "https://example.com/board/12345" }
+```
+
+#### Response
+
+공통 성공 envelope를 사용한다.
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `candidateId` | number | 접수된 후보 ID |
+| `status` | string | 접수 성공 시 `PENDING` |
+| `lockVersion` | number | 최초 `1` |
+| `duplicatePostId` | number 또는 null | 같은 원문 URL의 기존 게시글 |
+
+
+#### Validation과 정규화
+
+- `originUrl`은 `https`만 허용한다.
+- 관리자 접수 시 서버 정규화 뒤 host가 등록 출처와 일치해야 한다.
+- collector claim 뒤 실행 직전 host 활성 상태를 다시 확인한다.
+- 이용약관 판단은 자동 차단 조건이 아니라 운영 위험 참고값이다.
+- collector가 DNS 해석 결과를 확인하고 사설·loopback·link-local·metadata 주소면 거부한다.
+- collector가 출처 `robots.txt` 금지 경로를 확인하면 fetch하지 않고 실패 결과를 제출한다.
+- collector가 요청 간격과 일일 상한을 넘으면 fetch하지 않고 `SOURCE_RATE_LIMITED` 결과를 제출한다.
+
+#### 정상 처리와 데이터·상태 전이
+
+1. 관리자 actor와 idempotency key를 검증한다.
+2. URL을 정규화한다.
+3. `collect.source` 활성 출처와 host를 대조한다.
+4. 외부 fetch 없이 `collect.candidate`를 `PENDING`으로 저장하고 `202`를 반환한다.
+5. 로컬 collector가 대기 후보를 claim해 `RUNNING`으로 바꾼다.
+6. collector가 robots·요청 상한·DNS 안전성·redirect 경계를 확인한다.
+7. collector가 상세 페이지를 1회 fetch하고 출처별 parser로 제목과 이미지 후보 URL을 추출한다.
+8. Python extractor는 미리보기에 필요한 이미지 후보만 로컬 작업 경로에 임시 저장한다.
+9. collector가 `collect.candidate`, `collect.candidate_image` metadata와 preview 식별자를 BE에 제출한다.
+10. 성공 추출이면 `NEW`, 실패 추출이면 `FETCH_FAILED`로 만든다.
+
+#### 오류·권한·충돌·timeout·부분 실패
+
+| HTTP | code | 조건 |
+| --- | --- | --- |
+| `400` | `VALIDATION_FAILED` | URL 형식·길이 오류 |
+| `401` | `ADMIN_AUTH_REQUIRED` | 관리자 인증 없음 |
+| `403` | `ADMIN_FORBIDDEN` | allowlist 불일치 |
+| `403` | `SOURCE_NOT_ALLOWED` | 등록·활성 출처가 아님 |
+| `409` | `CANDIDATE_DUPLICATE` | 같은 정규화 URL 후보 존재 |
+| `503` | `DEPENDENCY_UNAVAILABLE` | DB 등 내부 의존성 장애 |
+
+후보 상세에서 추출 후 이미지 후보 수와 상태를 확인한다. 접수 응답에 추출 결과를 섞지 않는다.
+robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `ROBOTS_DISALLOWED`·`SOURCE_RATE_LIMITED` 실패 결과로 제출한다.
+관리자 접수 성공은 `202`와 `PENDING`을 반환한다. fetch·timeout·비HTML·parser 실패는 collector 결과
+제출 시 후보를 `FETCH_FAILED`로 만들고 처리 결과를 저장한다.
+
+#### 멱등성·동시성·재시도
+
+- 같은 actor·method·route·idempotency key는 같은 결과를 반환한다.
+- 같은 정규화 URL 동시 요청은 unique constraint로 중복 생성을 막는다.
+- 운영자 재시도는 별도 `retry` API를 사용한다.
+
+#### Contract test와 미검증 항목
+
+- 등록되지 않은 host `403`
+- 관리자 접수 성공 시 외부 fetch 없이 `202` + `PENDING`
+- collector claim 시 `PENDING -> RUNNING`
+- robots 금지 결과 제출 시 `RUNNING→FETCH_FAILED`와 일반화한 실패 코드
+- Discord 권한 없는 guild·channel·user 거부
+- 중복 후보 `409`
+- fetch 실패 시 collector 제출 결과 `FETCH_FAILED`
+- 원문 HTML·내부 오류·secret 로그 미기록
+- Python 임시 이미지 파일의 내부 절대 경로·binary 로그 미기록
+- collector 내부 API claim/result/preview upload contract test
+- 실제 source·OpenAPI·runtime 미검증
+
+<a id="api-promote-candidate-to-draft"></a>
+
+### 후보 초안 승격 API
+
+- 계약 상태: `초안`
+
+#### 작업 목적과 호출 주체·제공 주체
+
+- 호출 주체: Nuxt BFF 관리자 화면
+- 제공 주체: Express Core API
+- 입력 근거: [API 설계 §5 후보 초안 승격](../../../system-design/03-api-design.md)
+- 미검증: source, OpenAPI, R2 runtime, contract/integration test
+
+운영자가 검수한 후보를 기존 관리자 초안 생성 흐름으로 넘긴다.
+
+#### Method·path·인증·권한
+
+- `POST /api/v1/admin/collect/candidates/{candidateId}/draft`
+- 관리자 인증 필수
+- `Idempotency-Key` 필수
+- cache: `private, no-store`
+
+#### Request
+
+| 필드 | 타입 | 필수 | 제약 | 설명 |
+| --- | --- | --- | --- | --- |
+| `lockVersion` | number | Y | 현재 후보 값과 일치 | 낙관적 잠금 |
+| `boardSlug` | string | Y | 활성 관리자 작성 대상 | 초안 게시판 |
+| `title` | string | N | 생략 시 후보 제목 사용, 최종 trim 후 1~200자 | 게시글 제목 |
+| `source.name` | string | N | 생략 시 출처 표시명 | 출처명 |
+| `source.url` | string | N | 생략 시 후보 원문 URL | 출처 링크 |
+| `candidateImageIds` | array | Y | 서로 다른 1~20개 | 영구 저장할 선택 이미지 후보, 본문 순서 |
+| `imageOptions` | array | Y | 선택 ID마다 정확히 1건 | `candidateImageId`, trim 후 1~300자 `alt`, 선택 `uploadedImageId` |
+| `leadText` | string | N | trim 후 1~20,000자 | 첫 문단 |
+| `acknowledgeDuplicate` | boolean | Y | 중복 후보면 true 필요 | 중복 확인 |
+
+#### Response
+
+- 성공: `201`
+- 공통 성공 envelope
+- `data.postId`, `data.status=DRAFT`, `data.lockVersion=1`, `data.candidateId`, `data.storedImageIds`
+
+#### Validation과 정상 처리
+
+1. 후보가 `NEW`인지 확인한다.
+2. `lockVersion`과 중복 확인 값을 검증한다.
+3. 선택 이미지가 모두 해당 후보의 이미지 후보인지 확인한다.
+4. `imageOptions`의 누락·중복·미선택 ID를 거부하고 각 alt를 검증한다. `uploadedImageId`가 있으면 기존 관리자 업로드로 생성한 미연결 `STAGED` 이미지와 1:1로 연결한다. 업로드 ID 재사용을 거부한다. 생략하면 만료되지 않은 해당 후보의 private preview가 필요하다. 선택 이미지 전부가 준비되어야 진행한다.
+5. BE는 원격 이미지를 직접 fetch하지 않고, 제출된 파일에 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 적용한다.
+6. private 원본 bucket에 저장한다.
+7. 기존 게시글 초안 생성 command를 재사용해 title, source, TEXT/IMAGE block을 만든다.
+8. 같은 transaction에서 후보를 `APPROVED`로 바꾸고 `postId`를 연결한다.
+9. 승격 성공 뒤 해당 후보의 로컬 Python 임시 이미지 파일은 collector 삭제 대상에 넣는다.
+
+#### 오류·부분 실패
+
+| HTTP | code | 조건 |
+| --- | --- | --- |
+| `400` | `VALIDATION_FAILED` | 제목 없음, 이미지 후보 배열 오류 |
+| `404` | `CANDIDATE_NOT_FOUND` | 후보 없음 |
+| `404` | `BOARD_NOT_FOUND` | 작성 대상 게시판 없음·비활성 |
+| `409` | `CANDIDATE_STATE_CONFLICT` | `NEW`가 아님 |
+| `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치 |
+| `409` | `CANDIDATE_DUPLICATE` | 중복 후보 확인 누락 |
+| `409` | `IMAGE_STATE_CONFLICT` | preview 만료·누락, 업로드 이미지 미연결 STAGED 조건 불충족 |
+| `413` | `UPLOAD_TOO_LARGE` | 파일 크기 초과 |
+| `415` | `UNSUPPORTED_MEDIA_TYPE` | 파일 형식 검증 실패 |
+| `503` | `DEPENDENCY_UNAVAILABLE` | DB·R2 장애 |
+
+선택 이미지 중 하나라도 준비·저장에 실패하면 후보를 `NEW`로 유지하고 위 오류를 반환한다. 일부 이미지로 초안을 만들지 않는다. TEXT만 있는 글은 기존 수동 초안 작성 API를 사용한다. DB transaction
+실패 시 후보 상태는 바꾸지 않고 저장된 이미지는 staging orphan 정리 대상으로 둔다. 로컬 Python 임시
+이미지 파일은 영구 저장 성공 여부와 별개로 내부 절대 경로를 노출하지 않는다.
+
+#### 멱등성·동시성·재시도
+
+- `Idempotency-Key`는 같은 actor·method·route scope에서 24시간 보존한다.
+- 같은 key에 다른 body는 `409 IDEMPOTENCY_CONFLICT`다.
+- 후보 lockVersion으로 동시 승격을 막는다.
+
+#### Contract test와 미검증 항목
+
+- 중복 후보 확인 누락 시 `409`
+- 선택 이미지 0건·21건 validation 실패
+- alt 누락·공백·301자, imageOptions 중복·누락, 업로드 ID 중복 거부
+- 선택 이미지 일부 저장 실패 시 초안 생성 없음, 후보 `NEW` 유지
+- Python 임시 파일 만료 시 로컬 collector 재제출 또는 명시적 실패 처리
+- 초안 생성 성공 시 후보 `APPROVED`
+- transaction 실패와 orphan cleanup 분류
+- 실제 source·OpenAPI·R2 runtime 미검증
+
+<a id="api-reject-candidate"></a>
+
+### 후보 반려 API
+
+- 계약 상태: `초안`
+
+#### 작업 목적과 호출 주체·제공 주체
+
+- 호출 주체: Nuxt BFF 관리자 화면
+- 제공 주체: Express Core API
+- 입력 근거: [API 설계 §5 재수집과 반려](../../../system-design/03-api-design.md)
+- 미검증: source, OpenAPI, contract test
+
+운영자가 후보를 공개 게시글로 쓰지 않기로 결정하고 반려 사유를 남긴다.
+
+#### Method·path·인증·권한
+
+- `POST /api/v1/admin/collect/candidates/{candidateId}/reject`
+- 관리자 인증 필수
+- cache: `private, no-store`
+
+#### Request
+
+| 필드 | 타입 | 필수 | 제약 | 설명 |
+| --- | --- | --- | --- | --- |
+| `lockVersion` | number | Y | 현재 후보 값과 일치 | 낙관적 잠금 |
+| `reasonCode` | string | Y | 허용 코드 | 반려 사유 |
+
+허용 reason code: `DUPLICATE`, `LOW_QUALITY`, `RIGHTS_RISK`, `NOT_FUNNY`, `SOURCE_GONE`, `OTHER`.
+
+#### Response
+
+- 성공: 공통 성공 envelope, `candidateId`, `status=REJECTED`, `reviewedAt`, 증가한 `lockVersion`
+
+#### 정상 처리와 상태 전이
+
+- `NEW`와 `FETCH_FAILED`에서만 허용한다.
+- 성공 시 `reviewedAt`과 `rejectReasonCode`를 기록한다.
+- `APPROVED`, `REJECTED`는 terminal 상태로 반려할 수 없다.
+
+#### 오류·동시성
+
+| HTTP | code | 조건 |
+| --- | --- | --- |
+| `400` | `VALIDATION_FAILED` | reasonCode 누락·허용값 아님 |
+| `404` | `CANDIDATE_NOT_FOUND` | 후보 없음 |
+| `409` | `CANDIDATE_STATE_CONFLICT` | 반려 불가 상태 |
+| `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치 |
+
+#### Contract test와 미검증 항목
+
+- 허용 reason code만 통과
+- `APPROVED` 후보 반려 거부
+- lockVersion 충돌 거부
+- 실제 source·OpenAPI·runtime 미검증
+
+<a id="api-retry-candidate"></a>
+
+### 후보 재시도 API
+
+- 계약 상태: `초안`
+
+#### 작업 목적과 호출 주체·제공 주체
+
+- 호출 주체: Nuxt BFF 관리자 화면
+- 제공 주체: Express Core API
+- 입력 근거: [API 설계 §5 재수집과 반려](../../../system-design/03-api-design.md)
+- 미검증: source, OpenAPI, contract test, 실제 출처 fetch
+
+`FETCH_FAILED` 후보를 같은 출처 규칙으로 다시 조회하도록 로컬 collector 작업으로 되돌린다.
+
+#### Method·path·인증·권한
+
+- `POST /api/v1/admin/collect/candidates/{candidateId}/retry`
+- 관리자 인증 필수
+- cache: `private, no-store`
+
+#### Request
+
+| 필드 | 타입 | 필수 | 제약 | 설명 |
+| --- | --- | --- | --- | --- |
+| `lockVersion` | number | Y | 현재 후보 값과 일치 | 낙관적 잠금 |
+
+#### Response
+
+- 성공: 공통 성공 envelope, `candidateId`, `status=PENDING`, 증가한 `lockVersion`
+- 실제 재시도 결과는 로컬 collector 제출 뒤 `NEW` 또는 `FETCH_FAILED`가 된다.
+
+#### Validation과 정상 처리
+
+1. 후보가 존재하고 `FETCH_FAILED`인지 확인한다.
+2. `lockVersion`을 비교한다.
+3. 기존 이미지 후보 metadata를 재시도 교체 대상으로 표시한다.
+4. 데이터 모델의 재시도 전이에 따라 `fetched_at`, `fetch_error_code`, `lease_until`을 초기화하고 `PENDING`으로 되돌린다. 증가한 `lockVersion`으로 접수 결과를 반환한다.
+5. 로컬 collector가 출처 등록·활성 상태, robots, 요청 상한을 다시 확인한다.
+6. collector는 기존 후보의 단일 상세 페이지 원문 URL만 다시 fetch하고 parser를 실행한다. 목록·feed·pagination은 호출하지 않는다.
+7. 성공하면 기존 이미지 후보 metadata와 로컬 Python 임시 preview 파일을 새 결과로 교체하고 `NEW`로 바꾼다.
+8. claim으로 `RUNNING`이 된 후보는 실패 결과 제출 시 `FETCH_FAILED`로 전환하고 실패 분류와 `lockVersion`을 갱신한다.
+9. 교체되거나 더 이상 참조하지 않는 로컬 Python 임시 이미지 파일은 삭제 대상에 넣는다.
+
+#### 오류·동시성
+
+| HTTP | code | 조건 |
+| --- | --- | --- |
+| `404` | `CANDIDATE_NOT_FOUND` | 후보 없음 |
+| `409` | `CANDIDATE_STATE_CONFLICT` | `FETCH_FAILED`가 아님 |
+| `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치 |
+
+출처·robots·상한 검사는 접수 후 collector 실행 단계다. 실패 코드는
+[API 설계의 재수집 계약](../../../system-design/03-api-design.md#재수집과-반려)에 따라
+`fetchErrorCode`로 기록하고, 이미 성공한 retry HTTP 응답을 바꾸지 않는다.
+
+#### Contract test와 미검증 항목
+
+- `PENDING`, `RUNNING`, `NEW`, `APPROVED`, `REJECTED` 후보 retry 거부
+- lockVersion 충돌 거부
+- 재시도 접수 시 `PENDING`
+- collector 재시도 성공 시 `NEW`
+- collector 재시도 실패 시 `FETCH_FAILED`
+- 실제 source·OpenAPI·runtime 미검증
+
+<a id="d01-create-and-review-candidate"></a>
+
+### URL 후보 생성과 검수
+
+- 계약 상태: `초안`
+
+#### 프로세스 목적과 범위
+
+- 입력 근거: 이 문서의 기능 범위·요구사항 (§2~§6)
+- 미검증: source, test, browser, 실제 출처 fetch
+
+운영자가 원문 URL을 입력해 후보를 만들고, 후보 목록·상세에서 결과를 확인한다.
+
+#### 행위자·시작 조건·선행 조건
+
+- 행위자: 인증된 운영자
+- 시작 조건: `/admin/collect` 진입 후 원문 URL 입력 또는 로컬 collector의 Discord `/collect url` 명령
+- 선행 조건: 등록·활성 출처와 parser, 관리자 인증 또는 Discord 운영자 권한, M0 Core 수동 초안 경로
+
+#### 정상 흐름
+
+1. 운영자가 관리자 화면에서 원문 URL을 입력하고 `후보 만들기`를 선택하거나 Discord `/collect url` 명령을 실행한다.
+2. 화면은 중복 제출을 막고 생성 중 상태를 표시한다.
+3. 관리자 화면은 BFF를 통해 후보를 `PENDING`으로 접수한다.
+4. Discord 명령은 로컬 collector가 직접 받고 guild·channel·user 권한을 검증한다.
+5. 로컬 collector는 Discord URL도 전용 중계로 PENDING 접수하고, 관리자·Discord 후보를 같은 claim 흐름으로 선점한다.
+6. collector는 출처·robots·요청 상한·DNS 안전성·redirect 경계를 확인한다.
+7. collector는 상세 페이지를 1회 fetch하고 parser를 실행한다.
+8. Python extractor는 미리보기에 필요한 이미지 후보를 로컬 작업 경로에 임시 저장한다.
+9. collector는 후보와 이미지 후보 metadata, preview 식별자를 BE에 제출한다.
+10. 화면은 후보 목록에 새 후보 또는 실패 후보를 표시한다.
+11. 운영자는 원문 링크, 제목, 이미지 후보 preview, 중복 표시, 실패 사유를 확인한다.
+
+#### 대안·실패 흐름
+
+- 등록되지 않은 host: 후보를 만들지 않고 허용되지 않은 출처로 표시한다.
+- robots 금지: 접수된 후보를 fetch 없이 FETCH_FAILED로 기록하고 수집 금지로 표시한다.
+- 요청 상한 초과: `Retry-After` 기준으로 재시도 가능 시점을 표시한다.
+- fetch·parser 실패: `FETCH_FAILED` 후보를 표시하고 재시도·반려만 허용한다.
+- 중복 후보: 기존 후보를 안내하고 새 후보를 만들지 않는다.
+
+#### 단계별 호출 API 매핑
+
+| 단계 | API |
+| --- | --- |
+| 3 | [수집 작업 접수와 후보 결과 생성](#api-create-candidate-from-url) |
+| 5~9 | [Collector 내부 API](#api-collector-internal-api) |
+
+#### 데이터·상태 전이
+
+- 없음 -> `PENDING`: 관리자 화면 또는 인증된 collector의 Discord URL 접수
+- `PENDING` -> `RUNNING`: 로컬 collector 작업 claim
+- `RUNNING` -> `NEW`: 제목·이미지 후보 추출 성공
+- `RUNNING` -> `FETCH_FAILED`: fetch gate 거부 또는 fetch·parser 실패
+- 후보 이미지 metadata는 `DISCOVERED`로 저장한다.
+- Python 임시 이미지 파일은 DB image row가 아니며 반려·만료·재시도 교체 시 삭제 대상이다.
+
+#### 권한·트랜잭션·멱등성·재시도
+
+- 관리자 인증과 Core service token·actor가 필요하다.
+- Discord 명령은 로컬 collector가 guild·channel·user 권한을 먼저 검증하고 내부 actor로 변환한다.
+- 생성 API는 `Idempotency-Key`를 사용한다.
+- Discord interaction id는 같은 명령 중복 실행을 막는 멱등 key로 사용한다.
+- 같은 정규화 URL은 unique constraint로 중복 생성을 막는다.
+
+#### 완료 조건과 수용 기준
+
+- 후보 또는 명시적 실패 상태로 끝난다.
+- BE·FE는 외부 사이트를 직접 fetch하지 않는다.
+- 원문 HTML 전체와 내부 오류 상세를 화면·로그에 노출하지 않는다.
+- Python 임시 파일 내부 경로와 image binary를 화면·로그에 노출하지 않는다.
+- 수집 실패가 공개 목록·상세와 수동 게시를 막지 않는다.
+- 일반 Discord 채널 메시지를 감시하지 않는다.
+
+#### 미정·차단·미검증 항목
+
+- 차단: 출처별 약관·robots·parser spec 전 production 활성화 불가
+- 미검증: source, contract test, browser
+
+<a id="d01-promote-candidate-to-draft"></a>
+
+### 후보 초안 승격
+
+- 계약 상태: `초안`
+
+#### 프로세스 목적과 범위
+
+- 입력 근거: 이 문서의 기능 범위·요구사항 (§2~§6)
+- 미검증: source, R2 runtime, transaction/orphan cleanup test, browser
+
+운영자가 검수한 후보를 기존 게시글 초안으로 승격한다.
+
+#### 행위자·시작 조건·선행 조건
+
+- 행위자: 인증된 운영자
+- 시작 조건: `NEW` 후보 상세에서 `초안으로 승격` 선택
+- 선행 조건: 선택 이미지 1~20건과 각 이미지 alt·사용 가능한 파일 확보, M0 Core 초안 생성 경로 구현
+
+#### 정상 흐름
+
+1. 운영자가 제목, 출처, 사용할 이미지 후보, 각 alt와 선택 본문을 확인한다. 수동 파일은 기존 관리자 업로드 API에 먼저 올리고 받은 imageId를 해당 후보의 uploadedImageId로 지정한다.
+2. 중복 게시글이 있으면 기존 게시글을 확인하고 승격 의사를 다시 확인한다.
+3. 화면은 `POST /api/v1/admin/collect/candidates/{candidateId}/draft`를 호출한다.
+4. Core는 후보 상태, lockVersion, 중복 확인, 게시판을 검증한다.
+5. Core는 선택 이미지에 로컬 collector가 제출한 검증 파일 또는 운영자 업로드 파일이 있는지 확인한다.
+6. Core는 원격 URL을 직접 fetch하지 않고 제출된 파일에 관리자 업로드와 같은 검증·metadata 제거·재인코딩을 적용한다.
+7. Core는 private 원본 bucket에 저장한다.
+8. Core는 기존 초안 생성 command를 재사용해 게시글과 block을 만든다.
+9. Core는 후보를 `APPROVED`로 바꾸고 생성 `postId`를 연결한다.
+10. 화면은 `/admin`의 기존 편집기에서 생성된 postId를 선택한다.
+
+#### 대안·실패 흐름
+
+- 중복 확인 누락: 기존 게시글 확인을 요구한다.
+- 이미지 파일 제출 실패: 후보를 `NEW`로 유지하고 오류를 표시한다.
+- Python 임시 이미지 파일 만료: 로컬 collector 재제출이 필요하다고 표시하고 후보를 `NEW`로 유지한다.
+- transaction 실패: 후보를 `NEW`로 유지하고 저장된 이미지는 orphan 정리 대상으로 둔다.
+- terminal 후보: 승격 버튼을 노출하지 않는다.
+
+#### 단계별 호출 API 매핑
+
+| 단계 | API |
+| --- | --- |
+| 3~8 | [후보 초안 승격](#api-promote-candidate-to-draft) |
+
+#### 데이터·상태 전이
+
+- `NEW` -> `APPROVED`
+- `collect.candidate.post_id`에 생성된 `content.board_post.id` 연결
+- 선택 이미지 후보는 저장 성공 후 `STORED`와 `image_id`를 가진다.
+- 승격 성공·반려·만료·재시도 교체 시 로컬 Python 임시 이미지 파일은 삭제 대상이다.
+
+#### 권한·트랜잭션·멱등성·재시도
+
+- 관리자 인증과 `Idempotency-Key`가 필요하다.
+- 후보와 게시글 생성은 단일 논리 command로 처리한다.
+- DB transaction 실패와 R2 object 보상 정리는 기존 이미지 cleanup 원칙을 따른다.
+
+#### 완료 조건과 수용 기준
+
+- 초안이 생성되고 기존 관리자 편집기로 이동한다.
+- 후보는 `APPROVED` terminal 상태가 된다.
+- 자동 발행하지 않는다.
+- 외부 이미지 원본 URL이나 storage key를 공개 화면에 노출하지 않는다.
+- Python 임시 파일 내부 경로를 화면·로그에 노출하지 않는다.
+
+#### 미정·차단·미검증 항목
+
+- 미검증: source, R2, transaction rollback, browser
+
+<a id="d01-retry-or-reject-candidate"></a>
+
+### 후보 재시도와 반려
+
+- 계약 상태: `초안`
+
+#### 프로세스 목적과 범위
+
+- 입력 근거: 이 문서의 기능 범위·요구사항 (§2~§6)
+- 미검증: source, test, browser
+
+운영자가 실패 또는 미사용 후보를 재시도하거나 반려한다.
+
+#### 행위자·시작 조건·선행 조건
+
+- 행위자: 인증된 운영자
+- 시작 조건: 후보 상세 또는 목록의 재시도·반려 선택
+- 선행 조건: 후보가 `FETCH_FAILED` 또는 `NEW` 상태
+
+#### 정상 흐름
+
+1. 운영자가 `FETCH_FAILED` 후보에서 재시도를 선택한다.
+2. 화면은 현재 `lockVersion`으로 retry API를 호출한다.
+3. 성공하면 후보가 `PENDING`으로 돌아가고 로컬 collector 처리 대기 상태로 표시된다.
+4. 운영자가 `NEW` 또는 `FETCH_FAILED` 후보에서 반려를 선택한다.
+5. 화면은 반려 사유를 선택하게 한다.
+6. Core는 `REJECTED`와 `reviewedAt`을 기록한다.
+
+#### 대안·실패 흐름
+
+- lockVersion 충돌: 최신 후보를 다시 불러오도록 안내한다.
+- terminal 상태: 재시도·반려 버튼을 숨기거나 비활성화한다.
+- 출처 비활성·robots 변경·상한 초과: 재시도 접수 후 collector 실패 결과가 반영되면 `FETCH_FAILED`와 일반화한 사유를 표시한다.
+
+#### 단계별 호출 API 매핑
+
+| 단계 | API |
+| --- | --- |
+| 2~3 | [후보 재시도](#api-retry-candidate) |
+| 4~6 | [후보 반려](#api-reject-candidate) |
+
+#### 데이터·상태 전이
+
+- `FETCH_FAILED` -> `PENDING`
+- `RUNNING` -> `NEW`
+- `RUNNING` -> `FETCH_FAILED`
+- `NEW` -> `REJECTED`
+- `FETCH_FAILED` -> `REJECTED`
+
+#### 권한·트랜잭션·멱등성·재시도
+
+- 관리자 인증 필수.
+- retry API는 외부 fetch를 직접 수행하지 않고 로컬 collector 작업을 다시 대기시킨다. collector는
+  출처 상한과 robots를 재확인한다.
+- reject는 외부 fetch를 수행하지 않는다.
+
+#### 완료 조건과 수용 기준
+
+- 재시도 결과와 반려 사유가 화면에 반영된다.
+- 반려된 후보는 승격할 수 없다.
+- 실패 사유는 일반화하고 내부 stack·HTML 원문은 노출하지 않는다.
+
+#### 미정·차단·미검증 항목
+
+- 미검증: source, contract test, browser
+
+<a id="d08-collect-candidate-review"></a>
+
+### 수집 후보 검수 화면
+
+- 계약 상태: `초안`
+
+#### 화면·프로그램 목적, route와 milestone
+
+- route: `/admin/collect`
+- 입력 근거: [화면 설계 §2 수집 후보 검수 화면](../../../planning/03-screen-design.md), 이 문서의 기능 범위·요구사항 (§2~§6)
+- 미검증: source, browser, 접근성, 실제 image preview
+
+운영자가 관리자 화면에서 후보를 만들거나 [로컬 Collector 프로그램](#d08-local-collector)이 Discord
+`/collect url`로 만든 후보를 관리자 화면에서 검수·반려·초안 승격한다.
+
+#### 진입·이탈·권한 조건
+
+- 외부 관리자 인증 allowlist 통과 필요.
+- 공개 경로에서 접근할 수 없다.
+- Discord 명령은 로컬 collector가 허용 guild·channel·user만 처리하고 일반 메시지 감시는 하지 않는다.
+- 초안 승격 성공 시 관리자 게시글 편집기로 이동한다.
+
+#### UI 영역과 구성요소
+
+- 원문 URL 입력란과 `후보 만들기`
+- Discord `/collect url`로 생성된 후보의 상태 표시
+- 후보 목록: 출처명, 제목, 원문 링크, 이미지 후보 수, 수집 시각, 상태, 중복 표시
+- 후보 상세: 제목 편집, 원문 링크, 로컬 collector preview 또는 원격 URL metadata를 통한 이미지 후보 확인, 선택 checkbox, 실패·경고 요약
+- 작업 버튼: `재시도`, `반려`, `초안으로 승격`
+- 중복 확인 영역: 기존 게시글 링크와 확인 checkbox
+
+#### 필드·표시값·validation
+
+- URL은 `https` 형식만 client 1차 검증한다. 최종 검증은 서버가 한다.
+- 반려 사유는 허용 code 중 하나를 선택한다.
+- 이미지 선택은 1~20개이며 각 이미지 alt를 trim 후 1~300자로 입력한다. 수동 파일을 관리자 업로드 API로 올린 뒤 응답 imageId를 해당 candidateImageId의 uploadedImageId로 연결한다. 승격 요청은 선택 ID와 imageOptions를 함께 보낸다.
+- 후보 제목이 없으면 승격 전 제목 입력을 요구한다.
+- 내부 stack, 원문 HTML 전체, Python 임시 파일 내부 경로, storage key는 표시하지 않는다.
+
+#### 이벤트·버튼·이동·후처리
+
+| 이벤트 | 처리 |
+| --- | --- |
+| 후보 만들기 | 관리자 화면은 후보 작업 접수, 로컬 collector는 Discord 명령 처리와 결과 제출 |
+| 재시도 | `retry-candidate` 호출 |
+| 반려 | 사유 선택 후 `reject-candidate` 호출 |
+| 초안으로 승격 | 중복 확인·선택 이미지 검증 후 `promote-candidate-to-draft` 호출 |
+| 원문 열기 | 새 창, `rel="noopener noreferrer"` |
+
+#### loading·empty·error·권한 없음·부분 실패 상태
+
+- loading: 후보 만들기와 승격 중 버튼 중복 클릭을 막는다.
+- empty: 아직 후보가 없으면 URL 입력을 주요 행동으로 둔다.
+- error: 서버 error code에 맞춰 일반화된 메시지를 표시한다.
+- 권한 없음: 관리자 인증 화면 또는 접근 불가 상태로 보낸다.
+- 부분 실패: 이미지 후보 일부 누락은 경고로 표시하되 승격 가능 여부는 선택 이미지 기준으로 판단한다.
+- 임시 preview 만료: 로컬 collector의 preview 재제출 또는 운영자 파일 업로드가 필요하다는 메시지를 표시한다. 서버는 원격 이미지를 가져오지 않는다.
+
+#### 반응형과 접근성
+
+- 360px 이상에서 가로 스크롤 없이 목록과 상세를 사용할 수 있어야 한다.
+- 이미지 선택 checkbox는 키보드 조작 가능해야 한다.
+- 작업 버튼은 상태별로 disabled reason을 screen reader가 알 수 있어야 한다.
+- 외부 원문 링크는 새 창 열림을 접근성 이름에 포함한다.
+
+#### 이벤트별 D01·API 매핑
+
+| UI 이벤트 | D01 | API |
+| --- | --- | --- |
+| 후보 만들기 | [URL 후보 생성과 검수](#d01-create-and-review-candidate) | [create-candidate-from-url](#api-create-candidate-from-url) |
+| Discord `/collect url` 결과 검수 | [URL 후보 생성과 검수](#d01-create-and-review-candidate) | [collector-internal-api](#api-collector-internal-api), [로컬 Collector 프로그램](#d08-local-collector) |
+| 재시도 | [후보 재시도와 반려](#d01-retry-or-reject-candidate) | [retry-candidate](#api-retry-candidate) |
+| 반려 | [후보 재시도와 반려](#d01-retry-or-reject-candidate) | [reject-candidate](#api-reject-candidate) |
+| 초안으로 승격 | [후보 초안 승격](#d01-promote-candidate-to-draft) | [promote-candidate-to-draft](#api-promote-candidate-to-draft) |
+
+#### 메시지와 사용자 피드백
+
+- 허용되지 않은 출처입니다.
+- 이 경로는 수집할 수 없습니다.
+- 잠시 후 다시 시도해 주세요.
+- 같은 원문 후보가 이미 있습니다.
+- 후보를 반려했습니다.
+- 초안으로 만들었습니다.
+
+#### 화면 수용 조건
+
+- 후보 생성은 후보 또는 명시적 실패 상태로 끝난다.
+- 실패 후보는 재시도 또는 반려만 가능하다.
+- 승격 성공 뒤 자동 발행하지 않고 편집기로 이동한다.
+- 원문 HTML 전체와 내부 오류 상세를 화면에 노출하지 않는다.
+- Python 임시 파일 내부 경로와 image binary를 화면에 노출하지 않는다.
+
+#### 미정·차단·미검증 항목
+
+- 출처 설정은 [출처 조회·설정](#api-source-management)의 계약을 따른다.
+- 차단: 출처별 source spec의 운영 위험·기술 gate 확인 전 production 활성화 불가
+- 미검증: source, browser, 접근성, 실제 image preview
+
+<a id="d08-local-collector"></a>
+
+### 로컬 Collector 프로그램
+
+- 계약 상태: `초안`
+
+- 입력 근거: [콘텐츠 수집 기획 §3.2](../../../planning/content-collection/README.md), [시스템 아키텍처 §4·§5](../../../system-design/01-system-architecture.md), [인프라 설계 §6](../../../system-design/04-infrastructure-design.md), [보안·운영 §4 수집](../../../system-design/05-security-operations.md), [Collector 내부 API](#api-collector-internal-api)
+- 미검증: collector source, Discord Gateway·Slash Command, 실제 출처 fetch, local secret 저장, contract test, runtime
+
+#### 프로그램 목적·route·milestone
+
+화면 route 해당 없음. 운영자 로컬 컴퓨터에서 실행되는 별도 프로세스로, Discord `/collect url` 명령과
+관리자 화면에서 접수된 `PENDING` 후보 작업을 처리한다. BE·FE runtime 안에서 외부 사이트를 fetch하지
+않고, collector가 등록·활성 출처의 단일 상세 페이지 1건만 가져와 parser 결과를 Core 내부 API로 제출한다.
+
+#### 진입·이탈·권한 조건
+
+- 실행 주체는 승인된 운영자 로컬 PC다.
+- Discord 명령은 허용 guild, channel, user만 처리한다.
+- Web 전용 중계를 통한 Core 내부 API 호출에는 collector service token이 필요하다.
+- token, Discord bot token, webhook URL은 서버 `.env`와 분리해 로컬 secret으로 관리한다.
+- 종료되거나 네트워크가 끊겨도 공개 목록·상세, 관리자 수동 작성과 발행은 계속 동작해야 한다.
+
+#### UI 영역과 구성요소
+
+직접 UI 없음. CLI 또는 local process log만 제공한다.
+
+- stdout/stderr에는 실행 상태, 처리 후보 수, 일반화된 오류 code만 출력한다.
+- 원문 URL 전체, 후보 제목 전체, 원문 HTML, 이미지 binary, local temp path, token, stack trace는 출력하지 않는다.
+- Discord 응답은 접수·실패·완료 상태를 짧게 알리고 내부 오류 상세를 노출하지 않는다.
+
+#### 필드·표시값·validation
+
+- `collectorId`: 운영 환경에서 고유해야 하며 log와 API 요청에 사용한다.
+- `COLLECTOR_API_BASE_URL`: service origin의 `/api/collector/v1` HTTPS 중계 주소. Core 직접 주소를 사용하지 않는다.
+- `COLLECTOR_SERVICE_TOKEN`: Core 내부 API 전용 bearer token.
+- `DISCORD_BOT_TOKEN`, `DISCORD_ALLOWED_GUILD_ID`, `DISCORD_ALLOWED_CHANNEL_ID`, `DISCORD_ALLOWED_USER_IDS`: Discord 명령 수신 gate.
+- `COLLECT_MAX_RESPONSE_BYTES`, `COLLECT_TIMEOUT_MS`, `COLLECT_USER_AGENT`: 출처 요청 제한.
+- 출처 host, robots, 요청 간격, 일일 상한, DNS 안전성, redirect 3회 제한은 fetch 직전 다시 확인한다.
+- `https`가 아니거나 사설·loopback·link-local·metadata 주소로 해석되는 대상은 요청하지 않는다.
+
+#### 이벤트·후처리
+
+| 이벤트 | 처리 |
+| --- | --- |
+| process start | secret 존재, Core 연결, Discord 연결 설정을 검증하고 준비 상태로 전환 |
+| Discord `/collect url` | 허용 guild·channel·user와 URL 형식을 확인한 뒤 URL 작업을 접수하고 받은 candidateId를 claim한 후 추출 |
+| claim loop | 전용 중계의 `/candidates/claim`으로 `PENDING` 후보를 선점 |
+| heartbeat | 긴 fetch·parser 처리 중 lease를 연장 |
+| result submit | 성공은 `NEW`, 실패는 `FETCH_FAILED`로 제출 |
+| preview upload | 검수용 이미지 후보 preview 파일을 private staging으로 업로드 |
+| shutdown | 진행 중 작업은 heartbeat를 멈추고 lease 만료 뒤 재선점 가능하게 둔다 |
+
+#### 프로그램 상태
+
+- `disabled`: local flag 또는 필수 secret 부재로 실행하지 않음
+- `ready`: Core와 Discord 연결 준비
+- `idle`: 처리 가능한 후보 없음
+- `running`: 후보 1건 처리 중
+- `rate_limited`: 출처 요청 간격 또는 일일 상한 초과
+- `blocked`: robots 금지, host 비활성, DNS·redirect·content-type·응답 크기 제한으로 fetch 차단
+- `failed`: Core API, Discord, parser, preview upload 오류
+
+오류는 후보별 실패와 프로세스 치명 오류를 구분한다. 후보별 실패는 공개 서비스 장애로 확대하지 않는다.
+
+#### 반응형과 접근성
+
+UI 없음. CLI는 색 없이도 상태와 exit code를 구분할 수 있어야 하며, 비대화형 실행과 로그 수집이 가능해야 한다.
+
+#### 이벤트별 D01·API 매핑
+
+| 이벤트 | D01 | API |
+| --- | --- | --- |
+| Discord `/collect url` 또는 관리자 후보 claim | [URL 후보 생성과 검수](#d01-create-and-review-candidate) | [collector-internal-api](#api-collector-internal-api), [create-candidate-from-url](#api-create-candidate-from-url) |
+| 실패 후보 재처리 | [후보 재시도와 반려](#d01-retry-or-reject-candidate) | [retry-candidate](#api-retry-candidate), [collector-internal-api](#api-collector-internal-api) |
+| preview 재업로드 | [후보 초안 승격](#d01-promote-candidate-to-draft) | [collector-internal-api](#api-collector-internal-api), [promote-candidate-to-draft](#api-promote-candidate-to-draft) |
+
+#### 메시지와 사용자 피드백
+
+- Discord: 후보 생성을 접수했습니다.
+- Discord: 허용되지 않은 채널 또는 사용자입니다.
+- Discord: 이 URL은 수집할 수 없습니다.
+- Discord: 후보 생성에 실패했습니다. 관리자 화면에서 사유를 확인해 주세요.
+- CLI: `ready`, `idle`, `processing`, `submitted`, `blocked`, `failed` 상태와 일반 오류 code를 출력한다.
+
+#### 프로그램 수용 조건
+
+- BE·FE runtime이 외부 사이트를 직접 fetch하지 않는다.
+- Discord 일반 메시지를 감시하지 않고 `/collect url` 명령만 처리한다.
+- 등록·활성 출처, robots, 요청 상한, DNS 안전성, redirect, content-type, 응답 크기, timeout gate를 fetch 직전 적용한다.
+- 성공 결과는 원문 HTML·이미지 binary·local temp path 없이 metadata와 preview 식별자만 제출한다.
+- 실패 결과는 `FETCH_FAILED`와 허용된 `fetchErrorCode`로 남긴다.
+- collector 중단·lease 만료 뒤 후보는 재선점 가능하고 공개 목록·상세와 수동 발행은 계속 동작한다.
+- token과 Discord secret이 log, Discord 메시지, Git, error response에 남지 않는다.
+
+#### 미정·차단·미검증
+
+- 결정 필요: collector 배포 방식, 실행 명령, 로컬 secret 저장 방식, 운영자 PC 식별 규칙.
+- 결정 필요: 첫 출처별 parser package와 fixture 위치.
+- 차단: 출처별 source spec의 운영 위험·robots 확인 전 production 활성화 불가.
+- 미검증: source, Discord Gateway·Slash Command, 실제 출처 fetch, contract test, runtime.
+
+<a id="api-source-management"></a>
+
+### 출처 조회·설정과 관리 화면
+
+- 계약: [시스템 API의 수집 출처](../../../system-design/03-api-design.md#수집-출처). GET/PATCH 형식·충돌·감사 처리는 여기서 재정의하지 않는다.
+- 화면: `/admin/collect/sources`, 관리자 인증, 등록 목록과 선택 출처의 설정을 같은 화면에서 편집한다.
+- M0 수집 보조에서는 활성 여부·요청 간격·일일 상한·robots 확인 결과를 편집한다. 출처 식별 정보는 읽기 전용,
+  목록 수집 관련 값은 후속 단계 전까지 비활성이다. 생성·삭제 버튼은 없다.
+- 저장 중 중복 제출을 막고 현재 lockVersion을 보낸다. 성공하면 반환값으로 목록과 편집값을 함께 교체한다.
+  version 충돌이면 재조회 후 운영자가 다시 선택하며 자동 덮어쓰지 않는다.
+- loading·등록 출처 없음·조회 실패·저장 실패를 구분한다. 실패 시 입력을 유지하고 일반화한 사유를 표시한다.
+- 검증: 1000ms·상한 1/10000 경계, 미허용 필드·설정 조합, robots 재확인/null 해제,
+  경쟁 수정·응답 유실·유지보수 읽기/쓰기 분리를 확인한다. source·browser 검증은 새 구현에서 수행한다.

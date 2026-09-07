@@ -1,0 +1,31 @@
+{
+  "name": "blariyo-m0-core",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.18.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w @blariyo/web",
+    "dev:api": "npm run dev -w @blariyo/api",
+    "build": "npm run contracts:generate && npm run build -w @blariyo/web",
+    "test": "node --test tests/*.test.mjs",
+    "contracts:generate": "node scripts/generate-contracts.mjs",
+    "db:migrate": "node apps/api/src/migrate.mjs",
+    "posts:publish-due": "node apps/api/src/command.mjs posts:publish-due",
+    "outbox:run": "node apps/api/src/command.mjs outbox:run",
+    "cleanup:run": "node apps/api/src/command.mjs cleanup:run",
+    "policies:publish": "node apps/api/src/command.mjs policies:publish",
+    "test:integration": "npm run build && node scripts/test-integration.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "openapi-typescript": "^7.10.1",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.3"
+  }
+}

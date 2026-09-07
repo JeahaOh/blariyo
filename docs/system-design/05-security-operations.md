@@ -449,6 +449,13 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 제한하지 않고 성공하거나 운영자가 예약을 취소할 때까지 계속한다. 반면 공지 위치 충돌처럼 같은
 입력으로 성공할 수 없는 업무 제약 오류는 `DRAFT`로 되돌리고 한 번 알린 뒤 자동 재시도하지 않는다.
 
+구현은 `ops.schedule_failure_alert`에 실패와 전달 상태를 보존하고 기존 cron command에서
+`SCHEDULE_ALERT_WEBHOOK_URL`로 JSON 알림을 전달한다. 첫 실패부터 전달을 시도하고 같은 예약·오류는
+15분 단위로 묶으며, 전송 실패는 다음 실행에서 재시도한다. 수신 주소가 없거나 전송이 실패하면
+command는 비정상 종료하여 성공으로 표시하지 않는다. 실제 수신 경로는 운영 설정으로 남기고,
+로컬에서는 대체 HTTP 수신기로 검증한다. 알림에는 게시글 ID·예약 시각·오류 코드·최초/최근 시도 시각·
+누적/추가 실패 횟수·groupKey만 포함한다.
+
 1. scheduler last successful run과 overdue due row 확인
 2. 같은 게시글의 중복 발행 여부 확인
 3. R2 image와 DB 상태 확인

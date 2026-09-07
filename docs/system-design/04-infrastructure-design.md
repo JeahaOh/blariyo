@@ -74,7 +74,7 @@ R2 bucket은 공개 범위와 자격증명을 분리하기 위해 세 개로 나
 
 ```text
 blariyo-media-public
-  posts/{postId}/{sha256}.{ext}
+  posts/{postId}/{imageId}-{sha256}.{ext}
 
 blariyo-media-private
   drafts/{postId|draftId}/{uuid}
@@ -84,6 +84,8 @@ blariyo-backup
   postgresql/daily/YYYY/MM/DD/{timestamp}.dump.age
   manifests/{timestamp}.json
 ```
+
+공개 key는 이미지 자산 ID를 포함해 같은 게시글 안의 동일 hash 이미지도 별도 자산으로 유지한다. 같은 자산의 재시도는 같은 key를 사용한다. 이는 데이터 모델의 중복 hash 허용과 공개 key UNIQUE 제약을 함께 만족한다.
 
 `blariyo-media-public`에만 이미지 custom domain을 연결한다. private media와 backup bucket은 public access와 custom domain을 모두 차단한다. 발행 시 검증된 private 원본을 public bucket으로 copy하고 DB에 public key를 추가하되 private 원본 key는 복구·재공개를 위해 유지한다.
 

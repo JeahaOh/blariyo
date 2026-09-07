@@ -1,0 +1,9 @@
+.git
+**/node_modules
+**/.nuxt
+**/.output
+.local-data
+.env
+.env.*
+worklog
+tests

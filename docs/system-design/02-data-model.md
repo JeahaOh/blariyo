@@ -567,6 +567,17 @@ payload는 `privateStorageKey`, `objectCreatedAt`, `cleanupReason=UPLOAD_ROLLBAC
 파일명·관리자 identity는 넣지 않는다. 일반 image row의 삭제는 기존 `aggregate_type=IMAGE`와 실제
 `aggregate_id=image.id`를 유지한다.
 
+### 예약 발행 실패 알림 — `ops.schedule_failure_alert`
+
+예약 실패의 재시도와 운영 알림 묶음을 cron 프로세스 재시작 후에도 유지한다. `V003`에서 추가한다.
+기본키는 `(post_id, scheduled_at, error_code)`이며 `post_id`는 게시글 FK다.
+`attempt_count`, `first_attempt_at`, `last_attempt_at`은 실패 횟수와 최초·마지막 시도를 기록하고,
+`notified_count`, `notified_at`은 마지막 전달까지 포함한 횟수와 전달 시각을 기록한다.
+공통 감사 컬럼을 포함하며 actor는 `system:scheduler`다. 본문·출처 URL·관리자 identity는 저장하지 않는다.
+첫 실패는 즉시 전달 대상으로 두고, 같은 예약·오류의 추가 실패는 15분 단위로 묶는다.
+전달 실패 시 전달 완료 값을 갱신하지 않아 다음 cron에서 재시도한다. 알림 중복 수신은 가능하므로
+수신 측은 게시글·예약 시각·오류 코드로 구성된 `groupKey`를 사용할 수 있다.
+
 ### 멱등 요청 기록 — `ops.idempotency_request`
 
 초안 생성·발행·예약·예약 취소·숨김·재공개·삭제 command의 재전송 결과를 보존한다.

@@ -456,7 +456,11 @@ version/state/pin/image/idempotency 충돌은 각 `409`; 즉시 발행의 R2 장
 바꾸지 않는다. scheduler의 일시 R2·DB·network 실패는 `SCHEDULED`를 유지하고 첫 실패부터 운영
 알림을 보낸 뒤 다음 분 실행에서 성공 또는 운영자 취소까지 횟수 제한 없이 재시도한다. 같은 입력으로
 성공할 수 없는 공지 위치 충돌은 `DRAFT`로 되돌리고 한 번 알린 뒤 자동 재시도하지 않는다. copy 후
-DB 실패 object는 orphan 정리 대상이다.
+DB 실패 object는 보상 삭제 outbox와 orphan 정리 대상이다. 보상 삭제는 현재 PUBLIC 상태의
+동일 key를 지우지 않는다. 게시글별 session advisory lock으로 copy부터 상태 commit·보상 등록까지
+직렬화하며, 숨김·최종 제거·image 삭제 worker·public orphan 정리도 같은 잠금을 사용한다.
+worker는 잠금 획득 후 작업 lease와 이미지 상태를 다시 확인하여 오래된 작업이 재공개 이미지를
+삭제하지 않게 한다. 외부 I/O 동안 SQL transaction은 열어 두지 않는다.
 
 #### 멱등성·동시성·재시도
 

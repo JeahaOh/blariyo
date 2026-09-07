@@ -1,0 +1,15 @@
+{
+  "name": "@blariyo/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --host 127.0.0.1",
+    "build": "nuxt build"
+  },
+  "dependencies": {
+    "nuxt": "^4.1.0",
+    "vue": "^3.5.21",
+    "jose": "^6.1.0",
+    "@blariyo/contracts": "*"
+  }
+}

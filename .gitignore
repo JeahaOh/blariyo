@@ -124,7 +124,7 @@ nbdist/
 # Docker
 ############################################
 # Dockerfile
-.dockerignore
+# .dockerignore is an implementation artifact
 # docker-compose.*
 *.tar
 *.img
@@ -164,3 +164,8 @@ apps/data/postgresql/*
 apps/data/mongodb/*
 !apps/data/mongodb/README.md
 ############################################
+
+.output/
+.local-data/
+test-results/
+playwright-report/

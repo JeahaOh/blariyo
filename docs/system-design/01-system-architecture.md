@@ -366,3 +366,18 @@ MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에
 | 특정 출처의 차단·파싱 실패가 반복됨 | 해당 출처 목록 수집 중단, 운영자 URL 지정만 유지 |
 
 Redis, queue broker, Kubernetes, Elasticsearch는 위 조건과 직접 연결된 필요가 확인되기 전에는 도입하지 않는다.
+
+### 운영자 로컬 수집 서버 (2026-09-08)
+
+수집기는 상시 실행 Python HTTP 서버로 구동한다. 프로세스 안의 cron scheduler, 로컬 실행 API,
+Discord 명령이 같은 JobRunner와 지속 실행 이력을 사용한다. 외부 fetch/parser는 기존 로컬 구현을
+재사용하고 공개 Web/Core와 별도 프로세스·장애 경계를 유지한다.
+
+- 제어 서버는 `127.0.0.1`에만 bind하며 전용 bearer로 인증한다. 브라우저 Origin 요청을 거부한다.
+- cron은 5필드(분·시·일·월·요일), 기본 timezone은 Asia/Seoul이다. Quartz의 초 필드 문법과 다르다.
+- 실행 API와 cron은 이미 Core에 접수된 후보를 claim한다. Discord URL 접수도 같은 runner로 해당 후보를 처리한다.
+- 한 번에 하나의 실행만 수행하고, 실행 요청은 로컬 SQLite에 QUEUED/RUNNING/SUCCEEDED/FAILED/PARTIAL/INTERRUPTED로 기록한다.
+- 중복 요청 key는 같은 run을 반환한다. 프로세스 중복 시작은 OS 파일 잠금으로 차단한다.
+- 정상 종료는 신규 접수를 멈추고 진행 중 작업을 기다린다. 강제 종료된 RUNNING 이력은 재시작 시 INTERRUPTED로 기록한다.
+  Core의 만료 lease 후보는 다음 실행에서 회수한다. 중단 중 놓친 cron은 몰아서 실행하지 않는다.
+- 후보 목록 자동 탐색·자동 발행은 포함하지 않는다. 실제 출처/Discord/운영 기기 자동 기동 검증은 별도다.

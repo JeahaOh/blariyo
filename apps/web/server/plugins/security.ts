@@ -4,6 +4,7 @@ export default defineNitroPlugin((nitro) => {
   nitro.hooks.hook('request', (event) => {
     const config = useRuntimeConfig(event).public,
       nonce = randomBytes(18).toString('base64');
+    if (!config.ga4Enabled || !config.analyticsApproved) config.ga4MeasurementId = '';
     event.context.cspNonce = nonce;
     const origins = (value: string) =>
       value
@@ -13,7 +14,7 @@ export default defineNitroPlugin((nitro) => {
     const scripts = ["'self'", `'nonce-${nonce}'`],
       connect = ["'self'"];
     if (env.NODE_ENV !== 'production') connect.push('ws:');
-    if (config.analyticsEnabled && config.analyticsApproved) {
+    if (config.ga4Enabled && config.analyticsApproved) {
       scripts.push('https://www.googletagmanager.com');
       connect.push(...origins(config.analyticsConnectOrigins));
     }

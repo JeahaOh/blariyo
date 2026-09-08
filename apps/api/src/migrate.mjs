@@ -56,10 +56,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 }
 export async function grantApplication(pool, role) {
   if (!/^[a-z][a-z0-9_]{0,62}$/.test(role)) throw new Error('Invalid application role');
-  await pool.query(`GRANT USAGE ON SCHEMA content,legal,ops TO ${role};
- GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA content,legal TO ${role};
+  await pool.query(`GRANT USAGE ON SCHEMA content,legal,ops,collect TO ${role};
+ GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA content,legal,collect TO ${role};
  GRANT SELECT,INSERT,UPDATE,DELETE ON ops.outbox_task,ops.idempotency_request,ops.schedule_failure_alert TO ${role};
- GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA content,legal,ops TO ${role};
+ GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA content,legal,ops,collect TO ${role};
  REVOKE ALL ON ops.schema_migration FROM ${role};
  GRANT EXECUTE ON FUNCTION ops.is_schema_ready(TEXT) TO ${role}`);
 }

@@ -1,4 +1,5 @@
 import express from 'express';
+import { registerCollection } from './collection-routes.mjs';
 import {
   matchOperation,
   validateRequest,
@@ -36,7 +37,7 @@ export function createApp(pool, options = {}) {
   app.get('/internal/health/live', (_req, res) => res.json({ status: 'UP' }));
   app.get('/internal/health/ready', async (_req, res) => {
     try {
-      const result = await pool.query('SELECT ops.is_schema_ready($1) AS ready', ['V003']);
+      const result = await pool.query('SELECT ops.is_schema_ready($1) AS ready', ['V004']);
       res
         .status(result.rows[0].ready ? 200 : 503)
         .json({ status: result.rows[0].ready ? 'READY' : 'NOT_READY' });
@@ -59,6 +60,7 @@ export function createApp(pool, options = {}) {
         )
         .send(bytes);
     });
+  registerCollection(app, pool, options);
   const service = publicService(pool, options);
   app.use('/api/v1', async (req, res, next) => {
     try {

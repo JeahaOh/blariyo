@@ -22,10 +22,11 @@ export default defineNitroPlugin(() => {
       throw new Error('PUBLIC_CONFIG_REQUIRED');
   }
   if (
-    config.public.analyticsEnabled &&
-    (!/^G-[A-Z0-9]+$/.test(config.public.measurementId) || !config.public.analyticsConnectOrigins)
+    config.public.ga4Enabled &&
+    (!/^G-[A-Z0-9]+$/.test(config.public.ga4MeasurementId) ||
+      !config.public.analyticsConnectOrigins)
   )
     throw new Error('ANALYTICS_CONFIG_REQUIRED');
-  if (config.public.analyticsEnabled && !config.public.analyticsApproved)
+  if (config.public.ga4Enabled && !config.public.analyticsApproved)
     throw new Error('ANALYTICS_APPROVAL_REQUIRED');
 });

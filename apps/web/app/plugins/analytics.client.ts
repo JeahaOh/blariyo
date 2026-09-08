@@ -8,8 +8,8 @@ export default defineNuxtPlugin((nuxt) => {
     window,
     document,
     storage: { getItem: (key: string) => window.localStorage.getItem(key) },
-    enabled: config.analyticsEnabled === true && config.analyticsApproved === true,
-    measurementId: config.measurementId,
+    enabled: config.ga4Enabled === true && config.analyticsApproved === true,
+    measurementId: config.ga4MeasurementId,
     origin: config.siteOrigin,
     getPath: () => route.path,
   });

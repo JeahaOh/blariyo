@@ -1,7 +1,9 @@
+import { collectionService } from './collection.mjs';
 import { transaction } from './db.mjs';
 import { withPostLock } from './post-lock.mjs';
 import { enqueue } from './outbox.mjs';
 export async function cleanup(pool, storage) {
+  await collectionService(pool, storage).cleanup();
   const actor = 'system:outbox-worker';
   await transaction(pool, async (db) => {
     const staged = (
@@ -28,11 +30,16 @@ export async function cleanup(pool, storage) {
   for (const bucket of ['private', 'public'])
     for (const object of await storage.inventory(bucket)) {
       if (Date.now() - object.createdAt < 86400000) continue;
-      if (bucket === 'private' && !object.key.startsWith('staging/')) continue;
+      if (
+        bucket === 'private' &&
+        !object.key.startsWith('staging/') &&
+        !object.key.startsWith('collect-preview/')
+      )
+        continue;
       const column = bucket === 'private' ? 'private_storage_key' : 'public_storage_key';
       const removeOrphan = async (pool) => {
         const referenced = await pool.query(
-          `SELECT 1 FROM content.board_post_image WHERE ${column}=$1 AND status<>'DELETED' UNION ALL SELECT 1 FROM ops.outbox_task WHERE status IN ('PENDING','RUNNING','FAILED','DEAD') AND (payload->>'privateStorageKey'=$1 OR payload->>'publicStorageKey'=$1) LIMIT 1`,
+          `SELECT 1 FROM content.board_post_image WHERE ${column}=$1 AND status<>'DELETED' UNION ALL SELECT 1 FROM collect.candidate_image WHERE preview_storage_key=$1 UNION ALL SELECT 1 FROM ops.outbox_task WHERE status IN ('PENDING','RUNNING','FAILED','DEAD') AND (payload->>'privateStorageKey'=$1 OR payload->>'publicStorageKey'=$1) LIMIT 1`,
           [object.key]
         );
         if (!referenced.rowCount) await storage.delete(bucket, object.key);

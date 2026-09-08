@@ -5,8 +5,9 @@
 - 문서 상태: `초안`
 - milestone: `M0 수집 보조` (`m0-collection-assist`)
 - 기능: `collection-assist` — 로컬 collector 기반 Discord·운영자 URL 지정 후보 생성·검수·반려·초안 승격
-- 기준일: 2026-09-07
-- 미검증: source, migration, OpenAPI, test, runtime, browser, 실제 출처별 운영 위험·robots 확인
+- 기준일: 2026-09-08
+- 로컬 검증: source·V004 migration·OpenAPI·PostgreSQL/HTTP·Chromium 후보 검수 흐름 (루트 README 실행 증거 참조)
+- 미검증: 실제 출처 fetch·운영 위험·robots 확인, 라이브 Discord 연결, 공개 배포
 - 주요 근거:
   - [콘텐츠 수집 기획](../../../planning/content-collection/README.md)
   - [출처 명세 템플릿](../../../planning/content-collection/source-spec-template.md)
@@ -45,7 +46,7 @@
 
 - 사용 결정된 출처 목록·feed의 주기 자동 수집
 - Discord 일반 메시지 감시, 목록 수집 강제 실행, 후보 검수·발행 명령
-- 출처 신규 등록·삭제·robots 판정 변경 UI
+- 출처 신규 등록·삭제 UI
 - 자동 발행, 로그인·CAPTCHA·유료 장벽·차단 우회
 - 원문 HTML 전체 저장, 이미지 binary의 DB·영구 object storage 후보 단계 저장
 
@@ -1018,7 +1019,7 @@ UI 없음. CLI는 색 없이도 상태와 exit code를 구분할 수 있어야 �
 - 결정 필요: collector 배포 방식, 실행 명령, 로컬 secret 저장 방식, 운영자 PC 식별 규칙.
 - 결정 필요: 첫 출처별 parser package와 fixture 위치.
 - 차단: 출처별 source spec의 운영 위험·robots 확인 전 production 활성화 불가.
-- 미검증: source, Discord Gateway·Slash Command, 실제 출처 fetch, contract test, runtime.
+- 미검증: 라이브 Discord Gateway·Slash Command, 실제 출처 fetch. 공통 구현·계약·로컬 runtime 증거는 루트 README 참조.
 
 <a id="api-source-management"></a>
 
@@ -1033,3 +1034,38 @@ UI 없음. CLI는 색 없이도 상태와 exit code를 구분할 수 있어야 �
 - loading·등록 출처 없음·조회 실패·저장 실패를 구분한다. 실패 시 입력을 유지하고 일반화한 사유를 표시한다.
 - 검증: 1000ms·상한 1/10000 경계, 미허용 필드·설정 조합, robots 재확인/null 해제,
   경쟁 수정·응답 유실·유지보수 읽기/쓰기 분리를 확인한다. source·browser 검증은 새 구현에서 수행한다.
+
+## 13. 구현 계약 보완 (2026-09-08)
+
+- 실행 OpenAPI 정본은 [m0-collection-assist.yaml](../openapi/m0-collection-assist.yaml)이다.
+  `packages/contracts` 사본과 동일성 검사 후 Core와 BFF의 요청·응답 검사기를 함께 생성한다.
+- source/candidate/image 저장소는 V004 migration, 운영자 로컬 실행기는 `tools/collector/`다.
+  기능 flag는 Core `COLLECT_MANUAL_URL_ENABLED`, `COLLECT_DISCORD_COMMAND_ENABLED`,
+  BFF는 같은 이름에 `NUXT_` prefix를 사용한다. 기본값은 false다.
+- Core는 `COLLECTOR_TOKENS_FILE`의 collectorId·SHA-256 token hash·collect scope를 검증한다.
+  관리자 인증과 machine 인증은 서로 대체하지 않는다.
+- heartbeat 응답에 `source` 스냅샷을 추가한다. 로컬 수집기는 외부 요청 직전에 source의
+  isActive·robotsAllowed와 요청 간격·일일 한도를 다시 확인한다.
+- 일일 한도는 운영자 기기의 지속 SQLite 파일에서 UTC 날짜 기준으로 계산한다.
+  robots·redirect·HTML·이미지 요청을 모두 포함한다. 여러 프로세스는 같은 상태 파일을 공유한다.
+  분산된 여러 운영자 기기에서 동시에 수집하는 것은 이 구현 범위에 포함하지 않는다.
+- 출처 등록 seed와 실제 parser selector는 승인·현장 확인 전에는 추가하지 않는다.
+  로컬 parser는 명시한 tag/class/id 선택자를 사용하며 sourceHost·CDN allowlist 밖을 거부한다.
+- draft 전환은 Core 공통 이미지 검사와 초안 생성 함수를 재사용한다. 이미지 staging 후
+  후보 APPROVED와 게시글 DRAFT를 한 DB transaction으로 저장한다. 실패한 staging은 기존 cleanup으로 회수한다.
+- 결과 제출 후 미리보기 업로드 일부 실패는 로컬 `PARTIAL_PREVIEW`로 보고한다. 서버 후보는 NEW로 남고,
+  운영자는 없는 미리보기를 직접 업로드로 대체할 수 있다. 이를 자동 발행하지 않는다.
+- 구현 검증 기록은 루트 README와 수집기 README에 분리한다. fixture 통과는 실제 출처나 Discord 연결 완료를 뜻하지 않는다.
+
+
+### 로컬 서버 실행 계약 (2026-09-08)
+
+- 진입점: `tools/collector/server.py`. HTTP·cron·Discord가 `runtime.py`의 동일 Runner를 호출한다.
+- 로컬 제어 API: 인증된 `GET /health`, `GET /v1/schedule`, `POST /v1/runs`, `GET /v1/runs`, `GET /v1/runs/{runId}`.
+  공개 BFF의 `/api/collector/v1/*`와 다른, 운영자 기기의 localhost API다.
+- POST body는 `{}` 또는 `{candidateId: 양의 정수}`이며 Idempotency-Key 필수다. 새 URL은 기존 관리자/Discord 접수 경로를 사용한다.
+  202와 runId를 반환한다. 동일 key/body는 같은 실행, 다른 body는 409, 대기 100건 초과는 429다.
+- cron은 timezone을 지정한 5필드 표현식이며 설정 파일에서 변경 후 재시작한다. 예약 실행당 처리 수는 기본 5건, 최대 20건이다.
+- 실행 이력은 30일간 보관한다. 이력에 원문 URL·본문·token을 저장하지 않는다.
+- 기능 검증: 로컬 수집기·HTTP·scheduler·동시성·정상 종료·재시작 이력 테스트 14개 통과.
+  실제 출처·Discord Gateway·운영 기기 자동 기동 등록은 미검증이다.

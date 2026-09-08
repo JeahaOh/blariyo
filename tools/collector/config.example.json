@@ -1,0 +1,28 @@
+{
+  "userAgent": "",
+  "sources": {
+    "source.example": {
+      "enabled": false,
+      "parserVersion": "",
+      "detailPathPattern": "^/[0-9]+$",
+      "bodySelector": "",
+      "titleSelector": "",
+      "imageHosts": []
+    }
+  },
+  "discord": {
+    "guildIds": [],
+    "channelIds": [],
+    "userIds": [],
+    "enabled": false
+  },
+  "server": {
+    "port": 8787,
+    "batchSize": 5,
+    "schedule": {
+      "enabled": true,
+      "cron": "* * * * *",
+      "timezone": "Asia/Seoul"
+    }
+  }
+}

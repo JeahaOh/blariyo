@@ -1,9 +1,7 @@
 import { readConsent, saveConsent } from '~/utils/consent.mjs';
 export function useConsent() {
   const config = useRuntimeConfig().public;
-  const enabled = computed(
-    () => config.analyticsEnabled === true && config.analyticsApproved === true
-  );
+  const enabled = computed(() => config.ga4Enabled === true && config.analyticsApproved === true);
   const consent = useState<any>('analytics-consent', () => null),
     storageError = useState('consent-error', () => ''),
     ready = useState('consent-ready', () => false);

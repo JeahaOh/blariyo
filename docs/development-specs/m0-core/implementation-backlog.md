@@ -4,7 +4,7 @@
 - milestone: `M0 Core` (`m0-core`)
 - 기준일: 2026-09-03
 - 입력 근거: [서비스 기획](../../planning/01-service-plan.md), [시스템 설계](../../system-design/README.md), [API 설계](../../system-design/03-api-design.md), [M0 Core 결정 색인](./decisions/open-decisions.md)
-- 미검증: 새 source·migration·생성 타입·test·build·runtime·browser·deployment
+- 구현 증거: [현재 소스의 검증 기록](../../../README.md#검증). 운영 외부 서비스·법무 실값·deployment는 별도 미검증.
 
 이 문서는 이미 작성된 M0 Core 개발 Spec을 구현 순서로 묶는 실행 준비 backlog다. 제품 범위나 API
 계약을 새로 확정하지 않고 각 기능 Spec과 system-design의 계약을 따라 구현 단위를 정렬한다.
@@ -64,5 +64,6 @@
 
 - 출시 차단: OD-M0-006 법무·문의 실값, 시행일, 실제 수탁자, 접속·보안 로그 법무 근거
 - 활성화 차단: OD-M0-009 Kakao 운영값, OD-M0-011 GA4 운영값
-- 미검증: source, migration, OpenAPI, test, build, runtime, browser, deployment
+- 로컬 검증: source·migration·OpenAPI·test·build·browser·Docker·DB 복구는 [README](../../../README.md#검증)의 실행 결과를 따른다.
+- 미검증: production 외부 서비스 연결, 운영 cron·알림·암호화 원격 백업·전체 서버 복구, deployment
 - 보류: 수집 보조·자동 수집, 회원, 광고, 제휴는 별도 milestone에서 진행

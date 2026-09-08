@@ -7,3 +7,6 @@
 .env.*
 worklog
 tests
+
+# Collector runs only on the operator machine
+tools/collector

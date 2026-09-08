@@ -1,9 +1,11 @@
 <script setup>
+const route = useRoute();
+const detail = computed(() => /^\/[^/]+\/posts\/[^/]+$/.test(route.path));
 const brand = useRuntimeConfig().public;
 </script>
 <template>
-  <div class="shell">
-    <header>
+  <div class="shell" :class="{ 'admin-shell': route.path === '/admin' }">
+    <header v-if="!detail">
       <NuxtLink to="/meme">{{ brand.siteName }}</NuxtLink
       ><span>{{ brand.homeTagline }}</span>
     </header>
@@ -49,15 +51,18 @@ button:hover {
   outline-offset: 2px;
 }
 .shell {
-  max-width: 1000px;
+  max-width: 760px;
   margin: auto;
   background: #f9f9f9;
   min-height: 100vh;
 }
+.admin-shell {
+  max-width: 1000px;
+}
 header {
   padding: 20px 28px;
-  background: #3a4a5a;
-  color: #f9f9f9;
+  background: #f9f9f9;
+  color: #262626;
   display: flex;
   align-items: center;
   gap: 24px;
@@ -107,6 +112,9 @@ footer {
 .post-row:hover,
 .current {
   background: #e2f4f3;
+}
+.pinned {
+  background: #f8f0da;
 }
 .current {
   border-left: 3px solid #00a19b;

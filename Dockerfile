@@ -9,6 +9,7 @@ COPY apps apps
 COPY packages packages
 COPY scripts scripts
 COPY docs/development-specs/m0-core/openapi docs/development-specs/m0-core/openapi
+COPY docs/development-specs/m0-collection-assist/openapi docs/development-specs/m0-collection-assist/openapi
 RUN npm run build
 FROM node:24.18.0-bookworm-slim AS web
 WORKDIR /app

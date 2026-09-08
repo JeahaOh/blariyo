@@ -169,3 +169,12 @@ apps/data/mongodb/*
 .local-data/
 test-results/
 playwright-report/
+
+# Operator-local collector
+.venv/
+__pycache__/
+*.pyc
+*.db-journal
+*.db-wal
+*.db-shm
+tools/collector/config.local.json

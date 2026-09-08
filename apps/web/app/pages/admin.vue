@@ -1,6 +1,9 @@
 <script setup>
 import { uploadError } from '../utils/upload-errors.mjs';
+import { editorErrors } from '../utils/editor-validation.mjs';
+const route = useRoute();
 const uploadErrors = ref([]);
+const validation = ref({});
 const requestFetch = useRequestFetch();
 const { data: search, error } = await useAsyncData('admin-search', () =>
   requestFetch('/api/v1/admin/posts')
@@ -10,6 +13,11 @@ if (error.value)
     statusCode: error.value.statusCode || 401,
     message: '관리자 인증이 필요합니다.',
   });
+const { data: collectAvailable } = await useAsyncData('collect-available', () =>
+  requestFetch('/api/v1/admin/collect/sources')
+    .then(() => true)
+    .catch(() => false)
+);
 const status = ref(''),
   titlePrefix = ref(''),
   board = ref(''),
@@ -66,24 +74,35 @@ function remember() {
 }
 remember();
 async function load(id) {
+  if (busy.value) return;
   if (dirty.value && !confirm('저장하지 않은 변경을 버리고 이동할까요?')) return;
+  busy.value = true;
   try {
     const result = await $fetch(`/api/v1/admin/posts/${id}`);
     editor.value = result.data;
     sourceName.value = result.data.source?.name || '';
     sourceUrl.value = result.data.source?.url || '';
     pending.value = null;
+    validation.value = {};
+    uploadErrors.value = [];
+    message.value = '';
     remember();
   } catch {
     message.value = '게시글을 불러오지 못했습니다.';
+  } finally {
+    busy.value = false;
   }
 }
 function newDraft() {
+  if (busy.value) return;
   if (dirty.value && !confirm('저장하지 않은 변경을 버리고 새 초안을 만들까요?')) return;
   editor.value = fresh();
   sourceName.value = '';
   sourceUrl.value = '';
   pending.value = null;
+  validation.value = {};
+  uploadErrors.value = [];
+  message.value = '';
   remember();
 }
 async function searchPosts(n = 1) {
@@ -111,6 +130,7 @@ function editableBlocks() {
   );
 }
 async function execute(path, method, body) {
+  if (busy.value) return;
   const signature = JSON.stringify({ path, method, body });
   if (!pending.value || pending.value.signature !== signature)
     pending.value = { signature, key: crypto.randomUUID() };
@@ -123,8 +143,8 @@ async function execute(path, method, body) {
       headers: { 'Idempotency-Key': pending.value.key },
       retry: 0,
     });
-    pending.value = null;
     const resultDetail = await $fetch(`/api/v1/admin/posts/${result.data.postId}`);
+    pending.value = null;
     editor.value = resultDetail.data;
     sourceName.value = editor.value.source?.name || '';
     sourceUrl.value = editor.value.source?.url || '';
@@ -141,6 +161,14 @@ async function execute(path, method, body) {
   }
 }
 async function save() {
+  if (busy.value) return;
+  validation.value = editorErrors(editor.value, sourceName.value, sourceUrl.value);
+  if (Object.keys(validation.value).length) {
+    message.value = '입력한 내용을 확인해 주세요.';
+    await nextTick();
+    document.querySelector('[aria-invalid="true"]')?.focus();
+    return;
+  }
   const source =
     sourceName.value || sourceUrl.value ? { name: sourceName.value, url: sourceUrl.value } : null;
   const body = {
@@ -159,6 +187,7 @@ async function save() {
   else await execute('/api/v1/admin/posts', 'POST', { ...body, boardSlug: editor.value.boardSlug });
 }
 async function action(name) {
+  if (busy.value) return;
   if (dirty.value) {
     message.value = '변경한 내용을 먼저 저장해 주세요.';
     return;
@@ -188,9 +217,15 @@ async function action(name) {
   );
 }
 async function upload(event) {
+  if (busy.value) return;
   const files = [...event.target.files];
   event.target.value = '';
   if (!files.length) return;
+  const imageCount = editor.value.blocks.filter((b) => b.type === 'IMAGE').length;
+  if (imageCount + files.length > 20 || editor.value.blocks.length + files.length > 40) {
+    message.value = '게시글은 본문 블록 40개, 이미지 20개까지 사용할 수 있습니다.';
+    return;
+  }
   busy.value = true;
   uploadErrors.value = [];
   message.value = '';
@@ -208,32 +243,55 @@ async function upload(event) {
   }
 }
 async function removeBlock(index) {
+  if (busy.value) return;
   const b = editor.value.blocks[index];
-  if (b.type === 'IMAGE' && !b.attached && b.status === 'STAGED') {
-    const existing = editor.value.postId
-      ? await $fetch(`/api/v1/admin/posts/${editor.value.postId}`)
-      : null;
-    if (!existing?.data.blocks.some((i) => i.imageId === b.imageId))
-      try {
-        await $fetch(`/api/v1/admin/images/${b.imageId}`, { method: 'DELETE' });
-      } catch {
-        message.value = '이미지를 폐기하지 못했습니다.';
-        return;
-      }
+  busy.value = true;
+  try {
+    if (b.type === 'IMAGE' && !b.attached && b.status === 'STAGED') {
+      const existing = editor.value.postId
+        ? await $fetch(`/api/v1/admin/posts/${editor.value.postId}`)
+        : null;
+      if (!existing?.data.blocks.some((i) => i.imageId === b.imageId))
+        try {
+          await $fetch(`/api/v1/admin/images/${b.imageId}`, { method: 'DELETE' });
+        } catch {
+          message.value = '이미지를 폐기하지 못했습니다.';
+          return;
+        }
+    }
+    editor.value.blocks.splice(index, 1);
+    validation.value = {};
+  } catch {
+    message.value = '이미지 연결 상태를 확인하지 못했습니다. 다시 시도해 주세요.';
+  } finally {
+    busy.value = false;
   }
-  editor.value.blocks.splice(index, 1);
 }
 function move(index, offset) {
   const next = index + offset;
   if (next < 0 || next >= editor.value.blocks.length) return;
   const value = editor.value.blocks.splice(index, 1)[0];
   editor.value.blocks.splice(next, 0, value);
+  validation.value = {};
 }
-onBeforeRouteLeave(() => !dirty.value || confirm('저장하지 않은 변경을 버리고 이동할까요?'));
+function beforeUnload(event) {
+  if (!dirty.value && !busy.value) return;
+  event.preventDefault();
+  event.returnValue = '';
+}
+onMounted(() => {
+  window.addEventListener('beforeunload', beforeUnload);
+  if (/^[1-9][0-9]*$/.test(String(route.query.postId || ''))) load(route.query.postId);
+});
+onUnmounted(() => window.removeEventListener('beforeunload', beforeUnload));
+onBeforeRouteLeave(
+  () => !busy.value && (!dirty.value || confirm('저장하지 않은 변경을 버리고 이동할까요?'))
+);
 </script>
 <template>
   <main>
     <h1>게시글 관리</h1>
+    <NuxtLink v-if="collectAvailable" to="/admin/collect">수집 후보 검수</NuxtLink>
     <p role="status">{{ message }}</p>
     <ul v-if="uploadErrors.length" role="alert">
       <li v-for="failure in uploadErrors" :key="failure.index">
@@ -258,13 +316,14 @@ onBeforeRouteLeave(() => !dirty.value || confirm('저장하지 않은 변경을 
           ><label>제목 앞부분<input v-model="titlePrefix" maxlength="100" /></label
           ><label>수정 시작<input type="datetime-local" v-model="from" /></label
           ><label>수정 종료<input type="datetime-local" v-model="to" /></label><button>검색</button
-          ><button type="button" @click="newDraft">새 초안</button>
+          ><button type="button" @click="newDraft" :disabled="busy">새 초안</button>
         </form>
         <button
           class="admin-result"
           v-for="item in search?.data.items"
           :key="item.postId"
           @click="load(item.postId)"
+          :disabled="busy"
         >
           {{ item.title }}<small>{{ item.status }} · v{{ item.lockVersion }}</small></button
         ><PageNumbers
@@ -282,24 +341,60 @@ onBeforeRouteLeave(() => !dirty.value || confirm('저장하지 않은 변경을 
         </p>
         <p v-if="editor.status === 'SCHEDULED' && editor.scheduledAt">
           예약 시각:
-          <time :datetime="editor.scheduledAt">{{
-            new Intl.DateTimeFormat('ko-KR', {
-              timeZone: 'Asia/Seoul', dateStyle: 'medium', timeStyle: 'short',
-            }).format(new Date(editor.scheduledAt))
-          }} KST</time>
+          <time :datetime="editor.scheduledAt"
+            >{{
+              new Intl.DateTimeFormat('ko-KR', {
+                timeZone: 'Asia/Seoul',
+                dateStyle: 'medium',
+                timeStyle: 'short',
+              }).format(new Date(editor.scheduledAt))
+            }}
+            KST</time
+          >
         </p>
-        <NuxtLink v-if="editor.status === 'PUBLISHED'" :to="`/${editor.boardSlug}/posts/${editor.postId}`">
+        <NuxtLink
+          v-if="editor.status === 'PUBLISHED'"
+          :to="`/${editor.boardSlug}/posts/${editor.postId}`"
+        >
           공개 게시글 보기
         </NuxtLink>
-        <button v-if="editor.postId" @click="load(editor.postId)">최신 내용 확인</button>
+        <button v-if="editor.postId" @click="load(editor.postId)" :disabled="busy">
+          최신 내용 확인
+        </button>
         <fieldset :disabled="!editable || busy || waiting">
           <label
             >게시판<select v-model="editor.boardSlug" :disabled="!!editor.postId">
               <option v-for="b in boards?.data.items" :value="b.slug">{{ b.displayName }}</option>
             </select></label
-          ><label>제목<input v-model="editor.title" maxlength="200" /></label
-          ><label>출처명<input v-model="sourceName" maxlength="200" /></label
-          ><label>출처 URL<input v-model="sourceUrl" type="url" placeholder="https://" /></label>
+          ><label
+            >제목<input
+              v-model="editor.title"
+              maxlength="200"
+              :aria-invalid="!!validation.title"
+              :aria-describedby="validation.title ? 'error-title' : undefined"
+          /></label>
+          <p v-if="validation.title" id="error-title" class="field-error">{{ validation.title }}</p>
+          <label
+            >출처명<input
+              v-model="sourceName"
+              maxlength="200"
+              :aria-invalid="!!validation.sourceName"
+              :aria-describedby="validation.sourceName ? 'error-source-name' : undefined"
+          /></label>
+          <p v-if="validation.sourceName" id="error-source-name" class="field-error">
+            {{ validation.sourceName }}
+          </p>
+          <label
+            >출처 URL<input
+              v-model="sourceUrl"
+              type="url"
+              placeholder="https://"
+              :aria-invalid="!!validation.sourceUrl"
+              :aria-describedby="validation.sourceUrl ? 'error-source-url' : undefined"
+          /></label>
+          <p v-if="validation.sourceUrl" id="error-source-url" class="field-error">
+            {{ validation.sourceUrl }}
+          </p>
           <p v-if="!sourceUrl">출처 확인 필요</p>
           <label v-if="editor.status !== 'HIDDEN_REVIEW'"
             >공지 순서<select v-model="editor.pinnedPosition">
@@ -307,14 +402,34 @@ onBeforeRouteLeave(() => !dirty.value || confirm('저장하지 않은 변경을 
               <option v-for="n in 3" :value="n">공지 {{ n }}</option>
             </select></label
           >
+          <p v-if="validation.blocks" class="field-error" role="alert">{{ validation.blocks }}</p>
           <div class="block-editor" v-for="(block, index) in editor.blocks" :key="index">
             <label v-if="block.type === 'TEXT'"
-              >본문 {{ index + 1 }}<textarea v-model="block.text" maxlength="20000" /></label
+              >본문 {{ index + 1
+              }}<textarea
+                v-model="block.text"
+                maxlength="20000"
+                :aria-invalid="!!validation[`block-${index}`]"
+                :aria-describedby="
+                  validation[`block-${index}`] ? `error-block-${index}` : undefined
+                "
+              /></label
             ><template v-else
               ><img v-if="block.previewPath" :src="block.previewPath" alt="업로드 미리보기" />
               <p v-else>이미지 없음</p>
-              <label>대체 텍스트<input v-model="block.alt" maxlength="300" /></label></template
-            ><button type="button" @click="move(index, -1)" :disabled="index === 0">위로</button
+              <label
+                >대체 텍스트<input
+                  v-model="block.alt"
+                  maxlength="300"
+                  :aria-invalid="!!validation[`block-${index}`]"
+                  :aria-describedby="
+                    validation[`block-${index}`] ? `error-block-${index}` : undefined
+                  " /></label
+            ></template>
+            <p v-if="validation[`block-${index}`]" :id="`error-block-${index}`" class="field-error">
+              {{ validation[`block-${index}`] }}
+            </p>
+            <button type="button" @click="move(index, -1)" :disabled="index === 0">위로</button
             ><button
               type="button"
               @click="move(index, 1)"
@@ -323,7 +438,11 @@ onBeforeRouteLeave(() => !dirty.value || confirm('저장하지 않은 변경을 
               아래로</button
             ><button type="button" @click="removeBlock(index)">블록 제거</button>
           </div>
-          <button type="button" @click="editor.blocks.push({ type: 'TEXT', text: '' })">
+          <button
+            type="button"
+            :disabled="editor.blocks.length >= 40"
+            @click="editor.blocks.push({ type: 'TEXT', text: '' })"
+          >
             텍스트 추가</button
           ><label
             >이미지 추가<input
@@ -379,6 +498,13 @@ onBeforeRouteLeave(() => !dirty.value || confirm('저장하지 않은 변경을 
   </main>
 </template>
 <style scoped>
+.field-error {
+  color: #a32126;
+  overflow-wrap: anywhere;
+}
+[aria-invalid='true'] {
+  border-color: #a32126;
+}
 .admin-layout {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);

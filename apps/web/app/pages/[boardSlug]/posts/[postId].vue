@@ -131,7 +131,7 @@ async function share() {
     <article>
       <h1>{{ post.title }}</h1>
       <p class="muted">
-        {{ post.authorLabel }} · 조회 {{ post.viewCount }} ·
+        {{ post.postId }} · {{ post.authorLabel }} · 조회 {{ post.viewCount }} ·
         <time :datetime="post.publishedAt">{{
           new Intl.DateTimeFormat('ko-KR', {
             timeZone: 'Asia/Seoul',
@@ -188,7 +188,7 @@ async function share() {
 .share-dialog {
   top: 86px;
   left: auto;
-  right: max(24px, calc((100vw - 1000px) / 2 + 24px));
+  right: max(24px, calc((100vw - 760px) / 2 + 24px));
   margin: 0;
   width: 340px;
 }

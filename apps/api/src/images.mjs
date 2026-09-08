@@ -4,68 +4,68 @@ import { transaction } from './db.mjs';
 import { fail, id } from './http.mjs';
 import { enqueue } from './outbox.mjs';
 const formats = { jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif' };
+export async function validateImages(files) {
+  if (!files.length) fail(400, 'VALIDATION_FAILED');
+  if (files.length > 10 || files.reduce((n, f) => n + f.bytes.length, 0) > 100 * 1024 * 1024)
+    fail(413, 'UPLOAD_TOO_LARGE');
+  const errors = [],
+    validated = [];
+  let tooLarge = false;
+  for (const [index, file] of files.entries()) {
+    if (file.bytes.length > 10 * 1024 * 1024) {
+      tooLarge = true;
+      errors.push({ field: `files[${index}]`, reason: 'fileSize' });
+      continue;
+    }
+    try {
+      const decoder = sharp(file.bytes, {
+        animated: true,
+        limitInputPixels: 40000000,
+        failOn: 'warning',
+      });
+      const metadata = await decoder.metadata();
+      if (!formats[metadata.format] || formats[metadata.format] !== file.mime) {
+        errors.push({ field: `files[${index}]`, reason: 'format' });
+        continue;
+      }
+      const frames = metadata.pages || 1,
+        height = metadata.pageHeight || metadata.height;
+      if (
+        metadata.width * height > 40000000 ||
+        frames > 200 ||
+        metadata.width * height * frames * 4 > 256 * 1024 * 1024
+      ) {
+        tooLarge = true;
+        errors.push({ field: `files[${index}]`, reason: 'decodeLimit' });
+        continue;
+      }
+      const { data, info } = await decoder
+        .rotate()
+        .toFormat(metadata.format)
+        .toBuffer({ resolveWithObject: true });
+      validated.push({
+        bytes: data,
+        width: info.width,
+        height: info.pageHeight || info.height,
+        mime: formats[metadata.format],
+        ext: metadata.format === 'jpeg' ? 'jpg' : metadata.format,
+        hash: createHash('sha256').update(data).digest(),
+      });
+    } catch (e) {
+      if (/pixel limit/.test(e.message)) {
+        tooLarge = true;
+        errors.push({ field: `files[${index}]`, reason: 'decodeLimit' });
+      } else errors.push({ field: `files[${index}]`, reason: 'decode' });
+    }
+  }
+  if (errors.length)
+    fail(tooLarge ? 413 : 415, tooLarge ? 'UPLOAD_TOO_LARGE' : 'UNSUPPORTED_MEDIA_TYPE', errors);
+  return validated;
+}
 export function imageService(pool, storage) {
   return {
     async upload(files, actor) {
-      if (!files.length) fail(400, 'VALIDATION_FAILED');
-      if (files.length > 10 || files.reduce((n, f) => n + f.bytes.length, 0) > 100 * 1024 * 1024)
-        fail(413, 'UPLOAD_TOO_LARGE');
-      const errors = [],
-        validated = [];
-      let tooLarge = false;
-      for (const [index, file] of files.entries()) {
-        if (file.bytes.length > 10 * 1024 * 1024) {
-          tooLarge = true;
-          errors.push({ field: `files[${index}]`, reason: 'fileSize' });
-          continue;
-        }
-        try {
-          const decoder = sharp(file.bytes, {
-            animated: true,
-            limitInputPixels: 40000000,
-            failOn: 'warning',
-          });
-          const metadata = await decoder.metadata();
-          if (!formats[metadata.format] || formats[metadata.format] !== file.mime) {
-            errors.push({ field: `files[${index}]`, reason: 'format' });
-            continue;
-          }
-          const frames = metadata.pages || 1,
-            height = metadata.pageHeight || metadata.height;
-          if (
-            metadata.width * height > 40000000 ||
-            frames > 200 ||
-            metadata.width * height * frames * 4 > 256 * 1024 * 1024
-          ) {
-            tooLarge = true;
-            errors.push({ field: `files[${index}]`, reason: 'decodeLimit' });
-            continue;
-          }
-          const { data, info } = await decoder
-            .rotate()
-            .toFormat(metadata.format)
-            .toBuffer({ resolveWithObject: true });
-          validated.push({
-            bytes: data,
-            width: info.width,
-            height: info.pageHeight || info.height,
-            mime: formats[metadata.format],
-            ext: metadata.format === 'jpeg' ? 'jpg' : metadata.format,
-            hash: createHash('sha256').update(data).digest(),
-          });
-        } catch (e) {
-          if (/pixel limit/.test(e.message)) {
-            tooLarge = true;
-            errors.push({ field: `files[${index}]`, reason: 'decodeLimit' });
-          } else errors.push({ field: `files[${index}]`, reason: 'decode' });
-        }
-      }
-      if (errors.length)
-        fail(
-          tooLarge ? 413 : 415,
-          tooLarge ? 'UPLOAD_TOO_LARGE' : 'UNSUPPORTED_MEDIA_TYPE',
-          errors
-        );
+      const validated = await validateImages(files);
       const stored = [],
         requestId = randomUUID(),
         createdAt = new Date().toISOString();

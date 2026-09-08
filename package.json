@@ -20,7 +20,9 @@
     "outbox:run": "node apps/api/src/command.mjs outbox:run",
     "cleanup:run": "node apps/api/src/command.mjs cleanup:run",
     "policies:publish": "node apps/api/src/command.mjs policies:publish",
-    "test:integration": "npm run build && node scripts/test-integration.mjs"
+    "test:integration": "npm run build && node scripts/test-integration.mjs",
+    "test:browser": "npm run build && node --test tests/browser/*.test.mjs",
+    "test:docker": "node scripts/test-docker.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

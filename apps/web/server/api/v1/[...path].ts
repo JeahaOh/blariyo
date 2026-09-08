@@ -24,6 +24,14 @@ export default defineEventHandler(async (event) => {
     const url = getRequestURL(event),
       operation = matchOperation(event.method, url.pathname);
     if (!operation) return error(404, 'POST_NOT_FOUND');
+    if (
+      url.pathname.startsWith('/api/v1/admin/collect/') &&
+      !config.collectManualUrlEnabled &&
+      !config.collectDiscordCommandEnabled
+    )
+      return error(404, 'CANDIDATE_NOT_FOUND');
+    if (operation.operationId === 'createCollectionCandidate' && !config.collectManualUrlEnabled)
+      return error(404, 'CANDIDATE_NOT_FOUND');
     const headers: Record<string, string> = {};
     if (url.pathname.startsWith('/api/v1/admin/')) {
       try {
@@ -91,7 +99,7 @@ export default defineEventHandler(async (event) => {
       body: multipart ? raw : body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(multipart ? 60000 : 15000),
     });
-    if (operation.operationId === 'previewImage' && response.ok) {
+    if (['previewImage', 'previewCollectionImage'].includes(operation.operationId) && response.ok) {
       const type = response.headers.get('content-type') || '';
       if (!/^image\/(jpeg|png|webp|gif)$/.test(type)) return error(503, 'DEPENDENCY_UNAVAILABLE');
       setHeader(event, 'Cache-Control', 'private, no-store');

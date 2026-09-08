@@ -1,0 +1,2140 @@
+openapi: 3.1.0
+info:
+  title: Blariyo M0 Collection Assist
+  version: 0.1.0
+  description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public
+    Core routes remain unchanged.
+paths:
+  /api/v1/admin/collect/sources:
+    get:
+      operationId: listCollectionSources
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CollectionSource"
+                        maxItems: 10000
+                        minItems: 0
+                    required:
+                      - items
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/sources/{sourceId}:
+    patch:
+      operationId: updateCollectionSource
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: sourceId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                lockVersion:
+                  type: integer
+                  minimum: 1
+                  maximum: 9007199254740991
+                isActive:
+                  type: boolean
+                fetchMode:
+                  type: string
+                  enum:
+                    - URL_ONLY
+                    - LIST_CRAWL
+                listUrl:
+                  anyOf:
+                    - type: string
+                      minLength: 1
+                      maxLength: 2048
+                      format: uri
+                      pattern: ^https://
+                    - type: "null"
+                parserType:
+                  type: string
+                  enum:
+                    - MANUAL
+                    - HTML_LIST
+                    - RSS
+                isListCrawlEnabled:
+                  type: boolean
+                robotsAllowed:
+                  anyOf:
+                    - type: boolean
+                    - type: "null"
+                requestIntervalMs:
+                  type: integer
+                  minimum: 1000
+                  maximum: 2147483647
+                dailyFetchLimit:
+                  type: integer
+                  minimum: 1
+                  maximum: 10000
+              required:
+                - lockVersion
+              minProperties: 2
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/CollectionSource"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/candidates:
+    get:
+      operationId: listCollectionCandidates
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - RUNNING
+              - NEW
+              - FETCH_FAILED
+              - APPROVED
+              - REJECTED
+        - in: query
+          name: sourceId
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+        - in: query
+          name: discoveryMode
+          schema:
+            type: string
+            enum:
+              - MANUAL_URL
+        - in: query
+          name: duplicateOnly
+          schema:
+            type: string
+            enum:
+              - "true"
+              - "false"
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CollectionCandidate"
+                        maxItems: 50
+                        minItems: 0
+                    required:
+                      - items
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                      page:
+                        type: integer
+                        minimum: 1
+                        maximum: 10000
+                      pageSize:
+                        const: 50
+                      totalItems:
+                        type: integer
+                        minimum: 0
+                        maximum: 9007199254740991
+                      totalPages:
+                        type: integer
+                        minimum: 0
+                        maximum: 9007199254740991
+                      hasPrevious:
+                        type: boolean
+                      hasNext:
+                        type: boolean
+                    required:
+                      - requestId
+                      - page
+                      - pageSize
+                      - totalItems
+                      - totalPages
+                      - hasPrevious
+                      - hasNext
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+    post:
+      operationId: createCollectionCandidate
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 128
+            pattern: ^[A-Za-z0-9._:-]+$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                originUrl:
+                  type: string
+                  minLength: 1
+                  maxLength: 2048
+                  format: uri
+                  pattern: ^https://
+              required:
+                - originUrl
+      responses:
+        "202":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      candidateId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      status:
+                        type: string
+                        enum:
+                          - PENDING
+                          - RUNNING
+                          - NEW
+                          - FETCH_FAILED
+                          - APPROVED
+                          - REJECTED
+                      lockVersion:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      duplicatePostId:
+                        anyOf:
+                          - type: integer
+                            minimum: 1
+                            maximum: 9007199254740991
+                          - type: "null"
+                      reviewedAt:
+                        anyOf:
+                          - type: string
+                            format: date-time
+                          - type: "null"
+                    required:
+                      - candidateId
+                      - status
+                      - lockVersion
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/candidates/{candidateId}:
+    get:
+      operationId: getCollectionCandidate
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      candidateId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      sourceId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      sourceName:
+                        type: string
+                        minLength: 1
+                        maxLength: 50
+                      originUrl:
+                        type: string
+                        minLength: 1
+                        maxLength: 2048
+                        format: uri
+                        pattern: ^https://
+                      title:
+                        anyOf:
+                          - type: string
+                            minLength: 1
+                            maxLength: 300
+                          - type: "null"
+                      status:
+                        type: string
+                        enum:
+                          - PENDING
+                          - RUNNING
+                          - NEW
+                          - FETCH_FAILED
+                          - APPROVED
+                          - REJECTED
+                      discoveryMode:
+                        type: string
+                        enum:
+                          - MANUAL_URL
+                      imageCandidateCount:
+                        type: integer
+                        minimum: 0
+                        maximum: 20
+                      duplicatePostId:
+                        anyOf:
+                          - type: integer
+                            minimum: 1
+                            maximum: 9007199254740991
+                          - type: "null"
+                      postId:
+                        anyOf:
+                          - type: integer
+                            minimum: 1
+                            maximum: 9007199254740991
+                          - type: "null"
+                      rejectReasonCode:
+                        anyOf:
+                          - type: string
+                            minLength: 1
+                            maxLength: 100
+                            pattern: ^[A-Z][A-Z0-9_]*$
+                          - type: "null"
+                      fetchErrorCode:
+                        anyOf:
+                          - type: string
+                            minLength: 1
+                            maxLength: 100
+                            pattern: ^[A-Z][A-Z0-9_]*$
+                          - type: "null"
+                      requestedAt:
+                        type: string
+                        format: date-time
+                      claimedAt:
+                        anyOf:
+                          - type: string
+                            format: date-time
+                          - type: "null"
+                      fetchedAt:
+                        anyOf:
+                          - type: string
+                            format: date-time
+                          - type: "null"
+                      lockVersion:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      imageCandidates:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CollectionCandidateImage"
+                        maxItems: 20
+                        minItems: 0
+                      warnings:
+                        type: array
+                        items:
+                          type: string
+                          minLength: 1
+                          maxLength: 100
+                          pattern: ^[A-Z][A-Z0-9_]*$
+                        maxItems: 20
+                        minItems: 0
+                    required:
+                      - candidateId
+                      - sourceId
+                      - sourceName
+                      - originUrl
+                      - title
+                      - status
+                      - discoveryMode
+                      - imageCandidateCount
+                      - duplicatePostId
+                      - postId
+                      - rejectReasonCode
+                      - fetchErrorCode
+                      - requestedAt
+                      - claimedAt
+                      - fetchedAt
+                      - lockVersion
+                      - imageCandidates
+                      - warnings
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/candidates/{candidateId}/images/{candidateImageId}/preview:
+    get:
+      operationId: previewCollectionImage
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+        - in: path
+          name: candidateImageId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+      responses:
+        "200":
+          description: Authenticated temporary image
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/candidates/{candidateId}/retry:
+    post:
+      operationId: retryCollectionCandidate
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 128
+            pattern: ^[A-Za-z0-9._:-]+$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                lockVersion:
+                  type: integer
+                  minimum: 1
+                  maximum: 9007199254740991
+              required:
+                - lockVersion
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      candidateId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      status:
+                        type: string
+                        enum:
+                          - PENDING
+                          - RUNNING
+                          - NEW
+                          - FETCH_FAILED
+                          - APPROVED
+                          - REJECTED
+                      lockVersion:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      duplicatePostId:
+                        anyOf:
+                          - type: integer
+                            minimum: 1
+                            maximum: 9007199254740991
+                          - type: "null"
+                      reviewedAt:
+                        anyOf:
+                          - type: string
+                            format: date-time
+                          - type: "null"
+                    required:
+                      - candidateId
+                      - status
+                      - lockVersion
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/candidates/{candidateId}/reject:
+    post:
+      operationId: rejectCollectionCandidate
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 128
+            pattern: ^[A-Za-z0-9._:-]+$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                lockVersion:
+                  type: integer
+                  minimum: 1
+                  maximum: 9007199254740991
+                reasonCode:
+                  type: string
+                  enum:
+                    - DUPLICATE
+                    - LOW_QUALITY
+                    - RIGHTS_RISK
+                    - NOT_FUNNY
+                    - SOURCE_GONE
+                    - OTHER
+              required:
+                - lockVersion
+                - reasonCode
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      candidateId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      status:
+                        type: string
+                        enum:
+                          - PENDING
+                          - RUNNING
+                          - NEW
+                          - FETCH_FAILED
+                          - APPROVED
+                          - REJECTED
+                      lockVersion:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      duplicatePostId:
+                        anyOf:
+                          - type: integer
+                            minimum: 1
+                            maximum: 9007199254740991
+                          - type: "null"
+                      reviewedAt:
+                        anyOf:
+                          - type: string
+                            format: date-time
+                          - type: "null"
+                    required:
+                      - candidateId
+                      - status
+                      - lockVersion
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/candidates/{candidateId}/draft:
+    post:
+      operationId: promoteCollectionCandidate
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 128
+            pattern: ^[A-Za-z0-9._:-]+$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                lockVersion:
+                  type: integer
+                  minimum: 1
+                  maximum: 9007199254740991
+                boardSlug:
+                  type: string
+                  minLength: 1
+                  maxLength: 32
+                  pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                source:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    name:
+                      type: string
+                      minLength: 1
+                      maxLength: 200
+                    url:
+                      type: string
+                      minLength: 1
+                      maxLength: 2048
+                      format: uri
+                      pattern: ^https://
+                  required:
+                    - name
+                    - url
+                candidateImageIds:
+                  type: array
+                  items:
+                    type: integer
+                    minimum: 1
+                    maximum: 9007199254740991
+                  maxItems: 20
+                  minItems: 1
+                  uniqueItems: true
+                imageOptions:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      candidateImageId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      alt:
+                        type: string
+                        minLength: 1
+                        maxLength: 300
+                      uploadedImageId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                    required:
+                      - candidateImageId
+                      - alt
+                  maxItems: 20
+                  minItems: 1
+                leadText:
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+                acknowledgeDuplicate:
+                  type: boolean
+              required:
+                - lockVersion
+                - boardSlug
+                - candidateImageIds
+                - imageOptions
+                - acknowledgeDuplicate
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      postId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      status:
+                        const: DRAFT
+                      lockVersion:
+                        const: 1
+                      candidateId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      storedImageIds:
+                        type: array
+                        items:
+                          type: integer
+                          minimum: 1
+                          maximum: 9007199254740991
+                        maxItems: 20
+                        minItems: 1
+                    required:
+                      - postId
+                      - status
+                      - lockVersion
+                      - candidateId
+                      - storedImageIds
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/collector/v1/candidates:
+    post:
+      operationId: collectorCreateCandidate
+      tags:
+        - collection-assist
+      security:
+        - CollectorToken: []
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 128
+            pattern: ^[A-Za-z0-9._:-]+$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                collectorId:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  pattern: ^[A-Za-z0-9_-]+$
+                originUrl:
+                  type: string
+                  minLength: 1
+                  maxLength: 2048
+                  format: uri
+                  pattern: ^https://
+              required:
+                - collectorId
+                - originUrl
+      responses:
+        "202":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      candidateId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      status:
+                        type: string
+                        enum:
+                          - PENDING
+                          - RUNNING
+                          - NEW
+                          - FETCH_FAILED
+                          - APPROVED
+                          - REJECTED
+                      lockVersion:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      duplicatePostId:
+                        anyOf:
+                          - type: integer
+                            minimum: 1
+                            maximum: 9007199254740991
+                          - type: "null"
+                      reviewedAt:
+                        anyOf:
+                          - type: string
+                            format: date-time
+                          - type: "null"
+                    required:
+                      - candidateId
+                      - status
+                      - lockVersion
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/collector/v1/candidates/claim:
+    post:
+      operationId: collectorClaim
+      tags:
+        - collection-assist
+      security:
+        - CollectorToken: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                collectorId:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  pattern: ^[A-Za-z0-9_-]+$
+                maxItems:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                leaseSeconds:
+                  type: integer
+                  minimum: 60
+                  maximum: 900
+                candidateId:
+                  type: integer
+                  minimum: 1
+                  maximum: 9007199254740991
+              required:
+                - collectorId
+                - maxItems
+                - leaseSeconds
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          additionalProperties: false
+                          properties:
+                            candidateId:
+                              type: integer
+                              minimum: 1
+                              maximum: 9007199254740991
+                            sourceId:
+                              type: integer
+                              minimum: 1
+                              maximum: 9007199254740991
+                            sourceHost:
+                              type: string
+                              minLength: 1
+                              maxLength: 255
+                            originUrl:
+                              type: string
+                              minLength: 1
+                              maxLength: 2048
+                              format: uri
+                              pattern: ^https://
+                            discoveryMode:
+                              type: string
+                              enum:
+                                - MANUAL_URL
+                            attemptCount:
+                              type: integer
+                              minimum: 1
+                              maximum: 9007199254740991
+                            lockVersion:
+                              type: integer
+                              minimum: 1
+                              maximum: 9007199254740991
+                            leaseUntil:
+                              type: string
+                              format: date-time
+                            requestIntervalMs:
+                              type: integer
+                              minimum: 1000
+                              maximum: 2147483647
+                            dailyFetchLimit:
+                              type: integer
+                              minimum: 1
+                              maximum: 10000
+                            robotsAllowed:
+                              anyOf:
+                                - type: boolean
+                                - type: "null"
+                            robotsCheckedAt:
+                              anyOf:
+                                - type: string
+                                  format: date-time
+                                - type: "null"
+                            isActive:
+                              type: boolean
+                          required:
+                            - candidateId
+                            - sourceId
+                            - sourceHost
+                            - originUrl
+                            - discoveryMode
+                            - attemptCount
+                            - lockVersion
+                            - leaseUntil
+                            - requestIntervalMs
+                            - dailyFetchLimit
+                            - robotsAllowed
+                            - robotsCheckedAt
+                            - isActive
+                        maxItems: 5
+                        minItems: 0
+                    required:
+                      - items
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/collector/v1/candidates/{candidateId}/heartbeat:
+    post:
+      operationId: collectorHeartbeat
+      tags:
+        - collection-assist
+      security:
+        - CollectorToken: []
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                collectorId:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  pattern: ^[A-Za-z0-9_-]+$
+                leaseSeconds:
+                  type: integer
+                  minimum: 60
+                  maximum: 900
+                lockVersion:
+                  type: integer
+                  minimum: 1
+                  maximum: 9007199254740991
+              required:
+                - collectorId
+                - leaseSeconds
+                - lockVersion
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      candidateId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      status:
+                        const: RUNNING
+                      lockVersion:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      leaseUntil:
+                        type: string
+                        format: date-time
+                      source:
+                        $ref: "#/components/schemas/CollectionSource"
+                    required:
+                      - candidateId
+                      - status
+                      - lockVersion
+                      - leaseUntil
+                      - source
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/collector/v1/candidates/{candidateId}/result:
+    post:
+      operationId: collectorResult
+      tags:
+        - collection-assist
+      security:
+        - CollectorToken: []
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 128
+            pattern: ^[A-Za-z0-9._:-]+$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  additionalProperties: false
+                  properties:
+                    collectorId:
+                      type: string
+                      minLength: 1
+                      maxLength: 100
+                      pattern: ^[A-Za-z0-9_-]+$
+                    lockVersion:
+                      type: integer
+                      minimum: 1
+                      maximum: 9007199254740991
+                    status:
+                      const: NEW
+                    title:
+                      type: string
+                      minLength: 1
+                      maxLength: 300
+                    canonicalUrl:
+                      type: string
+                      minLength: 1
+                      maxLength: 2048
+                      format: uri
+                      pattern: ^https://
+                    sourcePublishedAt:
+                      anyOf:
+                        - type: string
+                          format: date-time
+                        - type: "null"
+                    parserVersion:
+                      type: string
+                      minLength: 1
+                      maxLength: 100
+                    warnings:
+                      type: array
+                      items:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                        pattern: ^[A-Z][A-Z0-9_]*$
+                      maxItems: 20
+                      minItems: 0
+                    imageCandidates:
+                      type: array
+                      items:
+                        type: object
+                        additionalProperties: false
+                        properties:
+                          position:
+                            type: integer
+                            minimum: 1
+                            maximum: 20
+                          remoteUrl:
+                            type: string
+                            minLength: 1
+                            maxLength: 2048
+                            format: uri
+                            pattern: ^https://
+                        required:
+                          - position
+                          - remoteUrl
+                      maxItems: 20
+                      minItems: 1
+                  required:
+                    - collectorId
+                    - lockVersion
+                    - status
+                    - title
+                    - canonicalUrl
+                    - sourcePublishedAt
+                    - parserVersion
+                    - warnings
+                    - imageCandidates
+                - type: object
+                  additionalProperties: false
+                  properties:
+                    collectorId:
+                      type: string
+                      minLength: 1
+                      maxLength: 100
+                      pattern: ^[A-Za-z0-9_-]+$
+                    lockVersion:
+                      type: integer
+                      minimum: 1
+                      maximum: 9007199254740991
+                    status:
+                      const: FETCH_FAILED
+                    fetchErrorCode:
+                      type: string
+                      minLength: 1
+                      maxLength: 50
+                      pattern: ^[A-Z][A-Z0-9_]*$
+                    warnings:
+                      type: array
+                      items:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                        pattern: ^[A-Z][A-Z0-9_]*$
+                      maxItems: 20
+                      minItems: 0
+                  required:
+                    - collectorId
+                    - lockVersion
+                    - status
+                    - fetchErrorCode
+                    - warnings
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      candidateId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      status:
+                        type: string
+                        enum:
+                          - NEW
+                          - FETCH_FAILED
+                      lockVersion:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      imageCandidates:
+                        type: array
+                        items:
+                          type: object
+                          additionalProperties: false
+                          properties:
+                            position:
+                              type: integer
+                              minimum: 1
+                              maximum: 20
+                            candidateImageId:
+                              type: integer
+                              minimum: 1
+                              maximum: 9007199254740991
+                          required:
+                            - position
+                            - candidateImageId
+                        maxItems: 20
+                        minItems: 0
+                    required:
+                      - candidateId
+                      - status
+                      - lockVersion
+                      - imageCandidates
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/collector/v1/candidates/{candidateId}/images/{candidateImageId}/preview:
+    post:
+      operationId: collectorUploadPreview
+      tags:
+        - collection-assist
+      security:
+        - CollectorToken: []
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+        - in: path
+          name: candidateImageId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                collectorId:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  pattern: ^[A-Za-z0-9_-]+$
+                lockVersion:
+                  type: integer
+                  minimum: 1
+                  maximum: 9007199254740991
+                file:
+                  type: string
+                  format: binary
+              required:
+                - collectorId
+                - lockVersion
+                - file
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      candidateImageId:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                      previewPath:
+                        type: string
+                        minLength: 1
+                        maxLength: 2048
+                        pattern: ^/api/v1/admin/collect/candidates/[0-9]+/images/[0-9]+/preview$
+                      previewExpiresAt:
+                        type: string
+                        format: date-time
+                      lockVersion:
+                        type: integer
+                        minimum: 1
+                        maximum: 9007199254740991
+                    required:
+                      - candidateImageId
+                      - previewPath
+                      - previewExpiresAt
+                      - lockVersion
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+components:
+  securitySchemes:
+    CollectorToken:
+      type: http
+      scheme: bearer
+    AdminSession:
+      type: apiKey
+      in: cookie
+      name: BLARIYO_ADMIN_SESSION
+  schemas:
+    CollectionSource:
+      type: object
+      additionalProperties: false
+      properties:
+        sourceId:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        lockVersion:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        baseUrl:
+          type: string
+          minLength: 1
+          maxLength: 2048
+          format: uri
+          pattern: ^https://
+        host:
+          type: string
+          minLength: 1
+          maxLength: 255
+        fetchMode:
+          type: string
+          enum:
+            - URL_ONLY
+        parserType:
+          type: string
+          enum:
+            - MANUAL
+        listUrl:
+          type: "null"
+        isActive:
+          type: boolean
+        isListCrawlEnabled:
+          const: false
+        robotsAllowed:
+          anyOf:
+            - type: boolean
+            - type: "null"
+        robotsCheckedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        requestIntervalMs:
+          type: integer
+          minimum: 1000
+          maximum: 2147483647
+        dailyFetchLimit:
+          type: integer
+          minimum: 1
+          maximum: 10000
+        lastFetchedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        lastErrorCode:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[A-Z][A-Z0-9_]*$
+            - type: "null"
+        disabledReasonCode:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[A-Z][A-Z0-9_]*$
+            - type: "null"
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - sourceId
+        - lockVersion
+        - name
+        - baseUrl
+        - host
+        - fetchMode
+        - parserType
+        - listUrl
+        - isActive
+        - isListCrawlEnabled
+        - robotsAllowed
+        - robotsCheckedAt
+        - requestIntervalMs
+        - dailyFetchLimit
+        - lastFetchedAt
+        - lastErrorCode
+        - disabledReasonCode
+        - updatedAt
+    CollectionCandidate:
+      type: object
+      additionalProperties: false
+      properties:
+        candidateId:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        sourceId:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        sourceName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        originUrl:
+          type: string
+          minLength: 1
+          maxLength: 2048
+          format: uri
+          pattern: ^https://
+        title:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 300
+            - type: "null"
+        status:
+          type: string
+          enum:
+            - PENDING
+            - RUNNING
+            - NEW
+            - FETCH_FAILED
+            - APPROVED
+            - REJECTED
+        discoveryMode:
+          type: string
+          enum:
+            - MANUAL_URL
+        imageCandidateCount:
+          type: integer
+          minimum: 0
+          maximum: 20
+        duplicatePostId:
+          anyOf:
+            - type: integer
+              minimum: 1
+              maximum: 9007199254740991
+            - type: "null"
+        postId:
+          anyOf:
+            - type: integer
+              minimum: 1
+              maximum: 9007199254740991
+            - type: "null"
+        rejectReasonCode:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[A-Z][A-Z0-9_]*$
+            - type: "null"
+        fetchErrorCode:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[A-Z][A-Z0-9_]*$
+            - type: "null"
+        requestedAt:
+          type: string
+          format: date-time
+        claimedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        fetchedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        lockVersion:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      required:
+        - candidateId
+        - sourceId
+        - sourceName
+        - originUrl
+        - title
+        - status
+        - discoveryMode
+        - imageCandidateCount
+        - duplicatePostId
+        - postId
+        - rejectReasonCode
+        - fetchErrorCode
+        - requestedAt
+        - claimedAt
+        - fetchedAt
+        - lockVersion
+    CollectionCandidateImage:
+      type: object
+      additionalProperties: false
+      properties:
+        candidateImageId:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        position:
+          type: integer
+          minimum: 1
+          maximum: 20
+        remoteUrl:
+          type: string
+          minLength: 1
+          maxLength: 2048
+          format: uri
+          pattern: ^https://
+        status:
+          type: string
+          enum:
+            - DISCOVERED
+            - STORED
+            - SKIPPED
+            - FAILED
+        imageId:
+          anyOf:
+            - type: integer
+              minimum: 1
+              maximum: 9007199254740991
+            - type: "null"
+        previewPath:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 2048
+              pattern: ^/api/v1/admin/collect/candidates/[0-9]+/images/[0-9]+/preview$
+            - type: "null"
+        previewExpiresAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        fetchErrorCode:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[A-Z][A-Z0-9_]*$
+            - type: "null"
+      required:
+        - candidateImageId
+        - position
+        - remoteUrl
+        - status
+        - imageId
+        - previewPath
+        - previewExpiresAt
+        - fetchErrorCode
+  responses:
+    CollectionFailure:
+      description: Generalized failure
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              success:
+                const: false
+              error:
+                type: object
+                additionalProperties: false
+                properties:
+                  code:
+                    type: string
+                    minLength: 1
+                    maxLength: 100
+                    pattern: ^[A-Z][A-Z0-9_]*$
+                  message:
+                    type: string
+                    minLength: 1
+                    maxLength: 2048
+                  fields:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        field:
+                          type: string
+                          minLength: 1
+                          maxLength: 100
+                        reason:
+                          type: string
+                          minLength: 1
+                          maxLength: 100
+                      required:
+                        - field
+                        - reason
+                    maxItems: 40
+                    minItems: 0
+                required:
+                  - code
+                  - message
+              meta:
+                type: object
+                additionalProperties: false
+                properties:
+                  requestId:
+                    type: string
+                    minLength: 1
+                    maxLength: 100
+                required:
+                  - requestId
+            required:
+              - success
+              - error
+              - meta

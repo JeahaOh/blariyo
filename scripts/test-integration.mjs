@@ -6,9 +6,16 @@ if (!base)
   throw new Error('TEST_DATABASE_ADMIN_URL is required; use an isolated local PostgreSQL instance');
 const pool = createPool(base),
   suffix = randomBytes(6).toString('hex'),
-  names = ['public', 'admin', 'policy', 'constraints', 'failure', 'bff', 'review'].map(
-    (n) => `m0_${n}_${suffix}`
-  ),
+  names = [
+    'public',
+    'admin',
+    'policy',
+    'constraints',
+    'failure',
+    'bff',
+    'review',
+    'collection',
+  ].map((n) => `m0_${n}_${suffix}`),
   keys = [
     'TEST_DATABASE_URL',
     'TEST_ADMIN_DATABASE_URL',
@@ -17,6 +24,7 @@ const pool = createPool(base),
     'TEST_FAILURE_DATABASE_URL',
     'TEST_BFF_DATABASE_URL',
     'TEST_REVIEW_DATABASE_URL',
+    'TEST_COLLECTION_DATABASE_URL',
   ];
 try {
   const env = { ...process.env };

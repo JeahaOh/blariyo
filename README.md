@@ -4,8 +4,8 @@
 
 - 내부 코드명: `blariyo`
 - 공개 서비스명: `블라리요`
-- 현재 단계: M0 Core 신규 구현·로컬 검증
-- 현재 상태: Nuxt Web/BFF, Express Core, PostgreSQL migration과 로컬 테스트 구현. 실제 브라우저·운영 외부 서비스·배포 검증은 별도다.
+- 현재 단계: M0 Core 기능 구현·로컬 검증
+- 현재 상태: Nuxt Web/BFF, Express Core, PostgreSQL migration과 로컬 브라우저·Docker 검증. 운영 외부 서비스·법무 실값·배포 검증은 별도다.
 
 ## 문서 정본
 
@@ -24,7 +24,7 @@
 
 제품 범위는 planning, 구현 세부는 system-design, 실제 완료 여부는 migration·OpenAPI·source·test를 기준으로 판단한다.
 
-현재 구현 목표는 수집·회원·광고를 제외한 M0 Core다. 단계별 제품 범위와 기술 선택은 위 정본 문서에서만 변경한다.
+현재 구현 범위는 M0 Core와 별도 feature flag의 M0 수집 보조다. 회원·광고와 목록 자동 수집은 제외한다. 단계별 제품 범위와 기술 선택은 위 정본 문서에서만 변경한다.
 
 ## 저장소 구조
 
@@ -88,8 +88,8 @@ NODE_ENV=test node apps/web/.output/server/index.mjs
 
 `docker compose --profile preview up --build`는 Web/Core까지 실행하는 로컬 preview 구성이다.
 `SERVICE_TOKEN`, `LOCAL_ADMIN_TOKEN`, `ACTOR_SECRET`을 환경으로 주입하고 migration을 먼저 적용한다.
-Core 포트는 host에 공개하지 않는다. API Docker 이미지 빌드는 이전 세션에서 성공한 것으로
-보고됐으며, 아래 2026-09-07 브라우저 검증에서는 재실행하지 않았다.
+Core 포트는 host에 공개하지 않는다. `npm run test:docker`는 별도 이름의 임시 컨테이너와 DB에서
+Web·API 이미지 빌드, 실제 실행과 백업 복구를 검증한다. 기존 preview와 데이터는 사용하지 않는다.
 
 ## 검증
 
@@ -97,8 +97,17 @@ Core 포트는 host에 공개하지 않는다. API Docker 이미지 빌드는 �
 # 순수 단위 검증. DB 환경변수가 없으면 통합 항목은 SKIP으로 표시된다.
 npm test
 
-# 매번 별도 빈 DB 7개 생성 → migration → Core/BFF/SSR HTTP 검증 → 생성 DB 정리
+# 매번 별도 빈 DB 8개 생성 → migration → Core/BFF/SSR HTTP 검증 → 생성 DB 정리
 TEST_DATABASE_ADMIN_URL=postgres://blariyo_local@127.0.0.1:55439/blariyo_local npm run test:integration
+
+# 최초 1회: 설치된 Playwright 버전에 맞는 Chromium 설치
+npx playwright install chromium
+
+# 실제 Chromium UI, 별도 임시 DB·이미지 저장소 사용
+TEST_DATABASE_ADMIN_URL=postgres://blariyo_local@127.0.0.1:55439/blariyo_local npm run test:browser
+
+# 일회용 Docker Web/Core/PostgreSQL, 명령 실행, dump/restore/readback
+npm run test:docker
 
 git diff --check
 ```
@@ -107,27 +116,39 @@ git diff --check
 않고 실행기가 생성한 `m0_*_<난수>` DB만 제거한다. BFF 테스트는 로컬 `3041` 포트를 사용하며
 `TEST_WEB_PORT`로 변경할 수 있다. 빌드 때 docs OpenAPI 동일성과 타입 생성을 확인한다.
 
-2026-09-07 Node 24.18.0에서 빌드와 테스트 29개가 통과했다(실패·건너뜀 0개).
-실제 PostgreSQL, 로컬 파일 저장소·캐시 대체 구현, 서명된 identity fixture와 Nuxt SSR HTTP를 사용한다.
+2026-09-08 Node 24.18.0 기준으로 현재 소스의 빌드, 단위·실제 PostgreSQL/HTTP 통합 테스트 35개,
+Chromium 브라우저 테스트 8개를 통과했다(실패·건너뜀 0개). 브라우저 테스트는 확장 프로그램 대신
+Playwright 전용 Chromium을 사용한다. 테스트용 이미지·정책·게시글과 임시 인증값만 사용하며 테스트
+종료 시 생성한 DB·저장소·프로세스를 정리한다. 운영 서비스로 데이터를 보내지 않는다.
 
-Chrome 실제 브라우저 검증 결과는 다음과 같다. 정책 본문은 출시용 정책이 아닌 로컬 검증 fixture다.
-
-| 범위 | 결과 |
+| 범위 | 현재 검증 증거 |
 | --- | --- |
-| 공개 목록·상세 | 20건/나머지 페이지 이동, 상세 하단 목록 이동과 본문 유지 확인 |
-| 공유 | 링크 복사 완료 안내, 브라우저 공유 실패 시 대안 안내, X 공유 URL과 비활성 Kakao 항목 숨김 확인. 외부 전송은 실행하지 않음 |
-| 관리자 | 텍스트 초안, 기본 슬롯·임의 시각 예약, 예약 취소, 즉시 발행, 숨김 404, 재공개 확인 |
-| 예약 자동 발행 | 브라우저에서 저장한 예약이 로컬 worker 처리 뒤 PUBLISHED로 바뀜. 운영 cron 검증은 아님 |
-| 이미지 상태 전이 | HTTP로 준비한 이미지 초안의 브라우저 발행·숨김·삭제 대기 잠금·재공개 및 실제 이미지 로딩 확인 |
-| 반응형 | 390px 모바일 공개 상세·하단 공유 시트, 관리자 상하 배치와 가로 넘침 수정 확인. 1280px 공개·관리자 배치 확인 |
-| 정책·쿠키 | 모달 현재/이전 정책 전환, 닫기·Escape·포커스 복귀, 정책·쿠키 직접 경로, 비활성 동의 항목 숨김 확인 |
-| GA4 비활성 | 쿠키·정책·목록·상세 탐색의 브라우저 네트워크 관찰 구간에서 외부 HTTP 요청 0건. 운영 활성 상태 검증은 아님 |
-| 이미지 업로드 UI | **차단**: Chrome 확장의 파일 URL 접근 권한 부족으로 파일 선택 주입 실패. 파일별 오류 UI의 실제 브라우저 검증도 남음 |
+| API·DB·계약 | `npm run test:integration`: migration up/down, OpenAPI 동일성·생성 타입·응답 검증, 권한, 동시성, 멱등성, 업로드 보상·outbox·예약·정책 시행 |
+| 이미지 업로드 UI | `npm run test:browser`: 실제 파일 입력 성공, 전체 실패, 혼합 413의 모든 파일 오류, 형식 415, 개수 제한 413, 저장소 503와 preview 미생성 |
+| 관리자 | 입력 필드 오류·초점, 업로드 중 글 전환 차단, 초안·발행·숨김·재공개·최종 삭제, 기본 예약·취소·due worker, 저장 후 재조회 실패의 멱등 재시도 |
+| 공개 목록·상세 | 20건 페이지 이동, 상세 본문 유지, 현재 글의 링크·tab stop 제거, 숨김 404, 공개 이미지 실제 로딩 |
+| 정책·공유·쿠키 | 현재/이전 정책, 모달 Escape·초점 복귀, 공유 대화상자·Kakao 비활성, GA4 비활성 시 선택 항목·저장·외부 요청 없음 |
+| 분석 동의 | 테스트용 태그 응답으로 동의 전 로드 0건, 허용 후 로드 1회, 고정 분석 필드, 철회 후 태그·쿠키 삭제, 저장 실패 시 차단. Google 실제 전송·DebugView 검증은 아님 |
+| 반응형 | 360·390·1280px 공개 화면과 360px 관리자 가로 넘침 없음. 캡처는 `test-results/m0-browser/`에 생성 |
+| Docker·복구 | `npm run test:docker`: Web/API 이미지 빌드·실행, readiness·인증·발행·숨김, 운영 command 3개, PostgreSQL custom dump를 별도 DB에 복원한 뒤 V004 readiness·게시글·상태 이력 대조 |
 
-이미지 혼합 업로드의 `413`과 모든 실패 파일 index/reason은 실제 로컬 BFF HTTP에서 별도로
-확인했다. 이 결과와 템플릿 렌더 테스트는 파일 업로드 UI의 브라우저 통과를 대신하지 않는다.
-파일 업로드 검증을 이어가려면 Chrome 확장 관리에서 ChatGPT 확장의 `파일 URL에 대한 액세스 허용`을
-켜야 한다. R2·Cloudflare Access·CDN purge·Kakao·GA4 운영 연결과 Docker 앱 이미지 실행은 미검증이다.
+운영 R2·Cloudflare Access·CDN purge, 운영 cron·알림 수신, 암호화 백업의 원격 보관과 전체 서버 복구,
+법무 실값·승인 정책 시행, 실제 배포는 미검증이다. Kakao·GA4 운영 활성화는 별도 gate다.
+이 로컬 검증 결과를 production 공개 완료로 해석하지 않는다.
+
+## 수집 보조
+
+`/admin/collect`에서 상세 URL 요청·후보 검수·이미지 선택과 설명·직접 대체 업로드·반려·재수집·
+초안 생성을 처리한다. `/admin/collect/sources`는 등록한 출처의 활성·robots 확인·요청 제한 설정이다.
+수집기는 운영자 PC의 별도 Python 상시 서버이며 Core/Web 컨테이너에 포함하지 않는다.
+cron·로컬 HTTP 실행 API·Discord가 같은 실행기를 사용하고 실행 이력은 SQLite에 보관한다.
+
+실행·환경변수·출처 설정·Discord 등록은 [로컬 수집기 안내](tools/collector/README.md)를 따른다.
+수집 feature flag는 기본 false이고 외부 출처 seed는 없다. source 설정이 없으면 외부 요청을 하지 않는다.
+Core/API 검증은 선점·lease 충돌·멱등 재시도·비공개 preview·초안 생성 rollback까지 포함한다.
+Chromium에서 URL 접수 → preview → 초안 생성 → 편집기 이동과 출처 설정 저장을 확인했다.
+Python 3.14.4·discord.py 2.7.1에서 로컬 테스트 14개를 통과했다. Python/Discord 권한·파서·접근 차단 검증은 외부 연결 없는 fixture 테스트이며 실제 출처 fetch와
+라이브 Discord 연결은 미검증이다. 실제 수집 운영 완료로 표시하지 않는다.
 
 ## 운영 command와 설정 경계
 
@@ -161,16 +182,17 @@ root 소유 `0600` read-only artifact가 필요하다. 사업자 보류값·법�
 - 실제 법무·문의 공개값은 Web의 `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME`, `NUXT_PUBLIC_CONTACT_EMAIL`,
   `NUXT_PUBLIC_RIGHTS_EMAIL`, `NUXT_PUBLIC_PRIVACY_EMAIL`, `NUXT_PUBLIC_PRIVACY_OFFICER`에 주입한다.
 - `NUXT_TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip`는 Tunnel 밖 origin 직접 접근을 차단한 배포에서만 사용한다.
-- GA4 기본값은 꺼짐이다. 승인된 운영 gate 이후에만 `NUXT_PUBLIC_ANALYTICS_ENABLED`,
-  `NUXT_PUBLIC_ANALYTICS_APPROVED`, `NUXT_PUBLIC_MEASUREMENT_ID`, `NUXT_PUBLIC_ANALYTICS_CONNECT_ORIGINS`를
-  설정한다. 향상된 자동 측정 비활성화와 실제 네트워크 검증이 선행되어야 한다.
+- GA4 기본값은 꺼짐이다. 승인된 운영 gate 이후에만 `NUXT_PUBLIC_GA4_ENABLED`,
+  `NUXT_PUBLIC_ANALYTICS_APPROVED`, `NUXT_PUBLIC_GA4_MEASUREMENT_ID`, `NUXT_PUBLIC_ANALYTICS_CONNECT_ORIGINS`를
+  설정한다. 기획 계약의 변수명을 사용하며 이전 `NUXT_PUBLIC_ANALYTICS_ENABLED`·
+  `NUXT_PUBLIC_MEASUREMENT_ID`는 사용하지 않는다. 비활성 환경은 Measurement ID를 공개하지 않는다. 향상된 자동 측정 비활성화와 실제 네트워크 검증이 선행되어야 한다.
 - Kakao도 기본값은 꺼짐이다. 운영값·등록 domain·SRI 확인 후에만 `NUXT_PUBLIC_KAKAO_ENABLED`,
   `NUXT_PUBLIC_KAKAO_KEY`, `NUXT_PUBLIC_KAKAO_SDK_URL`, `NUXT_PUBLIC_KAKAO_INTEGRITY`,
   `NUXT_PUBLIC_KAKAO_CONNECT_ORIGINS`를 주입한다.
 - GIF decode는 최대 200 frame·누적 RGBA 256MiB로 제한하며 공통 40MP·10MiB 제한도 적용한다.
 
 로컬 백업·복구 확인은 `pg_dump -Fc`로 만든 dump를 **새 별도 DB**에 `pg_restore --exit-on-error`한 뒤
-`ops.is_schema_ready('V002')`와 게시글·상태 이력을 대조했다. 운영 암호화·R2 백업과 전체 서버 복구는
+`ops.is_schema_ready('V003')`와 게시글·상태 이력을 대조했다. 운영 암호화·R2 백업과 전체 서버 복구는
 [보안·운영 설계](docs/system-design/05-security-operations.md)에 따른 별도 미검증 항목이다.
 
 ## 주요 결정 기록

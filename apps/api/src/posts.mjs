@@ -117,6 +117,32 @@ export function postService(
       );
     }
   }
+  async function createDraft(db, body, actor) {
+    if (!slug(body.boardSlug)) fail(404, 'BOARD_NOT_FOUND');
+    const b = (
+      await db.query(
+        "SELECT * FROM content.board WHERE slug=$1 AND is_active AND posting_policy='ADMIN'",
+        [body.boardSlug]
+      )
+    ).rows[0];
+    if (!b) fail(404, 'BOARD_NOT_FOUND');
+    const p = (
+      await db.query(
+        `INSERT INTO content.board_post(board_id,title,source_name,source_url,status,pinned_position,created_by,created_at,updated_by,updated_at) VALUES($1,$2,$3,$4,'DRAFT',$5,$6,now(),$6,now()) RETURNING *`,
+        [
+          b.id,
+          body.title.trim(),
+          body.source?.name.trim() || null,
+          body.source?.url || null,
+          body.pinnedPosition,
+          actor,
+        ]
+      )
+    ).rows[0];
+    p.slug = b.slug;
+    await blocks(db, p, body.blocks, actor);
+    return p;
+  }
   async function replay(db, actor, scope, key, digest) {
     const row = (
       await db.query(
@@ -182,29 +208,7 @@ export function postService(
           previous = null,
           reason = operation.toUpperCase();
         if (operation === 'create') {
-          if (!slug(body.boardSlug)) fail(404, 'BOARD_NOT_FOUND');
-          const b = (
-            await db.query(
-              "SELECT * FROM content.board WHERE slug=$1 AND is_active AND posting_policy='ADMIN'",
-              [body.boardSlug]
-            )
-          ).rows[0];
-          if (!b) fail(404, 'BOARD_NOT_FOUND');
-          p = (
-            await db.query(
-              `INSERT INTO content.board_post(board_id,title,source_name,source_url,status,pinned_position,created_by,created_at,updated_by,updated_at) VALUES($1,$2,$3,$4,'DRAFT',$5,$6,now(),$6,now()) RETURNING *`,
-              [
-                b.id,
-                body.title.trim(),
-                body.source?.name.trim() || null,
-                body.source?.url || null,
-                body.pinnedPosition,
-                actor,
-              ]
-            )
-          ).rows[0];
-          p.slug = b.slug;
-          await blocks(db, p, body.blocks, actor);
+          p = await createDraft(db, body, actor);
         } else {
           p = await find(db, params.postId, true);
           previous = p.status;
@@ -392,6 +396,11 @@ export function postService(
     }
   }
   return {
+    async createDraftInTransaction(db, body, actor) {
+      const p = await createDraft(db, body, actor);
+      await history(db, p, null, 'CREATE', actor);
+      return { postId: Number(p.id), status: 'DRAFT', lockVersion: 1 };
+    },
     command,
     async search(query) {
       const values = [],

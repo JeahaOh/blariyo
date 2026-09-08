@@ -22,6 +22,8 @@ test('actual admin template renders scheduled immediate action and escaped per-f
       ssrRender,
       data: () => ({
         message: '업로드 실패',
+        validation: {},
+        collectAvailable: false,
         uploadErrors: [
           { index: 1, name: '<broken>.gif', reason: '파일 크기가 10MiB를 초과합니다.' },
         ],

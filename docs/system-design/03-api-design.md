@@ -478,18 +478,20 @@ incoming webhook은 결과 알림용이며 URL 수신용으로 사용하지 않�
 
 collector는 Core에 직접 연결하지 않고 `/api/collector/v1/*` Web 전용 중계를 통해
 `/internal/collect/*`로 매핑한다. 관리자 session·공개 브라우저 API와 분리하며 Core만 bearer token의
-scope·collectorId를 검증한다. M0 Core에서는 이 중계와 수집 내부 route를 등록하지 않는다.
+scope·collectorId를 검증한다. 수집 기능을 끈 M0 Core에서는 이 중계와 수집 내부 route가 404로 차단된다.
 
 | Method | Core path (중계 path는 `/api/collector/v1` + `/internal/collect` 뒤의 경로) | 역할 |
 | --- | --- | --- |
 | `POST` | `/internal/collect/candidates` | Discord URL 작업 접수, `202 PENDING` |
 | `POST` | `/internal/collect/candidates/claim` | PENDING 또는 lease 만료 RUNNING 선점 |
-| `POST` | `/internal/collect/candidates/:candidateId/heartbeat` | lease 연장, 새 lockVersion 반환 |
+| `POST` | `/internal/collect/candidates/:candidateId/heartbeat` | lease 연장, 새 lockVersion·source 스냅샷 반환 |
 | `POST` | `/internal/collect/candidates/:candidateId/result` | NEW/FETCH_FAILED, 새 lockVersion과 이미지 ID 매핑 반환 |
 | `POST` | `/internal/collect/candidates/:candidateId/images/:candidateImageId/preview` | 검증·재인코딩한 24시간 private preview 업로드 |
 
 접수·result는 `Idempotency-Key`와 `{params, body}` 해시를 사용한다. claim은 갱신된 `lockVersion`을,
 result는 이미지별 `position → candidateImageId`를 반드시 반환해 다음 호출이 가능하게 한다.
+heartbeat는 최신 source 설정도 반환하고 collector는 외부 요청 직전에 활성·robots·요청 상한을 재확인한다.
+M0 로컬 quota는 단일 운영자 기기의 지속 SQLite 파일에서 UTC 날짜 기준으로 계산하며 robots·redirect·이미지 요청도 포함한다.
 preview는 result 뒤 NEW 상태에서 같은 collectorId·현재 lockVersion으로 업로드하며 lease가 종료된
 상태라는 이유로 거부하지 않는다. 동시 수정·반려·재수집이면 409다. preview GET은 아래 관리자
 인증 route로만 제공하며 storage key·signed URL은 반환하지 않는다.

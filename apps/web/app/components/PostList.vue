@@ -1,4 +1,5 @@
 <script setup>
+import { NuxtLink } from '#components';
 const { $analytics } = useNuxtApp();
 defineProps({
   items: { type: Array, default: () => [] },
@@ -16,13 +17,15 @@ const date = (value) =>
 </script>
 <template>
   <div class="post-list">
-    <p v-if="!items.length && !pinnedItems.length" class="empty">아직 게시글이 없습니다.</p>
-    <NuxtLink
+    <p v-if="!items.length && !pinnedItems.length" class="empty">아직 올라온 짤이 없습니다</p>
+    <component
+      :is="item.current ? 'div' : NuxtLink"
       v-for="item in [...pinnedItems, ...items]"
       :key="item.postId"
-      :to="item.path"
+      :to="item.current ? undefined : item.path"
       class="post-row"
       @click="
+        !item.current &&
         $analytics?.send('select_content', {
           board_slug: item.path.split('/')[1],
           content_type: 'post',
@@ -37,14 +40,14 @@ const date = (value) =>
                   : '16-20',
         })
       "
-      :class="{ current: item.current }"
-      :aria-current="item.current ? 'page' : undefined"
+      :class="{ current: item.current, pinned: pinnedItems.includes(item) }"
+      :aria-current="item.current ? 'true' : undefined"
     >
       <span class="post-number">{{ pinnedItems.includes(item) ? '공지' : item.postId }}</span
       ><strong>{{ item.title }}</strong>
       <span class="post-meta"
         >조회 {{ item.viewCount }} · {{ item.authorLabel }} · {{ date(item.publishedAt) }}</span
       >
-    </NuxtLink>
+    </component>
   </div>
 </template>

@@ -13,7 +13,7 @@ test(
     await migrate(pool);
     await migrate(pool);
     assert.equal(
-      (await pool.query("SELECT ops.is_schema_ready('V003') AS ready")).rows[0].ready,
+      (await pool.query("SELECT ops.is_schema_ready('V004') AS ready")).rows[0].ready,
       true
     );
     assert.equal(
@@ -43,11 +43,13 @@ test(
     assert.equal(
       (
         await pool.query(
-          "SELECT count(*) FROM information_schema.schemata WHERE schema_name IN ('collect','identity','community')"
+          "SELECT count(*) FROM information_schema.schemata WHERE schema_name IN ('identity','community')"
         )
       ).rows[0].count,
       '0'
     );
+    await migrate(pool, 'down');
+    assert.equal((await pool.query("SELECT to_regnamespace('collect') AS name")).rows[0].name, null);
     await migrate(pool, 'down');
     assert.equal(
       (await pool.query("SELECT to_regclass('ops.schedule_failure_alert') AS table_name")).rows[0]
@@ -73,7 +75,7 @@ test(
       await grantApplication(client, role);
       await client.query(`SET LOCAL ROLE ${role}`);
       assert.equal(
-        (await client.query("SELECT ops.is_schema_ready('V003') AS ready")).rows[0].ready,
+        (await client.query("SELECT ops.is_schema_ready('V004') AS ready")).rows[0].ready,
         true
       );
       await client.query('SAVEPOINT ledger_denied');

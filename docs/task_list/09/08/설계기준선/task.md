@@ -1,7 +1,7 @@
 # M0·M1·M1.5 설계 기준선 manifest 작성
 
 - 날짜: 2026-09-08
-- 상태: 진행
+- 상태: 완료
 - 요청: 공유 정본을 복제하지 않고 단계별 범위 manifest와 annotated design tag 계획을 작성한다.
 - 전체 범위: baseline 문서 작성·독립 검수, docs 기준선 commit, main fast-forward, annotated design tag
   4개 생성·readback, 후속 실행 기록 commit.
@@ -19,7 +19,7 @@
 
 ## 산출물
 
-| 단계 | Manifest | 생성 예정 annotated tag | 선행 기준선 |
+| 단계 | Manifest | 생성된 annotated tag | 선행 기준선 |
 | --- | --- | --- | --- |
 | M0 Core | [m0-core.md](../../../../baselines/m0-core.md) | `design/m0-core/v1` | 없음 |
 | M0 수집 보조 | [m0-collection-assist.md](../../../../baselines/m0-collection-assist.md) | `design/m0-collection-assist/v1` | `design/m0-core/v1` |
@@ -36,7 +36,12 @@
 
 ## Git 실행 상태
 
-Manifest 작성 단계다. `design/*/v1` annotated tag, 기준선 commit, main fast-forward는 아직
-실행하지 않는다. 첫 docs commit과 main 반영 후 네 tag를 생성하고, 실제 tag readback은 후속 실행 기록에
-남긴다. 그 기록 commit 때문에 main이 design tag보다 한 commit 앞설 수 있으나 정본 내용은 같게 유지한다.
-push는 이번 전체 범위에 포함하지 않는다.
+기준선 문서 64개를 commit `3e8935b6541e204a7bf2a1a4b3d68c5c0d5d8854`로 고정하고, local `main`을
+`3f9008fcebb5193957bb4868cfcb4ac4891b1954`에서 해당 commit으로 fast-forward했다. 네 annotated design
+tag는 모두 이 기준선 commit을 가리킨다. object type·peeled commit·annotation·manifest 원문을 주
+검수에서 readback했고 [독립 문서 검수](review.md)도 통과했다. 상세 실행 증거는
+[Git 실행 결과](git-result.md)에 기록했다.
+
+`planning-design-only`도 기준선 commit을 가리키며 `feature/m0-core`의 기존
+`2bb8396092d1d84bfc2fe939f3a51e1bf1ea6cea`는 보존했다. 실행 기록용 후속 commit은 이 두 기록 파일만
+담으며, 그 결과 local main은 design tag보다 한 commit 앞서게 된다. push는 수행하지 않았다.

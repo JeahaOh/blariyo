@@ -15,11 +15,13 @@ PASS를 새 구현에 승계하지 않는다. 정적 publishing·wireframe은 �
 | 서비스 범위와 단계 | [서비스 기획](../planning/01-service-plan.md) |
 | 인프라 방향과 비용 전제 | [인프라 계획](../planning/02-infra-plan.md) |
 | 화면 흐름과 상태 | [화면 설계](../planning/03-screen-design.md) |
+| M1 회원·M1.5 익게 | [제품 계약](../planning/08-member-community-plan.md), [확장 기술 계약](../system-design/06-member-community-design.md), [랜덤 이름 사전](../planning/09-random-name-catalog.md), [가입 동의 전문](../legal/signup-privacy-consent.md) |
 | 분석·광고 적용 시점 | [분석·광고 계획](../planning/04-analytics-ad-plan.md) |
 | 콘텐츠 수집 범위와 규칙 | [콘텐츠 수집 기획](../planning/content-collection/README.md), [서비스 기획 §8](../planning/01-service-plan.md), [시스템 아키텍처](../system-design/01-system-architecture.md), [보안·운영](../system-design/05-security-operations.md) |
 | 비교 기준과 수용 조건 | [벤치마크 명세](../planning/05-benchmark-spec.md) |
 | 카피 계약과 색상 기준 | [카피 계약](../planning/06-copy-contract.md), [색상표](../planning/07-color-palette.md) |
 | 시스템 경계·DB·API·운영 | [시스템 설계](../system-design/README.md) |
+| 단계별 설계 기준선 범위·선행 관계·design tag | [설계 기준선 manifest](../baselines/README.md) |
 | 기능별 API 보충·처리 흐름·화면 명세 | `docs/development-specs/<milestone>/<feature-slug>/<feature-slug>.dev.md` — 기능당 1개 |
 | 약관·개인정보·권리·쿠키 | [법무 문서](../legal/README.md) |
 | 정적 화면의 현재 표현 | [퍼블리싱 프로토타입](../publishing/responsive/README.md), [와이어프레임](../wireframes) — 단계는 화면 설계와 재대조 |

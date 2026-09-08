@@ -1,5 +1,6 @@
 # M0 시스템 아키텍처
 
+M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 아키텍처 설계 계약 · 프로토타입 폐기 후 신규 개발 기준
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-04
@@ -79,7 +80,7 @@ collector 인증, 후보 결과 저장, 검수와 초안 승격만 담당한다.
 후속 자동 수집에서 로컬 PC 의존성이 운영 병목이 되면 그때 서버 worker를 추가할지 결정한다.
 
 M0 Core 반복 명령은 `npm run posts:publish-due`, `npm run outbox:run`이다. 예약 발행과 outbox는
-매분 실행한다. `npm run collect:crawl-due` 같은 서버 목록 수집 command는 M0 수집 보조 범위에
+매분 실행한다. 서버 목록 수집 command는 M0 수집 보조 범위에
 두지 않는다. M0 수집 보조는 로컬 collector가 Discord 또는 관리자 화면에서 들어온 URL 한 건만
 요청하며 scheduler가 목록을 돌지 않는다. 실제 요청 간격·일일 상한은 사용 결정된 출처 명세를 따른다. 정책
 시행은 자동 scheduler가 아니라 승인된 정책 release artifact를 사용하는 운영 단발성 명령
@@ -290,7 +291,7 @@ R2 copy 동안 DB row lock이나 transaction을 유지하지 않는다. 여러 s
   -> 출처 등록/활성·robots·요청 상한 확인
   -> 로컬 collector가 단일 상세 페이지 1회 GET과 parser 실행
   -> 제목·이미지 후보 URL 추출
-  -> 로컬 Python 작업 경로에 이미지 후보 임시 preview 저장
+  -> 로컬 수집기 작업 경로에 이미지 후보 임시 preview 저장
   -> Core collector 제출 API로 후보 결과 전송
   -> 원문 URL 중복·기존 게시글 중복 확인
   -> 후보 + 이미지 후보 metadata 저장
@@ -309,7 +310,7 @@ Discord /collect url
   -> 기본 비활성
 ```
 
-후보 생성은 원문 URL과 metadata까지만 DB에 저장한다. Python extractor는 운영자 검수 미리보기를
+후보 생성은 원문 URL과 metadata까지만 DB에 저장한다. Java/Spring 추출기는 운영자 검수 미리보기를
 위해 로컬 작업 경로에 이미지 후보를 임시 파일로 둔다. 관리자 preview는 검증·재인코딩 후 별도
 `collect-preview/` private object로 최대 24시간 저장할 수 있으며 영구 원본·content image row와 구분한다.
 반려·만료·재시도 교체·승격 시 preview를 삭제하고 만료 object는 매일 정리한다. 이미지 영구 저장은
@@ -366,3 +367,67 @@ MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에
 | 특정 출처의 차단·파싱 실패가 반복됨 | 해당 출처 목록 수집 중단, 운영자 URL 지정만 유지 |
 
 Redis, queue broker, Kubernetes, Elasticsearch는 위 조건과 직접 연결된 필요가 확인되기 전에는 도입하지 않는다.
+
+<a id="spring-collector-transition"></a>
+## Spring 수집 서버 전환 계약 (2026-09-08)
+
+상태: 전환 방향 확정·설계 정본 반영, Spring 구현 미착수·검증 미완료.
+입력은 구현 작업 트리의 `docs/ai/handoffs/2026-09-08-spring-collector-design-handoff.md`다.
+인계 문서의 결정만 반영했으며 구현 브랜치나 docs 전체를 가져온 것이 아니다.
+
+### 확정한 컴포넌트와 경계
+
+| 컴포넌트 | 책임 |
+| --- | --- |
+| 운영자 로컬 Spring Boot 서버 | 상시 프로세스·REST 진입·공통 배치 실행 경로 |
+| Spring Batch | 수집 Job·Step 실행, 실행 이력·재시작 관리 |
+| Quartz | cron에 따른 실행 요청. 자체적으로 후보 상태나 발행 상태를 변경하지 않음 |
+| REST API·Discord | 권한 확인 후 같은 배치 실행 경로 호출. 독립 runner·중복 추출 경로를 만들지 않음 |
+| Java/Spring 추출기 | 허용 출처의 fetch·parser·로컬 임시 이미지 처리 |
+| 기존 Web/BFF | `/api/collector/v1/*`를 `/internal/collect/*`로 중계 |
+| 기존 Core | collector 인증·후보·이미지·검수·초안·발행과 서비스 DB의 유일한 쓰기 주체 |
+
+```text
+운영자 로컬: Quartz cron / REST API / Discord
+  -> 공통 배치 실행 경로 -> Spring Batch Job -> 후보 선점·추출
+  -> 기존 Web/BFF collector 중계 -> Core -> 후보 DB·비공개 이미지 저장소
+  -> 기존 FE 검수 -> 초안 -> 별도 발행
+Spring Batch·Quartz -> 운영자 PC의 전용 PostgreSQL 18 (`batch`·`quartz`·`collector` schema)
+```
+
+공개 Nuxt·Express의 기술 스택과 배포 단위는 유지한다. 수집 서버 중단은 공개 BE·FE의 장애로
+전파하지 않는다. Python 중심 실행·추출은 교체 대상이며 병행 운영을 기본안에 포함하지 않는다.
+`s2b_batch`는 상시 서버 동작 구조의 참고일 뿐 업무 코드·인증·DB·설정 복사나 S2B 연결 대상이 아니다.
+
+### 저장·API·복구 원칙
+
+- Batch 메타데이터에 대한 직접 기록과 서비스 데이터 기록을 분리한다. Spring에서 `collect.*`·`content.*`를
+  직접 INSERT/UPDATE하지 않는다. 서비스 DB 계정·이미지 저장소 자격을 수집기에 부여하지 않는다.
+- 접수→claim→heartbeat→result→preview의 기존 API와 BFF 경로를 유지한다. Spring 계약은 모든 변경 호출의
+  멱등 key, `collectorExecutionId`, lockVersion·lease fencing과 이미지 position→candidateImageId 대응을
+  강화하고, 필요한 상태 조회·quota 예약·운영 이벤트 endpoint만 additive하게 확장한다.
+- Batch transaction은 원격 Core API와 단일 transaction이 아니다. 응답 유실 시 같은 payload·멱등 key로
+  결과를 재확인하며 새 key로 중복 결과를 만들지 않는다. lease·version 불일치는 재선점 계약에 따라 복구한다.
+- Core 상태 조회와 로컬 중지는 [Spring 상세 설계](./07-spring-collector-design.md)에 정의한 새 계약만 사용한다.
+  응답 유실·멱등 만료·Job/Step restart는 execution-state와 payload digest로 재확인하며 추측 재실행하지 않는다.
+- source host/CDN·robots·요청 간격/일일 한도·DNS/SSRF·redirect·크기·timeout 통제를 유지한다.
+  quota 저장소를 바꾸더라도 재시작으로 일일 상한이 초기화되면 안 된다.
+
+### 상세 설계 기준선
+
+[Spring 수집 서버 상세 설계](./07-spring-collector-design.md)를 구현 정본으로 사용한다.
+
+- M0 구현 저장소의 `apps/collector`, JDK 25 LTS, Spring Boot 4.1.1 BOM, Spring Batch 6.0.5,
+  Quartz 2.5.2와 전용 local PostgreSQL 18을 사용한다. patch 호환성과 실제 runtime은 구현 때 재검증한다.
+- 후보 1건당 Tasklet Job 1개, 기본 동시 실행 1, lease 300초·heartbeat 60초·처리 cycle 최대 claim 3회,
+  15분 Quartz·`Asia/Seoul`·misfire `DO_NOTHING`·기본 비활성으로 시작한다.
+- 외부 HTTP quota는 Core API가 원자 예약 즉시 차감하며 robots·상세·redirect 각 hop·이미지 요청을 각각 센다.
+  재시작해도 초기화하지 않고 오래된 execution은 예약·결과·preview를 변경할 수 없다.
+- 로컬 REST는 loopback `127.0.0.1:18787`과 전용 scope bearer만 허용한다. Discord·Core token을 재사용하지
+  않고 기존 Tunnel에 추가하지 않는다.
+- 암호화 local spool은 동일 result payload 재생과 임시 이미지만 보관한다. result spool은 restartable
+  상태에서 최대 7일, 이미지는 최대 24시간이며 terminal 후보와 durable 완료는 즉시 삭제한다.
+- Batch·Quartz metadata, 상태 조회, 알림 outbox, macOS `launchd`, 보존·복구·fault test의 상세 조건은 07을 따른다.
+
+실제 실행 PC·OS 계정·Discord와 Core token·출처·연락처·법무 승인·source/migration/OpenAPI/test/build/runtime은
+미정 또는 미검증이다. 기존 Python의 8787 포트·5필드 cron·SQLite·대기 100건·이력 30일은 승계하지 않는다.

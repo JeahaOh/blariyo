@@ -10,6 +10,7 @@
 | 문서 | 파일 | 고정 경로 |
 | --- | --- | --- |
 | 이용약관 | [terms-of-service.md](./terms-of-service.md) | `/terms` |
+| 회원가입 수집·이용 동의 | [signup-privacy-consent.md](./signup-privacy-consent.md) | 가입 화면 policy viewer |
 | 개인정보처리방침 | [privacy-policy.md](./privacy-policy.md) | `/privacy` |
 | 권리자 요청 안내 | [rights-request.md](./rights-request.md) | 푸터 접수 이메일 |
 | 쿠키 설정 안내 | [cookie-settings.md](./cookie-settings.md) | `/cookie-settings` |
@@ -65,35 +66,45 @@ M0 Core에 포함하지만 아래 GA4 조항은 운영 활성화 gate를 통과�
 공개를 차단한다. 사업자등록 전 사업자 정보는 보류한다. 소셜, GA4, 광고·제휴와 익게의
 기능별 placeholder는 M0 Core 공개 전체가 아니라 해당 기능의 활성화만 차단한다.
 
-| 차단 항목 | 적용 문서·기능 |
-| --- | --- |
-| 운영자 표시명, 일반 문의 이메일, 시행일 | 약관·개인정보처리방침 공통 |
-| 개인정보 문의 이메일, 개인정보 보호책임자 또는 담당자 | 개인정보처리방침 |
-| 권리 침해 신고·요청 이메일 | 권리자 요청 안내 |
-| 사업자명·등록번호·통신판매업신고번호·대표자명·주소·전화번호 | 사업자등록 또는 거래 기능 확정 전 보류 |
-| 실제 호스팅·이메일·분석·광고 수탁자와 계약 법인 | 개인정보처리방침 |
-| M0 접속·보안 로그의 적법 근거·이익형량 | 개인정보처리방침 |
-| 수집 대상 출처별 `robots.txt`·이용약관 확인 결과와 수집 범위 판단 | 목록 수집 활성화 |
-| 수집 요청 User-Agent에 넣을 연락 수단 | 수집 기능 공개 |
-| 네이버·카카오·Google·Apple application, client ID·secret 보관, callback URL, 최소 scope | 소셜 로그인 활성화 |
-| 소셜 제공자별 개인정보 수신·제공·연동 해제 정책과 실제 계약 주체 | 소셜 회원가입 공개 |
-| 14세 미만 가입 허용 여부와 연령 확인 방식 | 소셜 회원가입 공개 |
-| 국외이전 국가, 항목, 시점, 방법, 보유 기간, 거부 방법 | Google·Apple 로그인, GA4·광고 태그 활성화 |
-| GA4 속성·보관 설정과 실제 쿠키 만료 | 선택 분석 활성화 |
-| 광고 사업자, 광고 동의 범위, 슬롯 정책 | 광고 실험 |
-| 제휴 사업자, 필수 고지 문구, 수수료 구조 | 제휴 실험 |
-| 익게 작성·댓글·신고, 탈퇴 후 게시글 처리 | 익게 사용자 작성 기능 공개 |
+이 표는 각 본문의 placeholder와 차단 문구를 단계별 점검 위치에 연결하는 색인이다. 표에 적었다고
+법무 검토가 끝난 것은 아니며, 본문 조건을 임의의 결론으로 바꾸지 않는다.
+
+| 단계 | 차단 항목 | 근거·적용 문서 |
+| --- | --- | --- |
+| M0 Core | 운영자 표시명, 일반 문의 이메일, 개인정보 문의 이메일, 개인정보 보호책임자 또는 담당자 | [약관](terms-of-service.md), [개인정보처리방침](privacy-policy.md) |
+| M0 Core | 약관·개인정보처리방침·권리자 요청 안내·쿠키 설정의 시행일과 실제 공개 artifact | [약관](terms-of-service.md), [개인정보처리방침](privacy-policy.md), [권리자 요청 안내](rights-request.md), [쿠키 설정](cookie-settings.md) |
+| M0 Core | 공개 서비스 요청 처리의 적법 근거 | [개인정보처리방침 제1조](privacy-policy.md#제1조-개인정보의-처리-목적과-법적-근거) |
+| M0 Core | 권리 침해 신고·요청 이메일, 이메일 처리의 적법 근거·고지 방식, 고지한 처리 완료 후 3년 보유 기간의 적정성 | [권리자 요청 안내 §2·§5](rights-request.md#2-필요한-정보), [개인정보처리방침 제1조·제4조](privacy-policy.md#제1조-개인정보의-처리-목적과-법적-근거) |
+| M0 Core | 실제 호스팅·이미지 저장·이메일 수탁자와 계약 법인 | [개인정보처리방침 제6조](privacy-policy.md#제6조-개인정보-처리의-위탁) |
+| M0 Core | 접속·보안 로그의 적법 근거·이익형량 | [개인정보처리방침 제1조](privacy-policy.md#제1조-개인정보의-처리-목적과-법적-근거) |
+| 보류 | 사업자명·등록번호·통신판매업신고번호·대표자명·주소·전화번호 | 사업자등록 또는 거래 기능 확정 전 보류. 이 값만으로 M0 Core를 차단하지 않음 |
+| M0 수집 보조·자동 수집 | 대상 출처별 `robots.txt`·이용약관 확인 결과와 허용 범위, User-Agent 연락 수단 | 해당 출처·수집 기능 활성화 |
+| M1 | 네이버·카카오·Google·Apple application, client ID·secret 보관, callback URL, 최소 scope와 실제 provider 검증 | 해당 소셜 로그인 활성화 |
+| M1 | 제공자별 개인정보 수신·제공·연동 해제 정책, 실제 계약 주체, 국외이전 국가·항목·시점·방법·기간·거부 방법 | [개인정보처리방침 제7조](privacy-policy.md#제7조-개인정보의-국외이전), 해당 provider 활성화 |
+| M1 | 직접 입력 생년월일을 이용한 만 14세 이상 판정 방식의 법무 적정성 | 소셜 회원가입 공개 |
+| M1 | SIGNUP_PRIVACY의 처리 근거·보존 기간·전문·운영 버전·시행일과 가입 전 임시 소셜 정보 고지 | [회원가입 수집·이용 동의](signup-privacy-consent.md) |
+| M1 | 실제 회원 인증 cookie·OAuth transaction 저장소 이름·속성·만료의 브라우저 확인 | [쿠키 설정](cookie-settings.md#m1-인증-저장소-설계값과-운영-확인) |
+| M1 | 탈퇴 복원 삭제 ledger 8주의 처리 근거·최소 기간과 실제 복원 삭제 재적용 | [회원가입 수집·이용 동의 §2](signup-privacy-consent.md#2-탈퇴와-예외-처리), [개인정보처리방침 추가안](privacy-policy.md#member-community-data-processing) |
+| M1 provider별 | 연동 해제 guard 최대 30일의 처리 근거·기간·파기와 제공자별 확인 절차 | [개인정보처리방침 추가안](privacy-policy.md#연동-해제-경합-방지-최소-기록-추가안) |
+| M1.5 | 확정된 익게 작성·댓글·신고·탈퇴 KEEP 정책을 반영한 약관 조항의 법무 검토와 시행일 | [약관 M1.5 초안](terms-of-service.md#m1-5-community-terms) |
+| M1.5 | 신고 설명·운영 메모 90일의 처리 근거·최소 기간 | [개인정보처리방침 추가안](privacy-policy.md#member-community-data-processing) |
+| M1.5 | 이의제기 실제 접수 이메일과 운영자의 신고·제재 처리 수용 검증 | 익게 사용자 작성 기능 공개 |
+| 선택 분석 | GA4 실제 계약 법인·국외이전, Measurement ID, 속성 보관 설정, 실제 cookie 만료 | GA4 활성화 |
+| 광고 | 광고 사업자, 광고 동의 범위, 실제 cookie·국외이전, 슬롯 정책 | 광고 실험 |
+| 제휴 | 제휴 사업자, 필수 고지 문구, 수수료 구조 | 제휴 실험 |
 
 위 표에서 분석·광고 수탁자 중 GA4·광고 사업자 값은 해당 기능 활성화 시점의 차단 항목이고,
 GA4를 끈 M0 Core 공개에는 실제 사용하는 호스팅·이미지 저장·이메일 사업자만 적용한다.
 
-소셜 회원가입·로그인은 회원 생명주기와 제공자별 최소 수집 범위, 탈퇴·연동 해제, 국외이전 항목을 확정하고 이용약관·개인정보처리방침·쿠키 설정에 시행일을 고지한 뒤 공개한다. 익게 작성 기능은 게시글·댓글·신고와 탈퇴 후 콘텐츠 처리 기준을 별도로 확정한 뒤 공개한다.
+소셜 회원가입·로그인은 위 M1 차단 항목을 모두 확인한 provider만 공개한다. 익게의 글·댓글·신고와
+탈퇴 KEEP는 [제품 계약](../planning/08-member-community-plan.md)에 확정돼 있다. 익게 작성 기능은 이를
+다시 결정하는 대신 위 M1.5 약관·보존·실제 접수값·운영 수용 조건을 확인한 뒤 공개한다.
 
 ## 작성 기준
 
 - 초기 `짤/meme`와 추후 `익게/community`, `뉴스/news` 확장 항목을 구분한다.
 - 정책 문서는 조항형 본문과 핵심 표를 함께 제공한다.
-- 기능·수탁자·국외이전이 바뀌면 배포 전에 네 문서를 함께 재검토한다.
+- 기능·수탁자·국외이전이 바뀌면 배포 전에 관련 법무 문서와 위 단계별 색인을 함께 재검토한다.
 
 ## 참고 기준
 
@@ -108,7 +119,26 @@ GA4를 끈 M0 Core 공개에는 실제 사용하는 호스팅·이미지 저장�
 | [korean-privacy-terms](https://github.com/kimlawtech/korean-privacy-terms) | Apache-2.0 공개 템플릿의 개인정보처리방침 목차·점검 항목 참고 |
 | [네이버 회원 프로필 조회](https://developers.naver.com/docs/login/profile/profile.md) | 애플리케이션별 고유 식별자와 선택 프로필 항목 |
 | [카카오 로그인](https://developers.kakao.com/docs/latest/ko/kakaologin/common) | 서비스별 회원번호, 동의 항목과 연결 해제 기준 |
-| [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect) | `sub`, `openid email profile` 최소 scope |
+| [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect) | `sub` 기반 식별, M1 설계는 `openid`만 요청 |
 | [Sign in with Apple](https://developer.apple.com/documentation/signinwithapple/authenticating-users-with-sign-in-with-apple) | 최초 승인 시 이름·이메일 수신과 Apple 사용자 식별 기준 |
 | [Google consent mode 개요](https://developers.google.com/tag-platform/security/concepts/consent-mode) | 동의 전 전송이 없는 basic consent mode와 동의 상태별 tag 동작 구분 |
 | [Google Analytics PII 방지 지침](https://support.google.com/analytics/answer/6366371) | 이메일·이름 등 직접 식별정보와 사용자 입력값을 GA4에 보내지 않는 기준 |
+
+## M1·M1.5 설계 반영 상태 (2026-09-08)
+
+[제품 계약](../planning/08-member-community-plan.md)과 [기술 계약](../system-design/06-member-community-design.md)에
+회원·익게 기본안을 작성했다. 이는 법무 확정이나 운영 공개 승인이 아니다. 위 기존 출시 차단 항목은 유지한다.
+[현행 설계 준비 상태](../system-design/design-readiness.md)는 설계 기준선·구현 수용·production 공개 승인을 분리한다.
+
+- 계정 연결·탈퇴, 글 단위 랜덤 이름, 탈퇴 시 회원 콘텐츠 유지·계정 연결 제거, 신고·제재 절차를 약관 초안에 연결했다.
+- M1은 제공자 선택 프로필 미수집, 서비스 표시명 직접 입력으로 최소화한다. Google은 `openid`만 요청한다.
+- Apple refresh credential의 제한된 보관·철회 예외, 인증 cookie 설계값, 탈퇴 worker·복원 삭제 ledger를 고지 초안에 추가했다.
+- 추가 공개 차단: [SIGNUP_PRIVACY 전문 초안](signup-privacy-consent.md)의 법무 검토·운영 버전·시행일, 직접 입력 생년월일에 따른 만 14세 이상 판정의 적정성,
+  신고 보존 90일·복원 삭제 ledger 8주의 법적 근거, 실제 제공자·국외이전·알림·철회 설정 검증.
+- 설계값은 구현을 위한 입력이다. 실제 browser 저장소 이름과 만료를 확인하기 전 cookie placeholder를 완료 처리하지 않는다.
+
+### 연동 해제 경합 보완의 공개 조건
+
+회원 삭제와 독립된 최소 연동 해제 guard의 최대 30일 보존 근거·파기 및 제공자별 결과 확인 절차를
+개인정보처리방침 추가안에 연결했다. 실제 근거·기간 검토 전 해당 provider 공개는 차단한다.
+편집 인증은 부모 화면을 유지하는 팝업으로 설계하며 신규 브라우저 영구 저장소를 추가하지 않는다.

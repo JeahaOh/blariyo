@@ -114,22 +114,22 @@ function saveCookieConsent({ analytics, ads }) {
 const policyHistory = {
   terms: {
     title: '이용약관',
-    description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.',
-    currentVersion: 'v0.3',
+    description: '정책 이력 전환과 본문 밀도를 확인하는 시각 검수 예시입니다.',
+    currentVersion: '현재 보기 예시',
     versions: [
-      { version: 'v0.3', period: 'yyyy.mm.dd ~ 시행 중', status: '현재 초안' },
-      { version: 'v0.2', period: 'yyyy.mm.dd ~ yyyy.mm.dd', status: '이전 버전' },
-      { version: 'v0.1', period: 'yyyy.mm.dd ~ yyyy.mm.dd', status: '이전 버전' }
+      { version: '현재 보기 예시', period: '발행 전 · 시각 검수', status: '시각 검수 예시', preview: 'current' },
+      { version: '이전 보기 예시 A', period: '가상 적용 기간', status: '이전 보기 예시', preview: 'past-a' },
+      { version: '이전 보기 예시 B', period: '가상 적용 기간', status: '이전 보기 예시', preview: 'past-b' }
     ]
   },
   privacy: {
     title: '개인정보처리방침',
-    description: '현재 적용 문서 전체를 먼저 읽고 하단에서 개정 이력을 선택합니다.',
-    currentVersion: 'v0.3',
+    description: '정책 이력 전환과 본문 밀도를 확인하는 시각 검수 예시입니다.',
+    currentVersion: '현재 보기 예시',
     versions: [
-      { version: 'v0.3', period: 'yyyy.mm.dd ~ 시행 중', status: '현재 초안' },
-      { version: 'v0.2', period: 'yyyy.mm.dd ~ yyyy.mm.dd', status: '이전 버전' },
-      { version: 'v0.1', period: 'yyyy.mm.dd ~ yyyy.mm.dd', status: '이전 버전' }
+      { version: '현재 보기 예시', period: '발행 전 · 시각 검수', status: '시각 검수 예시', preview: 'current' },
+      { version: '이전 보기 예시 A', period: '가상 적용 기간', status: '이전 보기 예시', preview: 'past-a' },
+      { version: '이전 보기 예시 B', period: '가상 적용 기간', status: '이전 보기 예시', preview: 'past-b' }
     ]
   }
 };
@@ -314,9 +314,9 @@ function policyHistoryMarkup(type, selectedVersion) {
   `).join('');
   return `
     <section class="policy-history-section" aria-labelledby="${type}HistoryTitle">
-      <h3 id="${type}HistoryTitle">개정 이력</h3>
-      <p>행을 선택하면 이 영역 위의 문서 전체가 해당 버전으로 바뀝니다.</p>
-      <div class="policy-history" aria-label="${policy.title} 개정 이력">
+      <h3 id="${type}HistoryTitle">정책 이력 전환 시연</h3>
+      <p>아래는 정적 시각 검수용 예시입니다. 행을 선택하면 위의 예시 본문이 바뀌며, 실제 발행 정책의 버전·시행 기간·전문은 아닙니다.</p>
+      <div class="policy-history" aria-label="${policy.title} 정책 이력 전환 시연">
       <div class="policy-history-head" aria-hidden="true"><span>버전</span><span>적용 기간</span></div>
       ${rows}
       </div>
@@ -324,10 +324,18 @@ function policyHistoryMarkup(type, selectedVersion) {
   `;
 }
 
-function renderPolicyDocument(type, selectedVersion = policyHistory[type].currentVersion) {
-  const policy = policyHistory[type];
-  const selected = policy.versions.find((entry) => entry.version === selectedVersion) || policy.versions[0];
-  const body = type === 'terms' ? `
+function policyPreviewBody(type, selected) {
+  if (selected.preview !== 'current') {
+    const documentName = type === 'terms' ? '이용약관' : '개인정보처리방침';
+    const exampleOrder = selected.preview === 'past-a' ? '첫 번째' : '두 번째';
+    return `
+      <p class="policy-status"><strong>${selected.version}</strong>은 정책 이력 전환을 확인하기 위한 ${exampleOrder} 가상 본문입니다.</p>
+      <h3>가상 조항 전환 예시</h3><p>이 문구는 실제 ${documentName} 전문·시행일·보유 기간이나 법무 고지를 뜻하지 않습니다. 실제 공개 화면은 승인된 정책 artifact의 version, 적용 기간, 전문만 표시해야 합니다.</p>
+      <h3>화면 검수 범위</h3><p>이 예시는 행 선택 뒤 제목, 상태, 본문과 스크롤 위치가 함께 바뀌는지 확인하기 위해서만 사용합니다.</p>
+    `;
+  }
+
+  return type === 'terms' ? `
     <h3>제1조 목적</h3><p>이 약관은 블라리요 서비스의 이용 조건과 운영자·이용자의 권리와 의무, 게시글 운영, 광고·제휴, 권리자 요청 기준을 정합니다.</p>
     <h3>제2조 정의</h3><p>회원은 네이버·카카오·Google·Apple 계정으로 가입을 완료한 이용자이며, 소셜 계정은 가입과 로그인에 사용하는 외부 인증 제공자 계정입니다.</p>
     <h3>제3조 약관 게시와 변경</h3><p>약관 전문과 시행일을 푸터와 고정 경로에 공개합니다. 중요한 변경은 적용 30일 전, 그 밖의 변경은 원칙적으로 7일 전에 알리고 시행된 이전 전문도 보관합니다.</p>
@@ -346,10 +354,11 @@ function renderPolicyDocument(type, selectedVersion = policyHistory[type].curren
     <h3>제15조 부칙</h3><p>운영자 정보와 시행일이 확정된 v0.1부터 적용하며 과거 전문은 하단 개정 이력에서 확인할 수 있습니다.</p>
   ` : `
     <h3>1. 처리 목적</h3><p>소셜 가입·로그인·계정 관리, 콘텐츠 제공, 보안·오류 대응, 동의한 GA4·광고, 권리자 요청 처리를 위해 필요한 범위에서 처리합니다.</p>
-    <h3>2. 처리 항목과 수집 방법</h3><p>네이버·카카오·Google·Apple의 provider 고유 식별자와 이용자가 동의한 이메일·닉네임·프로필 이미지, Blariyo 회원 번호·동의 이력·로그인 기록을 처리합니다. 소셜 비밀번호는 수신·저장하지 않습니다.</p>
-    <p>네이버는 애플리케이션별 id, 카카오는 서비스별 회원번호, Google은 OIDC sub, Apple은 sub를 계정 연결 키로 사용합니다. Apple 이름은 최초 승인 때만 전달될 수 있고 이메일 가리기 중계 주소가 전달될 수 있습니다.</p>
+    <h3>2. 처리 항목과 수집 방법</h3><p>네이버·카카오·Google·Apple의 provider 고유 식별자, 직접 입력한 서비스 표시명, Blariyo 회원 번호·동의 이력·로그인 기록을 처리합니다. 소셜 비밀번호는 수신·저장하지 않습니다.</p>
+    <p>네이버는 애플리케이션별 id, 카카오는 서비스별 회원번호, Google은 OIDC sub, Apple은 sub를 계정 연결 키로 사용합니다. 이메일·닉네임·프로필 이미지·성별·생년월일은 추가 요청·저장하지 않으며, 불가피하게 전달된 선택 프로필도 보관하지 않습니다.</p>
+    <p>만 14세 이상 판정에는 가입자가 직접 입력한 생년월일만 일시 사용합니다. 원문 생년월일은 판정 뒤 즉시 폐기하고 DB·로그·분석 도구에 보관하지 않으며, 판정 통과 시각만 동의 이력과 함께 기록합니다.</p>
     <h3>3. 조회 수와 최소 수집</h3><p>게시글 조회 수는 참고용 누적값만 유지하고 방문자·세션 식별자, IP 원문, User-Agent, 개별 조회 이력과 자체 원시 이벤트를 저장하지 않습니다. GA4에는 회원·소셜 프로필 값을 전송하지 않습니다.</p>
-    <h3>4. 보유 기간</h3><p>회원·소셜 연동 정보는 탈퇴까지, OAuth state·nonce·PKCE는 callback 또는 10분 이내, 로그인용 token은 세션 발급까지, 접속·보안 로그는 90일, 쿠키 선택은 12개월 보관합니다.</p>
+    <h3>4. 보유 기간</h3><p>회원·소셜 연동 정보는 탈퇴까지, OAuth state·nonce·PKCE는 callback 또는 10분 이내, 로그인 access token과 Apple 외 refresh token은 callback 처리 뒤 폐기합니다. Apple refresh credential은 연결 상태 확인·연동 철회 목적에 한해 암호화하여 연동 종료까지 보관하며, 탈퇴 뒤 외부 해제 작업으로 분리한 값은 완료 또는 최대 24시간 중 빠른 때에 폐기합니다. 접속·보안 로그는 90일, 쿠키 선택은 12개월 보관합니다.</p>
     <h3>5. 제3자 제공과 소셜 제공자</h3><p>상시 제3자 제공은 하지 않습니다. 소셜 로그인에서는 인증 protocol에 필요한 요청만 provider에 보내고 provider가 이용자 동의에 따라 최소 프로필을 Blariyo에 전달합니다.</p>
     <h3>6. 처리위탁</h3><p>호스팅·이미지·이메일 수탁자와 GA4의 실제 계약 법인·업무·기간을 출시 전에 확정해 공개합니다.</p>
     <h3>7. 국외이전</h3><p>Google·Apple 로그인과 GA4의 실제 이전받는 자, 국가, 항목, 시점·방법, 기간과 거부 효과를 확정하고 적법 근거를 갖춘 뒤 활성화합니다.</p>
@@ -362,12 +371,20 @@ function renderPolicyDocument(type, selectedVersion = policyHistory[type].curren
     <h3>14. 권익침해 구제</h3><p>개인정보분쟁조정위원회, 개인정보침해신고센터, 수사기관 등 관련 기관의 연락처를 전문에 제공합니다.</p>
     <h3>15. 변경과 이력</h3><p>변경 내용과 시행일을 미리 알리고 현재 전문과 시행된 이전 전문을 하단 개정 이력에서 제공합니다.</p>
   `;
+}
+
+function renderPolicyDocument(type, selectedVersion = policyHistory[type].currentVersion) {
+  const policy = policyHistory[type];
+  const selected = policy.versions.find((entry) => entry.version === selectedVersion) || policy.versions[0];
+  const body = policyPreviewBody(type, selected);
   policyContent.innerHTML = `
+    <p class="policy-status"><strong>시각 검수 전용</strong> · 이 modal은 정적 퍼블리싱의 본문·이력 전환 검토물이며 실제 발행 정책이나 법무 고지가 아닙니다.</p>
     <div class="policy-document-nav"><strong>${selected.status}</strong><span>${selected.version} · ${selected.period}</span></div>
     <article class="policy-document">${body}</article>
     ${policyHistoryMarkup(type, selected.version)}
   `;
   policyDialog.scrollTo({ top: 0, behavior: 'auto' });
+  policyDialog.focus({ preventScroll: true });
 }
 
 function renderCookiePolicy() {

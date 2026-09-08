@@ -1,5 +1,6 @@
 # M0 보안·운영 설계
 
+M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 보안·운영 설계 계약 · 현행 운영 검증 산출물 없음
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-04
@@ -32,7 +33,7 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | 악성 이미지 | MIME·magic byte·decode 검사, SVG 금지, 크기 제한 |
 | SSRF | BE·FE는 외부 수집 URL을 직접 fetch하지 않는다. 외부 fetch는 운영자 로컬 collector만 수행하고, collector는 등록·활성 출처 host 매칭, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 비HTML·비이미지 content-type 거부를 강제한다 |
 | 수집 대상 사이트 과부하·차단 | 출처별 요청 간격·일일 상한, 식별 가능한 User-Agent, `robots.txt` 준수, `403`·`429` 누적 시 자동 비활성 |
-| 수집 콘텐츠를 통한 저장형 공격 | 후보 제목은 plain text로 저장·escape, 원문 HTML 미저장, 이미지는 Python 작업 경로에 임시 저장 후 승격 시 magic byte·decode·metadata 제거·재인코딩 |
+| 수집 콘텐츠를 통한 저장형 공격 | 후보 제목은 plain text로 저장·escape, 원문 HTML 미저장, 이미지는 Spring 수집 서버의 작업 경로에 임시 저장 후 승격 시 magic byte·decode·metadata 제거·재인코딩 |
 | secret 유출 | 저장소·image·log 제외, provider별 최소 권한 key |
 | 숨김 콘텐츠 cache 잔존 | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store |
 | VM·disk 소실 | R2 암호화 DB backup, image 원본 R2 저장 |
@@ -124,7 +125,7 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
 - 수집 대상 URL은 `https`만 허용하고 최대 2048자다. BE는 접수 시 정규화한 뒤 등록 출처 host와
   대조하고, collector는 실행 직전 활성 상태·robots·DNS·redirect 경계를 다시 확인한다.
 - 수집으로 얻은 제목은 plain text로만 저장하고 원문 응답 HTML 전체는 저장하지 않는다.
-- 운영자 검수 미리보기용 이미지는 Python extractor 작업 경로에 임시 저장할 수 있지만 내부 절대 경로,
+- 운영자 검수 미리보기용 이미지는 Java/Spring 추출기 작업 경로에 임시 저장할 수 있지만 내부 절대 경로,
   image binary와 storage key를 application log·Discord·공개 API에 남기지 않는다.
 - 수집 응답의 content-type이 예상과 다르거나 `COLLECT_MAX_RESPONSE_BYTES`를 넘으면 즉시 중단한다.
 - 모든 DB query는 placeholder를 사용한다.
@@ -175,7 +176,7 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 4. DNS 해석 결과가 공인 주소인지 확인. 사설·loopback·link-local·metadata 주소는 거부
 5. timeout, 응답 크기 상한, redirect 최대 3회, 같은 출처 host 이탈 금지
 6. content-type 확인. 문서 요청은 HTML, 이미지 요청은 허용 이미지 형식만 수용
-7. 이미지는 로컬 Python 작업 경로에 임시 저장한 뒤 초안 승격 시 관리자 업로드와 같은 magic
+7. 이미지는 로컬 수집기 작업 경로에 임시 저장한 뒤 초안 승격 시 관리자 업로드와 같은 magic
    byte·decode·pixel·metadata 제거·재인코딩 절차 적용
 
 - 요청에는 `COLLECT_USER_AGENT`를 사용하고 서비스명과 연락 수단을 포함한다.
@@ -497,3 +498,33 @@ outbox worker는 중단된 `RUNNING`을 5분 뒤 회수하고 실패할 때마�
 | 분기 | 런타임 LTS patch, 보존 데이터 삭제, 공급자 가격·무료 정책, 수집 출처 `robots.txt`·이용약관 재확인 |
 
 Node patch는 검증 후 같은 LTS major 안에서 올린다. major 전환은 별도 호환성 테스트와 설계 변경으로 처리한다.
+
+## Spring 수집 전환의 보안·운영 조건
+
+[Spring 수집 서버 상세 설계](07-spring-collector-design.md)를 따른다. 언어 변경으로 기존 수집 통제를
+완화하지 않으며 Spring source·Core migration·OpenAPI·runtime이 아직 없다는 상태를 유지한다.
+
+- 로컬 REST는 `127.0.0.1:18787`에만 bind한다. 실행·조회·중지 scope별 256-bit bearer를 발급해 macOS
+  Keychain에 저장하고 애플리케이션 DB에는 HMAC hash와 발급·회전 시각만 둔다. Discord token과 Core
+  service token을 재사용하지 않으며 cookie·CORS·public reverse proxy를 사용하지 않는다.
+- REST·Discord·Quartz는 `CollectorRunService` 한 경로를 사용하고 active Job 1개와 Core execution fencing을
+  함께 적용한다. RUNNING의 기본 lease는 300초, heartbeat는 60초이고 재선점은 `attempt_count < 3`과
+  요청 후 24시간 미만을 모두 만족해야 한다. `PREVIEW_REFRESH`는 NEW의 execution·version을 확인하며
+  종료된 처리 lease를 요구하지 않는다.
+- 외부 HTTP는 socket을 열기 전에 Core quota reservation을 받아 즉시 차감한다. permit은 10초이며
+  `source.next_request_at`가 전체 collector의 최소 간격을 통제한다. `NETWORK_STARTED` 뒤에는 같은
+  reservation으로 자동 재송신하지 않는다.
+- collector state-changing Core 호출은 2xx 완료 receipt만 7일 replay하고 그 이후에는 digest로
+  reconcile한다. 429·503·일시 dependency 오류와 400·401·403·409를 내구 완료 receipt로 저장하지 않는다.
+- 원문 title·URL과 image binary가 필요한 restart 자료는 DB·ExecutionContext·로그가 아니라 AES-256-GCM
+  암호화 spool에 둔다. master key는 Keychain에 보관하고 result payload는 최대 7일, image temp는 최대
+  24시간 보존한 뒤 삭제 또는 `RECONCILE_REQUIRED`로 닫는다.
+- Discord 결과 알림은 즉시 1회 뒤 1분·5분·15분에 최대 3회 재시도한다. 모두 실패하면 후보 결과와
+  분리해 `FINAL_FAILED` outbox로 기록하고 Core operational event를 보낸다. Core 단절 시 local outbox는
+  30일 보존하며 같은 delivery ID는 중복 운영 이벤트를 만들지 않는다.
+- token, 원문 HTML·URL·title, image binary, 개인정보, 내부 절대 경로와 stack 전체는 JobParameters,
+  ExecutionContext, Quartz JobDataMap, 일반 로그·metric·외부 알림에 남기지 않는다.
+
+실제 출처·robots·이용 조건, Discord App, 운영 계정·설치 경로, Keychain·launchd·PostgreSQL 복구,
+Core/BFF 연동과 장애 시험은 구현·운영 공개 전 별도 검증한다. collector 장애는 공개 읽기·관리자 수동
+발행·백업의 ready 조건이 아니다.

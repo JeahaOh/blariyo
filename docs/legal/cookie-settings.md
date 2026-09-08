@@ -83,3 +83,17 @@ timeout, no-fill, 네트워크·스크립트 오류는 광고 실패다. 광고 
 브라우저에서 저장소를 삭제하거나 차단할 수 있다. 이 경우 선택 기억과 로그인 세션이 초기화될 수
 있지만 공개 콘텐츠 열람은 유지한다. 저장 목적, 이름, 기간, 도구가 바뀌면 이 문서와
 개인정보처리방침을 함께 갱신한다.
+
+## M1 인증 저장소 설계값과 운영 확인
+
+기존 표의 `[출시 차단: 실제 회원 인증 쿠키명 확정 필요]`와
+`[출시 차단: OAuth transaction 저장명 확정 필요]`는 실제 구현·브라우저 확인 전까지 유지한다.
+설계 이름은 다음과 같으며 구현이 확인되면 공개본의 후보 표를 이 값으로 갱신한다.
+
+| 설계 이름 | 범위·수명 | 확인할 조건 |
+| --- | --- | --- |
+| `__Host-blariyo-session` | 회원 session, 절대 7일·유휴 24시간 중 빠른 만료 | Secure·HttpOnly·Path=/·Domain 없음·SameSite=Lax, 종료 즉시 폐기 |
+| `__Host-blariyo-auth` | 로그인 시도·가입 임시 binding, 최대 10분 | Secure·HttpOnly·Path=/·Domain 없음·SameSite=None; Apple POST callback 확인 |
+
+OAuth state·nonce·PKCE 원문은 server 임시 저장소에서 처리하고 localStorage에 넣지 않는다.
+필수 인증 저장소 추가를 이유로 분석 동의 배너를 켜지 않는다. 분석 거부 상태에서도 로그인은 가능하다.

@@ -1,5 +1,6 @@
 # M0 데이터 모델
 
+M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 데이터 계약 · 신규 migration 구현 입력
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-04
@@ -61,9 +62,9 @@ CHECK updated_at >= created_at
 | `legal` | M0 Core | 정책 원문과 버전 |
 | `ops` | M0 Core | outbox와 멱등 요청 |
 | `collect` | M0 수집 보조 | 수집 출처와 후보 큐 |
-| `identity` | M1 예약 | 계정·소셜 연동·동의·session |
-| `community` | M1.5 예약 | 댓글·반응·제보 |
-| `moderation` | M1.5 예약 | 신고·검토·제재 이력 |
+| `identity` | M1 확장 계약 | 계정·소셜 연동·동의·session |
+| `community` | M1.5 확장 계약 | 글 소유자·글별 랜덤 이름·댓글 (반응은 범위 밖) |
+| `moderation` | M1.5 확장 계약 | 신고·검토·제재 이력 |
 
 후속 단계 schema와 table은 `M0 Core` `V001`에서 만들지 않는다. 해당 단계의 planning과
 system-design을 확정한 migration에서 추가한다.
@@ -579,8 +580,9 @@ payload는 `privateStorageKey`, `objectCreatedAt`, `cleanupReason=UPLOAD_ROLLBAC
 | `request_hash` | `BYTEA` | N | 경로 매개변수와 요청 본문을 포함한 정규 JSON의 SHA-256, 32 bytes |
 | `response_status` | `SMALLINT` | N | 완료 HTTP status |
 | `response_body` | `JSONB` | N | 재전송할 성공 `data` |
-| `resource_type` | `VARCHAR(20)` | N | M0 Core는 `POST`, 수집 보조 migration에서 `CANDIDATE` 추가 |
-| `resource_id` | `BIGINT` | N | resource_type에 대응하는 게시글 또는 후보 식별자 |
+| `resource_type` | `VARCHAR(40)` | N | M0 Core는 `POST`, 수집 보조는 후보·quota·운영 event 종류 추가 |
+| `resource_id` | `BIGINT` | Y | 게시글·후보·출처처럼 bigint인 resource |
+| `resource_key` | `VARCHAR(100)` | Y | Job·execution·reservation·event 같은 UUID/opaque resource |
 | `expires_at` | `TIMESTAMPTZ(3)` | N | key 만료 시각 |
 | `created_by` | `VARCHAR(100)` | N | 요청 등록자 actor key |
 | `created_at` | `TIMESTAMPTZ(3)` | N | 등록일시(최초 수신), UTC |
@@ -595,8 +597,9 @@ INDEX ix_idempotency_request__resource (resource_type, resource_id, created_at D
 CHECK octet_length(request_hash) = 32
 CHECK response_status BETWEEN 200 AND 299
 CHECK jsonb_typeof(response_body) = 'object'
-CHECK resource_type = 'POST'
-CHECK resource_id > 0
+CHECK resource_type IN ('POST','CANDIDATE','CANDIDATE_CLAIM','CANDIDATE_HEARTBEAT','CANDIDATE_PREVIEW','SOURCE_REQUEST_RESERVATION','COLLECTOR_EVENT')
+CHECK resource_id IS NULL OR resource_id > 0
+CHECK resource_id IS NOT NULL OR resource_key IS NOT NULL
 CHECK expires_at > created_at
 ```
 
@@ -607,17 +610,23 @@ CHECK expires_at > created_at
 
 command transaction은 actor·scope·key의 hash로 `pg_try_advisory_xact_lock`을 먼저 얻는다. lock을 얻지 못하면 `IDEMPOTENCY_IN_PROGRESS`다. lock을 얻은 뒤 같은 actor·scope·key의 행이 있으면 request hash가 같을 때 저장된 결과를 새 request ID envelope로 반환하고, 다르면 `IDEMPOTENCY_CONFLICT`다. 행이 없으면 도메인 변경·상태 이력·outbox·완료 결과 insert를 한 transaction에서 commit한다. key는 완료 후 24시간 보존한다.
 
-`M0 수집 보조` migration은 `resource_type` CHECK를 `IN ('POST','CANDIDATE')`로 확장한다.
-후보 접수·결과 제출의 성공 재전송은 CANDIDATE, 초안 승격 결과는 POST로 기록한다. collector 인증은
+`M0 수집 보조` migration은 위 collector resource type, nullable `resource_id`와 `resource_key`를 추가한다.
+후보 접수·결과 제출은 CANDIDATE, claim·heartbeat·preview와 quota·운영 event는 해당 type으로 기록한다.
+초안 승격 결과는 POST를 유지한다. collector 인증은
 등록 token에 연결된 collectorId를 검증하고 actor는 `system:collector`를 사용한다. collector의 scope는
 `collectorId + HTTP method + route pattern`이며 120자 한도 안의 결정적 코드로 만든다. 관리자 scope는
-기존 규칙을 유지한다. `{params, body}` 해시와 24시간 보존은 공통이다. 결과 재전송 시 멱등 기록을
-상태·lease 검사보다 먼저 확인한다. 첫 실행의 결과 기록과 후보 상태 변경은 같은 transaction이다.
+기존 규칙을 유지한다. 일반 command는 24시간, `SPRING_V2` collector의 2xx 완료 receipt는 7일 보존한다.
+429·503 등 완료되지 않은 오류는 durable response로 저장하지 않아 같은 key가 현재 상태를 재평가한다.
+collector receipt에는 request SHA-256과 ID·version·lease·claim 시점 source 제한 snapshot 같은 최소 응답만
+두고 title·origin URL·binary를 복제하지 않는다. 일반 재전송은 멱등 기록을 먼저 확인한다. COLLECT claim
+replay는 receipt 확인 뒤 후보가 RUNNING이고 current execution·lease가 여전히 유효할 때만 현재 candidate
+URL과 조합한다. result 뒤 URL 변경이나 소유권 종료가 확인되면 409 조정으로 보낸다. 첫 실행의 결과 기록과
+후보 상태 변경은 같은 transaction이다.
 
 ## 6. 수집 데이터
 
 수집 출처와 후보는 게시글과 분리된 `collect` schema에 둔다. 후보 단계에서는 원문 URL과 metadata만
-DB에 저장한다. Python extractor 작업 경로의 임시 이미지 파일은 DB image row가 아니며, 이미지 binary는
+DB에 저장한다. Java/Spring 추출기 작업 경로의 임시 이미지 파일은 DB image row가 아니며, 이미지 binary는
 초안 승격 시점에 검증·재인코딩 후 `content.board_post_image`로 들어간다.
 
 ### 수집 출처 — `collect.source`
@@ -638,6 +647,7 @@ DB에 저장한다. Python extractor 작업 경로의 임시 이미지 파일은
 | `request_interval_ms` | `INTEGER` | N | 최소 요청 간격, `1000` 이상 |
 | `daily_fetch_limit` | `INTEGER` | N | 일일 요청 상한, 양수 |
 | `last_fetched_at` | `TIMESTAMPTZ(3)` | Y | 최근 요청 시각 |
+| `next_request_at` | `TIMESTAMPTZ(3)` | Y | 날짜 경계를 넘어 유지하는 다음 외부 HTTP reservation 허용 시각 |
 | `last_error_code` | `VARCHAR(50)` | Y | 최근 실패 분류 코드 |
 | `consecutive_error_count` | `SMALLINT` | N | 연속 실패 횟수, 초기 `0` |
 | `disabled_reason_code` | `VARCHAR(30)` | Y | 자동 비활성 사유 |
@@ -692,10 +702,13 @@ CHECK disabled_reason_code IS NULL OR disabled_reason_code IN ('ROBOTS_DISALLOWE
 | `reject_reason_code` | `VARCHAR(30)` | Y | 반려 사유 코드 |
 | `fetch_error_code` | `VARCHAR(50)` | Y | 마지막 fetch 실패 분류 |
 | `collector_id` | `VARCHAR(100)` | Y | 마지막으로 claim한 collector 식별자 |
+| `collector_execution_id` | `UUID` | Y | 현재 또는 마지막 Spring 처리 execution, retry→PENDING에서 NULL |
 | `requested_at` | `TIMESTAMPTZ(3)` | N | 관리자 입력 또는 Discord 명령 접수 시각 |
 | `claimed_at` | `TIMESTAMPTZ(3)` | Y | collector가 작업을 선점한 시각 |
+| `last_heartbeat_at` | `TIMESTAMPTZ(3)` | Y | 마지막 성공 heartbeat 시각 |
 | `lease_until` | `TIMESTAMPTZ(3)` | Y | collector 작업 lease 만료 시각 |
 | `fetched_at` | `TIMESTAMPTZ(3)` | Y | 후보 수집 완료 시각. `PENDING`·`RUNNING`에서는 `NULL` |
+| `result_payload_sha256` | `BYTEA` | Y | canonical result bytes SHA-256, NEW/FETCH_FAILED 복구 대조 |
 | `reviewed_at` | `TIMESTAMPTZ(3)` | Y | 승격·반려 시각 |
 | `attempt_count` | `INTEGER` | N | collector 처리 시도 횟수, 초기 `0` |
 | `lock_version` | `INTEGER` | N | 낙관적 잠금 값, 초기 `1` |
@@ -730,20 +743,30 @@ CHECK (status='APPROVED' AND post_id IS NOT NULL AND reviewed_at IS NOT NULL AND
 CHECK status <> 'FETCH_FAILED' OR fetch_error_code IS NOT NULL
 CHECK status <> 'RUNNING' OR (collector_id IS NOT NULL AND claimed_at IS NOT NULL AND lease_until IS NOT NULL)
 CHECK status = 'RUNNING' OR lease_until IS NULL
+CHECK status <> 'RUNNING' OR collector_execution_id IS NOT NULL
+CHECK result_payload_sha256 IS NULL OR octet_length(result_payload_sha256) = 32
 CHECK status IN ('PENDING','RUNNING') OR fetched_at IS NOT NULL
 CHECK attempt_count >= 0
 CHECK lock_version >= 1
 ```
 
+`collector_execution_id`의 RUNNING 필수 CHECK는 최종 `SPRING_V2` 제약이다. PostgreSQL의 `NOT VALID`
+CHECK도 새 INSERT·UPDATE에는 즉시 적용되므로 1차 migration에서는 nullable 열만 추가하고 이 CHECK 자체를
+추가하지 않는다. legacy 신규 claim 중지와 RUNNING drain을 확인한 뒤 남은 legacy RUNNING을 임의 execution
+ID로 채우지 않고 정상 종료·만료 처리한다. 2차 migration에서 CHECK를 ADD·VALIDATE한 다음에만 Spring
+claim을 활성화한다.
+
 `origin_url` 정규화는 scheme·host 소문자화, 기본 port 제거, fragment 제거, 추적용 query(`utm_*` 등) 제거, 경로 끝 `/` 정리까지만 수행하고 나머지 query는 유지한다. 정규화 규칙을 바꾸면 기존 해시와 충돌하므로 migration에서 재계산한다.
 
 후보 제목·URL 외에 원문 본문 전체와 응답 HTML은 저장하지 않는다. `PENDING`은 BE가 관리자 URL 입력을
 접수했지만 로컬 collector가 아직 처리하지 않은 상태이고, `RUNNING`은 collector가 claim한 상태다.
-collector는 작업을 claim할 때 `collector_id`, `claimed_at`, `lease_until`, `attempt_count`를 갱신한다.
-`lease_until`이 지난 `RUNNING`은 중단된 작업으로 보고 다시 `PENDING`으로 회수하거나 운영자 확인이
-필요한 `FETCH_FAILED`로 전환한다.
+collector는 작업을 claim할 때 `collector_id`, `collector_execution_id`, `claimed_at`, `lease_until`,
+`attempt_count`를 갱신한다. 처리 cycle의 `attempt_count < 3`이고 요청 후 24시간 미만인 만료 RUNNING은
+claim transaction에서 직접 새 execution으로 재선점한다. 한계를 넘은 만료 RUNNING은
+`FETCH_FAILED/LEASE_EXPIRED`로 전환한다. PENDING 복귀는 운영자 retry에서만 사용하며 새 cycle의
+`attempt_count=0`과 execution·heartbeat·result digest 초기화를 함께 수행한다.
 반려 사유 코드는 `DUPLICATE`, `LOW_QUALITY`, `RIGHTS_RISK`, `NOT_FUNNY`, `SOURCE_GONE`, `OTHER`를
-사용한다. 후보 반려·보존 기간 만료·재시도 교체 시 연결된 로컬 Python 임시 이미지 파일은 삭제
+사용한다. 후보 반려·보존 기간 만료·재시도 교체 시 연결된 로컬 수집기 임시 이미지 파일은 삭제
 대상이다.
 
 ### 수집 후보 이미지 — `collect.candidate_image`
@@ -756,6 +779,8 @@ collector는 작업을 claim할 때 `collector_id`, `claimed_at`, `lease_until`,
 | `remote_url` | `VARCHAR(2048)` | N | 원격 이미지 `https` URL |
 | `preview_storage_key` | `VARCHAR(500)` | Y | collector가 업로드한 24시간 미리보기 object key |
 | `preview_expires_at` | `TIMESTAMPTZ(3)` | Y | 미리보기 object 만료 시각 |
+| `preview_source_sha256` | `BYTEA` | Y | collector가 제출한 file bytes SHA-256 |
+| `preview_uploaded_at` | `TIMESTAMPTZ(3)` | Y | 현재 preview 첫 성공 시각 |
 | `image_id` | `BIGINT` | Y | 저장 성공 시 `content.board_post_image` FK |
 | `status` | `VARCHAR(16)` | N | `DISCOVERED`, `STORED`, `SKIPPED`, `FAILED` |
 | `fetch_error_code` | `VARCHAR(50)` | Y | 저장 실패 분류 |
@@ -775,8 +800,16 @@ CHECK remote_url ~ '^https://'
 CHECK status IN ('DISCOVERED','STORED','SKIPPED','FAILED')
 CHECK (status='STORED' AND image_id IS NOT NULL) OR (status <> 'STORED' AND image_id IS NULL)
 CHECK (preview_storage_key IS NULL) = (preview_expires_at IS NULL)
+CHECK (preview_storage_key IS NULL) = (preview_source_sha256 IS NULL)
+CHECK preview_source_sha256 IS NULL OR octet_length(preview_source_sha256) = 32
 CHECK status <> 'FAILED' OR fetch_error_code IS NOT NULL
 ```
+
+`preview_storage_key`와 `preview_source_sha256`의 동치 CHECK도 최종 `SPRING_V2` 제약이라 1차 migration에
+추가하지 않는다. private preview는 재인코딩된 bytes여서 collector 업로드 원본의 hash를 복원할 수 없으므로
+기존 preview hash를 backfill하지 않는다. legacy preview를 24시간 TTL·cleanup으로 모두 만료시키고
+storage key·expiry를 함께 비운 뒤 2차 migration에서 CHECK를 ADD·VALIDATE한다. 검증이 끝나기 전 Spring
+preview upload를 활성화하지 않는다.
 
 한 후보의 이미지 후보는 최대 20건까지 저장한다. 여기서 저장한다는 뜻은 `remote_url`, 순서, 상태 같은
 metadata 저장이며 image binary 저장이 아니다. 초과분은 저장하지 않고 후보 상세에 잘렸다는 사실만
@@ -791,9 +824,10 @@ BE collector preview upload API로 제출하고, BE는 private staging object로
 | --- | --- | --- |
 | 없음 | `PENDING` | 관리자 URL 또는 인증된 collector의 Discord URL 접수, 정규화 URL 중복 없음 |
 | `PENDING` | `RUNNING` | 로컬 collector가 작업 claim |
+| `RUNNING` | `RUNNING` | lease 만료, attempt_count 3 미만·요청 후 24시간 미만이면 새 execution으로 직접 재선점 |
 | `RUNNING` | `NEW` | 등록·활성 출처 매칭·robots 허용·요청 상한 통과, 정규화 URL 중복 없음, 추출 성공 |
-| `RUNNING` | `FETCH_FAILED` | fetch gate 거부 또는 응답·파싱 실패 |
-| `FETCH_FAILED` | `PENDING` | 운영자 재시도 접수, fetched_at·fetch_error_code·lease_until 초기화 |
+| `RUNNING` | `FETCH_FAILED` | fetch gate 거부·응답/파싱 실패 또는 lease attempt/24시간 한계 초과 |
+| `FETCH_FAILED` | `PENDING` | 운영자 재시도 접수, fetched_at·fetch_error_code·lease/execution/result digest 초기화, attempt_count=0 |
 | `NEW` | `APPROVED` | 초안 생성 transaction 성공, 선택 이미지 1~20건 모두 `STORED`, 각 IMAGE block의 alt 필수 |
 | `NEW` | `REJECTED` | 운영자 반려, 사유 코드 필수 |
 | `FETCH_FAILED` | `REJECTED` | 운영자 반려 |
@@ -894,14 +928,15 @@ list_page = FLOOR(newer_count / 20) + 1
 | public image | 숨김 후 우선순위 outbox로 삭제하고 cache purge |
 | private 원본 | 게시글 `REMOVED` 후 30일 복구 유예 뒤 삭제 |
 | private staging orphan object | 생성 후 24시간이 지났고 DB image row·미완료(`PENDING`,`RUNNING`,`FAILED`,`DEAD`) cleanup outbox에 key가 없으면 inventory가 삭제 |
-| 수집 후보 `PENDING`·`RUNNING` | 24시간 이상 미완료 시 운영 알림 후 `PENDING` 회수 또는 `FETCH_FAILED` 전환 |
+| 수집 후보 `PENDING` | 24시간 이상 미완료 시 상태 유지·운영 알림. collector 중단만으로 실패 전환하지 않음 |
+| 수집 후보 `RUNNING` | 24시간 이상 또는 claim 3회 한계의 만료 lease는 `FETCH_FAILED/LEASE_EXPIRED` |
 | 수집 후보 `NEW`·`FETCH_FAILED` | 수집 후 30일, 이후 삭제 |
 | 수집 후보 `REJECTED` | 반려 후 30일, 이후 삭제 |
 | 수집 후보 `APPROVED` | 승격 게시글이 남아 있는 동안 유지 |
 | 수집 출처 | 운영 기간 유지, 비활성 처리로 중단 |
 | outbox 성공 행 | 30일 |
 | outbox DEAD 행 | 해결 후 90일 |
-| idempotency key | 완료 후 24시간 |
+| idempotency key | 일반 command 완료 후 24시간, `SPRING_V2` collector 2xx 완료 receipt는 7일 |
 | 정책 본문 | 모든 시행 버전 유지 |
 
 ## 10. 기존 DB와 migration 경계
@@ -949,3 +984,103 @@ filename, SHA-256 checksum과 적용 시각을 기록한다. runner는 PostgreSQ
 - [ ] rollback·restore 환경에 migration version 검증 추가
 
 모든 항목이 통과하기 전에는 데이터 계층을 “구현 준비 완료” 또는 “구현 완료”로 표시하지 않는다.
+
+## Spring 수집 배치 저장 경계
+
+[Spring 상세 설계](./07-spring-collector-design.md)에 따라 운영자 PC의 전용 PostgreSQL 18에서
+`batch`·`quartz`·`collector` schema를 사용한다. 공개 서비스 PostgreSQL과 물리적으로 분리하고 collector에
+service DB 계정을 주지 않는다. service `collect`·`content` 변경은 Core API만 수행한다.
+
+local `collector` schema는 trigger request HMAC, `jobRequestId`, candidate/execution ID, 상태·시각·hash,
+암호화 spool의 random reference와 notification outbox만 저장한다. Batch ExecutionContext와 Quartz
+JobDataMap에도 이 최소 참조만 넣고 token·원문 HTML·title·origin URL·image binary·절대 경로를 넣지 않는다.
+result 원문 payload와 image temp는 macOS Keychain key로 AES-256-GCM 암호화한 local spool에 둔다.
+
+Core에는 다음 quota 표를 추가한다.
+
+### 출처 요청 budget — `collect.source_request_budget`
+
+| 열 | 타입 | Null | 설명 |
+| --- | --- | --- | --- |
+| `source_id` | `BIGINT` | N | `collect.source` FK |
+| `budget_date` | `DATE` | N | `Asia/Seoul` 날짜 |
+| `reserved_count` | `INTEGER` | N | 성공 reservation 즉시 증가, 환불 없음 |
+| `lock_version` | `INTEGER` | N | 초기 1 |
+| `created_at` | `TIMESTAMPTZ(3)` | N | UTC |
+| `updated_at` | `TIMESTAMPTZ(3)` | N | UTC |
+
+```text
+PK (source_id, budget_date)
+CHECK reserved_count >= 0
+CHECK lock_version >= 1
+```
+
+### 출처 요청 reservation — `collect.source_request_reservation`
+
+| 열 | 타입 | Null | 설명 |
+| --- | --- | --- | --- |
+| `id` | `UUID` | N | reservation ID |
+| `source_id` | `BIGINT` | N | `collect.source` FK |
+| `candidate_id` | `BIGINT` | N | `collect.candidate` FK |
+| `collector_execution_id` | `UUID` | N | fencing execution |
+| `request_key_hash` | `BYTEA` | N | opaque request key HMAC-SHA-256 |
+| `request_kind` | `VARCHAR(16)` | N | `ROBOTS`, `DETAIL`, `REDIRECT`, `IMAGE` |
+| `budget_date` | `DATE` | N | 차감 날짜 |
+| `reserved_at` | `TIMESTAMPTZ(3)` | N | 발급 시각 |
+| `valid_until` | `TIMESTAMPTZ(3)` | N | 최대 10초, 날짜 경계를 넘지 않는 permit 만료 |
+| `status` | `VARCHAR(12)` | N | `ISSUED`, `EXPIRED`; 원격 사용 완료 증거가 아님 |
+
+```text
+PK (id)
+FK (source_id) -> collect.source(id) ON DELETE RESTRICT
+FK (candidate_id) -> collect.candidate(id) ON DELETE CASCADE
+UK uq_source_request_reservation__source_key (source_id, request_key_hash)
+INDEX ix_source_request_reservation__retention (reserved_at)
+CHECK octet_length(request_key_hash) = 32
+CHECK request_kind IN ('ROBOTS','DETAIL','REDIRECT','IMAGE')
+CHECK status IN ('ISSUED','EXPIRED')
+CHECK valid_until > reserved_at
+```
+
+### Collector 운영 이벤트 — `collect.collector_operational_event`
+
+| 열 | 타입 | Null | 설명 |
+| --- | --- | --- | --- |
+| `id` | `UUID` | N | event ID |
+| `delivery_id` | `UUID` | N | collector outbox 멱등 ID |
+| `job_request_id` | `UUID` | Y | local Job 상관 ID |
+| `candidate_id` | `BIGINT` | Y | 후보 관련 event만 FK |
+| `event_code` | `VARCHAR(50)` | N | allowlist 일반화 코드 |
+| `severity` | `VARCHAR(8)` | N | `INFO`, `WARN`, `ERROR` |
+| `delivery_status` | `VARCHAR(16)` | N | `DELIVERED`, `FINAL_FAILED`, `ACKNOWLEDGED` |
+| `attempt_count` | `SMALLINT` | N | 0 이상 |
+| `occurred_at` | `TIMESTAMPTZ(3)` | N | event 발생 시각 |
+| `acknowledged_at` | `TIMESTAMPTZ(3)` | Y | 관리자 확인 시각 |
+| `created_at` | `TIMESTAMPTZ(3)` | N | UTC |
+
+```text
+PK (id)
+FK (candidate_id) -> collect.candidate(id) ON DELETE SET NULL
+UK uq_collector_operational_event__delivery (delivery_id)
+INDEX ix_collector_operational_event__unacked (severity, occurred_at DESC) WHERE acknowledged_at IS NULL
+CHECK severity IN ('INFO','WARN','ERROR')
+CHECK delivery_status IN ('DELIVERED','FINAL_FAILED','ACKNOWLEDGED')
+CHECK attempt_count >= 0
+```
+
+quota reservation은 source와 당일 budget row를 잠그고 `source.next_request_at`, 일일 상한, execution·
+version·상태를 같은 transaction에서 확인한다. permit 발급과 budget 증가·다음 허용 시각 갱신은 한
+transaction이다. local DB나 memory quota를 권위로 사용하지 않는다.
+
+| 배치 측 상황 | BE 후보 상태 해석 |
+| --- | --- |
+| 실행 요청 접수·대기 | 후보가 생성됐다는 뜻이 아님. 기존 접수 API 성공 후 PENDING |
+| 선점 성공·추출 중 | RUNNING, 현재 collectorId·executionId·lease·lockVersion 필요 |
+| 결과 API 성공 | NEW 또는 FETCH_FAILED. 추출 실패 결과 제출 성공과 배치 기술적 성공은 별개 |
+| Batch 실패·중지·프로세스 종료 | 후보 상태 자동 rollback 없음. RUNNING lease 만료 또는 이미 제출된 상태를 확인해야 함 |
+| result 후 preview 실패 | NEW일 수 있음. 후보를 무조건 FETCH_FAILED/PENDING으로 되돌리지 않음 |
+| NEW preview 만료·누락 | `PREVIEW_REFRESH` execution으로 이미지만 재처리. 일반 claim·result 반복 금지 |
+| Batch 완료 | 검수·초안 생성·발행 완료를 의미하지 않음 |
+
+Job/Step, replay·digest reconcile, lease·quota와 local 보존은 07의 확정 기준을 따른다. framework schema와
+위 service migration, constraint, cleanup·동시성 test가 실제로 작성·실행되기 전에는 구현 완료가 아니다.

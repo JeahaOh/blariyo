@@ -13,13 +13,13 @@
 [출처 명세 템플릿](source-spec-template.md)으로 검증한 뒤 확정한다.
 
 - `scraper`: 외부 공개 페이지를 요청해 수집 후보를 만드는 프로그램
-- `collector`: 운영자 로컬 컴퓨터에서 실행하는 Discord 연결 scraper 프로세스. Discord 명령 수신,
+- `collector`: 운영자 로컬 컴퓨터에서 상시 실행하는 별도 Spring 수집 서버. cron·REST API·Discord 진입과
   외부 페이지 fetch, parser 실행과 후보 결과 제출을 담당한다.
 - `parser`: HTML·feed에서 URL·제목·이미지 후보를 추출하는 출처별 규칙
 - `fixture`: parser가 같은 결과를 내는지 반복 확인하는 최소 테스트 샘플
 - `feature flag`: 배포와 기능 활성화를 분리하는 전체 on·off 설정
 - `metadata`: 원문·이미지 자체가 아니라 URL·제목·크기처럼 대상을 설명하는 정보
-- `temporary image`: 운영자 검수 미리보기를 위해 Python extractor 작업 경로에만 두는 임시 이미지 파일
+- `temporary image`: 운영자 검수 미리보기를 위해 Java/Spring 추출기 작업 경로에만 두는 임시 이미지 파일
 - `gate`: 다음 단계로 넘어가기 전에 반드시 통과해야 하는 확인 조건
 
 ## 1. 핵심 결정
@@ -27,8 +27,8 @@
 1. 첫 공개는 수집 기능 없이도 운영 가능한 `M0 Core` 플랫폼을 먼저 완성한다.
 2. 수집 기능의 첫 단계는 운영자 로컬 컴퓨터의 `collector`가 Discord `/collect url` 또는 관리자 화면
    URL 입력 작업을 받아 단일 상세 페이지 1건만 추출하는 방식이다.
-3. 자동 수집기 전체를 먼저 만들지 않는다. 목록·feed·pagination·scheduler는 후속 `M0 자동 수집`
-   단계로 분리한다.
+3. 자동 수집기 전체를 먼저 만들지 않는다. 목록·feed·pagination에 의한 신규 URL 자동 발견은 후속 `M0 자동 수집`
+   단계로 분리한다. 접수된 후보를 Quartz cron으로 처리하는 것은 M0 수집 보조에 포함한다.
 4. 운영자의 수동 게시글 작성 경로는 항상 유지한다. 수집 장애가 공개 목록·상세와 수동 발행을
    중단시키면 안 된다.
 5. 수집 결과는 후보일 뿐이다. 운영자 검수와 초안 승격 없이 게시글을 자동 발행하지 않는다.
@@ -81,7 +81,7 @@
 가져와 등록·활성 출처, robots, 요청 상한, SSRF 방어 gate를 확인한 뒤 해당 상세 페이지를 한 번
 가져온다. Discord `/collect url:<원문URL>` 명령은 같은 로컬 `collector`가 Discord App으로 받아
 BE에 URL 작업을 먼저 접수하고 해당 후보를 선점한 뒤 동일한 검증·추출 흐름을 실행한다. 제목과 이미지 후보 URL을 추출해 BE에 결과를 제출하면 관리자
-검수 화면에 표시된다. Python extractor는 로컬 작업 경로에만 임시 파일을 만들 수 있고, BE·FE에는
+검수 화면에 표시된다. Java/Spring 추출기는 로컬 작업 경로에만 임시 파일을 만들 수 있고, BE·FE에는
 내부 경로나 원본 binary를 결과 metadata에 넣지 않는다. 관리자 preview가 필요하면 별도 인증 업로드로 검증·재인코딩한 파일만 전달한다. 운영자는 값을 수정하고 사용할 이미지를 선택하거나 후보를
 반려한다.
 
@@ -140,7 +140,7 @@ BE에 URL 작업을 먼저 접수하고 해당 후보를 선점한 뒤 동일한
 | 경고·실패 사유 | 누락, 차단, 구조 변경과 중복 판단 근거 |
 
 후보 단계에서는 원문 HTML 전체, 댓글, 작성자 프로필과 불필요한 개인정보를 저장하지 않는다.
-이미지는 Python extractor가 실행되는 로컬 작업 경로에 임시 파일로 둘 수 있고, 관리자 미리보기가
+이미지는 Java/Spring 추출기가 실행되는 로컬 작업 경로에 임시 파일로 둘 수 있고, 관리자 미리보기가
 필요하면 collector가 BE private staging object로 24시간 preview를 업로드한다. DB에는 image binary를
 저장하지 않는다. 임시 파일과 preview object는 후보 반려·만료·재시도 교체 시 삭제 대상이며,
 운영자가 초안으로 승격하기로 결정한 이미지에 한해 관리자 업로드와 같은 검증·재인코딩 후 블라리요
@@ -166,7 +166,7 @@ BE에 URL 작업을 먼저 접수하고 해당 후보를 선점한 뒤 동일한
 - 정규화한 원문 URL이 같으면 같은 후보로 본다.
 - tracking query, fragment와 불필요한 trailing slash 제거 범위는 출처별로 확정한다.
 - redirect 뒤 canonical URL이 기존 후보와 같으면 새 후보를 만들지 않는다.
-- 이미지 hash는 Python 임시 파일 또는 승격 시 다시 가져온 image binary를 검증·재인코딩하는 단계에서
+- 이미지 hash는 수집기 임시 파일 또는 승격 시 다시 가져온 image binary를 검증·재인코딩하는 단계에서
   계산한다. 게시 확정 전 hash는 중복 경고용이며 영구 저장 증거가 아니다.
 - 제목 유사도는 운영자에게 주는 경고일 뿐 자동 반려·승격 기준으로 사용하지 않는다.
 
@@ -211,7 +211,7 @@ parser가 가져온 제목·이미지는 신뢰된 게시물 값이 아니라 �
 - 연속 실패 기준을 넘으면 자동 수집만 끄고 수동 작성 경로는 유지한다.
 - 재활성화는 운영자가 원인을 확인하고 출처 명세의 확인일·parser version을 갱신한 뒤 수행한다.
 - 목록 수집 실패를 무한 재시도하지 않는다.
-- 외부 응답 HTML과 이미지 binary, Python 임시 파일 경로의 내부 절대 경로를 application log에 기록하지 않는다.
+- 외부 응답 HTML과 이미지 binary, 수집기 임시 파일 경로의 내부 절대 경로를 application log에 기록하지 않는다.
 - 출처가 삭제·차단·이용 조건 변경을 요청하면 자동 수집을 먼저 끄고 기존 게시글은 권리 처리
   절차에 따라 판단한다.
 
@@ -356,7 +356,7 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 - [ ] 등록·활성 host와 차단 경로를 구분함
 - [ ] 단일 상세 페이지 1건이 후보 또는 명시적 실패 상태로 끝남
 - [ ] 후보 수정·반려·재시도·초안 승격을 검증함
-- [ ] 목록·feed·pagination·scheduler를 호출하지 않음
+- [ ] 목록·feed·pagination으로 신규 URL을 자동 발견하지 않음; 접수된 후보의 Quartz 예약 처리는 허용
 - [ ] 수집 기능을 꺼도 수동 게시와 공개 읽기가 정상 동작함
 
 ### M0 자동 수집
@@ -375,7 +375,7 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 - 출처별 이용약관 위험 판단, `robots.txt` 확인 결과와 확인일
 - 출처별 parser 방식과 selector
 - 수집 User-Agent 문자열과 연락 수단
-- 출처별 요청 간격, 일일 상한과 단건 상세 페이지 timeout·응답 크기 상한
+- 출처별 실제 요청 간격과 일일 상한. 단건 timeout·응답 크기는 상세 설계의 보수적 기술 기본값을 먼저 적용
 - 구조 변경을 담당하고 출처를 재활성화할 운영자
 - 수집 보조와 자동 수집의 production 활성화 일자
 - Discord Application, guild·channel·운영 역할과 명령 권한
@@ -424,9 +424,30 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 - 공지·광고·추천 콘텐츠: 목록에서 추출하지 않음
 - 같은 목록의 중복 링크: 목록에서 추출하지 않음
 
-- 후보 생성 시 Python extractor는 미리보기에 필요한 이미지 후보만 작업 경로에 임시 저장할 수 있다.
+- 후보 생성 시 Java/Spring 추출기는 미리보기에 필요한 이미지 후보만 작업 경로에 임시 저장할 수 있다.
 - 임시 파일 경로는 내부 구현값이며 공개 화면, 로그, Discord 보고와 Git에 남기지 않는다.
 - DB에는 원격 URL, 순서, 추출·검증 상태와 preview 식별자만 저장하고 image binary는 저장하지 않는다.
 - 후보 반려, 보존 기간 만료, 재시도 교체, parser 실패 전환 시 임시 파일은 삭제 대상이다.
 - 게시글 초안 승격이 결정되면 선택 이미지에 한해 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 거쳐 블라리요 저장소에 저장한다.
 - 승격 transaction 실패 시 저장된 이미지는 staging orphan 정리 대상으로 분류한다.
+
+## Spring 수집 서버 전환 결정 (2026-09-08)
+
+- 운영자 로컬 PC에 별도 Spring Boot 상시 서버를 둔다. Spring Batch Job은 후보 1건을 처리하고,
+  Quartz·loopback REST·Discord가 같은 실행 서비스를 호출한다. Java/Spring 추출로 전환하며 Python과
+  Spring이 같은 후보를 동시에 소유하지 않는다.
+- 기존 BE·FE의 후보 접수·검수·이미지 처리·초안 생성·편집·별도 발행은 유지한다. Spring 서버는 기존
+  Web/BFF collector 중계로만 서비스 데이터를 바꾸며 서비스 DB와 object storage에 직접 쓰지 않는다.
+- Quartz는 `Asia/Seoul` 15분 주기, 과거 실행 보충 없음, 기본 비활성이다. 접수된 후보 한 건만 처리하며
+  새 글 목록 발견과 자동 발행을 수행하지 않는다. 실제 출처와 운영 gate가 끝난 뒤에만 활성화한다.
+- `/collect status`는 최근 24시간의 local Job과 Core 후보 집계를 분리해 보여주는 읽기 전용 명령이다.
+  Core 조회가 실패하면 부분 결과임을 표시하며 후보 claim이나 새 Job을 만들지 않는다.
+- 외부 HTTP는 robots·상세·redirect 각 hop·이미지 요청을 각각 출처별 일일 상한에 포함한다. Core가 요청
+  직전에 permit을 발급하고 즉시 보수적으로 차감하며, 실제 송신 여부가 불명이어도 환불하지 않는다.
+- local image temp는 preview 성공 뒤 즉시 삭제하고 실패·응답 유실 복구용으로도 최대 24시간만 둔다.
+  Core의 private preview도 최대 24시간이며, 만료 preview는 NEW 후보의 `PREVIEW_REFRESH` 실행으로 이미지만
+  다시 받아 올린다. result나 후보를 다시 만들지 않고, 선택 이미지의 영구 저장은 초안 승격 때만 한다.
+- Job·API·quota·lease·멱등·보안·복구의 단일 기술 계약은
+  [Spring 수집 서버 상세 설계](../../system-design/07-spring-collector-design.md)를 따른다. 기존 Python 구현은
+  참고 증거이며 Spring source·migration·OpenAPI·test·runtime, 실제 출처·Discord 계정·운영 승인·법무 검토는
+  아직 완료되지 않았다. 이 미검증 항목은 `M0 Core` 공개를 막지 않지만 수집 활성화는 막는다.

@@ -411,7 +411,7 @@ export function collectionService(pool, storage, options = {}) {
                     c.id,
                   ]);
                   await tx.query(
-                    "UPDATE collect.candidate SET status='PENDING',fetched_at=NULL,fetch_error_code=NULL,lease_until=NULL,collector_id=NULL,claimed_at=NULL,title=NULL,parser_version=NULL,warnings='[]',lock_version=lock_version+1,updated_by=$2,updated_at=now() WHERE id=$1",
+                    "UPDATE collect.candidate SET status='PENDING',requested_at=now(),fetched_at=NULL,fetch_error_code=NULL,lease_until=NULL,collector_id=NULL,claimed_at=NULL,attempt_count=0,title=NULL,parser_version=NULL,warnings='[]',lock_version=lock_version+1,updated_by=$2,updated_at=now() WHERE id=$1",
                     [c.id, actor]
                   );
                 } else
@@ -470,6 +470,17 @@ export function collectionService(pool, storage, options = {}) {
       )
     ).rows[0];
     return post ? Number(post.id) : null;
+  }
+  async function expireUnclaimableRuns(db, candidateId = null) {
+    const rows = (
+      await db.query(
+        "WITH expired AS (SELECT id FROM collect.candidate WHERE status='RUNNING' AND lease_until<now() AND (attempt_count>=3 OR requested_at<=now()-interval '24 hours') AND ($1::bigint IS NULL OR id=$1) ORDER BY requested_at,id FOR UPDATE SKIP LOCKED) UPDATE collect.candidate c SET status='FETCH_FAILED',fetch_error_code='LEASE_EXPIRED',fetched_at=now(),lease_until=NULL,lock_version=lock_version+1,updated_by='system:collector',updated_at=now() FROM expired WHERE c.id=expired.id RETURNING c.id",
+        [candidateId]
+      )
+    ).rows;
+    for (const row of rows)
+      console.error(JSON.stringify({ event: 'LEASE_EXPIRED', candidateId: Number(row.id) }));
+    return rows.length;
   }
   return {
     mutate,
@@ -570,9 +581,10 @@ export function collectionService(pool, storage, options = {}) {
     async claim(body) {
       if (body.candidateId && body.maxItems !== 1) fail(400, 'VALIDATION_FAILED');
       return transaction(pool, async (db) => {
+        await expireUnclaimableRuns(db, body.candidateId || null);
         const candidates = (
           await db.query(
-            "SELECT * FROM collect.candidate WHERE (status='PENDING' OR (status='RUNNING' AND lease_until<now())) AND ($1::bigint IS NULL OR id=$1) ORDER BY requested_at,id FOR UPDATE SKIP LOCKED LIMIT $2",
+            "SELECT * FROM collect.candidate WHERE (status='PENDING' OR (status='RUNNING' AND lease_until<now() AND attempt_count<3 AND requested_at>now()-interval '24 hours')) AND ($1::bigint IS NULL OR id=$1) ORDER BY requested_at,id FOR UPDATE SKIP LOCKED LIMIT $2",
             [body.candidateId || null, body.maxItems]
           )
         ).rows;
@@ -717,26 +729,20 @@ export function collectionService(pool, storage, options = {}) {
     async cleanup() {
       const rows = (
         await pool.query(
-          "SELECT id FROM collect.candidate WHERE status IN ('PENDING','RUNNING') AND requested_at<now()-interval '24 hours' OR status IN ('NEW','FETCH_FAILED') AND fetched_at<now()-interval '30 days' OR status='REJECTED' AND reviewed_at<now()-interval '30 days' OR EXISTS(SELECT 1 FROM collect.candidate_image i WHERE i.candidate_id=collect.candidate.id AND preview_expires_at<now())"
+          "SELECT id FROM collect.candidate WHERE status='PENDING' AND requested_at<=now()-interval '24 hours' OR status='RUNNING' AND lease_until<now() AND (attempt_count>=3 OR requested_at<=now()-interval '24 hours') OR status IN ('NEW','FETCH_FAILED') AND fetched_at<now()-interval '30 days' OR status='REJECTED' AND reviewed_at<now()-interval '30 days' OR EXISTS(SELECT 1 FROM collect.candidate_image i WHERE i.candidate_id=collect.candidate.id AND preview_expires_at<now())"
         )
       ).rows;
       for (const row of rows)
         await collectionLock(pool, `candidate:${row.id}`, (db) =>
           transaction(db, async (tx) => {
             const c = await find(tx, row.id, true);
-            if (
-              ['PENDING', 'RUNNING'].includes(c.status) &&
-              Date.now() - c.requested_at > 86400000
-            ) {
-              await tx.query(
-                "UPDATE collect.candidate SET status='FETCH_FAILED',fetch_error_code='COLLECTOR_TIMEOUT',fetched_at=now(),lease_until=NULL,lock_version=lock_version+1,updated_by='system:collector',updated_at=now() WHERE id=$1",
-                [c.id]
-              );
+            if (c.status === 'PENDING' && Date.now() - c.requested_at > 86400000) {
               console.error(
-                JSON.stringify({ event: 'COLLECTOR_TIMEOUT', candidateId: Number(c.id) })
+                JSON.stringify({ event: 'COLLECTOR_PENDING_STALE', candidateId: Number(c.id) })
               );
               return;
             }
+            if (c.status === 'RUNNING' && (await expireUnclaimableRuns(tx, c.id))) return;
             const expired = ['NEW', 'FETCH_FAILED'].includes(c.status)
               ? Date.now() - c.fetched_at > 30 * 86400000
               : c.status === 'REJECTED' && Date.now() - c.reviewed_at > 30 * 86400000;

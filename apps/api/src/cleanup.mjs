@@ -3,7 +3,25 @@ import { transaction } from './db.mjs';
 import { withPostLock } from './post-lock.mjs';
 import { enqueue } from './outbox.mjs';
 export async function cleanup(pool, storage) {
-  await collectionService(pool, storage).cleanup();
+  let collectionReferencesAvailable = false,
+    collectionFailure;
+  try {
+    collectionReferencesAvailable = Boolean(
+      (await pool.query("SELECT to_regclass('collect.candidate_image') AS relation")).rows[0]
+        ?.relation
+    );
+  } catch {
+    collectionFailure = 'COLLECTION_SCHEMA_CHECK_FAILED';
+    console.error(JSON.stringify({ event: 'COLLECTION_SCHEMA_CHECK_FAILED' }));
+  }
+  if (collectionReferencesAvailable)
+    try {
+      await collectionService(pool, storage).cleanup();
+    } catch {
+      collectionReferencesAvailable = false;
+      collectionFailure = 'COLLECTION_CLEANUP_FAILED';
+      console.error(JSON.stringify({ event: 'COLLECTION_CLEANUP_FAILED' }));
+    }
   const actor = 'system:outbox-worker';
   await transaction(pool, async (db) => {
     const staged = (
@@ -37,15 +55,29 @@ export async function cleanup(pool, storage) {
       )
         continue;
       const column = bucket === 'private' ? 'private_storage_key' : 'public_storage_key';
+      const collectionPreview = bucket === 'private' && object.key.startsWith('collect-preview/');
+      if (collectionPreview && !collectionReferencesAvailable) continue;
       const removeOrphan = async (pool) => {
-        const referenced = await pool.query(
-          `SELECT 1 FROM content.board_post_image WHERE ${column}=$1 AND status<>'DELETED' UNION ALL SELECT 1 FROM collect.candidate_image WHERE preview_storage_key=$1 UNION ALL SELECT 1 FROM ops.outbox_task WHERE status IN ('PENDING','RUNNING','FAILED','DEAD') AND (payload->>'privateStorageKey'=$1 OR payload->>'publicStorageKey'=$1) LIMIT 1`,
-          [object.key]
-        );
+        let referenced;
+        try {
+          referenced = await pool.query(
+            collectionPreview
+              ? `SELECT 1 FROM collect.candidate_image WHERE preview_storage_key=$1 UNION ALL SELECT 1 FROM ops.outbox_task WHERE status IN ('PENDING','RUNNING','FAILED','DEAD') AND payload->>'privateStorageKey'=$1 LIMIT 1`
+              : `SELECT 1 FROM content.board_post_image WHERE ${column}=$1 AND status<>'DELETED' UNION ALL SELECT 1 FROM ops.outbox_task WHERE status IN ('PENDING','RUNNING','FAILED','DEAD') AND (payload->>'privateStorageKey'=$1 OR payload->>'publicStorageKey'=$1) LIMIT 1`,
+            [object.key]
+          );
+        } catch (error) {
+          if (!collectionPreview) throw error;
+          collectionReferencesAvailable = false;
+          collectionFailure ||= 'COLLECTION_REFERENCE_CHECK_FAILED';
+          console.error(JSON.stringify({ event: 'COLLECTION_REFERENCE_CHECK_FAILED' }));
+          return;
+        }
         if (!referenced.rowCount) await storage.delete(bucket, object.key);
       };
       const postId = bucket === 'public' && /^posts\/(\d+)\//.exec(object.key)?.[1];
       if (postId) await withPostLock(pool, postId, removeOrphan);
       else await removeOrphan(pool);
     }
+  if (collectionFailure) throw new Error(collectionFailure);
 }

@@ -13,6 +13,18 @@ test(
     await f.pool.query(
       "INSERT INTO collect.source(name,base_url,host,is_active,robots_allowed,robots_checked_at,request_interval_ms,daily_fetch_limit,created_by,updated_by) VALUES('Fixture','https://fixture.example','fixture.example',true,true,now(),1000,100,'system:migration','system:migration')"
     );
+    await f.posts.command(
+      'create',
+      {},
+      {
+        boardSlug: 'meme',
+        title: '기존 출처 게시글',
+        source: { name: 'Fixture', url: 'https://fixture.example/123' },
+        pinnedPosition: null,
+        blocks: [{ type: 'TEXT', text: '중복 확인 fixture' }],
+      },
+      'system:scheduler'
+    );
     const browser = await chromium.launch({ headless: true });
     t.after(() => browser.close());
     const context = await browser.newContext();
@@ -100,6 +112,9 @@ test(
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.getByLabel('초안에 포함').check();
     await page.getByLabel('이미지 설명').fill('주황색 테스트 이미지');
+    await expect(page.getByRole('button', { name: '검수 완료 · 초안 만들기' })).toBeDisabled();
+    await page.getByLabel('원문과 이미지의 중복 가능성을 확인했습니다.').check();
+    await expect(page.getByRole('button', { name: '검수 완료 · 초안 만들기' })).toBeEnabled();
     await page.getByRole('button', { name: '검수 완료 · 초안 만들기' }).click();
     await page.waitForURL(/\/admin\?postId=/);
     await expect(page.getByLabel('제목', { exact: true })).toHaveValue('브라우저 검수 후보');

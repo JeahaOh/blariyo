@@ -191,7 +191,10 @@ fetch하지 않고 해당 실행에 맡긴다. 접수 이전이나 claim 성공 
 
 - `maxItems`: 1~5, `leaseSeconds`: 60~900초.
 - 선택 필드 `candidateId`가 있으면 그 작업만 대상으로 하고 maxItems는 1이다.
-- PENDING 또는 lease가 만료된 RUNNING을 `FOR UPDATE SKIP LOCKED`로 선점한다.
+- PENDING 또는 lease가 만료된 RUNNING을 `FOR UPDATE SKIP LOCKED`로 선점한다. PENDING은 접수 후
+  24시간이 지나도 collector 중단만으로 실패 처리하지 않는다.
+- 현재 retry cycle에서 `attempt_count < 3`이고 `requested_at`부터 24시간 미만인 만료 RUNNING만
+  재선점한다. 한 조건이라도 넘으면 `FETCH_FAILED/LEASE_EXPIRED`로 닫고 claim 결과에 포함하지 않는다.
 - `status=RUNNING`, collector_id, claimed_at, lease_until, attempt_count+1, lock_version+1을 저장한다.
 - 성공은 `200`, `data.items[]`에 candidateId, sourceId, sourceHost, originUrl, discoveryMode,
   attemptCount, **lockVersion**, leaseUntil, requestIntervalMs, dailyFetchLimit, robotsAllowed,
@@ -577,7 +580,9 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 1. 후보가 존재하고 `FETCH_FAILED`인지 확인한다.
 2. `lockVersion`을 비교한다.
 3. 기존 이미지 후보 metadata를 재시도 교체 대상으로 표시한다.
-4. 데이터 모델의 재시도 전이에 따라 `fetched_at`, `fetch_error_code`, `lease_until`을 초기화하고 `PENDING`으로 되돌린다. 증가한 `lockVersion`으로 접수 결과를 반환한다.
+4. 데이터 모델의 재시도 전이에 따라 `requested_at`을 현재 시각으로 바꾸고 `fetched_at`,
+   `fetch_error_code`, `lease_until`, `collector_id`, `claimed_at`을 초기화한다. 현재 retry cycle의
+   `attempt_count`를 0으로 되돌려 `PENDING`으로 만들고 증가한 `lockVersion`으로 접수 결과를 반환한다.
 5. 로컬 collector가 출처 등록·활성 상태, robots, 요청 상한을 다시 확인한다.
 6. collector는 기존 후보의 단일 상세 페이지 원문 URL만 다시 fetch하고 parser를 실행한다. 목록·feed·pagination은 호출하지 않는다.
 7. 성공하면 기존 이미지 후보 metadata와 로컬 Python 임시 preview 파일을 새 결과로 교체하고 `NEW`로 바꾼다.
@@ -604,6 +609,17 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - collector 재시도 성공 시 `NEW`
 - collector 재시도 실패 시 `FETCH_FAILED`
 - 실제 source·OpenAPI·runtime 미검증
+
+#### Spring V2 전환과 이번 호환 보완의 경계
+
+현재 Core 보완은 오래된 PENDING 보존, 만료 RUNNING의 retry cycle당 최대 3회, 24시간 경계와
+`LEASE_EXPIRED` 전환만 적용한다. `fetchErrorCode` OpenAPI는 일반화 대문자 코드 패턴이므로 이 값을
+이미 허용한다. 24시간 지난 PENDING은 상태를 바꾸지 않고 현재 구현의 비식별 구조화 경고만 남긴다.
+중복 방지·확인 처리가 가능한 영속 운영 이벤트는 Spring V2 범위다.
+
+Spring V2의 `collectorExecutionId` fencing, claim·heartbeat·preview 응답 replay, Core 권위 quota
+reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 별도 milestone이다.
+해당 migration·OpenAPI·source·test·runtime이 없으므로 이번 호환 보완의 완료 증거로 표시하지 않는다.
 
 <a id="d01-create-and-review-candidate"></a>
 

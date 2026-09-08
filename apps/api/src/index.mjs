@@ -1,9 +1,11 @@
-import { readFile } from 'node:fs/promises';
 import { collectionSettings } from './collection-routes.mjs';
 import { createPool } from './db.mjs';
 import { adapters } from './config.mjs';
 import { createApp } from './app.mjs';
+import { loadCollectorTokens } from './startup.mjs';
 const pool = createPool();
+const collection = collectionSettings(),
+  collectorTokens = await loadCollectorTokens(collection);
 if (process.env.NODE_ENV === 'production') {
   if (
     !/^https:\/\//.test(process.env.SITE_ORIGIN || '') ||
@@ -17,8 +19,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 const server = createApp(pool, {
   ...adapters(),
-  ...collectionSettings(),
-  collectorTokens: process.env.COLLECTOR_TOKENS_FILE ? JSON.parse(await readFile(process.env.COLLECTOR_TOKENS_FILE, 'utf8')) : [],
+  ...collection,
+  collectorTokens,
   localMedia: process.env.NODE_ENV !== 'production',
   serviceToken: process.env.SERVICE_TOKEN,
   siteOrigin: process.env.SITE_ORIGIN,

@@ -116,7 +116,7 @@ git diff --check
 않고 실행기가 생성한 `m0_*_<난수>` DB만 제거한다. BFF 테스트는 로컬 `3041` 포트를 사용하며
 `TEST_WEB_PORT`로 변경할 수 있다. 빌드 때 docs OpenAPI 동일성과 타입 생성을 확인한다.
 
-2026-09-08 Node 24.18.0 기준으로 현재 소스의 빌드, 단위·실제 PostgreSQL/HTTP 통합 테스트 35개,
+2026-09-08 Node 24.18.0 기준으로 현재 소스의 빌드, 단위·실제 PostgreSQL/HTTP 통합 테스트 42개,
 Chromium 브라우저 테스트 8개를 통과했다(실패·건너뜀 0개). 브라우저 테스트는 확장 프로그램 대신
 Playwright 전용 Chromium을 사용한다. 테스트용 이미지·정책·게시글과 임시 인증값만 사용하며 테스트
 종료 시 생성한 DB·저장소·프로세스를 정리한다. 운영 서비스로 데이터를 보내지 않는다.
@@ -132,15 +132,26 @@ Playwright 전용 Chromium을 사용한다. 테스트용 이미지·정책·게�
 | 반응형 | 360·390·1280px 공개 화면과 360px 관리자 가로 넘침 없음. 캡처는 `test-results/m0-browser/`에 생성 |
 | Docker·복구 | `npm run test:docker`: Web/API 이미지 빌드·실행, readiness·인증·발행·숨김, 운영 command 3개, PostgreSQL custom dump를 별도 DB에 복원한 뒤 V004 readiness·게시글·상태 이력 대조 |
 
+이번 보완에서는 수집 기능을 끈 Core가 V003 기준으로 기동할 수 있도록 readiness와 token 파일 읽기,
+정리 실패 경계를 분리했다. 수집 기능을 켜면 V004와 `collect` 권한을 계속 요구한다. 예약 게시 시각은
+DB 문장 시각으로 기록해 공개 조회의 시계 경계를 맞췄다. 통합 검증기는 실제 생성한 난수 DB만 강제
+정리하고 정리 실패를 테스트 실패와 함께 보고하며, Docker 검증기는 실행마다 image·network·port를
+분리한다. 수집 RUNNING lease의 재선점 상한과 PENDING 보존, 중복 확인 UI, 동의 후 페이지 이동별
+분석 이벤트도 회귀 테스트에 포함한다.
+
 운영 R2·Cloudflare Access·CDN purge, 운영 cron·알림 수신, 암호화 백업의 원격 보관과 전체 서버 복구,
 법무 실값·승인 정책 시행, 실제 배포는 미검증이다. Kakao·GA4 운영 활성화는 별도 gate다.
 이 로컬 검증 결과를 production 공개 완료로 해석하지 않는다.
 
 ## 수집 보조
 
+이 절은 보존 커밋 `c788f18` 기준의 전환 전 Python/Core 구현과 검증 증거다. 최종 Spring 수집
+서버의 구현 완료나 운영 준비 완료를 뜻하지 않는다. 이번 legacy 호환 보완과 별도 Spring V2 범위는
+[수집 개발 명세의 전환 경계](docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md#spring-v2-전환과-이번-호환-보완의-경계)를 따른다.
+
 `/admin/collect`에서 상세 URL 요청·후보 검수·이미지 선택과 설명·직접 대체 업로드·반려·재수집·
 초안 생성을 처리한다. `/admin/collect/sources`는 등록한 출처의 활성·robots 확인·요청 제한 설정이다.
-수집기는 운영자 PC의 별도 Python 상시 서버이며 Core/Web 컨테이너에 포함하지 않는다.
+보존 중인 legacy 수집기는 운영자 PC의 별도 Python 상시 서버이며 Core/Web 컨테이너에 포함하지 않는다.
 cron·로컬 HTTP 실행 API·Discord가 같은 실행기를 사용하고 실행 이력은 SQLite에 보관한다.
 
 실행·환경변수·출처 설정·Discord 등록은 [로컬 수집기 안내](tools/collector/README.md)를 따른다.

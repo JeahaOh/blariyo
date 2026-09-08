@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createPool } from '../apps/api/src/db.mjs';
 import { randomBytes } from 'node:crypto';
 import { migrate, grantApplication } from '../apps/api/src/migrate.mjs';
+import { coreSchemaReady } from '../apps/api/src/app.mjs';
 const database = process.env.TEST_CONSTRAINT_DATABASE_URL;
 test(
   'migration up/down, checksum ledger, constraints and isolated schema readiness',
@@ -50,6 +51,8 @@ test(
     );
     await migrate(pool, 'down');
     assert.equal((await pool.query("SELECT to_regnamespace('collect') AS name")).rows[0].name, null);
+    assert.equal(await coreSchemaReady(pool, false), true);
+    assert.equal(await coreSchemaReady(pool, true), false);
     await migrate(pool, 'down');
     assert.equal(
       (await pool.query("SELECT to_regclass('ops.schedule_failure_alert') AS table_name")).rows[0]
@@ -74,6 +77,11 @@ test(
       await client.query(`CREATE ROLE ${role} NOLOGIN`);
       await grantApplication(client, role);
       await client.query(`SET LOCAL ROLE ${role}`);
+      assert.equal(await coreSchemaReady(client, true), true);
+      await client.query('RESET ROLE');
+      await client.query(`REVOKE INSERT ON collect.source FROM ${role}`);
+      await client.query(`SET LOCAL ROLE ${role}`);
+      assert.equal(await coreSchemaReady(client, true), false);
       assert.equal(
         (await client.query("SELECT ops.is_schema_ready('V004') AS ready")).rows[0].ready,
         true

@@ -8,6 +8,26 @@ test(
   { timeout: 90000 },
   async (t) => {
     const fixture = await browserFixture(t, { analytics: true });
+    const draft = (
+      await fixture.posts.command(
+        'create',
+        {},
+        {
+          boardSlug: 'meme',
+          title: '분석 route 재방문 fixture',
+          source: null,
+          pinnedPosition: null,
+          blocks: [{ type: 'TEXT', text: '분석 route 재방문 본문' }],
+        },
+        'system:scheduler'
+      )
+    ).data;
+    await fixture.posts.command(
+      'publish',
+      { postId: String(draft.postId) },
+      { lockVersion: draft.lockVersion, mode: 'IMMEDIATE' },
+      'system:scheduler'
+    );
     const browser = await chromium.launch({ headless: true });
     t.after(() => browser.close());
     const context = await browser.newContext();
@@ -42,7 +62,9 @@ test(
     await page.waitForFunction(() => window.__localTagLoaded === true);
     assert.equal(tags.length, 1);
     const events = await page.evaluate(() => window.dataLayer.map((value) => [...value]));
-    const event = events.find((entry) => entry[0] === 'event' && entry[1] === 'page_view');
+    const pageViews = events.filter((entry) => entry[0] === 'event' && entry[1] === 'page_view');
+    assert.equal(pageViews.length, 1);
+    const event = pageViews[0];
     assert.ok(event);
     assert.equal(event[2].page_title, '블라리요');
     assert.equal(event[2].page_location, fixture.origin + '/analytics/list');
@@ -76,6 +98,51 @@ test(
       page.getByText('선택을 저장할 수 없습니다. 분석 기능을 사용하지 않습니다.')
     ).toBeVisible();
     assert.equal(tags.length, 1);
+    const remembered = await browser.newContext();
+    t.after(() => remembered.close());
+    const rememberedTags = [],
+      rememberedExternal = [];
+    await remembered.addInitScript(() =>
+      localStorage.setItem(
+        'blariyo_consent',
+        JSON.stringify({
+          version: 2,
+          scope: 'analytics',
+          analytics: true,
+          ads: false,
+          savedAt: new Date().toISOString(),
+        })
+      )
+    );
+    await remembered.route('**/*', (route) => {
+      const url = new URL(route.request().url());
+      if (url.origin === fixture.origin) return route.continue();
+      if (url.hostname === 'www.googletagmanager.com' && url.pathname === '/gtag/js') {
+        rememberedTags.push(url.href);
+        return route.fulfill({
+          contentType: 'application/javascript',
+          body: 'window.__rememberedTagLoaded = true;',
+        });
+      }
+      rememberedExternal.push(url.href);
+      return route.abort();
+    });
+    const rememberedPage = await remembered.newPage();
+    await rememberedPage.goto(fixture.origin + '/meme');
+    await rememberedPage.waitForFunction(() => window.__rememberedTagLoaded === true);
+    const pageViewCount = () =>
+      rememberedPage.evaluate(
+        () => window.dataLayer.filter((entry) => entry[0] === 'event' && entry[1] === 'page_view').length
+      );
+    await expect.poll(pageViewCount).toBe(1);
+    await rememberedPage.locator('.post-row').first().click();
+    await expect(rememberedPage.locator('article h1')).toBeVisible();
+    await expect.poll(pageViewCount).toBe(2);
+    await rememberedPage.getByRole('link', { name: '목록으로' }).click();
+    await expect(rememberedPage.locator('.post-row')).toHaveCount(1);
+    await expect.poll(pageViewCount).toBe(3);
+    assert.equal(rememberedTags.length, 1);
+    assert.deepEqual(rememberedExternal, []);
     assert.deepEqual(otherExternal, []);
   }
 );

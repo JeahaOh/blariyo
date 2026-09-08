@@ -206,7 +206,8 @@ export function postService(
         }
         let p,
           previous = null,
-          reason = operation.toUpperCase();
+          reason = operation.toUpperCase(),
+          setPublishedAtNow = false;
         if (operation === 'create') {
           p = await createDraft(db, body, actor);
         } else {
@@ -244,7 +245,7 @@ export function postService(
               reason = 'SCHEDULE';
             } else {
               p.status = 'PUBLISHED';
-              p.published_at = new Date();
+              setPublishedAtNow = true;
               p.scheduled_at = null;
               reason = operation === 'due' ? 'SYSTEM_DUE' : 'PUBLISH';
             }
@@ -303,7 +304,7 @@ export function postService(
           }
           const updated = (
             await db.query(
-              `UPDATE content.board_post SET title=$2,source_name=$3,source_url=$4,status=$5,pinned_position=$6,scheduled_at=$7,published_at=$8,lock_version=lock_version+1,updated_by=$9,updated_at=now() WHERE id=$1 RETURNING *`,
+              `UPDATE content.board_post SET title=$2,source_name=$3,source_url=$4,status=$5,pinned_position=$6,scheduled_at=$7,published_at=CASE WHEN $10 THEN statement_timestamp() ELSE $8 END,lock_version=lock_version+1,updated_by=$9,updated_at=now() WHERE id=$1 RETURNING *`,
               [
                 p.id,
                 p.title,
@@ -314,6 +315,7 @@ export function postService(
                 p.scheduled_at,
                 p.published_at,
                 actor,
+                setPublishedAtNow,
               ]
             )
           ).rows[0];

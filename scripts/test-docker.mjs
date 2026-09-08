@@ -1,12 +1,11 @@
 import { spawn } from 'node:child_process';
 import { randomBytes, randomUUID } from 'node:crypto';
 import assert from 'node:assert/strict';
-import { createServer } from 'node:net';
-import { once } from 'node:events';
 
 // All resources belong to this invocation. Existing Compose projects and databases are untouched.
 const prefix = `blariyo-check-${randomBytes(6).toString('hex')}`;
 const resources = [];
+const images = { api: `${prefix}-api:local`, web: `${prefix}-web:local` };
 const env = {
   ...process.env,
   SERVICE_TOKEN: randomBytes(32).toString('hex'),
@@ -45,6 +44,7 @@ async function ready(check) {
   }
   throw new Error('Container readiness timeout');
 }
+let primaryError;
 try {
   for (const target of ['api', 'web']) {
     await docker([
@@ -52,9 +52,10 @@ try {
       '--target',
       target,
       '-t',
-      `blariyo-m0-core-verify-${target}:local`,
+      images[target],
       '.',
     ]);
+    resources.push(['image', images[target]]);
     console.log(`Docker ${target} build: PASS`);
   }
   await docker(['network', 'create', prefix]);
@@ -98,7 +99,7 @@ try {
     prefix,
     '-e',
     `DATABASE_URL=${database}`,
-    'blariyo-m0-core-verify-api:local',
+    images.api,
     'node',
     'apps/api/src/migrate.mjs',
   ]);
@@ -113,12 +114,25 @@ try {
     `DATABASE_URL=${database}`,
     '-e',
     'SERVICE_TOKEN',
-    'blariyo-m0-core-verify-api:local',
+    images.api,
   ]);
-  const reserved = createServer().listen(0, '127.0.0.1');
-  await once(reserved, 'listening');
-  const webPort = reserved.address().port;
-  await new Promise((r) => reserved.close(r));
+  const proxyCode = `import http from 'node:http';
+const server=http.createServer((req,res)=>{
+  const upstream=http.request({hostname:'web',port:3000,path:req.url,method:req.method,headers:req.headers},reply=>{
+    res.writeHead(reply.statusCode,reply.headers);reply.pipe(res);
+  });
+  upstream.on('error',()=>{res.writeHead(502);res.end();});req.pipe(upstream);
+});server.listen(8080,'0.0.0.0');`;
+  const proxy = await start('proxy', [
+    '-p',
+    '127.0.0.1::8080',
+    images.api,
+    'node',
+    '--input-type=module',
+    '-e',
+    proxyCode,
+  ]);
+  const origin = 'http://' + (await docker(['port', proxy, '8080/tcp'])).toString().trim();
   const web = await start('web', [
     '-e',
     'NODE_ENV=test',
@@ -137,12 +151,9 @@ try {
     '-e',
     'NUXT_ACTOR_SECRET',
     '-e',
-    `NUXT_PUBLIC_SITE_ORIGIN=http://127.0.0.1:${webPort}`,
-    '-p',
-    `127.0.0.1:${webPort}:3000`,
-    'blariyo-m0-core-verify-web:local',
+    `NUXT_PUBLIC_SITE_ORIGIN=${origin}`,
+    images.web,
   ]);
-  const origin = 'http://' + (await docker(['port', web, '3000/tcp'])).toString().trim();
   await ready(
     async () => (await fetch(origin + '/health/ready', { signal: AbortSignal.timeout(1000) })).ok
   );
@@ -220,8 +231,26 @@ try {
     docker(['exec', db, 'psql', '-U', 'fixture', '-d', name, '-At', '-c', sql]);
   assert.equal((await snapshot('restored')).toString(), (await snapshot('fixture')).toString());
   console.log('PostgreSQL custom dump and isolated restore/readback: PASS');
+} catch (error) {
+  primaryError = error;
+  throw error;
 } finally {
+  const cleanupErrors = [];
   for (const [kind, name] of resources.reverse()) {
-    await docker(kind === 'container' ? ['rm', '-f', name] : ['network', 'rm', name]);
+    try {
+      await docker(
+        kind === 'container'
+          ? ['rm', '-f', name]
+          : kind === 'network'
+            ? ['network', 'rm', name]
+            : ['image', 'rm', '-f', name]
+      );
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
+  }
+  if (cleanupErrors.length) {
+    console.error(`Docker cleanup failures: ${cleanupErrors.length}`);
+    if (!primaryError) throw new AggregateError(cleanupErrors, 'Docker cleanup failed');
   }
 }

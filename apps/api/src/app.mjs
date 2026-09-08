@@ -11,6 +11,35 @@ import { authenticateCore } from './auth.mjs';
 import { postService } from './posts.mjs';
 import { imageService } from './images.mjs';
 import { publicService } from './public.mjs';
+export async function coreSchemaReady(pool, collectionEnabled) {
+  const version = await pool.query(
+    "SELECT ops.is_schema_ready('V004') OR (NOT $1::boolean AND ops.is_schema_ready('V003')) AS ready",
+    [collectionEnabled]
+  );
+  if (!version.rows[0]?.ready) return false;
+  if (!collectionEnabled) return true;
+  const access = await pool.query(`SELECT
+    has_schema_privilege(current_user,'collect','USAGE')
+    AND has_table_privilege(current_user,'collect.source','SELECT')
+    AND has_table_privilege(current_user,'collect.source','INSERT')
+    AND has_table_privilege(current_user,'collect.source','UPDATE')
+    AND has_table_privilege(current_user,'collect.source','DELETE')
+    AND has_table_privilege(current_user,'collect.candidate','SELECT')
+    AND has_table_privilege(current_user,'collect.candidate','INSERT')
+    AND has_table_privilege(current_user,'collect.candidate','UPDATE')
+    AND has_table_privilege(current_user,'collect.candidate','DELETE')
+    AND has_table_privilege(current_user,'collect.candidate_image','SELECT')
+    AND has_table_privilege(current_user,'collect.candidate_image','INSERT')
+    AND has_table_privilege(current_user,'collect.candidate_image','UPDATE')
+    AND has_table_privilege(current_user,'collect.candidate_image','DELETE')
+    AND has_sequence_privilege(current_user,'collect.source_id_seq','USAGE')
+    AND has_sequence_privilege(current_user,'collect.source_id_seq','SELECT')
+    AND has_sequence_privilege(current_user,'collect.candidate_id_seq','USAGE')
+    AND has_sequence_privilege(current_user,'collect.candidate_id_seq','SELECT')
+    AND has_sequence_privilege(current_user,'collect.candidate_image_id_seq','USAGE')
+    AND has_sequence_privilege(current_user,'collect.candidate_image_id_seq','SELECT') AS accessible`);
+  return Boolean(access.rows[0]?.accessible);
+}
 export function createApp(pool, options = {}) {
   const app = express();
   app.disable('x-powered-by');
@@ -37,10 +66,12 @@ export function createApp(pool, options = {}) {
   app.get('/internal/health/live', (_req, res) => res.json({ status: 'UP' }));
   app.get('/internal/health/ready', async (_req, res) => {
     try {
-      const result = await pool.query('SELECT ops.is_schema_ready($1) AS ready', ['V004']);
+      const collectionEnabled =
+          options.collectManualUrlEnabled || options.collectDiscordCommandEnabled,
+        ready = await coreSchemaReady(pool, Boolean(collectionEnabled));
       res
-        .status(result.rows[0].ready ? 200 : 503)
-        .json({ status: result.rows[0].ready ? 'READY' : 'NOT_READY' });
+        .status(ready ? 200 : 503)
+        .json({ status: ready ? 'READY' : 'NOT_READY' });
     } catch {
       res.status(503).json({ status: 'NOT_READY' });
     }

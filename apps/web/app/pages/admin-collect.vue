@@ -95,6 +95,10 @@ function promote() {
     message.value = '이미지를 선택하고 각 이미지 설명을 입력해 주세요.';
     return;
   }
+  if (detail.value.duplicatePostId && !ack.value) {
+    message.value = '중복 가능 게시글을 확인한 뒤 확인 표시를 해 주세요.';
+    return;
+  }
   return action(`candidates/${detail.value.candidateId}/draft`, {
     lockVersion: detail.value.lockVersion,
     boardSlug: 'meme',
@@ -226,7 +230,9 @@ async function replace(id, event) {
           <label
             ><input v-model="ack" type="checkbox" :disabled="busy" />원문과 이미지의 중복 가능성을
             확인했습니다.</label
-          ><button :disabled="busy || !selected.length">검수 완료 · 초안 만들기</button>
+          ><button :disabled="busy || !selected.length || (detail.duplicatePostId && !ack)">
+            검수 완료 · 초안 만들기
+          </button>
         </form>
         <button
           v-if="detail.status === 'FETCH_FAILED'"

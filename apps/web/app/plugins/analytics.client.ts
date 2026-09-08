@@ -3,6 +3,7 @@ export default defineNuxtPlugin((nuxt) => {
   const config = useRuntimeConfig().public,
     route = useRoute(),
     consent = useConsent();
+  const pageView = () => runtime.pageView(route.fullPath, route.path);
   consent.refresh();
   const runtime = analyticsRuntime({
     window,
@@ -13,16 +14,18 @@ export default defineNuxtPlugin((nuxt) => {
     origin: config.siteOrigin,
     getPath: () => route.path,
   });
-  window.addEventListener('blariyo-consent-change', (event: any) =>
-    runtime.setStorageFailed(event.detail?.storageFailed === true)
-  );
+  window.addEventListener('blariyo-consent-change', (event: any) => {
+    runtime.setStorageFailed(event.detail?.storageFailed === true);
+    pageView();
+  });
   window.addEventListener('storage', () => {
     consent.refresh();
     runtime.sync();
+    pageView();
   });
   nuxt.hook('page:finish', () => {
     runtime.sync();
-    runtime.send('page_view');
+    pageView();
   });
   runtime.sync();
   return { provide: { analytics: runtime } };

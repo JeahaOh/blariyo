@@ -73,7 +73,9 @@ export function analyticsRuntime({
   let loading = false,
     loaded = false,
     generation = 0,
-    storageFailed = false;
+    storageFailed = false,
+    pendingPageView = null,
+    lastPageViewKey = null;
   const permitted = () =>
     enabled &&
     !storageFailed &&
@@ -82,6 +84,8 @@ export function analyticsRuntime({
     readConsent(storage, true)?.analytics === true;
   function stop() {
     generation++;
+    pendingPageView = null;
+    lastPageViewKey = null;
     win['ga-disable-' + measurementId] = true;
     doc.getElementById('blariyo-ga4')?.remove();
     win.gtag = undefined;
@@ -105,9 +109,9 @@ export function analyticsRuntime({
       /* Transmission stays disabled even when browser cookie access fails. */
     }
   }
-  function send(event, values = {}) {
+  function send(event, values = {}, path = getPath()) {
     if (!loaded || !permitted() || !allowed[event]) return;
-    const fields = analyticsFields(getPath(), origin),
+    const fields = analyticsFields(path, origin),
       params = {
         page_title: fields.page_title,
         page_location: fields.page_location,
@@ -127,6 +131,17 @@ export function analyticsRuntime({
       if (vocabulary[key]?.includes(value)) params[key] = value;
     }
     win.gtag?.('event', event, params);
+  }
+  function pageView(navigationKey, path = getPath()) {
+    if (!permitted()) return;
+    const key = String(navigationKey);
+    if (lastPageViewKey === key || pendingPageView?.key === key) return;
+    if (!loaded) {
+      pendingPageView = { key, path };
+      return;
+    }
+    lastPageViewKey = key;
+    send('page_view', {}, path);
   }
   function sync() {
     if (!permitted()) {
@@ -169,7 +184,11 @@ export function analyticsRuntime({
       }
       loaded = true;
       loading = false;
-      send('page_view');
+      if (pendingPageView) {
+        lastPageViewKey = pendingPageView.key;
+        send('page_view', {}, pendingPageView.path);
+        pendingPageView = null;
+      }
     };
     script.onerror = () => {
       if (current !== generation) return;
@@ -182,6 +201,7 @@ export function analyticsRuntime({
     sync,
     stop,
     send,
+    pageView,
     setStorageFailed(value) {
       storageFailed = value;
       sync();

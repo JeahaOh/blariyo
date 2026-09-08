@@ -178,6 +178,7 @@ test('late analytics load and error callbacks cannot cancel a newer consent gene
     runtime.sync();
     saveConsent(storage, true, true);
     runtime.sync();
+    runtime.pageView('/meme');
     assert.equal(scripts.length, 2);
     scripts[0][callback]();
     scripts[1].onload();
@@ -190,4 +191,80 @@ test('late analytics load and error callbacks cannot cancel a newer consent gene
     assert.equal(win['ga-disable-G-TEST'], true);
     assert.equal(win.dataLayer.length, 0);
   }
+});
+
+test('analytics sends one page view per navigation and keeps a later route revisit', () => {
+  const map = new Map(),
+    storage = { getItem: (k) => map.get(k), setItem: (k, v) => map.set(k, v) },
+    scripts = [],
+    win = {},
+    doc = {
+      cookie: '',
+      location: { hostname: 'localhost' },
+      head: { appendChild: (s) => scripts.push(s) },
+      createElement: () => ({ remove() {} }),
+      getElementById: () => null,
+    };
+  let path = '/meme';
+  const runtime = analyticsRuntime({
+    window: win,
+    document: doc,
+    storage,
+    enabled: true,
+    measurementId: 'G-TEST',
+    origin: 'http://localhost',
+    getPath: () => path,
+  });
+  saveConsent(storage, true, true);
+  runtime.sync();
+  runtime.pageView('/meme');
+  scripts[0].onload();
+  runtime.pageView('/meme');
+  path = '/meme/posts/1';
+  runtime.pageView('/meme/posts/1');
+  path = '/meme';
+  runtime.pageView('/meme');
+  const pageViews = win.dataLayer
+    .map((args) => Array.from(args))
+    .filter((args) => args[0] === 'event' && args[1] === 'page_view');
+  assert.equal(pageViews.length, 3);
+  assert.deepEqual(
+    pageViews.map((args) => args[2].page_location),
+    ['http://localhost/analytics/list', 'http://localhost/analytics/detail', 'http://localhost/analytics/list']
+  );
+});
+
+test('analytics waits for a delayed script with only the latest route page view', () => {
+  const map = new Map(),
+    storage = { getItem: (k) => map.get(k), setItem: (k, v) => map.set(k, v) },
+    scripts = [],
+    win = {},
+    doc = {
+      cookie: '',
+      location: { hostname: 'localhost' },
+      head: { appendChild: (s) => scripts.push(s) },
+      createElement: () => ({ remove() {} }),
+      getElementById: () => null,
+    };
+  let path = '/meme';
+  const runtime = analyticsRuntime({
+    window: win,
+    document: doc,
+    storage,
+    enabled: true,
+    measurementId: 'G-TEST',
+    origin: 'http://localhost',
+    getPath: () => path,
+  });
+  saveConsent(storage, true, true);
+  runtime.sync();
+  runtime.pageView('/meme');
+  path = '/meme/posts/1';
+  runtime.pageView('/meme/posts/1');
+  scripts[0].onload();
+  const pageViews = win.dataLayer
+    .map((args) => Array.from(args))
+    .filter((args) => args[0] === 'event' && args[1] === 'page_view');
+  assert.equal(pageViews.length, 1);
+  assert.equal(pageViews[0][2].page_location, 'http://localhost/analytics/detail');
 });

@@ -297,6 +297,37 @@ test(
         );
       }
     );
+    await t.test('expired runs stop after three attempts or 24 hours', async () => {
+      const limited = await create(4);
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const job = await claim(limited.candidateId);
+        assert.equal(job.attemptCount, attempt);
+        await pool.query(
+          "UPDATE collect.candidate SET lease_until=now()-interval '1 second' WHERE id=$1",
+          [limited.candidateId]
+        );
+      }
+      assert.equal(await claim(limited.candidateId), undefined);
+      const exhausted = ok(await request(`/candidates/${limited.candidateId}`));
+      assert.equal(exhausted.status, 'FETCH_FAILED');
+      assert.equal(exhausted.fetchErrorCode, 'LEASE_EXPIRED');
+
+      const stale = await create(5);
+      await pool.query(
+        "UPDATE collect.candidate SET requested_at=now()-interval '25 hours' WHERE id=$1",
+        [stale.candidateId]
+      );
+      const staleJob = await claim(stale.candidateId);
+      assert.equal(staleJob.attemptCount, 1);
+      await pool.query(
+        "UPDATE collect.candidate SET lease_until=now()-interval '1 second' WHERE id=$1",
+        [stale.candidateId]
+      );
+      assert.equal(await claim(stale.candidateId), undefined);
+      const expired = ok(await request(`/candidates/${stale.candidateId}`));
+      assert.equal(expired.status, 'FETCH_FAILED');
+      assert.equal(expired.fetchErrorCode, 'LEASE_EXPIRED');
+    });
     await t.test('failure retry, source version conflict and retention', async () => {
       const next = await create(2),
         job = await claim(next.candidateId);
@@ -309,12 +340,23 @@ test(
           warnings: [],
         })
       );
+      await pool.query(
+        "UPDATE collect.candidate SET requested_at=now()-interval '25 hours' WHERE id=$1",
+        [next.candidateId]
+      );
       const retry = ok(
         await request(`/candidates/${next.candidateId}/retry`, {
           body: { lockVersion: failed.lockVersion },
         })
       );
       assert.equal(retry.status, 'PENDING');
+      const retryCycle = (
+        await pool.query('SELECT attempt_count,requested_at FROM collect.candidate WHERE id=$1', [
+          next.candidateId,
+        ])
+      ).rows[0];
+      assert.equal(retryCycle.attempt_count, 0);
+      assert.ok(Date.now() - retryCycle.requested_at.getTime() < 10000);
       const s = ok(await request('/sources')).items[0];
       ok(
         await request(`/sources/${s.sourceId}`, {
@@ -331,12 +373,9 @@ test(
         ).status,
         409
       );
-      await pool.query(
-        "UPDATE collect.candidate SET requested_at=now()-interval '25 hours' WHERE id=$1",
-        [next.candidateId]
-      );
       await collectionService(pool, storage).cleanup();
-      assert.equal(ok(await request(`/candidates/${next.candidateId}`)).status, 'FETCH_FAILED');
+      assert.equal(ok(await request(`/candidates/${next.candidateId}`)).status, 'PENDING');
+      assert.equal((await claim(next.candidateId)).attemptCount, 1);
     });
   }
 );

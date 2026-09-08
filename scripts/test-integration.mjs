@@ -26,17 +26,44 @@ const pool = createPool(base),
     'TEST_REVIEW_DATABASE_URL',
     'TEST_COLLECTION_DATABASE_URL',
   ];
+const created = [];
+let primaryError;
 try {
   const env = { ...process.env };
   for (const [i, name] of names.entries()) {
     await pool.query(`CREATE DATABASE ${name}`);
+    created.push(name);
+    console.log(`Integration database created: ${name}`);
     const url = new URL(base);
     url.pathname = '/' + name;
     env[keys[i]] = url.href;
   }
   const child = spawn(process.execPath, ['--test', 'tests/*.test.mjs'], { stdio: 'inherit', env });
-  process.exitCode = await new Promise((r) => child.once('exit', r));
+  await new Promise((resolve, reject) => {
+    child.once('error', reject);
+    child.once('exit', (code, signal) => {
+      if (code === 0) resolve();
+      else reject(new Error(`Integration test child failed: ${signal || `exit ${code}`}`));
+    });
+  });
+} catch (error) {
+  primaryError = error;
 } finally {
-  for (const name of names) await pool.query(`DROP DATABASE IF EXISTS ${name}`).catch(() => {});
-  await pool.end();
+  const cleanupErrors = [];
+  for (const name of created.reverse())
+    try {
+      await pool.query(`DROP DATABASE ${name} WITH (FORCE)`);
+      console.log(`Integration database dropped: ${name}`);
+    } catch (error) {
+      cleanupErrors.push(new Error(`Failed to drop owned integration database ${name}`, { cause: error }));
+    }
+  try {
+    await pool.end();
+  } catch (error) {
+    cleanupErrors.push(new Error('Failed to close integration database admin pool', { cause: error }));
+  }
+  if (primaryError && cleanupErrors.length)
+    throw new AggregateError([primaryError, ...cleanupErrors], 'Integration tests and cleanup failed');
+  if (primaryError) throw primaryError;
+  if (cleanupErrors.length) throw new AggregateError(cleanupErrors, 'Integration cleanup failed');
 }

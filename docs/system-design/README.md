@@ -1,6 +1,6 @@
-# 블라리요 M0 시스템 설계
+# 블라리요 시스템 설계
 
-- 문서 상태: M0 기술 계약 정본 · 프로토타입 폐기 후 신규 개발 기준
+- 문서 상태: M0 공통 기술 계약과 M1·M1.5 확장 계약 · 신규 개발 기준
 - 기준일: 2026-09-02
 - 정합성 검토일: 2026-09-02
 - 상위 기획: [서비스 기획서](../planning/01-service-plan.md)
@@ -31,6 +31,8 @@
 - 개발 입력: planning → system-design → 기능 명세와 docs OpenAPI.
 - 첫 구현 범위: M0 Core. 수집 보조·자동 수집·M1 기능은 각 단계로 분리한다.
 - 구현 시작 순서와 완료 조건: [구현 Backlog](../development-specs/m0-core/implementation-backlog.md).
+- 현행 판정: [설계 준비 상태](design-readiness.md)에서 설계 기준선·구현 수용·production 공개 승인을
+  각각 관리한다. 과거 검증 보고서의 미실행 상태를 현행 설계 기준선으로 사용하지 않는다.
 - 법무 실값·production 계정·복구 훈련은 공개 전 조건이다. 로컬 개발과 가짜 외부 adapter를 이용한 테스트는 시작할 수 있다.
 - 문서 검증과 새 구현의 test·build·runtime·브라우저·배포 검증은 별도다.
 
@@ -52,7 +54,7 @@ M0 전체 기술 범위는 다음과 같다.
 feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈춰도 공개 목록·상세와 운영자
 발행이 계속 동작하게 한다. GA4는 M0 Web에 기본 비활성 연동으로 포함하고 운영 gate를 통과한
 환경에서도 분석 동의 후에만 로드하며 자체 분석 DB·API를 만들지 않는다. GA4 활성화는 M0 Core
-공개 완료 조건이 아니다. 소셜 회원가입·로그인, 사용자 작성 게시판과 광고는 확장 지점만 정의한다.
+공개 완료 조건이 아니다. M1 회원과 M1.5 익게는 [별도 확장 계약](06-member-community-design.md)으로 설계한다. 광고는 기존 후속 활성화 경계를 유지한다.
 
 ## 문서 구성
 
@@ -63,15 +65,18 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 | [03-api-design.md](./03-api-design.md) | 공개·관리자 API와 공통 응답·오류 계약 |
 | [04-infrastructure-design.md](./04-infrastructure-design.md) | 저비용 사업자 비교, 배포 토폴로지와 비용 상한 |
 | [05-security-operations.md](./05-security-operations.md) | 접근통제, secret, 백업·복구·관측·장애 대응 |
+| [06-member-community-design.md](./06-member-community-design.md) | M1·M1.5 아키텍처·데이터·API·보안·운영 확장; 문서 작성과 공개 gate 별도 |
+| [07-spring-collector-design.md](./07-spring-collector-design.md) | M0 수집 보조 Spring 실행·복구·quota·보안·전환 상세 계약; 구현·활성화 별도 |
+| [design-readiness.md](./design-readiness.md) | 단계별 설계 기준선·구현 수용·production 공개 승인 현행 판정 |
 
 ## 핵심 결정
 
 | 영역 | M0 결정 |
 | --- | --- |
-| 런타임 | Node.js `24.18.0` LTS |
+| 공개 BE·FE 런타임 | Node.js `24.18.0` LTS |
 | 웹·BFF | Nuxt SSR + same-origin `/api/v1` 외부 계약 |
 | Core API | Express, Docker app network에서 Web만 HTTP 접근; cron은 단발성 command |
-| 데이터베이스 | PostgreSQL 18 단일 인스턴스 |
+| 서비스 데이터베이스 | PostgreSQL 18 단일 인스턴스. Spring collector는 운영자 PC의 별도 PostgreSQL 18에서 `batch`·`quartz`·`collector` schema 사용 |
 | DB schema | `M0 Core`: `content`, `legal`, `ops`; `M0 수집 보조`: `collect`; 이후 schema는 단계별 migration에서 추가 |
 | 이미지 | Cloudflare R2 Standard, 비공개 원본 bucket과 공개 media bucket 분리 |
 | 수집 | M0 수집 보조는 운영자 로컬 컴퓨터의 `collector`가 Discord `/collect url` 또는 관리자 URL 입력의 단일 상세 페이지 1건만 처리. BE는 후보 접수·저장·검수 API를 제공하고 출처 등록/활성·robots·요청 상한 결과를 검증. 목록 수집은 후속 자동 수집 단계 |
@@ -90,3 +95,14 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 4. ARM64와 x86_64에서 같은 컨테이너 이미지를 빌드해 OCI와 Lightsail 사이의 이동을 단순화한다.
 5. 관리자 인증, 이미지 저장과 분석은 adapter 경계로 분리해 공급자 변경이 공개 API와 DB 핵심 모델을 바꾸지 않게 한다.
 6. 구현 코드는 이 문서보다 임의로 범위를 넓히지 않는다. 계약 변경은 기획과 시스템 설계를 먼저 수정한다.
+
+## Spring 수집 서버 준비 상태 (2026-09-08)
+
+- 설계 기준선: **조건부 확정 가능(개발 입력), 주 검수 완료.** [Spring 상세 계약](07-spring-collector-design.md)에
+  운영자 로컬 Boot 서버, Batch/Quartz/REST·Discord 공통 실행, 전용 PostgreSQL, 응답 유실·quota·lease,
+  spool·알림·cutover/rollback을 반영했다.
+- 구현 수용: Spring source·Core/local migration·OpenAPI·test·build·runtime은 미구현·미검증이다. 기존
+  Python source와 테스트를 Spring 완료 증거로 승계하지 않는다.
+- 공개 승인: 실제 출처·robots·이용 조건, Discord Application·운영 계정, User-Agent 연락처, 법무·운영
+  수용 전에는 collector를 활성화하지 않는다. M0 Core 공개와 collector 활성화는 분리한다.
+- 범위: 수집 보조 전환이며 목록 자동 발견·자동 발행·M1·M1.5 변경·전체 BE 스택 전환은 포함하지 않는다.

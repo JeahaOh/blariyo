@@ -1,5 +1,6 @@
 # M0 저비용 인프라 설계
 
+M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 인프라 설계 계약 · 현행 배포 산출물 없음
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-04
@@ -427,15 +428,39 @@ OCI와 Lightsail은 같은 Compose·환경 변수·multi-arch image를 사용한
 1. 새 VM 준비와 tunnel connector 추가
 2. 새 PostgreSQL 18에 최신 full backup 복원
 3. 기존 BFF·Core를 `MAINTENANCE_READ_ONLY`로 전환해 공개 GET만 허용하고 관리자 command, 정책 시행, 조회 수 증가를 포함한 모든 DB 쓰기를 `503`으로 차단
-4. scheduler·outbox·수집 cron을 중지하고 진행 중 DB transaction이 종료됐는지 확인
+4. 공개 VM의 scheduler·outbox를 중지하고, 운영자 로컬 Spring collector의 Quartz 신규 실행도 별도로
+   중지한 뒤 진행 중 서비스 DB transaction이 종료됐는지 확인
 5. 기존 서버에서 최종 full custom-format dump 생성·암호화·checksum 검증
 6. 새 PostgreSQL 18을 비우고 최종 full dump를 한 번 복원
 7. 새 서버도 쓰기 차단 상태에서 게시글 수·최신 글·정책·상태 이력과 ready·공개 GET smoke 확인
 8. Cloudflare tunnel route를 새 connector로 전환
-9. 새 서버의 쓰기 차단을 해제하고 쓰기 경로 readiness를 확인한 뒤 scheduler·outbox·수집 cron 시작 상태 확인
+9. 새 서버의 쓰기 차단을 해제하고 쓰기 경로 readiness를 확인한 뒤 공개 VM scheduler·outbox를 재개하고,
+   운영자 로컬 Spring collector의 Quartz는 별도 프로세스에서 재개 상태 확인
 10. cache purge 후 기존 서버는 read-only로 보존
 11. 24시간 관찰 후 기존 VM 삭제
 
 이미지는 R2에 있으므로 compute 이전 시 복사하지 않는다. DNS TTL과 원본 IP 변경도 Cloudflare tunnel 사용으로 최소화한다.
 
 쓰기 차단 응답은 `503 MAINTENANCE_READ_ONLY`, `Retry-After: 60`, `Cache-Control: no-store`를 사용한다. 최종 dump 시작 후 기존 서버에는 조회 수 증가를 포함한 어떤 쓰기도 허용하지 않는다.
+
+## 로컬 Spring 수집 서버 배치 경계
+
+[Spring 수집 서버 상세 설계](07-spring-collector-design.md)에 따라 M0 구현 저장소의 `apps/collector`를
+독립 Gradle 애플리케이션으로 두고 운영자 PC에서 실행한다. 공개 VM의 Nuxt·Express·서비스 PostgreSQL
+구성은 유지하며 Spring 프로세스를 공개 Compose에 추가하지 않는다.
+
+- collector 실행 저장소는 서비스 DB와 물리적으로 분리한 로컬 PostgreSQL 18이다. 한 local database의
+  `batch`·`quartz`·`collector` schema를 versioned migration으로 관리하며
+  `spring.batch.jdbc.initialize-schema=never`, `spring.quartz.jdbc.initialize-schema=never`를 운영 기본값으로 둔다.
+- 로컬 REST는 `127.0.0.1:18787`에만 bind하고 기존 Tunnel·LAN·public reverse proxy에 연결하지 않는다.
+  scope별 인증과 secret 저장 조건은 [보안·운영 설계](05-security-operations.md#spring-수집-전환의-보안운영-조건)를 따른다.
+- Quartz 후보 sweep은 `Asia/Seoul` 15분 주기, misfire `DO_NOTHING`, 기본 비활성이다. 실제 출처·quota·
+  collector 운영 계정 검증 전에는 활성화하지 않는다.
+- macOS 자동 기동은 사용자 `launchd` LaunchAgent를 사용한다. RunAtLoad, crash backoff, 고정 작업 경로,
+  JDK·jar 절대 경로, `umask 077`, log rotation, Keychain 접근 가능한 전용 OS 계정과 SIGTERM 90초 전달은
+  구현 수용 조건이며 실제 계정·설치 경로·plist와 실행 결과는 아직 미검증이다.
+- collector 중단·롤백은 Spring 신규 실행만 끄고 기존 Core/BFF route와 관리자 수동 작성·예약 발행·백업을
+  유지한다. Core additive migration은 즉시 drop하지 않고 Python 재가동은 별도 승인·호환 검증 없이 수행하지 않는다.
+
+Spring source·migration·OpenAPI·test·runtime과 실제 출처·Discord·운영 계정은 이 문서 동기화만으로
+구현·검증됐다고 보지 않는다.

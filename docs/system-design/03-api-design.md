@@ -1,5 +1,6 @@
 # M0 Web BFF API 설계
 
+M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 API 설계 계약 · 신규 Core·BFF 구현 입력
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-04
@@ -478,28 +479,35 @@ incoming webhook은 결과 알림용이며 URL 수신용으로 사용하지 않�
 
 collector는 Core에 직접 연결하지 않고 `/api/collector/v1/*` Web 전용 중계를 통해
 `/internal/collect/*`로 매핑한다. 관리자 session·공개 브라우저 API와 분리하며 Core만 bearer token의
-scope·collectorId를 검증한다. 수집 기능을 끈 M0 Core에서는 이 중계와 수집 내부 route가 404로 차단된다.
+scope·collectorId를 검증한다. M0 Core에서는 이 중계와 수집 내부 route를 등록하지 않는다.
 
 | Method | Core path (중계 path는 `/api/collector/v1` + `/internal/collect` 뒤의 경로) | 역할 |
 | --- | --- | --- |
 | `POST` | `/internal/collect/candidates` | Discord URL 작업 접수, `202 PENDING` |
 | `POST` | `/internal/collect/candidates/claim` | PENDING 또는 lease 만료 RUNNING 선점 |
-| `POST` | `/internal/collect/candidates/:candidateId/heartbeat` | lease 연장, 새 lockVersion·source 스냅샷 반환 |
+| `POST` | `/internal/collect/candidates/:candidateId/heartbeat` | lease 연장, 새 lockVersion 반환 |
 | `POST` | `/internal/collect/candidates/:candidateId/result` | NEW/FETCH_FAILED, 새 lockVersion과 이미지 ID 매핑 반환 |
 | `POST` | `/internal/collect/candidates/:candidateId/images/:candidateImageId/preview` | 검증·재인코딩한 24시간 private preview 업로드 |
+| `GET` | `/internal/collect/status` | `/collect status`용 1~168시간 후보·출처 집계 |
+| `GET` | `/internal/collect/candidates/:candidateId/execution-state` | execution 소유자 전용 응답 유실·restart 조정 |
+| `POST` | `/internal/collect/sources/:sourceId/request-reservations` | 외부 HTTP quota 원자 예약·즉시 차감 |
+| `POST` | `/internal/collect/operational-events` | 알림 최종 실패·조정 필요 운영 event 멱등 기록 |
 
-접수·result는 `Idempotency-Key`와 `{params, body}` 해시를 사용한다. claim은 갱신된 `lockVersion`을,
-result는 이미지별 `position → candidateImageId`를 반드시 반환해 다음 호출이 가능하게 한다.
-heartbeat는 최신 source 설정도 반환하고 collector는 외부 요청 직전에 활성·robots·요청 상한을 재확인한다.
-M0 로컬 quota는 단일 운영자 기기의 지속 SQLite 파일에서 UTC 날짜 기준으로 계산하며 robots·redirect·이미지 요청도 포함한다.
-preview는 result 뒤 NEW 상태에서 같은 collectorId·현재 lockVersion으로 업로드하며 lease가 종료된
-상태라는 이유로 거부하지 않는다. 동시 수정·반려·재수집이면 409다. preview GET은 아래 관리자
-인증 route로만 제공하며 storage key·signed URL은 반환하지 않는다.
+`SPRING_V2` collector는 모든 변경 endpoint에 `Idempotency-Key`를 사용하고 2xx receipt를 7일 보존한다.
+claim은 민감 payload snapshot을 저장하지 않아 current execution이 유효할 때만 같은 응답을 재구성하고,
+소유권 종료 뒤에는 409 조정으로 보낸다.
+429·503 등 미완료 오류는 durable replay로 고정하지 않는다. claim·heartbeat·result·preview는
+`collectorExecutionId`와 lockVersion을 검사하며 RUNNING의 heartbeat·result는 유효 lease도 필요하다.
+preview는 result 뒤 NEW 상태에서 current execution·version으로 업로드하고 종료된 처리 lease를 요구하지
+않는다. result는 이미지별 `position → candidateImageId`를 반환하며 preview는 동일 file SHA-256과 key의
+재전송에 같은 결과를 반환하고 version을 다시 올리지 않는다.
 
 `GET /api/v1/admin/collect/candidates/:candidateId/images/:candidateImageId/preview`는 만료 전
 private preview를 stream하고 `private, no-store`를 사용한다. 미존재·만료는 `404 IMAGE_NOT_FOUND`다.
 기계 호출의 상세 request/response·멱등성은
 [Collector 내부 API Spec](../development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md#api-collector-internal-api)을 따른다.
+[Spring 상세 설계](./07-spring-collector-design.md#5-core-api-확장)는 새 endpoint DTO, legacy→Spring token
+cutover, quota·execution fencing과 멱등 만료 뒤 digest 조정의 단일 정본이다.
 
 ### 수집 출처
 
@@ -510,7 +518,7 @@ private preview를 stream하고 `private, no-store`를 사용한다. 미존재·
 | --- | --- |
 | `sourceId`, `lockVersion` | 양의 정수 |
 | `name`, `baseUrl`, `host` | 출처 표시명, 등록 HTTPS 기준 URL, 소문자 host |
-| `fetchMode`, `parserType` | `URL_ONLY|LIST_CRAWL`, `RSS|HTML_LIST|MANUAL` |
+| `fetchMode`, `parserType` | `URL_ONLY\|LIST_CRAWL`, `RSS\|HTML_LIST\|MANUAL` |
 | `listUrl` | 등록 host의 HTTPS URL 또는 null |
 | `isActive`, `isListCrawlEnabled` | boolean |
 | `robotsAllowed` | boolean 또는 null(미확인) |
@@ -636,15 +644,14 @@ POST /api/v1/admin/collect/candidates/:candidateId/reject
   byte·decode·pixel·metadata 제거·재인코딩 검증을 통과한 파일로 제출하거나, 운영자가 관리자 업로드
   경로로 직접 올린 파일을 사용한다.
   선택 이미지 전부가 준비되어야 승격한다. preview 만료·업로드 이미지 상태 불일치는 `409 IMAGE_STATE_CONFLICT`, 파일 크기 초과는 `413 UPLOAD_TOO_LARGE`, 형식 오류는 `415 UNSUPPORTED_MEDIA_TYPE`, DB·R2 장애는 `503 DEPENDENCY_UNAVAILABLE`다. 일부만 저장되더라도 초안을 만들거나 후보를 `APPROVED`로 바꾸지 않는다.
-- 이미지 저장 후 초안 생성·이미지 선점·block insert·상태 이력·후보 `APPROVED` 전환을 한 transaction에서 commit한다. transaction 실패 시 후보 상태는 바뀌지 않고 저장된 이미지는 staging orphan 정리 대상이 된다. 후보 반려·만료·재시도 교체 시 로컬 Python 임시 이미지 파일은 삭제 대상이다.
+- 이미지 저장 후 초안 생성·이미지 선점·block insert·상태 이력·후보 `APPROVED` 전환을 한 transaction에서 commit한다. transaction 실패 시 후보 상태는 바뀌지 않고 저장된 이미지는 staging orphan 정리 대상이 된다. 후보 반려·만료·재시도 교체 시 로컬 수집기 임시 이미지 파일은 삭제 대상이다.
 - 성공은 `201`과 `postId`, `status=DRAFT`, `lockVersion=1`, `candidateId`, `storedImageIds`를 반환한다. 이후 편집·발행은 기존 게시글 command를 사용한다.
 
 ### 후속 목록 수집 실행
 
 목록 수집은 M0 수집 보조 범위가 아니며 HTTP endpoint로 제공하지 않는다. 후속 `M0 자동 수집`에서
-`npm run collect:crawl-due` 단발성 command를 도입할 때 활성 출처의 사용 결정된 최신 목록·feed 범위를
-읽고 새 원문 URL을 찾는다. command는 같은 service·repository와 `system:collector` actor를 사용하되
-기본 비활성으로 둔다.
+실행 주체·scheduler·명령을 먼저 결정한 뒤, 사용 결정된 활성 출처의 최신 목록·feed 범위를 읽고 새 원문
+URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하게 기본 비활성으로 둔다.
 
 ## 6. 상태 코드와 오류 코드
 
@@ -784,3 +791,24 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] M0에 포함하지 않는 legacy 회원 endpoint와 Swagger UI가 Core API에서 공개되지 않는지 test
 
 모든 항목이 통과하기 전에는 API 계층을 “구현 준비 완료” 또는 “구현 완료”로 표시하지 않는다.
+
+## Spring 수집 서버의 실행 API와 기존 중계
+
+[Spring 전환](01-system-architecture.md#spring-collector-transition)은 호출자를 교체하면서 응답 유실·quota·
+상태 조회를 additive하게 강화한다. 기존 collector 5개 endpoint와 후보 검수·반려·재수집·초안 생성 API,
+BFF `/api/collector/v1/*`는 유지한다. 추가 endpoint도 같은 prefix로만 중계한다.
+
+- local REST는 `127.0.0.1:18787`의 `/local/v1/jobs/collect`, job 조회·stop, `/local/v1/status`만 제공하고
+  전용 scope bearer·멱등 key를 요구한다. cookie·CORS·raw URL 접수를 사용하지 않는다.
+- cron·REST·Discord는 `CollectorRunService`로 모이며 `jobRequestId` 하나를 Batch identifying parameter로
+  사용한다. 기본 동시 실행 1이고 Core claim이 후보의 실제 단일 소유자를 정한다.
+- claim·heartbeat 응답 유실은 same-key replay로 lease/version을 복구한다. result는 exact payload replay,
+  preview는 same-key·file digest replay를 사용하며 7일 뒤에는 execution-state digest를 대조한다.
+- `GET execution-state`는 query execution ID가 current execution과 같을 때만 digest·이미지 상태를 반환한다.
+  불일치는 다른 owner 정보를 숨기고 `409 CANDIDATE_EXECUTION_CONFLICT`다.
+- `/collect status`는 local Batch 집계와 Core `GET /internal/collect/status`를 원천별로 합친다. Core 장애는
+  `partial=true`이고 status를 위해 claim하지 않는다.
+- 외부 HTTP는 Core reservation 없이 송신하지 않는다. robots·상세·redirect hop·image를 각각 차감하고
+  만료 permit·`NETWORK_STARTED` 뒤 불명 응답을 같은 reservation으로 재송신하지 않는다.
+- Batch 성공을 후보 발행 성공으로 번역하지 않는다. 전체 DTO·오류·Job/Step·복구표는
+  [Spring 상세 설계](./07-spring-collector-design.md)를 따른다.

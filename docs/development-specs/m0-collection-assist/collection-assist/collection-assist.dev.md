@@ -2,12 +2,12 @@
 
 ## 1. 문서 정보와 입력 근거
 
-- 문서 상태: `초안`
+- 문서 상태: `조건부 설계 확정 가능(개발 입력) · 주 검수 완료`, 구현 수용·production 공개 승인 별도
 - milestone: `M0 수집 보조` (`m0-collection-assist`)
 - 기능: `collection-assist` — 로컬 collector 기반 Discord·운영자 URL 지정 후보 생성·검수·반려·초안 승격
 - 기준일: 2026-09-08
-- 로컬 검증: source·V004 migration·OpenAPI·PostgreSQL/HTTP·Chromium 후보 검수 흐름 (루트 README 실행 증거 참조)
-- 미검증: 실제 출처 fetch·운영 위험·robots 확인, 라이브 Discord 연결, 공개 배포
+- Spring 전환 미검증: source, Core/local migration, OpenAPI, Batch/Quartz test·build·runtime, 실제 출처별 운영 위험·robots 확인
+- 기존 구현 증거: Node/Core·Python collector 구현과 전환 전 로컬 검증 범위는 [main 병합 구현 상태 인계](../../../ai/handoffs/2026-09-08-main-merge-implementation-status.md)를 따른다. 이 증거를 Spring 구현 완료로 해석하지 않는다.
 - 주요 근거:
   - [콘텐츠 수집 기획](../../../planning/content-collection/README.md)
   - [출처 명세 템플릿](../../../planning/content-collection/source-spec-template.md)
@@ -46,7 +46,7 @@
 
 - 사용 결정된 출처 목록·feed의 주기 자동 수집
 - Discord 일반 메시지 감시, 목록 수집 강제 실행, 후보 검수·발행 명령
-- 출처 신규 등록·삭제 UI
+- 출처 신규 등록·삭제·robots 판정 변경 UI
 - 자동 발행, 로그인·CAPTCHA·유료 장벽·차단 우회
 - 원문 HTML 전체 저장, 이미지 binary의 DB·영구 object storage 후보 단계 저장
 
@@ -58,7 +58,7 @@
 | 로컬 collector가 관리자 화면 또는 Discord `/collect url`의 URL 한 건 후보 생성 | 확정 | 콘텐츠 수집 기획 §3.2·§8 | `create-candidate-from-url`, D01, D08 | 반영 |
 | 등록·활성되지 않은 host·robots 금지 거부 | 확정 | 보안·운영 §4 | API·D01 | 반영 |
 | 후보 단계는 metadata와 임시 preview만 저장 | 확정 | 콘텐츠 수집 기획 §4, 데이터 모델 §6 | API·D01·D08 | 반영 |
-| 이미지는 Python 작업 경로에 임시 저장 후 게시 결정 시 영구 저장 | 확정 | 콘텐츠 수집 기획 §4, API 설계 §5 | API·D01·D08 | 반영 |
+| 이미지는 Spring 수집 서버의 작업 경로에 임시 저장 후 게시 결정 시 영구 저장 | 확정 | 콘텐츠 수집 기획 §4, API 설계 §5 | API·D01·D08 | 반영 |
 | 실패 후보 재시도·반려 | 확정 | API 설계 §5 | `retry-candidate`, `reject-candidate` | 반영 |
 | 초안 승격은 기존 게시글 command 재사용 | 확정 | 아키텍처 §5 | `promote-candidate-to-draft`, D01 | 반영 |
 | 후보 화면에 원문 HTML·내부 오류 노출 금지 | 확정 | 화면 설계 §2, 보안·운영 §7 | D08 | 반영 |
@@ -68,7 +68,7 @@
 ## 6. 업무 규칙과 수용 조건
 
 - 로컬 collector만 등록·활성 출처 host를 fetch한다.
-- M0 수집 보조는 입력된 단일 상세 페이지 1건만 fetch하고 목록·feed·pagination·scheduler를 호출하지 않는다.
+- M0 수집 보조는 입력된 단일 상세 페이지 1건만 fetch하고 목록·feed·pagination을 호출하지 않는다. Quartz는 이미 접수된 후보 처리만 예약 실행한다.
 - Discord `/collect url`은 BE 내부 scraper가 아니라 로컬 collector가 처리한다.
 - Discord incoming webhook은 결과 알림용이며 URL 수신에는 사용하지 않는다.
 - URL은 `https`만 허용하고 정규화 뒤 중복 후보를 검사한다.
@@ -78,7 +78,7 @@
 - 요청 간격과 일일 상한을 넘으면 collector가 fetch하지 않고 `SOURCE_RATE_LIMITED` 결과를 제출한다.
 - fetch 실패·timeout·비HTML·parser 실패는 `FETCH_FAILED` 후보로 남겨 운영자가 재시도 또는 반려한다.
 - 후보 단계에는 원문 URL, 제목, 이미지 후보 URL, 경고·실패 사유 metadata와 관리자 preview 식별자만 저장한다.
-- Python extractor는 운영자 검수 미리보기에 필요한 이미지 후보를 로컬 작업 경로에 임시 저장할 수 있다.
+- Java/Spring 추출기는 운영자 검수 미리보기에 필요한 이미지 후보를 로컬 작업 경로에 임시 저장할 수 있다.
 - 임시 이미지 파일은 DB image row나 영구 object storage가 아니며, 반려·만료·재시도 교체 시 삭제한다.
 - 초안 승격 때 선택한 이미지 후보는 collector preview upload 또는 운영자 업로드 파일을 사용하고,
   관리자 업로드와 같은 검증·재인코딩을 적용한다. BE는 원격 이미지 URL을 직접 fetch하지 않는다.
@@ -89,7 +89,7 @@
 - 읽기·쓰기: `collect.source`, `collect.candidate`, `collect.candidate_image`.
 - 초안 승격 시 기존 `content.board_post`, `content.board_post_block`, `content.board_post_image` command를 재사용한다.
 - 외부 fetch는 로컬 collector만 수행하고 BFF·Core는 직접 외부 사이트를 호출하지 않는다.
-- 후보 제목·원문 URL 전체·HTML·이미지 binary·로컬 Python 임시 파일 내부 경로를 application log나 Discord 보고서에 남기지 않는다.
+- 후보 제목·원문 URL 전체·HTML·이미지 binary·로컬 수집기 임시 파일 내부 경로를 application log나 Discord 보고서에 남기지 않는다.
 - 출처별 운영 위험 판정과 robots 확인 전에는 production 활성화하지 않는다. 이용약관은 자동 차단 조건이 아니라 운영 위험 참고값으로 기록한다.
 
 ## 8. API 작업 목록
@@ -117,7 +117,7 @@
 
 - 확정: M0 수집 보조는 자동 발행하지 않는다.
 - 확정: 수집 실패는 공개 목록·상세와 수동 게시를 막지 않는다.
-- 확정: 후보 단계에서 이미지는 Python 작업 경로에 임시 저장할 수 있고, 영구 저장소에는 초안 승격 때만 저장한다.
+- 확정: 후보 단계에서 이미지는 Spring 수집 서버의 작업 경로에 임시 저장할 수 있고, 영구 저장소에는 초안 승격 때만 저장한다.
 - 확정: Discord 연결 scraper는 운영자 로컬 컴퓨터에서 별도 프로세스로 실행하고 BE·FE runtime과 분리한다.
 - 결정 필요: 첫 출처별 source spec, 실제 사용 URL, selector, 요청 간격, 일일 상한.
 - 출처 조회·수정 계약은 [시스템 API](../../../system-design/03-api-design.md#수집-출처)를 따른다.
@@ -126,7 +126,7 @@
 
 ## 12. 기능 계약 상세
 
-아래 API·처리 흐름·화면 절을 이 파일에서 함께 관리한다. 각 절의 미검증·차단 조건은 유지하며, 문서 통합은 구현 완료를 뜻하지 않는다.
+이 파일은 관리자 업무 흐름·화면·기존 Collector API의 DTO·validation·수용 기준을 관리한다. [Spring 수집 서버 상세 설계](../../../system-design/07-spring-collector-design.md)는 Spring 전환에서 추가된 실행, 멱등, quota, lease, spool 계약의 정본이다. 두 문서의 공통 조건은 함께 충족해야 하며, 문서 통합은 구현 완료를 뜻하지 않는다.
 
 <a id="api-collector-internal-api"></a>
 
@@ -149,143 +149,67 @@ Core `/internal/collect/*`로 중계한다. 예를 들어 `/api/collector/v1/can
 | Method | Core path | 역할 |
 | --- | --- | --- |
 | `POST` | `/internal/collect/candidates` | Discord URL 작업 접수 |
-| `POST` | `/internal/collect/candidates/claim` | 처리 가능한 후보 선점 |
+| `POST` | `/internal/collect/candidates/claim` | `COLLECT` 또는 `PREVIEW_REFRESH` 선점 |
 | `POST` | `/internal/collect/candidates/{candidateId}/heartbeat` | 처리 중 lease 연장 |
 | `POST` | `/internal/collect/candidates/{candidateId}/result` | 추출 성공·실패 결과 제출 |
 | `POST` | `/internal/collect/candidates/{candidateId}/images/{candidateImageId}/preview` | 관리자 preview 파일 업로드 |
+| `GET` | `/internal/collect/status` | 읽기 전용 후보·출처 집계 |
+| `GET` | `/internal/collect/candidates/{candidateId}/execution-state` | 응답 유실·restart 조정 |
+| `POST` | `/internal/collect/sources/{sourceId}/request-reservations` | 외부 HTTP quota 원자 예약 |
+| `POST` | `/internal/collect/operational-events` | 일반화 운영 event 멱등 기록 |
 
 #### 공통 인증·응답·권한
 
-- `Authorization: Bearer <collector service token>` 필수. Core가 token hash·scope와 등록 collectorId를 검증한다.
-- Web은 외부 입력의 Core service token·admin actor header를 제거한다. collector token으로 관리자 API를 호출할 수 없다.
-- token·원문 HTML·storage key·로컬 경로는 응답·로그·Discord 메시지에 남기지 않는다.
-- JSON 응답은 공통 envelope와 `meta.requestId`, `Cache-Control: private, no-store`를 사용한다.
-- 접수·result는 `Idempotency-Key` 필수. collectorId별 scope와 `{params, body}` 해시로 24시간 성공 결과를 보존한다.
-  재전송 기록 확인은 후보 상태·lease 검증보다 먼저 한다. 같은 key의 다른 요청은 `409 IDEMPOTENCY_CONFLICT`다.
-- DB actor는 `system:collector`다. Discord 권한 검증과 원본 interaction 정보는 로컬 collector가 책임진다.
+- `Authorization: Bearer <collector service token>` 필수다. Core가 token hash·scope와 등록 collectorId를 검증한다. Web은 외부 입력의 Core service token·admin actor header를 제거하며 collector token은 관리자 API 권한이나 cookie를 대신하지 않는다.
+- token·원문 HTML·storage key·로컬 경로는 응답·로그·Discord 메시지에 남기지 않는다. JSON 응답은 공통 envelope와 `meta.requestId`, `Cache-Control: private, no-store`를 사용한다.
+- `SPRING_V2` state-changing 요청은 `Idempotency-Key`와 canonical request hash를 사용한다. 2xx 완료 receipt만 7일 보관하며 429·503·일시 dependency 오류와 400·401·403·409는 durable 완료 receipt로 저장하지 않는다. 같은 key·다른 요청은 `409 IDEMPOTENCY_CONFLICT`다.
+- heartbeat·result·preview·quota reservation은 `collectorExecutionId`와 current lockVersion을 함께 검증한다. 일반 COLLECT claim은 새 execution을 만드는 시작 요청이므로 current execution 일치를 요구하지 않으며, PREVIEW_REFRESH는 요청 `lockVersion`으로 NEW 후보를 compare-and-set한다. `execution-state`는 요청 execution이 current owner가 아니면 다른 owner·digest·이미지 정보를 숨기고 409을 반환한다.
 
 #### Discord URL 작업 접수
 
-`POST /internal/collect/candidates`
-
-```json
-{ "collectorId": "local-macbook-main", "originUrl": "https://example.com/board/12345" }
-```
-
-Discord guild·channel·user 검증과 확인 interaction 후 호출한다. key는
-`discord:<interactionId>`를 사용하되 일반 로그에 기록하지 않는다. Core는 Discord 수집 flag,
-등록·활성 출처, HTTPS·길이·정규화 URL 중복을 확인한다. 외부 fetch는 수행하지 않는다.
-성공은 `202`와 `data.candidateId`, `status=PENDING`, `lockVersion=1`이다. 같은 정규화 URL은
-`409 CANDIDATE_DUPLICATE`다. 관리자 접수와 같은 후보 서비스를 사용하며 멱등 결과의 resource_type은 CANDIDATE다.
-
-collector는 받은 candidateId를 다음 claim 요청에 넣는다. 이미 다른 collector가 선점했으면 직접
-fetch하지 않고 해당 실행에 맡긴다. 접수 이전이나 claim 성공 이전에는 출처를 요청하지 않는다.
+`POST /internal/collect/candidates` body는 `collectorId`, `originUrl`을 가지며 `Idempotency-Key`가 필수다. Discord guild·channel·user 검증과 확인 interaction 후 호출한다. Core는 Discord 수집 flag, 등록·활성 출처, HTTPS·길이·정규화 URL 중복을 확인하고 외부 fetch는 수행하지 않는다. 성공은 `202`, `candidateId`, `status=PENDING`, `lockVersion=1`이며 동일 정규화 URL은 `409 CANDIDATE_DUPLICATE`다.
 
 #### 후보 Claim
 
-`POST /internal/collect/candidates/claim`
+`POST /internal/collect/candidates/claim` body는 `collectorId`, `jobRequestId`, `collectorExecutionId`, `mode=COLLECT|PREVIEW_REFRESH`, `leaseSeconds`와 선택 `candidateId`, `maxItems`를 가진다. `maxItems`는 1~5이나 기본 single-active Spring Job은 항상 1을 보낸다. `leaseSeconds`는 60~900초다. `candidateId`가 있으면 해당 후보만 대상으로 하고 `maxItems=1`이다.
 
-```json
-{ "collectorId": "local-macbook-main", "maxItems": 1, "leaseSeconds": 300 }
-```
+- `COLLECT`는 선택 candidateId 또는 PENDING·만료 RUNNING을 `FOR UPDATE SKIP LOCKED`로 선점하고 `status=RUNNING`, collector/execution, claimedAt, leaseUntil, attemptCount, lockVersion을 갱신한다. 성공 item은 candidateId, sourceId/host, originUrl, discoveryMode, attemptCount, lockVersion, leaseUntil, requestIntervalMs, dailyFetchLimit, robotsAllowed, robotsCheckedAt을 가진다. 대상이 없거나 이미 선점됐으면 빈 items다.
+- `PREVIEW_REFRESH`는 candidateId와 현재 `lockVersion`이 필수이고 NEW 후보의 만료·누락 preview만 대상으로 한다. `(status, lockVersion)` compare-and-set으로 새 execution·version을 만들되 status·attemptCount·`lease_until=NULL`은 바꾸지 않는다. 새 execution owner에게만 position·candidateImageId·remoteUrl을 준다.
+- 접수 이전이나 COLLECT claim 성공 이전에는 출처를 요청하지 않는다. source 활성·robots·quota gate는 fetch 직전 다시 검사한다.
 
-- `maxItems`: 1~5, `leaseSeconds`: 60~900초.
-- 선택 필드 `candidateId`가 있으면 그 작업만 대상으로 하고 maxItems는 1이다.
-- PENDING 또는 lease가 만료된 RUNNING을 `FOR UPDATE SKIP LOCKED`로 선점한다. PENDING은 접수 후
-  24시간이 지나도 collector 중단만으로 실패 처리하지 않는다.
-- 현재 retry cycle에서 `attempt_count < 3`이고 `requested_at`부터 24시간 미만인 만료 RUNNING만
-  재선점한다. 한 조건이라도 넘으면 `FETCH_FAILED/LEASE_EXPIRED`로 닫고 claim 결과에 포함하지 않는다.
-- `status=RUNNING`, collector_id, claimed_at, lease_until, attempt_count+1, lock_version+1을 저장한다.
-- 성공은 `200`, `data.items[]`에 candidateId, sourceId, sourceHost, originUrl, discoveryMode,
-  attemptCount, **lockVersion**, leaseUntil, requestIntervalMs, dailyFetchLimit, robotsAllowed,
-  robotsCheckedAt을 반환한다. 대상이 없거나 이미 선점됐으면 빈 items다.
-- 출처 flag·활성·robots·요청 상한은 fetch 직전 다시 검증한다. 금지·상한 초과는 fetch 없이 실패 결과로 제출한다.
+#### Heartbeat와 Result Submit
 
-#### Heartbeat
+heartbeat body는 `collectorId`, `collectorExecutionId`, `leaseSeconds`, `lockVersion`이다. RUNNING·current execution·lockVersion·유효 lease가 모두 일치할 때만 연장하고 새 lockVersion·leaseUntil을 반환한다.
 
-`POST /internal/collect/candidates/{candidateId}/heartbeat`
+result body는 `collectorId`, `collectorExecutionId`, `lockVersion`, `status`, 성공 시 `title`, `canonicalUrl`, `sourcePublishedAt`, `parserVersion`, `warnings`, `imageCandidates`를 가진다. 실패는 `status=FETCH_FAILED`, 필수 `fetchErrorCode`, `warnings`를 가진다. 성공은 NEW, 실패는 FETCH_FAILED만 허용하며 원문 HTML·binary·local path는 받지 않는다.
 
-```json
-{ "collectorId": "local-macbook-main", "leaseSeconds": 300, "lockVersion": 4 }
-```
-
-RUNNING·collector_id·lockVersion·유효 lease가 일치할 때만 연장한다. `200`과 candidateId,
-status=RUNNING, 갱신된 lockVersion·leaseUntil을 반환한다. 이후 요청은 새 version을 사용한다.
-heartbeat와 result는 같은 후보에서 직렬 실행한다. 만료·다른 선점·version 불일치는
-`409 CANDIDATE_LEASE_CONFLICT`이며 해당 실행을 중단한다.
-
-#### Result Submit
-
-`POST /internal/collect/candidates/{candidateId}/result`
-
-```json
-{
-  "collectorId": "local-macbook-main",
-  "lockVersion": 5,
-  "status": "NEW",
-  "title": "후보 제목",
-  "canonicalUrl": "https://example.com/board/12345",
-  "sourcePublishedAt": null,
-  "parserVersion": "example-v1",
-  "warnings": [],
-  "imageCandidates": [{ "position": 1, "remoteUrl": "https://example.com/image/1.jpg" }]
-}
-```
-
-실패 body는 collectorId, lockVersion, status=FETCH_FAILED, fetchErrorCode, warnings를 가진다.
-성공 status는 NEW, 실패는 FETCH_FAILED만 허용한다. 원문 HTML·binary·local path는 받지 않는다.
-
-- 첫 처리 시 RUNNING·collector_id·lockVersion·유효 lease를 확인한다.
-- canonicalUrl은 같은 등록 출처의 정규화 HTTPS URL이어야 한다. 기존 후보와 중복이면 새 결과를
-  연결하지 않고 `409 CANDIDATE_DUPLICATE`다. 성공 시 origin_url과 해시를 같이 갱신한다.
-- title은 trim 1~300자, parserVersion은 trim 1~100자, sourcePublishedAt은 UTC로 정규화하거나 null이다.
-- warnings는 최대 20개 일반화 코드(각 1~100자)로 제한한다. 원문·개인정보를 담지 않는다.
-- 성공 결과의 이미지 metadata는 1~20건, position은 1부터 연속이며 remoteUrl은 HTTPS·최대 2048자다.
-- 성공 시 기존 이미지 metadata를 교체한다. 이전 preview는 cleanup 대상으로 기록한다.
-- 실패는 fetch_error_code 필수다. 성공·실패 모두 fetched_at을 기록하고 lease_until을 NULL로 비우며 version을 증가시킨다.
-- 성공 응답은 `200`, data에 candidateId, status, **lockVersion**, imageCandidates를 반환한다.
-  imageCandidates는 `{position, candidateImageId}` 매핑이며 실패 시 빈 배열이다.
-- 상태 변경·이미지 metadata·멱등 결과는 한 transaction으로 commit한다. 응답 유실 시 같은 key로
-  재전송하며 새 key로 이미 완료된 결과를 다시 쓰지 않는다.
+- `canonicalUrl`은 등록 출처의 정규화 HTTPS URL이어야 한다. 기존 후보와 중복이면 새 결과를 연결하지 않고 `409 CANDIDATE_DUPLICATE`다. 성공 시 `origin_url`과 hash를 같이 갱신한다. title은 trim 1~300자, parserVersion은 trim 1~100자, sourcePublishedAt은 UTC로 정규화하거나 null이고 warnings는 일반화 코드 0~20개(각 1~100자)다.
+- 성공 imageCandidates는 1~20개, position은 1부터 연속, remoteUrl은 HTTPS·최대 2048자다. 성공 시 기존 image metadata를 교체하고 이전 preview를 cleanup 대상으로 기록한다.
+- RUNNING의 current execution·lockVersion·유효 lease만 result를 처음 반영한다. 상태 변경·image metadata·result digest·멱등 결과는 한 transaction으로 commit하며 성공·실패 모두 fetchedAt을 기록하고 leaseUntil을 NULL로 비운다. 성공 응답은 candidateId, status, 새 lockVersion, `{position,candidateImageId}` 매핑을 반환하고 실패의 imageCandidates는 빈 배열이다.
 
 #### Preview Upload와 관리자 읽기
 
-`POST /internal/collect/candidates/{candidateId}/images/{candidateImageId}/preview`
+preview multipart는 `collectorId`, `collectorExecutionId`, `lockVersion`, `file`과 `X-Content-SHA256`을 필수로 가진다. 파일은 10MiB 이하 JPEG·PNG·WebP·GIF다. NEW·current execution·current lockVersion·후보 이미지 소속을 확인하며 결과 뒤 종료된 처리 lease는 요구하지 않는다.
 
-- multipart 필드: collectorId, lockVersion, file. 파일은 10MiB 이하 JPEG·PNG·WebP·GIF다.
-- result 성공 뒤 NEW·같은 collector_id·현재 lockVersion·후보 이미지 소속을 확인한다. lease는 이미 종료됐으므로 요구하지 않는다.
-- 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 적용한다.
-- private `collect-preview/` object에 저장하고 preview_storage_key·preview_expires_at=now()+24h를 기록한다.
-- DB commit 직전에 상태·version을 재확인하고 후보 version을 증가시킨다. 충돌 시 저장 object를 보상 삭제한다.
-- 성공은 `200`, candidateImageId, previewPath, previewExpiresAt, **lockVersion**을 반환한다.
-  복수 파일은 순차 업로드하며 매번 새 version을 사용한다. storage key·signed URL은 반환하지 않는다.
-- 만료 preview 재업로드는 같은 NEW 후보에서 가능하다. 교체 전 object는 삭제 대상으로 기록한다.
-- 관리자 읽기는 `GET /api/v1/admin/collect/candidates/{candidateId}/images/{candidateImageId}/preview`를
-  사용한다. 관리자 인증 후 stream하고 `private, no-store`를 반환한다. 미존재·만료는 `404 IMAGE_NOT_FOUND`다.
-- 반려·만료·재시도 교체·승격 시 preview 삭제, 매일 TTL 청소와 실패 재시도를 수행한다.
+- 관리자 업로드와 같은 MIME·magic byte·decode·pixel·metadata 제거·재인코딩 검증을 적용하고 private `collect-preview/` object와 preview expiry 24시간을 기록한다. commit 직전에 상태·version을 재확인하고 충돌하면 저장 object를 보상 삭제한다. 성공 응답은 candidateImageId, previewPath, previewExpiresAt, 새 lockVersion을 반환한다.
+- 같은 key·같은 bytes replay는 version을 다시 올리지 않는다. 복수 파일은 순차 업로드하며 매번 새 version을 사용한다. 만료 preview는 `PREVIEW_REFRESH` execution을 얻은 뒤에만 교체하며 이전 object는 삭제 대상으로 기록한다.
+- 관리자 읽기는 `GET /api/v1/admin/collect/candidates/{candidateId}/images/{candidateImageId}/preview`를 사용하며 `private, no-store`로 stream한다. storage key·signed URL은 반환하지 않고 미존재·만료는 `404 IMAGE_NOT_FOUND`다.
 
 #### 오류·수용 기준
 
 | HTTP | code | 조건 |
 | --- | --- | --- |
-| 400 | VALIDATION_FAILED | schema·형식 오류 |
-| 401 | COLLECTOR_AUTH_REQUIRED | token 없음·불일치 |
-| 403 | COLLECTOR_FORBIDDEN | scope·collectorId 불일치 |
-| 403 | SOURCE_NOT_ALLOWED | 접수 출처 미등록·비활성 |
+| 400 | VALIDATION_FAILED | schema·필수 execution·형식 오류 |
+| 401 / 403 | COLLECTOR_AUTH_REQUIRED / COLLECTOR_FORBIDDEN | token·scope·collectorId 불일치 |
+| 403 | SOURCE_NOT_ALLOWED | 출처 미등록·비활성·host gate |
 | 404 | CANDIDATE_NOT_FOUND / IMAGE_NOT_FOUND | 대상 없음 |
-| 409 | CANDIDATE_LEASE_CONFLICT | claim 이후 lease·version 충돌 |
-| 409 | CANDIDATE_STATE_CONFLICT | preview 업로드 중 반려·재수집 등 상태 충돌 |
-| 409 | CANDIDATE_DUPLICATE | 정규화 URL 중복 |
-| 409 | IDEMPOTENCY_CONFLICT / IDEMPOTENCY_IN_PROGRESS | 재전송 충돌·진행 중 |
-| 413 | UPLOAD_TOO_LARGE | preview 크기·decode 자원 제한 |
-| 415 | UNSUPPORTED_MEDIA_TYPE | 형식·decode 실패 |
-| 503 | DEPENDENCY_UNAVAILABLE / MAINTENANCE_READ_ONLY | DB·R2 장애 또는 유지보수 |
+| 409 | CANDIDATE_LEASE_CONFLICT / CANDIDATE_EXECUTION_CONFLICT / CANDIDATE_VERSION_CONFLICT | stale lease·execution·version |
+| 409 | CANDIDATE_STATE_CONFLICT / CANDIDATE_DUPLICATE / IDEMPOTENCY_CONFLICT / IDEMPOTENCY_IN_PROGRESS | 상태·중복·재전송 충돌·진행 중 |
+| 413 / 415 | UPLOAD_TOO_LARGE / UNSUPPORTED_MEDIA_TYPE | preview 크기·decode·형식 제한 |
+| 429 / 503 | SOURCE_RATE_LIMITED / DEPENDENCY_UNAVAILABLE / MAINTENANCE_READ_ONLY | quota 또는 dependency·유지보수 |
 
-- Discord 신규 접수→claim→heartbeat→result→preview를 응답값만으로 이어갈 수 있어야 한다.
-- 응답 유실 후 result 재전송은 중복 image row 없이 같은 ID 매핑을 반환해야 한다.
-- 반려·재수집과 preview 경쟁 시 고아 object를 회수해야 한다.
-- lease 만료 뒤 다른 collector가 재선점할 수 있고 공개 서비스는 collector 중단과 무관하게 동작해야 한다.
-- 실제 source·OpenAPI·통합 검증은 아직 수행하지 않았다.
+- result 성공 뒤 checkpoint가 유실되면 execution-state의 digest·version으로 preview부터 조정하며 fetch/result를 추측 재실행하지 않는다. `NETWORK_STARTED` 뒤 응답 유실은 같은 request를 자동 재송신하지 않고 새 quota reservation을 사용한다.
+- 반려·재시도·승격과 preview 경쟁에서 stale execution/version은 Core 상태·object·quota를 바꾸지 않고, 고아 object는 cleanup한다. 실제 source·OpenAPI·contract/integration/fault test는 아직 수행하지 않았다.
 
 <a id="api-create-candidate-from-url"></a>
 
@@ -357,9 +281,12 @@ incoming webhook은 처리 결과 알림용으로만 사용한다.
 5. 로컬 collector가 대기 후보를 claim해 `RUNNING`으로 바꾼다.
 6. collector가 robots·요청 상한·DNS 안전성·redirect 경계를 확인한다.
 7. collector가 상세 페이지를 1회 fetch하고 출처별 parser로 제목과 이미지 후보 URL을 추출한다.
-8. Python extractor는 미리보기에 필요한 이미지 후보만 로컬 작업 경로에 임시 저장한다.
-9. collector가 `collect.candidate`, `collect.candidate_image` metadata와 preview 식별자를 BE에 제출한다.
-10. 성공 추출이면 `NEW`, 실패 추출이면 `FETCH_FAILED`로 만든다.
+8. Java/Spring 추출기는 미리보기에 필요한 이미지 후보만 로컬 작업 경로에 임시 저장한다.
+9. collector가 `result` API로 후보와 이미지 후보 metadata만 제출한다.
+10. 성공 추출이면 `NEW`, 실패 추출이면 `FETCH_FAILED`로 만들고, 성공 응답에서 이미지별
+    `candidateImageId` 매핑과 최신 `lockVersion`을 받는다.
+11. preview가 있으면 각 `candidateImageId`의 별도 preview API에 순차 업로드하고, 매 응답의 새
+    `lockVersion`을 다음 업로드에 사용한다.
 
 #### 오류·권한·충돌·timeout·부분 실패
 
@@ -393,7 +320,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 중복 후보 `409`
 - fetch 실패 시 collector 제출 결과 `FETCH_FAILED`
 - 원문 HTML·내부 오류·secret 로그 미기록
-- Python 임시 이미지 파일의 내부 절대 경로·binary 로그 미기록
+- 수집기 임시 이미지 파일의 내부 절대 경로·binary 로그 미기록
 - collector 내부 API claim/result/preview upload contract test
 - 실제 source·OpenAPI·runtime 미검증
 
@@ -449,7 +376,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 6. private 원본 bucket에 저장한다.
 7. 기존 게시글 초안 생성 command를 재사용해 title, source, TEXT/IMAGE block을 만든다.
 8. 같은 transaction에서 후보를 `APPROVED`로 바꾸고 `postId`를 연결한다.
-9. 승격 성공 뒤 해당 후보의 로컬 Python 임시 이미지 파일은 collector 삭제 대상에 넣는다.
+9. 승격 성공 뒤 해당 후보의 로컬 수집기 임시 이미지 파일은 collector 삭제 대상에 넣는다.
 
 #### 오류·부분 실패
 
@@ -467,7 +394,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 | `503` | `DEPENDENCY_UNAVAILABLE` | DB·R2 장애 |
 
 선택 이미지 중 하나라도 준비·저장에 실패하면 후보를 `NEW`로 유지하고 위 오류를 반환한다. 일부 이미지로 초안을 만들지 않는다. TEXT만 있는 글은 기존 수동 초안 작성 API를 사용한다. DB transaction
-실패 시 후보 상태는 바꾸지 않고 저장된 이미지는 staging orphan 정리 대상으로 둔다. 로컬 Python 임시
+실패 시 후보 상태는 바꾸지 않고 저장된 이미지는 staging orphan 정리 대상으로 둔다. 로컬 수집기 임시
 이미지 파일은 영구 저장 성공 여부와 별개로 내부 절대 경로를 노출하지 않는다.
 
 #### 멱등성·동시성·재시도
@@ -482,7 +409,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 선택 이미지 0건·21건 validation 실패
 - alt 누락·공백·301자, imageOptions 중복·누락, 업로드 ID 중복 거부
 - 선택 이미지 일부 저장 실패 시 초안 생성 없음, 후보 `NEW` 유지
-- Python 임시 파일 만료 시 로컬 collector 재제출 또는 명시적 실패 처리
+- 수집기 임시 파일 만료 시 로컬 collector 재제출 또는 명시적 실패 처리
 - 초안 생성 성공 시 후보 `APPROVED`
 - transaction 실패와 orphan cleanup 분류
 - 실제 source·OpenAPI·R2 runtime 미검증
@@ -580,14 +507,12 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 1. 후보가 존재하고 `FETCH_FAILED`인지 확인한다.
 2. `lockVersion`을 비교한다.
 3. 기존 이미지 후보 metadata를 재시도 교체 대상으로 표시한다.
-4. 데이터 모델의 재시도 전이에 따라 `requested_at`을 현재 시각으로 바꾸고 `fetched_at`,
-   `fetch_error_code`, `lease_until`, `collector_id`, `claimed_at`을 초기화한다. 현재 retry cycle의
-   `attempt_count`를 0으로 되돌려 `PENDING`으로 만들고 증가한 `lockVersion`으로 접수 결과를 반환한다.
+4. 데이터 모델의 재시도 전이에 따라 `fetched_at`, `fetch_error_code`, `lease_until`을 초기화하고 `PENDING`으로 되돌린다. 증가한 `lockVersion`으로 접수 결과를 반환한다.
 5. 로컬 collector가 출처 등록·활성 상태, robots, 요청 상한을 다시 확인한다.
 6. collector는 기존 후보의 단일 상세 페이지 원문 URL만 다시 fetch하고 parser를 실행한다. 목록·feed·pagination은 호출하지 않는다.
-7. 성공하면 기존 이미지 후보 metadata와 로컬 Python 임시 preview 파일을 새 결과로 교체하고 `NEW`로 바꾼다.
+7. 성공하면 기존 이미지 후보 metadata와 로컬 수집기 임시 preview 파일을 새 결과로 교체하고 `NEW`로 바꾼다.
 8. claim으로 `RUNNING`이 된 후보는 실패 결과 제출 시 `FETCH_FAILED`로 전환하고 실패 분류와 `lockVersion`을 갱신한다.
-9. 교체되거나 더 이상 참조하지 않는 로컬 Python 임시 이미지 파일은 삭제 대상에 넣는다.
+9. 교체되거나 더 이상 참조하지 않는 로컬 수집기 임시 이미지 파일은 삭제 대상에 넣는다.
 
 #### 오류·동시성
 
@@ -609,17 +534,6 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - collector 재시도 성공 시 `NEW`
 - collector 재시도 실패 시 `FETCH_FAILED`
 - 실제 source·OpenAPI·runtime 미검증
-
-#### Spring V2 전환과 이번 호환 보완의 경계
-
-현재 Core 보완은 오래된 PENDING 보존, 만료 RUNNING의 retry cycle당 최대 3회, 24시간 경계와
-`LEASE_EXPIRED` 전환만 적용한다. `fetchErrorCode` OpenAPI는 일반화 대문자 코드 패턴이므로 이 값을
-이미 허용한다. 24시간 지난 PENDING은 상태를 바꾸지 않고 현재 구현의 비식별 구조화 경고만 남긴다.
-중복 방지·확인 처리가 가능한 영속 운영 이벤트는 Spring V2 범위다.
-
-Spring V2의 `collectorExecutionId` fencing, claim·heartbeat·preview 응답 replay, Core 권위 quota
-reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 별도 milestone이다.
-해당 migration·OpenAPI·source·test·runtime이 없으므로 이번 호환 보완의 완료 증거로 표시하지 않는다.
 
 <a id="d01-create-and-review-candidate"></a>
 
@@ -646,13 +560,19 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 2. 화면은 중복 제출을 막고 생성 중 상태를 표시한다.
 3. 관리자 화면은 BFF를 통해 후보를 `PENDING`으로 접수한다.
 4. Discord 명령은 로컬 collector가 직접 받고 guild·channel·user 권한을 검증한다.
-5. 로컬 collector는 Discord URL도 전용 중계로 PENDING 접수하고, 관리자·Discord 후보를 같은 claim 흐름으로 선점한다.
-6. collector는 출처·robots·요청 상한·DNS 안전성·redirect 경계를 확인한다.
-7. collector는 상세 페이지를 1회 fetch하고 parser를 실행한다.
-8. Python extractor는 미리보기에 필요한 이미지 후보를 로컬 작업 경로에 임시 저장한다.
-9. collector는 후보와 이미지 후보 metadata, preview 식별자를 BE에 제출한다.
-10. 화면은 후보 목록에 새 후보 또는 실패 후보를 표시한다.
-11. 운영자는 원문 링크, 제목, 이미지 후보 preview, 중복 표시, 실패 사유를 확인한다.
+5. `/collect url`은 실행 대상·예상 요청 범위·현재 출처 상태를 보여준 뒤 운영자의 확인 interaction을
+   거친다.
+6. 로컬 collector는 확인된 Discord URL을 전용 중계로 PENDING 접수하고, 관리자·Discord 후보를 같은
+   claim 흐름으로 선점한다. 같은 interaction ID를 기존 멱등 key 계약에 사용한다.
+7. collector는 출처·robots·요청 상한·DNS 안전성·redirect 경계를 확인한다.
+8. collector는 상세 페이지를 1회 fetch하고 parser를 실행한다.
+9. Java/Spring 추출기는 미리보기에 필요한 이미지 후보를 로컬 작업 경로에 임시 저장한다.
+10. collector는 `result` API로 후보와 이미지 후보 metadata만 제출하고, 응답의
+    `candidateImageId` 매핑과 최신 `lockVersion`을 받는다.
+11. preview가 있으면 이미지별 preview API에 순차 업로드하며 매 응답의 새 `lockVersion`을 다음
+    요청에 사용한다.
+12. 화면은 후보 목록에 새 후보 또는 실패 후보를 표시한다.
+13. 운영자는 원문 링크, 제목, 이미지 후보 preview, 중복 표시, 실패 사유를 확인한다.
 
 #### 대안·실패 흐름
 
@@ -667,7 +587,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 | 단계 | API |
 | --- | --- |
 | 3 | [수집 작업 접수와 후보 결과 생성](#api-create-candidate-from-url) |
-| 5~9 | [Collector 내부 API](#api-collector-internal-api) |
+| 6~11 | [Collector 내부 API](#api-collector-internal-api) |
 
 #### 데이터·상태 전이
 
@@ -676,7 +596,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 - `RUNNING` -> `NEW`: 제목·이미지 후보 추출 성공
 - `RUNNING` -> `FETCH_FAILED`: fetch gate 거부 또는 fetch·parser 실패
 - 후보 이미지 metadata는 `DISCOVERED`로 저장한다.
-- Python 임시 이미지 파일은 DB image row가 아니며 반려·만료·재시도 교체 시 삭제 대상이다.
+- 수집기 임시 이미지 파일은 DB image row가 아니며 반려·만료·재시도 교체 시 삭제 대상이다.
 
 #### 권한·트랜잭션·멱등성·재시도
 
@@ -691,7 +611,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 - 후보 또는 명시적 실패 상태로 끝난다.
 - BE·FE는 외부 사이트를 직접 fetch하지 않는다.
 - 원문 HTML 전체와 내부 오류 상세를 화면·로그에 노출하지 않는다.
-- Python 임시 파일 내부 경로와 image binary를 화면·로그에 노출하지 않는다.
+- 수집기 임시 파일 내부 경로와 image binary를 화면·로그에 노출하지 않는다.
 - 수집 실패가 공개 목록·상세와 수동 게시를 막지 않는다.
 - 일반 Discord 채널 메시지를 감시하지 않는다.
 
@@ -736,7 +656,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 
 - 중복 확인 누락: 기존 게시글 확인을 요구한다.
 - 이미지 파일 제출 실패: 후보를 `NEW`로 유지하고 오류를 표시한다.
-- Python 임시 이미지 파일 만료: 로컬 collector 재제출이 필요하다고 표시하고 후보를 `NEW`로 유지한다.
+- 수집기 임시 이미지 파일 만료: 로컬 collector 재제출이 필요하다고 표시하고 후보를 `NEW`로 유지한다.
 - transaction 실패: 후보를 `NEW`로 유지하고 저장된 이미지는 orphan 정리 대상으로 둔다.
 - terminal 후보: 승격 버튼을 노출하지 않는다.
 
@@ -751,7 +671,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 - `NEW` -> `APPROVED`
 - `collect.candidate.post_id`에 생성된 `content.board_post.id` 연결
 - 선택 이미지 후보는 저장 성공 후 `STORED`와 `image_id`를 가진다.
-- 승격 성공·반려·만료·재시도 교체 시 로컬 Python 임시 이미지 파일은 삭제 대상이다.
+- 승격 성공·반려·만료·재시도 교체 시 로컬 수집기 임시 이미지 파일은 삭제 대상이다.
 
 #### 권한·트랜잭션·멱등성·재시도
 
@@ -765,7 +685,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 - 후보는 `APPROVED` terminal 상태가 된다.
 - 자동 발행하지 않는다.
 - 외부 이미지 원본 URL이나 storage key를 공개 화면에 노출하지 않는다.
-- Python 임시 파일 내부 경로를 화면·로그에 노출하지 않는다.
+- 수집기 임시 파일 내부 경로를 화면·로그에 노출하지 않는다.
 
 #### 미정·차단·미검증 항목
 
@@ -874,7 +794,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 - 반려 사유는 허용 code 중 하나를 선택한다.
 - 이미지 선택은 1~20개이며 각 이미지 alt를 trim 후 1~300자로 입력한다. 수동 파일을 관리자 업로드 API로 올린 뒤 응답 imageId를 해당 candidateImageId의 uploadedImageId로 연결한다. 승격 요청은 선택 ID와 imageOptions를 함께 보낸다.
 - 후보 제목이 없으면 승격 전 제목 입력을 요구한다.
-- 내부 stack, 원문 HTML 전체, Python 임시 파일 내부 경로, storage key는 표시하지 않는다.
+- 내부 stack, 원문 HTML 전체, 수집기 임시 파일 내부 경로, storage key는 표시하지 않는다.
 
 #### 이벤트·버튼·이동·후처리
 
@@ -927,7 +847,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 - 실패 후보는 재시도 또는 반려만 가능하다.
 - 승격 성공 뒤 자동 발행하지 않고 편집기로 이동한다.
 - 원문 HTML 전체와 내부 오류 상세를 화면에 노출하지 않는다.
-- Python 임시 파일 내부 경로와 image binary를 화면에 노출하지 않는다.
+- 수집기 임시 파일 내부 경로와 image binary를 화면에 노출하지 않는다.
 
 #### 미정·차단·미검증 항목
 
@@ -937,7 +857,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 
 <a id="d08-local-collector"></a>
 
-### 로컬 Collector 프로그램
+### 로컬 Spring Collector 프로그램
 
 - 계약 상태: `초안`
 
@@ -946,21 +866,25 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 
 #### 프로그램 목적·route·milestone
 
-화면 route 해당 없음. 운영자 로컬 컴퓨터에서 실행되는 별도 프로세스로, Discord `/collect url` 명령과
-관리자 화면에서 접수된 `PENDING` 후보 작업을 처리한다. BE·FE runtime 안에서 외부 사이트를 fetch하지
-않고, collector가 등록·활성 출처의 단일 상세 페이지 1건만 가져와 parser 결과를 Core 내부 API로 제출한다.
+운영자 로컬 컴퓨터의 별도 Spring Boot 상시 서버는 `http://127.0.0.1:18787`에서만 제어 REST를 제공한다.
+Discord `/collect url`, 로컬 REST, 기본 비활성 Quartz가 같은 실행 경로로 접수된 후보 한 건을 처리한다.
+BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`와 local status 조회는 읽기 전용이고 새 Job을 만들지 않는다.
+포트·scope·응답 상세는 [07 상세 설계 §11](../../../system-design/07-spring-collector-design.md#11-로컬-restdiscord-보안)를 따른다.
+
+- `POST /local/v1/jobs/collect`는 `mode=COLLECT|PREVIEW_REFRESH`, 선택 `candidateId`, `lockVersion`, `nextPending`만 받는다. 새 수동 `PREVIEW_REFRESH`는 관리자 검수 응답의 candidateId와 현재 lockVersion이 필수다. 같은 execution의 자동 restart는 `execution-state`에서 재확인한 version을 사용한다.
+- `COLLECT`는 candidateId 또는 `nextPending=true` 중 정확히 하나가 필요하며 원문 URL을 받지 않는다. 요청은 loopback bearer scope와 `Idempotency-Key`를 거쳐 202의 jobRequestId·QUEUED/RUNNING 상태 또는 동일 요청의 replay를 받는다.
 
 #### 진입·이탈·권한 조건
 
 - 실행 주체는 승인된 운영자 로컬 PC다.
 - Discord 명령은 허용 guild, channel, user만 처리한다.
 - Web 전용 중계를 통한 Core 내부 API 호출에는 collector service token이 필요하다.
-- token, Discord bot token, webhook URL은 서버 `.env`와 분리해 로컬 secret으로 관리한다.
+- token, Discord bot token, webhook URL은 macOS Keychain 등 로컬 secret 경계에 두며 plist argument·환경 변수·Git에 넣지 않는다.
 - 종료되거나 네트워크가 끊겨도 공개 목록·상세, 관리자 수동 작성과 발행은 계속 동작해야 한다.
 
 #### UI 영역과 구성요소
 
-직접 UI 없음. CLI 또는 local process log만 제공한다.
+현재 확정된 배치 관리 UI는 없다. 기존 FE 검수 화면은 유지하며 local REST는 loopback bearer scope와 state-changing 요청의 `Idempotency-Key`를 사용한다.
 
 - stdout/stderr에는 실행 상태, 처리 후보 수, 일반화된 오류 code만 출력한다.
 - 원문 URL 전체, 후보 제목 전체, 원문 HTML, 이미지 binary, local temp path, token, stack trace는 출력하지 않는다.
@@ -973,25 +897,25 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 - `COLLECTOR_SERVICE_TOKEN`: Core 내부 API 전용 bearer token.
 - `DISCORD_BOT_TOKEN`, `DISCORD_ALLOWED_GUILD_ID`, `DISCORD_ALLOWED_CHANNEL_ID`, `DISCORD_ALLOWED_USER_IDS`: Discord 명령 수신 gate.
 - `COLLECT_MAX_RESPONSE_BYTES`, `COLLECT_TIMEOUT_MS`, `COLLECT_USER_AGENT`: 출처 요청 제한.
-- 출처 host, robots, 요청 간격, 일일 상한, DNS 안전성, redirect 3회 제한은 fetch 직전 다시 확인한다.
+- 출처 host, robots, 요청 간격, Core quota reservation, DNS 안전성, 같은 host 안의 redirect 3회 제한은 fetch 직전 다시 확인한다.
 - `https`가 아니거나 사설·loopback·link-local·metadata 주소로 해석되는 대상은 요청하지 않는다.
 
 #### 이벤트·후처리
 
 | 이벤트 | 처리 |
 | --- | --- |
-| process start | secret 존재, Core 연결, Discord 연결 설정을 검증하고 준비 상태로 전환 |
-| Discord `/collect url` | 허용 guild·channel·user와 URL 형식을 확인한 뒤 URL 작업을 접수하고 받은 candidateId를 claim한 후 추출 |
-| claim loop | 전용 중계의 `/candidates/claim`으로 `PENDING` 후보를 선점 |
-| heartbeat | 긴 fetch·parser 처리 중 lease를 연장 |
-| result submit | 성공은 `NEW`, 실패는 `FETCH_FAILED`로 제출 |
-| preview upload | 검수용 이미지 후보 preview 파일을 private staging으로 업로드 |
-| shutdown | 진행 중 작업은 heartbeat를 멈추고 lease 만료 뒤 재선점 가능하게 둔다 |
+| process start | local PostgreSQL·spool·Core BFF readiness를 점검한다. Discord 연결은 별도 component 상태다. |
+| Discord `/collect url` | 허용 guild·channel·user·role과 확인 interaction 뒤 공통 실행 요청을 만든다. |
+| Discord `/collect status` | local Job과 Core 집계를 분리해 읽기 전용 요약을 낸다. 새 Job을 만들지 않는다. |
+| Quartz / REST 실행 | `CollectorRunService.submit()`으로 공통 실행 요청을 만들며, Quartz는 15분 주기·기본 비활성이고 신규 목록 URL을 찾지 않는다. |
+| Batch 후보 처리 | 후보 1건의 `resolveCandidate` → `claimCandidate` → `fetchAndExtract` → `submitResult` → `uploadPreviews` → `notifyAndFinalize` 여섯 Tasklet Step을 순서대로 실행한다. 기본 active Job은 1개다. |
+| heartbeat · quota | RUNNING fetch 중 heartbeat를 연장하고, robots·상세·redirect·image 각 실제 HTTP 전에 Core reservation을 받는다. |
+| shutdown | 새 Step·reservation을 막고, 이미 시작한 network 요청은 제한 timeout까지 기다린다. 90초 유예 뒤 미완료 Job은 restartable STOPPED로 남기며 lease 회수에 맡긴다. |
 
 #### 프로그램 상태
 
 - `disabled`: local flag 또는 필수 secret 부재로 실행하지 않음
-- `ready`: Core와 Discord 연결 준비
+- `ready`: local DB·spool·Core BFF가 준비된 실행 경로. Discord 연결은 별도 상태
 - `idle`: 처리 가능한 후보 없음
 - `running`: 후보 1건 처리 중
 - `rate_limited`: 출처 요청 간격 또는 일일 상한 초과
@@ -1002,7 +926,7 @@ reservation, operational event, `apps/collector` Spring Batch·Quartz 구현은 
 
 #### 반응형과 접근성
 
-UI 없음. CLI는 색 없이도 상태와 exit code를 구분할 수 있어야 하며, 비대화형 실행과 로그 수집이 가능해야 한다.
+배치 관리 UI는 미정이다. 운영 출력은 색 없이도 상태와 exit code를 구분할 수 있어야 하며, 비대화형 실행과 로그 수집이 가능해야 한다.
 
 #### 이벤트별 D01·API 매핑
 
@@ -1010,7 +934,7 @@ UI 없음. CLI는 색 없이도 상태와 exit code를 구분할 수 있어야 �
 | --- | --- | --- |
 | Discord `/collect url` 또는 관리자 후보 claim | [URL 후보 생성과 검수](#d01-create-and-review-candidate) | [collector-internal-api](#api-collector-internal-api), [create-candidate-from-url](#api-create-candidate-from-url) |
 | 실패 후보 재처리 | [후보 재시도와 반려](#d01-retry-or-reject-candidate) | [retry-candidate](#api-retry-candidate), [collector-internal-api](#api-collector-internal-api) |
-| preview 재업로드 | [후보 초안 승격](#d01-promote-candidate-to-draft) | [collector-internal-api](#api-collector-internal-api), [promote-candidate-to-draft](#api-promote-candidate-to-draft) |
+| preview 재업로드 | [로컬 Collector 프로그램](#d08-local-collector) | [collector-internal-api](#api-collector-internal-api)의 `PREVIEW_REFRESH` |
 
 #### 메시지와 사용자 피드백
 
@@ -1023,19 +947,20 @@ UI 없음. CLI는 색 없이도 상태와 exit code를 구분할 수 있어야 �
 #### 프로그램 수용 조건
 
 - BE·FE runtime이 외부 사이트를 직접 fetch하지 않는다.
-- Discord 일반 메시지를 감시하지 않고 `/collect url` 명령만 처리한다.
+- Discord 일반 메시지를 감시하지 않고 초기 명령인 `/collect url`과 읽기 전용 `/collect status`만 처리한다.
 - 등록·활성 출처, robots, 요청 상한, DNS 안전성, redirect, content-type, 응답 크기, timeout gate를 fetch 직전 적용한다.
-- 성공 결과는 원문 HTML·이미지 binary·local temp path 없이 metadata와 preview 식별자만 제출한다.
+- 성공 결과는 원문 HTML·이미지 binary·local temp path 없이 `result`에 metadata만 제출하고, 이후 별도
+  preview 업로드 성공 응답의 식별자만 사용한다.
 - 실패 결과는 `FETCH_FAILED`와 허용된 `fetchErrorCode`로 남긴다.
 - collector 중단·lease 만료 뒤 후보는 재선점 가능하고 공개 목록·상세와 수동 발행은 계속 동작한다.
 - token과 Discord secret이 log, Discord 메시지, Git, error response에 남지 않는다.
 
 #### 미정·차단·미검증
 
-- 결정 필요: collector 배포 방식, 실행 명령, 로컬 secret 저장 방식, 운영자 PC 식별 규칙.
+- 결정 필요: 실제 실행 PC·전용 OS 계정·설치 경로, 선택 JDK 배포판의 운영 조건.
 - 결정 필요: 첫 출처별 parser package와 fixture 위치.
 - 차단: 출처별 source spec의 운영 위험·robots 확인 전 production 활성화 불가.
-- 미검증: 라이브 Discord Gateway·Slash Command, 실제 출처 fetch. 공통 구현·계약·로컬 runtime 증거는 루트 README 참조.
+- 미검증: source, Discord Gateway·Slash Command, 실제 출처 fetch, Core/local migration, OpenAPI, contract·fault test, build, runtime.
 
 <a id="api-source-management"></a>
 
@@ -1051,37 +976,9 @@ UI 없음. CLI는 색 없이도 상태와 exit code를 구분할 수 있어야 �
 - 검증: 1000ms·상한 1/10000 경계, 미허용 필드·설정 조합, robots 재확인/null 해제,
   경쟁 수정·응답 유실·유지보수 읽기/쓰기 분리를 확인한다. source·browser 검증은 새 구현에서 수행한다.
 
-## 13. 구현 계약 보완 (2026-09-08)
+## Spring 전환: Job 계약과 검증 경계
 
-- 실행 OpenAPI 정본은 [m0-collection-assist.yaml](../openapi/m0-collection-assist.yaml)이다.
-  `packages/contracts` 사본과 동일성 검사 후 Core와 BFF의 요청·응답 검사기를 함께 생성한다.
-- source/candidate/image 저장소는 V004 migration, 운영자 로컬 실행기는 `tools/collector/`다.
-  기능 flag는 Core `COLLECT_MANUAL_URL_ENABLED`, `COLLECT_DISCORD_COMMAND_ENABLED`,
-  BFF는 같은 이름에 `NUXT_` prefix를 사용한다. 기본값은 false다.
-- Core는 `COLLECTOR_TOKENS_FILE`의 collectorId·SHA-256 token hash·collect scope를 검증한다.
-  관리자 인증과 machine 인증은 서로 대체하지 않는다.
-- heartbeat 응답에 `source` 스냅샷을 추가한다. 로컬 수집기는 외부 요청 직전에 source의
-  isActive·robotsAllowed와 요청 간격·일일 한도를 다시 확인한다.
-- 일일 한도는 운영자 기기의 지속 SQLite 파일에서 UTC 날짜 기준으로 계산한다.
-  robots·redirect·HTML·이미지 요청을 모두 포함한다. 여러 프로세스는 같은 상태 파일을 공유한다.
-  분산된 여러 운영자 기기에서 동시에 수집하는 것은 이 구현 범위에 포함하지 않는다.
-- 출처 등록 seed와 실제 parser selector는 승인·현장 확인 전에는 추가하지 않는다.
-  로컬 parser는 명시한 tag/class/id 선택자를 사용하며 sourceHost·CDN allowlist 밖을 거부한다.
-- draft 전환은 Core 공통 이미지 검사와 초안 생성 함수를 재사용한다. 이미지 staging 후
-  후보 APPROVED와 게시글 DRAFT를 한 DB transaction으로 저장한다. 실패한 staging은 기존 cleanup으로 회수한다.
-- 결과 제출 후 미리보기 업로드 일부 실패는 로컬 `PARTIAL_PREVIEW`로 보고한다. 서버 후보는 NEW로 남고,
-  운영자는 없는 미리보기를 직접 업로드로 대체할 수 있다. 이를 자동 발행하지 않는다.
-- 구현 검증 기록은 루트 README와 수집기 README에 분리한다. fixture 통과는 실제 출처나 Discord 연결 완료를 뜻하지 않는다.
-
-
-### 로컬 서버 실행 계약 (2026-09-08)
-
-- 진입점: `tools/collector/server.py`. HTTP·cron·Discord가 `runtime.py`의 동일 Runner를 호출한다.
-- 로컬 제어 API: 인증된 `GET /health`, `GET /v1/schedule`, `POST /v1/runs`, `GET /v1/runs`, `GET /v1/runs/{runId}`.
-  공개 BFF의 `/api/collector/v1/*`와 다른, 운영자 기기의 localhost API다.
-- POST body는 `{}` 또는 `{candidateId: 양의 정수}`이며 Idempotency-Key 필수다. 새 URL은 기존 관리자/Discord 접수 경로를 사용한다.
-  202와 runId를 반환한다. 동일 key/body는 같은 실행, 다른 body는 409, 대기 100건 초과는 429다.
-- cron은 timezone을 지정한 5필드 표현식이며 설정 파일에서 변경 후 재시작한다. 예약 실행당 처리 수는 기본 5건, 최대 20건이다.
-- 실행 이력은 30일간 보관한다. 이력에 원문 URL·본문·token을 저장하지 않는다.
-- 기능 검증: 로컬 수집기·HTTP·scheduler·동시성·정상 종료·재시작 이력 테스트 14개 통과.
-  실제 출처·Discord Gateway·운영 기기 자동 기동 등록은 미검증이다.
+- 확정된 구현 기준은 [07 Spring 수집 서버 상세 설계](../../../system-design/07-spring-collector-design.md)다. `apps/collector`, 전용 local PostgreSQL 18의 Batch·Quartz·collector schema, AES-256-GCM local spool, 기본 동시 실행 1, 15분 Quartz 기본 비활성, legacy→`SPRING_V2` cutover를 따른다.
+- Spring은 service DB·object storage credential을 갖지 않으며 Core API만으로 후보·preview를 변경한다. local metadata·Batch ExecutionContext·Quartz JobDataMap에는 최소 ID·상태·hash·참조만 남기고 title·origin URL·HTML·image binary·token·절대 경로를 남기지 않는다. title·remote image URL이 든 result payload와 image temp는 동일 bytes replay에 필요한 기간만 AES-256-GCM 암호화 spool에 둔다.
+- 구현 수용은 여섯 Step checkpoint, same-key replay, stale execution fencing, Core quota/permit, spool TTL, stop·restart·reconcile, REST·Discord·Quartz 공통 경로와 legacy drain을 07의 수용 시험으로 검증한다.
+- 실제 출처·Discord·운영 배포·법무 승인과 source·migration·OpenAPI·test·build·runtime은 별도 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정은 Spring 구현 완료 근거가 아니다.

@@ -1,0 +1,43 @@
+{
+  "name": "blariyo-m0-core",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.18.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w @blariyo/web",
+    "dev:api": "npm run dev -w @blariyo/api",
+    "build": "npm run contracts:generate && npm run build -w @blariyo/api && npm run build -w @blariyo/web",
+    "test": "node --test tests/*.test.ts",
+    "contracts:generate": "node scripts/generate-contracts.ts",
+    "db:migrate": "node apps/api/dist/commands/migrate.js",
+    "posts:publish-due": "node apps/api/dist/commands/command.js posts:publish-due",
+    "outbox:run": "node apps/api/dist/commands/command.js outbox:run",
+    "cleanup:run": "node apps/api/dist/commands/command.js cleanup:run",
+    "policies:publish": "node apps/api/dist/commands/command.js policies:publish",
+    "test:integration": "npm run test:nest",
+    "test:browser": "npm run build && node --test --test-concurrency=1 tests/browser/*.test.ts",
+    "test:docker": "node scripts/test-docker.ts",
+    "test:architecture": "npm run build:test -w @blariyo/api && node --test tests/architecture.test.ts",
+    "collection:transition": "node apps/api/dist/commands/collection-transition.js",
+    "test:nest": "npm run build && npm run build:test -w @blariyo/api && node scripts/test-nest-integration.ts",
+    "typecheck:scripts": "tsc -p scripts/tsconfig.json",
+    "lint:scripts": "eslint --config scripts/eslint.config.mjs scripts/**/*.ts",
+    "typecheck:tests": "tsc -p tests/tsconfig.json",
+    "lint:tests": "eslint --config tests/eslint.config.mjs tests/**/*.ts",
+    "typecheck:web": "npm run typecheck -w @blariyo/web",
+    "test:spring": "npm run build && apps/collector/gradlew -p apps/collector test bootJar fixtureClasspath && node --test --test-concurrency=1 tests/spring/*.test.ts",
+    "verify:migration": "node scripts/verify-migration.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "openapi-typescript": "^7.10.1",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.3"
+  }
+}

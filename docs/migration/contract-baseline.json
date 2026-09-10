@@ -1,0 +1,21 @@
+{
+  "source": "Migration-start worktree baseline preserved on 2026-09-09; copied from baseline-sha256.json, never from current Nest behavior",
+  "files": {
+    "apps/api/migrations/V001__core.down.sql": "dc73478953df7e6f292a1e821b7f202d0571b08124635ab0c72157625f899198",
+    "apps/api/migrations/V001__core.sql": "af6e9efc9a6708e8b02946d4c7507808c61b37feb4004a98c19f98caa5657fe7",
+    "apps/api/migrations/V002__meme.down.sql": "8b621091781e2bb8d751aea1d141f501afa527f3a6de05a0ee2bffd531da7366",
+    "apps/api/migrations/V002__meme.sql": "6e9871db8696ca8d351c3ca2e13e9836a5ab30e0538ce800f1b4aeb8d0eb1ca4",
+    "apps/api/migrations/V003__schedule_alert.down.sql": "8e117b7a71753abf80036ba225adee70b71a1411fb0eb6530509acea50e09584",
+    "apps/api/migrations/V003__schedule_alert.sql": "8f5d4399c91e21a50d55795663bad96cd315cec8cc10453e2420f4eb4e7c28e5",
+    "apps/api/migrations/V004__collection_assist.down.sql": "eec3946add712438e8cf86cf6bc4ebc03c98547af589d3cdf2453827cf97ecf4",
+    "apps/api/migrations/V004__collection_assist.sql": "0870c4e70f7fbebc0b91c62221c198590733fabee63134ba4f20428950a660d8",
+    "apps/api/migrations/V005__spring_collection.down.sql": "d252a678271212f18b8877b313037116aec06720dea743b38abac78efbb066c2",
+    "apps/api/migrations/V005__spring_collection.sql": "f2b1eec3d575bc27f58368eb1f1a6d5c902db2bd7052f6b70ff5a49ed96b8afb",
+    "packages/contracts/openapi/m0-collection-assist.yaml": "9f31e550f30a7f80c119b7ed0e553e22bb60211507a51a4a8faecabfa976be17",
+    "packages/contracts/openapi/m0-core.yaml": "d3744e62c7a4ce714d7b34be2b9c22f864794ba445e72153423f75706877de60",
+    "packages/contracts/src/api.d.ts": "3e34875319f128bc3c8a60735c4042e6c2fdf2566039ee051cc37c190bd1927e",
+    "packages/contracts/src/collection-api.d.ts": "03dcac61af757e7d58f52fd02b79e80b5a0cd4cdf1eadcb134fc50eb4930b1f5",
+    "packages/contracts/src/schema.mjs": "e43249c0dc4d11da8ef9c00b9c5f97a35b644f8bced633134493b9e15aedc8c4",
+    "apps/collector/src/main/resources/db/collector-v001.sql": "8e8b1d776ece931932b425b0993c15a08a744af5d58010db5f55d80341b81464"
+  }
+}

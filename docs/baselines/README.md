@@ -1,55 +1,55 @@
 # Blariyo 설계 기준선
 
 - 기준일: 2026-09-08
-- 상태: v1 범위 명세·문서 검수 완료, 기술·법무 조건부
+- 상태: 과거 v1 단계별 범위 정의 참고본, 현행 Git 기준선 아님
 - 현행 판정: [설계 준비 상태](../system-design/design-readiness.md)
+- Git ref 상태: 당시 생성한 `design/*/v1` tag는 삭제됐으며 현재 재생성하지 않는다.
 
 이 디렉터리는 planning·legal·system-design·development-specs 정본을 복제하지 않고, 각 개발 단계가
-어느 파일과 절을 입력으로 사용하는지 고정하는 범위 manifest다. 기준선 tag가 같은 commit을 가리켜도
-manifest의 포함·제외 범위와 선행 기준선이 단계의 의미를 구분한다.
+어느 파일과 절을 단계별 입력으로 삼았는지 남긴 범위 manifest다. 당시에는 같은 commit을 가리키는
+여러 tag와 manifest로 단계를 구분했으나 이 Git 전략은 폐기됐다. 아래 포함·제외 범위는 참고할 수 있지만
+현재 정본의 version pin 또는 활성 Git ref로 해석하지 않는다.
 
 ## 단계와 의존성
 
 ```text
-design/m0-core/v1
-  ├─ design/m0-collection-assist/v1
-  └─ design/m1/v1
-       └─ design/m1-5/v1
+M0 Core
+  ├─ M0 수집 보조
+  └─ M1 회원
+       └─ M1.5 익게
 ```
 
-| 단계 | Manifest | 기준선 annotated tag | 선행 기준선 |
-| --- | --- | --- | --- |
-| M0 Core | [m0-core.md](m0-core.md) | `design/m0-core/v1` | 없음 |
-| M0 수집 보조 | [m0-collection-assist.md](m0-collection-assist.md) | `design/m0-collection-assist/v1` | `design/m0-core/v1` |
-| M1 회원 | [m1.md](m1.md) | `design/m1/v1` | `design/m0-core/v1`; collector 불필요 |
-| M1.5 익게 | [m1-5.md](m1-5.md) | `design/m1-5/v1` | `design/m0-core/v1`, `design/m1/v1`; collector 불필요 |
+| 단계 | Manifest | 선행 범위 |
+| --- | --- | --- |
+| M0 Core | [m0-core.md](m0-core.md) | 없음 |
+| M0 수집 보조 | [m0-collection-assist.md](m0-collection-assist.md) | M0 Core |
+| M1 회원 | [m1.md](m1.md) | M0 Core; collector 불필요 |
+| M1.5 익게 | [m1-5.md](m1-5.md) | M0 Core, M1 회원; collector 불필요 |
 
-M0 자동 수집은 네 기준선에서 제외한다. 목록·feed·pagination 자동 발견의 출처별 계약이 확정되면
-별도 manifest와 새 design tag로 만든다.
+M0 자동 수집은 네 범위에서 제외한다. 목록·feed·pagination 자동 발견의 출처별 계약이 확정되면
+별도 범위와 누적 commit으로 검수한다.
 
 ## Manifest 해석 규칙
 
 1. 각 manifest는 선행 기준선에 더하는 **단계별 delta**다. M0 Core만 독립 범위이며, 후속 manifest는
    선행 manifest의 파일 목록을 반복하지 않는다.
-2. `전체`는 해당 tag가 가리키는 commit의 파일 전체다. `절`은 표에 적은 Markdown heading과 그 하위
-   내용만 뜻한다. 한 표나 절에 여러 단계가 섞이면 manifest가 명시한 단계의 행·문장만 포함한다.
-3. 정본이 tag 뒤 바뀌어도 기존 `v1` tag를 옮기거나 덮어쓰지 않는다. 영향 범위를 재검수하고 새
-   manifest version과 annotated tag를 만든다.
-4. tag 메시지는 기준선 이름, manifest 경로, 설계 전용이라는 점을 기록한다. commit SHA는 manifest에
-   미리 쓰지 않고 annotated tag가 가리키는 객체를 readback해 후속 작업 기록에 남긴다.
+2. `전체`와 `절`은 manifest 작성 당시의 범위 표현이다. 현재 파일 내용이 바뀌었으면 현행 정본을 직접
+   읽고 영향 범위를 다시 검수한다.
+3. 다음 기준선을 Git으로 고정할 때는 M0 Core부터 후속 단계까지 서로 다른 누적 commit으로 만든다.
+   같은 commit에 여러 단계 tag를 붙여 의미를 나누지 않는다.
+4. 현재 design tag는 만들지 않는다. commit 또는 tag를 새로 만드는 작업은 별도 승인과 readback 뒤
+   현행 기록에 남긴다.
 5. manifest의 `조건부 설계 확정 가능`은 구현·법무·운영·production 공개 완료가 아니다.
 
-## Git과 구현 release 분리
+## 현행 Git과 구현 release 분리
 
-- 첫 docs commit을 main에 fast-forward한 뒤 같은 commit에 네 annotated design tag를 붙일 수 있다.
-  같은 tree를 공유하므로 정본 복제나 단계별 인위적 commit 분할이 필요하지 않다.
-- tag 생성 뒤 실제 object type·대상 commit·annotation·manifest 존재를 readback하고 별도 실행 기록
-  commit을 main에 남긴다. 이 때문에 main이 design tag보다 한 commit 앞설 수 있다.
+- 삭제된 `design/*/v1` tag를 현행 기준선으로 주장하거나 재생성하지 않는다.
+- 다음 Git 기준선이 필요하면 M0 Core와 각 후속 단계의 누적 범위를 서로 다른 commit으로 고정하고,
+  실제 commit SHA와 포함 범위를 현행 기록에서 readback한다. 현재 병합에서는 새 tag를 만들지 않는다.
 - 애플리케이션 구현 release는 `app-vX.Y.Z` 같은 별도 tag/release로 관리한다. release metadata에
-  구현한 design tag 목록과 차이·미충족 gate를 적고 design tag를 구현 완료 증거로 사용하지 않는다.
-- 실제 commit·main fast-forward·tag 생성과 readback 상태는
-  [설계 기준선 작업 기록](../task_list/09/08/설계기준선/task.md)과 Git 조회 결과에서 확인한다. push는
-  범위 밖이다.
+  대응하는 설계 commit과 차이·미충족 gate를 적고 설계 문서 자체를 구현 완료 증거로 사용하지 않는다.
+- [설계 기준선 작업 기록](../task_list/09/08/설계기준선/task.md)은 당시 실행 이력으로 보존한다. 현행
+  branch·commit·tag 상태는 Git을 직접 조회한다.
 
 ## 공통 제외와 검증 경계
 

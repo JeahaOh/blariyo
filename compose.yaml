@@ -1,0 +1,57 @@
+name: blariyo-m0-core-local
+services:
+  postgresql:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: blariyo_local
+      POSTGRES_USER: blariyo_local
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - '127.0.0.1:55439:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U blariyo_local -d blariyo_local']
+      interval: 2s
+      timeout: 2s
+      retries: 20
+  api:
+    profiles: [preview]
+    build:
+      context: .
+      target: api
+    environment:
+      NODE_ENV: test
+      HOST: 0.0.0.0
+      PORT: 3100
+      DATABASE_URL: postgres://blariyo_local@postgresql:5432/blariyo_local
+      SERVICE_TOKEN: ${SERVICE_TOKEN:-}
+      STORAGE_ROOT: /app/.local-data/media
+      SITE_ORIGIN: http://localhost:3000
+      IMAGE_ORIGIN: http://localhost:3000/media
+    volumes:
+      - localmedia:/app/.local-data
+    depends_on:
+      postgresql:
+        condition: service_healthy
+  web:
+    profiles: [preview]
+    build:
+      context: .
+      target: web
+    environment:
+      NODE_ENV: test
+      NITRO_HOST: 0.0.0.0
+      NITRO_PORT: 3000
+      NUXT_CORE_ORIGIN: http://api:3100
+      NUXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
+      NUXT_ADMIN_AUTH_MODE: local
+      NUXT_LOCAL_ADMIN_TOKEN: ${LOCAL_ADMIN_TOKEN:-}
+      NUXT_SERVICE_TOKEN: ${SERVICE_TOKEN:-}
+      NUXT_ACTOR_SECRET: ${ACTOR_SECRET:-}
+    ports:
+      - '127.0.0.1:3000:3000'
+    depends_on: [api]
+volumes:
+  pgdata:
+  localmedia:

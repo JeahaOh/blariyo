@@ -25,7 +25,8 @@
 
 2026-09-07 사용자 결정에 따라 기존 애플리케이션 프로토타입을 이어 개발하지 않고 새로 구현한다.
 기존 source·migration·생성 타입·테스트 결과는 새 구현의 완료 근거로 승계하지 않는다.
-오늘 작업은 docs 확정이며 실제 프로토타입 삭제·소스 생성은 수행하지 않는다.
+이 전제 이후 현재 브랜치에 신규 Core 구현이 추가됐다. 2026-09-08 로컬 검증 범위와 실행 명령은
+[루트 README 검증](../../README.md#검증)을 따른다. 이 문서의 설계 계약과 실제 실행 증거는 구분한다.
 
 - 개발 입력: planning → system-design → 기능 명세와 docs OpenAPI.
 - 첫 구현 범위: M0 Core. 수집 보조·자동 수집·M1 기능은 각 단계로 분리한다.
@@ -55,6 +56,8 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 환경에서도 분석 동의 후에만 로드하며 자체 분석 DB·API를 만들지 않는다. GA4 활성화는 M0 Core
 공개 완료 조건이 아니다. M1 회원과 M1.5 익게는 [별도 확장 계약](06-member-community-design.md)으로 설계한다. 광고는 기존 후속 활성화 경계를 유지한다.
 
+내부 패키지와 import 경계는 [M0 코드 구조](08-code-structure.md)를 따른다.
+
 ## 문서 구성
 
 | 문서 | 역할 |
@@ -74,7 +77,7 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 | --- | --- |
 | 공개 BE·FE 런타임 | Node.js `24.18.0` LTS |
 | 웹·BFF | Nuxt SSR + same-origin `/api/v1` 외부 계약 |
-| Core API | Express, Docker app network에서 Web만 HTTP 접근; cron은 단발성 command |
+| Core API | NestJS + TypeORM + TypeScript strict, Docker app network에서 Web만 HTTP 접근; cron은 단발성 command |
 | 서비스 데이터베이스 | PostgreSQL 18 단일 인스턴스. Spring collector는 운영자 PC의 별도 PostgreSQL 18에서 `batch`·`quartz`·`collector` schema 사용 |
 | DB schema | `M0 Core`: `content`, `legal`, `ops`; `M0 수집 보조`: `collect`; 이후 schema는 단계별 migration에서 추가 |
 | 이미지 | Cloudflare R2 Standard, 비공개 원본 bucket과 공개 media bucket 분리 |

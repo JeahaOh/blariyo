@@ -1,9 +1,9 @@
 # M0 Core 설계 기준선 manifest v1
 
-- 상태: v1 범위 명세·문서 검수 완료, 기술·법무 조건부
-- 기준선 tag: `design/m0-core/v1`
-- tag 종류: annotated design tag
-- 선행 기준선: 없음
+- 상태: 과거 v1 범위 정의 참고본, 현행 Git 기준선 아님
+- 과거 기준선 tag: `design/m0-core/v1` (삭제됨)
+- tag 상태: 현행 ref 없음, 재생성 계획 없음
+- 과거 선행 기준선: 없음
 - 현행 준비 판정: [M0 Core](../system-design/design-readiness.md#현재-판정) 조건부 확정 가능
 
 ## 포함 범위
@@ -47,7 +47,8 @@
   미구현 또는 미검증이다.
 - 법무 문서 포함은 초안과 차단 조건을 고정하는 것이며 법률 자문 완료를 뜻하지 않는다.
 
-## Annotated tag 계약
+## 과거 Annotated tag 계약 (폐기)
 
-tag annotation은 `Blariyo design baseline: M0 Core v1`, 이 manifest 경로, `design only`, 구현 수용과
-production 공개 승인 제외를 기록한다. commit SHA는 tag 생성 뒤 readback 기록에서 확인한다.
+아래 내용은 당시 tag에 적용한 계약이며 현행 Git 정책이 아니다. tag annotation은
+`Blariyo design baseline: M0 Core v1`, 이 manifest 경로, `design only`, 구현 수용과 production 공개
+승인 제외를 기록했다.

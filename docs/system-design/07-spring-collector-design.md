@@ -1,7 +1,7 @@
 # Spring 수집 서버 상세 설계
 
 - 기준일: 2026-09-08
-- 상태: 조건부 설계 확정 가능(개발 입력)·주 검수 완료, source·migration·OpenAPI·test·build·runtime 미구현·미검증
+- 상태: source·migration·OpenAPI 구현 및 격리 환경 검증 진행. 실제 출처·Discord·운영 전환은 미검증
 - 대상 단계: `M0 수집 보조`
 - 상위 계약: [시스템 아키텍처](./01-system-architecture.md#spring-collector-transition), [데이터 모델](./02-data-model.md#spring-수집-배치-저장-경계), [API 설계](./03-api-design.md#spring-수집-서버의-실행-api와-기존-중계)
 - 기능 명세: [M0 수집 보조 개발 명세](../development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md)
@@ -13,7 +13,9 @@ Quartz, REST·Discord 공통 실행 경로와 Java 추출을 사용한다. 기�
 거친 Core API로만 수행한다.
 
 `M0 Core` 공개와 이 서버의 구현·활성화는 분리한다. 이 설계가 확정되어도 Spring source, Core migration,
-OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는 뜻은 아니다.
+OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는 뜻은 아니다. 현재 구현 범위와 실행 결과는 [M0 완료 조건](../implementation/m0-completion/acceptance.md)과 [검증 기록](../implementation/m0-completion/evidence.md)에서 분리해 관리한다.
+
+내부 패키지·의존성 규칙과 CLI 배치는 [M0 코드 구조](08-code-structure.md)를 따른다.
 
 ## 1. 확정 선택과 되돌리기 조건
 
@@ -23,7 +25,7 @@ OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는
 | Java | JDK 25 LTS | 2026-09-08 현재 LTS이고 Boot 4.1 지원 범위 안 | 선택 배포판의 macOS 지원·라이선스·보안 업데이트가 운영 조건을 충족하지 못하면 지원되는 다른 JDK 25 배포판 사용 |
 | Spring | Spring Boot 4.1.1, Boot BOM이 관리하는 Spring Batch 6.0.5·Quartz 2.5.2 | 현재 stable 조합을 한 BOM으로 맞춰 임의 버전 혼합을 피함 | source 작성 시 공개된 보안 수정 patch가 있으면 같은 minor 최신 patch로 올리고 전체 test 재실행 |
 | Build | Gradle Wrapper 9.7.1, Kotlin DSL | Boot 4.1이 Gradle 9.x를 지원하고 wrapper checksum으로 재현 가능 | plugin 호환 실패가 재현되면 Boot 지원 범위인 Gradle 8.14 최신 patch로 한시 하향 |
-| parser·Discord | jsoup 1.23.2, JDA 6.4.1 | 확인일 현재 각 프로젝트의 stable release | 실제 fixture·Discord Gateway contract test 실패 또는 보안 공지가 있으면 호환 patch로 갱신 |
+| parser·Discord | jsoup 1.23.2, JDA 6.4.2 | 설계 minor를 유지하고 구현 의존성을 patch 버전으로 고정 | 실제 fixture·Discord Gateway contract test 실패 또는 보안 공지가 있으면 호환 patch로 갱신 |
 | Core HTTP | Spring `RestClient`, 외부 출처 HTTP는 JDK `HttpClient`와 수동 redirect | Core JSON 호출과 SSRF 통제가 필요한 외부 fetch를 분리 | HTTP/2·proxy·관측 요구가 기본 client로 충족되지 않을 때 보안 contract test를 유지한 채 교체 |
 | 외부 fetch 제한 | connect 5초·요청 20초, HTML 2MiB·robots 512KiB·이미지 10MiB, redirect 최대 3회·같은 host | 단건 M0에서 자원 고갈을 제한하고 기존 preview 10MiB 계약과 맞춤 | 실제 fixture가 정상 응답을 반복 차단하면 출처별 더 낮은 값부터 검증하고 상향 변경 기록 |
 | 실행 저장소 | 운영자 PC의 전용 PostgreSQL 18, `batch`·`quartz`·`collector` schema | Batch restart·Quartz misfire·중복 실행·outbox를 crash 뒤에도 복구 | 단일 PC에서 PostgreSQL 운영 부담이 실제로 과도하고 동일 fault test를 통과하는 대체 JDBC 저장소가 확인될 때 교체 |
@@ -41,7 +43,7 @@ OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는
 - [Oracle Java SE roadmap](https://www.oracle.com/java/technologies/java-se-support-roadmap.html): Java 25는 LTS. 실제 배포판의 라이선스·업데이트 채널은 설치 전에 별도 확인한다.
 - [Gradle releases](https://gradle.org/releases/): 9.7.1 stable과 배포 checksum을 확인했다. 확인일 2026-09-08.
 - [jsoup releases](https://jsoup.org/news/): 1.23.2 stable을 확인했다. 확인일 2026-09-08.
-- [JDA releases](https://github.com/discord-jda/JDA/releases): 6.4.1 stable을 확인했다. 확인일 2026-09-08.
+- [JDA releases](https://github.com/discord-jda/JDA/releases): 구현은 6.4.2에 고정했다. 로컬 의존성 해석·빌드로 확인했으며 전체 최신 버전이라는 주장은 하지 않는다. 확인일 2026-09-09.
 - [PostgreSQL 18 `ALTER TABLE`](https://www.postgresql.org/docs/18/sql-altertable.html): `NOT VALID` CHECK도
   새 INSERT·UPDATE에는 적용되므로 legacy 전환 1차 migration에는 엄격 CHECK를 추가하지 않는다. 확인일 2026-09-08.
 
@@ -294,7 +296,7 @@ Core가 소유하는 `collect.source_request_budget`을 둔다.
 PK는 `(source_id,budget_date)`다. `collect.source_request_reservation`은 UUID PK, source/candidate,
 collector execution ID, HMAC한 request key, request kind, budget date, reserved 시각, `valid_until`, 상태를
 가진다. 상태는 `ISSUED|EXPIRED`이며 사용 여부를 원격 exactly-once 증거로 해석하지 않는다.
-`(source_id, request_key_hash)`는 unique이며 30일 후 삭제한다. URL, host 전체, response body는 저장하지 않는다.
+`(source_id, request_key_hash)`는 unique이며 30일 후 삭제한다. 후보가 먼저 보존 기간 만료로 삭제되면 reservation과 운영 이벤트의 `candidate_id`는 NULL로 전환하고 일반화 이력은 원래 보존 기간까지 유지한다. URL, host 전체, response body는 저장하지 않는다.
 
 ### 6.3 운영 이벤트
 

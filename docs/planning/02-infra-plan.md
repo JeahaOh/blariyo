@@ -40,8 +40,8 @@
 | 영역 | M0 선택 | 선택 경계 |
 | --- | --- | --- |
 | 웹·BFF | Nuxt SSR + same-origin `/api/v1` | HTML·OG 생성과 외부 API 계약 |
-| Core API | Express | Docker 내부 조회와 운영자 transaction |
-| 런타임 | Node.js `24.18.0` LTS | Nuxt·Express 통일 |
+| Core API | NestJS + TypeORM + TypeScript strict | Docker 내부 조회와 운영자 transaction |
+| 런타임 | Node.js `24.18.0` LTS | Nuxt·Nest Core 통일 |
 | 데이터베이스 | PostgreSQL 18 | 단일 영구 관계형 DB, MySQL·MariaDB 병행 없음 |
 | 이미지 | Cloudflare R2 Standard | private 원본, public media 분리 |
 | 엣지 | Cloudflare Free | DNS·CDN·TLS·Tunnel·Access |
@@ -71,7 +71,7 @@ Redis, MongoDB, 별도 managed DB, Kubernetes, 다중 API instance와 다중 reg
 | `/api/v1/admin/*` | 게시글·이미지·수집 후보 관리자 API. 외부 관리자 인증 필수 |
 | `/api/v1/*` | Nuxt BFF의 나머지 공개 API |
 
-- PostgreSQL과 application container port는 인터넷에 직접 공개하지 않는다. Express Core API는 Nginx route·public DNS·host port 없이 Nuxt BFF만 HTTP로 호출한다. cron은 API image의 단발성 command로 실행한다.
+- PostgreSQL과 application container port는 인터넷에 직접 공개하지 않는다. Nest Core API는 Nginx route·public DNS·host port 없이 Nuxt BFF만 HTTP로 호출한다. cron은 API image의 단발성 command로 실행한다.
 - 관리자 화면과 관리자 API의 외부 identity는 Nuxt BFF의 교체 가능한 adapter가 검증한다. 초기 provider는 Cloudflare Access지만 Core API는 이에 종속되지 않는다.
 - 실제 service domain 설정에 미확정 placeholder가 남아 있으면 배포하지 않는다.
 - `/community`, `/news`, `/login`, `/signup/consent`, `/account`는 해당 후속 단계가 시작될 때 활성화한다.

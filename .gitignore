@@ -124,7 +124,7 @@ nbdist/
 # Docker
 ############################################
 # Dockerfile
-.dockerignore
+# .dockerignore is an implementation artifact
 # docker-compose.*
 *.tar
 *.img
@@ -164,3 +164,26 @@ apps/data/postgresql/*
 apps/data/mongodb/*
 !apps/data/mongodb/README.md
 ############################################
+
+.output/
+.local-data/
+test-results/
+playwright-report/
+
+# Operator-local collector
+.venv/
+__pycache__/
+*.pyc
+*.db-journal
+*.db-wal
+*.db-shm
+tools/collector/config.local.json
+
+# Strict API test build
+/apps/api/dist-test/
+
+# Operator-local runtime data and configuration
+.collector-data/
+*.local.properties
+
+

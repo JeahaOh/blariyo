@@ -1,15 +1,15 @@
 # 개발 환경 재개 전 안전 기준
 
-- 문서 상태: 초기 Compose 존재 · production 배포 미검증
-- 정합성 검토일: 2026-08-20
+- 문서 상태: 로컬 Compose·Nest production image 검증 경로 존재 · 실제 배포 미검증
+- 정합성 검토일: 2026-09-09
 
 2026-09-07 구현 worktree에는 `apps/`, `compose.yaml`, migration·seed와 package script가 있다.
 파일 존재는 실행·배포 성공 증거가 아니다. 실행 대상은 현재 checkout의 Compose와 package script로
 확인하고 과거 경로·명령을 그대로 재사용하지 않는다. 실제 secret·환경값은 이 문서에 기록하지 않는다.
 
 이 문서는 애플리케이션 개발을 다시 시작할 때 기존 로컬·운영 데이터를 훼손하지 않기 위한
-안전 경계만 정의한다. 구체적인 파일 경로와 명령은 실제 구현 산출물이 생긴 뒤 그 구조를 직접
-확인해 추가한다.
+안전 경계만 정의한다. 현재 로컬 실행은 [README](../README.md), Nest 전환 전용 자원·검증은
+[전환 보고](migration/REPORT.md)의 실제 식별자와 명령을 따른다.
 
 ## 1. 설계 정본
 
@@ -35,8 +35,9 @@
 - 빈 PostgreSQL 18에서 migration·seed를 검증할 명령
 - backup 생성, 별도 보관과 실제 restore 검증 절차
 
-경로나 명령을 예시만으로 먼저 고정하지 않는다. 구현 시점의 실제 파일과 package script를 읽고
-이 문서를 갱신한 뒤 실행한다.
+현재 개발 Compose DB는 loopback 55439, Nest 전환 검증 DB는 별도 55449다.
+`npm run test:docker`는 고유 이름의 새 image·network·DB만 사용하고 teardown한다.
+`npm run verify:migration`의 시작 전 ID·port·volume 확인 절차는 전환 보고를 따른다.
 
 ## 3. 실행 전 대상 확인
 
@@ -56,7 +57,8 @@ git rev-parse --show-toplevel
 git status --short --branch
 ```
 
-Compose·DB 확인 명령은 실제 Compose 파일과 service가 만들어진 뒤 문서화한다.
+현재 Compose의 service는 `docker compose config --services`, 기동 상태는 `docker compose ps`로 확인한다.
+전환 검증 자원에는 Compose down이나 volume 삭제를 적용하지 않는다. 최종 실행 증거는 PROGRESS에 구분한다.
 
 ## 4. 데이터 보존 원칙
 

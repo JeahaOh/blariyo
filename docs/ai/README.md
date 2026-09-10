@@ -5,8 +5,17 @@
 
 ## 이번 개발의 전제
 
-기존 애플리케이션 프로토타입을 폐기하고 docs 기준으로 새로 개발한다. 이전 구현의 구조·생성 타입·
-PASS를 새 구현에 승계하지 않는다. 정적 publishing·wireframe은 화면 비교 자료이며 제품 범위는 planning을 따른다.
+폐기 대상으로 정했던 과거 애플리케이션 프로토타입을 이어 개발하지 않고 docs 기준으로 새로 개발한다.
+그 프로토타입의 구조·생성 타입·PASS를 새 구현에 승계하지 않는다. 현재 저장소의 M0 source는 새로
+개발한 구현이므로 실제 migration·계약·test·build·runtime 증거로 평가한다. 정적 publishing·wireframe은
+화면 비교 자료이며 제품 범위는 planning을 따른다.
+
+## 현재 Core 전환 작업
+
+2026-09-09 main의 NestJS·TypeORM 전환은 [최종 사용자 TASK](../task_list/09/09/TASK.md)를 따른다.
+내부 구조는 [코드 구조](../system-design/08-code-structure.md), 실제 실행 상태는 [PROGRESS](../migration/PROGRESS.md),
+전체 기능·검증 대응은 [PLAN](../migration/PLAN.md), 준비·운영·검증 명령은 [REPORT](../migration/REPORT.md)에 있다.
+과거 Express/Spring 개별 PASS를 현재 Nest 최종 종합 PASS로 승계하지 않는다.
 
 ## 정본 지도
 
@@ -21,8 +30,9 @@ PASS를 새 구현에 승계하지 않는다. 정적 publishing·wireframe은 �
 | 비교 기준과 수용 조건 | [벤치마크 명세](../planning/05-benchmark-spec.md) |
 | 카피 계약과 색상 기준 | [카피 계약](../planning/06-copy-contract.md), [색상표](../planning/07-color-palette.md) |
 | 시스템 경계·DB·API·운영 | [시스템 설계](../system-design/README.md) |
-| 단계별 설계 기준선 범위·선행 관계·design tag | [설계 기준선 manifest](../baselines/README.md) |
+| 단계별 설계 범위·선행 관계의 과거 참고본 | [설계 기준선 manifest](../baselines/README.md) — 삭제된 design tag를 현행 Git 기준선으로 사용하지 않음 |
 | 기능별 API 보충·처리 흐름·화면 명세 | `docs/development-specs/<milestone>/<feature-slug>/<feature-slug>.dev.md` — 기능당 1개 |
+| 테스트 케이스 작성·보강 | [테스트 구현 안내](../implementation/testing/README.md) — M0·수집·운영 케이스와 후속 게시판/익게 케이스, 코드 예제 |
 | 약관·개인정보·권리·쿠키 | [법무 문서](../legal/README.md) |
 | 정적 화면의 현재 표현 | [퍼블리싱 프로토타입](../publishing/responsive/README.md), [와이어프레임](../wireframes) — 단계는 화면 설계와 재대조 |
 | 과거 작업과 다음 시작점 | [작업 기록](../../worklog/README.md) — 비정본 |

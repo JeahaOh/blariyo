@@ -1,0 +1,13 @@
+.git
+**/node_modules
+**/.nuxt
+**/.output
+.local-data
+.env
+.env.*
+worklog
+tests
+
+# Collector runs only on the operator machine
+tools/collector
+apps/collector

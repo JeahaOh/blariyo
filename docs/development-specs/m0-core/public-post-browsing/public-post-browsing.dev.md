@@ -191,7 +191,7 @@ context의 page size는 20이다. 게시판 문맥 없는 상세 alias는 제공
 #### 목적과 호출 경계
 
 정상 렌더링된 공개 상세가 참고용 누적 조회 수를 한 번 증가시킨다. 브라우저→BFF→Core
-`PostCommandService`→PostgreSQL 순서이며 GA4와 무관하다.
+`PublicService.view`→PostgreSQL 순서이며 GA4와 무관하다.
 
 #### Method·path·인증·권한
 
@@ -254,7 +254,7 @@ pagination 해당 없음. 응답·오류는 `no-store`다.
 #### 목적과 호출 경계
 
 브라우저 또는 Nuxt SSR이 활성 게시판 메뉴를 조회한다. 외부 제공자는 Nuxt BFF, 내부 제공자는
-Express Core `BoardQueryService`이며 BFF가 허용 필드만 전달한다.
+Nest Core `PublicService.boards`이며 BFF가 허용 필드만 전달한다.
 
 #### Method·path·인증·권한
 
@@ -312,7 +312,7 @@ pagination 없음. 게시판 문맥 없는 게시글 alias를 만들지 않는�
 #### 목적과 호출 경계
 
 Nuxt SSR과 상세 하단 목록이 활성 게시판의 공지와 일반 글 한 page를 조회한다. BFF→Core
-`BoardQueryService`/`PostQueryService`→PostgreSQL 순서다.
+`PublicService`→PostgreSQL 순서다.
 
 #### Method·path·인증·권한
 

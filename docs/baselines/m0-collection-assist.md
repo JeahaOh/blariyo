@@ -1,9 +1,9 @@
 # M0 수집 보조 설계 기준선 manifest v1
 
-- 상태: v1 범위 명세·문서 검수 완료, 기술·법무 조건부
-- 기준선 tag: `design/m0-collection-assist/v1`
-- tag 종류: annotated design tag
-- 선행 기준선: `design/m0-core/v1`
+- 상태: 과거 v1 범위 정의 참고본, 현행 Git 기준선 아님
+- 과거 기준선 tag: `design/m0-collection-assist/v1` (삭제됨)
+- tag 상태: 현행 ref 없음, 재생성 계획 없음
+- 과거 선행 기준선: `design/m0-core/v1` (삭제됨)
 - 현행 준비 판정: [M0 수집 보조](../system-design/design-readiness.md#현재-판정) 조건부 확정 가능
 
 이 manifest는 M0 Core에 더하는 수집 보조 delta다. M0 Core 공개와 collector 활성화는 분리한다.
@@ -45,8 +45,8 @@
 - Discord Application·guild/channel/user/role, Core credential, 운영 PC·OS 계정·설치 경로는 실값이다.
 - collector가 미구현·중단이어도 M0 Core 공개 읽기·관리자 수동 작성·예약 발행·백업은 계속 가능해야 한다.
 
-## Annotated tag 계약
+## 과거 Annotated tag 계약 (폐기)
 
-tag annotation은 `Blariyo design baseline: M0 Collection Assist v1`, 이 manifest 경로,
-`requires design/m0-core/v1`, `design only`, 구현 수용과 collector 활성화 제외를 기록한다. commit SHA는
-tag 생성 뒤 readback 기록에서 확인한다.
+아래 내용은 당시 tag에 적용한 계약이며 현행 Git 정책이 아니다. tag annotation은
+`Blariyo design baseline: M0 Collection Assist v1`, 이 manifest 경로, `requires design/m0-core/v1`,
+`design only`, 구현 수용과 collector 활성화 제외를 기록했다.

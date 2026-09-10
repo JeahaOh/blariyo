@@ -75,7 +75,7 @@ R2 bucket은 공개 범위와 자격증명을 분리하기 위해 세 개로 나
 
 ```text
 blariyo-media-public
-  posts/{postId}/{sha256}.{ext}
+  posts/{postId}/{imageId}-{sha256}.{ext}
 
 blariyo-media-private
   drafts/{postId|draftId}/{uuid}
@@ -85,6 +85,8 @@ blariyo-backup
   postgresql/daily/YYYY/MM/DD/{timestamp}.dump.age
   manifests/{timestamp}.json
 ```
+
+공개 key는 이미지 자산 ID를 포함해 같은 게시글 안의 동일 hash 이미지도 별도 자산으로 유지한다. 같은 자산의 재시도는 같은 key를 사용한다. 이는 데이터 모델의 중복 hash 허용과 공개 key UNIQUE 제약을 함께 만족한다.
 
 `blariyo-media-public`에만 이미지 custom domain을 연결한다. private media와 backup bucket은 public access와 custom domain을 모두 차단한다. 발행 시 검증된 private 원본을 public bucket으로 copy하고 DB에 public key를 추가하되 private 원본 key는 복구·재공개를 위해 유지한다.
 
@@ -189,7 +191,7 @@ Internet
 - VM cloud firewall inbound rule은 기본 `deny all`이다.
 - `cloudflared`의 터널 연결은 Cloudflare 지정 목적지의 outbound `7844/UDP`(QUIC) 또는 `7844/TCP`(HTTP/2)를 허용한다. 업데이트·관리 API 등 HTTPS 통신의 `443/TCP`와 구분한다. 목적지 목록은 [공식 Tunnel 방화벽 요구사항](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/configure-tunnels/tunnel-with-firewall/)을 배포 시 확인한다.
 - 긴급 복구 SSH가 필요하면 운영자 고정 IP에만 22를 임시 허용하고 작업 후 닫는다.
-- PostgreSQL·Nuxt·Express container port는 host public interface에 bind하지 않는다.
+- PostgreSQL·Nuxt·Nest Core container port는 host public interface에 bind하지 않는다.
 - Docker network를 `edge`, `app`, `data`로 분리한다.
 - `edge`에는 `cloudflared`·`nginx`·`web`, `app`에는 `web`·`api`, `data`에는 `api`·`postgresql`만 연결한다.
 - Nginx에는 `api` upstream을 두지 않는다. `web`만 `api`에, `api`만 `postgresql`에 접근한다.
@@ -444,7 +446,7 @@ OCI와 Lightsail은 같은 Compose·환경 변수·multi-arch image를 사용한
 ## 로컬 Spring 수집 서버 배치 경계
 
 [Spring 수집 서버 상세 설계](07-spring-collector-design.md)에 따라 M0 구현 저장소의 `apps/collector`를
-독립 Gradle 애플리케이션으로 두고 운영자 PC에서 실행한다. 공개 VM의 Nuxt·Express·서비스 PostgreSQL
+독립 Gradle 애플리케이션으로 두고 운영자 PC에서 실행한다. 공개 VM의 Nuxt·Nest Core·서비스 PostgreSQL
 구성은 유지하며 Spring 프로세스를 공개 Compose에 추가하지 않는다.
 
 - collector 실행 저장소는 서비스 DB와 물리적으로 분리한 로컬 PostgreSQL 18이다. 한 local database의

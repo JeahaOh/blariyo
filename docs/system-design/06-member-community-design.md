@@ -13,7 +13,7 @@
 <a id="architecture"></a>
 ## 1. 시스템 경계
 
-브라우저 → same-origin Nuxt BFF → Express Core → PostgreSQL 흐름을 유지한다. OAuth는 외부
+브라우저 → same-origin Nuxt BFF → Nest Core → PostgreSQL 흐름을 유지한다. OAuth는 외부
 제공자에게 인증을 위임하는 방식이다. 제공자 code 교환·서명 검증·프로필 최소화는 BFF adapter,
 계정·세션·동의·권한·업무 transaction은 Core가 담당한다. BFF에 SQL이나 회원 상태 판정을 두지 않는다.
 

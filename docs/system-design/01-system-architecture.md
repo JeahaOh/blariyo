@@ -48,7 +48,7 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 [Nuxt SSR Web + BFF]
   |
   v
-[Express Core API] ----> [PostgreSQL 18]
+[Nest Core API] ----> [PostgreSQL 18]
   |
   +--------------------> [Cloudflare R2]
   +--------------------> [Cloudflare Cache Purge API]
@@ -124,7 +124,7 @@ ui
   최대 120자를 만든다. UTF-16 code unit·byte 기준으로 자르지 않는다. 공개 TEXT block이 없으면
   확정 서비스 기본 문구를 사용한다.
 - 없는 글과 숨김 글은 같은 `404` HTML을 반환하고 콘텐츠 데이터를 포함하지 않는다.
-- 외부에 보이는 `/api/v1`은 Nuxt BFF 계약이다. 브라우저는 Express 주소나 Core API route를 알 수 없다.
+- 외부에 보이는 `/api/v1`은 Nuxt BFF 계약이다. 브라우저는 Core 주소나 Core API route를 알 수 없다.
 - SSR은 같은 BFF handler를 호출하고, 상세 하단 페이지 이동은 same-origin `/api/v1/boards/:boardSlug/posts`를 호출한다.
 - BFF는 공개 응답을 필요한 필드로 제한하고 외부 관리자 identity를 provider adapter로 검증한다.
 - BFF는 외부 assertion을 Core에 전달하지 않는다. adapter가 외부 identity를 안정적인 내부 `operatorId`로 매핑하고 이를 HMAC actor로 변환해 내부 서비스 토큰과 함께 전달한다.
@@ -136,39 +136,17 @@ ui
   복제하지 않는다.
 - 수집 관련 화면과 API는 게시글 관리자 경로와 같은 인증 경계를 사용하고, 외부 사이트 fetch는 BFF가 직접 수행하지 않는다.
 
-### Express Core API
+### Nest Core API
 
-```text
-routes
-  public
-  admin
-  internal
+내부 디렉터리·의존성·언어 기준은 [M0 코드 구조](08-code-structure.md)를 따른다.
+HTTP 입력·응답 처리와 업무 처리를 분리하며, M0의 기능 모듈이 업무 처리와 해당 SQL을 함께 소유한다.
+DB 접근은 Repository와 Unit of Work에 격리하고 저장소·CDN 구현은 `adapters`에 둔다. 전환 구조와 상태는 [코드 구조](08-code-structure.md)를 따른다.
 
-controllers
-  validation + response mapping
-
-services
-  BoardQueryService
-  PostQueryService
-  PostCommandService
-  PolicyQueryService
-
-repositories
-  PostgreSQL query and transaction
-
-adapters
-  ObjectStorage
-  EdgeCache
-  InternalServiceAuth
-  CollectorAuth
-  Clock
-```
-
-services에는 `CollectSourceService`와 `CollectCandidateService`를 둔다. `CollectCandidateService`만 후보 상태를 바꾸고, 후보를 초안으로 승격할 때는 `PostCommandService`의 초안 생성 경로를 재사용해 게시글·이미지·상태 이력 규칙을 중복 구현하지 않는다.
+`features/collection`의 수집 서비스가 출처·후보 상태를 관리하고, 후보를 초안으로 승격할 때는 `features/posts`의 `PostsService` 초안 생성 경로를 재사용해 게시글·이미지·상태 이력 규칙을 중복 구현하지 않는다.
 
 - Controller는 SQL과 상태 전이 규칙을 직접 처리하지 않는다.
 - 공개 조회와 관리자 명령 모델을 분리한다.
-- `PostCommandService`만 게시 상태를 변경하고 이력 행을 같은 transaction에 기록한다.
+- `PostsService`만 게시 상태를 변경하고 이력 행을 같은 transaction에 기록한다.
 - R2 업로드나 캐시 제거 같은 외부 I/O는 DB transaction 밖에서 수행하고 보상·재시도 상태를 남긴다.
 - host port, public DNS, Nginx upstream을 만들지 않는다. HTTP 호출자는 Docker app network의 `web` 하나로 제한한다.
 - cron은 외부·내부 HTTP route를 호출하지 않고 API image의 단발성 command로 같은 service·repository 계층을 실행한다.
@@ -203,7 +181,7 @@ GET /meme
   -> Cloudflare cache bypass
   -> Nuxt SSR
   -> Nuxt BFF GET /api/v1/boards/meme/posts?page=1
-  -> Express Core API
+  -> Nest Core API
   -> PostgreSQL: 공지 0~3 + 일반 글 20 + total count
   -> SSR HTML
   -> Cache-Control: no-store
@@ -395,7 +373,7 @@ Redis, queue broker, Kubernetes, Elasticsearch는 위 조건과 직접 연결된
 Spring Batch·Quartz -> 운영자 PC의 전용 PostgreSQL 18 (`batch`·`quartz`·`collector` schema)
 ```
 
-공개 Nuxt·Express의 기술 스택과 배포 단위는 유지한다. 수집 서버 중단은 공개 BE·FE의 장애로
+공개 Nuxt·Core의 배포 단위는 유지한다. Core 내부 스택은 08의 Nest/TypeORM 전환 계약을 따른다. 수집 서버 중단은 공개 BE·FE의 장애로
 전파하지 않는다. Python 중심 실행·추출은 교체 대상이며 병행 운영을 기본안에 포함하지 않는다.
 `s2b_batch`는 상시 서버 동작 구조의 참고일 뿐 업무 코드·인증·DB·설정 복사나 S2B 연결 대상이 아니다.
 

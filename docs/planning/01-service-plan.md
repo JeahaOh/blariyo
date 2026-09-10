@@ -432,5 +432,5 @@ GA4 운영 활성화 gate는 M0 Core 구현 완료와 분리하며, gate가 늦�
 
 수집 보조의 실행 주체는 운영자 로컬의 Spring Boot 상시 서버로 전환한다. Spring Batch가 작업을,
 Quartz가 접수된 후보의 예약 처리를 담당하며 REST API·Discord도 같은 실행 경로를 사용한다.
-기존 Nuxt BFF·Express Core·검수 화면과 별도 발행 절차는 유지한다. 자동 목록 발견은 후속 범위다.
+기존 Nuxt BFF·Nest Core·검수 화면과 별도 발행 절차는 유지한다. 자동 목록 발견은 후속 범위다.
 확정·미정과 데이터 소유권은 [수집 기획](content-collection/README.md#spring-수집-서버-전환-결정-2026-09-08)을 따른다.

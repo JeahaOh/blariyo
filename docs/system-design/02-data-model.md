@@ -568,6 +568,17 @@ payload는 `privateStorageKey`, `objectCreatedAt`, `cleanupReason=UPLOAD_ROLLBAC
 파일명·관리자 identity는 넣지 않는다. 일반 image row의 삭제는 기존 `aggregate_type=IMAGE`와 실제
 `aggregate_id=image.id`를 유지한다.
 
+### 예약 발행 실패 알림 — `ops.schedule_failure_alert`
+
+예약 실패의 재시도와 운영 알림 묶음을 cron 프로세스 재시작 후에도 유지한다. `V003`에서 추가한다.
+기본키는 `(post_id, scheduled_at, error_code)`이며 `post_id`는 게시글 FK다.
+`attempt_count`, `first_attempt_at`, `last_attempt_at`은 실패 횟수와 최초·마지막 시도를 기록하고,
+`notified_count`, `notified_at`은 마지막 전달까지 포함한 횟수와 전달 시각을 기록한다.
+공통 감사 컬럼을 포함하며 actor는 `system:scheduler`다. 본문·출처 URL·관리자 identity는 저장하지 않는다.
+첫 실패는 즉시 전달 대상으로 두고, 같은 예약·오류의 추가 실패는 15분 단위로 묶는다.
+전달 실패 시 전달 완료 값을 갱신하지 않아 다음 cron에서 재시도한다. 알림 중복 수신은 가능하므로
+수신 측은 게시글·예약 시각·오류 코드로 구성된 `groupKey`를 사용할 수 있다.
+
 ### 멱등 요청 기록 — `ops.idempotency_request`
 
 초안 생성·발행·예약·예약 취소·숨김·재공개·삭제 command의 재전송 결과를 보존한다.
@@ -941,18 +952,20 @@ list_page = FLOOR(newer_count / 20) + 1
 
 ## 10. 기존 DB와 migration 경계
 
-새 runner는 `apps/api/src/db/migrate.ts`, migration은 같은 디렉터리의 `migrations/`에 작성한다.
+운영 진입점은 `apps/api/src/commands/migrate.ts`를 빌드한 `apps/api/dist/commands/migrate.js`이며,
+`npm run db:migrate`로 실행한다. MigrationsService와 TypeORM DB 인프라가 기존 `apps/api/migrations/` SQL을 적용한다.
 과거 실험 init SQL과 구분하며 파일 존재·DB 적용·제약 검증은 각각 별도 증거로 판정한다.
 
-향후 M0 migration은 `V001__name.sql` 형식으로 관리하고 `ops.schema_migration`(§6)에 version,
+M0 migration은 `V001__name.sql` 형식으로 관리하고 `ops.schema_migration`(§6)에 version,
 filename, SHA-256 checksum과 적용 시각을 기록한다. runner는 PostgreSQL advisory lock으로
 동시 실행을 직렬화하고 migration 한 건을 한 transaction으로 적용한다. 이미 적용된 파일이
 없어지거나 checksum이 바뀌면 실행을 중단해야 한다.
 
-- `V001__create_m0_core_schema.sql`: `content`, `legal`, `ops`와 M0 Core 애플리케이션 테이블·제약·인덱스
-- `V002__seed_m0_core_reference_data.sql`: `meme / 짤 / true / ADMIN / 10` 게시판 seed
-- `M0 수집 보조` 착수 migration(version `(미정)`): `collect` schema·출처·후보 테이블을 추가하고
-  모든 출처는 `URL_ONLY`, 목록 수집 비활성, robots 미확인 상태로 seed
+- `V001__core.sql`: `content`, `legal`, `ops`와 M0 Core 애플리케이션 테이블·제약·인덱스
+- `V002__meme.sql`: `meme / 짤 / true / ADMIN / 10` 게시판 seed
+- `V003__schedule_alert.sql`: 예약 발행 실패 알림 상태
+- `V004__collection_assist.sql`: `collect` schema·출처·후보·이미지. 승인 전 외부 출처 seed는 없다.
+- `V005__spring_collection.sql`: Spring V2 실행·receipt·요청 예산·예약·운영 이벤트. 엄격 제약은 drain 후 별도 명령으로 적용한다.
 - 개발 연결 확인용 init SQL은 운영 migration과 분리한다.
 - 운영 정책 본문은 migration seed로 시행하지 않는다. 승인된 artifact를 `policies:publish`로 시행한다(§4). 로컬 테스트 fixture는 운영 DB와 분리한다.
 
@@ -963,7 +976,7 @@ filename, SHA-256 checksum과 적용 시각을 기록한다. runner는 PostgreSQ
 
 - [ ] `V001`에 application schema, 모든 table·constraint·partial index·composite FK를 PostgreSQL DDL로 구현
 - [ ] `V002`에 `meme / 짤 / true / ADMIN / 10` seed 구현
-- [ ] 출시 확정된 약관·개인정보처리방침 version을 별도 seed migration으로 구현
+- [ ] 출시 승인된 약관·개인정보처리방침 artifact를 정책 발행 CLI로 시행하고 공개 조건 확인(운영 승인 별도)
 - [ ] 빈 PostgreSQL 18에 `V001 -> V002` 순차·동시 적용 test
 - [ ] 동일 migration 재실행 차단, checksum 변경 거부와 적용 version 확인 test
 - [ ] 이미지 선점 경쟁, 연결 image당 IMAGE block 정확히 한 건, 숨김 글 image 제거, block `alt_text`, 공지 순서 충돌, 낙관적 잠금, 멱등 key 경쟁 integration test

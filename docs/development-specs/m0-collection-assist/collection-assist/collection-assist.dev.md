@@ -6,7 +6,8 @@
 - milestone: `M0 수집 보조` (`m0-collection-assist`)
 - 기능: `collection-assist` — 로컬 collector 기반 Discord·운영자 URL 지정 후보 생성·검수·반려·초안 승격
 - 기준일: 2026-09-08
-- 미검증: source, migration, OpenAPI, test, runtime, browser, 실제 출처별 운영 위험·robots 확인
+- Spring 전환 미검증: source, Core/local migration, OpenAPI, Batch/Quartz test·build·runtime, 실제 출처별 운영 위험·robots 확인
+- 기존 구현 증거: Node/Core·Python collector 구현과 전환 전 로컬 검증 범위는 [main 병합 구현 상태 인계](../../../ai/handoffs/2026-09-08-main-merge-implementation-status.md)를 따른다. 이 증거를 Spring 구현 완료로 해석하지 않는다.
 - 주요 근거:
   - [콘텐츠 수집 기획](../../../planning/content-collection/README.md)
   - [출처 명세 템플릿](../../../planning/content-collection/source-spec-template.md)
@@ -219,7 +220,7 @@ preview multipart는 `collectorId`, `collectorExecutionId`, `lockVersion`, `file
 #### 작업 목적과 호출 주체·제공 주체
 
 - 호출 주체: Nuxt BFF 관리자 화면, 운영자 로컬 collector
-- 제공 주체: Express Core API
+- 제공 주체: Nest Core API
 - 입력 근거: [API 설계 §5 관리자 URL 지정 수집 작업 접수](../../../system-design/03-api-design.md)
 - 미검증: source, OpenAPI, contract test, 실제 출처 fetch
 
@@ -332,7 +333,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 #### 작업 목적과 호출 주체·제공 주체
 
 - 호출 주체: Nuxt BFF 관리자 화면
-- 제공 주체: Express Core API
+- 제공 주체: Nest Core API
 - 입력 근거: [API 설계 §5 후보 초안 승격](../../../system-design/03-api-design.md)
 - 미검증: source, OpenAPI, R2 runtime, contract/integration test
 
@@ -422,7 +423,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 #### 작업 목적과 호출 주체·제공 주체
 
 - 호출 주체: Nuxt BFF 관리자 화면
-- 제공 주체: Express Core API
+- 제공 주체: Nest Core API
 - 입력 근거: [API 설계 §5 재수집과 반려](../../../system-design/03-api-design.md)
 - 미검증: source, OpenAPI, contract test
 
@@ -478,7 +479,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 #### 작업 목적과 호출 주체·제공 주체
 
 - 호출 주체: Nuxt BFF 관리자 화면
-- 제공 주체: Express Core API
+- 제공 주체: Nest Core API
 - 입력 근거: [API 설계 §5 재수집과 반려](../../../system-design/03-api-design.md)
 - 미검증: source, OpenAPI, contract test, 실제 출처 fetch
 
@@ -980,4 +981,4 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - 확정된 구현 기준은 [07 Spring 수집 서버 상세 설계](../../../system-design/07-spring-collector-design.md)다. `apps/collector`, 전용 local PostgreSQL 18의 Batch·Quartz·collector schema, AES-256-GCM local spool, 기본 동시 실행 1, 15분 Quartz 기본 비활성, legacy→`SPRING_V2` cutover를 따른다.
 - Spring은 service DB·object storage credential을 갖지 않으며 Core API만으로 후보·preview를 변경한다. local metadata·Batch ExecutionContext·Quartz JobDataMap에는 최소 ID·상태·hash·참조만 남기고 title·origin URL·HTML·image binary·token·절대 경로를 남기지 않는다. title·remote image URL이 든 result payload와 image temp는 동일 bytes replay에 필요한 기간만 AES-256-GCM 암호화 spool에 둔다.
 - 구현 수용은 여섯 Step checkpoint, same-key replay, stale execution fencing, Core quota/permit, spool TTL, stop·restart·reconcile, REST·Discord·Quartz 공통 경로와 legacy drain을 07의 수용 시험으로 검증한다.
-- 실제 출처·Discord·운영 배포·법무 승인과 source·migration·OpenAPI·test·build·runtime은 별도 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정은 Spring 구현 완료 근거가 아니다.
+- source·migration·OpenAPI 구현과 격리 환경 test·build·runtime 결과는 [M0 검증 기록](../../../implementation/m0-completion/evidence.md)에 기록한다. 실제 출처·Discord·운영 배포·법무 승인·7일 관찰은 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정만으로 Spring 전체 완료를 판단하지 않는다.

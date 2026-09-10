@@ -53,7 +53,7 @@ GA4 기본 `page_title`, `page_location`, `page_referrer`도 [분석 계획 §4]
 - session duration은 8시간 이하로 시작한다.
 - 퇴사·분실·침해 시 provider seat와 allowlist를 즉시 제거한다.
 - Nuxt BFF의 provider adapter만 외부 assertion의 서명, issuer, audience와 expiry를 검증한다.
-- BFF adapter는 외부 identity를 안정적인 내부 `operatorId`로 매핑하고 이를 HMAC한 admin actor와 내부 서비스 토큰만 Express Core API에 전달한다.
+- BFF adapter는 외부 identity를 안정적인 내부 `operatorId`로 매핑하고 이를 HMAC한 admin actor와 내부 서비스 토큰만 Nest Core API에 전달한다.
 - Core는 내부 서비스 토큰과 actor 형식만 검증하며 외부 assertion·provider 설정을 참조하지 않는다.
 - 관리자 identity 원문은 상태 이력에 저장하지 않는다.
 - 이벤트 IP 제한은 임의의 `X-Forwarded-For`를 사용하지 않는다. Cloudflare Tunnel 배포에서 `NUXT_TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip`를 명시하고, origin 직접 접근을 차단한 상태에서만 해당 값을 신뢰한다.
@@ -449,6 +449,13 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 관리자 identity 원문은 넣지 않으며, 같은 게시글과 오류의 반복 알림은 묶는다. 자동 재시도 횟수는
 제한하지 않고 성공하거나 운영자가 예약을 취소할 때까지 계속한다. 반면 공지 위치 충돌처럼 같은
 입력으로 성공할 수 없는 업무 제약 오류는 `DRAFT`로 되돌리고 한 번 알린 뒤 자동 재시도하지 않는다.
+
+구현은 `ops.schedule_failure_alert`에 실패와 전달 상태를 보존하고 기존 cron command에서
+`SCHEDULE_ALERT_WEBHOOK_URL`로 JSON 알림을 전달한다. 첫 실패부터 전달을 시도하고 같은 예약·오류는
+15분 단위로 묶으며, 전송 실패는 다음 실행에서 재시도한다. 수신 주소가 없거나 전송이 실패하면
+command는 비정상 종료하여 성공으로 표시하지 않는다. 실제 수신 경로는 운영 설정으로 남기고,
+로컬에서는 대체 HTTP 수신기로 검증한다. 알림에는 게시글 ID·예약 시각·오류 코드·최초/최근 시도 시각·
+누적/추가 실패 횟수·groupKey만 포함한다.
 
 1. scheduler last successful run과 overdue due row 확인
 2. 같은 게시글의 중복 발행 여부 확인

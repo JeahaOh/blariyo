@@ -1,0 +1,5 @@
+.gradle/
+build/
+.collector-data/
+*.local.json
+!gradle/wrapper/gradle-wrapper.jar

@@ -10,7 +10,7 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 ## 1. 공통 원칙
 
 - 이 문서의 endpoint는 외부 client가 same-origin으로 호출하는 Nuxt BFF 계약이다.
-- Nuxt BFF만 Express Core API를 Docker app network에서 호출한다. 브라우저·Nginx·공개 DNS는 Core API에 직접 접근할 수 없다.
+- Nuxt BFF만 Nest Core API를 Docker app network에서 호출한다. 브라우저·Nginx·공개 DNS는 Core API에 직접 접근할 수 없다.
 - BFF는 인증·요청 검증·외부 응답 mapping만 담당하고 SQL·게시 상태 전이·transaction은 Core API에만 둔다.
 - 공개 API는 인증 없이 읽을 수 있다.
 - 관리자 API의 외부 identity는 BFF adapter가 검증하고 Core는 BFF 내부 서비스 인증만 신뢰한다.
@@ -734,7 +734,7 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] M0 endpoint만 포함한 OpenAPI `3.1.x` source 작성
 - [ ] request·response·error schema에서 문서 예시 자동 검증
 - [ ] Nuxt BFF route가 외부 OpenAPI validation을 공통 적용
-- [ ] PostgreSQL·BFF·Express Core API의 내부 contract integration test
+- [ ] PostgreSQL·BFF·Nest Core API의 내부 contract integration test
 - [ ] Nuxt BFF 공개 boards·목록·상세 nested route와 mock Core contract test
 - [ ] 공개 목록 0건·마지막 page·초과 page Core contract test
 - [ ] 정책 현재·과거 버전 조회와 초안 비공개 Core/BFF contract test

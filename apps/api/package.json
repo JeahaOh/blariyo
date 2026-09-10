@@ -1,0 +1,38 @@
+{
+  "name": "@blariyo/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev.ts",
+    "start": "node dist/main.js",
+    "build": "node build.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src/**/*.ts test/**/*.ts dev.ts build.ts",
+    "test:unit": "npm run build:test && node --test dist-test/*.service.test.js",
+    "build:test": "node build.ts --test",
+    "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
+    "typecheck:dev": "tsc -p tsconfig.dev.json"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1127.0",
+    "@blariyo/contracts": "*",
+    "@nestjs/common": "^11.2.3",
+    "@nestjs/core": "^11.2.3",
+    "@nestjs/platform-express": "^11.2.3",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "sanitize-html": "^2.17.0",
+    "sharp": "^0.34.3",
+    "typeorm": "^0.3.31"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.13.3",
+    "@types/pg": "^8.23.1",
+    "@types/sanitize-html": "^2.16.1",
+    "eslint": "^9.39.5",
+    "typescript-eslint": "^8.70.0"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@blariyo/contracts",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.mts",
+      "default": "./src/index.mjs"
+    },
+    "./api": {
+      "types": "./src/api.d.ts"
+    },
+    "./collection-api": {
+      "types": "./src/collection-api.d.ts"
+    }
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.8.1"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src/index.mjs"
+  }
+}

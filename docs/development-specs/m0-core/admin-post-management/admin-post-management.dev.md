@@ -124,7 +124,7 @@
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF의 인증 adapter를 거쳐 Core `PostCommandService`에 요청하고, Core가 staging
+관리자 화면이 Nuxt BFF의 인증 adapter를 거쳐 Core `PostsService`에 요청하고, Core가 staging
 image를 선점해 `DRAFT` 게시글과 순서가 있는 block을 만든다.
 
 #### Method·path·인증·권한
@@ -303,7 +303,7 @@ post·block·image 편집 projection을 읽는다. storage key와 외부 identit
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF를 거쳐 Core `PostCommandService`에 명령해 공개 글을 우선 비노출하고 public
+관리자 화면이 Nuxt BFF를 거쳐 Core `PostsService`에 명령해 공개 글을 우선 비노출하고 public
 image 삭제와 cache purge를 예약한다.
 
 #### Method·path·인증·권한
@@ -412,7 +412,7 @@ pagination 없음; browser/CDN cache 금지.
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF를 거쳐 Core `PostCommandService`에 명령해 초안을 즉시 공개하거나 미래
+관리자 화면이 Nuxt BFF를 거쳐 Core `PostsService`에 명령해 초안을 즉시 공개하거나 미래
 발행으로 예약한다. Core만 상태·이미지·이력·outbox를 조정한다.
 
 #### Method·path·인증·권한
@@ -456,7 +456,11 @@ version/state/pin/image/idempotency 충돌은 각 `409`; 즉시 발행의 R2 장
 바꾸지 않는다. scheduler의 일시 R2·DB·network 실패는 `SCHEDULED`를 유지하고 첫 실패부터 운영
 알림을 보낸 뒤 다음 분 실행에서 성공 또는 운영자 취소까지 횟수 제한 없이 재시도한다. 같은 입력으로
 성공할 수 없는 공지 위치 충돌은 `DRAFT`로 되돌리고 한 번 알린 뒤 자동 재시도하지 않는다. copy 후
-DB 실패 object는 orphan 정리 대상이다.
+DB 실패 object는 보상 삭제 outbox와 orphan 정리 대상이다. 보상 삭제는 현재 PUBLIC 상태의
+동일 key를 지우지 않는다. 게시글별 session advisory lock으로 copy부터 상태 commit·보상 등록까지
+직렬화하며, 숨김·최종 제거·image 삭제 worker·public orphan 정리도 같은 잠금을 사용한다.
+worker는 잠금 획득 후 작업 lease와 이미지 상태를 다시 확인하여 오래된 작업이 재공개 이미지를
+삭제하지 않게 한다. 외부 I/O 동안 SQL transaction은 열어 두지 않는다.
 
 #### 멱등성·동시성·재시도
 
@@ -494,7 +498,7 @@ actor·scope·key 기준 24시간 보존하고 대상 경로 매개변수와 bod
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF를 거쳐 Core `PostCommandService`에 명령해 숨김 검토가 끝난 글을 복구 불가능한
+관리자 화면이 Nuxt BFF를 거쳐 Core `PostsService`에 명령해 숨김 검토가 끝난 글을 복구 불가능한
 `REMOVED` terminal 상태로 전환한다. row 물리 삭제는 하지 않는다.
 
 #### Method·path·인증·권한
@@ -550,7 +554,7 @@ key 재전송은 기존 결과. terminal 상태에서 다른 명령은 거부한
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF를 거쳐 Core `PostCommandService`에 명령해 검토가 끝난 숨김 글을 최초 발행
+관리자 화면이 Nuxt BFF를 거쳐 Core `PostsService`에 명령해 검토가 끝난 숨김 글을 최초 발행
 순서를 유지한 채 다시 공개한다.
 
 #### Method·path·인증·권한
@@ -675,7 +679,7 @@ page size 50 고정, `private, no-store`. `page`가 `1~10000` 범위 안이지�
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF를 거쳐 Core `PostCommandService`에 명령해 예약 글을 공개 전에 초안으로 되돌린다.
+관리자 화면이 Nuxt BFF를 거쳐 Core `PostsService`에 명령해 예약 글을 공개 전에 초안으로 되돌린다.
 
 #### Method·path·인증·권한
 
@@ -728,7 +732,7 @@ due scheduler와 취소 경쟁, key 재전송, 상태 이력을 검증한다. �
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF를 거쳐 Core `PostCommandService`에서 `DRAFT`, `SCHEDULED`, `HIDDEN_REVIEW`
+관리자 화면이 Nuxt BFF를 거쳐 Core `PostsService`에서 `DRAFT`, `SCHEDULED`, `HIDDEN_REVIEW`
 글의 지정 field를 낙관적 잠금으로 수정한다.
 
 #### Method·path·인증·권한

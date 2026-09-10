@@ -1,6 +1,6 @@
 # 현행 설계 준비 상태
 
-- 기준일: 2026-09-08
+- 기준일: 2026-09-09
 - 상태: R01~R10 보완·주 검수 완료, 조건부 설계 확정 가능; 구현 수용·production 공개 승인 별도
 - 적용: 현재 planning·legal·system-design·development-specs의 설계 상태 색인
 
@@ -8,24 +8,24 @@
 개발 입력으로 사용할 제품·기술 계약이 정리됐다는 뜻이다. 구현 수용은 source·migration·자동화
 test·build·DB와 외부 adapter 실행 증거를 충족한 상태다. production 공개 승인은 운영 실값·법무·
 복구 훈련·실제 서비스 검증까지 끝난 상태다. 앞 단계가 끝나도 뒤 단계가 자동으로 완료되지 않는다.
-단계별 적용 정본 범위와 선행 관계는 [설계 기준선 manifest](../baselines/README.md)에서 관리한다. 실제
-design tag 생성·readback 여부는 manifest 문구가 아니라 [작업 기록](../task_list/09/08/설계기준선/task.md)과
-Git 조회 결과로 판정한다.
+단계별 적용 범위와 선행 관계의 과거 정의는 [설계 기준선 manifest](../baselines/README.md)를 참고한다.
+해당 design tag는 삭제됐으므로 현행 Git 기준선으로 사용하지 않는다. 현재 정본과 구현 상태는 실제
+branch·commit·source·migration·test·build·runtime을 다시 조회해 판정한다.
 
 ## 현재 판정
 
 | 범위 | 설계 기준선 | 구현 수용 | production 공개 승인 |
 | --- | --- | --- | --- |
-| M0 Core | 조건부 확정 가능. 공개 짤·수동 운영·정책·복구 계약을 개발 입력으로 사용 가능 | 미검증. 새 구현의 source·migration·test·build·브라우저 증거 필요 | 차단. 법무 실값·처리 근거·실수탁자·production 계정·복구 훈련 필요 |
-| M0 수집 보조 | 조건부 확정 가능. Spring 상세 계약을 개발 입력으로 사용 가능 | 미검증. Spring source·Core/local migration·OpenAPI·test·build·runtime과 Batch/Quartz·응답 유실·재시작·Core 연동 시험 필요 | 차단. 실제 출처·robots·이용 조건, Discord 계정·User-Agent 연락처, 법무·운영 수용 필요 |
+| M0 Core | 조건부 확정 가능. 공개 짤·수동 운영·정책·복구 계약을 개발 입력으로 사용 가능 | main의 Nest/TypeORM 전환은 필수 로컬 종합 검증·감사·자원 정리를 마친 DONE_LOCAL이다. 기존 schema/API·독립 복원·실제 브라우저·production Docker 증거는 [최종 보고](../migration/REPORT.md)를 따른다 | 차단. 법무 실값·처리 근거·실수탁자·production 계정·복구 훈련 필요 |
+| M0 수집 보조 | 조건부 확정 가능. Spring 상세 계약을 개발 입력으로 사용 가능 | Nest 최종 종합 실행에서 실제 Spring·별도 DB·Batch/Quartz·Core/BFF/브라우저, 6개 응답 유실·12개 Step 경계·암호화 복원을 통과했다. [최종 보고](../migration/REPORT.md)의 로컬 수용 범위이며 실제 운영 수용은 별도다 | 차단. 실제 출처·robots·이용 조건, Discord 계정·User-Agent 연락처, 법무·운영 수용 필요 |
 | M0 자동 수집 | 후속 범위만 확정. 출처별 목록·feed·상한을 정하기 전 상세 기준선 대상 아님 | 미구현·미검증 | 비활성. 출처별 사용 결정 전 공개하지 않음 |
 | M1 회원 | 조건부 확정 가능. 직접 입력 생년월일 원문 미보관, TERMS·SIGNUP_PRIVACY, 계정·연동·탈퇴 계약을 개발 입력으로 사용 가능 | 미검증. provider·DB 경쟁·cookie·탈퇴 worker·복원 시험 필요 | 차단. 실제 provider 앱·callback·secret, 동의 전문 운영값, 연령·보존·국외이전 법무 검토 필요 |
 | M1.5 익게 | 조건부 확정 가능. 글 단위 이름, 탈퇴 KEEP, ACTIVE 제재 predicate, Unicode code point 계약을 개발 입력으로 사용 가능 | 미검증. API·DB 제약·동시성·worker·UI·관리자 수용 시험 필요 | 차단. M1 gate, 약관 시행, 신고·ledger 보존 근거, 이의제기 실값·운영 수용 필요 |
 | GA4·광고·제휴 | 비활성 경계와 기능별 gate만 확정 | 해당 기능 구현 뒤 별도 검증 | 기능별 실값·동의·계약을 갖추기 전 비활성. M0 Core 공개 전체를 차단하지 않음 |
 
 `조건부 확정 가능`은 주 검수에서 해당 계약을 개발 입력으로 사용할 수 있다고 판정했다는 뜻이다.
-Git으로 고정했는지, 구현을 수용했는지, production 공개를 승인했는지는 각각 별도 상태다. 실제 기준선
-tag·main 반영 여부는 위 작업 기록과 Git ref로 확인한다. 외부 법무 판단이나 실제 구현 결과가 현재
+Git으로 고정했는지, 구현을 수용했는지, production 공개를 승인했는지는 각각 별도 상태다. 과거 기준선
+실행은 위 작업 기록에 보존하고, 현행 상태는 현재 Git ref로 다시 확인한다. 외부 법무 판단이나 실제 구현 결과가 현재
 DB·인증·보존 모델을 바꾸면 정본과 영향 범위를 다시 검토한다.
 
 ## 판정 근거와 남은 책임

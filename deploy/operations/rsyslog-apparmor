@@ -1,0 +1,4 @@
+# Blariyo dedicated receiver only; retain rsyslog confinement.
+/opt/blariyo/operations/rsyslog.conf r,
+/run/blariyo-logs/ rw,
+/run/blariyo-logs/** rwk,

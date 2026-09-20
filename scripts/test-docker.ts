@@ -11,8 +11,24 @@ import { artifactChecksum } from '../apps/api/dist/features/policies/policy-arti
 
 // All resources belong to this invocation. Existing Compose projects and databases are untouched.
 const prefix = `blariyo-check-${randomBytes(6).toString('hex')}`;
-const resources: [kind: 'image' | 'network' | 'container', name: string][] = [];
-const images = { api: `${prefix}-api:local`, web: `${prefix}-web:local` };
+const resources: [kind: 'image' | 'network' | 'container' | 'volume', name: string][] = [];
+// Prebuilt immutable IDs let the packaging check exercise exactly the exported images.
+// They are never tagged, rebuilt or deleted by this test.
+const args = process.argv.slice(2);
+const prebuilt = args.length === 4 && args[0] === '--api-image' && args[2] === '--web-image';
+if (
+  args.length &&
+  (!prebuilt ||
+    !args[1]?.match(/^sha256:[a-f0-9]{64}$/) ||
+    !args[3]?.match(/^sha256:[a-f0-9]{64}$/))
+)
+  throw new Error(
+    'Usage: node scripts/test-docker.ts [--api-image sha256:ID --web-image sha256:ID]'
+  );
+const images = {
+  api: prebuilt ? args[1]! : `${prefix}-api:local`,
+  web: prebuilt ? args[3]! : `${prefix}-web:local`,
+};
 const buildxDirectory = await mkdtemp(join(tmpdir(), 'blariyo-docker-buildx-'));
 const siteOrigin = 'https://docker.blariyo.example.com';
 const accessIssuer = 'https://access.blariyo.example.com';
@@ -38,8 +54,10 @@ const env = {
   }),
   CACHE_ZONE_ID: 'fixture-zone',
   CACHE_PURGE_TOKEN: randomBytes(32).toString('hex'),
-  R2_ACCESS_KEY_ID: randomBytes(16).toString('hex'),
-  R2_SECRET_ACCESS_KEY: randomBytes(32).toString('hex'),
+  R2_PRIVATE_ACCESS_KEY_ID: randomBytes(16).toString('hex'),
+  R2_PRIVATE_SECRET_ACCESS_KEY: randomBytes(32).toString('hex'),
+  R2_PUBLIC_ACCESS_KEY_ID: randomBytes(16).toString('hex'),
+  R2_PUBLIC_SECRET_ACCESS_KEY: randomBytes(32).toString('hex'),
   LEGAL_CONFIG: JSON.stringify({
     operatorDisplayName: 'Docker fixture',
     contactEmail: 'contact@example.com',
@@ -83,9 +101,17 @@ async function ready(check: () => Promise<boolean>) {
 let primaryError: unknown;
 try {
   for (const target of ['api', 'web'] as const) {
-    await docker(['build', '--target', target, '-t', images[target], '.']);
-    resources.push(['image', images[target]]);
-    console.log(`Docker ${target} build: PASS`);
+    if (prebuilt) {
+      const id = (await docker(['image', 'inspect', images[target], '--format', '{{.Id}}']))
+        .toString()
+        .trim();
+      assert.equal(id, images[target]);
+      console.log(`Docker ${target} prebuilt immutable image: PASS`);
+    } else {
+      await docker(['build', '--target', target, '-t', images[target], '.']);
+      resources.push(['image', images[target]]);
+      console.log(`Docker ${target} build: PASS`);
+    }
   }
   await docker(['network', 'create', '--internal', prefix]);
   resources.push(['network', prefix]);
@@ -121,6 +147,37 @@ try {
     return true;
   });
   const database = 'postgres://fixture@db:5432/fixture';
+  const databasePassword = randomBytes(32).toString('hex');
+  await docker(
+    ['exec', '-i', db, 'psql', '-U', 'fixture', '-d', 'fixture', '-v', 'ON_ERROR_STOP=1'],
+    Buffer.from(`CREATE ROLE blariyo_app LOGIN PASSWORD '${databasePassword}';`)
+  ).catch(() => {
+    throw new Error('FIXTURE_DB_ROLE_SETUP_FAILED');
+  });
+  const secretVolume = `${prefix}-db-secrets`;
+  await docker(['volume', 'create', secretVolume]);
+  resources.push(['volume', secretVolume]);
+  const secretMount = `type=volume,source=${secretVolume},target=/run/db-secrets`;
+  // Stage a synthetic secret via stdin, readable only by the API image's node user.
+  await docker(
+    [
+      'run',
+      '--rm',
+      '-i',
+      '--user',
+      '0',
+      '--network',
+      'none',
+      '--mount',
+      secretMount,
+      images.api,
+      'node',
+      '--input-type=module',
+      '-e',
+      "import fs from 'node:fs'; const file='/run/db-secrets/app-password'; fs.writeFileSync(file,fs.readFileSync(0),{mode:0o600,flag:'wx'}); fs.chownSync(file,1000,1000);",
+    ],
+    Buffer.from(databasePassword)
+  );
   await docker([
     'run',
     '--rm',
@@ -128,6 +185,8 @@ try {
     prefix,
     '-e',
     `DATABASE_URL=${database}`,
+    '-e',
+    'DB_APP_ROLE=blariyo_app',
     images.api,
     'node',
     'apps/api/dist/commands/migrate.js',
@@ -162,7 +221,15 @@ try {
     '-e',
     'PORT=3100',
     '-e',
-    `DATABASE_URL=${database}`,
+    'DB_HOST=db',
+    '-e',
+    'DB_NAME=fixture',
+    '-e',
+    'APP_DB_USER=blariyo_app',
+    '-e',
+    'APP_DB_PASSWORD_FILE=/run/db-secrets/app-password',
+    '--mount',
+    `${secretMount},readonly`,
     '-e',
     'SERVICE_TOKEN',
     '-e',
@@ -176,9 +243,13 @@ try {
     '-e',
     `R2_ENDPOINT=http://${externalIp}:8081`,
     '-e',
-    'R2_ACCESS_KEY_ID',
+    'R2_PRIVATE_ACCESS_KEY_ID',
     '-e',
-    'R2_SECRET_ACCESS_KEY',
+    'R2_PRIVATE_SECRET_ACCESS_KEY',
+    '-e',
+    'R2_PUBLIC_ACCESS_KEY_ID',
+    '-e',
+    'R2_PUBLIC_SECRET_ACCESS_KEY',
     '-e',
     'R2_PRIVATE_BUCKET=fixture-private',
     '-e',
@@ -444,7 +515,9 @@ try {
           ? ['rm', '-f', name]
           : kind === 'network'
             ? ['network', 'rm', name]
-            : ['image', 'rm', '-f', name]
+            : kind === 'volume'
+              ? ['volume', 'rm', name]
+              : ['image', 'rm', '-f', name]
       );
     } catch (error) {
       cleanupErrors.push(error);

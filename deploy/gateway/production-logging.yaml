@@ -1,0 +1,9 @@
+services:
+  nginx:
+    logging: !override
+      driver: syslog
+      options:
+        syslog-address: unixgram:///run/blariyo-logs/log.sock
+        syslog-format: rfc3164
+        tag: blariyo-nginx
+        cache-disabled: "true"

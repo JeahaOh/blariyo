@@ -1,0 +1,55 @@
+services:
+  postgresql:
+    image: postgres:18@sha256:4ef4dbc939d61acea57712655ddb4b4ab27419c913f94cca0cd57cb3ea3c2280
+    platform: linux/amd64
+    restart: unless-stopped
+    mem_limit: 768m
+    memswap_limit: 1g
+    shm_size: 256m
+    stop_grace_period: 60s
+    security_opt: [no-new-privileges:true]
+    environment:
+      POSTGRES_DB: blariyo
+      POSTGRES_PASSWORD_FILE: /run/secrets/bootstrap-password
+      POSTGRES_INITDB_ARGS: --auth-local=peer --auth-host=scram-sha-256
+    command:
+      - postgres
+      - -c
+      - hba_file=/etc/blariyo/pg_hba.conf
+      - -c
+      - shared_buffers=192MB
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - max_connections=30
+      - -c
+      - timezone=UTC
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - type: bind
+        source: ./pg_hba.conf
+        target: /etc/blariyo/pg_hba.conf
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./secrets/bootstrap-password
+        target: /run/secrets/bootstrap-password
+        read_only: true
+        bind: {create_host_path: false}
+    networks: [data]
+    healthcheck:
+      test: [CMD-SHELL, "gosu postgres psql -X -U postgres -d blariyo -Atqc \"SELECT current_setting('listen_addresses')='*'\" | grep -qx t"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+networks:
+  data:
+    internal: true
+volumes:
+  pgdata:

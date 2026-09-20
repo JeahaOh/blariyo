@@ -5,6 +5,12 @@
 .local-data
 .env
 .env.*
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/dist
+**/dist-test
 worklog
 tests
 

@@ -1,0 +1,20 @@
+[Unit]
+Description=Blariyo private diagnostic log receiver
+Before=blariyo-application.service
+After=local-fs.target
+[Service]
+Type=simple
+Environment=TZ=UTC
+ExecStart=/usr/sbin/rsyslogd -n -i /run/blariyo-logs/pid -f /opt/blariyo/operations/rsyslog.conf
+Restart=on-failure
+RuntimeDirectory=blariyo-logs
+RuntimeDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/log/blariyo/application /run/blariyo-logs
+MemoryMax=64M
+[Install]
+WantedBy=multi-user.target

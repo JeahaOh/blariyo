@@ -23,6 +23,7 @@
 | --- | --- |
 | 서비스 범위와 단계 | [서비스 기획](../planning/01-service-plan.md) |
 | 인프라 방향과 비용 전제 | [인프라 계획](../planning/02-infra-plan.md) |
+| OCI·Cloudflare·GA4 계정과 운영 설정 준비 | [운영자 준비 체크리스트](../implementation/operations/owner-setup-checklist.md) — 사용자 준비 순서·완료 기준·개발자 연결 작업 |
 | 화면 흐름과 상태 | [화면 설계](../planning/03-screen-design.md) |
 | M1 회원·M1.5 익게 | [제품 계약](../planning/08-member-community-plan.md), [확장 기술 계약](../system-design/06-member-community-design.md), [랜덤 이름 사전](../planning/09-random-name-catalog.md), [가입 동의 전문](../legal/signup-privacy-consent.md) |
 | 분석·광고 적용 시점 | [분석·광고 계획](../planning/04-analytics-ad-plan.md) |
@@ -105,3 +106,5 @@ planning의 화면 규칙과 publishing·wireframe을 함께 비교한다. HTML�
 2026-09-07 승인된 docs 축소에 따라 API·D01·D08은 기능 명세 안의 절로 관리한다. 루트 지침에 남은
 API·D01·D08 표현도 계약 관점을 뜻하며 별도 파일 생성 요구로 사용하지 않는다. 기능·설계·소스는 유지한다.
 전역 복사본은 이번 docs 작업에서 갱신하지 않았다. 통합 목록과 검증은 [축소 계획의 적용 결과](../planning/reduction-plan-review.md#적용-결과)를 따른다.
+
+운영 배포를 이어서 다룰 때는 [현재 운영 상태](../implementation/operations/current-status.md)에서 완료·미검증 경계를 확인하고, 연결된 정본과 실제 환경을 대조한다. 과거 준비 TASK를 현재 미배포 상태로 해석하지 않는다.

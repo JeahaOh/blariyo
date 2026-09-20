@@ -2,7 +2,7 @@
 
 - 문서 상태: M0 인프라 의사결정 정본
 - 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-03
+- 정합성 검토일: 2026-09-20 (운영 사업자 선택 반영)
 - 역할: 배포 방향·비용 경계·공급자 선택을 정의한다. 스키마, API payload, container 자원값과 운영 명령은 정의하지 않는다.
 - 관련 문서: [서비스 기획서](./01-service-plan.md), [콘텐츠 수집 기획](./content-collection/README.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
 
@@ -52,9 +52,10 @@ Redis, MongoDB, 별도 managed DB, Kubernetes, 다중 API instance와 다중 reg
 
 ## 4. 배포 사업자 결정
 
-1. OCI 서울 리전 Always Free A1을 먼저 시도한다.
-2. 가입·배포 시점에 A1 용량을 확보하지 못하면 AWS Lightsail 서울 2GB로 전환한다.
-3. 2GB 환경에서 실제 메모리 임계치를 반복 초과할 때만 4GB로 올린다.
+1. 초기 OCI 서울 A1 우선 검토에서 전환해 **AWS Lightsail 서울 2GB**로 운영한다. 2026-09-20 공개 배포를 확인했다.
+2. 사용자의 결정에 따라 고정 공인 IP를 추가하지 않는다. 공개 웹 연결은 Cloudflare Tunnel을 사용하며 관리 SSH는 실제 공인 IP를 확인한다.
+3. 2GB 환경에서 실제 메모리 임계치를 반복 초과할 때만 4GB를 검토한다. 트래픽 실측 없이 사전 증설하지 않는다.
+4. 배포 방식은 단일 VM Docker Compose 교체다. 블루그린·무중단 배포는 현재 범위에 없다.
 
 무료 자원은 비용 절감 수단이며 영속성 보장이 아니다. OCI 사용 여부와 관계없이 이미지와 DB backup은 VM 외부 R2에 둔다. 월별 비용 상한, 자원 배분과 전환 측정값은 [상세 인프라 설계](../system-design/04-infrastructure-design.md)를 따른다.
 
@@ -120,8 +121,12 @@ planning을 확정하고 system-design을 대조한다. 수집 계약은 M0 전�
 
 ## 9. 배포 전에 확정할 운영값
 
+공개 도메인·R2·Access·내부 인증·DB 설정은 운영에 주입했다. 값 원문은 저장소에 두지 않는다.
+현재 증거와 잔여 항목은 [운영 상태](../implementation/operations/current-status.md)에서 추적한다.
+아래 목록 중 외부 알림은 미구성이고, 카카오·수집 입력은 해당 기능 활성화 전 조건이다.
+
 - 실제 service domain
-- OCI A1 확보 여부와 OCI/Lightsail 최종 선택
+- 서버 선택: Lightsail 서울 2GB 확정 (고정 IP 미사용)
 - R2 production account, bucket 이름과 public media custom domain
 - 외부 관리자 인증 provider, audience·team, 운영자 allowlist와 안정적인 내부 `operatorId` 매핑
 - BFF·Core 내부 서비스 토큰과 admin actor HMAC secret

@@ -5,6 +5,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { AppModule } from '../app.module.js';
 import { adapters, type Environment } from '../bootstrap/config.js';
+import { resolveDatabaseUrl } from '../bootstrap/database-config.js';
 import { collectionSettings } from '../bootstrap/collection-settings.js';
 import { PostsService } from '../features/posts/posts.service.js';
 import { PoliciesService } from '../features/policies/policies.service.js';
@@ -16,8 +17,7 @@ import { CleanupService } from '../operations/cleanup.service.js';
 
 export async function runCommand(command: string | undefined, args: string[], env: Environment = process.env) {
   if (env.MAINTENANCE_READ_ONLY === 'true') throw new Error('MAINTENANCE_READ_ONLY');
-  const databaseUrl = env.DATABASE_URL;
-  if (!databaseUrl) throw new Error('DATABASE_URL_REQUIRED');
+  const databaseUrl = resolveDatabaseUrl(env, 'app');
   const origins = { ...(env.SITE_ORIGIN === undefined ? {} : { siteOrigin: env.SITE_ORIGIN }), ...(env.IMAGE_ORIGIN === undefined ? {} : { imageOrigin: env.IMAGE_ORIGIN }) };
   let app: INestApplicationContext | undefined;
   try {

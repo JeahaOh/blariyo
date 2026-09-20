@@ -1,9 +1,9 @@
 # M0 저비용 인프라 설계
 
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
-- 문서 상태: M0 인프라 설계 계약 · 현행 배포 산출물 없음
+- 문서 상태: M0 인프라 설계 계약 · Lightsail 공개 배포 완료, 관리자 쓰기 흐름·장기 관찰 미검증
 - 기준일: 2026-09-04
-- 정합성 검토일: 2026-09-04
+- 정합성 검토일: 2026-09-20 (실제 배포 반영)
 - 가격 기준: 2026-08-14, USD, 세금·환율·도메인·메일 비용 제외
 - 관련 문서: [시스템 아키텍처](./01-system-architecture.md), [보안·운영](./05-security-operations.md)
 
@@ -90,6 +90,13 @@ blariyo-backup
 
 `blariyo-media-public`에만 이미지 custom domain을 연결한다. private media와 backup bucket은 public access와 custom domain을 모두 차단한다. 발행 시 검증된 private 원본을 public bucket으로 copy하고 DB에 public key를 추가하되 private 원본 key는 복구·재공개를 위해 유지한다.
 
+발행 복사는 private 전용 key의 `GetObject`와 public 전용 key의 `PutObject`로 수행한다.
+하나의 key에 두 bucket 권한이 필요한 `CopyObject`는 사용하지 않는다. Core는 이미지를 한 건씩
+읽어 공개본을 저장하고 원본 bytes와 Content-Type·Cache-Control 등 object metadata를 유지한다.
+읽기 또는 쓰기 실패는 발행 실패로 전달하며, 결정적 public key에 대한 재시도·보상 삭제는 기존
+게시글 발행 transaction/outbox 계약을 따른다. 이 방식은 Core를 경유하는 전송과 파일별 메모리를
+사용하므로 동시 발행 부하는 실제 운영 전 검증한다.
+
 ## 3. 권고 배포안
 
 ### A안: 자본 최소화 검증안
@@ -171,10 +178,11 @@ Cloudflare R2 Standard
 
 ### 선택 결론
 
-1. OCI 서울 A1 capacity를 3일 이내 확보할 수 있으면 A안으로 비공개·초기 공개 검증을 시작한다.
-2. capacity를 확보하지 못하거나 계정 정지·지원 위험을 받아들이기 어렵다면 B안으로 바로 간다.
-3. A안 장애가 2회 반복되거나 복구 시간이 4시간을 넘으면 B안으로 영구 전환한다.
-4. Hetzner 싱가포르는 현재 가격에서 Lightsail 서울보다 비용·지연 모두 우위가 없어 선택하지 않는다.
+2026-09-20 사용자가 선택한 **B안 Lightsail 서울 2GB**로 공개 배포했다. 고정 IP는 추가하지 않고
+Tunnel을 사용한다. A안과 위 사업자·가격 표는 과거 비교 자료이며 현재 운영 위치를 뜻하지 않는다.
+실제 메모리·OOM·swap 지표를 관찰한 뒤 증설을 판단한다. 저트래픽이라는 예상만으로 용량을
+보장하거나 운영 측정 없이 4GB로 올리지 않는다. 실제 결과는
+[현재 운영 상태](../implementation/operations/current-status.md)를 따른다.
 
 ## 4. 네트워크 설계
 
@@ -195,10 +203,14 @@ Internet
 - Docker network를 `edge`, `app`, `data`로 분리한다.
 - `edge`에는 `cloudflared`·`nginx`·`web`, `app`에는 `web`·`api`, `data`에는 `api`·`postgresql`만 연결한다.
 - Nginx에는 `api` upstream을 두지 않는다. `web`만 `api`에, `api`만 `postgresql`에 접근한다.
+- [Nginx 준비 구성](../../deploy/gateway/README.md)은 별도 `blariyo-gateway` project에서 기존
+  `blariyo-app_edge`에만 연결하고 host port를 열지 않는다. Web 주소 재조회·header 전달·내부 경로
+  차단은 로컬 격리 검사 대상이며 실제 Tunnel 연결·Access 검증은 별도다.
 - 로컬 collector는 Tunnel→Nginx→Web의 `/api/collector/v1/*` 전용 중계를 사용한다. Web이 Core `/internal/collect/*`로 매핑하며 token 검증은 Core CollectorAuth가 수행한다. 경계·허용 목록은 [아키텍처](./01-system-architecture.md)의 Collector 전용 중계를 따른다.
 - backup job은 `postgresql`과 R2 endpoint에만 접근한다.
 - 외부 사이트로 나가는 수집 outbound HTTP는 운영자 로컬 collector에서만 허용한다. `web`, `api`,
-  `nginx`, `postgresql`은 외부 사이트를 호출하지 않는다.
+  `nginx`, `postgresql`은 수집 대상 외부 사이트를 호출하지 않는다. Web의 Access 서명 공개키 조회와
+  Core의 R2·Cloudflare 캐시 API 호출은 운영에 필요한 provider HTTPS 통신으로 별도 허용한다.
 - 수집 요청은 등록된 출처 host로만 나가고, 사설·loopback·link-local·metadata 주소(`169.254.169.254` 포함)로 해석되는 대상은 로컬 collector가 차단한다.
 
 ## 5. Docker Compose 자원 기준
@@ -227,7 +239,42 @@ Internet
 
 OS page cache와 daemon을 위해 나머지를 남긴다. memory limit 초과 재시작을 숨기지 않고 알림 대상으로 둔다.
 
+Web·Core의 [앱 계층 Compose](../../deploy/application/compose.yaml)와
+[운영 입력 분리 도구](../../deploy/application/README.md#webcore-운영-입력-묶음)는 이 기준의 로컬 준비물이다.
+Core `PORT=4000`과 Web `NUXT_CORE_ORIGIN=http://api:4000`을 명시한다. image·Nginx·Tunnel 연결은
+별도 준비 대상이며, 입력 검사 통과를 실제 기동·자원 적정성 검증으로 보지 않는다. `data`는 기존
+DB project의 internal network `blariyo-db_data`를 external 참조하고 Web은 연결하지 않는다.
+`edge`·`app` bridge의 outbound 목적지 제한은 아직 구현하지 않았다.
+
+[앱 서버 보관 도구](../../deploy/application/README.md#서버에-image와-설정-보관)는 검증된 image와
+운영 입력을 `/opt/blariyo/application/release-*`에 설치하는 별도 단계다. archive 해시·image
+실행 설정과 layer 식별자·비루트 secret 읽기를 확인하며, 앱 서비스 기동·정책 발행·Nginx/Tunnel
+연결은 수행하지 않는다. `STAGED_NO_SERVICES` 표시는 공개 배포나 운영 검증 완료를 뜻하지 않는다.
+
 PostgreSQL 18 공식 image는 영속 volume을 `/var/lib/postgresql`에 mount하고 내부 `PGDATA`는 `/var/lib/postgresql/18/docker`를 사용한다. PostgreSQL 17 이하의 `/var/lib/postgresql/data` 경로를 재사용하지 않는다. major upgrade는 새 volume과 `pg_upgrade` 또는 검증된 logical restore 절차로 수행한다.
+
+Lightsail x86_64의 PostgreSQL 단독 설치 파일은 [DB Compose](../../deploy/postgresql/compose.yaml)와
+[설치 절차](../../deploy/postgresql/README.md)에 있다. 별도 `blariyo-db` project의 영속 volume·
+내부 data network를 사용하며 기존 Tunnel project와 분리한다. 검증한 PostgreSQL 18 image를
+digest와 `linux/amd64`로 고정한다. 초기 자원값은 위 기준을 따르고 memory+swap 총량은 1GiB,
+shared memory는 256MiB, 종료 유예는 60초로 둔다. 실제 트래픽에 대한 용량 보장은 별도 측정한다.
+설정·원본 비밀번호 파일은 `/opt/blariyo/postgresql`에서 관리하고 SSH 설치는 기존에 신뢰한
+host key와 서버 hostname을 확인한다. DB 설치만으로 app migration·테이블 권한·앱 배포가
+완료된 것으로 판단하지 않는다.
+
+최초 application schema 구성은 [초기 migration 도구](../../deploy/postgresql/migrate-server.py)로
+분리한다. 맥에서 빌드·검증한 amd64 API image를 전달하고, DB만 연결된 data network에서
+UID 1000의 일회성 container로 V001–V005를 적용한다. migrator credential만 임시 secret volume에
+읽기 전용 mount하며 memory limit은 API와 같은 256MiB다. 적용 전 로컬 관리 dump를 보관하고
+ledger checksum·테이블 권한을 확인한다. 이 관리 사본은 정기 암호화 R2 백업을 대신하지 않는다.
+최초 적용과 동일 묶음의 재시도에만 사용하며 운영 중 release migration·무중단 배포는 별도 절차다.
+
+정책 초기 데이터는 스키마 migration 뒤 [정책 seed SQL](../../deploy/postgresql/seed-policy-drafts.sql)을
+실행해 등록한다. 연락처는 비공개 설정에서 주입하며 draft.2 본문은 `docs/legal/m0-core/draft-2/`를 사용한다.
+미확정 정책은 `DRAFT`와 빈 시행일로만 등록한다. 같은 버전·본문의 재실행은 중복을 만들지 않고,
+같은 버전의 내용이 달라지면 거부한다. 기존 `EFFECTIVE` 정책을 덮어쓰거나 기동 검사를 우회하지 않는다.
+Docker의 빈 volume 초기화 hook 대신 migration 이후 별도 seed 단계로 실행하므로 이미 만들어진
+운영 DB에도 적용할 수 있다. V001–V005와 기존 migration checksum은 변경하지 않는다.
 
 ## 6. 환경 분리
 
@@ -296,18 +343,20 @@ runtime secret
   APP_DB_PASSWORD_FILE
   MIGRATION_DB_PASSWORD_FILE
   BACKUP_DB_PASSWORD_FILE
-  CORE_SERVICE_TOKEN
-  NUXT_ADMIN_ACTOR_HMAC_SECRET
-  NUXT_ADMIN_IDENTITY_PROVIDER
-  NUXT_ADMIN_OPERATOR_MAP_FILE
-  NUXT_CLOUDFLARE_ACCESS_AUDIENCE
-  NUXT_CLOUDFLARE_ACCESS_TEAM_DOMAIN
+  SERVICE_TOKEN
+  NUXT_SERVICE_TOKEN
+  NUXT_ACTOR_SECRET
+  NUXT_ADMIN_AUTH_MODE
+  NUXT_ADMIN_OPERATORS_FILE
+  NUXT_ACCESS_AUDIENCE
+  NUXT_ACCESS_ISSUER
+  R2_ENDPOINT
   R2_PRIVATE_ACCESS_KEY_ID
   R2_PRIVATE_SECRET_ACCESS_KEY
-  R2_PRIVATE_MEDIA_BUCKET
+  R2_PRIVATE_BUCKET
   R2_PUBLIC_ACCESS_KEY_ID
   R2_PUBLIC_SECRET_ACCESS_KEY
-  R2_PUBLIC_MEDIA_BUCKET
+  R2_PUBLIC_BUCKET
   R2_BACKUP_ACCESS_KEY_ID
   R2_BACKUP_SECRET_ACCESS_KEY
   R2_BACKUP_BUCKET
@@ -342,11 +391,38 @@ provider 값을 노출하지 않는다. GA4를 켠 환경에서도
 `COLLECT_LIST_CRAWL_ENABLED`는 후속 자동 수집 도입 전까지 false로 유지한다. 출처별 요청 간격·일일
 상한·robots 확인 결과는 환경변수가 아니라 `collect.source` 데이터로 관리한다.
 
-`NUXT_ADMIN_OPERATOR_MAP_FILE`은 외부 identity를 안정적인 내부 `operatorId`로 매핑하는 파일 경로다. 운영자가 여러 명일 수 있으므로 단일 값 환경변수를 사용하지 않는다. 파일은 `{"identity": "<외부 식별값>", "operatorId": "<내부 식별자>", "active": true}` 항목의 목록이며 BFF container에만 읽기 전용으로 mount한다. identity를 제거해도 기존 `operatorId`는 재사용하지 않고 감사 이력을 보존한다. provider를 교체하면 identity 값만 새 provider 기준으로 바꾸고 `operatorId`는 유지한다.
+`NUXT_ADMIN_OPERATORS_FILE`은 외부 identity를 안정적인 내부 `operatorId`로 매핑하는 파일 경로다. 운영자가 여러 명일 수 있으므로 단일 값 환경변수를 사용하지 않는다. 파일은 `{"identity": "<외부 식별값>", "operatorId": "<내부 식별자>", "active": true}` 항목의 목록이며 BFF container에만 읽기 전용으로 mount한다. identity를 제거해도 기존 `operatorId`는 재사용하지 않고 감사 이력을 보존한다. provider를 교체하면 identity 값만 새 provider 기준으로 바꾸고 `operatorId`는 유지한다.
+
+Access 모드는 `NUXT_ADMIN_AUTH_MODE=access`로 설정한다. `NUXT_ACCESS_ISSUER`는
+`https://<team>.cloudflareaccess.com` 전체 URL, `NUXT_ACCESS_AUDIENCE`는 관리자 Access
+애플리케이션의 AUD다. `identity`에는 서명 검증된 JWT의 `sub`를 사용하며 이메일을 대신 넣지 않는다.
+목록은 모든 항목의 identity·operatorId가 앞뒤 공백이 없는 비어 있지 않은 문자열이고
+active가 boolean이어야 한다.
+identity 중복 또는 잘못된 목록 형식은 접근을 거부한다. `active: true`인 등록 사용자만 허용하며
+비활성 사용자·미등록 사용자와 과거 subject→operatorId 객체 형식은 거부한다.
+Core의 `SERVICE_TOKEN`과 BFF의 `NUXT_SERVICE_TOKEN`에는 같은 내부 서비스 인증키를 주입한다.
+실제 Core 실행 코드가 읽는 이름은 `SERVICE_TOKEN`이며 `CORE_SERVICE_TOKEN`은 사용하지 않는다.
+`NUXT_ACTOR_SECRET`은 내부 운영자 ID를 HMAC으로 가명화하는 BFF 전용 키이며 서비스 인증키와
+다른 값으로 생성한다. 두 키는 각각 암호학적으로 안전한 난수 32바이트 이상으로 생성하며,
+Access JWT 또는 Cloudflare API 토큰으로 대체하지 않는다. Core에는 `SERVICE_TOKEN`만,
+BFF에는 `NUXT_SERVICE_TOKEN`과 `NUXT_ACTOR_SECRET`을 전달한다. 키를 함께 보관하는 로컬 파일을
+두 container의 `env_file`에 통째로 연결하지 않는다.
 
 DB username은 각 역할의 고정된 비밀 아닌 설정이고 password 값은 환경변수에 직접 넣지 않는다. API와 application command에는 `APP_DB_*`, migration 단발성 container에는 `MIGRATION_DB_*`, backup container에는 `BACKUP_DB_*`만 주입한다. 각 `*_PASSWORD_FILE`은 해당 container에만 읽기 전용으로 mount한 secret 경로이며 세 역할은 credential을 재사용하지 않는다.
 
+API·application command는 `APP_DB_USER=blariyo_app`, migration command는
+`MIGRATION_DB_USER=blariyo_migrator`를 사용한다. `DB_HOST`·`DB_NAME`은 필수이며
+`DB_PORT`의 기본값은 `5432`다. 해당 역할의 `*_PASSWORD_FILE`은 container 내부 절대경로이며
+그룹·타인 접근 및 실행 권한이 없는 일반 파일이어야 한다. 비밀번호는 32~256자의 공백 없는
+ASCII 문자열로 읽고, 생성 도구는 난수 32바이트를 64자리 hex 문자열로 저장한다.
+연결 URL은 프로세스 메모리 안에서만 구성한다. production에서는 `DATABASE_URL`, `PGPASSWORD`,
+역할별 `*_DB_PASSWORD` 직접 입력을 거부하고, 다른 역할의 사용자·비밀번호 파일 설정도 함께
+주입하지 않는다. 로컬·테스트의 기존 `DATABASE_URL` 경로는 유지하되 파일 설정과 혼합하지 않는다.
+이 입력 검사는 DB 안의 실제 역할 권한을 검증하지 않으므로 초기화·GRANT 후 별도 접속 검증이 필요하다.
+
 private media·public media·backup credential은 서로 다른 bucket에만 접근할 수 있는 별도 key다.
+Core는 `R2_PRIVATE_*`와 `R2_PUBLIC_*`만 사용하고 backup key는 backup 작업에만 주입한다.
+공용 `R2_ACCESS_KEY_ID`·`R2_SECRET_ACCESS_KEY`로의 fallback은 허용하지 않는다.
 `BACKUP_AGE_RECIPIENT`는 암호화용 공개 recipient이며 복호화 private key는 서버 환경변수에 두지
 않고 서버와 다른 위치에 오프라인 보관한다. `.env`는 서버에서 root만 읽을 수 있게 두고
 저장소·Docker image·CI log에 넣지 않는다.
@@ -363,6 +439,16 @@ private media·public media·backup credential은 서로 다른 bucket에만 접
 8. 실패하면 이전 image tag로 rollback한다. schema가 비호환이면 자동 rollback하지 않고 복구 절차를 따른다.
 
 서버에서 `npm install`과 build를 실행하지 않는다. 배포 파일에는 image digest를 기록한다.
+
+초기 Lightsail 준비에서는 registry 구성 전까지 로컬에서 고정한 source snapshot으로
+`linux/amd64` Web·Core image를 build하고 Docker save archive로 준비할 수 있다.
+이때 Git HEAD만으로 미커밋 변경을 표현하지 않는다. snapshot 파일별 SHA-256·전체 source hash,
+Git dirty 여부, 각 local image ID·config digest, archive SHA-256과 수행한 격리 검증을 기록한다.
+Docker classic store의 image ID는 config digest지만 containerd store는 OCI index/manifest digest를
+표시할 수 있으므로 종류를 구분하고 archive의 해시 연결을 검증한다. 사본 build 뒤 원본 source가
+달라지면 완료 처리하지 않는다.
+운영 비밀 파일은 build context에 넣지 않고 실행 시 별도로 주입한다. archive 준비와 격리 검증은
+서버 전송·DB 정책 발행·실제 배포 승인을 대신하지 않는다.
 
 ## 8. 저장 공간 예산
 
@@ -464,3 +550,9 @@ OCI와 Lightsail은 같은 Compose·환경 변수·multi-arch image를 사용한
 
 Spring source·migration·OpenAPI·test·runtime과 실제 출처·Discord·운영 계정은 이 문서 동기화만으로
 구현·검증됐다고 보지 않는다.
+
+## 2026-09-20 M0 운영 배포 적용
+
+확정 정책 v0.1을 실제 command로 발행한 뒤 Core·Web·Nginx를 기동했다. blariyo.com의 이전 Squarespace A를 proxied Tunnel CNAME으로 전환하고, www는 같은 Tunnel의 Nginx 308 대표 주소 전환 전용 경로로 연결했다. DB·Core·Web·Nginx의 host port는 없다. 기존 메일 MX/TXT와 R2 media 도메인은 유지했다. Always Use HTTPS와 최소 TLS 1.2를 적용한다.
+
+현재는 **단일 Lightsail + Docker Compose 교체 배포**다. 블루그린·다중 서버·무중단 전환을 구현했다고 하지 않는다. image는 맥에서 빌드한 amd64 digest를 사용한다. 현재 release에 대한 부팅 복구 service와 예약 발행/outbox/cleanup timer, 7일 진단 로그, 12시간 주기 암호화 R2 DB 백업을 설치했다. 상세 검증과 제한은 [운영 기록](../../worklog/task-list/09/20/infrastructure-setup/TASK-19.md)을 따른다.

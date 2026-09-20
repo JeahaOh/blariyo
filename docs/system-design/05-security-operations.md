@@ -1,9 +1,9 @@
 # M0 보안·운영 설계
 
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
-- 문서 상태: M0 보안·운영 설계 계약 · 현행 운영 검증 산출물 없음
+- 문서 상태: M0 보안·운영 설계 계약 · 공개 경계·정기 작업·암호화 백업 복원 검증, 관리자 쓰기·장기 관찰 잔여
 - 기준일: 2026-09-04
-- 정합성 검토일: 2026-09-04
+- 정합성 검토일: 2026-09-20 (실제 배포 반영)
 - 운영 인원: 초기 1명
 - 가용성 방식: 고가용성 대신 감지·백업·복구
 
@@ -16,7 +16,7 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 | 관리자 접근 | 등록 운영자만, BFF 외부 인증 adapter 필수 |
 | 공개 장애 감지 | 5분 이내 |
 | 권리 요청 숨김 | 운영자가 메일 확인 후 30분 이내 목표 |
-| 보안 로그 보존 | 90일 |
+| 보안 로그 보존 | 현재 M0 앱·Web·Nginx 진단 로그 최대 7일. 제공자 보안 기록과 법정 개인정보 접근 기록은 §7에서 구분 |
 | 수집 후보 보존 | 미승격 후보 30일 |
 | 수집 출처 robots 재확인 | 90일마다 또는 차단 발생 시 |
 
@@ -238,6 +238,11 @@ blariyo_backup
 - PostgreSQL은 Docker data network에서만 listen하고 `pg_hba.conf`는 application·migration·backup role의 database 접근만 허용한다.
 - production seed에 공용 비밀번호와 샘플 회원을 넣지 않는다.
 - migrator는 향후 생성되는 table·sequence에도 역할별 default privilege를 설정한다.
+- `ops`의 새 table에는 app 권한을 자동 부여하지 않는다. app이 사용하는
+  `outbox_task`, `idempotency_request`, `schedule_failure_alert`만 명시적으로 허용하고,
+  새 운영 table은 용도를 검토한 뒤 허용 목록에 추가한다. backup의 읽기 권한에는
+  복원 검증에 필요한 `ops.schema_migration`도 포함한다.
+- 최초 역할 생성·migration 후 권한 적용 순서는 [PostgreSQL 준비 절차](../../deploy/postgresql/README.md)를 따른다.
 - migration은 배포 한 번에 한 process만 실행하도록 `pg_advisory_lock`을 사용한다.
 - production database와 application role의 `timezone`은 `UTC`로 고정하고 API 연결에 `statement_timeout`, `lock_timeout`, `idle_in_transaction_session_timeout`을 설정한다.
 
@@ -269,17 +274,23 @@ readiness 함수의 소유권·고정 search_path·PUBLIC EXECUTE 회수는 [데
 - 수집 대상의 응답 HTML 원문과 후보 제목 전체
 - DB connection string, R2 key
 
-IP는 보안 log에서만 최소 기간 90일 사용하고 product event와 결합하지 않는다. 일반 access log에는 Cloudflare request ID와 축약 경로를 사용한다.
+IP는 보안 목적의 필요성이 있는 log에서만 사용하고, 일반 보안 기록의 90일 설계값과 법정 접속기록을 구분하며 product event와 결합하지 않는다. 일반 access log에는 Cloudflare request ID와 축약 경로를 사용한다.
 
 ### 보존
 
 | 로그 | 보존 |
 | --- | --- |
-| application JSON log | 14일 local rotation |
-| Nginx access·error | 14일 local rotation |
+| application JSON log | 최대 7일. 운영 전용 rsyslog·일별 만료 timer 적용 및 합성 파일 삭제 검증 |
+| Nginx access·error | 최대 7일. 운영 전용 rsyslog·일별 만료 timer 적용 및 합성 파일 삭제 검증 |
 | 관리자 상태 변경 | DB에 운영 기간 유지 |
-| 로그인·접근 보안 기록 | 90일 |
-| backup 실행 결과 | 90일 |
+| 일반 로그인·접근 보안 기록 | 별도 저장소의 90일은 후속 설계값. 현재 M0는 Cloudflare Free Access 24시간·계정 관리자 감사 18개월의 제공자 보존을 구분해 고지 |
+| 개인정보처리시스템의 개인정보 접근 기록 | 안전성 확보조치 기준 제8조 적용 시 최소 1년, 2년 대상 요건이면 최소 2년 |
+| backup 실행 결과 | 현재 M0는 secret 없는 systemd journal 결과와 latest.json 상태. 별도 90일 외부 이력 저장은 미구현 |
+
+2026-09-20 사용자가 위임한 최소 보관 원칙에 따라 일반 진단 로그의 목표 상한을 14일에서 7일로 줄였다.
+기본 Compose의 `json-file` 용량 제한만으로는 기간이 보장되지 않는다. 운영에서는 `production-logging.yaml`로 전용 syslog로 교체하고 Docker 이중 cache를 껐다. `/var/log/blariyo/application`의 당일·이전 5일 파일만 유지하며 매일 UTC 00:05에 만료시킨다. 10일 된 합성 로그 삭제·소유자·symlink 방어와 실제 수신을 검증했다. DB 이력·Cloudflare 제공자 감사 로그·호스트 로그는 이 삭제 작업 대상이 아니다.
+문의·권리 요청은 별도 접수 DB 없이 메일에서 처리하며 목적 달성 후 지체 없이 파기한다.
+법정 절차·진행 중 분쟁의 최소 보존 예외와 사업자 내부 백업은 별도로 관리한다.
 
 디스크 사용량이 70%를 넘으면 log level·rotation을 확인한다. 디스크 부족 시 공개 요청을 죽이는 것보다 오래된 일반 log부터 제거한다. 보안 로그는 외부 backup 후 제거한다.
 
@@ -333,8 +344,8 @@ R2 장애는 공개 읽기의 ready 실패 조건으로 두지 않는다. 업로
 
 | 작업 | 일정 | 보존 |
 | --- | --- | --- |
-| PostgreSQL custom-format logical dump | 매일 03:30·15:30 KST | 최근 28개(14일) |
-| 주간 보존 복사 | 매주 월요일 | 8개 |
+| PostgreSQL custom-format logical dump | 매일 03:30·15:30 KST | 최근 7일 |
+| 주간 보존 복사 | M0에서는 만들지 않음 | 최소 보관 원칙에 따라 별도 8주 복사 없음 |
 | backup manifest 검증 | 매일 dump 후 | backup과 동일 |
 | 실제 복원 시험 | 매월 첫째 주 | 결과 1년 |
 | R2 media inventory | 매주 | 8주 |
@@ -355,7 +366,7 @@ pg_dump --format=custom --no-owner --no-acl
 - 실패한 로컬 dump는 다음 성공 전까지 지우지 않는다.
 - private media·public media·backup key는 서로 분리한다.
 - backup bucket은 public domain을 연결하지 않는다.
-- lifecycle 삭제는 daily·weekly prefix별로 적용한다.
+- M0는 검증된 새 업로드 뒤 `db/daily/`의 엄격한 파일명 규칙과 R2 수정 시각으로 7일 지난 archive·manifest만 삭제한다. 다른 prefix는 건드리지 않는다. 자동 실행 실패가 장기화되면 기간을 넘길 수 있으므로 timer 결과와 최신 백업 시각을 확인한다.
 
 VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간주하지 않는다.
 
@@ -401,9 +412,9 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 - multi-arch image build 성공
 - DB backup 최근 18시간 이내
 - production URL placeholder 없음
-- `SERVICE_PUBLIC_BASE_URL=https://blariyo.com/`, `NUXT_TRUSTED_CLIENT_IP_HEADER`, `NUXT_ADMIN_OPERATOR_MAP_FILE` 주입 확인. `COLLECT_USER_AGENT`는 수집 보조 활성 환경에서만 필수
+- `SITE_ORIGIN=https://blariyo.com/`·`NUXT_PUBLIC_SITE_ORIGIN=https://blariyo.com/`, `NUXT_TRUSTED_CLIENT_IP_HEADER`, `NUXT_ADMIN_OPERATORS_FILE` 주입 확인. 운영자 목록의 `active: true`인 identity만 허용한다. `COLLECT_USER_AGENT`는 수집 보조 활성 환경에서만 필수
 - 카카오 공유 활성 환경은 JavaScript key, 개발자 콘솔 Web domain 등록, SDK script URL·SRI integrity와 CSP host 확인
-- 위 카카오 운영값이나 등록 확인이 하나라도 없으면 `NUXT_PUBLIC_KAKAO_SHARE_ENABLED=false`
+- 위 카카오 운영값이나 등록 확인이 하나라도 없으면 `NUXT_PUBLIC_KAKAO_ENABLED=false`
 - GA4 활성 환경은 Measurement ID·속성 보관 설정·국외이전 고지·실제 Google 계약 법인·Google
   tag/CSP domain 확정 확인
 - 위 GA4 운영값이나 고지가 하나라도 없으면 `NUXT_PUBLIC_GA4_ENABLED=false`; 원인과 관계없이 false인

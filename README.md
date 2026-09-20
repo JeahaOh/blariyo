@@ -4,8 +4,11 @@
 
 - 내부 코드명: `blariyo`
 - 공개 서비스명: `블라리요`
-- 현재 단계: M0 Core 기능 구현·로컬 검증
-- 현재 상태: Nuxt Web/BFF, NestJS·TypeORM Core와 Spring Collector. Nest 전환은 필수 로컬 종합 검증·완료 감사를 통과한 DONE_LOCAL 상태다. [최종 보고](docs/migration/REPORT.md)와 [진행 기록](docs/migration/PROGRESS.md)을 따른다. 운영 외부 서비스·법무 실값·배포 검증은 별도다.
+- 현재 단계: M0 Core 운영 서버 배포·공개 연결 완료 (2026-09-20)
+- 공개 주소: https://blariyo.com/ · 공개 이미지: https://media.blariyo.com/
+- 현재 상태: Lightsail 서울 2GB에서 Nuxt Web/BFF·Nest Core·PostgreSQL·Nginx를 Cloudflare Tunnel로 연결했다. 정책 v0.1 발행, 공개 HTTPS, 암호화 R2 DB 백업과 격리 복원을 확인했다. 관리자 실제 로그인 후 작성·발행과 장기 운영 관찰은 남아 있다.
+- 운영 정본: [현재 운영 상태와 남은 작업](docs/implementation/operations/current-status.md), [운영 명령](deploy/operations/README.md), [TASK-19 배포 증거](worklog/task-list/09/20/infrastructure-setup/TASK-19.md).
+- Nest 전환의 DONE_LOCAL 기록은 [최종 보고](docs/migration/REPORT.md)와 [진행 기록](docs/migration/PROGRESS.md)에 보존한다. Spring Collector·회원·광고·GA4·카카오는 이번 운영에서 활성화하지 않았다.
 
 ## 문서 정본
 
@@ -40,6 +43,7 @@ blariyo/
   apps/collector/           Spring Boot, Batch, Quartz operator-local server
   packages/contracts/       canonical OpenAPI copy, generated types and validators
   tests/                    isolated PostgreSQL and HTTP integration tests
+  deploy/                   production Compose, provisioning, jobs, backup and restore
   docs/
     ai/                     canonical map and evidence contract
       skills/               project-local AI workflows
@@ -132,8 +136,10 @@ schema 비교에 읽기만 사용한다. Chromium은 전용 Playwright 서버에
 | Docker | 현재 작업 트리의 Core·Nuxt production image, 합성 Access/JWKS·정책 CLI, 발행·숨김, health, 유지보수·SIGTERM 및 연결 해제 |
 
 Docker 외부 HTTP는 전용 네트워크의 합성 저장소·CDN·인증 대역으로만 연결한다.
-운영 R2·Cloudflare Access·CDN, live Discord·실제 출처, 법무 실값·승인 정책 시행, 운영 cron·알림,
-원격 백업 보관·배포·7일 관찰은 별도 미검증 항목이다. Kakao·GA4 운영 활성화 gate도 유지한다.
+이 로컬 검증과 별도로 운영 R2 어댑터·공개 이미지·캐시 삭제 API, 정책 발행, 서버 배포,
+예약 작업의 단발 실행과 암호화 원격 백업 복원을 확인했다. 실제 관리자 로그인 후 전체 쓰기 흐름,
+CDN 캐시 전파, 외부 실패 알림, 7일 관찰, live Discord·실제 수집 출처는 미검증이다.
+세부 증거는 [현재 운영 상태](docs/implementation/operations/current-status.md)를 따른다. Kakao·GA4 gate는 유지한다.
 
 ## 수집 보조
 
@@ -154,6 +160,19 @@ Python 3.14.4·discord.py 2.7.1에서 로컬 테스트 14개를 통과했다. Py
 라이브 Discord 연결은 미검증이다. 실제 수집 운영 완료로 표시하지 않는다.
 
 ## 운영 command와 설정 경계
+
+production의 API·운영 command는 `APP_DB_USER=blariyo_app`과 `APP_DB_PASSWORD_FILE`,
+DB migration command는 `MIGRATION_DB_USER=blariyo_migrator`와 `MIGRATION_DB_PASSWORD_FILE`을
+받는다. `DB_HOST`·`DB_NAME`은 필수이고 `DB_PORT` 기본값은 `5432`다. 비밀번호 파일은 container
+내부 절대경로의 접근 제한된 일반 파일이며, 역할별 파일을 서로 mount하지 않는다.
+production의 `DATABASE_URL`·`PGPASSWORD`·역할별 비밀번호 환경 변수 직접 입력은 거부한다.
+로컬·테스트에서는 기존 `DATABASE_URL`을 계속 쓰되 위 파일 설정과 혼합하지 않는다.
+상세 입력 계약은 [인프라 설계](docs/system-design/04-infrastructure-design.md#6-환경-분리)를 따른다.
+설정 파싱 성공은 DB 역할 생성·권한·접속 성공을 의미하지 않는다.
+역할 생성·migration 이후 권한 적용 파일과 서버 적용 전제는
+[PostgreSQL 준비 절차](deploy/postgresql/README.md)에 있다.
+`npm run test:database-roles`는 합성 비밀번호를 사용하는 임시 PostgreSQL 18에서 실제 역할별
+접속·허용/거부·앱 발행·backup 계정 dump/restore를 검사한다. 운영 서버에는 접근하지 않는다.
 
 ```sh
 npm run posts:publish-due  # 매분, 지난 예약도 재처리
@@ -179,11 +198,17 @@ root 소유 `0600` read-only artifact가 필요하다. 사업자 보류값·법�
   자격 정보 없이 `DATABASE_IDLE_CONNECTION_FAILED` event로 기록하고 pool이 실패 연결을 제거한다.
 - migration은 owner 계정으로 실행한다. `DB_APP_ROLE`을 주면 별도 application role에 업무 테이블 권한과
   readiness 함수 실행 권한을 부여한다. migration ledger 직접 조회·변경은 허용하지 않는다.
-- 운영 저장소: `STORAGE_MODE=r2`, `R2_ENDPOINT`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
-  `R2_PRIVATE_BUCKET`, `R2_PUBLIC_BUCKET`; private/public bucket은 반드시 다르다.
+- 운영 저장소: `STORAGE_MODE=r2`, `R2_ENDPOINT`, `R2_PRIVATE_ACCESS_KEY_ID`,
+  `R2_PRIVATE_SECRET_ACCESS_KEY`, `R2_PUBLIC_ACCESS_KEY_ID`, `R2_PUBLIC_SECRET_ACCESS_KEY`,
+  `R2_PRIVATE_BUCKET`, `R2_PUBLIC_BUCKET`. 각 key는 자기 bucket에만 접근하며 bucket과 key ID는
+  서로 달라야 한다. 공용 `R2_ACCESS_KEY_ID`·`R2_SECRET_ACCESS_KEY`는 사용하지 않는다.
+  발행 시 private key로 원본을 읽고 public key로 공개본을 저장한다. backup key는 Core에 넣지 않는다.
 - 캐시 제거: `CACHE_ZONE_ID`, `CACHE_PURGE_TOKEN`. 실값 없이는 로컬 대체 구현으로만 검증한다.
-- BFF 관리자: `NUXT_ACCESS_ISSUER`, `NUXT_ACCESS_AUDIENCE`, `NUXT_ADMIN_OPERATORS_FILE`(subject→내부
-  operatorId JSON 파일), `NUXT_SERVICE_TOKEN`, `NUXT_ACTOR_SECRET`. 외부 assertion은 Core에 중계하지 않는다.
+- BFF 관리자: `NUXT_ADMIN_AUTH_MODE=access`, `NUXT_ACCESS_ISSUER`(팀 전체 HTTPS URL),
+  `NUXT_ACCESS_AUDIENCE`(관리자 앱 AUD), `NUXT_ADMIN_OPERATORS_FILE`, `NUXT_SERVICE_TOKEN`,
+  `NUXT_ACTOR_SECRET`. 운영자 JSON은 `[{"identity":"<JWT sub>","operatorId":"<내부 ID>","active":true}]`
+  목록 형식이며 BFF에만 읽기 전용 mount한다. 비활성·미등록 사용자, 중복 identity·잘못된 형식은
+  거부한다. 이전 subject→operatorId 객체는 목록으로 변환해야 한다. 외부 assertion은 Core에 중계하지 않는다.
 - `SITE_ORIGIN`, `IMAGE_ORIGIN`과 Web의 `NUXT_PUBLIC_SITE_ORIGIN`, `NUXT_PUBLIC_IMAGE_ORIGIN`을 맞춘다.
 - 실제 법무·문의 공개값은 Web의 `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME`, `NUXT_PUBLIC_CONTACT_EMAIL`,
   `NUXT_PUBLIC_RIGHTS_EMAIL`, `NUXT_PUBLIC_PRIVACY_EMAIL`, `NUXT_PUBLIC_PRIVACY_OFFICER`에 주입한다.
@@ -198,7 +223,8 @@ root 소유 `0600` read-only artifact가 필요하다. 사업자 보류값·법�
 - GIF decode는 최대 200 frame·누적 RGBA 256MiB로 제한하며 공통 40MP·10MiB 제한도 적용한다.
 
 로컬 백업·복구 확인은 `pg_dump -Fc`로 만든 dump를 **새 별도 DB**에 `pg_restore --exit-on-error`한 뒤
-`ops.is_schema_ready('V003')`와 게시글·상태 이력을 대조했다. 운영 암호화·R2 백업과 전체 서버 복구는
+`ops.is_schema_ready('V003')`와 게시글·상태 이력을 대조했다. 운영에서는
+[암호화 R2 백업·복원](deploy/backup/README.md)까지 확인했다. 새 VM 전체 복구와 RTO 달성은
 [보안·운영 설계](docs/system-design/05-security-operations.md)에 따른 별도 미검증 항목이다.
 
 ## 주요 결정 기록

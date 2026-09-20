@@ -1,13 +1,13 @@
 import { pathToFileURL } from 'node:url';
 import { adapters, type Environment } from './bootstrap/config.js';
+import { resolveDatabaseUrl } from './bootstrap/database-config.js';
 import { collectionSettings } from './bootstrap/collection-settings.js';
 import { loadCollectorTokens } from './bootstrap/startup.js';
 import { createNestApplication } from './bootstrap/application.js';
 import { PoliciesService } from './features/policies/policies.service.js';
 
 export async function start(env: Environment = process.env) {
-  const databaseUrl = env.DATABASE_URL;
-  if (!databaseUrl) throw new Error('DATABASE_URL_REQUIRED');
+  const databaseUrl = resolveDatabaseUrl(env, 'app');
   const collection = collectionSettings(env);
   const collectorTokens = await loadCollectorTokens(collection, env);
   const production = env.NODE_ENV === 'production';

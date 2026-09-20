@@ -1,0 +1,86 @@
+# Application layer only. Gateway/Tunnel attachment and release images are prepared separately.
+# Never run against a server until policies, image identity and secret ownership are verified.
+name: blariyo-app
+services:
+  api:
+    image: ${BLARIYO_API_IMAGE:?Verified amd64 API image is required}
+    platform: linux/amd64
+    pull_policy: never
+    user: "1000:1000"
+    init: true
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    memswap_limit: 384m
+    pids_limit: 128
+    stop_grace_period: 30s
+    env_file:
+      - path: ./api.env
+        format: raw
+    volumes:
+      - type: bind
+        source: ./secrets/app-password
+        target: /run/secrets/app-password
+        read_only: true
+        bind:
+          create_host_path: false
+    tmpfs: ["/tmp:size=32m,mode=1777,noexec,nosuid"]
+    networks: [app, data]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:4000/internal/health/ready',{signal:AbortSignal.timeout(3000)}).then(async r=>{if(!r.ok||(await r.json()).status!=='READY')process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+  web:
+    image: ${BLARIYO_WEB_IMAGE:?Verified amd64 Web image is required}
+    platform: linux/amd64
+    pull_policy: never
+    user: "1000:1000"
+    init: true
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 384m
+    memswap_limit: 512m
+    pids_limit: 128
+    stop_grace_period: 30s
+    env_file:
+      - path: ./web.env
+        format: raw
+    volumes:
+      - type: bind
+        source: ./secrets/admin-operators.json
+        target: /run/secrets/admin-operators.json
+        read_only: true
+        bind:
+          create_host_path: false
+    tmpfs: ["/tmp:size=32m,mode=1777,noexec,nosuid"]
+    networks: [edge, app]
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      # Production /health/ready needs Access identity. Do not weaken it for Docker.
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/health/live',{signal:AbortSignal.timeout(3000)}).then(async r=>{if(!r.ok||(await r.json()).status!=='UP')process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+networks:
+  edge: {}
+  # Required provider HTTPS egress: Web -> Access JWKS; Core -> R2/Cloudflare API.
+  # No host port is published. These bridge networks are not egress allowlists.
+  app: {}
+  data:
+    external: true
+    name: blariyo-db_data

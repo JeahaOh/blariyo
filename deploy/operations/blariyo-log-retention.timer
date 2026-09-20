@@ -1,0 +1,8 @@
+[Unit]
+Description=Daily Blariyo diagnostic log retention
+[Timer]
+OnCalendar=*-*-* 00:05:00 UTC
+Persistent=true
+Unit=blariyo-log-retention.service
+[Install]
+WantedBy=timers.target

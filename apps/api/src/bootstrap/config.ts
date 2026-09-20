@@ -18,8 +18,14 @@ export function adapters(env: Environment = process.env) {
     };
     const config: R2Config = {
       endpoint: required('R2_ENDPOINT', 'R2_CONFIG_REQUIRED'),
-      accessKeyId: required('R2_ACCESS_KEY_ID', 'R2_CONFIG_REQUIRED'),
-      secretAccessKey: required('R2_SECRET_ACCESS_KEY', 'R2_CONFIG_REQUIRED'),
+      privateCredentials: {
+        accessKeyId: required('R2_PRIVATE_ACCESS_KEY_ID', 'R2_CONFIG_REQUIRED'),
+        secretAccessKey: required('R2_PRIVATE_SECRET_ACCESS_KEY', 'R2_CONFIG_REQUIRED'),
+      },
+      publicCredentials: {
+        accessKeyId: required('R2_PUBLIC_ACCESS_KEY_ID', 'R2_CONFIG_REQUIRED'),
+        secretAccessKey: required('R2_PUBLIC_SECRET_ACCESS_KEY', 'R2_CONFIG_REQUIRED'),
+      },
       privateBucket: required('R2_PRIVATE_BUCKET', 'R2_CONFIG_REQUIRED'),
       publicBucket: required('R2_PUBLIC_BUCKET', 'R2_CONFIG_REQUIRED'),
     };

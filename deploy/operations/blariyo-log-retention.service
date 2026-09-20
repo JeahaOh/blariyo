@@ -1,0 +1,11 @@
+[Unit]
+Description=Expire Blariyo diagnostic logs within seven days
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/blariyo/operations/expire-logs.py
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/log/blariyo/application

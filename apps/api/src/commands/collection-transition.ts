@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { CollectionOperationsModule } from '../features/collection/collection-operations.module.js';
 import { CollectionOperationsService } from '../features/collection/collection-operations.service.js';
 import { PersistenceModule } from '../persistence/persistence.module.js';
+import { resolveDatabaseUrl } from '../bootstrap/database-config.js';
 
 export async function transitionContext(databaseUrl: string) {
   return NestFactory.createApplicationContext(
@@ -18,8 +19,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exitCode = 2;
   } else {
     try {
-      const databaseUrl = process.env.DATABASE_URL;
-      if (!databaseUrl) throw new Error('DATABASE_URL_REQUIRED');
+      const databaseUrl = resolveDatabaseUrl(process.env, 'app');
       const app = await transitionContext(databaseUrl);
       try {
         const service = app.get(CollectionOperationsService);

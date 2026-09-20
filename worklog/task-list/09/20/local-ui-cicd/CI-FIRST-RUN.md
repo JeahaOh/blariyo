@@ -34,3 +34,9 @@
 - 빌드·타입 검사·린트·단위 테스트는 통과했지만, 통합 테스트가 `mkdtemp('/private/tmp/...')`를 호출할 때 GitHub Ubuntu runner에 `/private/tmp`가 없어 `ENOENT`가 발생했다.
 - workflow에서 통합 테스트 직전에 `/private/tmp`를 `1777` 권한으로 생성하도록 보완했다.
 - 이 보완은 로컬에만 있으며 아직 commit/push 및 원격 재실행은 미검증이다.
+
+## 세 번째 실행 실패와 fixture 독립화
+
+- `096083e` Run 3에서 `/private/tmp`는 통과했지만 `schema-restore.integration.test.ts`가 로컬에만 존재하는 고정 컨테이너 `blariyo-nest-migration-pg`를 요구해 실패했다.
+- 테스트를 고정 컨테이너 ID 검사에서 분리하고, 실행마다 임시 PostgreSQL 18 컨테이너를 만들고 `nest_schema_baseline`을 현재 migration으로 준비하도록 변경했다. 테스트 종료 시 해당 컨테이너를 정리한다.
+- 로컬 개발 DB·production DB·보존 컨테이너에는 의존하지 않는다.

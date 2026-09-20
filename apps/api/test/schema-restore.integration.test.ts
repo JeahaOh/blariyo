@@ -55,8 +55,32 @@ await test('full SQL schema, existing ledger/data and isolated PostgreSQL backup
   const target = new URL(url);
   assert.equal(target.hostname, '127.0.0.1'); assert.equal(target.port, '55449');
   const database = target.pathname.slice(1); assert.match(database, /^nest_[a-f0-9]{12}$/);
-  const owner = 'blariyo-nest-migration-pg';
-  assert.equal((await command(['inspect', '--format', '{{.Id}}', owner])).toString().trim(), 'df230f521b41a0d3ae7486b3d7590b9d0f1ddeacbe23616be4c6399c72b0a3fe');
+  // Keep this verification self-contained. The old version depended on a
+  // developer's long-lived container, which does not exist on CI runners.
+  const owner = 'blariyo-nest-migration-pg-' + randomBytes(6).toString('hex');
+  let ownerCreated = false;
+  try {
+    await command(['run', '-d', '--name', owner, '--tmpfs', '/var/lib/postgresql', '-e', 'POSTGRES_HOST_AUTH_METHOD=trust', '-p', '127.0.0.1::5432', 'postgres:18']);
+    ownerCreated = true;
+    let ready = false;
+    for (let i = 0; i < 100; i++) {
+      try { await command(['exec', owner, 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres']); ready = true; break; } catch { await delay(100); }
+    }
+    assert.ok(ready, 'migration fixture PostgreSQL did not become ready');
+    const mapping = (await command(['port', owner, '5432/tcp'])).toString().trim();
+    const match = /^127\.0\.0\.1:(\d+)$/.exec(mapping); assert.ok(match?.[1]);
+    const ownerUrl = `postgresql://postgres@127.0.0.1:${match[1]}/postgres`;
+    const ownerDatabase = await createDataSource(ownerUrl).initialize();
+    await ownerDatabase.query('CREATE DATABASE nest_schema_baseline');
+    await ownerDatabase.destroy();
+    const baselineUrl = `postgresql://postgres@127.0.0.1:${match[1]}/nest_schema_baseline`;
+    const baselineMigration = await migrationContext(baselineUrl);
+    try { await baselineMigration.get(MigrationsService).migrate(); } finally { await baselineMigration.close(); }
+  } catch (error) {
+    if (ownerCreated) await command(['rm', '-f', owner]).catch(() => undefined);
+    throw error;
+  }
+  t.after(() => ownerCreated ? command(['rm', '-f', owner]) : Promise.resolve());
   const directory = await mkdtemp('/private/tmp/blariyo-schema-restore-');
   t.after(() => rm(directory, { recursive: true, force: true }));
   const dumpSchema = async (container: string, name: string) => normalizeDump(await command(['exec', container, 'pg_dump', '-U', 'postgres', '-d', name, '--schema-only']));

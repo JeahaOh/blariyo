@@ -44,11 +44,17 @@ const date = (value: string) =>
       :class="{ current: item.current, pinned: pinnedItems.includes(item) }"
       :aria-current="item.current ? 'true' : undefined"
     >
-      <span class="post-number">{{ pinnedItems.includes(item) ? '공지' : item.postId }}</span
-      ><strong>{{ item.title }}</strong>
-      <span class="post-meta"
-        >조회 {{ item.viewCount }} · {{ item.authorLabel }} · {{ date(item.publishedAt) }}</span
-      >
+      <span class="post-title-line">
+        <span v-if="pinnedItems.includes(item)" class="notice-badge">공지</span>
+        <strong class="post-title">{{ item.title }}</strong>
+        <span v-if="item.current" class="current-badge">현재 글</span>
+      </span>
+      <span class="post-meta">
+        <span v-if="!pinnedItems.includes(item)" class="post-number">{{ item.postId }}</span>
+        <span>조회 {{ item.viewCount }}</span
+        ><span class="operator">{{ item.authorLabel }}</span>
+        <time :datetime="item.publishedAt">{{ date(item.publishedAt) }}</time>
+      </span>
     </component>
   </div>
 </template>

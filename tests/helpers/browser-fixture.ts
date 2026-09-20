@@ -28,10 +28,12 @@ export async function browserFixture(
     analytics = false,
     collection = false,
     spring = false,
+    rightsEmail = '',
   }: {
     analytics?: boolean;
     collection?: boolean;
     spring?: boolean;
+    rightsEmail?: string;
   } = {}
 ) {
   const base = process.env.TEST_DATABASE_ADMIN_URL;
@@ -168,6 +170,7 @@ export async function browserFixture(
       NUXT_PUBLIC_GA4_MEASUREMENT_ID: analytics ? 'G-TESTONLY' : 'G-MUSTNOTLEAK',
       NUXT_PUBLIC_ANALYTICS_CONNECT_ORIGINS: analytics ? 'https://www.google-analytics.com' : '',
       NUXT_PUBLIC_KAKAO_ENABLED: 'false',
+      NUXT_PUBLIC_RIGHTS_EMAIL: rightsEmail,
       NUXT_COLLECT_MANUAL_URL_ENABLED: String(collection),
       NUXT_COLLECT_DISCORD_COMMAND_ENABLED: String(collection),
     },

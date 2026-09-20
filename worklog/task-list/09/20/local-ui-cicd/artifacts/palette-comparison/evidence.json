@@ -1,0 +1,31 @@
+{
+  "capturedAt": "2026-09-20T11:44:07.692Z",
+  "source": "http://127.0.0.1:3001/meme",
+  "scope": "Browser-only canvas override; no source or database mutation",
+  "variants": [
+    {
+      "name": "blue-gray",
+      "label": "A · 청회색",
+      "color": "#1B262C",
+      "canvas": "rgb(27, 38, 44)",
+      "header": "rgb(58, 74, 90)",
+      "viewport": [
+        1280,
+        960
+      ],
+      "postCount": 20
+    },
+    {
+      "name": "charcoal",
+      "label": "B · 차콜",
+      "color": "#262626",
+      "canvas": "rgb(38, 38, 38)",
+      "header": "rgb(58, 74, 90)",
+      "viewport": [
+        1280,
+        960
+      ],
+      "postCount": 20
+    }
+  ]
+}

@@ -12,8 +12,8 @@
 | 구분 | Hex Code | 색상명 | 역할 | 주요 사용처 |
 | :--- | :--- | :--- | :--- | :--- |
 | Dark Base | `#1B262C` | Deep Midnight Blue | 가장 어두운 배경 | 검토 도구, 상세 이미지, 다크 영역 |
-| Dark Base | `#262626` | Dark Charcoal | 기본 글자 | 제목, 본문, 활성 버튼 글자 |
-| Slate | `#3A4A5A` | Slate Blue Gray | 브랜드 골격 | 서비스 헤더, 데스크톱 외곽 배경 |
+| Dark Base | `#262626` | Dark Charcoal | 기본 글자 | 제목, 본문, 활성 버튼 글자, 데스크톱 외곽 배경 |
+| Slate | `#3A4A5A` | Slate Blue Gray | 브랜드 골격 | 서비스 헤더, 브랜드 글자 |
 | Slate | `#565F64` | Medium Slate Gray | 보조 정보 | 메타 정보, 설명, 비활성 텍스트 |
 | Slate | `#8B9FA8` | Soft Ice Gray | 강한 경계 | 입력 테두리, 비활성 버튼, 이미지 골격 |
 | Primary | `#00A19B` | Vibrant Teal Green | 주요 행동 | 활성 탭, 포커스, 현재 글 표시, 주요 링크 밑줄 |
@@ -28,6 +28,7 @@
 
 | Token | Hex Code | 기준색 | 사용처 |
 | :--- | :--- | :--- | :--- |
+| `canvas` | `#262626` | `#262626` | 데스크톱 바깥 여백, 청회색 헤더와 색감 분리 |
 | `teal-700` | `#007A76` | `#00A19B` | 밝은 표면 위 작은 링크와 pressed 상태 |
 | `teal-050` | `#E2F4F3` | `#00A19B` | 현재 글, 선택 행, teal hover 배경 |
 | `red-700` | `#96383C` | `#C74B50` | 밝은 표면 위 오류·삭제 텍스트 |
@@ -69,6 +70,7 @@
 :root {
   --color-midnight: #1B262C;
   --color-ink: #262626;
+  --color-canvas: #262626;
   --color-slate: #3A4A5A;
   --color-muted: #565F64;
   --color-ice: #8B9FA8;
@@ -90,4 +92,4 @@
 
 - [반응형 퍼블리싱](../publishing/responsive/index.html)에 기본·파생 토큰을 적용한다.
 - 검토 도구는 실제 서비스 UI가 아니므로 운영 화면 구현 시 제거한다.
-- 향후 다크 모드는 별도 검토한다. 현재 팔레트의 다크 색상은 헤더·그래픽·외곽에만 사용한다.
+- 향후 다크 모드는 별도 검토한다. 현재 팔레트의 다크 색상은 헤더·그래픽에만 사용한다.

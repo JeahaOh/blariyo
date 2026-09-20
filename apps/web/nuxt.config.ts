@@ -8,6 +8,7 @@ const strictCompilerOptions = {
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-07',
   devtools: { enabled: false },
+  css: ['~/assets/css/main.css'],
   typescript: {
     tsConfig: { compilerOptions: strictCompilerOptions },
     nodeTsConfig: { compilerOptions: strictCompilerOptions },

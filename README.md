@@ -8,6 +8,8 @@
 - 공개 주소: https://blariyo.com/ · 공개 이미지: https://media.blariyo.com/
 - 현재 상태: Lightsail 서울 2GB에서 Nuxt Web/BFF·Nest Core·PostgreSQL·Nginx를 Cloudflare Tunnel로 연결했다. 정책 v0.1 발행, 공개 HTTPS, 암호화 R2 DB 백업과 격리 복원을 확인했다. 관리자 실제 로그인 후 작성·발행과 장기 운영 관찰은 남아 있다.
 - 운영 정본: [현재 운영 상태와 남은 작업](docs/implementation/operations/current-status.md), [운영 명령](deploy/operations/README.md), [TASK-19 배포 증거](worklog/task-list/09/20/infrastructure-setup/TASK-19.md).
+- 배포 방법: [최초 설치·재배포·복귀 실행서](docs/implementation/operations/deployment-runbook.md), [GitHub CI·배포 정책과 무중단 전환 조건](docs/implementation/operations/deployment-policy.md). CI workflow는 로컬 작성 상태이며 원격 실행·자동 CD는 별도다.
+- 로컬 콘텐츠: [실제 HOT 25건 수집·초안 DB 저장](scripts/content/README.md). 운영 발행이나 운영 collector 활성화와 구분한다.
 - Nest 전환의 DONE_LOCAL 기록은 [최종 보고](docs/migration/REPORT.md)와 [진행 기록](docs/migration/PROGRESS.md)에 보존한다. Spring Collector·회원·광고·GA4·카카오는 이번 운영에서 활성화하지 않았다.
 
 ## 문서 정본

@@ -1,3 +1,5 @@
+> 2026-09-20 현행 앱 변경: 바깥 여백은 차콜 `#262626`, 푸터는 브랜드/정책·문의 정보 구조이며 독립 이메일 복사 버튼을 제거했다. 아래 정적 HTML의 기존 푸터·메일 버튼 표현은 이전 비교 자료다. 현행 계약은 [화면 설계](../../planning/03-screen-design.md#권리-침해게시-중단-이메일), 구현은 `apps/web/app/components/SiteFooter.vue`를 따른다.
+
 # Blariyo responsive publishing prototype
 
 - 목적: 와이어프레임 이후 실제 화면 밀도, 여백, 반응형 동작을 확인하는 정적 퍼블 파일

@@ -46,6 +46,13 @@
 4. 7일 보관 관찰, 월간 DB 복원, 별도 일정의 VM 재부팅·새 VM 복구를 수행한다.
 5. AWS 무료 플랜·크레딧 만료와 비용 알림을 확인한다. 이번 배포로 결제/요금제를 변경하지 않았다.
 
+## 로컬 후속 작업 — 운영 반영 전
+
+2026-09-20 로컬에서 M0 공개 화면을 시각 기준에 맞춰 수정하고 GitHub CI workflow를 작성했다.
+실제 HOT 25건은 로컬 DB의 DRAFT로 저장했다. 운영 앱 배포·운영 콘텐츠 발행은 하지 않았다.
+[화면 검증](../testing/ui-wireframe-review-20260920.md), [콘텐츠 저장](../../../scripts/content/README.md),
+[배포 실행서](deployment-runbook.md), [배포 정책](deployment-policy.md)을 따른다.
+
 ## 운영 진입점
 
 - [서비스·정기 작업 확인과 되돌리기](../../../deploy/operations/README.md)

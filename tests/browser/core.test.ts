@@ -12,7 +12,7 @@ await test(
   'M0 Core actual Chromium UI with isolated PostgreSQL and local storage',
   { timeout: 180000 },
   async (t) => {
-    const fixture = await browserFixture(t);
+    const fixture = await browserFixture(t, { rightsEmail: 'rights@example.test' });
     const browser = await launchBrowser();
     t.after(() => browser.close());
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
@@ -283,7 +283,60 @@ await test(
         }
         await page.goto(fixture.origin + '/meme');
         await expect(page.locator('.post-row')).toHaveCount(20);
+        await mkdir('test-results/m0-browser', { recursive: true });
+        for (const width of [1280, 768, 390, 320]) {
+          await page.setViewportSize({ width, height: 900 });
+          const layout = await page.evaluate(() => {
+            const header = document.querySelector('.site-header');
+            const shell = document.querySelector('.shell');
+            const row = document.querySelector('.post-row');
+            if (!header || !shell || !row) throw new Error('Missing public layout');
+            return {
+              headerHeight: header.getBoundingClientRect().height,
+              headerColor: getComputedStyle(header).backgroundColor,
+              shellWidth: shell.getBoundingClientRect().width,
+              rowHeight: row.getBoundingClientRect().height,
+              overflow: document.documentElement.scrollWidth > innerWidth,
+            };
+          });
+          assert.equal(layout.headerHeight, 54);
+          assert.equal(layout.headerColor, 'rgb(58, 74, 90)');
+          assert.ok(layout.shellWidth <= Math.min(width, 760));
+          assert.ok(layout.rowHeight >= 64);
+          assert.equal(layout.overflow, false);
+          await expect(page.getByRole('navigation', { name: '게시판', exact: true })).toBeVisible();
+          const headingLayout = await page.locator('.list-heading').evaluate((heading) => {
+            const title = heading.querySelector('h1')!.getBoundingClientRect();
+            const tagline = heading.querySelector('div > p')!.getBoundingClientRect();
+            return {
+              below: tagline.top >= title.bottom,
+              aligned: Math.abs(title.left - tagline.left) < 1,
+            };
+          });
+          assert.deepEqual(headingLayout, { below: true, aligned: true });
+          await expect(page.getByRole('button', { name: '이전 페이지' })).toBeDisabled();
+          await expect(page.getByRole('link', { name: '권리 문의', exact: true })).toHaveAttribute(
+            'href',
+            /mailto:rights@example\.test\?subject=/
+          );
+          assert.ok(!(await page.locator('footer').innerText()).includes('rights@example.test'));
+          await page.screenshot({
+            path: `test-results/m0-browser/list-${width}.png`,
+            fullPage: true,
+          });
+        }
+        const failedPage = '**/api/v1/boards/meme/posts?page=2';
+        await page.route(failedPage, (route) =>
+          route.fulfill({
+            status: 503,
+            contentType: 'application/json',
+            body: JSON.stringify({ error: { code: 'TEMPORARILY_UNAVAILABLE' } }),
+          })
+        );
         await page.getByRole('button', { name: '다음 페이지' }).click();
+        await expect(page.getByRole('alert')).toContainText('목록을 불러오지 못했습니다.');
+        await page.unroute(failedPage);
+        await page.getByRole('button', { name: '다시 시도', exact: true }).click();
         await expect(page.locator('.post-row')).toHaveCount(4);
         await page.locator('.post-row').first().click();
         await expect(page.locator('article h1'))
@@ -304,11 +357,30 @@ await test(
         await expect(page.locator('article h1')).toHaveText(heading);
         await page.getByRole('button', { name: '공유하기', exact: true }).click();
         await expect(page.getByRole('dialog', { name: '공유하기' })).toBeVisible();
+        for (const width of [1280, 390, 320]) {
+          await page.setViewportSize({ width, height: 900 });
+          const box = await page.getByRole('dialog', { name: '공유하기' }).boundingBox();
+          assert.ok(box);
+          assert.ok(box.x >= 0 && box.x + box.width <= width);
+          if (width < 768) assert.ok(Math.abs(box.y + box.height - 900) <= 1);
+          await page.screenshot({ path: `test-results/m0-browser/share-${width}.png` });
+        }
         await expect(page.getByRole('button', { name: '카카오톡', exact: true })).toHaveCount(0);
         await page.keyboard.press('Escape');
         await expect(page.getByRole('button', { name: '공유하기', exact: true })).toBeFocused();
         await page.getByRole('link', { name: '이용약관', exact: true }).click();
         await expect(page.locator('dialog[open] .policy-body')).toContainText('fixture-current');
+        for (const width of [1280, 390, 320]) {
+          await page.setViewportSize({ width, height: 900 });
+          const policyBox = await page.locator('dialog[open]').boundingBox();
+          assert.ok(policyBox && policyBox.x >= 0 && policyBox.x + policyBox.width <= width);
+          assert.equal(
+            await page.locator('dialog[open]').evaluate((el) => el.scrollWidth > el.clientWidth),
+            false
+          );
+          await expect(page.locator('dialog[open] .policy-kicker')).toHaveText('BLARIYO POLICY');
+          await page.screenshot({ path: `test-results/m0-browser/policy-${width}.png` });
+        }
         await page.getByRole('button', { name: /fixture-old/ }).click();
         await expect(page.locator('dialog[open] .policy-body')).toContainText('fixture-old');
         await page.keyboard.press('Escape');
@@ -320,7 +392,7 @@ await test(
         assert.ok(!(await page.content()).includes('G-MUSTNOTLEAK'));
         await page.keyboard.press('Escape');
         await mkdir('test-results/m0-browser', { recursive: true });
-        for (const width of [1280, 390, 360]) {
+        for (const width of [1280, 768, 390, 360, 320]) {
           await page.setViewportSize({ width, height: 900 });
           await page.evaluate(() => window.scrollTo(0, 0));
           assert.equal(
@@ -338,7 +410,18 @@ await test(
           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
           true
         );
-        await page.screenshot({ path: 'test-results/m0-browser/admin-360.png', fullPage: true });
+        await page.screenshot({ path: 'test-results/m0-browser/admin-320.png', fullPage: true });
+        await page.goto(fixture.origin + '/meme/posts/999999999');
+        await expect(page.getByRole('heading', { name: '볼 수 없는 게시글입니다' })).toBeVisible();
+        await expect(page.getByRole('button', { name: '공유하기', exact: true })).toHaveCount(0);
+        assert.equal(
+          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+          true
+        );
+        await page.screenshot({
+          path: 'test-results/m0-browser/not-found-320.png',
+          fullPage: true,
+        });
         assert.deepEqual(external, []);
         assert.deepEqual(errors, []);
       }

@@ -11,7 +11,9 @@ const pages = computed(() => {
 </script>
 <template>
   <nav aria-label="페이지 이동" class="pagination">
-    <button v-if="page > 1" @click="$emit('change', page - 1)" aria-label="이전 페이지">←</button>
+    <button :disabled="page <= 1" @click="$emit('change', page - 1)" aria-label="이전 페이지">
+      ←
+    </button>
     <button
       v-for="n in pages"
       :key="n"
@@ -20,7 +22,7 @@ const pages = computed(() => {
     >
       {{ n }}
     </button>
-    <button v-if="page < total" @click="$emit('change', page + 1)" aria-label="다음 페이지">
+    <button :disabled="page >= total" @click="$emit('change', page + 1)" aria-label="다음 페이지">
       →
     </button>
   </nav>

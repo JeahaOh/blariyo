@@ -33,12 +33,12 @@
 - `terms`,`privacy` 현재·과거 버전 조회와 본문·이력 UI
 - modal focus·scroll 제어와 직접 route fallback
 - 정책 시행 command의 checksum·sanitize·version 전환·cache purge
-- footer `권리 문의` mailto·항상 접근 가능한 `이메일 주소 복사`와 관리자 우선 숨김 프로세스 연결
+- footer `권리 문의` mailto·주소 및 문의 양식 복사 대체 안내와 관리자 우선 숨김 프로세스 연결
 
 범위 밖:
 
 - 권리 문의 form·`/rights`·권리 요청 API
-- mail client 실행 성공·실패 감지, 별도 접수 DB
+- mail client 실행 성공·실패의 확정 판정, 별도 접수 DB
 - 법률 문구 자체 확정, 이메일 사업자 선정, ticket/민감자료 저장
 - 쿠키 선택 UI는 [analytics-consent](../analytics-consent/analytics-consent.dev.md)가 소유한다.
 
@@ -52,8 +52,8 @@
 | 현재 URL을 넣은 권리 mailto | 확정 | 화면 설계 §10 | submit-rights-inquiry, rights-entry | 반영 |
 | 법무·문의 실값의 properties/config 주입 | 확정 | OD-M0-006·legal README | policy D01·D08 | 실값 미입력으로 `[출시 차단]` 유지 |
 | 사업자등록 전 사업자 정보 보류 | 확정 | OD-M0-006·legal README | policy D01·D08 | `(미정)` 유지 |
-| mailto와 독립적인 이메일 주소 복사 | 확정 | 사용자 결정·legal README | rights D01·D08 | 주소만 복사, 제목·본문 제외 |
-| mail client 실행 결과 감지 없음 | 확정 | 사용자 결정·legal README | rights D01·D08 | 성공·실패 분기 미생성 |
+| 단일 권리 문의 링크와 복사 대체 안내 | 확정 | 2026-09-20 사용자 결정·화면 설계 | rights D01·D08 | 이메일 주소·제목·본문 전체 복사 |
+| mail client 실행 결과 확정 판정 없음 | 확정 | 화면 설계 | rights D01·D08 | 1.6초 동안 blur·hidden 신호 없음은 대체 안내 조건일 뿐 |
 | form·API | 범위 밖 | 서비스 기획 §11 | 전체 | 생성 안 함 |
 
 ## 6. 업무 규칙과 수용 조건
@@ -62,9 +62,7 @@
 - 본문은 허용 목록으로 sanitize한 `bodyHtml`만 반환하고 초안·원문은 공개하지 않는다.
 - 현재 적용 기간은 `시행 중`, 과거는 시작~종료이며 행 선택 시 같은 modal 본문을 교체한다.
 - 권리 mailto에는 현재 URL과 요청 내용 입력란만 미리 넣고 개인정보 원문을 자동 수집하지 않는다.
-- 권리 mailto와 `이메일 주소 복사`는 `BLARIYO_RIGHTS_CONTACT_EMAIL` 실값만 사용한다. 복사 동작은
-  mailto 실행 결과와 무관하게 항상 노출하고 이메일 주소만 복사한다. client 실행 성공·실패를
-  감지하거나 form·API·접수 DB로 분기하지 않는다.
+- 권리 문의는 `BLARIYO_RIGHTS_CONTACT_EMAIL` 실값을 사용한다. 메일 전환 신호가 없으면 주소·제목·양식을 복사하고 alert로 알린다. 실행 결과는 확정하지 않으며 form·API·접수 DB는 만들지 않는다.
 
 ## 7. 데이터·권한·법무 영향
 
@@ -94,8 +92,7 @@
 
 - 출시 차단: legal README의 운영자 표시명·시행일·수탁자·일반 문의·권리·개인정보 접수 이메일과
   개인정보 보호책임자 또는 담당자 실값. 사업자 정보는 사업자등록 또는 거래 기능 확정 전까지 보류한다.
-- 확정: mail client 실행 결과를 감지하지 않고 `이메일 주소 복사`를 항상 제공한다. 복사 범위는
-  이메일 주소뿐이며 제목·본문은 제외한다.
+- 확정: 별도 복사 버튼 없이 권리 문의에서 mailto를 연다. 1.6초 동안 전환 신호가 없으면 주소·제목·양식을 복사하고 alert로 알린다.
 - 미검증: 법률 자문, 실제 release artifact/checksum, SMTP/mail client, policy cache purge.
 - 문서 계약은 작성했지만 실값이 없으므로 production 공개 상태를 `차단`으로 유지한다. 로컬 조회·시행 command·UI는 별도 테스트 fixture로 개발한다.
 
@@ -241,14 +238,12 @@ artifact 제거를 확인해야 한다. 사업자 정보 placeholder는 사업�
 3. 이용자가 필요한 최소 정보와 소명 자료를 직접 검토해 보낸다.
 4. 이후 운영 처리는 관리자 [권리 문의 처리 D01](../admin-post-management/admin-post-management.dev.md#d01-handle-rights-request)을 따른다.
 
-footer에는 위 흐름과 별도로 항상 `이메일 주소 복사`를 제공한다. 선택하면
-`BLARIYO_RIGHTS_CONTACT_EMAIL`의 이메일 주소만 복사하며 제목·본문은 복사하지 않는다.
+footer에는 `권리 문의` 한 링크만 둔다. 클릭 후 1.6초 동안 window blur·document hidden 신호가 없으면 이메일 주소·제목·현재 URL과 입력란을 복사하고 alert로 알린다. 반복 클릭·route 전환·unmount는 이전 대기를 취소한다.
 
 #### 대안·실패 흐름
 
-- mail client 없음·실행 실패: 성공·실패를 감지하지 않고 원래 page를 유지한다. 이메일 주소 복사는
-  mailto 결과와 무관하게 계속 사용할 수 있다.
-- 이메일 주소 복사 실패: `aria-live`로 실패를 알리되 form·API·접수 DB로 전환하지 않는다.
+- 전환 신호가 없는 경우: “메일 작성 창이 열리지 않았다면 …”으로 안내한다. 메일 앱 실행 실패나 전송 성공으로 단정하지 않는다.
+- 자동 복사 실패: 실패 alert와 읽기 전용 양식 dialog를 제공해 직접 복사할 수 있게 한다. 닫기·Escape 후 권리 문의 링크로 포커스를 돌린다.
 - canonical URL 생성 실패는 수용 조건 미충족이다. 빈 URL이나 복사 안내로 대체하지 않는다.
 
 #### 단계별 API 매핑
@@ -265,14 +260,11 @@ Blariyo application DB 상태 전이 없음. 메일 내용은 client가 이메�
 
 #### 완료 조건과 수용 기준
 
-mailto 본문에는 현재 URL이 포함되고 footer에는 긴 주소 대신 `권리 문의`와 `이메일 주소 복사`가
-항상 보여야 한다. 주소 복사는 이메일 주소만 대상으로 하며 제목·본문이 clipboard와 application
-log에 없어야 한다. mail client 실행 결과를 감지하는 handler가 없어야 한다.
+mailto 본문에는 현재 URL이 포함되고 footer에는 `권리 문의` 한 링크가 보인다. 복사 대체 동작은 주소·제목·본문을 포함하며 application log에는 남기지 않는다. 전환 신호가 있으면 대기 중 복사·alert를 취소하고, clipboard 거부 시 성공 안내 없이 수동 복사를 지원한다.
 
 #### 미정·차단·미검증
 
-`[출시 차단: 권리 침해 신고·요청 이메일·시행일 입력 필요]`. mail client 결과 미감지와 이메일 주소만
-복사하는 계약은 확정됐으나 실제 client·clipboard·browser 동작은 미검증이다.
+`[출시 차단: 권리 침해 신고·요청 이메일·시행일 입력 필요]`. 전환 신호에 따른 대체 안내 계약은 확정됐으나 실제 외부 메일 앱 실행은 별도 검증 대상이다.
 
 <a id="d01-view-policy"></a>
 
@@ -454,7 +446,7 @@ modal/direct route의 version·전문이 같고 focus·scroll·history 전환이
 
 #### 목적·route·milestone
 
-별도 route 없이 공개 footer의 `권리 문의`로 mail client를 열고, 독립된 `이메일 주소 복사`를 제공한다.
+별도 route 없이 공개 footer의 `권리 문의`로 mail client를 열고 전환 신호가 없으면 복사 대체 안내를 제공한다.
 
 #### 진입·이탈·권한 조건
 
@@ -462,19 +454,16 @@ modal/direct route의 version·전문이 같고 focus·scroll·history 전환이
 
 #### UI 영역과 구성요소
 
-footer의 짧은 link 문구 `권리 문의`와 button `이메일 주소 복사`; 주소를 길게 노출하지 않는다.
-두 동작은 항상 함께 접근할 수 있으며 별도 form은 없다.
+footer에는 짧은 `권리 문의` 링크만 노출한다. 자동 복사가 거부될 때만 읽기 전용 양식 dialog를 표시하며 접수 form은 없다.
 
 #### 필드·표시값·validation
 
 mailto 제목은 서비스명·문의 유형, body는 현재 canonical URL·요청 입력란이다. 수령 주소는
-`BLARIYO_RIGHTS_CONTACT_EMAIL`의 확정 실값만 사용한다. 주소 복사는 같은 값의 이메일 주소만
-대상으로 하며 mailto 제목·본문은 포함하지 않는다.
+`BLARIYO_RIGHTS_CONTACT_EMAIL`의 확정 실값만 사용한다. 대체 복사는 같은 이메일 주소와 mailto 제목·본문 전체를 포함한다.
 
 #### 이벤트·이동·후처리
 
-`권리 문의` 선택 시 안전하게 encode한 mailto를 연다. client 실행 성공·실패를 감지하지 않는다.
-`이메일 주소 복사`는 mailto 결과와 무관하게 항상 제공하며 form·API·접수 DB로 분기하지 않는다.
+`권리 문의` 선택 시 안전하게 encode한 mailto를 연다. 전환 신호가 없을 때 복사·alert로 안내하되 실행 성공·실패는 확정하지 않는다. form·API·접수 DB로 분기하지 않는다.
 
 #### 화면 상태
 
@@ -482,7 +471,7 @@ loading 해당 없음. 이메일 미정이면 production에서 깨진 link를 �
 
 #### 반응형과 접근성
 
-link와 button의 accessible name이 문구와 일치하고 keyboard activation·focus 표시를 지원한다.
+링크와 dialog 닫기 버튼의 accessible name이 문구와 일치하고 키보드·focus 표시를 지원한다.
 
 #### 이벤트별 D01·API 매핑
 
@@ -490,13 +479,11 @@ link와 button의 accessible name이 문구와 일치하고 keyboard activation�
 
 #### 메시지와 사용자 피드백
 
-메일 전송 성공이나 mail client가 실제로 열렸는지 서비스가 추측해 표시하지 않는다. mailto 선택
-후에는 원래 page를 유지한다. 주소 복사 성공·실패만 별도 `aria-live`로 알린다.
+메일 전송 성공이나 mail client 실행 실패를 확정적으로 표시하지 않는다. 복사 성공 시 주소·양식 복사 사실을 alert로 알리고, 실패 시 직접 복사할 수 있는 dialog와 실패 alert를 제공한다.
 
 #### 화면 수용 조건
 
-현재 URL 포함, 개인정보 자동 수집 없음, `/rights`·form·API·mail client 결과 감지·접수 DB 미생성과
-이메일 주소만 복사되는지 확인한다.
+현재 URL 포함, 개인정보 자동 수집 없음, `/rights`·접수 form·API·DB 미생성, 주소·제목·양식 복사, 전환 신호에 따른 취소, clipboard 거부 시 수동 복사를 확인한다.
 
 #### 미정·차단·미검증
 

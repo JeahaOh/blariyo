@@ -15,6 +15,10 @@ worklog/task-list/MM/DD/<업무>/
 
 ## 2026-09-20
 
+- [로컬 UI·CI·콘텐츠·정책 세션 종합 기록](09/20/local-ui-cicd/SESSION-RECORD.md) — 전체 작업 트리·검증 요약·실패/정정·현재 DB/서버 상태·남은 항목
+
+- [배포 실행서·GitHub CI·M0 화면·실제 HOT 25건 로컬 초안](09/20/local-ui-cicd/TASK.md) — 로컬 구현·검증, 원격 CI/운영 재배포 미실행
+
 - [Lightsail·Cloudflare 운영 준비와 실제 앱 R2 연동](09/20/infrastructure-setup/TASK-01.md) — task별 수행 내용·증거·미검증 범위·다음 시작점
 - [Access 설정 확인과 운영자 매핑 연결 준비](09/20/infrastructure-setup/TASK-02.md) — INFRA-14 후속, 설정·공개키 확인 및 활성 운영자 목록 구현
 - [Access 설정 검사 결과와 내부 인증키 준비](09/20/infrastructure-setup/TASK-03.md) — 활성 운영자 설정 검사 통과, 내부 키 생성 도구 검증 및 실제 생성 대기

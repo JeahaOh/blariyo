@@ -1,7 +1,9 @@
 # Nginx gateway 준비
 
-현재 상태는 **로컬 격리 검사와 실제 서버 Nginx 기동 완료, 앱 기동·Tunnel 연결 전**이다. 기존 application release의
-Compose와 비공개 입력을 수정하지 않고 `blariyo-gateway` project를 별도로 준비한다.
+현재 상태는 **2026-09-20 앱 기동·Tunnel 공개 연결 완료**다.
+[실서버 배포 실행서](../../docs/implementation/operations/deployment-runbook.md)를 먼저 확인한다.
+아래 설치 도구 설명은 최초 준비 단계이며, 가동 중인 서버에 반복 실행하지 않는다.
+gateway는 `blariyo-gateway` project로 앱과 분리돼 있다.
 
 - [Compose](compose.yaml): nginx 1.30.5 Alpine 공식 image를 조회한 digest로 고정, linux/amd64,
   UID/GID 101, read-only filesystem, 64MiB memory, 96MiB memory+swap, 임시 공간 16MiB.
@@ -24,7 +26,9 @@ access JSON에는 생성한 request ID, 고정 경로 분류, HTTP 상태, 소�
 raw URL·query·Cookie·JWT·IP는 기록하지 않는다. raw Nginx error log에는 요청 원문이 포함될 수
 있어 이 준비물은 `emerg` 수준만 stderr로 보내고 요청 실패는 access 상태 코드로 관측한다.
 따라서 상세 upstream 오류 원인이 로그에 없을 수 있으며 적용 전에 운영 진단 절차를 함께 정해야 한다.
-Compose의 10MiB × 3개 rotation은 **용량 제한**이다. 설계의 14일 보존·삭제가 구현됐다는 뜻은 아니다.
+기본 Compose의 10MiB × 3개 rotation은 **용량 제한**이다. 운영에서는
+`production-logging.yaml`을 함께 적용해 전용 rsyslog와 7일 미만 삭제 timer를 사용한다.
+[운영 로그 안내](../operations/README.md)를 따른다.
 
 ## 검사
 
@@ -62,7 +66,7 @@ python3 deploy/gateway/install-from-mac.py --host 13.124.55.99 --install
 health·UID·memory·port·network를 확인한다. 기존 파일 내용이 다르면 덮어쓰지 않고 거부한다.
 운영 설정·정책 DB·기존 Tunnel route는 변경하지 않는다. 앱이 이미 실행 중인 환경은 재검토하도록 거부한다.
 
-2026-09-20 실제 서버에서 Nginx healthy, Web created(미기동)를 확인했다.
+최초 준비 단계에서 Nginx healthy, Web created(미기동)를 확인했고, 이후 TASK-19에서 앱 기동과 공개 연결을 완료했다.
 완료한 application release의 설정·image는 유지한다. 다음 작업은 정책 발행 조건을
 충족한 앱 기동과 Nginx→Web 내부 응답 확인이다.
 그 뒤 기존 cloudflared를 `blariyo-app_edge`에 연결하고 Tunnel의 서비스 주소를 `http://nginx:8080`으로

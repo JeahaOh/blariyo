@@ -157,7 +157,7 @@ await test(
     await rememberedPage.locator('.post-row').first().click();
     await expect(rememberedPage.locator('article h1')).toBeVisible();
     await expect.poll(pageViewCount).toBe(2);
-    await rememberedPage.getByRole('link', { name: '목록으로' }).click();
+    await rememberedPage.locator('.detail-nav').getByRole('link', { name: '목록으로' }).click();
     await expect(rememberedPage.locator('.post-row')).toHaveCount(1);
     await expect.poll(pageViewCount).toBe(3);
     assert.equal(rememberedTags.length, 1);

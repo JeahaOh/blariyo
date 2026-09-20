@@ -1,0 +1,104 @@
+{
+  "recordedAt": "2026-09-20T10:38:13.050358+00:00",
+  "scope": "Historical test summaries plus current read-only local verification; no production access",
+  "testSummaries": {
+    "initial_unit": {
+      "logAvailable": true,
+      "sourceLog": "/tmp/blariyo-unit.log",
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "summaryGroups": 1
+    },
+    "initial_nest_integration": {
+      "logAvailable": true,
+      "sourceLog": "/tmp/blariyo-nest.log",
+      "tests": 72,
+      "pass": 72,
+      "fail": 0,
+      "summaryGroups": 20
+    },
+    "initial_full_browser": {
+      "logAvailable": true,
+      "sourceLog": "/tmp/blariyo-browser-final.log",
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "summaryGroups": 1
+    },
+    "initial_ui_followup": {
+      "logAvailable": true,
+      "sourceLog": "/tmp/blariyo-visual-final.log",
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "summaryGroups": 1
+    },
+    "policy_ui_full_browser": {
+      "logAvailable": true,
+      "sourceLog": "/tmp/blariyo-policy-browser.log",
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "summaryGroups": 1
+    }
+  },
+  "localDatabase": {
+    "policyVersions": [
+      {
+        "policy_type": "PRIVACY",
+        "version_label": "v0.1",
+        "status": "EFFECTIVE",
+        "body_length": 4681
+      },
+      {
+        "policy_type": "TERMS",
+        "version_label": "v0.1",
+        "status": "EFFECTIVE",
+        "body_length": 2842
+      }
+    ],
+    "postStates": [
+      {
+        "status": "DRAFT",
+        "count": 25
+      }
+    ],
+    "blocks": 186,
+    "images": 105,
+    "ports": {
+      "5432/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "5439"
+        }
+      ]
+    }
+  },
+  "http": {
+    "/meme": {
+      "status": 200
+    },
+    "/api/v1/policies/terms": {
+      "status": 200,
+      "version": "v0.1",
+      "bodyLength": 2842,
+      "bodySha256": "4f7f5da0eb509bc9a8652b185d7b186a3cc126618ea3f76b42f785088384a7c0"
+    },
+    "/api/v1/policies/privacy": {
+      "status": 200,
+      "version": "v0.1",
+      "bodyLength": 4681,
+      "bodySha256": "9e39a7c0960268bdb5050f89b07378dba4edc601c085b527bd971490b573616e"
+    }
+  },
+  "oldPreview": {
+    "reachable": false,
+    "errorType": "URLError"
+  },
+  "git": {
+    "head": "2da659f",
+    "branchSummary": "## main...origin/main [ahead 1]",
+    "commitPushDeployPerformedByThisWork": false
+  }
+}

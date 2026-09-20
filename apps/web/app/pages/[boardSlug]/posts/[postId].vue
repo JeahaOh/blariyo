@@ -132,39 +132,59 @@ async function share() {
 }
 </script>
 <template>
-  <main>
-    <div class="detail-nav">
+  <main class="detail-page">
+    <div class="detail-nav" aria-label="게시글 탐색">
       <NuxtLink :to="`/${post.board.slug}`" aria-label="목록으로">←</NuxtLink
       ><strong>{{ post.title }}</strong
-      ><button @click="openShare" aria-label="공유하기">공유</button>
+      ><button @click="openShare" aria-label="공유하기" class="icon-button">
+        <svg
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          aria-hidden="true"
+        >
+          <path d="M12 16V3m-5 5 5-5 5 5M5 13v7h14v-7" />
+        </svg>
+      </button>
     </div>
     <article>
-      <h1>{{ post.title }}</h1>
-      <p class="muted">
-        {{ post.postId }} · {{ post.authorLabel }} · 조회 {{ post.viewCount }} ·
-        <time :datetime="post.publishedAt">{{
-          new Intl.DateTimeFormat('ko-KR', {
-            timeZone: 'Asia/Seoul',
-            dateStyle: 'medium',
-            timeStyle: 'short',
-          }).format(new Date(post.publishedAt))
-        }}</time>
-      </p>
-      <template v-for="(block, i) in post.blocks" :key="i"
-        ><p v-if="block.type === 'TEXT'" class="body-text">{{ block.text }}</p>
-        <img
-          v-else
-          :src="block.image.url"
-          :alt="block.image.alt"
-          :width="block.image.width"
-          :height="block.image.height"
-      /></template>
-      <p v-if="post.source">
-        <a :href="post.source.url" target="_blank" rel="noopener noreferrer">{{
-          post.source.name
-        }}</a>
-      </p>
+      <div class="article-header">
+        <h1>{{ post.title }}</h1>
+        <p class="muted">
+          {{ post.postId }} · {{ post.authorLabel }} · 조회 {{ post.viewCount }} ·
+          <time :datetime="post.publishedAt">{{
+            new Intl.DateTimeFormat('ko-KR', {
+              timeZone: 'Asia/Seoul',
+              dateStyle: 'medium',
+              timeStyle: 'short',
+            }).format(new Date(post.publishedAt))
+          }}</time>
+        </p>
+      </div>
+      <div class="article-body">
+        <template v-for="(block, i) in post.blocks" :key="i"
+          ><p v-if="block.type === 'TEXT'" class="body-text">{{ block.text }}</p>
+          <img
+            v-else
+            :src="block.image.url"
+            :alt="block.image.alt"
+            :width="block.image.width"
+            :height="block.image.height"
+        /></template>
+        <p v-if="post.source" class="post-source">
+          <a :href="post.source.url" target="_blank" rel="noopener noreferrer">{{
+            post.source.name
+          }}</a>
+        </p>
+      </div>
     </article>
+    <div class="section-heading">
+      <h2>{{ post.board.displayName }}</h2>
+      <NuxtLink :to="`/${post.board.slug}`">목록으로</NuxtLink>
+    </div>
     <PostList v-bind="context" /><PageNumbers
       :page="context.listPage"
       :total="context.totalPages"
@@ -177,17 +197,19 @@ async function share() {
       @close="sharing = false"
       @click="(e) => e.target === shareDialog && closeShare()"
     >
-      <button @click="closeShare">닫기</button>
+      <button class="dialog-close" @click="closeShare">닫기</button>
       <h2>공유하기</h2>
-      <button @click="copy">링크 복사</button><button @click="share">브라우저 공유</button
-      ><button v-if="kakao" @click="shareKakao">카카오톡</button
-      ><a
-        @click="$analytics?.send('share', { share_method: 'x', board_slug: post.board.slug })"
-        :href="`https://twitter.com/intent/tweet?url=${encodeURIComponent(post.shareUrl)}`"
-        target="_blank"
-        rel="noopener noreferrer"
-        >X에 공유</a
-      >
+      <div class="share-options">
+        <button @click="copy">링크 복사</button><button @click="share">브라우저 공유</button
+        ><button v-if="kakao" @click="shareKakao">카카오톡</button
+        ><a
+          @click="$analytics?.send('share', { share_method: 'x', board_slug: post.board.slug })"
+          :href="`https://twitter.com/intent/tweet?url=${encodeURIComponent(post.shareUrl)}`"
+          target="_blank"
+          rel="noopener noreferrer"
+          >X에 공유</a
+        >
+      </div>
       <p role="status">{{ feedback }}</p>
     </dialog>
     <p v-if="!sharing && feedback" role="status">{{ feedback }}</p>
@@ -196,13 +218,13 @@ async function share() {
 
 <style scoped>
 .share-dialog {
-  top: 86px;
+  top: 62px;
   left: auto;
   right: max(24px, calc((100vw - 760px) / 2 + 24px));
   margin: 0;
   width: 340px;
 }
-@media (max-width: 600px) {
+@media (max-width: 767px) {
   .share-dialog {
     top: auto;
     bottom: 0;

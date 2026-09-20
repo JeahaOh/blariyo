@@ -1,0 +1,36 @@
+name: Backup and restore verification
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 18 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: backup-restore-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  schema-restore:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['55449:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_ADMIN_URL: postgresql://postgres@127.0.0.1:55449/postgres
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.18.0
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run build:test -w @blariyo/api
+      - run: npm run typecheck:scripts && npm run lint:scripts && npm run typecheck:tests && npm run lint:tests
+      - run: sudo install -d -m 1777 /private/tmp
+      - run: node scripts/test-nest-integration.ts apps/api/dist-test/schema-restore.integration.test.js

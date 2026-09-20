@@ -38,7 +38,8 @@ jobs:
       - run: npm test
       # Integration fixtures use the macOS-compatible /private/tmp prefix.
       - run: sudo install -d -m 1777 /private/tmp
-      - run: node scripts/test-nest-integration.ts
+      # Full dump/restore verification runs separately; keep every push/PR CI focused on application checks.
+      - run: node scripts/test-nest-integration.ts --exclude-schema-restore
       - run: npx playwright install --with-deps chromium
       - run: node --test --test-concurrency=1 tests/browser/*.test.ts
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

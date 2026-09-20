@@ -8,10 +8,12 @@ if (!base) throw new Error('TEST_DATABASE_ADMIN_URL must point to isolated Postg
 const target = new URL(base);
 if (
   !['127.0.0.1', 'localhost'].includes(target.hostname) ||
-  target.port !== '55449' ||
+  !['55449', '5439'].includes(target.port) ||
   target.pathname !== '/postgres'
 )
-  throw new Error('Use the verified Nest migration PostgreSQL on loopback 55449/postgres');
+  throw new Error(
+    'Use loopback 55449 or development 5439 with /postgres; tests create and remove only random fixture databases'
+  );
 const admin = await createDataSource(base).initialize();
 try {
   const files = (await readdir('apps/api/dist-test'))
@@ -19,9 +21,15 @@ try {
     .map((file) => `apps/api/dist-test/${file}`)
     .sort();
   const requested = process.argv.slice(2);
-  if (requested.some((file) => !files.includes(file)))
+  const skipSchemaRestore = requested.includes('--exclude-schema-restore');
+  const requestedFiles = requested.filter((file) => file !== '--exclude-schema-restore');
+  if (requestedFiles.some((file) => !files.includes(file)))
     throw new Error('Requested test is outside the Nest integration inventory');
-  const selected = requested.length ? requested : files;
+  const selected = requestedFiles.length
+    ? requestedFiles
+    : skipSchemaRestore
+      ? files.filter((file) => file !== 'apps/api/dist-test/schema-restore.integration.test.js')
+      : files;
   if (!selected.length) throw new Error('No Nest integration tests found');
   for (const file of selected) {
     // Only identifiers generated here may be interpolated. Preserved baseline/user databases are never selected.

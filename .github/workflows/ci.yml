@@ -36,6 +36,8 @@ jobs:
       - run: npm run typecheck:scripts && npm run lint:scripts && npm run typecheck:tests && npm run lint:tests
       - run: npm run typecheck:web
       - run: npm test
+      # Integration fixtures use the macOS-compatible /private/tmp prefix.
+      - run: sudo install -d -m 1777 /private/tmp
       - run: node scripts/test-nest-integration.ts
       - run: npx playwright install --with-deps chromium
       - run: node --test --test-concurrency=1 tests/browser/*.test.ts

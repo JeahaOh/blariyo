@@ -27,3 +27,10 @@
 - 수정된 SHA의 GitHub Actions 재실행, CI DB 통합/브라우저 검사, GHCR 이미지 게시, 운영 배포는 미검증이다.
 - 이전 SHA의 실패 작업만 재실행하면 수정된 순서가 적용되지 않는다. 수정 커밋을 push한 새 실행을 확인해야 한다.
 - 다른 세션의 변경과 기존 로컬 preview는 보존했다.
+
+## 두 번째 실행 실패
+
+- 수정 커밋 `761ff7c`의 Run 2도 verify 단계에서 실패했다.
+- 빌드·타입 검사·린트·단위 테스트는 통과했지만, 통합 테스트가 `mkdtemp('/private/tmp/...')`를 호출할 때 GitHub Ubuntu runner에 `/private/tmp`가 없어 `ENOENT`가 발생했다.
+- workflow에서 통합 테스트 직전에 `/private/tmp`를 `1777` 권한으로 생성하도록 보완했다.
+- 이 보완은 로컬에만 있으며 아직 commit/push 및 원격 재실행은 미검증이다.

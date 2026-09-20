@@ -5,7 +5,10 @@ import { browserFixture } from '../helpers/browser-fixture.ts';
 import { launchBrowser } from '../helpers/launch-browser.ts';
 
 await test('Footer rights inquiry and contrasting shell', { timeout: 90000 }, async (t) => {
-  const fixture = await browserFixture(t, { rightsEmail: 'rights@example.test' });
+  const fixture = await browserFixture(t, {
+    rightsEmail: 'rights@example.test',
+    contactEmail: 'contact@example.test',
+  });
   const browser = await launchBrowser();
   t.after(() => browser.close());
   const page = await browser.newPage();
@@ -52,7 +55,7 @@ await test('Footer rights inquiry and contrasting shell', { timeout: 90000 }, as
       }));
       assert.notEqual(layout.header, layout.canvas);
       assert.equal(layout.overflow, false);
-      await expect(page.locator('footer nav a')).toHaveCount(4);
+      await expect(page.locator('footer nav a')).toHaveCount(5);
     }
   });
   await t.test('copies recipient, subject and current page template then alerts', async () => {
@@ -109,5 +112,21 @@ await test('Footer rights inquiry and contrasting shell', { timeout: 90000 }, as
     await page.waitForURL(fixture.origin + '/meme');
     await page.clock.fastForward(2000);
     assert.equal(alerts.length, 3);
+  });
+  await t.test('general inquiries use the contact recipient and a separate template', async () => {
+    await page.evaluate(() => delete document.documentElement.dataset.denyCopy);
+    const contact = page.getByRole('link', { name: '문의·오류 제보', exact: true });
+    await expect(contact).toHaveAttribute('href', /^mailto:contact@example.test\?/);
+    await contact.click();
+    await page.clock.fastForward(1700);
+    await expect.poll(() => alerts.length).toBe(4);
+    const copied = await page.evaluate(() => document.documentElement.dataset.copied);
+    assert.match(copied!, /받는 사람: contact@example.test/);
+    assert.match(copied!, /문의 내용 또는 발생한 문제:/);
+    assert.doesNotMatch(copied!, /권리자 확인 자료/);
+    await expect(page.locator('.footer-copyright')).toHaveText(
+      '© 2026 Blariyo. All rights reserved.'
+    );
+    await expect(page.locator('footer .brand-mark')).toHaveText('B');
   });
 });

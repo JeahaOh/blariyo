@@ -400,9 +400,13 @@ article img {
   background: #edf0f1;
   font-size: 12px;
 }
+.footer-identity {
+  flex-shrink: 0;
+}
 .footer-brand {
   display: inline-flex;
   align-items: center;
+  gap: 7px;
   min-height: 44px;
   flex-shrink: 0;
   color: var(--slate);
@@ -422,7 +426,7 @@ article img {
 .site-footer nav a {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 30px;
   text-underline-offset: 3px;
 }
 .site-footer nav a + a::before {
@@ -435,6 +439,14 @@ article img {
 }
 .footer-tagline {
   margin: 0;
+  padding-left: 34px;
+  font-size: 11px;
+}
+.footer-privacy {
+  font-weight: 700;
+}
+.footer-copyright {
+  margin: 6px 0 0;
   font-size: 11px;
 }
 

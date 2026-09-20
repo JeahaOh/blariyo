@@ -124,3 +124,24 @@ GitHub push 후 실제 CI/이미지 게시 확인, 필수 검사 설정, registr
 - 화면 설계·색상표·정적 publishing의 현행 앱 안내를 동기화했다. 이전 색 비교 캡처는 당시 증거로 보존.
 - Web build 및 diff check 통과. 로컬 preview 3001을 재시작하고 실제 Chromium에서 HTTP 200, canvas/header/footer 계산 색상과 가로 넘침 없음을 확인.
 - 적용 화면: `artifacts/palette-comparison/charcoal-applied.png`. 운영 배포·commit·push 없음.
+
+## 2026-09-20 푸터 로고·일반 문의·저작권 표시 적용
+
+- 사용자 승인 초안: 헤더와 같은 청록 B 마크와 블라리요, 로고 아래 브랜드 문구, 정책/문의 링크 두 줄, `© 2026 Blariyo. All rights reserved.`. 사용자가 제외한 게시물 권리 귀속 문장은 넣지 않았다.
+- `contactEmail`로 보내는 문의·오류 제보를 추가했다. 권리 문의와 별도 제목·본문을 사용하며 메일 실행 대체 복사·alert·직접 복사 dialog는 공유한다. 기존 rightsEmail의 권리자 확인 양식은 유지한다.
+- planning 화면/카피 계약과 public-post-browsing 개발 명세를 갱신했다. 기존 다른 세션의 변경은 보존했다.
+- 검증: Web build·Web typecheck·tests typecheck 통과, footer 브라우저 세부 테스트 7개(부모 포함 Node 집계 8) 통과. 실제 메일 프로그램 실행·발송은 수행하지 않았다.
+- 로컬 http://localhost:3001/meme 에 반영했다. 1280/390/320px 실화면에서 푸터 및 가로 넘침 없음 확인. 운영 배포·commit·push는 수행하지 않았다.
+- 화면 증거: [PC](artifacts/footer-refresh/desktop.png), [모바일](artifacts/footer-refresh/mobile.png), [320px](artifacts/footer-refresh/narrow.png), [측정값](artifacts/footer-refresh/evidence.json).
+
+### 푸터 줄 간격 후속 조정
+
+- 사용자 화면 피드백에 따라 푸터 링크/로고 최소 높이를 44px에서 30px로, 저작권 위 여백을 12px에서 6px로 줄였다.
+- Web build·git diff --check 통과. 로컬 3001에 반영하고 PC 1280px·모바일 390/320px 브라우저에서 실제 줄 높이 30px, 여백 6px, 가로 넘침 없음을 확인했다. CSS 간격만 변경하여 문의 동작 테스트는 반복하지 않았다.
+- [모바일 화면](artifacts/footer-spacing/mobile.png), [PC 화면](artifacts/footer-spacing/desktop.png), [측정값](artifacts/footer-spacing/evidence.json). 운영 배포·commit·push 없음.
+
+### 브랜드 간격만 복원
+
+- 사용자 요청으로 푸터 브랜드 높이만 44px로 복원하여 블라리요와 블라블라블라 사이에 기존 여유를 되돌렸다. 정책/문의 줄 높이 30px와 저작권 위 여백 6px는 유지했다.
+- Web build·git diff --check 통과. 로컬 3001 반영 후 1280/390/320px 브라우저 측정으로 브랜드 44px·링크 30px·저작권 여백 6px 및 가로 넘침 없음을 확인했다.
+- [PC 화면](artifacts/footer-brand-spacing/desktop.png), [모바일 화면](artifacts/footer-brand-spacing/mobile.png), [측정값](artifacts/footer-brand-spacing/evidence.json). 운영 배포·commit·push 없음.

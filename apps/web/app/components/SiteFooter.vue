@@ -13,15 +13,27 @@ const rightsMail = computed(() => {
     text: `받는 사람: ${config.rightsEmail}\n제목: ${subject}\n\n${body}`,
   };
 });
+const contactMail = computed(() => {
+  const subject = `${config.siteName} 문의·오류 제보`;
+  const page = new URL(route.path, config.siteOrigin).href;
+  const body = `대상 URL: ${page}\n\n문의 내용 또는 발생한 문제: \n사용 기기·브라우저: \n회신 연락처: `;
+  return {
+    href: `mailto:${config.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+    text: `받는 사람: ${config.contactEmail}\n제목: ${subject}\n\n${body}`,
+  };
+});
 const manualCopy = ref<HTMLDialogElement | null>(null);
 const manualText = ref('');
-const rightsAnchor = ref<HTMLAnchorElement | null>(null);
+const manualTitle = ref('권리 문의 양식');
+const mailAnchor = ref<HTMLAnchorElement | null>(null);
 let cancelMailWait = () => {};
-function prepareMailFallback(event: MouseEvent) {
+function prepareMailFallback(event: MouseEvent, type: 'rights' | 'contact') {
   if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
     return;
   cancelMailWait();
-  const text = rightsMail.value.text;
+  const text = type === 'rights' ? rightsMail.value.text : contactMail.value.text;
+  mailAnchor.value = event.currentTarget as HTMLAnchorElement;
+  manualTitle.value = type === 'rights' ? '권리 문의 양식' : '문의·오류 제보 양식';
   let active = true;
   // Browsers expose no mailto result. Cancel on departure; silence is only a fallback hint.
   const cancel = () => {
@@ -84,28 +96,41 @@ function close() {
 </script>
 <template>
   <footer class="site-footer">
-    <NuxtLink to="/meme" class="footer-brand" :aria-label="`${config.siteName} 홈`">{{
-      config.siteName
-    }}</NuxtLink>
+    <div class="footer-identity">
+      <NuxtLink to="/meme" class="footer-brand" :aria-label="`${config.siteName} 홈`">
+        <span class="brand-mark" aria-hidden="true">B</span><span>{{ config.siteName }}</span>
+      </NuxtLink>
+      <p class="footer-tagline">{{ config.footerTagline }}</p>
+    </div>
     <div class="footer-info">
-      <nav aria-label="정책 및 문의">
+      <nav aria-label="정책">
         <a href="/terms" @click="open('terms', $event)">이용약관</a>
-        <a href="/privacy" @click="open('privacy', $event)">개인정보처리방침</a>
-        <template v-if="config.rightsEmail">
-          <a ref="rightsAnchor" :href="rightsMail.href" @click="prepareMailFallback">권리 문의</a>
-        </template>
+        <a href="/privacy" class="footer-privacy" @click="open('privacy', $event)"
+          >개인정보처리방침</a
+        >
         <a href="/cookie-settings" @click="open('cookie-settings', $event)">쿠키 설정</a>
       </nav>
-      <p class="footer-tagline">{{ config.footerTagline }}</p>
+      <nav v-if="config.contactEmail || config.rightsEmail" aria-label="문의">
+        <a
+          v-if="config.contactEmail"
+          :href="contactMail.href"
+          @click="prepareMailFallback($event, 'contact')"
+          >문의·오류 제보</a
+        >
+        <template v-if="config.rightsEmail">
+          <a :href="rightsMail.href" @click="prepareMailFallback($event, 'rights')">권리 문의</a>
+        </template>
+      </nav>
+      <p class="footer-copyright">© 2026 Blariyo. All rights reserved.</p>
     </div>
   </footer>
   <dialog
     ref="manualCopy"
     class="rights-copy-dialog"
     aria-labelledby="rights-copy-title"
-    @close="rightsAnchor?.focus()"
+    @close="mailAnchor?.focus()"
   >
-    <h2 id="rights-copy-title">권리 문의 양식</h2>
+    <h2 id="rights-copy-title">{{ manualTitle }}</h2>
     <p>아래 내용을 복사해 사용하시는 메일에 붙여 넣어 주세요.</p>
     <textarea
       :value="manualText"

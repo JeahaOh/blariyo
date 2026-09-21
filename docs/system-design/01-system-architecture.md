@@ -70,19 +70,19 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 | `postgresql` | 게시글·정책·운영 작업 저장 | Docker private network only |
 | `backup` | 정기 DB dump 암호화·R2 업로드 | outbound only |
 
-수집은 서버 VM에 별도 컨테이너를 만들지 않는다. M0 수집 보조의 Discord `/collect url`과 관리자 URL
-지정 후보 생성은 운영자 로컬 컴퓨터에서 실행하는 `collector`가 처리한다. `api`는 URL 작업 접수,
-collector 인증, 후보 결과 저장, 검수와 초안 승격만 담당한다. 허용 출처 목록 수집은 후속
-`M0 자동 수집` 단계에서 로컬 collector의 반복 실행 또는 별도 worker 도입 여부를 다시 결정한다.
+수집은 서버 VM에 별도 fetch 컨테이너를 만들지 않는다. 별도 batch 컴퓨터의 `collector`가 source policy에 따라
+Discord URL 확인 입력, 목록·상세 fetch, parser, `collect.batch_*`, object store와 report를 소유한다. `api`는
+batch 결과 조회, 검수와 초안 승격·공개를 담당하며 외부 사이트를 fetch하지 않는다. source policy는 `HOT_LIST`,
+`DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로 구분한다.
 
 `worker`는 별도 상시 컨테이너로 시작하지 않는다. 예약 발행과 정리 작업은 API 이미지의 단발성
 명령을 cron에서 실행한다. 수집용 상시 worker는 M0 서버에 두지 않고 로컬 collector로 분리한다.
-후속 자동 수집에서 로컬 PC 의존성이 운영 병목이 되면 그때 서버 worker를 추가할지 결정한다.
+batch 컴퓨터 의존성은 현재 의도한 경계다. 운영 병목이 확인될 때만 별도 worker를 검토하며 API가 외부 fetch를
+소유하도록 되돌리지 않는다.
 
 M0 Core 반복 명령은 `npm run posts:publish-due`, `npm run outbox:run`이다. 예약 발행과 outbox는
-매분 실행한다. 서버 목록 수집 command는 M0 수집 보조 범위에
-두지 않는다. M0 수집 보조는 로컬 collector가 Discord 또는 관리자 화면에서 들어온 URL 한 건만
-요청하며 scheduler가 목록을 돌지 않는다. 실제 요청 간격·일일 상한은 사용 결정된 출처 명세를 따른다. 정책
+매분 실행한다. 서버 목록 수집 command는 두지 않는다. direct batch CLI가 source policy에 따라 목록을
+조회한다. 실제 요청 간격·일일 상한은 사용 결정된 출처 명세를 따른다. 정책
 시행은 자동 scheduler가 아니라 승인된 정책 release artifact를 사용하는 운영 단발성 명령
 `npm run policies:publish`로 수행한다. 각 명령은 공개 HTTP endpoint를 추가하지 않고 서버의 승인된 실행 경로에서 동일한
 repository·service와 전용 system actor를 사용한다.
@@ -282,10 +282,10 @@ Discord /collect url
 ```
 
 ```text
-후속 M0 자동 수집
-  -> 별도 사용 결정 뒤 목록·feed·pagination·scheduler 설계
-  -> M0 수집 보조 service와 후보 큐는 재사용
-  -> 기본 비활성
+M0 자동 수집
+  -> source policy별 목록·feed·pagination
+  -> batch direct DB/object-store 저장
+  -> API read-only 조회·검수·초안 승격
 ```
 
 후보 생성은 원문 URL과 metadata까지만 DB에 저장한다. Java/Spring 추출기는 운영자 검수 미리보기를
@@ -297,7 +297,9 @@ Discord /collect url
 MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에 넣는다. 검수 전 파일은
 접근이 제한되고 만료가 있는 preview로만 보관한다.
 
-같은 원문 URL의 후보는 정규화된 URL 기준으로 한 건만 유지한다. `403`, `429`, robots 금지, timeout이 발생하면 해당 단건 후보를 실패로 남기고 운영 알림을 만든다. 목록 수집 자동 비활성은 후속 `M0 자동 수집`에서만 적용한다.
+같은 원문 URL의 batch item은 정규화된 URL hash와 source post key 기준으로 한 건만 유지한다. `403`, `429`, robots 금지,
+timeout이 발생하면 item 또는 source run을 실패·차단으로 남기고 운영 알림을 만든다. `HOT_LIST` source는 연속 실패 시
+목록 실행을 중단하며 `DETAIL_ONLY` source는 목록을 호출하지 않는다.
 
 ### 후보 초안 승격
 

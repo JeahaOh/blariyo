@@ -44,7 +44,7 @@
 
 범위 밖:
 
-- 사용 결정된 출처 목록·feed의 주기 자동 수집
+- 자동 발행 (Hot/Top 목록 발견 batch는 아래 2026-09-21 확장 범위에 포함)
 - Discord 일반 메시지 감시, 목록 수집 강제 실행, 후보 검수·발행 명령
 - 출처 신규 등록·삭제·robots 판정 변경 UI
 - 자동 발행, 로그인·CAPTCHA·유료 장벽·차단 우회
@@ -62,7 +62,7 @@
 | 실패 후보 재시도·반려 | 확정 | API 설계 §5 | `retry-candidate`, `reject-candidate` | 반영 |
 | 초안 승격은 기존 게시글 command 재사용 | 확정 | 아키텍처 §5 | `promote-candidate-to-draft`, D01 | 반영 |
 | 후보 화면에 원문 HTML·내부 오류 노출 금지 | 확정 | 화면 설계 §2, 보안·운영 §7 | D08 | 반영 |
-| 자동 목록 수집과 Discord 목록 실행 명령 | 범위 밖 | 콘텐츠 수집 기획 §2·§8 | 전체 | M0 자동 수집으로 분리 |
+| 자동 목록 수집 CLI / Discord URL 명령 | M0 확장 범위 | 콘텐츠 수집 기획 2026-09-21 확장 | 아래 확장 계약 | 사이트별 증거와 활성화는 별도 |
 | 출처별 실제 selector·요청 간격 | 결정 필요 | 출처 명세 템플릿 | 전체 | 출처별 spec 필요 |
 
 ## 6. 업무 규칙과 수용 조건
@@ -969,7 +969,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - 계약: [시스템 API의 수집 출처](../../../system-design/03-api-design.md#수집-출처). GET/PATCH 형식·충돌·감사 처리는 여기서 재정의하지 않는다.
 - 화면: `/admin/collect/sources`, 관리자 인증, 등록 목록과 선택 출처의 설정을 같은 화면에서 편집한다.
 - M0 수집 보조에서는 활성 여부·요청 간격·일일 상한·robots 확인 결과를 편집한다. 출처 식별 정보는 읽기 전용,
-  목록 수집 관련 값은 후속 단계 전까지 비활성이다. 생성·삭제 버튼은 없다.
+  목록 수집은 V007 opt-in과 출처별 검증·정책 승인 전까지 비활성이다. 생성·삭제 버튼은 없다.
 - 저장 중 중복 제출을 막고 현재 lockVersion을 보낸다. 성공하면 반환값으로 목록과 편집값을 함께 교체한다.
   version 충돌이면 재조회 후 운영자가 다시 선택하며 자동 덮어쓰지 않는다.
 - loading·등록 출처 없음·조회 실패·저장 실패를 구분한다. 실패 시 입력을 유지하고 일반화한 사유를 표시한다.
@@ -979,7 +979,9 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 ## Spring 전환: Job 계약과 검증 경계
 
 - 확정된 구현 기준은 [07 Spring 수집 서버 상세 설계](../../../system-design/07-spring-collector-design.md)다. `apps/collector`, 전용 local PostgreSQL 18의 Batch·Quartz·collector schema, AES-256-GCM local spool, 기본 동시 실행 1, 15분 Quartz 기본 비활성, legacy→`SPRING_V2` cutover를 따른다.
-- Spring은 service DB·object storage credential을 갖지 않으며 Core API만으로 후보·preview를 변경한다. local metadata·Batch ExecutionContext·Quartz JobDataMap에는 최소 ID·상태·hash·참조만 남기고 title·origin URL·HTML·image binary·token·절대 경로를 남기지 않는다. title·remote image URL이 든 result payload와 image temp는 동일 bytes replay에 필요한 기간만 AES-256-GCM 암호화 spool에 둔다.
+- legacy 수동 Spring 경로는 service DB·object storage credential을 갖지 않고 Core API로 후보·preview를 변경한다. direct
+  batch 경로는 별도 batch DB role과 `collect/raw`, `collect/media`, `collect/report` object-store prefix만 사용한다.
+  어느 경로도 title·origin URL·HTML·image binary·token·절대 경로를 일반 로그에 남기지 않는다.
 - 구현 수용은 여섯 Step checkpoint, same-key replay, stale execution fencing, Core quota/permit, spool TTL, stop·restart·reconcile, REST·Discord·Quartz 공통 경로와 legacy drain을 07의 수용 시험으로 검증한다.
 - source·migration·OpenAPI 구현과 격리 환경 test·build·runtime 결과는 [M0 검증 기록](../../../implementation/m0-completion/evidence.md)에 기록한다. 실제 출처·Discord·운영 배포·법무 승인·7일 관찰은 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정만으로 Spring 전체 완료를 판단하지 않는다.
 
@@ -1005,3 +1007,30 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - 실행 OS 추가 결정: macOS·Windows·Docker/Linux를 대상으로 한다. 공통 파일 secret backend·POSIX/ACL 권한 검사와
   URL 요청 파일 CLI를 제공하고 OS별 자동 시작은 [수집기 운영 안내](../../../../apps/collector/ops/README.md)를 따른다.
   macOS 테스트로 Windows 실운영을 통과 처리하지 않는다.
+
+## 2026-09-21: 자동 수집 공통 경로 확장
+
+- 설계 상태: 작성 완료·구현/실연동 검증 진행. 기존 단건 계약은 유지하고 자동 수집 진입점을 추가한다.
+- 상위 정본: [수집 기획](../../../planning/content-collection/README.md),
+  [Spring 설계 §17](../../../system-design/07-spring-collector-design.md#17-hottop-discovery와-출처-registry-2026-09-21).
+- 출처·fixture·차단과 완료 상태는 [검증표](../../../planning/content-collection/reference-site-validation.md)를 따른다.
+- Discord는 권한 검증→registry 출처·상세 URL 확인→확인 버튼→동일 registry 재검사→후보 접수→공통 queue.
+  Core 숫자 sourceId와 파일의 source key를 같은 값으로 가정하지 않는다.
+- batch CLI는 유효한 옵션·출처 정책 gate→robots→목록 parser→페이지/기간/글 수 제한→canonical/post key 중복 제거
+  →상세 parser→`collect.batch_*`와 batch object store 저장 순으로 처리한다. `HOT_LIST`만 목록을 조회하고,
+  `DETAIL_ONLY`는 상세 URL만 처리하며 `BLOCKED`·`UNVERIFIED`는 실행하지 않는다. dry-run은 DB와 object store를 쓰지 않는다.
+- 21개 중 parser/fixture/robots/정책이 미확인인 출처는 blocked 코드로 보고한다.
+  BLOCKED adapter에 OG metadata fallback을 제공하지 않는다. 파일 링크 보존과 binary 다운로드 성공을 구분한다.
+- 수용: registry 오매핑, query robots, 반복 pagination, 0건/삭제/차단/빈 본문/이미지 없음/SNS-only,
+  중복·since·상한·간격·재시도·dry-run 무쓰기·DB readback·Discord 확인 전 무쓰기를 검사한다.
+  CLI exit 0은 해당 실행 계약 성공일 뿐 21개 전체 완료를 뜻하지 않는다.
+
+### 현재 실행 계약
+
+- OpenAPI의 candidate 생성은 선택 `discoveryMode`(기본 MANUAL_URL, 추가 LIST_CRAWL)를 받는다.
+  목록 quota 예약은 `discovery:true`, requestKind ROBOTS/LIST/REDIRECT이며 candidateId/lockVersion을 보내면 거부한다.
+- V007은 기존 API 후보 호환을 위한 migration이다. direct batch는 collector V002의 `collect.batch_*`를 직접 쓰며,
+  글마다 Core API를 호출하지 않는다. batch DB role과 API 조회 role을 분리하고 서비스 DB credential을 batch에 배포하지 않는다.
+- API 결과 NEW는 검수 대기이며 게시 완료가 아니다. batch CLI QUEUED는 상세 완료가 아니다.
+  캡처한 원본 HTML의 격리 DB readback은 live 목록→상세→이미지 다운로드 E2E를 대체하지 않는다.
+- 이 명세의 이전 MANUAL_URL 전용 설명은 URL 접수 기준이다. 목록 CLI 확장에는 이 절과 최신 OpenAPI를 적용한다.

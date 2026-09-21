@@ -388,7 +388,8 @@ provider 값을 노출하지 않는다. GA4를 켠 환경에서도
 저장된 분석 동의 전에는 Google tag/request와 cookieless ping을 만들지 않는다. `COLLECT_USER_AGENT`는 블라리요를
 식별할 수 있는 문자열과 연락 수단을 포함한다. `COLLECT_MANUAL_URL_ENABLED`는 관리자 화면 URL 지정, `COLLECT_DISCORD_COMMAND_ENABLED`는 Discord
 `/collect url` 명령의 전체 차단 스위치다. 두 경로 모두 입력된 단일 상세 페이지 1건만 처리한다.
-`COLLECT_LIST_CRAWL_ENABLED`는 후속 자동 수집 도입 전까지 false로 유지한다. 출처별 요청 간격·일일
+`COLLECT_LIST_CRAWL_ENABLED`는 legacy API 후보 호환 경로의 비활성 flag다. direct batch는 source별 `HOT_LIST`,
+`DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED` policy와 batch config를 사용한다. 출처별 요청 간격·일일
 상한·robots 확인 결과는 환경변수가 아니라 `collect.source` 데이터로 관리한다.
 
 `NUXT_ADMIN_OPERATORS_FILE`은 외부 identity를 안정적인 내부 `operatorId`로 매핑하는 파일 경로다. 운영자가 여러 명일 수 있으므로 단일 값 환경변수를 사용하지 않는다. 파일은 `{"identity": "<외부 식별값>", "operatorId": "<내부 식별자>", "active": true}` 항목의 목록이며 BFF container에만 읽기 전용으로 mount한다. identity를 제거해도 기존 `operatorId`는 재사용하지 않고 감사 이력을 보존한다. provider를 교체하면 identity 값만 새 provider 기준으로 바꾸고 `operatorId`는 유지한다.

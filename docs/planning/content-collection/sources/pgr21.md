@@ -107,3 +107,12 @@ fixture 작성 대상이 아니다.
 | 날짜 | parser version | 변경 내용 | 재검증 결과 |
 | --- | --- | --- | --- |
 | 2026-09-03 | `(미정)` | 최초 검토 | 확인 실패로 차단 |
+
+
+## 2026-09-21 출처별 자동 수집 정책
+
+- 자동 수집 정책: `BLOCKED`
+- Hot/Top 목록 URL: `(없음)`
+- 현재 활성화 사유: `ROBOTS_CHALLENGE`
+- 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
+- `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.

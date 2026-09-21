@@ -69,12 +69,13 @@ Core API --> service PostgreSQL collect.* / ops.*
 Core API --> private preview object storage
 ```
 
-- collector PostgreSQL은 공개 VM의 서비스 PostgreSQL과 다른 물리 인스턴스다. loopback 또는 Unix socket만
-  사용하고 service DB host·port·계정과 R2 credential을 collector 설정에 넣지 않는다.
+- legacy 수동 collector PostgreSQL은 공개 VM의 서비스 PostgreSQL과 다른 물리 인스턴스다. direct batch 모드에서는
+  별도 batch DB role이 `collect.batch_*`에만 쓰기 권한을 가지며 API service DB role과 분리한다. batch object-store
+  credential은 `collect/raw`, `collect/media`, `collect/report` prefix에만 제한한다.
 - 한 local database에서 schema를 분리하되 framework와 애플리케이션 migration을 한 versioned migration
   묶음으로 관리한다. `spring.batch.jdbc.initialize-schema=never`와
   `spring.quartz.jdbc.initialize-schema=never`를 운영 기본값으로 사용한다. startup DDL·drop을 허용하지 않는다.
-- Batch `ExecutionContext`, Quartz `JobDataMap`과 `collector.*`에는 ID·상태·시각·hash·암호화 spool 참조만
+- legacy Batch `ExecutionContext`, Quartz `JobDataMap`과 `collector.*`에는 ID·상태·시각·hash·암호화 spool 참조만
   저장한다. token, 원문 HTML, title 원문, 원문 URL 전체, image binary, 파일 절대 경로는 저장하지 않는다.
 - local PostgreSQL metadata는 매일 암호화 backup 1개, 최근 7개를 유지한다. 유실되어도 Core 후보 상태를
   권위 원천으로 다시 조정할 수 있어야 하며, restore 뒤 Quartz trigger와 Job을 바로 실행하지 않고 reconcile을
@@ -83,6 +84,11 @@ Core API --> private preview object storage
   고정한다. host명·사용자명·serial을 넣지 않으며 재설치로 ID가 바뀌면 새 Core credential을 발급한다.
 
 ## 3. 공통 실행 요청과 식별자
+
+이 절의 `Core 후보·lease·reservation` 설명은 기존 수동 URL 호환 collector 경로에만 적용한다. 새 direct batch는
+Core HTTP를 글마다 호출하지 않고 `collect.batch_*`와 batch object store를 직접 사용한다. 출처별 목록 가능 여부는
+[출처별 수집 정책](../planning/content-collection/source-collection-policy.md)의 `HOT_LIST`, `DETAIL_ONLY`, `BLOCKED`,
+`UNVERIFIED`로 결정한다.
 
 모든 진입점은 controller나 listener에서 Job을 직접 만들지 않고 `CollectorRunService.submit()`을 호출한다.
 서비스는 권한·feature flag·중복을 확인하고 같은 `RunCommand`를 만든다.
@@ -100,7 +106,8 @@ Core API --> private preview object storage
 - 기본 active Job은 1개다. 다른 요청은 local `QUEUED`로 저장하고 FIFO로 실행한다. 같은 candidate가 다른
   요청으로 들어오면 Core claim 결과를 권위로 사용해 하나만 진행한다.
 - Discord는 기존 확인 interaction이 끝나기 전에 후보 접수나 Job을 만들지 않는다. 일반 메시지를 감시하지 않는다.
-- Quartz는 기본 비활성이며 이미 접수된 후보 1건만 claim한다. 목록·feed에서 신규 URL을 찾지 않는다.
+- 기존 Quartz 후보 처리 경로는 기본 비활성이며 이미 접수된 수동 후보만 claim한다. direct batch의 Hot 목록 발견은
+  별도 `DirectBatchRunner`가 source policy에 따라 수행한다.
 
 ## 4. Job·Step과 상태
 
@@ -634,8 +641,8 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
   반환 candidateId로 `CollectorRunService.submit(REST, ...)`를 호출한다. 응답은 candidateId·jobRequestId·state다.
   응답 유실은 같은 key/같은 URL로 재전송한다. 다른 URL은 Core receipt가 409로 거부한다.
   Core 접수 후 로컬 queue 기록 전 중단도 같은 key replay로 복구한다. 새 key의 같은 URL은 기존 중복 계약을 따른다.
-- Discord는 기존 확인 interaction 뒤 같은 Core 접수·공통 실행 queue를 사용한다. Quartz는 **이미 접수한 후보**만
-  처리한다. 수집 PC가 꺼지면 대기하며 재시작 시 기존 lease·checkpoint 규칙으로 복구한다.
+- 기존 수동 Discord 경로는 Core 후보 queue 호환을 유지한다. direct batch Discord 경로는 확인 후 `collect.batch_run`과
+  `collect.batch_item(DISCOVERED)`을 직접 만든다. 수집 PC가 꺼지면 batch checkpoint 기준으로 재시작한다.
 
 ### 원문 parser와 네트워크 경계
 
@@ -672,7 +679,7 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 - contentBlocks가 있으면 이미지 0건도 허용한다. 모든 참조 이미지의 선택을 요구하며 leadText는 거부한다.
   metadata 후보는 기존 이미지 선택·leadText 방식을 유지한다. 부분 파일 실패는 NEW를 유지하고 초안을 만들지 않는다.
 - 새 migration V006은 additive SQL로 적용하며 기존 25건 게시글·원문 보관 schema를 변경하지 않는다.
-  수집 기능과 Spring transition readiness는 V006을 요구한다. 수집 기능이 꺼진 Core는 V003~V006의 기존 호환 범위를 유지한다.
+  V006은 원문 보존 migration이다. 현재 수집 기능과 Spring transition readiness는 §17의 V007을 요구한다. 수집 기능이 꺼진 Core는 V003~V007의 호환 범위를 유지한다.
 
 ### 수용 검증
 
@@ -695,3 +702,67 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
   Docker의 collector와 실행 DB는 host port를 열지 않는다. 제어 API는 container 내부 loopback에 유지하고
   `SubmitUrlMain`으로 URL 요청 파일을 접수한다. 서비스 Core·DB의 공개 범위는 바꾸지 않는다.
 - 실제 Windows ACL·서비스 등록, 각 OS의 절전 복구·Docker host mount 권한·backup 도구 검증은 별도 수용 증거다.
+
+## 17. Hot/Top discovery와 출처 registry (2026-09-21)
+
+이번 개발 범위는 planning의 21개 출처 확장이다. 기존 여섯 Step은 상세 수집 pipeline으로 유지한다.
+`source key`는 arcalive 같은 안정된 문자열이며 Core의 숫자 `sourceId`와 다르다. registry는 host와
+선택 coreSourceId를 대조하고 모호한 중복 설정을 거부한다. 이름만 등록한 출처는 BLOCKED이며 METADATA로 대체하지 않는다.
+
+- source registry → site list adapter → canonical/post key 중복 제거 → 공통 후보 접수 → 기존 상세 pipeline.
+- 사이트별 list/detail adapter는 별도로 선택한다. DOM 순서 보존기는 공유하지만 본문 selector는 사이트별로 고정한다.
+  실측 selector·chart URL·본문/이미지·canonical·post key·fixture는 planning의 검증표와 설정에 기록한다.
+- CLI: `bin/blariyo-collector batch --source <key> --chart hot --max-pages 2 --max-items 20 --since 24h --dry-run|--write-db`.
+  Java 25 jar를 macOS·PowerShell·Docker Linux에서 공통 실행한다. `COLLECTOR_SOURCES_FILE`,
+  `COLLECTOR_CONFIG_FILE`, `COLLECTOR_JAR`로 경로를 주입하고 secret은 기존 전용 파일 backend를 사용한다.
+- max-pages 1~10, max-items 1~100, since 1h~720h, interval 최소 10초·최대 1시간. 출처 설정이 더 엄격하면 낮출 수 없다.
+  게시 시각을 확정하지 못하면 since 필터를 통과시키지 않는다. 다음 페이지는 실제 목록의 허용 pagination 링크만 따른다.
+- robots는 query·wildcard·가장 구체적인 User-agent와 Allow/Disallow를 평가한다. HTML challenge·미확인은 차단한다.
+  robots가 지정한 Crawl-delay와 설정 interval 중 큰 값을 적용한다. 403·429·robots 금지 시 출처 실행을 즉시 멈춘다.
+  목록 redirect는 변경된 base URL을 검토할 때까지 SOURCE_REDIRECT_REVIEW_REQUIRED로 차단한다.
+  목록 timeout/5xx는 최대 2회만 추가 재시도(1초·2초 backoff와 최소 간격 적용), parser 오류는 자동 재시도하지 않는다.
+- 목록 요청도 Core 전역 source budget에서 예약한다. `discovery:true` 예약은 candidateId/lockVersion 없이
+  ROBOTS/LIST/REDIRECT만 허용하고, V007의 `source_discovery_policy.enabled`를 확인한다. 후보는 LIST_CRAWL로 생성한다.
+  실행 모드는 검증 fixture와 실제 출처를 구분하며, 로컬 카운터로 Core quota를 우회하지 않는다.
+- 재수집 기본 skip. update는 기존 승인/반려 후보를 덮어쓰지 않는 version·검수 계약을 추가한 뒤 제공하며,
+  미구현 update 옵션을 성공으로 받지 않는다. canonical과 source post key가 다른 게시물을 합치면 안 된다.
+- SNS는 a[href], iframe[src], blockquote의 permalink/cite 및 본문 URL을 LINK로 보존한다.
+  SNS API·영상 binary·로그인 요청은 하지 않는다. 화면의 기존 공식 임베드 allowlist를 그대로 적용한다.
+- JSON/JSONL 보고는 run ID·출처 key·상태·개수·일반 오류 코드·candidate/job ID만 포함한다.
+  제목·본문·원문 URL·secret·쿠키·내부 경로를 일반 로그로 출력하지 않는다.
+- 성공은 목록→상세→본문/이미지/SNS→Core API 저장→개발 DB readback으로 판정한다.
+  실제 Discord Gateway 연결·확인 interaction 검증은 fixture 시험과 별도다.
+
+### V007 저장 계약과 현재 구현 한계
+
+- `collect.source_discovery_policy`: source별 별도 opt-in, 검토일·정책 버전·목록 URL. migration은 출처를 활성화하지 않는다.
+- `collect.candidate.discovery_mode`: MANUAL_URL 또는 LIST_CRAWL. 두 경로는 같은 claim/fencing/result/media 단계를 사용한다.
+- `source_post_key`: Core가 URL에서 계산하며 `(source_id, source_post_key)` 부분 unique index로 보호한다.
+  기존 후보의 NULL 키는 자동 backfill하지 않았다. 기존 데이터의 URL 별칭 중복 감사와 backfill은 운영 전 필요하다.
+- V007 down은 LIST_CRAWL 후보 또는 LIST 예약이 있으면 먼저 거부한다. 데이터를 삭제해 rollback을 통과시키지 않는다.
+- `--dry-run`도 실제 robots/list GET과 Core quota 예약은 발생한다. 후보/본문/이미지는 저장하지 않는다.
+  `--write-db`의 QUEUED는 candidate/job 접수이며 상세 저장 성공이 아니다. 별도 job 상태와 DB readback이 필요하다.
+- 실제 URL 상세 parser 4종, 기존 THEQOO parser 1종. 다른 16종 상세 parser와 17종 목록 adapter는 미구현이다.
+  첨부 파일은 LINK 참조만 보존한다. 파일 binary 저장, update 재수집, 전체 사이트 E2E는 미완료다.
+- 상세 내용과 현재 증거는 [출처별 검증 계약](../planning/content-collection/reference-site-validation.md)을 따른다.
+
+## 18. Batch direct ownership reset (2026-09-21)
+
+기존 `CandidateIntake`·`CoreClient` 경로는 수동 URL 호환 경로로 남아 있지만 batch 기본 실행 경로가 아니다. batch는
+외부 목록·상세 GET, parser, dedup, Discord 확인 입력, PostgreSQL `collect.batch_*` 쓰기, object store 업로드와 report를
+직접 소유한다. 글마다 Core API를 호출하거나 Core quota/lease를 중계하지 않는다. `DirectBatchRunner`의 write 경로는
+`collect.batch_run`, `batch_item`, `batch_media`, `batch_failure`, `batch_report`, `batch_checkpoint`만 변경한다.
+
+API 애플리케이션 role은 이 batch 테이블에 SELECT만 가지며, `batch-items/:itemId`는 조회 전용이다. 운영자 검수와
+승인된 결과의 content 초안 승격은 API가 소유한다. batch는 `content.*`와 공개 상태를 변경하지 않는다. batch migration은
+`collector-v002.sql`로 직접 적용되며 기존 API V001~V007 migration과 독립적이다. 운영 DB에서는 batch role에 collect.batch*
+쓰기, API role에 SELECT만 부여한다.
+
+object store는 `BatchObjectStore`가 `collect/raw`, `collect/media`, `collect/report` prefix만 허용한다. 환경 변수로
+로컬 readback 디렉터리 또는 운영자가 제공한 S3/R2 presigned PUT URL template을 선택한다. DB row는 object key·SHA-256·MIME·size를
+기록하고 binary를 PostgreSQL에 넣지 않는다. upload 후 DB insert가 실패하면 실행은 실패로 남기고 object cleanup/retry 작업이
+필요하다. 현재 구현은 media 원격 binary 다운로드와 실제 S3/R2 readback을 아직 완료하지 않았으므로 운영 성공으로 표시하지 않는다.
+
+Discord `/collect url`의 확인 전 단계는 암호화 spool과 confirmation만 만든다. 확인 버튼 이후 `BatchStore.queueManual`이
+`collect.batch_run`과 `collect.batch_item(DISCOVERED)`을 직접 만들며 API 후보·예약·결과 endpoint를 호출하지 않는다.
+Gateway 자체 연결·상호작용은 별도 운영 증거로 기록하며, 테스트에서 Gateway를 대신 표시하지 않는다.

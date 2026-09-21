@@ -105,8 +105,8 @@
 
 | 유형 | 샘플 식별값 | 기대 결과 | 확인 결과 |
 | --- | --- | --- | --- |
-| 정상 목록 | 해당 없음 | M0 수집 보조 범위 밖 | 해당 없음 |
-| 빈 목록 | 해당 없음 | M0 수집 보조 범위 밖 | 해당 없음 |
+| 정상 목록 | 없음 | BLOCKED/UNVERIFIED policy | 실행하지 않음 |
+| 빈 목록 | 없음 | BLOCKED/UNVERIFIED policy | 실행하지 않음 |
 | 정상 상세 | 없음 | 후보 생성 안 함 | 미검증 |
 | 이미지 없는 상세 | 없음 | 후보 생성 안 함 | 미검증 |
 | 삭제·차단 | 없음 | 후보 생성 안 함 | 미검증 |
@@ -137,3 +137,12 @@
 | 날짜 | parser version | 변경 내용 | 재검증 결과 |
 | --- | --- | --- | --- |
 | 2026-09-03 | `(미정)` | 최초 검토 | 정책 gate로 비활성 |
+
+
+## 2026-09-21 출처별 자동 수집 정책
+
+- 자동 수집 정책: `BLOCKED`
+- Hot/Top 목록 URL: `(없음)`
+- 현재 활성화 사유: `POLICY_APPROVAL_REQUIRED`
+- 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
+- `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "minProperties": 1,
+  "additionalProperties": {
+    "type": "object",
+    "required": [
+      "host",
+      "approved",
+      "batchApproved",
+      "coreSourceId",
+      "parser",
+      "pathPrefixes",
+      "userAgent",
+      "imageOrigins",
+      "charts",
+      "chartVerified",
+      "blockedReason",
+      "requestIntervalMs",
+      "maxPages",
+      "maxItems",
+      "recrawl",
+      "verification",
+      "titleSelector",
+      "imageSelector",
+      "bodySelector"
+    ],
+    "properties": {
+      "host": {
+        "type": "string",
+        "pattern": "^[a-z0-9.-]+$"
+      },
+      "approved": {
+        "type": "boolean"
+      },
+      "batchApproved": {
+        "type": "boolean"
+      },
+      "coreSourceId": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "minimum": 1
+      },
+      "parser": {
+        "enum": [
+          "ARCALIVE",
+          "BOBAEDREAM",
+          "DOGDRIP",
+          "INVEN",
+          "THEQOO",
+          "BLOCKED"
+        ]
+      },
+      "pathPrefixes": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "string",
+          "pattern": "^/"
+        }
+      },
+      "userAgent": {
+        "type": "string",
+        "minLength": 1
+      },
+      "imageOrigins": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^/"
+          }
+        }
+      },
+      "charts": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string",
+          "pattern": "^https://"
+        }
+      },
+      "chartVerified": {
+        "type": "boolean"
+      },
+      "blockedReason": {
+        "type": "string",
+        "pattern": "^([A-Z][A-Z0-9_]+)?$"
+      },
+      "requestIntervalMs": {
+        "type": "integer",
+        "minimum": 10000,
+        "maximum": 3600000
+      },
+      "maxPages": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10
+      },
+      "maxItems": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100
+      },
+      "recrawl": {
+        "const": "skip"
+      },
+      "verification": {
+        "type": "object"
+      },
+      "titleSelector": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "imageSelector": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "bodySelector": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+      ,"collectionPolicy": {
+        "enum": ["HOT_LIST", "DETAIL_ONLY", "BLOCKED", "UNVERIFIED"]
+      }
+    },
+    "additionalProperties": false
+  }
+}

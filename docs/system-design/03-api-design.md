@@ -63,7 +63,8 @@ Core API의 내부 route는 외부 호환 계약으로
 M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
 위 목록의 수집 endpoint는 `M0 Core` OpenAPI와 route에 넣지 않고 `M0 수집 보조` 착수 때
 추가한다. M0 수집 보조는 운영자 로컬 collector가 Discord `/collect url` 또는 관리자 URL 입력 작업으로
-단일 상세 페이지 1건만 처리한다. 목록 수집 command는 후속 `M0 자동 수집` 단계에서 활성화한다.
+수동 URL API는 단일 상세 페이지 1건을 처리한다. 자동 목록 수집은 API endpoint가 아니라 별도 batch CLI가
+source policy에 따라 수행한다. API는 외부 사이트를 fetch하지 않는다.
 
 ### Health 응답
 
@@ -535,8 +536,8 @@ cutover, quota·execution fencing과 멱등 만료 뒤 digest 조정의 단일 �
 - 변경값을 기존 값과 합쳐 데이터 모델의 출처 제약을 검증한다. URL은 최대 2048자, 등록 host와 같아야 한다.
 - `URL_ONLY`는 `listUrl=null`, `LIST_CRAWL`은 listUrl 필수다. 목록 수집 활성은 `LIST_CRAWL`, 목록 URL,
   `robotsAllowed=true`와 확인 시각이 모두 있어야 한다. 조합 위반은 `409 SOURCE_STATE_CONFLICT`다.
-- M0 수집 보조에서는 `fetchMode=URL_ONLY`, `parserType=MANUAL`, `listUrl=null`, `isListCrawlEnabled=false`만 허용한다.
-  후속 자동 수집 설정을 미리 보내면 `409 SOURCE_STATE_CONFLICT`다.
+- 기존 API source 설정에서는 수동 호환 경로에 `fetchMode=URL_ONLY`를 사용한다. direct batch source policy는 별도
+  registry에서 `HOT_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로 관리하며 batch가 목록과 상세를 직접 소유한다.
 - `robotsAllowed`를 명시하면 같은 값이라도 재확인으로 처리한다. true/false는 서버 현재 시각,
   null은 `robotsCheckedAt=null`로 기록한다. client가 시각을 지정하지 않는다.
 - `isActive=false`를 명시하면 `disabledReasonCode=OPERATOR`, true를 명시하면 해당 사유를 null로 지운다.
@@ -557,7 +558,7 @@ cutover, quota·execution fencing과 멱등 만료 뒤 digest 조정의 단일 �
 | --- | --- | --- | --- |
 | `status` | string | 없음 | 생략 또는 단일 후보 상태 |
 | `sourceId` | integer | 없음 | 생략 또는 출처 식별자 |
-| `discoveryMode` | string | 없음 | M0 수집 보조는 `MANUAL_URL`; 후속 자동 수집은 `LIST_CRAWL` |
+| `discoveryMode` | string | 없음 | 수동 URL 호환은 `MANUAL_URL`; direct batch는 API 후보 endpoint 대신 자체 ledger에 `LIST_CRAWL` 저장 |
 | `duplicateOnly` | boolean | `false` | 중복 표시된 후보만 |
 | `page` | integer | `1` | `1~10000` |
 
@@ -649,8 +650,7 @@ POST /api/v1/admin/collect/candidates/:candidateId/reject
 
 ### 후속 목록 수집 실행
 
-목록 수집은 M0 수집 보조 범위가 아니며 HTTP endpoint로 제공하지 않는다. 후속 `M0 자동 수집`에서
-실행 주체·scheduler·명령을 먼저 결정한 뒤, 사용 결정된 활성 출처의 최신 목록·feed 범위를 읽고 새 원문
+목록 수집은 API HTTP endpoint로 제공하지 않는다. 별도 batch 실행 주체가 source policy별로 최신 목록·feed 범위를 읽고 새 원문
 URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하게 기본 비활성으로 둔다.
 
 ## 6. 상태 코드와 오류 코드

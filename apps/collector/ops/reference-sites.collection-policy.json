@@ -1,0 +1,23 @@
+{
+  "arcalive": {"mode":"HOT_LIST","chart":"https://arca.live/b/live","detail":"ENABLED_AFTER_POLICY_APPROVAL","reason":"POLICY_APPROVAL_REQUIRED"},
+  "bobaedream": {"mode":"HOT_LIST","chart":"https://www.bobaedream.co.kr/list?code=best","detail":"ENABLED_AFTER_POLICY_APPROVAL","reason":"POLICY_APPROVAL_REQUIRED"},
+  "clien": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_AGENT_BLOCKED"},
+  "dcinside": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"POLICY_APPROVAL_REQUIRED"},
+  "dmitory": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"POLICY_APPROVAL_REQUIRED"},
+  "dogdrip": {"mode":"HOT_LIST","chart":"https://www.dogdrip.net/dogdrip?sort_index=popular","detail":"ENABLED_AFTER_POLICY_APPROVAL","reason":"POLICY_APPROVAL_REQUIRED"},
+  "etoland": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_AGENT_BLOCKED"},
+  "fmkorea": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_DETAIL_DISALLOWED"},
+  "goodgag": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_AGENT_BLOCKED"},
+  "humoruniv": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_DISALLOWED"},
+  "instiz": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"SOURCE_ACCESS_BLOCKED"},
+  "inven": {"mode":"HOT_LIST","chart":"https://www.inven.co.kr/best/issue","detail":"ENABLED_AFTER_POLICY_APPROVAL","reason":"POLICY_APPROVAL_REQUIRED"},
+  "mlbpark": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_DISALLOWED"},
+  "natepann": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_DISALLOWED"},
+  "pgr21": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_CHALLENGE"},
+  "ppomppu": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"SOURCE_ACCESS_BLOCKED"},
+  "ruliweb": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_LIST_DISALLOWED"},
+  "theqoo": {"mode":"DETAIL_ONLY","chart":null,"detail":"EXISTING_DETAIL_ONLY","reason":"ROBOTS_UNVERIFIED"},
+  "todayhumor": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"ROBOTS_UNVERIFIED"},
+  "yuldo": {"mode":"UNVERIFIED","chart":null,"detail":"BLOCKED","reason":"CHART_UNVERIFIED"},
+  "youtube-community": {"mode":"BLOCKED","chart":null,"detail":"BLOCKED","reason":"PLATFORM_PERMISSION_REQUIRED"}
+}

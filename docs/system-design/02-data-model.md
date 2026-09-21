@@ -648,8 +648,8 @@ DB에 저장한다. Java/Spring 추출기 작업 경로의 임시 이미지 파�
 | `name` | `VARCHAR(50)` | N | 운영자 표시명 |
 | `base_url` | `VARCHAR(2048)` | N | 출처 기준 `https` URL |
 | `host` | `VARCHAR(255)` | N | `base_url`의 소문자 host, 매칭 키 |
-| `fetch_mode` | `VARCHAR(16)` | N | M0 수집 보조는 `URL_ONLY`; 후속 자동 수집은 `LIST_CRAWL` |
-| `list_url` | `VARCHAR(2048)` | Y | M0 수집 보조에서는 `NULL`; 후속 `LIST_CRAWL`에서 목록·피드 주소 |
+| `fetch_mode` | `VARCHAR(16)` | N | 수동 상세는 `URL_ONLY`; direct batch 목록은 source policy가 `HOT_LIST`일 때만 `LIST_CRAWL` |
+| `list_url` | `VARCHAR(2048)` | Y | `HOT_LIST` source의 검증된 목록 주소만 저장. `DETAIL_ONLY`·`BLOCKED`·`UNVERIFIED`는 NULL |
 | `parser_type` | `VARCHAR(24)` | N | `RSS`, `HTML_LIST`, `MANUAL` |
 | `is_active` | `BOOLEAN` | N | 출처 활성 여부 |
 | `is_list_crawl_enabled` | `BOOLEAN` | N | 목록 수집 활성 여부 |
@@ -1002,7 +1002,8 @@ filename, SHA-256 checksum과 적용 시각을 기록한다. runner는 PostgreSQ
 
 [Spring 상세 설계](./07-spring-collector-design.md)에 따라 운영자 PC의 전용 PostgreSQL 18에서
 `batch`·`quartz`·`collector` schema를 사용한다. 공개 서비스 PostgreSQL과 물리적으로 분리하고 collector에
-service DB 계정을 주지 않는다. service `collect`·`content` 변경은 Core API만 수행한다.
+batch DB role은 `collect.batch_*`와 batch object prefix를 쓰고 API role은 이를 SELECT만 한다. service `content` 변경은
+Core API만 수행한다. batch는 content 상태를 변경하지 않는다.
 
 local `collector` schema는 trigger request HMAC, `jobRequestId`, candidate/execution ID, 상태·시각·hash,
 암호화 spool의 random reference와 notification outbox만 저장한다. Batch ExecutionContext와 Quartz

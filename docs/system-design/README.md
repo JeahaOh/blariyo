@@ -29,7 +29,7 @@
 [루트 README 검증](../../README.md#검증)을 따른다. 이 문서의 설계 계약과 실제 실행 증거는 구분한다.
 
 - 개발 입력: planning → system-design → 기능 명세와 docs OpenAPI.
-- 첫 구현 범위: M0 Core. 수집 보조·자동 수집·M1 기능은 각 단계로 분리한다.
+- 첫 구현 범위: M0 Core와 별도 실행 컴퓨터의 M0 수집 보조·자동 수집 확장. 수집은 독립 gate로 관리하고 M1 기능과 분리한다.
 - 구현 시작 순서와 완료 조건: [구현 Backlog](../development-specs/m0-core/implementation-backlog.md).
 - 현행 판정: [설계 준비 상태](design-readiness.md)에서 설계 기준선·구현 수용·production 공개 승인을
   각각 관리한다. 과거 검증 보고서의 미실행 상태를 현행 설계 기준선으로 사용하지 않는다.
@@ -46,11 +46,11 @@ M0 전체 기술 범위는 다음과 같다.
 - 복수 본문 이미지, 출처, 정책 버전
 - 게시글 참고용 조회 수와 기본 비활성 GA4 연동
 - `M0 수집 보조`의 운영자 URL 지정·후보 큐·검수·초안 승격
-- `M0 자동 수집`의 사용 결정된 출처 목록 수집과 실패 시 출처 비활성
+- `M0 자동 수집`의 source policy별 목록 수집과 실패 시 source 비활성
 - 외부 이미지 저장소, 백업과 복구
 - 단일 서버·단일 리전 저비용 운영
 
-`M0 Core`는 수집 없이 먼저 구현·공개할 수 있다. 수집 보조와 자동 수집은 각 단계 gate 뒤에
+`M0 Core`는 수집 없이 먼저 구현·공개할 수 있다. 수집 보조와 자동 수집은 독립 gate 뒤에
 feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈춰도 공개 목록·상세와 운영자
 발행이 계속 동작하게 한다. GA4는 M0 Web에 기본 비활성 연동으로 포함하고 운영 gate를 통과한
 환경에서도 분석 동의 후에만 로드하며 자체 분석 DB·API를 만들지 않는다. GA4 활성화는 M0 Core
@@ -82,7 +82,7 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 | 서비스 데이터베이스 | PostgreSQL 18 단일 인스턴스. Spring collector는 운영자 PC의 별도 PostgreSQL 18에서 `batch`·`quartz`·`collector` schema 사용 |
 | DB schema | `M0 Core`: `content`, `legal`, `ops`; `M0 수집 보조`: `collect`; 이후 schema는 단계별 migration에서 추가 |
 | 이미지 | Cloudflare R2 Standard, 비공개 원본 bucket과 공개 media bucket 분리 |
-| 수집 | M0 수집 보조는 운영자 로컬 컴퓨터의 `collector`가 Discord `/collect url` 또는 관리자 URL 입력의 단일 상세 페이지 1건만 처리. BE는 후보 접수·저장·검수 API를 제공하고 출처 등록/활성·robots·요청 상한 결과를 검증. 목록 수집은 후속 자동 수집 단계 |
+| 수집 | 별도 batch 컴퓨터의 `collector`가 source policy에 따라 목록·상세 fetch, parser, `collect.batch_*`, object store와 report를 소유. API는 결과 조회·검수·초안 승격·공개를 소유하며 외부 fetch를 하지 않음 |
 | 엣지 | Cloudflare Free DNS·CDN·Universal SSL |
 | 원본 연결 | Cloudflare Tunnel로 공개 inbound port 제거 |
 | 운영자 접근 | BFF의 교체 가능한 외부 인증 adapter, Core의 provider-neutral 서비스 토큰 검증 |

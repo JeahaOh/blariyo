@@ -64,25 +64,25 @@
 | server-rendered HTML 목록 | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
 | headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외 |
 
-선택 parser type: `MANUAL_URL`
+선택 수집 정책: `HOT_LIST` / `DETAIL_ONLY` / `BLOCKED` / `UNVERIFIED`
+선택 parser type: `(사이트별 parser)`
 
 ## 4. URL 규칙
 
 | 항목 | 확인값 |
 | --- | --- |
-| 목록·feed URL | 사용하지 않음 |
+| 목록·feed URL | 정책이 `HOT_LIST`일 때만 검증된 URL |
 | 상세 URL pattern | `(미정)` |
 | canonical URL 위치 | `(미정)` |
 | 허용 redirect | `(미정)` |
 | 제거할 query parameter | `(미정)` |
 | 유지할 query parameter | `(미정)` |
-| pagination 방식·최대 범위 | 사용하지 않음 |
+| pagination 방식·최대 범위 | 정책이 `HOT_LIST`일 때만 확인 |
 
 ## 5. 목록·feed 추출 규칙
 
-M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Discord `/collect url` 또는 관리자 화면에서
-입력된 단일 상세 페이지 1건만 추출한다. 목록 수집을 도입하려면 별도 `M0 자동 수집` 단계에서 이 절을
-다시 작성하고 fixture를 검증한다.
+`HOT_LIST` source만 목록·feed·pagination을 사용한다. `DETAIL_ONLY`는 입력된 상세 URL만 처리하고,
+`BLOCKED`·`UNVERIFIED`는 실행하지 않는다. 정책과 selector를 확인하기 전에는 generic parser를 사용하지 않는다.
 
 | 대상 | 추출 규칙 | 필수 여부 | 실패 처리 |
 | --- | --- | --- | --- |
@@ -94,7 +94,7 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 
 제외 규칙:
 
-- 목록·feed·pagination: M0 수집 보조 범위 밖
+- 목록·feed·pagination: `HOT_LIST` source에 한해 적용
 - 공지·광고·추천 콘텐츠: 목록에서 추출하지 않음
 - 같은 목록의 중복 링크: 목록에서 추출하지 않음
 
@@ -134,7 +134,7 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 | 연락 수단 | `(미정)` |
 | 요청 간격 | `(미정)` |
 | 일일 요청 상한 | `(미정)` |
-| 자동 수집 실행 시간 | 사용하지 않음 |
+| 자동 수집 실행 시간 | source policy와 batch CLI 설정 |
 | redirect 상한 | `(미정)` |
 | timeout·응답 크기 상한 | `(미정)` |
 | 연속 실패 자동 비활성 기준 | `(미정)` |
@@ -143,8 +143,8 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 
 | 유형 | 샘플 식별값 | 기대 결과 | 확인 결과 |
 | --- | --- | --- | --- |
-| 정상 목록 | 해당 없음 | M0 수집 보조 범위 밖 | 해당 없음 |
-| 빈 목록 | 해당 없음 | M0 수집 보조 범위 밖 | 해당 없음 |
+| 정상 목록 | 정책이 HOT_LIST인 경우 공개 fixture | 상세 URL 추출 | `(미정)` |
+| 빈 목록 | 정책이 HOT_LIST인 경우 | 명시적 0건 또는 구조 변경 | `(미정)` |
 | 정상 상세 | `(미정)` | 제목·이미지 후보 추출 | `(미정)` |
 | 이미지 없는 상세 | `(미정)` | 명시적 실패 또는 운영자 보정 | `(미정)` |
 | 삭제·차단 | `(미정)` | 실패 기록·재시도 제한 | `(미정)` |
@@ -159,7 +159,7 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 - [ ] 운영 주체와 기준 URL 확인
 - [ ] 이용약관·`robots.txt` 확인
 - [ ] Discord·운영자 URL 수집 보조 fixture 검증
-- [ ] 목록·feed fixture 검증 해당 없음
+- [ ] `HOT_LIST`인 경우 목록·feed fixture 검증
 - [ ] URL 정규화와 중복 방지 검증
 - [ ] 요청 간격·일일 상한·연속 실패 기준 확정
 - [ ] 원문 HTML·이미지·개인정보가 로그에 남지 않음
@@ -169,7 +169,7 @@ M0 수집 보조에서는 목록·feed·pagination을 사용하지 않는다. Di
 판정:
 
 - Discord·운영자 URL 수집 보조: `(미정: 사용 / 보류 / 차단)`
-- 자동 수집: 차단 (M0 수집 보조 범위 밖)
+- 자동 수집: `(HOT_LIST / DETAIL_ONLY / BLOCKED / UNVERIFIED)`
 - 판정일·운영 위험 판정자: `(미정)`
 - 보류·차단 사유: `(미정)`
 

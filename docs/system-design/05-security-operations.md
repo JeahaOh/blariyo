@@ -139,7 +139,7 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
 - source URL은 `https`만 허용하고 사용자 클릭 링크에 `rel="noopener noreferrer"`를 사용한다.
 - 게시글에 저장된 출처 URL을 서버가 배경에서 자동 fetch하지 않는다. M0 수집 보조의 외부 요청은
   운영자 로컬 collector가 Discord `/collect url` 또는 관리자 화면 URL 입력 작업을 처리할 때만
-  발생한다. 목록 수집 command는 후속 자동 수집 범위다.
+  발생한다. 목록 수집은 별도 batch가 source policy에 따라 수행하며 API는 외부 사이트를 호출하지 않는다.
 - 게시글 TEXT block은 HTML·Markdown으로 해석하지 않고 출력 시 escape한다.
 - 정책 `body_html`은 저장·미리보기에 같은 허용 목록 sanitizer를 사용한다. script·style·iframe·form·SVG·`on*` 속성·inline style을 허용하지 않는다.
 - 정책 링크는 `https`, `mailto`, 서비스 내부 상대 경로와 `#` anchor만 허용하고 외부 새 창 링크에는 `rel="noopener noreferrer"`를 강제한다.
@@ -202,7 +202,8 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 
 - 요청에는 `COLLECT_USER_AGENT`를 사용하고 서비스명과 연락 수단을 포함한다.
 - 로그인, CAPTCHA, 유료 담장, 접근 차단을 우회하지 않는다. 인증이 필요한 페이지는 수집하지 않는다.
-- `403`, `429`, robots 금지, timeout이 발생하면 단건 후보를 실패로 기록한다. 후속 자동 수집에서는 출처 기준 연속 임계를 넘으면 해당 출처의 목록 수집을 자동 비활성하고 사유를 기록한다.
+- `403`, `429`, robots 금지, timeout이 발생하면 해당 batch item 또는 source run을 실패·차단으로 기록한다. `HOT_LIST`
+  source는 연속 실패 임계를 넘으면 목록을 중단하고 source policy 사유를 기록한다. `DETAIL_ONLY`는 목록을 호출하지 않는다.
 - 대상 사이트가 중단 요청을 보내면 해당 출처를 즉시 비활성하고 이미 발행된 게시글은 권리 문의 절차로 처리한다.
 - 수집 실패·차단은 공개 읽기 ready 조건에 넣지 않는다. 수집이 멈춰도 공개 목록·상세와 운영자 발행은 계속 동작해야 한다.
 - collector service token은 로컬 PC에 저장하고 BE에는 token hash와 collectorId·scope 매핑만 둔다. Web 전용 중계가 요청 중 전달할 수 있으나 보관·로그하지 않는다. 분실,
@@ -512,7 +513,7 @@ outbox worker는 중단된 `RUNNING`을 5분 뒤 회수하고 실패할 때마�
 1. 알림의 출처와 오류 코드 확인
 2. `disabledReasonCode`로 자동 비활성 여부 확인
 3. 대상 사이트의 `robots.txt`와 접근 정책 변경 여부 확인
-4. 차단이면 해당 단건 후보를 실패 처리한다. 후속 자동 수집이 켜져 있으면 목록 수집을 끄고 Discord·관리자 URL 지정 경로만 유지한다.
+4. 차단이면 해당 batch item 또는 source run을 실패 처리한다. `HOT_LIST`면 목록 수집을 끄고 `DETAIL_ONLY` 수동 URL 경로만 유지한다.
 5. 파싱 실패면 후보를 반려하고 파서 수정 여부를 판단
 6. 재활성화 전에 요청 간격·일일 상한을 다시 확인
 7. 대상 사이트의 중단 요청은 권리 문의 runbook과 같은 절차로 처리

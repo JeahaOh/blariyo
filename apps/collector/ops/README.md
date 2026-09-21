@@ -134,9 +134,10 @@ JSON 로그는 Spring Boot ECS 형식을 사용하고 exception message·전체 
 `COLLECTOR_CORE_ORIGIN`이며 `/api/collector/v1`은 프로그램이 붙인다. 다른 PC에서 `127.0.0.1:3000`은 서비스가 아니라
 그 PC 자신을 가리킨다. API 3100·서비스 DB 5439를 원격 공개하거나 DB credential을 수집기로 복사하지 않는다.
 
-수집 PC의 PostgreSQL은 **실행 이력·예약·중단 후 복구용**이다. 게시글 DB를 별도로 복제하는 용도가 아니다.
-PC가 꺼져 있으면 수집은 멈추고 기존 공개 서비스는 계속 동작한다. Quartz를 켜도 접수된 URL 후보만 처리하며
-HOT 목록 신규 URL을 스스로 발견하지 않는다. 새 URL은 local API·Discord·관리자 화면에서 접수한다.
+수집 PC의 PostgreSQL은 batch의 `collect.batch_*` 실행·결과·checkpoint·media metadata를 직접 보관한다.
+게시글 `content.*`와 공개 상태는 저장하지 않는다. PC가 꺼져 있으면 batch는 멈추고 기존 공개 서비스는 계속 동작한다.
+Hot 목록 자동 발견은 `HOT_LIST` 정책 출처만 수행하며, `DETAIL_ONLY` 출처는 URL 입력만 처리하고,
+`BLOCKED`·`UNVERIFIED` 출처는 실행하지 않는다.
 
 더쿠 원문 모드의 source 설정 예시(실제 Core source ID와 승인값으로 대체):
 
@@ -186,6 +187,26 @@ CLI는 자기 컴퓨터의 loopback API만 호출하고 candidateId와 jobReques
 출력하지 않는다. 실패 시 파일을 그대로 두고 같은 key로 재시도할 수 있다. 다른 사이트는 검증된 parser와 source 설정이 필요하다.
 
 ### 별도 PC의 Docker/Linux
+
+### 직접 저장 batch 실행
+
+`batch`는 목록·상세 요청과 parser 결과를 직접 collect DB와 object store에 기록한다. Core 후보 endpoint를 호출하지
+않는다. `--dry-run`은 network read와 robots 확인만 수행하고 DB/object store를 쓰지 않는다.
+
+```sh
+COLLECTOR_SOURCES_FILE=/config/sources.json \
+COLLECTOR_OBJECT_STORE_DIRECTORY=/state/objects \
+./bin/blariyo-collector batch --source theqoo --chart hot --max-pages 2 --max-items 20 --since 24h --dry-run
+
+COLLECTOR_SOURCES_FILE=/config/sources.json \
+COLLECTOR_OBJECT_STORE_PUT_URL_TEMPLATE='https://object-store.example/{key}?signature=(운영자 주입)' \
+./bin/blariyo-collector batch --source theqoo --chart hot --max-pages 2 --max-items 20 --since 24h --write-db
+```
+
+PowerShell에서는 `COLLECTOR_SOURCES_FILE`, `COLLECTOR_OBJECT_STORE_DIRECTORY`를 `$env:`로 설정하고
+`bin\blariyo-collector.ps1 batch ...`를 실행한다. Docker Linux에서는 같은 변수를 compose의 collector에 주입한다.
+실제 설정의 source는 `batchApproved`, `chartVerified`, robots·약관 검토가 모두 확인된 경우에만 활성화한다.
+실행 report에는 run ID·상태·개수·일반 오류 코드만 남기며 원문 URL·본문·cookie·secret·절대 경로를 넣지 않는다.
 
 [Compose 파일](compose.yaml)은 서비스용 루트 compose와 독립이다. Mac·Windows의 Docker Desktop에서도 Linux
 container로 실행한다. collector·실행 DB의 host port는 공개하지 않으며 URL 접수는 container 안에서 공통 CLI로 한다.

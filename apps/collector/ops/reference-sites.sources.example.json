@@ -5,11 +5,33 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "ARCALIVE",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": ".article-view .article-content",
+    "charts": {
+      "hot": "https://arca.live/b/live"
+    },
+    "chartVerified": true,
+    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "capturedHtmlDbReadback": true
+    },
+    "collectionPolicy": "HOT_LIST"
   },
   "bobaedream": {
     "approved": false,
@@ -17,11 +39,33 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BOBAEDREAM",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": ".bodyCont[itemprop=articleBody]",
+    "charts": {
+      "hot": "https://www.bobaedream.co.kr/list?code=best"
+    },
+    "chartVerified": true,
+    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "capturedHtmlDbReadback": true
+    },
+    "collectionPolicy": "HOT_LIST"
   },
   "clien": {
     "approved": false,
@@ -29,23 +73,61 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_AGENT_BLOCKED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "dcinside": {
     "approved": false,
-    "host": "www.dcinside.com",
+    "host": "gall.dcinside.com",
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "dmitory": {
     "approved": false,
@@ -53,11 +135,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "dogdrip": {
     "approved": false,
@@ -65,11 +166,33 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "DOGDRIP",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": "div[class~=document_[0-9]+_0].xe_content",
+    "charts": {
+      "hot": "https://www.dogdrip.net/dogdrip?sort_index=popular"
+    },
+    "chartVerified": true,
+    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "capturedHtmlDbReadback": true
+    },
+    "collectionPolicy": "HOT_LIST"
   },
   "etoland": {
     "approved": false,
@@ -77,11 +200,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_AGENT_BLOCKED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "fmkorea": {
     "approved": false,
@@ -89,11 +231,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_DETAIL_DISALLOWED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "goodgag": {
     "approved": false,
@@ -101,11 +262,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_AGENT_BLOCKED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "humoruniv": {
     "approved": false,
@@ -113,11 +293,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_DISALLOWED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "instiz": {
     "approved": false,
@@ -125,11 +324,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "SOURCE_ACCESS_BLOCKED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 403
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "inven": {
     "approved": false,
@@ -137,11 +355,37 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "INVEN",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {
+      "https://upload3.inven.co.kr": [
+        "/"
+      ]
+    },
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": "#powerbbsContent",
+    "charts": {
+      "hot": "https://www.inven.co.kr/best/issue"
+    },
+    "chartVerified": true,
+    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "capturedHtmlDbReadback": true
+    },
+    "collectionPolicy": "HOT_LIST"
   },
   "mlbpark": {
     "approved": false,
@@ -149,11 +393,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_DISALLOWED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "natepann": {
     "approved": false,
@@ -161,11 +424,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_DISALLOWED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "pgr21": {
     "approved": false,
@@ -173,11 +455,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_CHALLENGE",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "ppomppu": {
     "approved": false,
@@ -185,11 +486,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "SOURCE_ACCESS_BLOCKED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "ruliweb": {
     "approved": false,
@@ -197,11 +517,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_LIST_DISALLOWED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "theqoo": {
     "approved": false,
@@ -209,11 +548,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "THEQOO",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": "article[itemprop=articleBody]",
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_UNVERIFIED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 404
+    },
+    "collectionPolicy": "DETAIL_ONLY"
   },
   "todayhumor": {
     "approved": false,
@@ -221,11 +579,30 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "ROBOTS_UNVERIFIED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 404
+    },
+    "collectionPolicy": "BLOCKED"
   },
   "yuldo": {
     "approved": false,
@@ -233,20 +610,60 @@
     "pathPrefixes": [
       "/"
     ],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "CHART_UNVERIFIED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "UNVERIFIED"
   },
   "youtube-community": {
     "approved": false,
     "host": "www.youtube.com",
-    "pathPrefixes": ["/"],
-    "parser": "METADATA",
-    "titleSelector": "meta[property='og:title'],title",
-    "imageSelector": "meta[property='og:image'],img",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "BLOCKED",
+    "titleSelector": null,
+    "imageSelector": null,
     "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {}
+    "imageOrigins": {},
+    "batchApproved": false,
+    "coreSourceId": null,
+    "bodySelector": null,
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "PLATFORM_PERMISSION_REQUIRED",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": false,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200
+    },
+    "collectionPolicy": "BLOCKED"
   }
 }

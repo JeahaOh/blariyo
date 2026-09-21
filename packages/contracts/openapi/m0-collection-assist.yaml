@@ -212,6 +212,7 @@ paths:
             type: string
             enum:
               - MANUAL_URL
+              - LIST_CRAWL
         - in: query
           name: duplicateOnly
           schema:
@@ -485,6 +486,7 @@ paths:
                         type: string
                         enum:
                           - MANUAL_URL
+                          - LIST_CRAWL
                       imageCandidateCount:
                         type: integer
                         minimum: 0
@@ -1115,6 +1117,11 @@ paths:
                   maxLength: 2048
                   format: uri
                   pattern: ^https://
+                discoveryMode:
+                  type: string
+                  enum:
+                    - MANUAL_URL
+                    - LIST_CRAWL
               required:
                 - collectorId
                 - originUrl
@@ -1338,6 +1345,7 @@ paths:
                                   type: string
                                   enum:
                                     - MANUAL_URL
+                                    - LIST_CRAWL
                                 attemptCount:
                                   type: integer
                                   minimum: 1
@@ -1407,6 +1415,7 @@ paths:
                                   type: string
                                   enum:
                                     - MANUAL_URL
+                                    - LIST_CRAWL
                                 attemptCount:
                                   type: integer
                                   minimum: 1
@@ -1474,6 +1483,7 @@ paths:
                                   type: string
                                   enum:
                                     - MANUAL_URL
+                                    - LIST_CRAWL
                                 attemptCount:
                                   type: integer
                                   minimum: 1
@@ -2597,14 +2607,46 @@ paths:
                     - DETAIL
                     - REDIRECT
                     - IMAGE
+                    - LIST
+                discovery:
+                  type: boolean
               required:
                 - collectorId
                 - jobRequestId
                 - collectorExecutionId
-                - candidateId
-                - lockVersion
                 - requestKey
                 - requestKind
+              allOf:
+                - if:
+                    properties:
+                      discovery:
+                        const: true
+                    required:
+                      - discovery
+                  then:
+                    properties:
+                      requestKind:
+                        enum:
+                          - ROBOTS
+                          - LIST
+                          - REDIRECT
+                    not:
+                      anyOf:
+                        - required:
+                            - candidateId
+                        - required:
+                            - lockVersion
+                  else:
+                    required:
+                      - candidateId
+                      - lockVersion
+                    properties:
+                      requestKind:
+                        enum:
+                          - ROBOTS
+                          - DETAIL
+                          - REDIRECT
+                          - IMAGE
       responses:
         "201":
           description: Success
@@ -3148,6 +3190,7 @@ components:
           type: string
           enum:
             - MANUAL_URL
+            - LIST_CRAWL
         imageCandidateCount:
           type: integer
           minimum: 0

@@ -82,3 +82,12 @@
 - 삭제·비공개·멤버 전용 게시물: `(미정)`
 - 로그인 요구·구조 변경 fixture: `(미정)`
 - 실제 URL·robots·약관·parser 테스트 전까지 활성화하지 않는다.
+
+
+## 2026-09-21 출처별 자동 수집 정책
+
+- 자동 수집 정책: `BLOCKED`
+- Hot/Top 목록 URL: `(없음)`
+- 현재 활성화 사유: `PLATFORM_PERMISSION_REQUIRED`
+- 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
+- `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.

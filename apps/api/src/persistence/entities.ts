@@ -11,6 +11,9 @@ import {
 // Definite assignment is limited to ORM-managed entity columns. Never synchronize.
 @Entity({ schema: 'collect', name: 'candidate', synchronize: false })
 export class CollectCandidateEntity {
+  @Column({ type: 'jsonb', nullable: true })
+  content_blocks!:
+    import('../features/collection/collection.model.js').CollectionContentBlock[] | null;
   @PrimaryGeneratedColumn('identity', { type: 'bigint', generatedIdentity: 'BY DEFAULT' })
   id!: string;
   @Column({ type: 'bigint' })

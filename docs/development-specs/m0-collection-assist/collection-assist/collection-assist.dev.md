@@ -982,3 +982,26 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - Spring은 service DB·object storage credential을 갖지 않으며 Core API만으로 후보·preview를 변경한다. local metadata·Batch ExecutionContext·Quartz JobDataMap에는 최소 ID·상태·hash·참조만 남기고 title·origin URL·HTML·image binary·token·절대 경로를 남기지 않는다. title·remote image URL이 든 result payload와 image temp는 동일 bytes replay에 필요한 기간만 AES-256-GCM 암호화 spool에 둔다.
 - 구현 수용은 여섯 Step checkpoint, same-key replay, stale execution fencing, Core quota/permit, spool TTL, stop·restart·reconcile, REST·Discord·Quartz 공통 경로와 legacy drain을 07의 수용 시험으로 검증한다.
 - source·migration·OpenAPI 구현과 격리 환경 test·build·runtime 결과는 [M0 검증 기록](../../../implementation/m0-completion/evidence.md)에 기록한다. 실제 출처·Discord·운영 배포·법무 승인·7일 관찰은 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정만으로 Spring 전체 완료를 판단하지 않는다.
+
+
+## 원문 수집 확장 (2026-09-20)
+
+- 설계 상태: `작성 완료`. source·migration·test·다른 PC 설치·실제 Discord 검증은 문서 작성과 별도다.
+- 상위 결정: [수집 기획 §1.1](../../../planning/content-collection/README.md#11-원문-수집-확장--2026-09-20-결정).
+  공통 기술 계약: [Spring 설계 §16](../../../system-design/07-spring-collector-design.md#16-원문-수집과-별도-pc-실행-확장).
+- 기존 위 절의 metadata-only 결과·이미지 최소 1건·leadText 승격 규칙은 contentBlocks가 없는 후보에 유지한다.
+  contentBlocks가 있는 원문 후보는 위 §16과 [OpenAPI](../openapi/m0-collection-assist.yaml)의 확장 계약을 적용한다.
+- API: collectorResult는 optional contentBlocks를 저장한다. getCollectionCandidate는 관리자 상세에 이를 반환한다.
+  promoteCollectionCandidate는 전체 첨부 선택·준비를 검사하고 저장된 순서대로 TEXT/IMAGE/LINK를 초안에 옮긴다.
+  TEXT/SNS-only는 이미지 0건도 허용하며 원문 모드의 leadText·부분 선택은 VALIDATION_FAILED다.
+- 흐름: 다른 PC의 URL REST 또는 Discord → Core 접수 → 공통 local queue → 기존 여섯 Batch Step →
+  관리자 원문 검수 → 초안 승격. Quartz는 접수된 대기 후보만 처리하고 공개 서버에는 scheduler를 설치하지 않는다.
+- 화면: 원문 모드의 텍스트·링크·첨부 순서를 읽기 전용으로 미리 보여준다. 모든 이미지를 자동 선택하고
+  부분 선택을 막는다. alt·대체 업로드는 가능하다. 첨부 preview 누락·만료는 승격 전 오류로 표시한다.
+  metadata 후보의 기존 선택 UI는 유지한다. SNS 네트워크 로딩 없이 원문 링크로 검수할 수 있다.
+- 수용: 원문 순서·무손실 한도 거부·TEXT-only·CDN 경계·DB readback·멱등·중복·중단 후 재개·부분 승격 차단을
+  source/test로 검증한다. 실제 원격 PC와 Discord credential·운영 활성화는 격리 검증으로 대신하지 않는다.
+
+- 실행 OS 추가 결정: macOS·Windows·Docker/Linux를 대상으로 한다. 공통 파일 secret backend·POSIX/ACL 권한 검사와
+  URL 요청 파일 CLI를 제공하고 OS별 자동 시작은 [수집기 운영 안내](../../../../apps/collector/ops/README.md)를 따른다.
+  macOS 테스트로 Windows 실운영을 통과 처리하지 않는다.

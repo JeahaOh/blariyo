@@ -73,11 +73,8 @@ export class CollectorGuard implements CanActivate {
     rate.count++;
     this.limits.set(collector.collectorId, rate);
     if (rate.count > 120) throw new ApiError(429, 'RATE_LIMITED', undefined, 60);
-    if (
-      operation.operationId === 'collectorCreateCandidate' &&
-      !this.options.collectDiscordCommandEnabled
-    )
-      fail(404, 'CANDIDATE_NOT_FOUND');
+    // Authenticated collectors also accept local operator URL input; the common
+    // manual/Discord feature gate above applies before any command is accepted.
     if (request.maintenance && request.method !== 'GET')
       throw new ApiError(503, 'MAINTENANCE_READ_ONLY', undefined, 60);
     return true;

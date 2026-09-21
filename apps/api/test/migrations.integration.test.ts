@@ -54,7 +54,7 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
   await service.migrate();
   assert.equal(await health.ready(true), true);
   assert.equal(
-    requiredRow(await source.query("SELECT ops.is_schema_ready('V005') AS ready")).ready,
+    requiredRow(await source.query("SELECT ops.is_schema_ready('V006') AS ready")).ready,
     true
   );
   assert.equal(
@@ -76,15 +76,27 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
     ).count,
     '0'
   );
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
     await service.migrate('down');
-    if (i === 0)
+    if (i === 0) {
+      assert.equal(
+        requiredRow(
+          await source.query(
+            "SELECT count(*) FROM information_schema.columns WHERE table_schema='collect' AND table_name='candidate' AND column_name='content_blocks'"
+          )
+        ).count,
+        '0'
+      );
+      assert.equal(await health.ready(true), false);
+      assert.equal(await health.ready(false), true);
+    }
+    if (i === 1)
       assert.equal(
         requiredRow(await source.query("SELECT to_regclass('collect.collector_receipt') value"))
           .value,
         null
       );
-    if (i === 1) {
+    if (i === 2) {
       assert.equal(
         requiredRow(await source.query("SELECT to_regnamespace('collect') value")).value,
         null
@@ -92,13 +104,13 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
       assert.equal(await health.ready(false), true);
       assert.equal(await health.ready(true), false);
     }
-    if (i === 2)
+    if (i === 3)
       assert.equal(
         requiredRow(await source.query("SELECT to_regclass('ops.schedule_failure_alert') value"))
           .value,
         null
       );
-    if (i === 3)
+    if (i === 4)
       assert.equal(
         requiredRow(await source.query("SELECT ops.is_schema_ready('V001') value")).value,
         true
@@ -127,7 +139,7 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
       await runner.query(`SET LOCAL ROLE ${role}`);
       assert.equal(await health.ready(true), false);
       assert.equal(
-        requiredRow(await runner.query("SELECT ops.is_schema_ready('V005') ready")).ready,
+        requiredRow(await runner.query("SELECT ops.is_schema_ready('V006') ready")).ready,
         true
       );
       await runner.query('SAVEPOINT ledger_denied');

@@ -5,6 +5,7 @@ import { CollectionService } from './collection.service.js';
 import { UnitOfWork } from '../../shared/unit-of-work.js';
 import { collectionDigest, normalizeCollectionUrl } from './collection-url.js';
 import { fail, validId } from '../../shared/errors.js';
+import { validateContent } from './collection-content.js';
 export type CollectorResultInput =
   operations['collectorResult']['requestBody']['content']['application/json'];
 @Injectable()
@@ -40,6 +41,10 @@ export class CollectorResultService {
           if (!source) fail(404, 'SOURCE_NOT_FOUND');
           const actor = 'system:collector';
           if (body.status === 'NEW') {
+            const contentBlocks = validateContent(
+              body.contentBlocks,
+              body.imageCandidates.map((image) => image.position)
+            );
             if (!source.isActive || source.robotsAllowed !== true || !source.robotsCheckedAt)
               fail(403, 'SOURCE_NOT_ALLOWED');
             const url = normalizeCollectionUrl(body.canonicalUrl);
@@ -58,6 +63,7 @@ export class CollectorResultService {
               candidateId,
               {
                 title: body.title.trim(),
+                contentBlocks,
                 url,
                 hash,
                 parserVersion: body.parserVersion.trim(),

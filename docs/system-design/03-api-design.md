@@ -812,3 +812,12 @@ BFF `/api/collector/v1/*`는 유지한다. 추가 endpoint도 같은 prefix로�
   만료 permit·`NETWORK_STARTED` 뒤 불명 응답을 같은 reservation으로 재송신하지 않는다.
 - Batch 성공을 후보 발행 성공으로 번역하지 않는다. 전체 DTO·오류·Job/Step·복구표는
   [Spring 상세 설계](./07-spring-collector-design.md)를 따른다.
+
+
+## 원문 수집 API 확장 (2026-09-20)
+
+[Spring 설계 §16](07-spring-collector-design.md#16-원문-수집과-별도-pc-실행-확장)은 `contentBlocks`를 가진
+result·후보 상세·초안 승격에 적용한다. 기존 §5-1의 metadata 모드와 구분하며 원문 모드에서는 이미지 0건,
+전체 원문 순서 유지, 모든 첨부 준비를 요구한다. `leadText`로 원문을 대체할 수 없다.
+정확한 DTO는 [수집 OpenAPI](../development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml)를 따른다.
+로컬 URL 입력은 서비스 서버가 아닌 수집 PC의 `POST /local/v1/candidates`이며 서비스에 새 공개 scraper endpoint를 추가하지 않는다.

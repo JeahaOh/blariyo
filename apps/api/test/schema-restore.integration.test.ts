@@ -55,6 +55,7 @@ await test('full SQL schema, existing ledger/data and isolated PostgreSQL backup
   const target = new URL(url);
   assert.equal(target.hostname, '127.0.0.1'); assert.equal(target.port, '55449');
   const database = target.pathname.slice(1); assert.match(database, /^nest_[a-f0-9]{12}$/);
+  const targetPort = target.port;
   // Keep this verification self-contained. The old version depended on a
   // developer's long-lived container, which does not exist on CI runners.
   const owner = 'blariyo-nest-migration-pg-' + randomBytes(6).toString('hex');
@@ -84,10 +85,12 @@ await test('full SQL schema, existing ledger/data and isolated PostgreSQL backup
   const directory = await mkdtemp('/private/tmp/blariyo-schema-restore-');
   t.after(() => rm(directory, { recursive: true, force: true }));
   const dumpSchema = async (container: string, name: string) => normalizeDump(await command(['exec', container, 'pg_dump', '-U', 'postgres', '-d', name, '--schema-only']));
+  const dumpTargetSchema = async (name: string) => normalizeDump(await command(['run', '--rm', '--network', 'host', 'postgres:18', 'pg_dump', '-h', '127.0.0.1', '-p', targetPort, '-U', 'postgres', '-d', name, '--schema-only']));
+  const dumpTargetArchive = async (name: string) => command(['run', '--rm', '--network', 'host', 'postgres:18', 'pg_dump', '-h', '127.0.0.1', '-p', targetPort, '-U', 'postgres', '-d', name, '-Fc']);
   const originalSchema = await dumpSchema(owner, 'nest_schema_baseline');
   const migration = await migrationContext(url);
   try { await migration.get(MigrationsService).migrate(); } finally { await migration.close(); }
-  const emptySchema = await dumpSchema(owner, database);
+  const emptySchema = await dumpTargetSchema(database);
   assert.equal(emptySchema, originalSchema, 'full dump includes constraints, indexes, sequences, triggers, functions, ACL and RLS');
   const source = await createDataSource(url).initialize();
   t.after(() => source.destroy());
@@ -108,8 +111,8 @@ await test('full SQL schema, existing ledger/data and isolated PostgreSQL backup
   const restarted = await createNestApplication({ databaseUrl: url, storage });
   await restarted.close();
   assert.deepEqual(await snapshot(source), before, 'existing data, timestamps, ledger/checksums and sequence state unchanged by startup/migrate');
-  assert.equal(await dumpSchema(owner, database), originalSchema);
-  const archive = await command(['exec', owner, 'pg_dump', '-U', 'postgres', '-d', database, '-Fc']);
+  assert.equal(await dumpTargetSchema(database), originalSchema);
+  const archive = await dumpTargetArchive(database);
   await writeFile(directory + '/synthetic.dump', archive);
   assert.ok(archive.length > 1000);
   const restoredName = 'blariyo-nest-restore-' + randomBytes(6).toString('hex');

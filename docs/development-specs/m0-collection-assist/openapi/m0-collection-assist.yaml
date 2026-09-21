@@ -2,8 +2,7 @@ openapi: 3.1.0
 info:
   title: Blariyo M0 Collection Assist
   version: 0.1.0
-  description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public Core routes
-    remain unchanged.
+  description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public Core routes remain unchanged.
 paths:
   /api/v1/admin/collect/sources:
     get:
@@ -548,6 +547,10 @@ paths:
                           pattern: ^[A-Z][A-Z0-9_]*$
                         maxItems: 20
                         minItems: 0
+                      contentBlocks:
+                        anyOf:
+                          - $ref: "#/components/schemas/CollectionContentBlocks"
+                          - type: "null"
                     required:
                       - candidateId
                       - sourceId
@@ -965,7 +968,7 @@ paths:
                     minimum: 1
                     maximum: 9007199254740991
                   maxItems: 20
-                  minItems: 1
+                  minItems: 0
                   uniqueItems: true
                 imageOptions:
                   type: array
@@ -989,7 +992,7 @@ paths:
                       - candidateImageId
                       - alt
                   maxItems: 20
-                  minItems: 1
+                  minItems: 0
                 leadText:
                   type: string
                   minLength: 1
@@ -1036,7 +1039,7 @@ paths:
                           minimum: 1
                           maximum: 9007199254740991
                         maxItems: 20
-                        minItems: 1
+                        minItems: 0
                     required:
                       - postId
                       - status
@@ -1856,7 +1859,9 @@ paths:
                           - position
                           - remoteUrl
                       maxItems: 20
-                      minItems: 1
+                      minItems: 0
+                    contentBlocks:
+                      $ref: "#/components/schemas/CollectionContentBlocks"
                   required:
                     - collectorId
                     - lockVersion
@@ -1963,10 +1968,12 @@ paths:
                           - position
                           - remoteUrl
                       maxItems: 20
-                      minItems: 1
+                      minItems: 0
                     collectorExecutionId:
                       type: string
                       format: uuid
+                    contentBlocks:
+                      $ref: "#/components/schemas/CollectionContentBlocks"
                   required:
                     - collectorId
                     - lockVersion
@@ -3264,6 +3271,62 @@ components:
         - previewPath
         - previewExpiresAt
         - fetchErrorCode
+    CollectionContentBlock:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          properties:
+            type:
+              const: TEXT
+            text:
+              type: string
+              minLength: 1
+              maxLength: 20000
+          required:
+            - type
+            - text
+        - type: object
+          additionalProperties: false
+          properties:
+            type:
+              const: IMAGE
+            imagePosition:
+              type: integer
+              minimum: 1
+              maximum: 20
+            alt:
+              type: string
+              minLength: 0
+              maxLength: 300
+          required:
+            - type
+            - imagePosition
+            - alt
+        - type: object
+          additionalProperties: false
+          properties:
+            type:
+              const: LINK
+            url:
+              type: string
+              minLength: 1
+              maxLength: 2048
+              format: uri
+              pattern: ^https?://
+            label:
+              type: string
+              minLength: 0
+              maxLength: 300
+          required:
+            - type
+            - url
+            - label
+    CollectionContentBlocks:
+      type: array
+      minItems: 1
+      maxItems: 40
+      items:
+        $ref: "#/components/schemas/CollectionContentBlock"
   responses:
     CollectionFailure:
       description: Generalized failure

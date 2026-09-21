@@ -63,6 +63,7 @@ export function candidateDetailDto(value: {
   return {
     ...candidateDto(value.candidate),
     warnings: value.candidate.warnings,
+    contentBlocks: value.candidate.contentBlocks,
     imageCandidates: value.images.map((image) => ({
       candidateImageId: Number(image.id),
       position: image.position,

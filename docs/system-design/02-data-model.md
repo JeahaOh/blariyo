@@ -1097,3 +1097,13 @@ transaction이다. local DB나 memory quota를 권위로 사용하지 않는다.
 
 Job/Step, replay·digest reconcile, lease·quota와 local 보존은 07의 확정 기준을 따른다. framework schema와
 위 service migration, constraint, cleanup·동시성 test가 실제로 작성·실행되기 전에는 구현 완료가 아니다.
+
+
+## 원문 수집 후보 확장 (2026-09-20)
+
+`collect.candidate.content_blocks JSONB NULL`은 원문 모드의 순서 있는 TEXT/IMAGE/LINK 배열이다.
+NULL은 기존 metadata 모드와 아직 성공한 원문이 없는 후보를 뜻한다. 배열 길이는 1~40이며
+이미지 참조는 candidate_image.position과 1:1로 검증한다. result transaction에서 저장하고 retry·reject 때 NULL로
+초기화한다. SQL migration `V006__collection_content.sql`이 DDL 정본이며 TypeORM synchronize는 사용하지 않는다.
+본문·URL은 관리자 상세와 암호화 수집기 spool에만 노출하며 로그·Batch metadata에는 넣지 않는다.
+필드·승격·보존 계약은 [Spring 설계 §16](07-spring-collector-design.md#16-원문-수집과-별도-pc-실행-확장)을 따른다.

@@ -1,4 +1,5 @@
 import type { components, operations } from '@blariyo/contracts/collection-api';
+export type CollectionContentBlock = components['schemas']['CollectionContentBlock'];
 export type UpdateSource =
   operations['updateCollectionSource']['requestBody']['content']['application/json'];
 export interface SourceRecord {
@@ -58,6 +59,7 @@ export interface CandidateRecord {
   parserVersion: string | null;
   sourcePublishedAt: Date | null;
   resultPayloadSha256: Buffer | null;
+  contentBlocks: CollectionContentBlock[] | null;
   lastHeartbeatAt: Date | null;
 }
 export interface CandidateImage {
@@ -93,6 +95,7 @@ export type CollectionCommand =
   | { action: 'reject'; params: { candidateId: string }; body: RejectCandidate };
 
 export interface CandidateResultMetadata {
+  contentBlocks: CollectionContentBlock[] | null;
   title: string;
   url: string;
   hash: Buffer;

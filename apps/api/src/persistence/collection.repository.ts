@@ -102,6 +102,7 @@ function mapCandidate(
     parserVersion: row.parser_version,
     sourcePublishedAt: row.source_published_at,
     resultPayloadSha256: row.result_payload_sha256,
+    contentBlocks: row.content_blocks,
     lastHeartbeatAt: row.last_heartbeat_at,
   };
 }
@@ -202,6 +203,7 @@ export class TypeOrmCollectionRepository extends CollectionRepository {
       .update(CollectCandidateEntity)
       .set({
         title: metadata.title,
+        content_blocks: metadata.contentBlocks,
         origin_url: metadata.url,
         origin_url_sha256: metadata.hash,
         parser_version: metadata.parserVersion,
@@ -347,6 +349,7 @@ export class TypeOrmCollectionRepository extends CollectionRepository {
       .update(CollectCandidateEntity)
       .set({
         status: 'PENDING',
+        content_blocks: null,
         requested_at: () => 'now()',
         fetched_at: null,
         fetch_error_code: null,
@@ -370,6 +373,7 @@ export class TypeOrmCollectionRepository extends CollectionRepository {
       .update(CollectCandidateEntity)
       .set({
         status: 'REJECTED',
+        content_blocks: null,
         reject_reason_code: reason,
         reviewed_at: () => 'now()',
         lock_version: () => 'lock_version+1',

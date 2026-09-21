@@ -12,6 +12,7 @@ import { IdempotencyRepository } from '../../shared/idempotency.repository.js';
 import { UnitOfWork } from '../../shared/unit-of-work.js';
 import { Storage } from '../../shared/storage.js';
 import { fail, validId } from '../../shared/errors.js';
+import { originalDraftBlocks } from './collection-content.js';
 
 export type PromoteCandidate =
   operations['promoteCollectionCandidate']['requestBody']['content']['application/json'];
@@ -63,6 +64,14 @@ export class CollectionPromotionService {
           );
           if (new Set(uploaded).size !== uploaded.length) fail(400, 'VALIDATION_FAILED');
           const images = await this.candidates.images(id);
+          if (candidate.contentBlocks) {
+            if (
+              body.leadText !== undefined ||
+              ids.length !== images.length ||
+              images.some((image) => !ids.includes(Number(image.id)))
+            )
+              fail(400, 'VALIDATION_FAILED');
+          } else if (!ids.length) fail(400, 'VALIDATION_FAILED');
           const selected = ids.map((selectedId) => {
             const image = images.find((item) => Number(item.id) === selectedId);
             const option = options.find((item) => item.candidateImageId === selectedId);
@@ -138,15 +147,20 @@ export class CollectionPromotionService {
               fail(409, 'CANDIDATE_DUPLICATE');
             const source = await this.candidates.source(current.sourceId);
             if (!source) fail(404, 'SOURCE_NOT_FOUND');
-            const blocks: EditBlock[] = [];
-            if (body.leadText) blocks.push({ type: 'TEXT', text: body.leadText });
-            blocks.push(
-              ...prepared.map((item) => ({
-                type: 'IMAGE' as const,
-                imageId: item.imageId,
-                alt: item.option.alt,
-              }))
-            );
+            const blocks: EditBlock[] = current.contentBlocks
+              ? originalDraftBlocks(current.contentBlocks, (position) => {
+                  const item = prepared.find((item) => item.image.position === position);
+                  if (!item) fail(400, 'VALIDATION_FAILED');
+                  return { type: 'IMAGE', imageId: item.imageId, alt: item.option.alt };
+                })
+              : [
+                  ...(body.leadText ? [{ type: 'TEXT' as const, text: body.leadText }] : []),
+                  ...prepared.map((item) => ({
+                    type: 'IMAGE' as const,
+                    imageId: item.imageId,
+                    alt: item.option.alt,
+                  })),
+                ];
             const post = await this.posts.createDraftInTransaction(
               {
                 boardSlug: body.boardSlug,

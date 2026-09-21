@@ -366,6 +366,23 @@ export interface components {
             previewExpiresAt: string | null;
             fetchErrorCode: string | null;
         };
+        CollectionContentBlock: {
+            /** @constant */
+            type: "TEXT";
+            text: string;
+        } | {
+            /** @constant */
+            type: "IMAGE";
+            imagePosition: number;
+            alt: string;
+        } | {
+            /** @constant */
+            type: "LINK";
+            /** Format: uri */
+            url: string;
+            label: string;
+        };
+        CollectionContentBlocks: components["schemas"]["CollectionContentBlock"][];
     };
     responses: {
         /** @description Generalized failure */
@@ -641,6 +658,7 @@ export interface operations {
                             lockVersion: number;
                             imageCandidates: components["schemas"]["CollectionCandidateImage"][];
                             warnings: string[];
+                            contentBlocks?: components["schemas"]["CollectionContentBlocks"] | null;
                         };
                         meta: {
                             requestId: string;
@@ -1151,6 +1169,7 @@ export interface operations {
                         /** Format: uri */
                         remoteUrl: string;
                     }[];
+                    contentBlocks?: components["schemas"]["CollectionContentBlocks"];
                 } | {
                     collectorId: string;
                     lockVersion: number;
@@ -1176,6 +1195,7 @@ export interface operations {
                     }[];
                     /** Format: uuid */
                     collectorExecutionId: string;
+                    contentBlocks?: components["schemas"]["CollectionContentBlocks"];
                 } | {
                     collectorId: string;
                     lockVersion: number;

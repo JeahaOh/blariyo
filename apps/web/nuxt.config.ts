@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 const strictCompilerOptions = {
   strict: true,
   noUncheckedIndexedAccess: true,
@@ -15,6 +17,16 @@ export default defineNuxtConfig({
     sharedTsConfig: { compilerOptions: strictCompilerOptions },
   },
   nitro: { typescript: { tsConfig: { compilerOptions: strictCompilerOptions } } },
+  hooks: {
+    'nitro:config'(config) {
+      // Keep Nuxt's HTML renderer first; handle remaining JSON errors before Nitro's fallback.
+      const existing = config.errorHandler;
+      config.errorHandler = [
+        ...(Array.isArray(existing) ? existing : existing ? [existing] : []),
+        fileURLToPath(new URL('./server/error-handler.ts', import.meta.url)),
+      ];
+    },
+  },
   runtimeConfig: {
     collectManualUrlEnabled: false,
     collectDiscordCommandEnabled: false,
@@ -40,6 +52,8 @@ export default defineNuxtConfig({
       ga4MeasurementId: '',
       analyticsConnectOrigins: '',
       imageOrigin: '',
+      xEmbedsEnabled: false,
+      socialEmbedsEnabled: false,
       rightsEmail: '',
       contactEmail: '',
       privacyEmail: '',

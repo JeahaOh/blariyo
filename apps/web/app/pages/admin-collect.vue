@@ -78,8 +78,17 @@ async function open(id: number) {
     ).data;
     title.value = detail.value.title || '';
     lead.value = '';
-    selected.value = [];
-    alts.value = {};
+    selected.value = detail.value.contentBlocks
+      ? detail.value.imageCandidates.map((i) => i.candidateImageId)
+      : [];
+    alts.value = Object.fromEntries(
+      detail.value.imageCandidates.map((image) => {
+        const block = detail.value?.contentBlocks?.find(
+          (b) => b.type === 'IMAGE' && b.imagePosition === image.position
+        );
+        return [image.candidateImageId, block?.type === 'IMAGE' ? block.alt : ''];
+      })
+    );
     replacements.value = {};
     ack.value = false;
     pending.value = null;
@@ -135,8 +144,21 @@ async function action(path: string, body: Record<string, unknown>) {
 }
 function promote() {
   if (!detail.value) return;
-  if (!selected.value.length || selected.value.some((id) => !alts.value[id]?.trim())) {
+  if (
+    (!detail.value.contentBlocks && !selected.value.length) ||
+    selected.value.some((id) => !alts.value[id]?.trim())
+  ) {
     message.value = '이미지를 선택하고 각 이미지 설명을 입력해 주세요.';
+    return;
+  }
+  if (
+    detail.value.contentBlocks &&
+    detail.value.imageCandidates.some(
+      (image) => !image.previewPath && !replacements.value[image.candidateImageId]
+    )
+  ) {
+    message.value =
+      '원문 첨부가 모두 준비되어야 합니다. 누락되거나 만료된 이미지를 다시 올려 주세요.';
     return;
   }
   if (detail.value.duplicatePostId && !ack.value) {
@@ -147,7 +169,7 @@ function promote() {
     lockVersion: detail.value.lockVersion,
     boardSlug: 'meme',
     title: title.value,
-    ...(lead.value ? { leadText: lead.value } : {}),
+    ...(!detail.value.contentBlocks && lead.value ? { leadText: lead.value } : {}),
     candidateImageIds: selected.value,
     imageOptions: selected.value.map((id) => ({
       candidateImageId: id,
@@ -254,6 +276,34 @@ async function replace(id: number, event: Event) {
         <a :href="detail.originUrl" target="_blank" rel="noopener noreferrer">원문 확인</a>
         <p v-if="detail.fetchErrorCode">수집 실패: {{ detail.fetchErrorCode }}</p>
         <p v-for="warning in detail.warnings" :key="warning">{{ warning }}</p>
+        <section v-if="detail.contentBlocks" aria-label="수집한 원문">
+          <h3>수집한 원문</h3>
+          <p>본문 순서를 유지해 초안으로 옮깁니다. 첨부 이미지가 모두 준비되어야 합니다.</p>
+          <template v-for="(block, index) in detail.contentBlocks" :key="index">
+            <p v-if="block.type === 'TEXT'" style="white-space: pre-wrap; overflow-wrap: anywhere">
+              {{ block.text }}
+            </p>
+            <p v-else-if="block.type === 'LINK'" style="overflow-wrap: anywhere">
+              <a :href="block.url" target="_blank" rel="noopener noreferrer">{{
+                block.label || block.url
+              }}</a>
+            </p>
+            <figure v-else>
+              <img
+                v-if="
+                  detail.imageCandidates.find((i) => i.position === block.imagePosition)
+                    ?.previewPath
+                "
+                :src="
+                  detail.imageCandidates.find((i) => i.position === block.imagePosition)
+                    ?.previewPath ?? undefined
+                "
+                :alt="block.alt || `원문 이미지 ${block.imagePosition}`"
+              />
+              <figcaption>원문 이미지 {{ block.imagePosition }}</figcaption>
+            </figure>
+          </template>
+        </section>
         <p v-if="detail.duplicatePostId">
           <NuxtLink :to="`/admin?postId=${detail.duplicatePostId}`"
             >중복 가능 게시글 #{{ detail.duplicatePostId }} 확인</NuxtLink
@@ -261,7 +311,9 @@ async function replace(id: number, event: Event) {
         </p>
         <form v-if="detail.status === 'NEW'" @submit.prevent="promote">
           <label>제목<input v-model="title" required maxlength="200" :disabled="busy" /></label
-          ><label>소개 글<textarea v-model="lead" maxlength="5000" :disabled="busy" /></label>
+          ><label v-if="!detail.contentBlocks"
+            >소개 글<textarea v-model="lead" maxlength="5000" :disabled="busy" />
+          </label>
           <fieldset v-for="i in detail.imageCandidates" :key="i.candidateImageId" :disabled="busy">
             <legend>이미지 {{ i.position }}</legend>
             <img
@@ -279,7 +331,9 @@ async function replace(id: number, event: Event) {
                 v-model="selected"
                 type="checkbox"
                 :value="i.candidateImageId"
-                :disabled="!i.previewPath && !replacements[i.candidateImageId]"
+                :disabled="
+                  !!detail.contentBlocks || (!i.previewPath && !replacements[i.candidateImageId])
+                "
               />초안에 포함</label
             ><label>이미지 설명<input v-model="alts[i.candidateImageId]" maxlength="300" /></label
             ><label
@@ -292,7 +346,13 @@ async function replace(id: number, event: Event) {
           <label
             ><input v-model="ack" type="checkbox" :disabled="busy" />원문과 이미지의 중복 가능성을
             확인했습니다.</label
-          ><button :disabled="busy || !selected.length || (!!detail.duplicatePostId && !ack)">
+          ><button
+            :disabled="
+              busy ||
+              (!detail.contentBlocks && !selected.length) ||
+              (!!detail.duplicatePostId && !ack)
+            "
+          >
             검수 완료 · 초안 만들기
           </button>
         </form>

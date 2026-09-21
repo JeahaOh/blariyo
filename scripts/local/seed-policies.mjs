@@ -12,7 +12,7 @@ import {
   policyArtifact,
 } from '../../apps/api/dist/features/policies/policy-artifact.js';
 
-const databaseUrl = 'postgresql://blariyo_local@127.0.0.1:55439/blariyo_local';
+const databaseUrl = 'postgresql://blariyo_local@127.0.0.1:5439/blariyo_local';
 async function main() {
   assert.equal(process.argv.slice(2).join(' '), '--apply', 'Use --apply');
   const { config } = contacts.prepare();

@@ -1,7 +1,7 @@
 // Stable, loopback-only Web + Core using the persistent development database.
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { createServer } from 'node:net';
 import { once } from 'node:events';
@@ -41,11 +41,14 @@ async function main() {
     adminToken = token();
   const directory = resolve('.local-data/development');
   await mkdir(directory, { recursive: true, mode: 0o700 });
+  // Keep the running server and its assets together when another session rebuilds .output.
+  const webOutput = await mkdtemp(resolve(directory, 'web-output-'));
+  await cp(resolve('apps/web/.output'), webOutput, { recursive: true, dereference: true });
   await writeFile(resolve(directory, 'session.json'), JSON.stringify({ origin, adminToken }), {
     mode: 0o600,
   });
   app = await createNestApplication({
-    databaseUrl: 'postgresql://blariyo_local@127.0.0.1:55439/blariyo_local',
+    databaseUrl: 'postgresql://blariyo_local@127.0.0.1:5439/blariyo_local',
     serviceToken,
     storage: localStorage(resolve('.local-data/media')),
     localMedia: true,
@@ -53,7 +56,7 @@ async function main() {
     imageOrigin: origin + '/media',
   });
   await app.listen(3100, '127.0.0.1');
-  child = spawn(process.execPath, ['apps/web/.output/server/index.mjs'], {
+  child = spawn(process.execPath, [resolve(webOutput, 'server/index.mjs')], {
     stdio: ['ignore', 'inherit', 'inherit'],
     env: {
       ...process.env,
@@ -63,6 +66,7 @@ async function main() {
       NUXT_CORE_ORIGIN: 'http://127.0.0.1:3100',
       NUXT_PUBLIC_SITE_ORIGIN: origin,
       NUXT_PUBLIC_IMAGE_ORIGIN: origin + '/media',
+      NUXT_PUBLIC_X_EMBEDS_ENABLED: 'true',
       NUXT_PUBLIC_SOCIAL_EMBEDS_ENABLED: 'true',
       NUXT_ADMIN_AUTH_MODE: 'local',
       NUXT_LOCAL_ADMIN_TOKEN: adminToken,
@@ -83,7 +87,7 @@ async function main() {
     if (!stopped) void stop(code ?? 1);
   });
   console.log(
-    `Persistent local development: ${origin}/meme; Core loopback:3100; DB loopback:55439/blariyo_local`
+    `Persistent local development: ${origin}/meme; Core loopback:3100; DB loopback:5439/blariyo_local`
   );
   console.log(
     'Policies and posts are read from the development DB. No automatic content publication.'

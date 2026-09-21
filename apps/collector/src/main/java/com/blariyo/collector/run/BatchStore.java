@@ -40,7 +40,7 @@ public final class BatchStore {
     UUID id=UUID.randomUUID();
     try (var c=connection(); var s=c.prepareStatement("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,since_at,interval_ms) VALUES(?,?,?,?,?,?,?,?,?)")) {
       ensureSource(c, source, "config");
-      s.setObject(1,id);s.setString(2,source);s.setString(3,chart);s.setString(4,mode);s.setString(5,"RUNNING");s.setInt(6,pages);s.setInt(7,items);if(since==null)s.setNull(8,Types.TIMESTAMP_WITH_TIMEZONE);else s.setObject(8,since);s.setLong(9,interval);s.executeUpdate();return id;
+      s.setObject(1,id);s.setString(2,source);s.setString(3,chart);s.setString(4,mode);s.setString(5,"RUNNING");s.setInt(6,pages);s.setInt(7,items);if(since==null)s.setNull(8,Types.TIMESTAMP_WITH_TIMEZONE);else s.setTimestamp(8,Timestamp.from(since));s.setLong(9,interval);s.executeUpdate();return id;
     } catch(SQLException e) { throw new CollectorFailure(503,"BATCH_DB_UNAVAILABLE"); }
   }
   public UUID item(UUID run,String source,String postKey,String url,String state,String title,String blocks,String sns,String raw) {

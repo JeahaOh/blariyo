@@ -1,0 +1,400 @@
+{
+  "recorded_at": "2026-09-20T06:45:56.771720+00:00",
+  "scope": "Sequential <=1 request/second; synthetic non-credential headers only on public assets",
+  "expect_query_hit": false,
+  "asset_count": 1,
+  "request_count": 26,
+  "failures": [],
+  "requests": [
+    {
+      "path": "/_nuxt/B3p7wOF9.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "453"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js?cache_audit=e386906363e04cb6810b586f35edb925a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js?cache_audit=e386906363e04cb6810b586f35edb925b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "456"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "457"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "458"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 200,
+      "bytes": 8410,
+      "sha256": "2fea001aff15aa76103ec811b544d6d143f07fb4dd3c99267a6b5529c5ffdb08",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 200,
+      "bytes": 8010,
+      "sha256": "d0c75af99e2c23fa4ba4032b24340dc700f7f9bfcb109ccf973323885707e281",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme?page=1",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 200,
+      "bytes": 8417,
+      "sha256": "e486b1d9d6ab70fe293b0e745f6d1dfff2e4f2b1a69b00ad94da7637b7cb262e",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme?page=1",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 200,
+      "bytes": 8017,
+      "sha256": "6ccd3f83bce6d84a15e7a71cfa7e37cfaf1193ead69d2d3c364c7b6d6fbc8e04",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme?page=2",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6074,
+      "sha256": "366223d87a0af3e9ace196c2142f2b028ca1ca08cfa8a461cf3941e449c3d687",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme?page=2",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 404,
+      "bytes": 204,
+      "sha256": "f91c642663b6d275f922d57d2eec9480834241ba61c3141e3129c5c73d24bd7b",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/api/v1/boards/meme/posts",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 200,
+      "bytes": 246,
+      "sha256": "1dda5b153cc14822ef25167f979f9a7a5c3ab61a0d8d86dbb4d809ccf3856525",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/api/v1/boards/meme/posts",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 200,
+      "bytes": 246,
+      "sha256": "0e6c29b64d9ef44d9c07e87924e75fd38838ac7a130d9fd256fbe064c736e21e",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/api/v1/boards/meme/posts?page=1",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 200,
+      "bytes": 246,
+      "sha256": "0908b4f2efe82d2058e0c0768cd4dc99ab048004024da57876e60ac28b319582",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/api/v1/boards/meme/posts?page=1",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 200,
+      "bytes": 246,
+      "sha256": "378e368a0b331c1694efea677ae2c580b935041c0bb13b4dbd47a0fb86d3704f",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/health/live",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 200,
+      "bytes": 15,
+      "sha256": "647a83cca85203d6d4eb07eea84ef6eb91d5c6482eaff2ac8bb65a342b9f2946",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/health/live",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 200,
+      "bytes": 15,
+      "sha256": "647a83cca85203d6d4eb07eea84ef6eb91d5c6482eaff2ac8bb65a342b9f2946",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/missing-e386906363e04cb6810b586f35edb925.js",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6074,
+      "sha256": "424acb3ab45a0818c0a4a6a027ce942a4bfcb47c3acae4dda9bb49afe24417b5",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/missing-e386906363e04cb6810b586f35edb925.js",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 404,
+      "bytes": 174,
+      "sha256": "c9958cacad9491c90454e63fb21d4498801bb23a5a750d0f46c51a7735872bab",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/missing-e386906363e04cb6810b586f35edb925.css",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6075,
+      "sha256": "794e8258b80c511895f9f040ba4b34b886573781110958e7148202bb3b219aac",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/missing-e386906363e04cb6810b586f35edb925.css",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 404,
+      "bytes": 175,
+      "sha256": "4659f6eec6b4c66c5d8f6e70c28ebf0d1470fbabcaeb9046ed5aa79752f77049",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/nested-e386906363e04cb6810b586f35edb925/missing.js",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6086,
+      "sha256": "cbc425efd5fb440f0d728d132a8e7e462ec15d9b23b89466e6f2eb5c1765691b",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/nested-e386906363e04cb6810b586f35edb925/missing.js",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 404,
+      "bytes": 181,
+      "sha256": "c02137d6ae6c2e56a3cdf32b2a16a0b6c80478ec0ca5c6317d6e9eb3ee230a63",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme/missing-e386906363e04cb6810b586f35edb925.js",
+      "case": "uncacheable-control-text/html",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6172,
+      "sha256": "4592cb5ee4674e562b83a25b805ec6ebf223945b2d26d291a6a28b3361fb8b93",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme/missing-e386906363e04cb6810b586f35edb925.js",
+      "case": "uncacheable-control-application/json",
+      "method": "GET",
+      "status": 404,
+      "bytes": 372,
+      "sha256": "94e7ec64583fe7d49b48415e4bd966f57a2acc1e3d7c36ddbcbde4cc81f40c87",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    }
+  ]
+}

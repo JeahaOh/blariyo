@@ -1,0 +1,2410 @@
+{
+  "recorded_at": "2026-09-20T06:43:18.933112+00:00",
+  "scope": "Sequential <=1 request/second; synthetic non-credential headers only on public assets",
+  "expect_query_hit": false,
+  "asset_count": 24,
+  "request_count": 160,
+  "failures": [
+    "query-b: transport or size failure",
+    "/_nuxt/B3p7wOF9.js/query-b: expected 200",
+    "/_nuxt/B3p7wOF9.js/query-b: unexpected Cache-Control",
+    "/_nuxt/B3p7wOF9.js/query-b: unexpected content type",
+    "/_nuxt/B3p7wOF9.js/query-b: image/body hash mismatch",
+    "/meme?page=2: expected 200",
+    "/meme?page=2: expected 200",
+    "/api/v1/boards/meme/posts: expected 200"
+  ],
+  "requests": [
+    {
+      "path": "/_nuxt/1kDDIf_C.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 80923,
+      "sha256": "10ff958dc2b8a3101995e88706cf21c5b6d47a7a93a8cf8804b8357a177b5c0a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "1946"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/1kDDIf_C.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 80923,
+      "sha256": "10ff958dc2b8a3101995e88706cf21c5b6d47a7a93a8cf8804b8357a177b5c0a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "1952"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/1kDDIf_C.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 80923,
+      "sha256": "10ff958dc2b8a3101995e88706cf21c5b6d47a7a93a8cf8804b8357a177b5c0a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "1957"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/1kDDIf_C.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 80923,
+      "sha256": "10ff958dc2b8a3101995e88706cf21c5b6d47a7a93a8cf8804b8357a177b5c0a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "1963"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/1kDDIf_C.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 80923,
+      "sha256": "10ff958dc2b8a3101995e88706cf21c5b6d47a7a93a8cf8804b8357a177b5c0a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "1974"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/1kDDIf_C.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "1975"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "error_type": "URLError"
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "27"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "28"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "29"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BEcPRYFI.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 260,
+      "sha256": "484888fcaf67c71f550bb7ed884c620749a97f2d0f89335fe9cc0971c9d2e386",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BEcPRYFI.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 260,
+      "sha256": "484888fcaf67c71f550bb7ed884c620749a97f2d0f89335fe9cc0971c9d2e386",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BEcPRYFI.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 260,
+      "sha256": "484888fcaf67c71f550bb7ed884c620749a97f2d0f89335fe9cc0971c9d2e386",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BEcPRYFI.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 260,
+      "sha256": "484888fcaf67c71f550bb7ed884c620749a97f2d0f89335fe9cc0971c9d2e386",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "3"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BEcPRYFI.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 260,
+      "sha256": "484888fcaf67c71f550bb7ed884c620749a97f2d0f89335fe9cc0971c9d2e386",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "3"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BEcPRYFI.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "5"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BlB_jj2I.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 210,
+      "sha256": "697c92f29621b4e0a0e1a07491e1a17dadc1601faa385e7ac9101275efe02a4b",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BlB_jj2I.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 210,
+      "sha256": "697c92f29621b4e0a0e1a07491e1a17dadc1601faa385e7ac9101275efe02a4b",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BlB_jj2I.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 210,
+      "sha256": "697c92f29621b4e0a0e1a07491e1a17dadc1601faa385e7ac9101275efe02a4b",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BlB_jj2I.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 210,
+      "sha256": "697c92f29621b4e0a0e1a07491e1a17dadc1601faa385e7ac9101275efe02a4b",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BlB_jj2I.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 210,
+      "sha256": "697c92f29621b4e0a0e1a07491e1a17dadc1601faa385e7ac9101275efe02a4b",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "4"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/BlB_jj2I.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "5"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/C3JyHCCo.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 285,
+      "sha256": "1fdba4eacf87ebc8d135c62946859e572f177971509d32ece1c4b67834649578",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/C3JyHCCo.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 285,
+      "sha256": "1fdba4eacf87ebc8d135c62946859e572f177971509d32ece1c4b67834649578",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/C3JyHCCo.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 285,
+      "sha256": "1fdba4eacf87ebc8d135c62946859e572f177971509d32ece1c4b67834649578",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/C3JyHCCo.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 285,
+      "sha256": "1fdba4eacf87ebc8d135c62946859e572f177971509d32ece1c4b67834649578",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "3"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/C3JyHCCo.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 285,
+      "sha256": "1fdba4eacf87ebc8d135c62946859e572f177971509d32ece1c4b67834649578",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "6"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/C3JyHCCo.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "7"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CAWCzImj.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 212,
+      "sha256": "b2dd17799d79618323d2f1f8cc6491d89a38f7ad38222f855acadda9d166f6b8",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CAWCzImj.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 212,
+      "sha256": "b2dd17799d79618323d2f1f8cc6491d89a38f7ad38222f855acadda9d166f6b8",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CAWCzImj.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 212,
+      "sha256": "b2dd17799d79618323d2f1f8cc6491d89a38f7ad38222f855acadda9d166f6b8",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CAWCzImj.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 212,
+      "sha256": "b2dd17799d79618323d2f1f8cc6491d89a38f7ad38222f855acadda9d166f6b8",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "13"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CAWCzImj.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 212,
+      "sha256": "b2dd17799d79618323d2f1f8cc6491d89a38f7ad38222f855acadda9d166f6b8",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "17"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CAWCzImj.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "22"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CJ-VOngK.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 83104,
+      "sha256": "2a3976e993e49a752b4ee7abd8d2f721fa6c6d4b7128e533776e99a59c204cee",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2055"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CJ-VOngK.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 83104,
+      "sha256": "2a3976e993e49a752b4ee7abd8d2f721fa6c6d4b7128e533776e99a59c204cee",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2056"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CJ-VOngK.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 83104,
+      "sha256": "2a3976e993e49a752b4ee7abd8d2f721fa6c6d4b7128e533776e99a59c204cee",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2057"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CJ-VOngK.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 83104,
+      "sha256": "2a3976e993e49a752b4ee7abd8d2f721fa6c6d4b7128e533776e99a59c204cee",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2058"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CJ-VOngK.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 83104,
+      "sha256": "2a3976e993e49a752b4ee7abd8d2f721fa6c6d4b7128e533776e99a59c204cee",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2059"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CJ-VOngK.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2060"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CKjTFDoV.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 195,
+      "sha256": "0190d3a97095fd5123ecbb7325cdd2507d044cd805024d1a93999fc04b9e7da2",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CKjTFDoV.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 195,
+      "sha256": "0190d3a97095fd5123ecbb7325cdd2507d044cd805024d1a93999fc04b9e7da2",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CKjTFDoV.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 195,
+      "sha256": "0190d3a97095fd5123ecbb7325cdd2507d044cd805024d1a93999fc04b9e7da2",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CKjTFDoV.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 195,
+      "sha256": "0190d3a97095fd5123ecbb7325cdd2507d044cd805024d1a93999fc04b9e7da2",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "22"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CKjTFDoV.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 195,
+      "sha256": "0190d3a97095fd5123ecbb7325cdd2507d044cd805024d1a93999fc04b9e7da2",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "23"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CKjTFDoV.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "24"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CNs_Ozdc.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 27,
+      "sha256": "bdf2e55a3d779ecf81cb8ff9de6c2f2382019d88bdcc37bf14052f2cdeff2355",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CNs_Ozdc.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 27,
+      "sha256": "bdf2e55a3d779ecf81cb8ff9de6c2f2382019d88bdcc37bf14052f2cdeff2355",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CNs_Ozdc.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 27,
+      "sha256": "bdf2e55a3d779ecf81cb8ff9de6c2f2382019d88bdcc37bf14052f2cdeff2355",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CNs_Ozdc.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 27,
+      "sha256": "bdf2e55a3d779ecf81cb8ff9de6c2f2382019d88bdcc37bf14052f2cdeff2355",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "3"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CNs_Ozdc.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 27,
+      "sha256": "bdf2e55a3d779ecf81cb8ff9de6c2f2382019d88bdcc37bf14052f2cdeff2355",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "4"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CNs_Ozdc.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "5"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CVUGWtz7.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1620,
+      "sha256": "82121ba55afad10ef950999bf0ee86b663f4f3ca0a911dbd156f621d7b7adc68",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2094"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CVUGWtz7.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1620,
+      "sha256": "82121ba55afad10ef950999bf0ee86b663f4f3ca0a911dbd156f621d7b7adc68",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2098"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CVUGWtz7.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1620,
+      "sha256": "82121ba55afad10ef950999bf0ee86b663f4f3ca0a911dbd156f621d7b7adc68",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2101"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CVUGWtz7.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1620,
+      "sha256": "82121ba55afad10ef950999bf0ee86b663f4f3ca0a911dbd156f621d7b7adc68",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2108"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CVUGWtz7.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1620,
+      "sha256": "82121ba55afad10ef950999bf0ee86b663f4f3ca0a911dbd156f621d7b7adc68",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2115"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CVUGWtz7.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2125"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CW6A1p0s.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 878,
+      "sha256": "6fdc680ee2ce9f595f3837a98c8b2e1dfb7d198d8459d10cb0f4c83e3cd9e980",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2130"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CW6A1p0s.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 878,
+      "sha256": "6fdc680ee2ce9f595f3837a98c8b2e1dfb7d198d8459d10cb0f4c83e3cd9e980",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2137"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CW6A1p0s.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 878,
+      "sha256": "6fdc680ee2ce9f595f3837a98c8b2e1dfb7d198d8459d10cb0f4c83e3cd9e980",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2142"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CW6A1p0s.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 878,
+      "sha256": "6fdc680ee2ce9f595f3837a98c8b2e1dfb7d198d8459d10cb0f4c83e3cd9e980",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2147"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CW6A1p0s.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 878,
+      "sha256": "6fdc680ee2ce9f595f3837a98c8b2e1dfb7d198d8459d10cb0f4c83e3cd9e980",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2147"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CW6A1p0s.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2151"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cgrhk80r.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 6538,
+      "sha256": "49f256bbb1c8375c2ce8b976dd5a73da861f84966ac435d178a19ba3071de1ce",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cgrhk80r.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 6538,
+      "sha256": "49f256bbb1c8375c2ce8b976dd5a73da861f84966ac435d178a19ba3071de1ce",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cgrhk80r.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 6538,
+      "sha256": "49f256bbb1c8375c2ce8b976dd5a73da861f84966ac435d178a19ba3071de1ce",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cgrhk80r.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 6538,
+      "sha256": "49f256bbb1c8375c2ce8b976dd5a73da861f84966ac435d178a19ba3071de1ce",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "9"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cgrhk80r.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 6538,
+      "sha256": "49f256bbb1c8375c2ce8b976dd5a73da861f84966ac435d178a19ba3071de1ce",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "14"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cgrhk80r.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "19"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CrkC_YhS.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 10783,
+      "sha256": "95f95186c8167bedab7c9dc8002b3098bd3f80a535d6908f05e9d23f1de6d79a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CrkC_YhS.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 10783,
+      "sha256": "95f95186c8167bedab7c9dc8002b3098bd3f80a535d6908f05e9d23f1de6d79a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CrkC_YhS.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 10783,
+      "sha256": "95f95186c8167bedab7c9dc8002b3098bd3f80a535d6908f05e9d23f1de6d79a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CrkC_YhS.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 10783,
+      "sha256": "95f95186c8167bedab7c9dc8002b3098bd3f80a535d6908f05e9d23f1de6d79a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "13"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CrkC_YhS.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 10783,
+      "sha256": "95f95186c8167bedab7c9dc8002b3098bd3f80a535d6908f05e9d23f1de6d79a",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "13"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/CrkC_YhS.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "14"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cygp9wGA.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 13167,
+      "sha256": "e361be8903b2620b9fedd0d2eecdae2b70a05c327f8f9a07411fd4abf35c4b18",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2198"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cygp9wGA.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 13167,
+      "sha256": "e361be8903b2620b9fedd0d2eecdae2b70a05c327f8f9a07411fd4abf35c4b18",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2199"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cygp9wGA.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 13167,
+      "sha256": "e361be8903b2620b9fedd0d2eecdae2b70a05c327f8f9a07411fd4abf35c4b18",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2200"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cygp9wGA.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 13167,
+      "sha256": "e361be8903b2620b9fedd0d2eecdae2b70a05c327f8f9a07411fd4abf35c4b18",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2201"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cygp9wGA.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 13167,
+      "sha256": "e361be8903b2620b9fedd0d2eecdae2b70a05c327f8f9a07411fd4abf35c4b18",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2202"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Cygp9wGA.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2203"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/D4Z7EhCU.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 9079,
+      "sha256": "bdf2ecae4904af433ef798395d6cb20d7b7d30c4949e79f4d39ecf346be8da35",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2203"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/D4Z7EhCU.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 9079,
+      "sha256": "bdf2ecae4904af433ef798395d6cb20d7b7d30c4949e79f4d39ecf346be8da35",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2204"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/D4Z7EhCU.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 9079,
+      "sha256": "bdf2ecae4904af433ef798395d6cb20d7b7d30c4949e79f4d39ecf346be8da35",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2206"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/D4Z7EhCU.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 9079,
+      "sha256": "bdf2ecae4904af433ef798395d6cb20d7b7d30c4949e79f4d39ecf346be8da35",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2206"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/D4Z7EhCU.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 9079,
+      "sha256": "bdf2ecae4904af433ef798395d6cb20d7b7d30c4949e79f4d39ecf346be8da35",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2208"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/D4Z7EhCU.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2209"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/DL3sZ9x4.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 23290,
+      "sha256": "ff9562706c59a16908dc90dae1635359b6a093e93608eeffbe47a51b3b647450",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2209"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/DL3sZ9x4.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 23290,
+      "sha256": "ff9562706c59a16908dc90dae1635359b6a093e93608eeffbe47a51b3b647450",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2210"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/DL3sZ9x4.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 23290,
+      "sha256": "ff9562706c59a16908dc90dae1635359b6a093e93608eeffbe47a51b3b647450",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2211"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/DL3sZ9x4.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 23290,
+      "sha256": "ff9562706c59a16908dc90dae1635359b6a093e93608eeffbe47a51b3b647450",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2212"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/DL3sZ9x4.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 23290,
+      "sha256": "ff9562706c59a16908dc90dae1635359b6a093e93608eeffbe47a51b3b647450",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2218"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/DL3sZ9x4.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2223"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Dn49359g.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3353,
+      "sha256": "c465054c67351c0b170022a14bc4a563cfea387d3ac62a4caf8e55626f8fc4c9",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2223"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Dn49359g.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3353,
+      "sha256": "c465054c67351c0b170022a14bc4a563cfea387d3ac62a4caf8e55626f8fc4c9",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2227"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Dn49359g.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3353,
+      "sha256": "c465054c67351c0b170022a14bc4a563cfea387d3ac62a4caf8e55626f8fc4c9",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2229"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Dn49359g.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3353,
+      "sha256": "c465054c67351c0b170022a14bc4a563cfea387d3ac62a4caf8e55626f8fc4c9",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2232"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Dn49359g.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3353,
+      "sha256": "c465054c67351c0b170022a14bc4a563cfea387d3ac62a4caf8e55626f8fc4c9",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2234"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Dn49359g.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2236"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Ds5C600z.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3067,
+      "sha256": "27b281c57d11819c12d6ecfd7997dfd50274b2efb0028c364c6b78375ba20bec",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Ds5C600z.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3067,
+      "sha256": "27b281c57d11819c12d6ecfd7997dfd50274b2efb0028c364c6b78375ba20bec",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Ds5C600z.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3067,
+      "sha256": "27b281c57d11819c12d6ecfd7997dfd50274b2efb0028c364c6b78375ba20bec",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Ds5C600z.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3067,
+      "sha256": "27b281c57d11819c12d6ecfd7997dfd50274b2efb0028c364c6b78375ba20bec",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "8"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Ds5C600z.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3067,
+      "sha256": "27b281c57d11819c12d6ecfd7997dfd50274b2efb0028c364c6b78375ba20bec",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "10"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/Ds5C600z.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "11"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/_postId_.Bk7XmrYR.css",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 277,
+      "sha256": "80c0adaa63cd3abf297bd2ef2edd87d0ce0330c15f289f16beab15bbd706a5b8",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/_postId_.Bk7XmrYR.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 277,
+      "sha256": "80c0adaa63cd3abf297bd2ef2edd87d0ce0330c15f289f16beab15bbd706a5b8",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/_postId_.Bk7XmrYR.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 277,
+      "sha256": "80c0adaa63cd3abf297bd2ef2edd87d0ce0330c15f289f16beab15bbd706a5b8",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/_postId_.Bk7XmrYR.css",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 277,
+      "sha256": "80c0adaa63cd3abf297bd2ef2edd87d0ce0330c15f289f16beab15bbd706a5b8",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/_postId_.Bk7XmrYR.css",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 277,
+      "sha256": "80c0adaa63cd3abf297bd2ef2edd87d0ce0330c15f289f16beab15bbd706a5b8",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "4"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/_postId_.Bk7XmrYR.css",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "4"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect-sources.DGcFmNXv.css",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 92,
+      "sha256": "8cc7252490b561f00f7eeebe77e3888415db66e234a08694522705ad0880d0b6",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect-sources.DGcFmNXv.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 92,
+      "sha256": "8cc7252490b561f00f7eeebe77e3888415db66e234a08694522705ad0880d0b6",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect-sources.DGcFmNXv.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 92,
+      "sha256": "8cc7252490b561f00f7eeebe77e3888415db66e234a08694522705ad0880d0b6",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect-sources.DGcFmNXv.css",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 92,
+      "sha256": "8cc7252490b561f00f7eeebe77e3888415db66e234a08694522705ad0880d0b6",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect-sources.DGcFmNXv.css",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 92,
+      "sha256": "8cc7252490b561f00f7eeebe77e3888415db66e234a08694522705ad0880d0b6",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "3"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect-sources.DGcFmNXv.css",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "4"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect.CoPZmoyA.css",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 474,
+      "sha256": "9f92b48425d80d65f166c71ecd730e74c1797433bcfba5cd6ab1bf46e6780eb7",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect.CoPZmoyA.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 474,
+      "sha256": "9f92b48425d80d65f166c71ecd730e74c1797433bcfba5cd6ab1bf46e6780eb7",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect.CoPZmoyA.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 474,
+      "sha256": "9f92b48425d80d65f166c71ecd730e74c1797433bcfba5cd6ab1bf46e6780eb7",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect.CoPZmoyA.css",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 474,
+      "sha256": "9f92b48425d80d65f166c71ecd730e74c1797433bcfba5cd6ab1bf46e6780eb7",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "3"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect.CoPZmoyA.css",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 474,
+      "sha256": "9f92b48425d80d65f166c71ecd730e74c1797433bcfba5cd6ab1bf46e6780eb7",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "6"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin-collect.CoPZmoyA.css",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "8"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin.D9k9XGgS.css",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 908,
+      "sha256": "e8124f70bab7e528db08f1448f5cba73c0b099059ef8d55a2af498684c7d519f",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin.D9k9XGgS.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 908,
+      "sha256": "e8124f70bab7e528db08f1448f5cba73c0b099059ef8d55a2af498684c7d519f",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin.D9k9XGgS.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 908,
+      "sha256": "e8124f70bab7e528db08f1448f5cba73c0b099059ef8d55a2af498684c7d519f",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin.D9k9XGgS.css",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 908,
+      "sha256": "e8124f70bab7e528db08f1448f5cba73c0b099059ef8d55a2af498684c7d519f",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "11"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin.D9k9XGgS.css",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 908,
+      "sha256": "e8124f70bab7e528db08f1448f5cba73c0b099059ef8d55a2af498684c7d519f",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "13"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/admin.D9k9XGgS.css",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "16"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/entry.BcxvzlcK.css",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3190,
+      "sha256": "cb537cc8ca1f07a0e67b22e323c7d6d45319832f278663b695ba8dae2f87f661",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/entry.BcxvzlcK.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3190,
+      "sha256": "cb537cc8ca1f07a0e67b22e323c7d6d45319832f278663b695ba8dae2f87f661",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/entry.BcxvzlcK.css?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3190,
+      "sha256": "cb537cc8ca1f07a0e67b22e323c7d6d45319832f278663b695ba8dae2f87f661",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "MISS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/entry.BcxvzlcK.css",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3190,
+      "sha256": "cb537cc8ca1f07a0e67b22e323c7d6d45319832f278663b695ba8dae2f87f661",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "4"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/entry.BcxvzlcK.css",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 3190,
+      "sha256": "cb537cc8ca1f07a0e67b22e323c7d6d45319832f278663b695ba8dae2f87f661",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "5"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/entry.BcxvzlcK.css",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/css; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "6"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/mGdJnlQU.js",
+      "case": "base",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1460,
+      "sha256": "41989ef81b66f6ea281280a187f27e16e57c35226eb2a0f4dc61ae8022972a14",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2298"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/mGdJnlQU.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110a",
+      "case": "query-a",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1460,
+      "sha256": "41989ef81b66f6ea281280a187f27e16e57c35226eb2a0f4dc61ae8022972a14",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2299"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/mGdJnlQU.js?cache_audit=e6bc60c8e2c14fd2a9407619d9bd0110b",
+      "case": "query-b",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1460,
+      "sha256": "41989ef81b66f6ea281280a187f27e16e57c35226eb2a0f4dc61ae8022972a14",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2300"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/mGdJnlQU.js",
+      "case": "synthetic-cookie",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1460,
+      "sha256": "41989ef81b66f6ea281280a187f27e16e57c35226eb2a0f4dc61ae8022972a14",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2301"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/mGdJnlQU.js",
+      "case": "synthetic-authorization",
+      "method": "GET",
+      "status": 200,
+      "bytes": 1460,
+      "sha256": "41989ef81b66f6ea281280a187f27e16e57c35226eb2a0f4dc61ae8022972a14",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2302"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/mGdJnlQU.js",
+      "case": "head",
+      "method": "HEAD",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "cf-cache-status": "HIT",
+        "age": "2303"
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 200,
+      "bytes": 8410,
+      "sha256": "df46b7838c8a4a34b6e46b991e73d1f27f35975e07ab9139cbe83923bcbbe28c",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme?cache_audit=control",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 200,
+      "bytes": 8430,
+      "sha256": "99619a1c9c01f8585c4b70710dcd774c586b47c38fed97900d3307d52112fc45",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme?page=2",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6074,
+      "sha256": "95aef0a40a434d21a94c2262fb7ae80b7adaddf6701fa5cb98ca67ce09ba8e7b",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme?page=2?cache_audit=control",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 400,
+      "bytes": 6096,
+      "sha256": "c6f676a900ac0df1e8342a8523997e9c3ba7465dc89fca45ead503cf47b8e000",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/api/v1/boards/meme/posts",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 200,
+      "bytes": 246,
+      "sha256": "5511ab40ee4043d85bb7291538622914afd1f23474b6593183e5db0098892718",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/api/v1/boards/meme/posts?cache_audit=control",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 400,
+      "bytes": 194,
+      "sha256": "8f57f1e726e26f39ca18386c7b6288304ad6a75510b59835dacfff4f8247d8a7",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/health/live",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 200,
+      "bytes": 15,
+      "sha256": "647a83cca85203d6d4eb07eea84ef6eb91d5c6482eaff2ac8bb65a342b9f2946",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/health/live?cache_audit=control",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 200,
+      "bytes": 15,
+      "sha256": "647a83cca85203d6d4eb07eea84ef6eb91d5c6482eaff2ac8bb65a342b9f2946",
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "cf-cache-status": "DYNAMIC",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/missing-e6bc60c8e2c14fd2a9407619d9bd0110.js",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6074,
+      "sha256": "3f4ce99f47af99b12e1a3d0398f5a7e5be5ac27800cdb4672fc6dd48e400eeb1",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/missing-e6bc60c8e2c14fd2a9407619d9bd0110.js?cache_audit=control",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6094,
+      "sha256": "6483cdd9b0f9d02349e85e74e469ac94414fb7174af46458823620d5483ba35f",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/missing-e6bc60c8e2c14fd2a9407619d9bd0110.css",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6075,
+      "sha256": "209a967872758ff2b3fcbbd2aff7843fe115a1fd529bc959a06dfa45d7298da6",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/missing-e6bc60c8e2c14fd2a9407619d9bd0110.css?cache_audit=control",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6095,
+      "sha256": "5ad3db306f2ff45e82ec8c22a26be6f12fcb2956eb70ecdcf02dfa52205f074f",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/nested-e6bc60c8e2c14fd2a9407619d9bd0110/missing.js",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6086,
+      "sha256": "c96681c948f7de7bf5b7d658b0334badc7ab8b8b0df2c98654fdf24240904067",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/_nuxt/nested-e6bc60c8e2c14fd2a9407619d9bd0110/missing.js?cache_audit=control",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6106,
+      "sha256": "0bb8c9771d5db6bb24a8536ac0304cee5f9ce766904c68e2f025b044ae2f142e",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme/missing-e6bc60c8e2c14fd2a9407619d9bd0110.js",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6172,
+      "sha256": "ee9bd2c9dd680631bb43125d887bb14a5d15a369fe3c30404de023cb4f2738aa",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    },
+    {
+      "path": "/meme/missing-e6bc60c8e2c14fd2a9407619d9bd0110.js?cache_audit=control",
+      "case": "uncacheable-control",
+      "method": "GET",
+      "status": 404,
+      "bytes": 6212,
+      "sha256": "ad4417276c0769403eb33218a32c12376eb048cb960f4e4fde8b86802c568297",
+      "headers": {
+        "content-type": "text/html;charset=utf-8",
+        "cache-control": "no-store",
+        "cf-cache-status": "BYPASS",
+        "age": null
+      },
+      "has_set_cookie": false
+    }
+  ]
+}

@@ -4,7 +4,9 @@
 **전체 앱의 운영 Compose·앱 배포 완료를 의미하지 않는다.**
 2026-09-20 사용자 실행 출력으로 Lightsail의 DB healthy·영속 volume·역할 3개 접속을 확인했다.
 초기 앱 migration 도구는 로컬 임시 PostgreSQL 18과 합성 비밀번호로 검사했으며,
-실제 서버의 앱 schema·테이블 권한 적용은 다음 명령 실행 후 별도로 확인한다.
+이후 실제 서버 V001–V005·테이블 권한 적용과 정책 v0.1 정식 발행까지 완료했다.
+[배포 실행서](../../docs/implementation/operations/deployment-runbook.md)에 전체 순서가 있다.
+아래 초안 seed 설명은 최초 준비 단계이며 현재 유효 정책이 없다는 뜻이 아니다.
 
 계약은 [보안·운영 설계](../../docs/system-design/05-security-operations.md#6-db-권한)와
 [인프라 설계](../../docs/system-design/04-infrastructure-design.md)를 따른다.
@@ -37,7 +39,7 @@ python3 deploy/postgresql/initialize-from-mac.py --host 13.124.55.99 --apply
 앱의 매 기동에도 seed를 실행하지 않는다. 배포 초기화 단계에서 한 번 실행하며, 동일 입력은
 재실행해도 ID·작성일·본문이 그대로 유지된다. 같은 버전의 다른 본문은 transaction 전체를 취소한다.
 
-미확정 표시가 있는 현재 본문은 `DRAFT`, `effective_at=NULL`로 보관된다. 기존 발행본은 보존되며,
+초기 seed의 초안 본문은 `DRAFT`, `effective_at=NULL`로 보관된다. 기존 발행본은 보존되며,
 공개 API에서 조회되지 않고 production 기동 조건도 충족하지 않는다. 최종 본문은 초안과 다른
 정식 버전(예: `v0.1`)으로 앱의 `policies:publish` 명령을 통해 발행해야 한다. SQL로 상태만 바꾸면
 본문 검사·이전 버전 종료·캐시 삭제 작업을 빠뜨리므로 그렇게 활성화하지 않는다.

@@ -25,10 +25,24 @@ export default defineNitroPlugin((nitro) => {
       connect.push(...origins(config.kakaoConnectOrigins));
     }
     const image = origins(config.imageOrigin);
+    const frames = ["'self'"];
+    if (config.xEmbedsEnabled === true) {
+      scripts.push('https://platform.x.com', 'https://platform.twitter.com');
+      frames.push(
+        'https://platform.x.com',
+        'https://platform.twitter.com',
+        'https://syndication.twitter.com'
+      );
+      connect.push('https://syndication.twitter.com', 'https://cdn.syndication.twimg.com');
+    }
+    if (config.socialEmbedsEnabled === true) {
+      scripts.push('https://www.youtube.com', 'https://www.instagram.com');
+      frames.push('https://www.youtube.com', 'https://www.tiktok.com', 'https://www.instagram.com');
+    }
     setHeader(
       event,
       'Content-Security-Policy',
-      `default-src 'self'; img-src 'self' ${image.join(' ')} data:; script-src ${scripts.join(' ')}; style-src 'self' 'unsafe-inline'; connect-src ${connect.join(' ')}; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+      `default-src 'self'; img-src 'self' ${image.join(' ')} data:; script-src ${scripts.join(' ')}; style-src 'self' 'unsafe-inline'; connect-src ${connect.join(' ')}; frame-src ${frames.join(' ')}; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
     );
     setHeader(event, 'Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     if (env.NODE_ENV === 'production')

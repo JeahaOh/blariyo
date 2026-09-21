@@ -26,7 +26,18 @@ def main():
     project = 'blariyo-gateway-test-' + secrets.token_hex(5)
     network = project + '-edge'
     names = [project + '-web1', project + '-reserve', project + '-web2']
-    fixture = """const http=require('http');const revision=process.argv[1];http.createServer((q,s)=>{let n=0;q.on('data',b=>n+=b.length);q.on('end',()=>{if(q.url.startsWith('/api/v1/admin/')&&!q.headers['cf-access-jwt-assertion'])s.statusCode=401;s.setHeader('Content-Type','application/json');s.end(JSON.stringify({revision,url:q.url,method:q.method,headers:q.headers,bytes:n}))})}).listen(3000,'0.0.0.0')"""
+    fixture = """const http=require('http');const revision=process.argv[1];http.createServer((q,s)=>{let n=0;q.on('data',b=>n+=b.length);q.on('end',()=>{if(q.url.startsWith('/api/v1/admin/')&&!q.headers['cf-access-jwt-assertion'])s.statusCode=401;
+    const cacheCases={
+      '/cache/static':[200,'public, max-age=31536000, immutable'],
+      '/cache/private':[200,'private, no-store'],
+      '/cache/policy':[200,'public, max-age=300'],
+      '/cache/redirect':[302,'no-store'],
+      '/cache/401':[401,'private, no-store'],
+      '/cache/403':[403,'public, max-age=300'],
+      '/cache/404':[404,'no-cache'],
+      '/cache/500':[500,'public, max-age=300']
+    };const cc=cacheCases[q.url];if(cc){s.statusCode=cc[0];s.setHeader('Cache-Control',cc[1]);}
+    s.setHeader('Content-Type','application/json');s.end(JSON.stringify({revision,url:q.url,method:q.method,headers:q.headers,bytes:n}))})}).listen(3000,'0.0.0.0')"""
     def web(name, revision):
         run(['docker','run','-d','--name',name,'--network',network,'--network-alias','web','--platform','linux/amd64',
              '--user','1000:1000','--read-only','--cap-drop','ALL','--entrypoint','node',image,'-e',fixture,revision])
@@ -60,6 +71,25 @@ def main():
                 raise AssertionError('WEB_DNS_RECOVERY_FAILED')
             ready('v1')
             run(['docker','exec',cid,'nginx','-t'])
+            for path,expected_status,expected_cache in [
+                ('/cache/static',200,'public, max-age=31536000, immutable'),
+                ('/cache/private',200,'private, no-store'),
+                ('/cache/policy',200,'public, max-age=300'),
+                ('/cache/redirect',302,'no-store'),
+                ('/echo',200,None),
+                ('/cache/401',401,'no-store'),('/cache/403',403,'no-store'),
+                ('/cache/404',404,'no-store'),('/cache/500',500,'no-store'),
+                ('/internal',404,'no-store'),
+            ]:
+                c=http.client.HTTPConnection('127.0.0.1',port,timeout=5)
+                c.request('GET',path,headers={'Host':'blariyo.com'})
+                response=c.getresponse();body=response.read()
+                assert response.status==expected_status,path
+                cache_headers=[v for k,v in response.getheaders() if k.lower()=='cache-control']
+                assert cache_headers==([] if expected_cache is None else [expected_cache]),path
+                if path.startswith('/cache/'):
+                    assert json.loads(body)['url']==path,'RESPONSE_BODY_CHANGED'
+                c.close()
             for path in ['/','/meme','/terms','/privacy','/cookie-settings','/health/live','/admin','/api/v1/admin/posts']:
                 status,_=request(path,headers={'CF-Access-Jwt-Assertion':'fixture-jwt-only'})
                 assert status==200,path
@@ -81,7 +111,8 @@ def main():
             assert status==200 and json.loads(body)['bytes']==1024*1024 and json.loads(body)['method']=='POST'
             c=http.client.HTTPConnection('127.0.0.1',port,timeout=5)
             c.putrequest('POST','/echo',skip_host=True);c.putheader('Host','blariyo.com');c.putheader('Content-Length',str(102*1024**2));c.endheaders()
-            assert c.getresponse().status==413;c.close()
+            response=c.getresponse()
+            assert response.status==413 and response.getheader('Cache-Control')=='no-store';c.close()
             # Occupy the removed Web address so replacement really has a different IP.
             old_web=json.loads(run(['docker','inspect',names[0]]))[0]['NetworkSettings']['Networks'][network]['IPAddress']
             run(['docker','rm','-f',names[0]])
@@ -98,6 +129,7 @@ def main():
             assert '"status":' in logs
             print('PASS Nginx configuration · UID 101 · read-only filesystem · 64MiB · edge network only')
             print('PASS Web routes · synthetic auth status/headers · internal path denied · Host restriction · upload limits')
+            print('PASS 4xx/5xx no-store · normal static/private/policy/redirect cache preserved · no duplicate Cache-Control')
             print('PASS replacement Web IP resolved without Nginx restart · raw query/cookie/JWT/IP excluded from access logs')
         finally:
             run(compose+['down','--remove-orphans'],allowed=True)

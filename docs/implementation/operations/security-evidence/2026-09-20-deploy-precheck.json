@@ -1,0 +1,173 @@
+{
+  "recorded_at": "2026-09-20T07:20:03.923349+00:00",
+  "scope": "Read-only running server inventory; no secrets, request bodies, or user identifiers",
+  "nginx_config_sha256": "9728047ec8f6309794ab0f6fa96dc8c1cbf9f783ea9240dc778ff9b954d64555",
+  "gateway_health": "UP",
+  "public_wildcard_tcp_ports": [
+    22
+  ],
+  "containers": [
+    {
+      "name": "blariyo-gateway-nginx-1",
+      "image": "nginx:1.30.5-alpine",
+      "ports": "80/tcp",
+      "status": "Up 5 hours (healthy)"
+    },
+    {
+      "name": "blariyo-app-web-1",
+      "image": "e65f7efa907f",
+      "ports": "",
+      "status": "Up 5 hours (healthy)"
+    },
+    {
+      "name": "blariyo-app-api-1",
+      "image": "d87ffce2b97e",
+      "ports": "",
+      "status": "Up 5 hours (healthy)"
+    },
+    {
+      "name": "blariyo-db-postgresql-1",
+      "image": "postgres:18",
+      "ports": "5432/tcp",
+      "status": "Up 14 hours (healthy)"
+    },
+    {
+      "name": "quirky_hertz",
+      "image": "cloudflare/cloudflared:latest",
+      "ports": "",
+      "status": "Up 40 hours"
+    }
+  ],
+  "files": [
+    {
+      "path": "/_nuxt/1kDDIf_C.js",
+      "bytes": 80923,
+      "sha256": "10ff958dc2b8a3101995e88706cf21c5b6d47a7a93a8cf8804b8357a177b5c0a"
+    },
+    {
+      "path": "/_nuxt/B3p7wOF9.js",
+      "bytes": 17589,
+      "sha256": "8bc30f2705270736990802e0b78dc31364df841863299e6e5197dd62b1e12bbe"
+    },
+    {
+      "path": "/_nuxt/BEcPRYFI.js",
+      "bytes": 260,
+      "sha256": "484888fcaf67c71f550bb7ed884c620749a97f2d0f89335fe9cc0971c9d2e386"
+    },
+    {
+      "path": "/_nuxt/BlB_jj2I.js",
+      "bytes": 210,
+      "sha256": "697c92f29621b4e0a0e1a07491e1a17dadc1601faa385e7ac9101275efe02a4b"
+    },
+    {
+      "path": "/_nuxt/C3JyHCCo.js",
+      "bytes": 285,
+      "sha256": "1fdba4eacf87ebc8d135c62946859e572f177971509d32ece1c4b67834649578"
+    },
+    {
+      "path": "/_nuxt/CAWCzImj.js",
+      "bytes": 212,
+      "sha256": "b2dd17799d79618323d2f1f8cc6491d89a38f7ad38222f855acadda9d166f6b8"
+    },
+    {
+      "path": "/_nuxt/CJ-VOngK.js",
+      "bytes": 83104,
+      "sha256": "2a3976e993e49a752b4ee7abd8d2f721fa6c6d4b7128e533776e99a59c204cee"
+    },
+    {
+      "path": "/_nuxt/CKjTFDoV.js",
+      "bytes": 195,
+      "sha256": "0190d3a97095fd5123ecbb7325cdd2507d044cd805024d1a93999fc04b9e7da2"
+    },
+    {
+      "path": "/_nuxt/CNs_Ozdc.js",
+      "bytes": 27,
+      "sha256": "bdf2e55a3d779ecf81cb8ff9de6c2f2382019d88bdcc37bf14052f2cdeff2355"
+    },
+    {
+      "path": "/_nuxt/CVUGWtz7.js",
+      "bytes": 1620,
+      "sha256": "82121ba55afad10ef950999bf0ee86b663f4f3ca0a911dbd156f621d7b7adc68"
+    },
+    {
+      "path": "/_nuxt/CW6A1p0s.js",
+      "bytes": 878,
+      "sha256": "6fdc680ee2ce9f595f3837a98c8b2e1dfb7d198d8459d10cb0f4c83e3cd9e980"
+    },
+    {
+      "path": "/_nuxt/Cgrhk80r.js",
+      "bytes": 6538,
+      "sha256": "49f256bbb1c8375c2ce8b976dd5a73da861f84966ac435d178a19ba3071de1ce"
+    },
+    {
+      "path": "/_nuxt/CrkC_YhS.js",
+      "bytes": 10783,
+      "sha256": "95f95186c8167bedab7c9dc8002b3098bd3f80a535d6908f05e9d23f1de6d79a"
+    },
+    {
+      "path": "/_nuxt/Cygp9wGA.js",
+      "bytes": 13167,
+      "sha256": "e361be8903b2620b9fedd0d2eecdae2b70a05c327f8f9a07411fd4abf35c4b18"
+    },
+    {
+      "path": "/_nuxt/D4Z7EhCU.js",
+      "bytes": 9079,
+      "sha256": "bdf2ecae4904af433ef798395d6cb20d7b7d30c4949e79f4d39ecf346be8da35"
+    },
+    {
+      "path": "/_nuxt/DL3sZ9x4.js",
+      "bytes": 23290,
+      "sha256": "ff9562706c59a16908dc90dae1635359b6a093e93608eeffbe47a51b3b647450"
+    },
+    {
+      "path": "/_nuxt/Dn49359g.js",
+      "bytes": 3353,
+      "sha256": "c465054c67351c0b170022a14bc4a563cfea387d3ac62a4caf8e55626f8fc4c9"
+    },
+    {
+      "path": "/_nuxt/Ds5C600z.js",
+      "bytes": 3067,
+      "sha256": "27b281c57d11819c12d6ecfd7997dfd50274b2efb0028c364c6b78375ba20bec"
+    },
+    {
+      "path": "/_nuxt/_postId_.Bk7XmrYR.css",
+      "bytes": 277,
+      "sha256": "80c0adaa63cd3abf297bd2ef2edd87d0ce0330c15f289f16beab15bbd706a5b8"
+    },
+    {
+      "path": "/_nuxt/admin-collect-sources.DGcFmNXv.css",
+      "bytes": 92,
+      "sha256": "8cc7252490b561f00f7eeebe77e3888415db66e234a08694522705ad0880d0b6"
+    },
+    {
+      "path": "/_nuxt/admin-collect.CoPZmoyA.css",
+      "bytes": 474,
+      "sha256": "9f92b48425d80d65f166c71ecd730e74c1797433bcfba5cd6ab1bf46e6780eb7"
+    },
+    {
+      "path": "/_nuxt/admin.D9k9XGgS.css",
+      "bytes": 908,
+      "sha256": "e8124f70bab7e528db08f1448f5cba73c0b099059ef8d55a2af498684c7d519f"
+    },
+    {
+      "path": "/_nuxt/builds/latest.json",
+      "bytes": 71,
+      "sha256": "2696e2429f61fadf2d363b797b89460e999f34c155c9e26252a291fd3a8d8bc4"
+    },
+    {
+      "path": "/_nuxt/builds/meta/b3d12158-d507-4f78-abd9-15f65e19b66d.json",
+      "bytes": 88,
+      "sha256": "2a8d1884297419bacb5d861c5d75727cda364d47fa25cc8152ac19467bd2e2b1"
+    },
+    {
+      "path": "/_nuxt/entry.BcxvzlcK.css",
+      "bytes": 3190,
+      "sha256": "cb537cc8ca1f07a0e67b22e323c7d6d45319832f278663b695ba8dae2f87f661"
+    },
+    {
+      "path": "/_nuxt/mGdJnlQU.js",
+      "bytes": 1460,
+      "sha256": "41989ef81b66f6ea281280a187f27e16e57c35226eb2a0f4dc61ae8022972a14"
+    }
+  ]
+}

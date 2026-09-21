@@ -7,6 +7,11 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 - 운영 인원: 초기 1명
 - 가용성 방식: 고가용성 대신 감지·백업·복구
 
+2026-09-20 추가 점검에 따른 [보안·비용 보호 적용 계획](09-security-cost-protection-plan.md)은 정상 이용
+측정, 캐시·요청 제한·알림·원본 보호의 단계별 검증과 되돌리기를 정의한다. 정적 JS 캐시·비용/DDoS
+알림의 [1차 적용 결과](../implementation/operations/security-protection-status.md)는 별도로 기록한다.
+이를 본문의 전체 미검증 항목 완료로 확대하지 않는다. 공개 이용 제한을 포함한 비상 정책은 별도 확정한다.
+
 ## 1. 운영 목표
 
 | 항목 | M0 목표 |
@@ -111,6 +116,22 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
 도메인을 추가하지 않는다.
 
 ### 입력 검증
+
+- X 게시물 표시는 `NUXT_PUBLIC_X_EMBEDS_ENABLED`로 제어하며 기본값은 false다. false에서는
+  로컬 카드와 원문 링크만 표시하고 X script/frame/request를 생성하지 않는다.
+  true에서는 공식 `https://platform.x.com/widgets.js`와 정규화된 게시물 ID를 사용해
+  `createTweet(..., { dnt: true })`를 호출한다. `dnt`를 외부 요청·쿠키가 없다는 보장으로 해석하지 않는다.
+  CSP는 X 플랫폼의 정확한 script/frame/connect origin만 허용하고 wildcard·unsafe-eval을 추가하지 않는다.
+  수집 HTML이나 임의 oEmbed HTML을 실행하지 않으며 제한 시간 초과·실패 시 원문 링크와 안내를 표시한다.
+  로컬 검증을 운영 고지·활성화 완료로 취급하지 않는다.
+- YouTube·TikTok·Instagram은 `NUXT_PUBLIC_SOCIAL_EMBEDS_ENABLED`로 제어한다(기본 false).
+  정확한 HTTPS 호스트·경로·게시물 ID만 허용하고 공식 SDK 또는 공식 프레임 URL을 직접 구성한다.
+  YouTube 오류 이벤트와 TikTok 메시지의 origin·source를 확인하며 임의 window message는 무시한다.
+  YouTube 프레임은 `strict-origin-when-cross-origin` referrer policy로 플레이어 식별 정보를 제공한다.
+  Instagram·TikTok 프레임의 로드와 콘텐츠 정상 여부를 구분한다. TikTok은 재생 전 ready 이벤트가
+  오지 않아도 로드된 공식 프레임을 유지하고 이후 오류 이벤트를 처리한다. 각 SDK는 필요할 때 1회 로드하고
+  실패·시간 초과·컴포넌트 해제 시 timer·observer·listener를 정리한다. 비활성 환경에서는 외부 요청을 만들지 않는다.
+  임베드 오류가 나도 원문 DB를 수정·삭제하지 않는다. SNS 삭제 탐지 작업이나 저장 사본의 일괄 삭제는 이 UI 변경에 포함하지 않는다.
 
 - JSON body 기본 최대 `256KB`
 - 관리자 이미지 multipart만 별도 최대 `100MiB/request`

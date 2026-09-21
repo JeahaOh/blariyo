@@ -14,7 +14,7 @@ public final class MigrationMain {
       migrate(OperatorSettings.url(), OperatorSettings.user(), OperatorSettings.password());
       System.out.println("COLLECTOR_MIGRATION_COMPLETE");
     } catch (Exception e) {
-      System.err.println("COLLECTOR_MIGRATION_FAILED");
+      System.err.println("COLLECTOR_MIGRATION_FAILED code=" + failureCode(e));
       System.exit(1);
     }
   }
@@ -33,7 +33,7 @@ public final class MigrationMain {
         sql.execute("SELECT pg_advisory_xact_lock(72189402)");
         sql.execute("CREATE SCHEMA IF NOT EXISTS collector");
         sql.execute(
-        "CREATE TABLE IF NOT EXISTS collector.schema_migration(version VARCHAR(20) PRIMARY"
+            "CREATE TABLE IF NOT EXISTS collector.schema_migration(version VARCHAR(20) PRIMARY"
                 + " KEY,checksum CHAR(64) NOT NULL,applied_at TIMESTAMPTZ NOT NULL DEFAULT now())");
         try (var r =
             sql.executeQuery(
@@ -46,7 +46,7 @@ public final class MigrationMain {
             return;
           }
         }
-        sql.execute("CREATE SCHEMA batch;CREATE SCHEMA quartz;SET LOCAL search_path=batch");
+        sql.execute("CREATE SCHEMA IF NOT EXISTS batch;CREATE SCHEMA IF NOT EXISTS quartz;SET LOCAL search_path=batch");
         sql.execute(batch);
         sql.execute("SET LOCAL search_path=quartz");
         sql.execute(quartz);
@@ -68,12 +68,39 @@ public final class MigrationMain {
   }
 
   private static void applyV002(Connection db) throws Exception {
-    String own = resource("db/collector-v002.sql");
-    try (var schema=db.createStatement()) { schema.execute("CREATE SCHEMA IF NOT EXISTS collect"); }
-    try (var check=db.createStatement(); var r=check.executeQuery("SELECT to_regclass('collect.batch_run')")) {
-      r.next(); if(r.getString(1)!=null)return;
+    String own = resource("db/collector-v002.sql"),
+        checksum = Json.sha(own.getBytes(StandardCharsets.UTF_8));
+    try (var schema = db.createStatement()) {
+      schema.execute("CREATE SCHEMA IF NOT EXISTS collect");
     }
-    try (var sql=db.createStatement()) { sql.execute(own); }
+    try (var check=db.prepareStatement("SELECT checksum FROM collector.schema_migration WHERE version=?")) {
+      check.setString(1, "V002");
+      try (var r = check.executeQuery()) {
+        if (r.next()) {
+          if (!checksum.equals(r.getString(1)))
+            throw new IllegalStateException("MIGRATION_CHECKSUM_V002");
+          return;
+        }
+      }
+    }
+    try (var sql = db.createStatement()) {
+      sql.execute(own);
+    }
+    try (var insert =
+        db.prepareStatement("INSERT INTO collector.schema_migration(version,checksum) VALUES(?,?)")) {
+      insert.setString(1, "V002");
+      insert.setString(2, checksum);
+      insert.executeUpdate();
+    }
+  }
+
+  private static String failureCode(Exception error) {
+    if (error instanceof IllegalArgumentException) return "INVALID_ARGUMENT";
+    if (error instanceof IllegalStateException && error.getMessage() != null
+        && error.getMessage().matches("[A-Z][A-Z0-9_]{1,80}")) return error.getMessage();
+    if (error instanceof SQLException sql && sql.getSQLState() != null)
+      return "SQLSTATE_" + sql.getSQLState().replaceAll("[^A-Za-z0-9]", "");
+    return error.getClass().getSimpleName().replaceAll("[^A-Za-z0-9]", "").toUpperCase();
   }
 
   private static String resource(String name) throws Exception {

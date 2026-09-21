@@ -2,6 +2,7 @@
 import type { ApiResponse, PostListItem } from '~~/shared/api-types';
 import { loadKakao } from '~/utils/kakao.mjs';
 import { description } from '~/utils/metadata.mjs';
+import { socialDisplayBlocks } from '~/utils/social-posts';
 const route = useRoute();
 const { data, error } = await useFetch<ApiResponse<'getPost'>>(
   `/api/v1/boards/${String(route.params.boardSlug)}/posts/${String(route.params.postId)}`
@@ -14,6 +15,7 @@ if (error.value)
 if (!data.value)
   throw createError({ statusCode: 503, statusMessage: '게시글을 찾을 수 없습니다.' });
 const post = data.value.data.post;
+const bodyBlocks = socialDisplayBlocks(post.blocks);
 const context = ref(data.value.data.context);
 const sharing = ref(false),
   feedback = ref(''),
@@ -165,8 +167,13 @@ async function share() {
         </p>
       </div>
       <div class="article-body">
-        <template v-for="(block, i) in post.blocks" :key="i"
-          ><p v-if="block.type === 'TEXT'" class="body-text">{{ block.text }}</p>
+        <template v-for="(block, i) in bodyBlocks" :key="i"
+          ><p v-if="block.kind === 'TEXT'" class="body-text">{{ block.text }}</p>
+          <XPost v-else-if="block.kind === 'X'" :card="block" />
+          <SocialPost v-else-if="block.kind === 'SOCIAL'" :reference="block.reference" />
+          <p v-else-if="block.kind === 'LINK'" class="body-text">
+            <a :href="block.url" target="_blank" rel="noopener noreferrer">TikTok에서 보기 ↗</a>
+          </p>
           <img
             v-else
             :src="block.image.url"

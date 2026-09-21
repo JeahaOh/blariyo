@@ -185,6 +185,7 @@ tools/collector/config.local.json
 # Operator-local runtime data and configuration
 .collector-data/
 *.local.properties
+codex-session-*.md
 
 
 

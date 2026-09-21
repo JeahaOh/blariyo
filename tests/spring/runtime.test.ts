@@ -169,6 +169,7 @@ await test(
           host: 'fixture.invalid',
           pathPrefixes: ['/post/', '/image/'],
           titleSelector: 'h1',
+          parser: 'THEQOO',
           imageSelector: 'article img',
           userAgent: 'Blariyo fixture contact-test',
         },
@@ -234,39 +235,32 @@ await test(
       ).status,
       400
     );
-    const created = await fetch(f.origin + '/api/collector/v1/candidates', {
-      method: 'POST',
-      headers: {
-        Authorization: 'Bearer ' + f.collectorToken,
-        'Content-Type': 'application/json',
-        'Idempotency-Key': randomUUID(),
-      },
-      body: JSON.stringify({
-        collectorId: secrets['collector-id'],
-        originUrl: 'https://fixture.invalid/post/1',
-      }),
-    });
-    assert.equal(created.status, 202);
-    const candidate = contractData(
-      'collectorCreateCandidate',
-      '/api/collector/v1/candidates',
-      created.status,
-      await created.json(),
-      'POST'
-    ).candidateId;
     const key = randomUUID(),
-      body = { mode: 'COLLECT', candidateId: candidate };
-    const submitted = await request('/local/v1/jobs/collect', body, { key });
+      body = { originUrl: 'https://fixture.invalid/post/1' };
+    const submitted = await request('/local/v1/candidates', body, { key });
     assert.equal(submitted.status, 202, JSON.stringify(submitted.body));
+    const candidate = object(submitted.body.data).candidateId;
+    assert.ok(typeof candidate === 'number');
     const id = uuid(object(submitted.body.data).jobRequestId);
     assert.equal(
-      uuid(object((await request('/local/v1/jobs/collect', body, { key })).body.data).jobRequestId),
+      uuid(object((await request('/local/v1/candidates', body, { key })).body.data).jobRequestId),
       id
     );
     assert.equal(
-      (await request('/local/v1/jobs/collect', { mode: 'COLLECT', nextPending: true }, { key }))
-        .status,
+      (
+        await request(
+          '/local/v1/candidates',
+          { originUrl: 'https://fixture.invalid/post/other' },
+          { key }
+        )
+      ).status,
       409
+    );
+    assert.equal((await request('/local/v1/candidates', body)).status, 409);
+    assert.equal(
+      (await request('/local/v1/candidates', { originUrl: 'https://unknown.invalid/post/1' }))
+        .status,
+      403
     );
     const completed = await until(async () => {
       const r = await request('/local/v1/jobs/' + id);
@@ -282,10 +276,17 @@ await test(
     }
     assert.equal(completed.state, 'COMPLETED', JSON.stringify(completed));
     const result = firstRow(
-      await f.pool.query('SELECT status,title FROM collect.candidate WHERE id=$1', [candidate])
+      await f.pool.query('SELECT status,title,content_blocks FROM collect.candidate WHERE id=$1', [
+        candidate,
+      ])
     );
     assert.equal(result.status, 'NEW');
     assert.equal(result.title, 'Spring fixture');
+    assert.ok(Array.isArray(result.content_blocks));
+    assert.deepEqual(
+      result.content_blocks.map((b: unknown) => object(b).type),
+      ['TEXT', 'IMAGE', 'LINK']
+    );
     const images = (
       await f.pool.query(
         'SELECT preview_storage_key,preview_source_sha256 FROM collect.candidate_image WHERE candidate_id=$1',
@@ -323,7 +324,9 @@ await test(
     await page.goto(f.origin + '/admin/collect');
     await page.getByRole('button', { name: /Spring fixture/ }).click();
     await expect(page.getByRole('img', { name: '검수용 미리보기' })).toBeVisible();
-    await page.getByLabel('초안에 포함').check();
+    await expect(page.getByRole('region', { name: '수집한 원문' })).toContainText('원문 문단 전체');
+    await expect(page.getByLabel('초안에 포함')).toBeChecked();
+    await expect(page.getByLabel('초안에 포함')).toBeDisabled();
     await page.getByLabel('이미지 설명').fill('Spring 수집 시험 이미지');
     await page.getByRole('button', { name: '검수 완료 · 초안 만들기' }).click();
     await page.waitForURL(/\/admin\?postId=/);

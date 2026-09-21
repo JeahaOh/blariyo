@@ -43,10 +43,12 @@ export async function browserFixture(
   const target = new URL(base);
   if (
     !['127.0.0.1', 'localhost'].includes(target.hostname) ||
-    target.port !== '55449' ||
+    !['55449', '5439'].includes(target.port) ||
     target.pathname !== '/postgres'
   )
-    throw new Error('Use the verified migration PostgreSQL on loopback 55449/postgres');
+    throw new Error(
+      'Use loopback 55449 or development 5439 with /postgres; tests create and remove only random fixture databases'
+    );
   const name = `m0_browser_${randomBytes(6).toString('hex')}`;
   const admin = await createDataSource(base).initialize();
   let databaseSource: DataSource | undefined = undefined;

@@ -429,9 +429,14 @@ Core는 `R2_PRIVATE_*`와 `R2_PUBLIC_*`만 사용하고 backup key는 backup 작
 
 ## 7. 빌드와 배포
 
-1. CI가 Node `24.18.0`에서 lint·unit·integration test를 실행한다.
-2. `linux/arm64`, `linux/amd64` multi-arch image를 commit SHA tag로 build한다.
-3. container registry에 push한다.
+현재 단일 VM 순차 교체 방식이며 무중단 배포는 아니다. 상세 결정과 적용 조건은
+[배포 정책](../implementation/operations/deployment-policy.md), 실제 순서는
+[실서버 배포 실행서](../implementation/operations/deployment-runbook.md)를 따른다.
+GitHub workflow는 로컬 작성 상태이며 원격 실행·자동 CD 활성화와 구분한다.
+
+1. CI가 Node `24.18.0`에서 타입·lint·unit·integration·브라우저 test를 실행한다.
+2. 검사된 main의 `linux/amd64` image를 commit SHA tag로 build한다. 현재 서울 x86_64 대상이며 arm64는 대상 서버가 생기면 추가한다.
+3. GHCR에 push하고 digest를 기록한다. main push만으로 운영 서버에 자동 배포하지 않는다.
 4. 서버는 image를 pull하고 DB backup을 실행한다.
 5. backward-compatible migration을 적용한다.
 6. `api`, `web`을 순서대로 recreate한다.

@@ -115,3 +115,29 @@ Spring 시험은 JAVA_HOME과 TEST_DATABASE_ADMIN_URL을 사용한다. secret fi
 이번 로그는 `/private/tmp/blariyo-structure-*.log`에 있으며 임시 증거다. 초기 경로 누락과 sandbox의
 브라우저·Docker 실행 제한은 수정/허용 후 재실행하며, 위 표는 최종 실행 결과만 판정한다.
 실제 출처·Discord·운영 계정·배포·7일 관찰은 여전히 미검증이다.
+
+
+## 2026-09-20 원문 수집·별도 PC 실행 확장 검증
+
+- 설계: [Spring 수집기 §16](../../system-design/07-spring-collector-design.md#16-원문-수집과-별도-pc-실행-확장).
+  원문 순서·첨부 연결·SNS URL 참조, 다른 PC의 macOS/Windows/Docker Linux 실행 계약을 추가했다.
+- Java: JDK 25에서 `test bootJar fixtureClasspath` 통과(11개 suite, 20개 test, 실패·skip 0).
+  더쿠 본문 fixture·빈 본문·한도 초과·중복 이미지·CDN 경계·private file secret·ACL 판단을 포함한다.
+- Nest/PostgreSQL: `collection-content`, 기존 `collection-http`, `collection-v2-http`, `collection-admin`,
+  `migrations` 통합 시험 통과(하위 시험 포함 25개). V006 up/down/up과 제한된 application role readiness,
+  원문 DB readback·본문 순서·TEXT/SNS-only·전체 첨부 승격·동일 요청 재전송·잘못된 참조 거부를 확인했다.
+- Spring 실제 프로세스: `tests/spring/runtime.test.ts`, `control.test.ts` 통과. URL 접수부터 여섯 Step,
+  브라우저 원문 검수·초안·격리 시험 발행, claim/heartbeat/reservation/result/preview/expired-result 응답 유실 후
+  강제 종료·재시작, Quartz·알림 outbox·100개 요청 중복 제거·stop/restore 조정을 검증했다.
+  외부 SNS·Discord 실전송과 실제 더쿠 network는 fixture로 대체했으므로 운영 실연동 증거가 아니다.
+- Linux: `blariyo-collector:local-20260920` 이미지 빌드와 `tests/spring/container.test.ts` 통과.
+  Linux arm64 컨테이너의 파일 secret·전용 PostgreSQL migration·실제 기동·host port 미공개·로그 비밀 미노출을 확인했다.
+  Windows native·Windows Docker Desktop mount·실제 별도 PC 설치·자동 시작·절전 복귀는 미검증이다.
+- Web/API build·typecheck, script/test typecheck, 변경 대상 ESLint, 수집/SNS 표시 관련 Node test 19개,
+  관련 문서 7개 상대 파일 링크·`git diff --check` 통과. 최초 브라우저 실행은 macOS sandbox 제한으로 실패했고
+  권한을 받아 재실행한 통합 시험이 통과했다.
+- 개발 DB: 기존 `127.0.0.1:5439/blariyo_local`에 V006만 추가했다. 기존 게시글 25건·본문 186블록의
+  적용 전후 SHA-256이 `a376d919b1bcb66676ffac57e6049489e800757b193d7c8c65a2d84c9e664158`로 같았다.
+  시험용 DB/container는 종료 시 제거했다. 별도 서비스 DB·상시 preview 포트를 만들지 않았다.
+- 미검증/미활성: Windows 실기 실행, 실제 출처별 운영 설정·robots·Discord 자격, 운영 배포와 수집 활성화,
+  HOT 목록 신규 URL 자동 발견. 예약 실행은 기존에 접수된 후보 처리만 포함한다.

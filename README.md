@@ -64,14 +64,14 @@ blariyo/
 Node.js `24.18.0`, npm과 Docker가 필요하다. 이전 프로토타입의 DB·파일을 사용하지 않는다.
 `nvm`을 사용하면 `nvm use 24.18.0` 후 `node --version`을 확인한다. Node 20에서는 현재 빌드가
 `trustedFunctions.difference is not a function`으로 실패한다.
-`compose.yaml`은 로컬 전용이며 PostgreSQL 포트는 `127.0.0.1:55439`다. trust 인증을 사용하는
+`compose.yaml`은 로컬 전용이며 PostgreSQL 포트는 `127.0.0.1:5439`다. trust 인증을 사용하는
 로컬 fixture이므로 운영에 재사용하지 않는다. Core는 기본 `127.0.0.1:3100`에서만 수신한다.
 
 ```sh
 nvm use
 npm ci
 docker compose up -d postgresql
-export DATABASE_URL=postgres://blariyo_local@127.0.0.1:55439/blariyo_local
+export DATABASE_URL=postgres://blariyo_local@127.0.0.1:5439/blariyo_local
 npm run build
 npm run db:migrate
 ```
@@ -123,7 +123,7 @@ npm run test:spring
 npm run test:docker
 ```
 
-일반 개발 Compose의 55439 DB와 migration 검증의 55449 DB를 혼용하지 않는다. 검증기는 소유가
+일반 개발 Compose의 5439 DB와 migration 검증의 55449 DB를 혼용하지 않는다. 검증기는 소유가
 확인된 전용 PostgreSQL에 난수 DB를 생성하고 자신이 만든 DB만 정리한다. 보존된 baseline DB는
 schema 비교에 읽기만 사용한다. Chromium은 전용 Playwright 서버에 연결하고 실제 Nuxt·DB를 사용한다.
 `npm test`는 DB 없는 단위·구조·계약 검증이며 통합 검증을 SKIP으로 성공 처리하지 않는다.

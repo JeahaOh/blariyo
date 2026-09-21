@@ -15,6 +15,8 @@ worklog/task-list/MM/DD/<업무>/
 
 ## 2026-09-20
 
+- [보안·비용 보호 세션 전체 기록](09/20/security-cost-protection/TASK.md) — Cloudflare 캐시·알림/Nginx 운영 적용, 앱 오류 처리 로컬 검증, 실패·정정·브라우저 장애·배포 준비 중단점·잔여 작업·파일 트리
+
 - [로컬 UI·CI·콘텐츠·정책 세션 종합 기록](09/20/local-ui-cicd/SESSION-RECORD.md) — 전체 작업 트리·검증 요약·실패/정정·현재 DB/서버 상태·남은 항목
 
 - [배포 실행서·GitHub CI·M0 화면·실제 HOT 25건 로컬 초안](09/20/local-ui-cicd/TASK.md) — 로컬 구현·검증, 원격 CI/운영 재배포 미실행
@@ -42,6 +44,7 @@ worklog/task-list/MM/DD/<업무>/
 - [정책 정식 발행과 Lightsail 운영 배포](09/20/infrastructure-setup/TASK-19.md) — 공개 HTTPS·정책·컨테이너·예약 작업·로그 TTL·암호화 R2 백업과 복원 PASS, 관리자 TOTP 입력 대기
 
 - [배포 작업 기록 정리와 운영 문서 현행화](09/20/infrastructure-setup/TASK-20.md) — 현재 상태·미검증 경계 정리, 누적 배포 변경 검증과 커밋
+- [GitHub Actions 경고 정리와 운영 자동 배포 TODO](09/20/local-ui-cicd/TODO-CICD-DEPLOY.md) — 이미지 게시 성공 확인, action Node 24 갱신·Lightsail SSH 배포·rollback은 다음 작업
 
 ## 2026-08-13
 

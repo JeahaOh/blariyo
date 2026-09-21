@@ -69,6 +69,7 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 | [05-security-operations.md](./05-security-operations.md) | 접근통제, secret, 백업·복구·관측·장애 대응 |
 | [06-member-community-design.md](./06-member-community-design.md) | M1·M1.5 아키텍처·데이터·API·보안·운영 확장; 문서 작성과 공개 gate 별도 |
 | [07-spring-collector-design.md](./07-spring-collector-design.md) | M0 수집 보조 Spring 실행·복구·quota·보안·전환 상세 계약; 구현·활성화 별도 |
+| [09-security-cost-protection-plan.md](./09-security-cost-protection-plan.md) | Cloudflare·AWS 보안/비용 보강 적용 계획; 정적 JS 캐시·알림 1차 적용, 요청 제한·전체 정상 이용 검증은 별도 |
 | [design-readiness.md](./design-readiness.md) | 단계별 설계 기준선·구현 수용·production 공개 승인 현행 판정 |
 
 ## 핵심 결정

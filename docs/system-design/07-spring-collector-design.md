@@ -614,3 +614,84 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 
 위 실제 값은 문서에 secret 원문으로 기록하지 않는다. 구현 증거가 없고 주 검수가 진행 중이므로 현재
 상태는 `설계 보완안`이며 `구현 완료`나 `수집 활성화 가능`이 아니다.
+
+
+## 16. 원문 수집과 별도 PC 실행 확장
+
+2026-09-20 사용자 결정에 따른 설계. 문서 작성과 구현·실제 Discord·원격 PC 운영 검증은 별도다.
+기존 metadata 모드와 여섯 Batch Step·lease·quota·spool·멱등 계약을 유지하면서 아래 계약을 추가한다.
+
+### 실행과 URL 입력
+
+- `apps/collector` Java/Spring 프로세스와 Quartz는 서비스 서버와 **다른 컴퓨터**에 설치한다.
+  `COLLECTOR_CORE_ORIGIN`은 서비스의 HTTPS origin이고 기존 `/api/collector/v1/*` 중계를 사용한다.
+  `127.0.0.1:3000` 기본값은 같은 개발 PC에서의 테스트용이다. 원격 PC에서는 자기 자신을 가리키므로 사용할 수 없다.
+- 수집기 제어 API `127.0.0.1:18787`과 실행 이력 PostgreSQL은 수집 PC 안에만 둔다.
+  서버에 수집기 container·cron을 추가하거나 서비스 PostgreSQL 포트를 외부에 열지 않는다.
+  실행 PC는 macOS·Windows·Docker/Linux를 지원 대상으로 한다. 전용 계정·설치 경로는 `(미정)`이며 OS별 실제 실행 검증은 별도다.
+- `POST /local/v1/candidates`는 `{originUrl}` 한 건을 받는다. 기존 loopback bearer `collector:run` 권한과
+  `Idempotency-Key`를 적용한다. 승인된 source 설정으로 URL을 검증하고 Core `/candidates`에 먼저 접수한 뒤
+  반환 candidateId로 `CollectorRunService.submit(REST, ...)`를 호출한다. 응답은 candidateId·jobRequestId·state다.
+  응답 유실은 같은 key/같은 URL로 재전송한다. 다른 URL은 Core receipt가 409로 거부한다.
+  Core 접수 후 로컬 queue 기록 전 중단도 같은 key replay로 복구한다. 새 key의 같은 URL은 기존 중복 계약을 따른다.
+- Discord는 기존 확인 interaction 뒤 같은 Core 접수·공통 실행 queue를 사용한다. Quartz는 **이미 접수한 후보**만
+  처리한다. 수집 PC가 꺼지면 대기하며 재시작 시 기존 lease·checkpoint 규칙으로 복구한다.
+
+### 원문 parser와 네트워크 경계
+
+- source 설정의 `parser=THEQOO`가 원문 모드를 선택한다. 미지정은 기존 metadata parser다.
+  더쿠는 `article[itemprop=articleBody]` 한 개를 요구하며 제목·본문이 없거나 구조가 달라지면 실패한다.
+- 본문을 순회해 TEXT, IMAGE, LINK 블록을 만든다. raw HTML과 임의의 iframe HTML은 보내지 않는다.
+  SNS blockquote/iframe은 참조 URL로 치환한다. 동영상·오디오 binary는 받지 않고 출처 URL을 LINK로 보존한다.
+- detail URL과 redirect는 출처 host/path 제한을 그대로 적용한다. 첨부 CDN은 `imageOrigins`의 정확한 HTTPS
+  origin과 path prefix를 따로 허용한다. wildcard host·임의 외부 URL은 허용하지 않는다. 이미지 redirect도 같은
+  허용 origin 안에서만 처리한다. 모든 실제 요청은 기존 pinned DNS·public IP 검사·quota·timeout·크기 제한을 거친다.
+- 반복된 같은 이미지도 본문의 위치를 잃지 않도록 각 IMAGE 위치에 독립 후보 번호를 부여한다.
+  빈 이미지 주소·알 수 없는 본문 iframe 주소·한도 초과를 조용히 버리지 않고 PARSE_FAILED로 처리한다.
+
+### Result와 후보 보관
+
+- 성공 result의 optional `contentBlocks`는 원문 모드의 표시이며 1~40개다. 없으면 기존 metadata 모드다.
+  TEXT는 `{type:TEXT,text}`(trim 후 1~20,000자), IMAGE는 `{type:IMAGE,imagePosition,alt}`(1~20, alt 0~300자),
+  LINK는 `{type:LINK,url,label}`(HTTP(S) URL 2,048자 이하, label 0~300자)다. LINK는 서버의 fetch 명령이 아니다.
+- imageCandidates는 원문 모드에서 0~20개, metadata 모드에서 기존 1~20개다. imagePosition은 연속된 후보
+  position을 빠짐없이 정확히 한 번씩 참조해야 한다. source title·본문은 요약하거나 한도에 맞춰 자르지 않는다.
+- `collect.candidate.content_blocks JSONB NULL`에 저장한다. NULL은 legacy/PENDING/실패/반려 상태이며
+  result metadata·image row·digest·NEW 전환과 같은 transaction에서 저장한다. retry·reject 시 비운다.
+  승인 후에는 해당 후보의 기존 보존 정책을 따른다. 이미지 binary는 DB에 넣지 않는다.
+- 관리자가 상세 조회할 때만 contentBlocks를 받는다. 공개 후보 API는 만들지 않는다. 수집기에서는 exact result bytes를
+  기존 암호화 spool에만 보관하고 Batch/Quartz 실행 metadata·로그에는 본문·URL을 넣지 않는다.
+
+### 검수와 초안 승격
+
+- 원문 모드에서는 본문 순서와 첨부 연결을 검수 화면에 보여준다. 본문 전체 대신 leadText를 입력하거나 일부 이미지를
+  선택해 누락시키지 않는다. 모든 이미지의 preview 또는 운영자 대체 업로드가 필요하며 설명은 수정할 수 있다.
+- 승격은 저장된 contentBlocks를 사용한다. TEXT를 그대로 복사하고 IMAGE의 position을 새 imageId로 연결한다.
+  LINK는 label(있으면) TEXT와 URL TEXT로 변환해 기존 게시글 표시기를 사용한다. 변환 후 40블록 초과도 거부한다.
+  링크 label과 URL이 같으면 URL 한 블록만 만든다. SNS URL은 독립 TEXT로 남아 공식 임베드 대상이 된다.
+- contentBlocks가 있으면 이미지 0건도 허용한다. 모든 참조 이미지의 선택을 요구하며 leadText는 거부한다.
+  metadata 후보는 기존 이미지 선택·leadText 방식을 유지한다. 부분 파일 실패는 NEW를 유지하고 초안을 만들지 않는다.
+- 새 migration V006은 additive SQL로 적용하며 기존 25건 게시글·원문 보관 schema를 변경하지 않는다.
+  수집 기능과 Spring transition readiness는 V006을 요구한다. 수집 기능이 꺼진 Core는 V003~V006의 기존 호환 범위를 유지한다.
+
+### 수용 검증
+
+1. 같은 fixture의 문단·이미지·SNS 순서, 텍스트/SNS만 있는 원문, 중복 이미지, 한도 초과·구조 변경을 검사한다.
+2. 허용 CDN·사설 주소·redirect·미등록 host 경계를 검사한다. 비밀·본문을 로그에 남기지 않는다.
+3. 성공 result DB readback·재전송·다른 payload 충돌·stale execution 거부를 검증한다.
+4. 첨부 누락 승격 차단·전체 본문 승격·TEXT-only·SNS 링크 보존·retry/reject 초기화를 확인한다.
+5. URL 접수·Discord·Quartz의 공통 queue와 기존 restart/response-loss 검증을 재실행한다.
+6. 격리 test 통과와 실제 다른 PC 설치·Discord Gateway·출처 호출을 구분해 보고한다.
+
+
+### 운영체제별 설정 경계
+
+- 사용자 추가 결정: 실행 PC는 macOS, Windows 또는 Docker의 Linux일 수 있다. 동일 jar·원문 계약·Core API를 사용한다.
+- macOS Keychain은 기존 기본값이다. `collector.secrets-directory` 또는 `COLLECTOR_SECRETS_DIRECTORY`를 지정하면
+  계정별 파일 backend를 사용한다. CLI migration·backup·URL 접수에도 같은 경로를 적용한다.
+- secret·config·암호화 spool·백업은 POSIX 소유자 권한 또는 Windows 소유자 전용 ACL로 검사한다. symlink와
+  권한 검증 불가 파일시스템은 거부한다. 파일은 이미지에 COPY하지 않고 외부 mount로 제공한다.
+- macOS launchd, Windows 작업 스케줄러, Linux 서비스/별도 PC Compose는 시작 방식만 다르다.
+  Docker의 collector와 실행 DB는 host port를 열지 않는다. 제어 API는 container 내부 loopback에 유지하고
+  `SubmitUrlMain`으로 URL 요청 파일을 접수한다. 서비스 Core·DB의 공개 범위는 바꾸지 않는다.
+- 실제 Windows ACL·서비스 등록, 각 OS의 절전 복구·Docker host mount 권한·backup 도구 검증은 별도 수용 증거다.

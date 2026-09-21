@@ -1,0 +1,132 @@
+{
+  "recorded_at": "2026-09-20T10:41:33.888865+00:00",
+  "scope": "Security-session related files before session-record append; shared files can include concurrent work. Hashes prove snapshot bytes, not exclusive authorship or deployment. No credentials or response bodies.",
+  "git_head": "2da659f075bdc04324d761998963abdd18813e75",
+  "files": [
+    {
+      "path": "apps/web/server/error-handler.ts",
+      "bytes": 703,
+      "sha256": "5657fab353232d7ecf9d9f331e79aa0b7b575b706273fe07326f38bfd4f68a82"
+    },
+    {
+      "path": "apps/web/nuxt.config.ts",
+      "bytes": 2102,
+      "sha256": "278371ed1bbe150fcfcf5530b240712436d361e0b3cd4d1a7a42dd233fcce65b"
+    },
+    {
+      "path": "package.json",
+      "bytes": 2265,
+      "sha256": "c212346abf1b4620110a36f1ea6336c75073fa9a1772ccb8addfa314eca2aee4"
+    },
+    {
+      "path": "tests/http/web-cache.test.ts",
+      "bytes": 5310,
+      "sha256": "5b9cdc98c3e228b0ef1d45541bd5c3821a6fa38072a113c2b71c192162c960ba"
+    },
+    {
+      "path": "deploy/gateway/nginx.conf",
+      "bytes": 3368,
+      "sha256": "9728047ec8f6309794ab0f6fa96dc8c1cbf9f783ea9240dc778ff9b954d64555"
+    },
+    {
+      "path": "deploy/gateway/test-gateway.py",
+      "bytes": 9110,
+      "sha256": "8848edf3877116585972d97a0e1789eb9e1b429b885eb22eedd84e5066a35060"
+    },
+    {
+      "path": "deploy/gateway/update-cache-policy-server.py",
+      "bytes": 4983,
+      "sha256": "21046d45dca83aca5e9a61ee0c4cd374c2afcca6cfd96d5f7719c327ab1c50fc"
+    },
+    {
+      "path": "deploy/gateway/collect-security-state-server.py",
+      "bytes": 2567,
+      "sha256": "744d5cc4fb1c25887c5a73a8a29e3fa44697fe62346af6b20f74d4a8a28c98d2"
+    },
+    {
+      "path": "deploy/gateway/README.md",
+      "bytes": 5841,
+      "sha256": "e3c7d0f89f8751686aad6fa22a8b08b71db957e527db1599b751f51b1c5b4855"
+    },
+    {
+      "path": "scripts/verify-static-cache.py",
+      "bytes": 6614,
+      "sha256": "b8b0b5baa2d11f0f781b40fde19293ce55f08618cbdb6e0a51f4072552fb1eaa"
+    },
+    {
+      "path": "docs/system-design/09-security-cost-protection-plan.md",
+      "bytes": 41342,
+      "sha256": "02b22811ba91208c9e1bbbdc55adac4cace7daff26a6e2c6e794f1d37bcd6f31"
+    },
+    {
+      "path": "docs/system-design/04-infrastructure-design.md",
+      "bytes": 35924,
+      "sha256": "1ee4f3e81ed5752907d85561c141104647bf350de93cbe467e5764c1b5a1d973"
+    },
+    {
+      "path": "docs/system-design/05-security-operations.md",
+      "bytes": 34966,
+      "sha256": "d83aefe61149398fc91a0c8c7f2785f505c15c7d238ebab01855d370f775ac26"
+    },
+    {
+      "path": "docs/system-design/README.md",
+      "bytes": 9205,
+      "sha256": "11a8850645f081a22843222dffabad146a5c77eaa8ad55b2fe0f35d95cfef811"
+    },
+    {
+      "path": "docs/implementation/operations/security-protection-status.md",
+      "bytes": 26963,
+      "sha256": "97472d379c09c85473d69d105bfaaa78801b6858038dd604bc9c77ecc4d3f005"
+    },
+    {
+      "path": "docs/implementation/operations/current-status.md",
+      "bytes": 6771,
+      "sha256": "87babce3e0690910245b53966bd61b7e8a3bc7f2a1c5529c623c06fcc04d4391"
+    },
+    {
+      "path": "docs/implementation/operations/deployment-runbook.md",
+      "bytes": 13160,
+      "sha256": "35bc4cddbcb1e89aa7a75f41cbbcc4426663bf61784b557b29923899af28a2c5"
+    },
+    {
+      "path": "docs/implementation/operations/security-evidence/2026-09-20-deploy-precheck.json",
+      "bytes": 5156,
+      "sha256": "8ffded76865a54db13f19d383ac8578b3cb4a095875a06ade221f50fd9af9bc1"
+    },
+    {
+      "path": "docs/implementation/operations/security-evidence/2026-09-20-gateway-cache-after.json",
+      "bytes": 12415,
+      "sha256": "24aec13a2f8d8ec72ef1419198c2aa67acb6ea67ed4961959104fcea5692d837"
+    },
+    {
+      "path": "docs/implementation/operations/security-evidence/2026-09-20-origin-static-before.json",
+      "bytes": 40467,
+      "sha256": "cf806f7ba0b8eab633487dc2b9d54a5a4303d908a010f496fd97e3e118119c5c"
+    },
+    {
+      "path": "docs/implementation/operations/security-evidence/2026-09-20-public-static-before.json",
+      "bytes": 76377,
+      "sha256": "9701f5219dbb2faf285740c08d35430a701b8a7fb9abaaaccf31617ce7ddf2ec"
+    },
+    {
+      "path": "docs/implementation/operations/security-evidence/2026-09-20-server-final.json",
+      "bytes": 5156,
+      "sha256": "0db5c87e9d374dbe7d252dfc49d1fa70ec79f47897760d65c6fd8294fcf87c7f"
+    },
+    {
+      "path": "docs/implementation/operations/security-evidence/2026-09-20-static-cache.json",
+      "bytes": 15703,
+      "sha256": "2332de9e437c706ab55329bb215c39dd09c05fa1564c55694475396291d797d4"
+    },
+    {
+      "path": "docs/implementation/operations/security-evidence/2026-09-20-static-inventory.json",
+      "bytes": 4205,
+      "sha256": "bbcaa1831a11d676546c7656426c385accadb14ba4178df4afa9964fcaae6575"
+    },
+    {
+      "path": "docs/implementation/operations/security-evidence/2026-09-20-static-retry-after.json",
+      "bytes": 12330,
+      "sha256": "2d54cc033d99ecf3461143c0bea5ec2a7771368c1452767015f653725c597ef8"
+    }
+  ]
+}

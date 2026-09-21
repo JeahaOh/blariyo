@@ -10,11 +10,8 @@ public final class OperatorSettings {
 
   public static void load(String file) throws Exception {
     Path path = Path.of(file);
-    if (Files.isSymbolicLink(path)
-        || !Files.isRegularFile(path)
-        || Files.getPosixFilePermissions(path).stream()
-            .anyMatch(p -> p.name().startsWith("GROUP_") || p.name().startsWith("OTHERS_")))
-      throw new IllegalArgumentException();
+    try { PrivateFiles.check(path, false); }
+    catch (java.io.IOException e) { throw new IllegalArgumentException("PRIVATE_CONFIG_REQUIRED"); }
     try (var reader = Files.newBufferedReader(path)) {
       properties.clear();
       properties.load(reader);
@@ -43,6 +40,14 @@ public final class OperatorSettings {
     String explicit = System.getenv("COLLECTOR_DATABASE_PASSWORD");
     return explicit != null
         ? explicit
-        : new Secrets(new StandardEnvironment()).require("database-password");
+        : secrets().require("database-password");
+  }
+
+  public static Secrets secrets() {
+    var env = new StandardEnvironment();
+    String directory = get("collector.secrets-directory", "COLLECTOR_SECRETS_DIRECTORY", "");
+    env.getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource(
+        "operator-secrets", java.util.Map.of("collector.secrets-directory", directory)));
+    return new Secrets(env);
   }
 }

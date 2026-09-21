@@ -1,0 +1,252 @@
+{
+  "arcalive": {
+    "approved": false,
+    "host": "arca.live",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "bobaedream": {
+    "approved": false,
+    "host": "www.bobaedream.co.kr",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "clien": {
+    "approved": false,
+    "host": "www.clien.net",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "dcinside": {
+    "approved": false,
+    "host": "www.dcinside.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "dmitory": {
+    "approved": false,
+    "host": "www.dmitory.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "dogdrip": {
+    "approved": false,
+    "host": "www.dogdrip.net",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "etoland": {
+    "approved": false,
+    "host": "etoland.co.kr",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "fmkorea": {
+    "approved": false,
+    "host": "www.fmkorea.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "goodgag": {
+    "approved": false,
+    "host": "www.goodgag.net",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "humoruniv": {
+    "approved": false,
+    "host": "web.humoruniv.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "instiz": {
+    "approved": false,
+    "host": "www.instiz.net",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "inven": {
+    "approved": false,
+    "host": "www.inven.co.kr",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "mlbpark": {
+    "approved": false,
+    "host": "mlbpark.donga.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "natepann": {
+    "approved": false,
+    "host": "pann.nate.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "pgr21": {
+    "approved": false,
+    "host": "pgr21.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "ppomppu": {
+    "approved": false,
+    "host": "www.ppomppu.co.kr",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "ruliweb": {
+    "approved": false,
+    "host": "bbs.ruliweb.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "theqoo": {
+    "approved": false,
+    "host": "theqoo.net",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "todayhumor": {
+    "approved": false,
+    "host": "www.todayhumor.co.kr",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "yuldo": {
+    "approved": false,
+    "host": "yul-do.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  },
+  "youtube-community": {
+    "approved": false,
+    "host": "www.youtube.com",
+    "pathPrefixes": ["/"],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title'],title",
+    "imageSelector": "meta[property='og:image'],img",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {}
+  }
+}

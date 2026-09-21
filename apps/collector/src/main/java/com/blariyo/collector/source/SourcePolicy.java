@@ -12,7 +12,52 @@ public record SourcePolicy(
     List<String> pathPrefixes,
     String titleSelector,
     String imageSelector,
-    String userAgent) {
+    String userAgent,
+    String parser,
+    Map<String, List<String>> imageOrigins) {
+  public SourcePolicy(String host, List<String> paths, String title, String image, String agent) {
+    this(host, paths, title, image, agent, "METADATA", Map.of());
+  }
+
+  public static SourcePolicy from(JsonNode config) {
+    if (!config.path("approved").asBoolean(false))
+      throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+    var paths = new ArrayList<String>();
+    config.path("pathPrefixes").forEach(v -> paths.add(v.asText()));
+    String agent = config.path("userAgent").asText();
+    String parser = config.path("parser").asText("METADATA");
+    if (paths.isEmpty() || agent.isBlank() || !agent.contains("contact")
+        || !Set.of("METADATA", "THEQOO").contains(parser))
+      throw new CollectorFailure(503, "SOURCE_CONFIG_REQUIRED");
+    var origins = new LinkedHashMap<String, List<String>>();
+    for (var item : config.path("imageOrigins").properties()) {
+      URI origin = URI.create(item.getKey());
+      if (!"https".equals(origin.getScheme()) || origin.getHost() == null
+          || origin.getPort() != -1 || origin.getUserInfo() != null || origin.getQuery() != null
+          || origin.getFragment() != null || !origin.getPath().isEmpty())
+        throw new CollectorFailure(503, "SOURCE_CONFIG_REQUIRED");
+      var prefixes = new ArrayList<String>();
+      item.getValue().forEach(v -> prefixes.add(v.asText()));
+      if (prefixes.isEmpty() || prefixes.stream().anyMatch(p -> !p.startsWith("/")))
+        throw new CollectorFailure(503, "SOURCE_CONFIG_REQUIRED");
+      origins.put(origin.getHost(), List.copyOf(prefixes));
+    }
+    return new SourcePolicy(config.path("host").asText(), paths,
+        config.path("titleSelector").asText(), config.path("imageSelector").asText(),
+        agent, parser, Map.copyOf(origins));
+  }
+
+  /** Images have a separate exact-origin allowlist; detail fetch never inherits it. */
+  public SourcePolicy imagePolicy(String value) {
+    try {
+      URI uri = URI.create(value);
+      var paths = imageOrigins.get(uri.getHost());
+      var policy = paths == null ? this : new SourcePolicy(uri.getHost(), paths, "", "", userAgent);
+      policy.allow(value);
+      return policy;
+    } catch (CollectorFailure e) { throw e; }
+    catch (Exception e) { throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED"); }
+  }
   public URI allow(String value) {
     try {
       URI uri = URI.create(value);
@@ -30,11 +75,13 @@ public record SourcePolicy(
   }
 
   public JsonNode extract(byte[] html, URI uri) {
+    if (parser.equals("THEQOO")) return new TheqooParser(this).extract(html, uri);
     try {
       var document = Jsoup.parse(new java.io.ByteArrayInputStream(html), null, uri.toString());
       var title = document.selectFirst(titleSelector);
-      if (title == null || title.text().isBlank()) throw new CollectorFailure(422, "PARSE_FAILED");
-      String text = title.text().strip();
+      if (title == null) throw new CollectorFailure(422, "PARSE_FAILED");
+      String text = title.hasAttr("content") ? title.attr("content").strip() : title.text().strip();
+      if (text.isBlank()) throw new CollectorFailure(422, "PARSE_FAILED");
       if (text.codePointCount(0, text.length()) > 300)
         text = text.substring(0, text.offsetByCodePoints(0, 300));
       var images = new ArrayList<Map<String, Object>>();
@@ -42,8 +89,11 @@ public record SourcePolicy(
       for (var element : document.select(imageSelector)) {
         String value = element.absUrl("src");
         if (value.isBlank()) value = element.absUrl("data-src");
+        if (value.isBlank()) value = element.attr("content");
         if (value.isBlank()) continue;
-        URI image = allow(value);
+        // Image URLs use the separate exact-origin allowlist. This lets a source
+        // page and its approved CDN have different path prefixes.
+        URI image = imagePolicy(value).allow(value);
         if (seen.add(image.toString()))
           images.add(Map.of("position", images.size() + 1, "remoteUrl", image.toString()));
         if (images.size() == 20) break;

@@ -24,6 +24,17 @@ public final class Secrets {
       throw new CollectorFailure(503, "KEYCHAIN_UNAVAILABLE");
     String fixture = env.getProperty("collector.fixture-secrets");
     try {
+      String directory = env.getProperty("collector.secrets-directory", System.getenv("COLLECTOR_SECRETS_DIRECTORY"));
+      if (directory != null && !directory.isBlank()) {
+        Path root = Path.of(directory).toAbsolutePath().normalize();
+        PrivateFiles.check(root, true);
+        Path file = root.resolve(account);
+        PrivateFiles.check(file, false);
+        if (Files.size(file) > 4096) throw new CollectorFailure(503, "SECRET_REQUIRED");
+        String value = Files.readString(file).strip();
+        if (value.isBlank()) throw new CollectorFailure(503, "SECRET_REQUIRED");
+        return value;
+      }
       if (fixture != null) {
         if (!Arrays.asList(env.getActiveProfiles()).contains("fixture"))
           throw new CollectorFailure(503, "FIXTURE_SECRET_FORBIDDEN");
@@ -37,6 +48,8 @@ public final class Secrets {
           throw new CollectorFailure(503, "SECRET_REQUIRED");
         return value.asText();
       }
+      if (!System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("mac"))
+        throw new CollectorFailure(503, "SECRET_CONFIG_REQUIRED");
       Process p =
           new ProcessBuilder(
                   "/usr/bin/security",

@@ -60,7 +60,7 @@ public class FixtureApplication {
             mime = "image/png";
           } else {
             bytes =
-                "<h1>Spring fixture</h1><article><img src='/image/1.png'></article>"
+                "<title>Spring fixture</title><h1>Spring fixture</h1><article itemprop='articleBody'><p>원문 문단 전체</p><img src='/image/1.png' alt='원문 사진'><iframe src='https://www.youtube.com/embed/Abcdefghijk'></iframe></article>"
                     .getBytes(StandardCharsets.UTF_8);
             if (uri.getPath().equals("/post/partial"))
               bytes =

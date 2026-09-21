@@ -40,7 +40,7 @@ java -Dloader.main=com.blariyo.collector.ops.MigrationMain \
 java -jar collector.jar --spring.config.additional-location=file:/absolute/collector.properties
 ```
 
-`/actuator/health/liveness`는 loopback에서 확인한다. readiness와 `/local/v1/status`는 read token이 필요하다. 브라우저 Origin·Cookie 요청은 거부한다. 수동 실행은 `/local/v1/jobs/collect`에 run token, `Idempotency-Key`, `{ "mode": "COLLECT", "candidateId": 123 }`를 전달한다. 원문 URL을 로컬 REST에 넣지 않는다.
+`/actuator/health/liveness`는 loopback에서 확인한다. readiness와 `/local/v1/status`는 read token이 필요하다. 브라우저 Origin·Cookie 요청은 거부한다. 수동 실행은 `/local/v1/jobs/collect`에 run token, `Idempotency-Key`, `{ "mode": "COLLECT", "candidateId": 123 }`를 전달한다. URL로 시작하려면 `/local/v1/candidates`에 `{ "originUrl": "https://theqoo.net/hot/(게시물 ID)" }`를 보낸다. 인증과 Idempotency-Key는 동일하다. 응답 유실 때 같은 key와 URL로 재전송한다.
 
 ## launchd
 
@@ -125,3 +125,95 @@ JSON 로그는 Spring Boot ECS 형식을 사용하고 exception message·전체 
 알림 4회 실패 후 암호화된 전달 대상은 즉시 제거한다. 최종 실패 이벤트 자체는 Core가 복구될 때까지 일반화된 outbox로 보존한다. 소유권 상실·lease 종료는 재개 불가능한 STOPPED, 버전 불일치는 RECONCILE_REQUIRED로 표시하며 원문을 재전송하지 않는다.
 
 운영 PC에서 backup agent의 마지막 종료 코드(`launchctl print gui/<uid>/com.blariyo.collector.backup`)와 최신 암호화 파일의 생성 시각을 함께 확인해야 한다. 실제 계정에 설치하지 않은 현재 상태에서는 자동 백업 성공·실패 관측을 운영 검증 완료로 간주하지 않는다.
+
+
+## 웹/API와 다른 컴퓨터에서 실행
+
+수집기 jar·Quartz·Discord 연결은 **배치 PC**에 설치한다. 서비스 서버에는 수집기나 cron을 추가하지 않는다.
+위 `collector.core-origin`은 실제 서비스의 HTTPS origin으로 지정한다. 환경 변수 사용 시
+`COLLECTOR_CORE_ORIGIN`이며 `/api/collector/v1`은 프로그램이 붙인다. 다른 PC에서 `127.0.0.1:3000`은 서비스가 아니라
+그 PC 자신을 가리킨다. API 3100·서비스 DB 5439를 원격 공개하거나 DB credential을 수집기로 복사하지 않는다.
+
+수집 PC의 PostgreSQL은 **실행 이력·예약·중단 후 복구용**이다. 게시글 DB를 별도로 복제하는 용도가 아니다.
+PC가 꺼져 있으면 수집은 멈추고 기존 공개 서비스는 계속 동작한다. Quartz를 켜도 접수된 URL 후보만 처리하며
+HOT 목록 신규 URL을 스스로 발견하지 않는다. 새 URL은 local API·Discord·관리자 화면에서 접수한다.
+
+더쿠 원문 모드의 source 설정 예시(실제 Core source ID와 승인값으로 대체):
+
+```json
+{
+  "(sourceId)": {
+    "approved": false,
+    "host": "theqoo.net",
+    "pathPrefixes": ["/hot/"],
+    "parser": "THEQOO",
+    "userAgent": "(출처 명세에서 정한 contact 포함 식별자)",
+    "imageOrigins": {
+      "https://img.theqoo.net": ["/"],
+      "https://img-static.theqoo.net": ["/"]
+    }
+  }
+}
+```
+
+`imageOrigins`는 확인한 첨부 CDN의 정확한 origin·경로만 넣는다. source 승인과 robots 확인은 위 예시로 대신하지 않는다.
+본문 40블록·이미지 20개를 초과하면 PARSE_FAILED이며 잘라서 저장하지 않는다. SNS 주소는 보존하고 화면에서 임베드한다.
+Node/Python 일회성 25건 교체 스크립트나 서비스 DB 직접 쓰기는 이 실행 경로에서 사용하지 않는다.
+secret은 macOS Keychain 또는 `collector.secrets-directory`의 계정별 파일에서 읽는다.
+파일 backend는 `COLLECTOR_SECRETS_DIRECTORY`로도 지정할 수 있다. 파일 이름은 위 Keychain account와 같고
+내용은 해당 값 하나다. 설정 파일·명령 인자·환경 변수에 token 원문을 넣지 않는다.
+POSIX는 디렉터리 0700·파일 0600 또는 0400, Windows NTFS는 소유자만 허용한 ACL을 요구한다.
+FAT/exFAT처럼 POSIX 권한도 ACL도 확인할 수 없는 저장소는 거부한다. spool·백업도 같은 검사와 암호화를 사용한다.
+Windows에서는 [권한 설정 스크립트](set-private-acl.ps1)를 운영자 전용 경로에 적용한다.
+Windows의 설정 경로는 properties에서 `C:/Blariyo/...`처럼 `/`를 사용한다. launchd는 macOS용이고 Windows 자동 시작은
+작업 스케줄러, Linux는 서비스 관리자를 사용한다. OS별 실제 자동 시작·절전 복구 시험은 별도다.
+
+### 공통 URL 접수 CLI
+
+실행 중인 로컬 수집기에 다음 요청 파일(비공개 권한)을 전달한다. 같은 요청을 재시도할 때 key를 바꾸지 않는다.
+
+```json
+{ "idempotencyKey": "operator-request-0001", "originUrl": "https://theqoo.net/hot/(게시물 ID)" }
+```
+
+```sh
+java -Dloader.main=com.blariyo.collector.ops.SubmitUrlMain \
+  -cp collector.jar org.springframework.boot.loader.launch.PropertiesLauncher \
+  /absolute/request.json /absolute/collector.properties
+```
+
+CLI는 자기 컴퓨터의 loopback API만 호출하고 candidateId와 jobRequestId만 출력한다. 원문 URL은 명령 인자·로그에
+출력하지 않는다. 실패 시 파일을 그대로 두고 같은 key로 재시도할 수 있다. 다른 사이트는 검증된 parser와 source 설정이 필요하다.
+
+### 별도 PC의 Docker/Linux
+
+[Compose 파일](compose.yaml)은 서비스용 루트 compose와 독립이다. Mac·Windows의 Docker Desktop에서도 Linux
+container로 실행한다. collector·실행 DB의 host port는 공개하지 않으며 URL 접수는 container 안에서 공통 CLI로 한다.
+
+1. JDK 25에서 `apps/collector/gradlew -p apps/collector test bootJar`로 jar를 만든다. Windows에서 빌드만 할 때는
+   `apps\collector\gradlew.bat -p apps\collector bootJar`를 사용한다. 기존 POSIX fixture 시험을 Windows 실행 검증으로 간주하지 않는다.
+2. 배치 PC에 config, secrets, state 전용 폴더를 준비한다. non-secret 환경 변수 `COLLECTOR_CONFIG_PATH`,
+   `COLLECTOR_SECRETS_PATH`, `COLLECTOR_STATE_PATH`, `COLLECTOR_CORE_ORIGIN`을 지정한다.
+3. `COLLECTOR_UID`·`COLLECTOR_GID`는 container에서 폴더를 소유하는 사용자와 일치시킨다. 기본 10001이다.
+   Docker 안에서 실제 0700/0600과 읽기·쓰기 가능 여부를 확인한다. Windows bind mount가 이 권한을 제공하지 않으면
+   배치용 Linux 파일시스템/volume에 비밀 파일을 준비해야 하며 권한 검사를 끄지 않는다.
+4. config의 `collector.properties`는 `collector.sources-file=/config/sources.json`, 처리·Quartz·Discord flag를 포함한다.
+   secret directory와 DB·Core origin은 compose 환경에서 주입한다. 실제 source·credential 확인 전 flag는 false다.
+
+```sh
+docker compose -f apps/collector/ops/compose.yaml build
+docker compose -f apps/collector/ops/compose.yaml up -d database
+docker compose -f apps/collector/ops/compose.yaml run --rm --no-deps --entrypoint java collector \
+  -Dloader.main=com.blariyo.collector.ops.MigrationMain \
+  -cp /app/collector.jar org.springframework.boot.loader.launch.PropertiesLauncher /config/collector.properties
+docker compose -f apps/collector/ops/compose.yaml up -d collector
+docker compose -f apps/collector/ops/compose.yaml exec collector java \
+  -Dloader.main=com.blariyo.collector.ops.SubmitUrlMain \
+  -cp /app/collector.jar org.springframework.boot.loader.launch.PropertiesLauncher \
+  /config/request.json /config/collector.properties
+```
+
+기본 runtime image에는 PostgreSQL 백업 client를 넣지 않는다. `BackupMain`을 container 안에서 운영하려면
+`pg_dump`·`pg_restore` 18이 있는 이미지를 별도로 준비하고 복원 시험을 해야 한다. DB volume만으로 백업이 끝난 것으로 보지 않는다.
+Docker 파일 mount의 권한·소유자 제한은 [Docker secrets 문서](https://docs.docker.com/compose/how-tos/use-secrets/)와
+[서비스 mount 계약](https://docs.docker.com/reference/compose-file/services/)을 따른다. Compose 선언만으로 host 파일 권한이 바뀐다고 가정하지 않는다.

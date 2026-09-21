@@ -167,17 +167,7 @@ public final class CollectionPipeline {
       if (!p.path("approved").asBoolean(false)
           || !p.path("host").asText().equals(state.path("claim").path("sourceHost").asText()))
         throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
-      var prefixes = new ArrayList<String>();
-      p.path("pathPrefixes").forEach(v -> prefixes.add(v.asText()));
-      String userAgent = p.path("userAgent").asText();
-      if (prefixes.isEmpty() || userAgent.isBlank() || !userAgent.contains("contact"))
-        throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
-      return new SourcePolicy(
-          p.path("host").asText(),
-          prefixes,
-          p.path("titleSelector").asText(),
-          p.path("imageSelector").asText(),
-          userAgent);
+      return SourcePolicy.from(p);
     } catch (CollectorFailure e) {
       throw e;
     } catch (Exception e) {
@@ -397,9 +387,10 @@ public final class CollectionPipeline {
                     .path("remoteUrl")
                     .asText();
           waitInterval(id, run, state);
+          var imagePolicy = policy.imagePolicy(remote);
           var response =
               fetchOne(
-                  id, run, state, policy, policy.allow(remote), "IMAGE", 10 * 1024 * 1024, marker);
+                  id, run, state, imagePolicy, imagePolicy.allow(remote), "IMAGE", 10 * 1024 * 1024, marker);
           String mime = response.contentType().split(";", 2)[0].strip();
           if (!Set.of("image/png", "image/jpeg", "image/webp", "image/gif").contains(mime))
             throw new CollectorFailure(415, "SOURCE_NOT_IMAGE");

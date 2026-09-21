@@ -5,7 +5,7 @@ import com.blariyo.collector.config.Secrets;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.*;
-import java.nio.file.attribute.PosixFilePermissions;
+import com.blariyo.collector.config.PrivateFiles;
 import java.security.SecureRandom;
 import java.sql.*;
 import java.time.*;
@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.crypto.*;
 import javax.crypto.spec.*;
-import org.springframework.core.env.StandardEnvironment;
 
 /** Explicit operator CLI. Backups never write an unencrypted database dump to disk. */
 public final class BackupMain {
@@ -26,7 +25,7 @@ public final class BackupMain {
       if ((args.length != 2 && args.length != 3) || !Set.of("backup", "restore").contains(args[0]))
         throw new IllegalArgumentException();
       if (args.length == 3) OperatorSettings.load(args[2]);
-      var secrets = new Secrets(new StandardEnvironment());
+      var secrets = OperatorSettings.secrets();
       if (args[0].equals("backup")) backup(Path.of(args[1]), secrets);
       else restore(Path.of(args[1]), secrets);
       System.out.println("COLLECTOR_" + args[0].toUpperCase(Locale.ROOT) + "_COMPLETE");
@@ -110,17 +109,8 @@ public final class BackupMain {
   public static void backup(Path directory, Secrets secrets) throws Exception {
     directory = directory.toAbsolutePath().normalize();
     if (Files.isSymbolicLink(directory)) throw new IOException();
-    Files.createDirectories(
-        directory,
-        PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
-    if (!Files.getPosixFilePermissions(directory)
-        .equals(PosixFilePermissions.fromString("rwx------"))) throw new IOException();
-    Path temporary =
-        Files.createTempFile(
-            directory,
-            ".backup-",
-            ".tmp",
-            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
+    PrivateFiles.directory(directory);
+    Path temporary = PrivateFiles.temporary(directory, ".backup-");
     Process process = null;
     ScheduledExecutorService timer = null;
     try {
@@ -163,10 +153,8 @@ public final class BackupMain {
   }
 
   public static void restore(Path archive, Secrets secrets) throws Exception {
-    if (Files.isSymbolicLink(archive)
-        || Files.size(archive) > MAXIMUM + 1024
-        || !Files.getPosixFilePermissions(archive)
-            .equals(PosixFilePermissions.fromString("rw-------"))) throw new IOException();
+    PrivateFiles.check(archive, false);
+    if (Files.size(archive) > MAXIMUM + 1024) throw new IOException();
     byte[] key = secrets.key("backup-key");
     // Verify authenticity completely before opening a restore connection.
     try (var input = Files.newInputStream(archive)) {

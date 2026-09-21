@@ -4,6 +4,7 @@ import com.blariyo.collector.config.Secrets;
 import com.blariyo.collector.core.CoreClient;
 import com.blariyo.collector.run.CollectorRunService;
 import com.blariyo.collector.run.RunRepository;
+import com.blariyo.collector.run.CandidateIntake;
 import com.blariyo.collector.shared.CollectorFailure;
 import com.blariyo.collector.shared.Json;
 import com.blariyo.collector.spool.EncryptedSpool;
@@ -34,6 +35,7 @@ public final class DiscordGateway extends ListenerAdapter {
   private final EncryptedSpool spool;
   private final Environment env;
   private final JDA jda;
+  private final CandidateIntake intake;
 
   public DiscordGateway(
       Secrets secrets,
@@ -41,7 +43,9 @@ public final class DiscordGateway extends ListenerAdapter {
       RunRepository runs,
       EncryptedSpool spool,
       Environment env,
-      CollectorRunService submissions) {
+      CollectorRunService submissions,
+      CandidateIntake intake) {
+    this.intake = intake;
     this.secrets = secrets;
     this.core = core;
     this.runs = runs;
@@ -191,15 +195,9 @@ public final class DiscordGateway extends ListenerAdapter {
                 }
                 JsonNode content = Json.parse(spool.get((UUID) row.get("spool_ref")));
                 var candidate =
-                    core.post(
-                        "/candidates",
+                    intake.create(
                         row.get("trigger_key_hash").toString(),
-                        Json.tree(
-                            Map.of(
-                                "collectorId",
-                                core.collectorId(),
-                                "originUrl",
-                                content.path("url").asText())));
+                        content.path("url").asText());
                 UUID target =
                     spool.put(Json.bytes(Map.of("channel", content.path("channel").asText())));
                 var submitted =

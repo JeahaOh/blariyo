@@ -1,0 +1,14 @@
+{
+  "(sourceId)": {
+    "approved": false,
+    "host": "bbs.ruliweb.com",
+    "pathPrefixes": ["/etcs/board/"],
+    "parser": "METADATA",
+    "titleSelector": "meta[property='og:title']",
+    "imageSelector": "meta[property='og:image']",
+    "userAgent": "blariyo-collector contact-(미정)",
+    "imageOrigins": {
+      "https://bbs.ruliweb.com": ["/s/"]
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "ruliweb": {
+    "url": "https://bbs.ruliweb.com/hobby/board/300001/read/2363100",
+    "expectedHost": "bbs.ruliweb.com",
+    "parser": "METADATA"
+  },
+  "instiz": {
+    "url": "https://www.instiz.net/pt/7905390",
+    "expectedHost": "www.instiz.net",
+    "parser": "METADATA"
+  },
+  "inven": {
+    "url": "https://www.inven.co.kr/board/lineagem/5019/756929",
+    "expectedHost": "www.inven.co.kr",
+    "parser": "METADATA"
+  },
+  "dcinside": {
+    "url": "https://gall.dcinside.com/board/view/?id=dcbest&no=464706",
+    "expectedHost": "gall.dcinside.com",
+    "parser": "METADATA"
+  },
+  "etoland": {
+    "url": "https://etoland.co.kr/hit/etohumor07/view/%EC%9C%A1%EA%B5%B0-%EA%BC%AC%EB%B6%81-%EA%B2%BD%EB%B9%84%EC%A4%91%EB%8C%80-%EC%8B%9D%EC%82%AC%EC%8B%9C%EA%B0%84-9441388",
+    "expectedHost": "etoland.co.kr",
+    "parser": "METADATA"
+  },
+  "mlbpark": {
+    "url": "https://mlbpark.donga.com/mp/b.php?b=mlbtown&id=202609200118812732&m=view&ref=burning",
+    "expectedHost": "mlbpark.donga.com",
+    "parser": "METADATA"
+  },
+  "natepann": {
+    "url": "https://pann.nate.com/talk/375624447",
+    "expectedHost": "pann.nate.com",
+    "parser": "METADATA"
+  }
+}

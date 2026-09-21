@@ -1,0 +1,55 @@
+# Run on the separate collection computer, never in the public service stack.
+name: blariyo-collector
+services:
+  database:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: collector
+      POSTGRES_DB: collector
+      POSTGRES_PASSWORD_FILE: /run/database-password
+    volumes:
+      - collector-database:/var/lib/postgresql
+      - type: bind
+        source: ${COLLECTOR_SECRETS_PATH:?Set private secrets directory}/database-password
+        target: /run/database-password
+        read_only: true
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U collector -d collector]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+  collector:
+    build:
+      context: ..
+    user: "${COLLECTOR_UID:-10001}:${COLLECTOR_GID:-10001}"
+    environment:
+      COLLECTOR_DATABASE_URL: jdbc:postgresql://database:5432/collector
+      COLLECTOR_DATABASE_USER: collector
+      COLLECTOR_CORE_ORIGIN: ${COLLECTOR_CORE_ORIGIN:?Set HTTPS service origin}
+      COLLECTOR_SECRETS_DIRECTORY: /run/operator-secrets
+      COLLECTOR_SPOOL_DIRECTORY: /state/spool
+    command: ["--spring.config.additional-location=file:/config/collector.properties"]
+    volumes:
+      - type: bind
+        source: ${COLLECTOR_SECRETS_PATH:?Set private secrets directory}
+        target: /run/operator-secrets
+        read_only: true
+      - type: bind
+        source: ${COLLECTOR_CONFIG_PATH:?Set operator config directory}
+        target: /config
+        read_only: true
+      - type: bind
+        source: ${COLLECTOR_STATE_PATH:?Set private writable state directory}
+        target: /state
+    depends_on:
+      database:
+        condition: service_healthy
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    stop_grace_period: 90s
+    restart: unless-stopped
+volumes:
+  collector-database:

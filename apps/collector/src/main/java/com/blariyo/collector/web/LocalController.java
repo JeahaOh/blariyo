@@ -4,6 +4,9 @@ import com.blariyo.collector.core.CoreClient;
 import com.blariyo.collector.discord.DiscordGateway;
 import com.blariyo.collector.run.CollectorRunService;
 import com.blariyo.collector.run.RunRepository;
+import com.blariyo.collector.run.CandidateIntake;
+import com.blariyo.collector.config.Secrets;
+import com.blariyo.collector.shared.Json;
 import com.blariyo.collector.shared.CollectorFailure;
 import java.time.Instant;
 import java.util.*;
@@ -18,14 +21,20 @@ public class LocalController {
   private final CollectorRunService submissions;
   private final org.springframework.beans.factory.ObjectProvider<DiscordGateway> discord;
   private final boolean discordEnabled;
+  private final CandidateIntake intake;
+  private final Secrets secrets;
 
   public LocalController(
       RunRepository repository,
       CoreClient core,
       CollectorRunService submissions,
+      CandidateIntake intake,
+      Secrets secrets,
       org.springframework.beans.factory.ObjectProvider<DiscordGateway> discord,
       org.springframework.core.env.Environment env) {
     this.repository = repository;
+    this.intake = intake;
+    this.secrets = secrets;
     this.core = core;
     this.submissions = submissions;
     this.discord = discord;
@@ -55,6 +64,19 @@ public class LocalController {
                     "QUEUED",
                     "deduplicated",
                     submitted.deduplicated())));
+  }
+
+  @PostMapping("/local/v1/candidates")
+  ResponseEntity<?> create(@RequestHeader("Idempotency-Key") String key, @RequestBody JsonNode body) {
+    if (!body.isObject() || body.size() != 1 || !body.path("originUrl").isString())
+      throw new CollectorFailure(400, "VALIDATION_FAILED");
+    String requestKey = secrets.hmac("rest-candidate:" + key);
+    // Core receipt is committed first. The same key recovers a crash before local enqueue.
+    var candidate = intake.create(requestKey, body.path("originUrl").asText());
+    long candidateId = candidate.path("candidateId").asLong();
+    var submitted = submissions.submit("REST", requestKey, Json.tree(Map.of("mode", "COLLECT", "candidateId", candidateId)));
+    return ResponseEntity.accepted().body(success(Map.of("candidateId", candidateId,
+        "jobRequestId", submitted.id(), "state", "QUEUED", "deduplicated", submitted.deduplicated())));
   }
 
   @GetMapping("/local/v1/jobs/{id}")

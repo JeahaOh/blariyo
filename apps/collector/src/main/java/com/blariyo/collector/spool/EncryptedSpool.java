@@ -4,7 +4,7 @@ import com.blariyo.collector.config.Secrets;
 import com.blariyo.collector.shared.CollectorFailure;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
-import java.nio.file.attribute.PosixFilePermissions;
+import com.blariyo.collector.config.PrivateFiles;
 import java.security.SecureRandom;
 import java.util.*;
 import javax.crypto.Cipher;
@@ -26,10 +26,7 @@ public final class EncryptedSpool {
   private void prepare() throws Exception {
     for (Path ancestor = root; ancestor != null; ancestor = ancestor.getParent())
       if (Files.isSymbolicLink(ancestor)) throw new CollectorFailure(503, "SPOOL_PERMISSIONS");
-    Files.createDirectories(
-        root, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
-    if (!Files.getPosixFilePermissions(root).equals(PosixFilePermissions.fromString("rwx------")))
-      throw new CollectorFailure(503, "SPOOL_PERMISSIONS");
+    PrivateFiles.directory(root);
   }
 
   private Path path(UUID ref) {
@@ -55,12 +52,7 @@ public final class EncryptedSpool {
           new GCMParameterSpec(128, nonce));
       cipher.updateAAD(ref.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
       byte[] encrypted = cipher.doFinal(bytes);
-      temp =
-          Files.createTempFile(
-              root,
-              ".write-",
-              ".tmp",
-              PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
+      temp = PrivateFiles.temporary(root, ".write-");
       try (var channel = java.nio.channels.FileChannel.open(temp, StandardOpenOption.WRITE)) {
         var buffer = ByteBuffer.allocate(12 + encrypted.length).put(nonce).put(encrypted).flip();
         while (buffer.hasRemaining()) channel.write(buffer);
@@ -85,9 +77,7 @@ public final class EncryptedSpool {
     try {
       prepare();
       Path p = path(ref);
-      if (Files.isSymbolicLink(p)
-          || !Files.getPosixFilePermissions(p).equals(PosixFilePermissions.fromString("rw-------")))
-        throw new CollectorFailure(503, "SPOOL_PERMISSIONS");
+      PrivateFiles.check(p, false);
       if (Files.size(p) > 12 * 1024 * 1024) throw new CollectorFailure(503, "SPOOL_INVALID");
       byte[] raw = Files.readAllBytes(p);
       if (raw.length < 28) throw new CollectorFailure(503, "SPOOL_INVALID");

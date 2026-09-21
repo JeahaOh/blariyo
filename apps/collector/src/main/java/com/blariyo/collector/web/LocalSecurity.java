@@ -59,7 +59,7 @@ public final class LocalSecurity extends OncePerRequestFilter {
               || path.equals("/actuator/metrics")
               || path.startsWith("/actuator/metrics/");
       boolean fixturePath = fixture && path.startsWith("/fixture/");
-      boolean submit = path.equals("/local/v1/jobs/collect"),
+      boolean submit = path.equals("/local/v1/jobs/collect") || path.equals("/local/v1/candidates"),
           status = path.equals("/local/v1/status");
       boolean job =
           path.matches(

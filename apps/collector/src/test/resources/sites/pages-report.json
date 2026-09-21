@@ -1,0 +1,125 @@
+[
+  {
+    "source": "arcalive",
+    "kind": "list",
+    "url": "https://arca.live/b/live",
+    "status": 200,
+    "contentType": "text/html; charset=utf-8",
+    "bytes": 176234,
+    "sha256": "f85661fc78aebc86b8587b06e45446c50a7eb1fcbbe52edf911e1aee9f69d7d7"
+  },
+  {
+    "source": "arcalive",
+    "kind": "terms",
+    "url": "https://arca.live/policy",
+    "status": 200,
+    "contentType": "text/html; charset=utf-8",
+    "bytes": 35406,
+    "sha256": "f6ebd0a738ea0ea7d4b32b675f1edff9571399bb34bce91d48a2c041bcc154b1"
+  },
+  {
+    "source": "bobaedream",
+    "kind": "list",
+    "url": "https://www.bobaedream.co.kr/list?code=best",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 121957,
+    "sha256": "f5eebb784410db9665fc7cc78cdeb1548a5c7ed9a8eb3f7ec7a226d18134771f"
+  },
+  {
+    "source": "bobaedream",
+    "kind": "terms",
+    "url": "https://www.bobaedream.co.kr/company/service.php",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 68216,
+    "sha256": "fd554e099c24dcd205d569a0faed97ef6b16980b51c643e05219104de372cb0b"
+  },
+  {
+    "source": "dogdrip",
+    "kind": "list",
+    "url": "https://www.dogdrip.net/dogdrip",
+    "status": 200,
+    "contentType": "text/html; charset=UTF-8",
+    "bytes": 93716,
+    "sha256": "ca84c9326cab47322f97995b2045c559867161830c469b4939d13131dc8742d0"
+  },
+  {
+    "source": "dogdrip",
+    "kind": "terms",
+    "url": "https://www.dogdrip.net/policy",
+    "status": 200,
+    "contentType": "text/html; charset=UTF-8",
+    "bytes": 42686,
+    "sha256": "e13f7f54e1ba9b85bee9e6887209e5dfe8882922d8c29c863f2e3bd415d746eb"
+  },
+  {
+    "source": "inven",
+    "kind": "list",
+    "url": "https://www.inven.co.kr/board/webzine/2097?iskin=webzine&category=\uc720\uba38",
+    "status": 200,
+    "contentType": "text/html; charset=UTF-8",
+    "bytes": 363656,
+    "sha256": "caf2360e95ac13f544348d17cfb5107161cdb716947f898398b6023e2eb15e63"
+  },
+  {
+    "source": "inven",
+    "kind": "terms",
+    "url": "https://www.inven.co.kr/doc/agreement.html",
+    "status": 200,
+    "contentType": "text/html; charset=utf8",
+    "bytes": 31023,
+    "sha256": "b610fbc25d9a3fe2f93c0315dd10b1a5dd12b442b82463ef8753a3ba73c699b8"
+  },
+  {
+    "source": "ppomppu",
+    "kind": "list",
+    "url": "https://www.ppomppu.co.kr/hot.php",
+    "status": 403
+  },
+  {
+    "source": "ppomppu",
+    "kind": "terms",
+    "url": "https://m.ppomppu.co.kr/new/bbs_view.php?id=regulation&no=4",
+    "status": 200,
+    "contentType": "text/html; charset=euc-kr",
+    "bytes": 44225,
+    "sha256": "540967ff88c70abc6ee0f2378871bbdf62c684bdf843d7f17279bf4412c6098b"
+  },
+  {
+    "source": "yuldo",
+    "kind": "list",
+    "url": "https://yul-do.com/humor",
+    "status": 404
+  },
+  {
+    "source": "yuldo",
+    "kind": "terms",
+    "url": "https://yul-do.com/rules",
+    "status": 404
+  },
+  {
+    "source": "dogdrip",
+    "kind": "chart",
+    "url": "https://www.dogdrip.net/dogdrip?sort_index=popular",
+    "status": 200,
+    "bytes": 89065,
+    "sha256": "c07bcabde5df0d4d66283f7f948440ac09adb2e2b9934ecc0488ad335435a9cb"
+  },
+  {
+    "source": "inven",
+    "kind": "chart",
+    "url": "https://www.inven.co.kr/best/issue",
+    "status": 200,
+    "bytes": 213018,
+    "sha256": "102769d3e5c14364e6207e34b821a8698629cc5e25cd649f44251b923ce22cf3"
+  },
+  {
+    "source": "yuldo",
+    "kind": "chart",
+    "url": "https://yul-do.com/",
+    "status": 200,
+    "bytes": 26466,
+    "sha256": "729f153196fccaeebd9142626f092590abe7b8829603eecd763cb203511514c3"
+  }
+]

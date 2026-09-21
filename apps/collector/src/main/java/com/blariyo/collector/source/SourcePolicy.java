@@ -22,12 +22,14 @@ public record SourcePolicy(
   public static SourcePolicy from(JsonNode config) {
     if (!config.path("approved").asBoolean(false))
       throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+    if (!config.path("blockedReason").asText("").isBlank())
+      throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
     var paths = new ArrayList<String>();
     config.path("pathPrefixes").forEach(v -> paths.add(v.asText()));
     String agent = config.path("userAgent").asText();
     String parser = config.path("parser").asText("METADATA");
-    if (paths.isEmpty() || agent.isBlank() || !agent.contains("contact")
-        || !Set.of("METADATA", "THEQOO").contains(parser))
+    if (paths.isEmpty() || paths.stream().anyMatch(p -> !p.startsWith("/")) || agent.isBlank() || agent.contains("미정") || !agent.contains("contact")
+        || !(Set.of("METADATA", "THEQOO").contains(parser) || SiteAdapters.supported(parser)))
       throw new CollectorFailure(503, "SOURCE_CONFIG_REQUIRED");
     var origins = new LinkedHashMap<String, List<String>>();
     for (var item : config.path("imageOrigins").properties()) {
@@ -75,6 +77,7 @@ public record SourcePolicy(
   }
 
   public JsonNode extract(byte[] html, URI uri) {
+    if (SiteAdapters.supported(parser)) return SiteAdapters.require(parser).detail(html, uri, this);
     if (parser.equals("THEQOO")) return new TheqooParser(this).extract(html, uri);
     try {
       var document = Jsoup.parse(new java.io.ByteArrayInputStream(html), null, uri.toString());
@@ -117,32 +120,6 @@ public record SourcePolicy(
 
   /** Conservative robots handling: a potentially applicable disallow blocks the fetch. */
   public boolean robotsAllows(String text, URI uri) {
-    boolean applies = false, directives = false;
-    for (String raw : text.split("\\R")) {
-      String line = raw.split("#", 2)[0].strip();
-      int colon = line.indexOf(':');
-      if (colon < 0) continue;
-      String name = line.substring(0, colon).strip().toLowerCase(Locale.ROOT),
-          value = line.substring(colon + 1).strip();
-      if (name.equals("user-agent")) {
-        if (directives) {
-          applies = false;
-          directives = false;
-        }
-        applies |=
-            value.equals("*")
-                || !value.isBlank()
-                    && userAgent
-                        .toLowerCase(Locale.ROOT)
-                        .startsWith(value.toLowerCase(Locale.ROOT));
-        continue;
-      }
-      if (name.equals("disallow") || name.equals("allow")) directives = true;
-      if (applies && name.equals("disallow") && !value.isBlank()) {
-        String prefix = value.split("\\*", 2)[0].replace("$", "");
-        if (uri.getRawPath().startsWith(prefix)) return false;
-      }
-    }
-    return true;
+    return new RobotsRules(text).allows(userAgent, uri);
   }
 }

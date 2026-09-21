@@ -342,7 +342,7 @@ export interface components {
             /** @enum {string} */
             status: "PENDING" | "RUNNING" | "NEW" | "FETCH_FAILED" | "APPROVED" | "REJECTED";
             /** @enum {string} */
-            discoveryMode: "MANUAL_URL";
+            discoveryMode: "MANUAL_URL" | "LIST_CRAWL";
             imageCandidateCount: number;
             duplicatePostId: number | null;
             postId: number | null;
@@ -515,7 +515,7 @@ export interface operations {
             query?: {
                 status?: "PENDING" | "RUNNING" | "NEW" | "FETCH_FAILED" | "APPROVED" | "REJECTED";
                 sourceId?: number;
-                discoveryMode?: "MANUAL_URL";
+                discoveryMode?: "MANUAL_URL" | "LIST_CRAWL";
                 duplicateOnly?: "true" | "false";
                 page?: number;
             };
@@ -645,7 +645,7 @@ export interface operations {
                             /** @enum {string} */
                             status: "PENDING" | "RUNNING" | "NEW" | "FETCH_FAILED" | "APPROVED" | "REJECTED";
                             /** @enum {string} */
-                            discoveryMode: "MANUAL_URL";
+                            discoveryMode: "MANUAL_URL" | "LIST_CRAWL";
                             imageCandidateCount: number;
                             duplicatePostId: number | null;
                             postId: number | null;
@@ -906,6 +906,8 @@ export interface operations {
                     collectorId: string;
                     /** Format: uri */
                     originUrl: string;
+                    /** @enum {string} */
+                    discoveryMode?: "MANUAL_URL" | "LIST_CRAWL";
                 };
             };
         };
@@ -996,7 +998,7 @@ export interface operations {
                                 /** Format: uri */
                                 originUrl: string;
                                 /** @enum {string} */
-                                discoveryMode: "MANUAL_URL";
+                                discoveryMode: "MANUAL_URL" | "LIST_CRAWL";
                                 attemptCount: number;
                                 lockVersion: number;
                                 /** Format: date-time */
@@ -1013,7 +1015,7 @@ export interface operations {
                                 /** Format: uri */
                                 originUrl: string;
                                 /** @enum {string} */
-                                discoveryMode: "MANUAL_URL";
+                                discoveryMode: "MANUAL_URL" | "LIST_CRAWL";
                                 attemptCount: number;
                                 lockVersion: number;
                                 /** Format: date-time */
@@ -1030,7 +1032,7 @@ export interface operations {
                                 sourceId: number;
                                 sourceHost: string;
                                 /** @enum {string} */
-                                discoveryMode: "MANUAL_URL";
+                                discoveryMode: "MANUAL_URL" | "LIST_CRAWL";
                                 attemptCount: number;
                                 lockVersion: number;
                                 leaseUntil: null;
@@ -1450,12 +1452,13 @@ export interface operations {
                     jobRequestId: string;
                     /** Format: uuid */
                     collectorExecutionId: string;
-                    candidateId: number;
-                    lockVersion: number;
+                    candidateId?: number;
+                    lockVersion?: number;
                     requestKey: string;
                     /** @enum {unknown} */
-                    requestKind: "ROBOTS" | "DETAIL" | "REDIRECT" | "IMAGE";
-                };
+                    requestKind: "ROBOTS" | "DETAIL" | "REDIRECT" | "IMAGE" | "LIST";
+                    discovery?: boolean;
+                } & unknown;
             };
         };
         responses: {

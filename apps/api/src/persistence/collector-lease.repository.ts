@@ -56,7 +56,7 @@ export class TypeOrmCollectorLeaseRepository extends CollectorLeaseRepository {
       .setOnLocked('skip_locked')
       .getMany();
     return result.map((row) => {
-      if (row.discovery_mode !== 'MANUAL_URL') throw new Error('INVALID_DISCOVERY_MODE');
+      if (row.discovery_mode !== 'MANUAL_URL' && row.discovery_mode !== 'LIST_CRAWL') throw new Error('INVALID_DISCOVERY_MODE');
       return {
         id: row.id,
         sourceId: row.source_id,

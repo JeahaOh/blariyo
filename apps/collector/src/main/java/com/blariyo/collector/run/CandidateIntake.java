@@ -22,26 +22,25 @@ public final class CandidateIntake {
     this.sourcesFile = sourcesFile;
   }
 
-  public JsonNode create(String key, String url) {
+  public com.blariyo.collector.source.SourceRegistry.Source resolve(String url) {
+    try {
+      var source = com.blariyo.collector.source.SourceRegistry.read(sourcesFile).host(URI.create(url).getHost(), null);
+      source.canonical(url);
+      return source;
+    } catch (CollectorFailure e) { throw e; }
+    catch (Exception e) { throw new CollectorFailure(400, "VALIDATION_FAILED"); }
+  }
+
+  public JsonNode create(String key, String url) { return create(key, url, "MANUAL_URL"); }
+  public JsonNode create(String key, String url, String discoveryMode) {
+    if (!java.util.Set.of("MANUAL_URL", "LIST_CRAWL").contains(discoveryMode))
+      throw new CollectorFailure(400, "VALIDATION_FAILED");
     if (url == null || url.isBlank() || url.length() > 2048)
       throw new CollectorFailure(400, "VALIDATION_FAILED");
-    try {
-      URI uri = URI.create(url);
-      var config = Json.parse(Files.readAllBytes(Path.of(sourcesFile)));
-      boolean allowed = false;
-      for (var entry : config.properties()) {
-        var source = entry.getValue();
-        if (source.path("approved").asBoolean(false)
-            && source.path("host").asText().equalsIgnoreCase(uri.getHost())) {
-          SourcePolicy.from(source).allow(url);
-          allowed = true;
-          break;
-        }
-      }
-      if (!allowed) throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
-    } catch (CollectorFailure e) { throw e; }
-    catch (IllegalArgumentException e) { throw new CollectorFailure(400, "VALIDATION_FAILED"); }
-    catch (Exception e) { throw new CollectorFailure(503, "SOURCE_CONFIG_REQUIRED"); }
-    return core.post("/candidates", key, Json.tree(Map.of("collectorId", core.collectorId(), "originUrl", url)));
+    var source = resolve(url);
+    url = source.canonical(url);
+    if (discoveryMode.equals("LIST_CRAWL") && !source.config().path("batchApproved").asBoolean(false))
+      throw new CollectorFailure(403, "BATCH_NOT_APPROVED");
+    return core.post("/candidates", key, Json.tree(Map.of("collectorId", core.collectorId(), "originUrl", url, "discoveryMode", discoveryMode)));
   }
 }

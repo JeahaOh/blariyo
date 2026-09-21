@@ -32,7 +32,7 @@ export class TypeOrmCollectionOperationsRepository extends CollectionOperationsR
   }
   async schemaReady() {
     return (
-      requiredRow(await this.db.manager.query("SELECT ops.is_schema_ready('V006') AS ready"))
+      requiredRow(await this.db.manager.query("SELECT ops.is_schema_ready('V007') AS ready"))
         .ready === true
     );
   }

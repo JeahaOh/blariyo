@@ -161,12 +161,9 @@ public final class CollectionPipeline {
 
   private SourcePolicy policy(ObjectNode state) {
     try {
-      var p =
-          Json.parse(Files.readAllBytes(Path.of(sourcesFile)))
-              .path(state.path("claim").path("sourceId").asText());
-      if (!p.path("approved").asBoolean(false)
-          || !p.path("host").asText().equals(state.path("claim").path("sourceHost").asText()))
-        throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+      var source = com.blariyo.collector.source.SourceRegistry.read(sourcesFile).host(
+          state.path("claim").path("sourceHost").asText(), state.path("claim").path("sourceId").asText());
+      var p = source.config();
       return SourcePolicy.from(p);
     } catch (CollectorFailure e) {
       throw e;
@@ -274,7 +271,10 @@ public final class CollectionPipeline {
       if (response.status() != 200)
         throw new CollectorFailure(
             response.status() == 403 || response.status() == 429 ? response.status() : 503,
-            "SOURCE_HTTP_FAILED");
+            response.status() == 404 || response.status() == 410 ? "SOURCE_GONE"
+                : response.status() == 401 ? "SOURCE_LOGIN_REQUIRED"
+                : response.status() == 403 ? "SOURCE_ACCESS_BLOCKED"
+                : response.status() == 429 ? "SOURCE_RATE_LIMITED" : "SOURCE_HTTP_FAILED");
       return response;
     }
     throw new CollectorFailure(403, "SOURCE_REDIRECT_BLOCKED");
@@ -300,8 +300,10 @@ public final class CollectionPipeline {
               "ROBOTS",
               512 * 1024,
               "robots");
-      if (!policy.robotsAllows(new String(robots.bytes(), StandardCharsets.UTF_8), uri))
+      if (!robots.contentType().toLowerCase(Locale.ROOT).startsWith("text/plain")
+          || !policy.robotsAllows(new String(robots.bytes(), StandardCharsets.UTF_8), uri))
         throw new CollectorFailure(403, "ROBOTS_DISALLOWED");
+      state.put("robotsDelayMs", new com.blariyo.collector.source.RobotsRules(new String(robots.bytes(), StandardCharsets.UTF_8)).delayMillis(policy.userAgent()));
       waitInterval(id, run, state);
       var response = fetchOne(id, run, state, policy, uri, "DETAIL", 2 * 1024 * 1024, "detail");
       if (!response.contentType().toLowerCase(Locale.ROOT).startsWith("text/html"))
@@ -330,7 +332,7 @@ public final class CollectionPipeline {
 
   private void waitInterval(UUID id, Map<String, Object> run, ObjectNode state) {
     // Quota permits include a ten-second send window; wait for the global next-request boundary.
-    long wait = 10000 + state.path("claim").path("requestIntervalMs").asLong(1000);
+    long wait = 10000 + Math.max(state.path("claim").path("requestIntervalMs").asLong(1000), state.path("robotsDelayMs").asLong(0));
     long end = System.nanoTime() + wait * 1_000_000,
         nextHeartbeat = System.nanoTime() + 30_000_000_000L;
     while (System.nanoTime() < end) {
@@ -423,6 +425,10 @@ public final class CollectionPipeline {
         if (!Set.of(
                 "SOURCE_NOT_ALLOWED",
                 "SOURCE_HTTP_FAILED",
+                "SOURCE_GONE",
+                "SOURCE_LOGIN_REQUIRED",
+                "SOURCE_ACCESS_BLOCKED",
+                "SOURCE_RATE_LIMITED",
                 "SOURCE_FETCH_FAILED",
                 "SOURCE_NOT_IMAGE",
                 "SOURCE_TOO_LARGE",

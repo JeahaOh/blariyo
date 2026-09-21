@@ -38,6 +38,8 @@ import {
 } from './collection-admin.guard.js';
 import { AdminGuard, HTTP_OPTIONS } from '../../http/auth.guard.js';
 import { Storage } from '../../shared/storage.js';
+import { BatchResultRepository } from './batch-result.repository.js';
+import { TypeOrmBatchResultRepository } from '../../persistence/batch-result.repository.js';
 @Module({})
 export class CollectionModule {
   static register(
@@ -80,6 +82,7 @@ export class CollectionModule {
         CollectionMaintenanceGuard,
         AdminGuard,
         { provide: CollectionRepository, useClass: TypeOrmCollectionRepository },
+        { provide: BatchResultRepository, useClass: TypeOrmBatchResultRepository },
         { provide: Storage, useValue: storage },
         { provide: HTTP_OPTIONS, useValue: options },
         { provide: COLLECTION_OPTIONS, useValue: options },

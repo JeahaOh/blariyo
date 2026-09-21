@@ -1,0 +1,164 @@
+[
+  {
+    "source": "arcalive",
+    "url": "https://arca.live/robots.txt",
+    "checkedAt": "2026-09-21T12:32:57.737802+00:00",
+    "status": 200,
+    "contentType": "text/plain; charset=utf-8",
+    "sha256": "3741056fd23ff9964a79b6f915602eee44503504aee1c9e4106e0827059827b5"
+  },
+  {
+    "source": "bobaedream",
+    "url": "https://www.bobaedream.co.kr/robots.txt",
+    "checkedAt": "2026-09-21T12:32:57.738247+00:00",
+    "status": 200,
+    "contentType": "text/plain",
+    "sha256": "a2a254d1008aba22f7220016b89ff76af71c8ac6168c52f031659c759296271e"
+  },
+  {
+    "source": "clien",
+    "url": "https://www.clien.net/robots.txt",
+    "checkedAt": "2026-09-21T12:32:57.738340+00:00",
+    "status": 200,
+    "contentType": "text/plain; charset=UTF-8",
+    "sha256": "93756b2382b06c2aa7e56a5b3074e20bc53c4a9e14abc7f2f10543c3f26cccc0"
+  },
+  {
+    "source": "dcinside",
+    "url": "https://gall.dcinside.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:57.738400+00:00",
+    "status": 200,
+    "contentType": "text/plain",
+    "sha256": "0c9858ec00e8c5ec281e6d3c6076155e9c4aab6237e0c095da962355267a5cc3"
+  },
+  {
+    "source": "dmitory",
+    "url": "https://www.dmitory.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:57.738466+00:00",
+    "status": 200,
+    "contentType": "text/plain; charset=utf-8",
+    "sha256": "741c419d18d8055a1b2065a1ef317a1aa69a237347f98a0db48ee391db5676cf"
+  },
+  {
+    "source": "dogdrip",
+    "url": "https://www.dogdrip.net/robots.txt",
+    "checkedAt": "2026-09-21T12:32:57.738926+00:00",
+    "status": 200,
+    "contentType": "text/plain; charset=utf-8",
+    "sha256": "d823c13e07d554d36b200eae434485cc48560147c07a371d4acaa8b7726df074"
+  },
+  {
+    "source": "etoland",
+    "url": "https://etoland.co.kr/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.058007+00:00",
+    "status": 200,
+    "contentType": "text/plain",
+    "sha256": "48068ef0fe084392c63706227716844cc8fb7487d2145ee9b8b1ed53d5a220a0"
+  },
+  {
+    "source": "fmkorea",
+    "url": "https://www.fmkorea.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.058099+00:00",
+    "status": 200,
+    "contentType": "text/plain",
+    "sha256": "e787da32aedebb00b36adbde7f8b254b2183c7b00a7403ee8f99c900cab11c62"
+  },
+  {
+    "source": "goodgag",
+    "url": "https://www.goodgag.net/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.058166+00:00",
+    "status": 200,
+    "contentType": "text/plain",
+    "sha256": "fcc955e8ee24dee3b2cb1840c1f1b5f1c259ced054b50edc924658041e0a4a34"
+  },
+  {
+    "source": "humoruniv",
+    "url": "https://web.humoruniv.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.058851+00:00",
+    "status": 200,
+    "contentType": "text/plain",
+    "sha256": "b2a316154315c45cd5ce46488a974b9792118ae176e27646933d1601de0ea1a6"
+  },
+  {
+    "source": "instiz",
+    "url": "https://www.instiz.net/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.110359+00:00",
+    "status": 403
+  },
+  {
+    "source": "inven",
+    "url": "https://www.inven.co.kr/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.226832+00:00",
+    "status": 200,
+    "contentType": "text/plain; charset=utf8",
+    "sha256": "5fcbeb1b91a5a1686bf44427eda0cb66c399505fee8442a4e9f964c1755932b4"
+  },
+  {
+    "source": "mlbpark",
+    "url": "https://mlbpark.donga.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.238211+00:00",
+    "status": 200,
+    "contentType": "text/plain;charset=UTF-8",
+    "sha256": "b88e4313c2e2f03984c314ad2517837e32325381cbc61224da5ce08cf240a7c1"
+  },
+  {
+    "source": "natepann",
+    "url": "https://pann.nate.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.277945+00:00",
+    "status": 200,
+    "contentType": "text/plain",
+    "sha256": "57d3bd711259d381586edbdd1044856925079b9b12e0606f6f4bc709f2b2aba8"
+  },
+  {
+    "source": "pgr21",
+    "url": "https://pgr21.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.337842+00:00",
+    "status": 200,
+    "contentType": "text/html; charset=utf-8",
+    "sha256": "b920518a3ffca1818d69eab336840736c98116664c278c540bab875db26bdbcd"
+  },
+  {
+    "source": "ppomppu",
+    "url": "https://www.ppomppu.co.kr/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.362666+00:00",
+    "status": 200,
+    "contentType": "text/plain; charset=UTF-8",
+    "sha256": "33c04bf9387c98491ce5b9557e1bc111a0a51c7fa3f553a74da0cc454048a947"
+  },
+  {
+    "source": "ruliweb",
+    "url": "https://bbs.ruliweb.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.454254+00:00",
+    "status": 200,
+    "contentType": "text/plain",
+    "sha256": "6a3bb1b82c8c08bbb20bb9ea0202d2078d2560c0ee31e0d2e08e904df096e22d"
+  },
+  {
+    "source": "theqoo",
+    "url": "https://theqoo.net/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.582461+00:00",
+    "status": 404
+  },
+  {
+    "source": "todayhumor",
+    "url": "https://www.todayhumor.co.kr/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.582545+00:00",
+    "status": 404
+  },
+  {
+    "source": "yuldo",
+    "url": "https://yul-do.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.582966+00:00",
+    "status": 200,
+    "contentType": "text/plain; charset=utf-8",
+    "sha256": "c6edeae7e08661fbc43c759c5e8ff3b9ab9fd1dcacf44cf4c4401640554f01ee"
+  },
+  {
+    "source": "youtube-community",
+    "url": "https://www.youtube.com/robots.txt",
+    "checkedAt": "2026-09-21T12:32:58.684681+00:00",
+    "status": 200,
+    "contentType": "text/plain",
+    "sha256": "96f8640ca357626e7d9a894057fef8b5746eb838c29ed68fc176af58c9348c6f"
+  }
+]

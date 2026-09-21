@@ -18,7 +18,7 @@ export interface HeartbeatInput {
 export interface ClaimedCandidate {
   candidateId: string;
   originUrl: string;
-  discoveryMode: 'MANUAL_URL';
+  discoveryMode: 'MANUAL_URL' | 'LIST_CRAWL';
   source: SourceRecord;
   attemptCount: number;
   lockVersion: number;

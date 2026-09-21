@@ -41,7 +41,7 @@ export interface CandidateRecord {
   originUrlSha256: Buffer;
   title: string | null;
   status: components['schemas']['CollectionCandidate']['status'];
-  discoveryMode: 'MANUAL_URL';
+  discoveryMode: 'MANUAL_URL' | 'LIST_CRAWL';
   duplicatePostId: string | null;
   postId: string | null;
   rejectReasonCode: string | null;

@@ -7,7 +7,7 @@ export class TypeOrmHealthRepository extends HealthRepository {
  constructor(@Inject(DatabaseContext) private readonly database:DatabaseContext){super();}
  async ready(collectionEnabled:boolean):Promise<boolean> {
   const version:unknown = await this.database.manager.query(
-    "SELECT ops.is_schema_ready('V006') OR (NOT $1::boolean AND (ops.is_schema_ready('V005') OR ops.is_schema_ready('V004') OR ops.is_schema_ready('V003'))) AS ready",
+    "SELECT ops.is_schema_ready('V007') OR (NOT $1::boolean AND (ops.is_schema_ready('V006') OR ops.is_schema_ready('V005') OR ops.is_schema_ready('V004') OR ops.is_schema_ready('V003'))) AS ready",
     [collectionEnabled]
   );
   if (!requiredRow(version).ready) return false;

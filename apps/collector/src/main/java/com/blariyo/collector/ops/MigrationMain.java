@@ -33,7 +33,7 @@ public final class MigrationMain {
         sql.execute("SELECT pg_advisory_xact_lock(72189402)");
         sql.execute("CREATE SCHEMA IF NOT EXISTS collector");
         sql.execute(
-            "CREATE TABLE IF NOT EXISTS collector.schema_migration(version VARCHAR(20) PRIMARY"
+        "CREATE TABLE IF NOT EXISTS collector.schema_migration(version VARCHAR(20) PRIMARY"
                 + " KEY,checksum CHAR(64) NOT NULL,applied_at TIMESTAMPTZ NOT NULL DEFAULT now())");
         try (var r =
             sql.executeQuery(
@@ -41,6 +41,7 @@ public final class MigrationMain {
           if (r.next()) {
             if (!checksum.equals(r.getString(1)))
               throw new IllegalStateException("MIGRATION_CHECKSUM");
+            applyV002(db);
             db.commit();
             return;
           }
@@ -57,12 +58,22 @@ public final class MigrationMain {
           insert.setString(1, checksum);
           insert.executeUpdate();
         }
+        applyV002(db);
         db.commit();
       } catch (Exception e) {
         db.rollback();
         throw e;
       }
     }
+  }
+
+  private static void applyV002(Connection db) throws Exception {
+    String own = resource("db/collector-v002.sql");
+    try (var schema=db.createStatement()) { schema.execute("CREATE SCHEMA IF NOT EXISTS collect"); }
+    try (var check=db.createStatement(); var r=check.executeQuery("SELECT to_regclass('collect.batch_run')")) {
+      r.next(); if(r.getString(1)!=null)return;
+    }
+    try (var sql=db.createStatement()) { sql.execute(own); }
   }
 
   private static String resource(String name) throws Exception {

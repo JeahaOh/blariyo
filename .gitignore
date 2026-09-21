@@ -187,3 +187,9 @@ tools/collector/config.local.json
 *.local.properties
 
 
+
+# Cross-platform Collector entrypoints are source, not build output.
+!/bin/
+/bin/*
+!/bin/blariyo-collector
+!/bin/blariyo-collector.ps1

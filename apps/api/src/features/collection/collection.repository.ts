@@ -7,6 +7,7 @@ import type {
   CandidateSearch,
 } from './collection.model.js';
 export abstract class CollectionRepository {
+  abstract discoveryAllowed(sourceId: string): Promise<boolean>;
   abstract approve(
     candidateId: string,
     postId: string,
@@ -25,7 +26,8 @@ export abstract class CollectionRepository {
     url: string,
     hash: Buffer,
     duplicatePostId: string | null,
-    actor: string
+    actor: string,
+    discoveryMode?: 'MANUAL_URL' | 'LIST_CRAWL'
   ): Promise<CandidateRecord>;
   abstract replaceResult(
     candidateId: string,

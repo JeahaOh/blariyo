@@ -28,6 +28,10 @@ export class TypeOrmMigrationsRepository extends MigrationsRepository {
  GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA content,legal,collect TO ${role};
  GRANT SELECT,INSERT,UPDATE,DELETE ON ops.outbox_task,ops.idempotency_request,ops.schedule_failure_alert TO ${role};
  GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA content,legal,ops,collect TO ${role};
+ DO $grant$ BEGIN IF to_regclass('collect.batch_item') IS NOT NULL THEN
+   EXECUTE 'REVOKE INSERT,UPDATE,DELETE ON TABLE collect.batch_source,collect.batch_run,collect.batch_item,collect.batch_media,collect.batch_failure,collect.batch_report,collect.batch_checkpoint FROM ${role}';
+   EXECUTE 'GRANT SELECT ON TABLE collect.batch_source,collect.batch_run,collect.batch_item,collect.batch_media,collect.batch_failure,collect.batch_report,collect.batch_checkpoint TO ${role}';
+ END IF; END $grant$;
  REVOKE ALL ON ops.schema_migration FROM ${role};
  GRANT EXECUTE ON FUNCTION ops.is_schema_ready(TEXT) TO ${role}`);
  }

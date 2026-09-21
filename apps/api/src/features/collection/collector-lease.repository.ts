@@ -2,7 +2,7 @@ export interface ClaimCandidate {
   id: string;
   sourceId: string;
   originUrl: string;
-  discoveryMode: 'MANUAL_URL';
+  discoveryMode: 'MANUAL_URL' | 'LIST_CRAWL';
 }
 export interface LeaseGrant {
   attemptCount: number;

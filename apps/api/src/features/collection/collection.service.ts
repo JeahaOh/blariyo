@@ -88,7 +88,7 @@ export class CollectionService {
             error.code === '23505' &&
             'constraint' in error &&
             typeof error.constraint === 'string' &&
-            error.constraint.includes('origin')
+            (error.constraint.includes('origin') || error.constraint.includes('source_post_key'))
           )
             fail(409, 'CANDIDATE_DUPLICATE');
           throw error;
@@ -97,10 +97,12 @@ export class CollectionService {
       false
     );
   }
-  async createCandidateInTransaction(originUrl: string, actor: string) {
+  async createCandidateInTransaction(originUrl: string, actor: string, discoveryMode: 'MANUAL_URL' | 'LIST_CRAWL' = 'MANUAL_URL') {
     const url = normalizeCollectionUrl(originUrl);
     const source = await this.repository.activeSourceByHost(new URL(url).hostname);
     if (!source) fail(403, 'SOURCE_NOT_ALLOWED');
+    if (discoveryMode === 'LIST_CRAWL' && !(await this.repository.discoveryAllowed(source.id)))
+      fail(403, 'SOURCE_NOT_ALLOWED');
     const hash = collectionDigest(url);
     if (await this.repository.originExists(hash)) fail(409, 'CANDIDATE_DUPLICATE');
     const duplicate = await this.repository.duplicatePost(url);
@@ -110,7 +112,8 @@ export class CollectionService {
         url,
         hash,
         duplicate,
-        actor
+        actor,
+        discoveryMode
       );
       return {
         candidateId: Number(candidate.id),
@@ -126,7 +129,7 @@ export class CollectionService {
         error.code === '23505' &&
         'constraint' in error &&
         typeof error.constraint === 'string' &&
-        error.constraint.includes('origin')
+        (error.constraint.includes('origin') || error.constraint.includes('source_post_key'))
       )
         fail(409, 'CANDIDATE_DUPLICATE');
       throw error;

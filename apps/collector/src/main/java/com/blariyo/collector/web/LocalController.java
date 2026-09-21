@@ -68,11 +68,11 @@ public class LocalController {
 
   @PostMapping("/local/v1/candidates")
   ResponseEntity<?> create(@RequestHeader("Idempotency-Key") String key, @RequestBody JsonNode body) {
-    if (!body.isObject() || body.size() != 1 || !body.path("originUrl").isString())
+    if (!body.isObject() || body.size() != (body.has("discoveryMode") ? 2 : 1) || !body.path("originUrl").isString())
       throw new CollectorFailure(400, "VALIDATION_FAILED");
     String requestKey = secrets.hmac("rest-candidate:" + key);
     // Core receipt is committed first. The same key recovers a crash before local enqueue.
-    var candidate = intake.create(requestKey, body.path("originUrl").asText());
+    var candidate = intake.create(requestKey, body.path("originUrl").asText(), body.path("discoveryMode").asText("MANUAL_URL"));
     long candidateId = candidate.path("candidateId").asLong();
     var submitted = submissions.submit("REST", requestKey, Json.tree(Map.of("mode", "COLLECT", "candidateId", candidateId)));
     return ResponseEntity.accepted().body(success(Map.of("candidateId", candidateId,

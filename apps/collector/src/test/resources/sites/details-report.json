@@ -1,0 +1,34 @@
+[
+  {
+    "source": "arcalive",
+    "kind": "detail",
+    "url": "https://arca.live/b/live/183667641",
+    "status": 200,
+    "bytes": 203073,
+    "sha256": "eee058faace380507be527304dde6b0e592e3301ac4f51f8c74aa45a0a1372a0"
+  },
+  {
+    "source": "bobaedream",
+    "kind": "detail",
+    "url": "https://www.bobaedream.co.kr/view?code=best&No=1033744",
+    "status": 200,
+    "bytes": 148940,
+    "sha256": "b37fa26589ee106f31b139e85a9ed81234277e7645e9dff53c931121a2db77e3"
+  },
+  {
+    "source": "dogdrip",
+    "kind": "detail",
+    "url": "https://www.dogdrip.net/dogdrip/725820115",
+    "status": 200,
+    "bytes": 180388,
+    "sha256": "efb9000eda84f1e9f923eb61528ec95dcc7ca130cf91165a42022d875302ee69"
+  },
+  {
+    "source": "inven",
+    "kind": "detail",
+    "url": "https://www.inven.co.kr/board/webzine/2097/2730613",
+    "status": 200,
+    "bytes": 422056,
+    "sha256": "8cd6c46b002d3abbeb3b93f3d127d391674b66741d7bd4bcf26bd45959b7a234"
+  }
+]

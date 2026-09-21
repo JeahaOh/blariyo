@@ -22,6 +22,8 @@ export class CollectCandidateEntity {
   origin_url!: string;
   @Column({ type: 'bytea' })
   origin_url_sha256!: Buffer;
+  @Column({ type: 'varchar', length: 200, nullable: true })
+  source_post_key!: string | null;
   @Column({ type: 'varchar', nullable: true, length: 300 })
   title!: string | null;
   @Column({ type: 'timestamptz', nullable: true, precision: 3 })

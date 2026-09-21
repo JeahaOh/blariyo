@@ -5,6 +5,7 @@ import com.blariyo.collector.core.CoreClient;
 import com.blariyo.collector.run.CollectorRunService;
 import com.blariyo.collector.run.RunRepository;
 import com.blariyo.collector.run.CandidateIntake;
+import com.blariyo.collector.run.BatchStore;
 import com.blariyo.collector.shared.CollectorFailure;
 import com.blariyo.collector.shared.Json;
 import com.blariyo.collector.spool.EncryptedSpool;
@@ -36,6 +37,7 @@ public final class DiscordGateway extends ListenerAdapter {
   private final Environment env;
   private final JDA jda;
   private final CandidateIntake intake;
+  private final BatchStore batchStore;
 
   public DiscordGateway(
       Secrets secrets,
@@ -44,8 +46,10 @@ public final class DiscordGateway extends ListenerAdapter {
       EncryptedSpool spool,
       Environment env,
       CollectorRunService submissions,
-      CandidateIntake intake) {
+      CandidateIntake intake,
+      BatchStore batchStore) {
     this.intake = intake;
+    this.batchStore = batchStore;
     this.secrets = secrets;
     this.core = core;
     this.runs = runs;
@@ -61,6 +65,17 @@ public final class DiscordGateway extends ListenerAdapter {
                 secrets.require("discord-token"), EnumSet.noneOf(GatewayIntent.class))
             .addEventListeners(this)
             .build();
+  }
+
+  @Override
+  public void onReady(net.dv8tion.jda.api.events.session.ReadyEvent event) {
+    if (!env.getProperty("collector.discord-register-commands", Boolean.class, false)) return;
+    for (String id : allowed("guilds")) {
+      var guild = event.getJDA().getGuildById(id);
+      if (guild != null) guild.upsertCommand(DiscordCommands.collect()).queue(
+          ignored -> {}, failure -> org.slf4j.LoggerFactory.getLogger(DiscordGateway.class)
+              .warn("DISCORD_COMMAND_REGISTRATION_FAILED"));
+    }
   }
 
   private Set<String> allowed(String field) {
@@ -84,7 +99,7 @@ public final class DiscordGateway extends ListenerAdapter {
         event.getMember() == null
             ? List.of()
             : event.getMember().getRoles().stream().map(r -> r.getId()).toList())) {
-      event.reply("허용된 수집 명령 대상이 아닙니다.").setEphemeral(true).queue();
+      event.reply("허용된 수집 명령 대상이 아닙니다.").setEphemeral(true).setAllowedMentions(List.of()).queue();
       return;
     }
     event
@@ -107,22 +122,9 @@ public final class DiscordGateway extends ListenerAdapter {
                   return;
                 }
                 String url = event.getOption("url").getAsString();
+                var resolved = intake.resolve(url);
+                url = resolved.canonical(url);
                 URI uri = URI.create(url);
-                boolean approved = false;
-                var sources =
-                    Json.parse(
-                        Files.readAllBytes(
-                            Path.of(env.getRequiredProperty("collector.sources-file"))));
-                for (var entry : sources.properties())
-                  if (entry.getValue().path("approved").asBoolean(false)
-                      && entry.getValue().path("host").asText().equals(uri.getHost())) {
-                    approved = true;
-                    break;
-                  }
-                if (!approved
-                    || !"https".equals(uri.getScheme())
-                    || uri.getUserInfo() != null
-                    || uri.getPort() != -1) throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
                 UUID confirmation = UUID.randomUUID(),
                     ref =
                         spool.put(
@@ -146,7 +148,7 @@ public final class DiscordGateway extends ListenerAdapter {
                         secrets.hmac(event.getId()));
                 hook.editOriginal(
                         "출처: "
-                            + uri.getHost()
+                            + resolved.key() + " (" + uri.getHost() + ")"
                             + "\n대상: "
                             + url
                             + "\nrobots·상세·이미지 요청이 발생하며 검수 후에만 발행됩니다.")
@@ -169,7 +171,7 @@ public final class DiscordGateway extends ListenerAdapter {
         event.getMember() == null
             ? List.of()
             : event.getMember().getRoles().stream().map(r -> r.getId()).toList())) {
-      event.reply("허용된 수집 명령 대상이 아닙니다.").setEphemeral(true).queue();
+      event.reply("허용된 수집 명령 대상이 아닙니다.").setEphemeral(true).setAllowedMentions(List.of()).queue();
       return;
     }
     event
@@ -194,21 +196,15 @@ public final class DiscordGateway extends ListenerAdapter {
                   return;
                 }
                 JsonNode content = Json.parse(spool.get((UUID) row.get("spool_ref")));
-                var candidate =
-                    intake.create(
-                        row.get("trigger_key_hash").toString(),
-                        content.path("url").asText());
+                var resolved = intake.resolve(content.path("url").asText());
+                var identity = resolved.adapter().identify(URI.create(content.path("url").asText()));
                 UUID target =
                     spool.put(Json.bytes(Map.of("channel", content.path("channel").asText())));
-                var submitted =
-                    submissions.submitDiscord(
-                        row.get("trigger_key_hash").toString(),
-                        candidate.path("candidateId").asLong(),
-                        id,
-                        target);
-                if (!submitted.targetStored()) spool.delete(target);
+                UUID queued = batchStore.queueManual(resolved.key(), identity.postKey(), resolved.canonical(content.path("url").asText()));
                 spool.delete((UUID) row.get("spool_ref"));
-                hook.editOriginal("수집 작업을 접수했습니다. 작업 ID: " + submitted.id()).queue();
+                spool.delete(target);
+                runs.jdbc().update("UPDATE collector.confirmation SET job_request_id=? WHERE id=?", queued, id);
+                hook.editOriginal("수집 작업을 batch queue에 접수했습니다. 실행 ID: " + queued).queue();
               } catch (Exception e) {
                 hook.editOriginal("수집 요청을 처리하지 못했습니다. 같은 확인 요청을 다시 시도할 수 있습니다.").queue();
               }

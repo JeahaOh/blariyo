@@ -1,3 +1,4 @@
+import { collectionPostKey } from '../features/collection/collection-url.js';
 import { Inject, Injectable } from '@nestjs/common';
 import {
   CollectCandidateEntity,
@@ -64,7 +65,7 @@ function mapCandidate(
   )
     throw new Error('INVALID_CANDIDATE_STATE');
   if (
-    row.discovery_mode !== 'MANUAL_URL' ||
+    (row.discovery_mode !== 'MANUAL_URL' && row.discovery_mode !== 'LIST_CRAWL') ||
     !Array.isArray(row.warnings) ||
     !row.warnings.every((item: unknown): item is string => typeof item === 'string')
   )
@@ -162,12 +163,18 @@ export class TypeOrmCollectionRepository extends CollectionRepository {
       .getOne();
     return post?.id ?? null;
   }
+  async discoveryAllowed(sourceId: string) {
+    const result = rows(await this.db.manager.query(
+      'SELECT enabled FROM collect.source_discovery_policy WHERE source_id=$1', [sourceId]));
+    return result[0]?.enabled === true;
+  }
   async createCandidate(
     sourceId: string,
     url: string,
     hash: Buffer,
     duplicatePostId: string | null,
-    actor: string
+    actor: string,
+    discoveryMode: 'MANUAL_URL' | 'LIST_CRAWL' = 'MANUAL_URL'
   ) {
     const repository = this.db.manager.getRepository(CollectCandidateEntity);
     const row = await repository.save(
@@ -175,6 +182,8 @@ export class TypeOrmCollectionRepository extends CollectionRepository {
         source_id: sourceId,
         origin_url: url,
         origin_url_sha256: hash,
+        source_post_key: collectionPostKey(url),
+        discovery_mode: discoveryMode,
         status: 'PENDING',
         duplicate_post_id: duplicatePostId,
         created_by: actor,

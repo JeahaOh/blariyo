@@ -294,7 +294,8 @@ export class CollectorCommandsService {
             else {
               data = await this.collection.createCandidateInTransaction(
                 command.body.originUrl,
-                'system:collector'
+                'system:collector',
+                command.body.discoveryMode
               );
               status = 202;
             }

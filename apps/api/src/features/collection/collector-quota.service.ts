@@ -29,30 +29,30 @@ export class CollectorQuotaService {
       () =>
         this.work.transaction(async () => {
           const existing = await this.protocol.replay(receiptKey);
-          const candidate = await this.collection.find(String(body.candidateId), true);
-          if (!candidate) fail(404, 'CANDIDATE_NOT_FOUND');
-          assertExecution(candidate, collectorId, body.collectorExecutionId);
-          if (candidate.lockVersion !== body.lockVersion) fail(409, 'CANDIDATE_VERSION_CONFLICT');
-          if (!(
-            candidate.status === 'NEW' &&
-            (body.requestKind === 'IMAGE' || body.requestKind === 'REDIRECT')
-          )) {
-            const current = await this.repository.clock();
-            if (
-              candidate.status !== 'RUNNING' ||
-              !candidate.leaseUntil ||
-              candidate.leaseUntil <= current.now
-            )
-              fail(409, 'CANDIDATE_LEASE_CONFLICT');
+          let candidateId: string | null = null;
+          let candidateHost: string | null = null;
+          const discovery = body.discovery === true;
+          if (!discovery) {
+            const candidate = await this.collection.find(String(body.candidateId), true);
+            if (!candidate) fail(404, 'CANDIDATE_NOT_FOUND');
+            assertExecution(candidate, collectorId, body.collectorExecutionId);
+            if (candidate.lockVersion !== body.lockVersion) fail(409, 'CANDIDATE_VERSION_CONFLICT');
+            if (!(candidate.status === 'NEW' && ['IMAGE', 'REDIRECT'].includes(body.requestKind))) {
+              const current = await this.repository.clock();
+              if (candidate.status !== 'RUNNING' || !candidate.leaseUntil || candidate.leaseUntil <= current.now)
+                fail(409, 'CANDIDATE_LEASE_CONFLICT');
+            }
+            if (candidate.sourceId !== sourceId) fail(403, 'SOURCE_NOT_ALLOWED');
+            candidateId = candidate.id;
+            candidateHost = new URL(candidate.originUrl).hostname;
+          } else if (body.candidateId !== undefined || body.lockVersion !== undefined
+              || !['ROBOTS', 'LIST', 'REDIRECT'].includes(body.requestKind)) {
+            fail(400, 'VALIDATION_FAILED');
           }
-          if (candidate.sourceId !== sourceId) fail(403, 'SOURCE_NOT_ALLOWED');
           const source = await this.collection.source(sourceId, true);
-          if (
-            !source?.isActive ||
-            source.robotsAllowed !== true ||
-            !source.robotsCheckedAt ||
-            new URL(candidate.originUrl).hostname !== source.host
-          )
+          if (!source?.isActive || source.robotsAllowed !== true || !source.robotsCheckedAt
+              || (candidateHost !== null && candidateHost !== source.host)
+              || discovery && !(await this.collection.discoveryAllowed(sourceId)))
             fail(403, 'SOURCE_NOT_ALLOWED');
           const requestKeyHash = this.protocol.keyHash(collectorId + ':' + body.requestKey);
           const requestHash = collectionDigest({ key: receiptKey.keyHash.toString('hex'), body });
@@ -79,7 +79,7 @@ export class CollectorQuotaService {
             reservation = {
               id: randomUUID(),
               sourceId,
-              candidateId: candidate.id,
+              candidateId,
               collectorId,
               executionId: body.collectorExecutionId,
               jobRequestId: body.jobRequestId,

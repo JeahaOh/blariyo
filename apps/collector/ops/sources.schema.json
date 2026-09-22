@@ -47,9 +47,25 @@
         "enum": [
           "ARCALIVE",
           "BOBAEDREAM",
+          "CLIEN",
+          "DCINSIDE",
+          "DMITORY",
           "DOGDRIP",
+          "ETOLAND",
+          "FMKOREA",
+          "GOODGAG",
+          "HUMORUNIV",
+          "INSTIZ",
           "INVEN",
+          "MLBPARK",
+          "NATEPANN",
+          "PGR21",
+          "PPOMPPU",
+          "RULIWEB",
           "THEQOO",
+          "TODAYHUMOR",
+          "YULDO",
+          "YOUTUBE_COMMUNITY",
           "BLOCKED"
         ]
       },
@@ -127,9 +143,22 @@
           "string",
           "null"
         ]
-      }
-      ,"collectionPolicy": {
-        "enum": ["HOT_LIST", "DETAIL_ONLY", "BLOCKED", "UNVERIFIED"]
+      },
+      "collectionPolicy": {
+        "enum": [
+          "HOT_LIST",
+          "DETAIL_ONLY",
+          "BLOCKED",
+          "UNVERIFIED"
+        ]
+      },
+      "hostAliases": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z0-9.-]+$"
+        },
+        "uniqueItems": true
       }
     },
     "additionalProperties": false

@@ -713,6 +713,11 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 - 사이트별 list/detail adapter는 별도로 선택한다. DOM 순서 보존기는 공유하지만 본문 selector는 사이트별로 고정한다.
   실측 selector·chart URL·본문/이미지·canonical·post key·fixture는 planning의 검증표와 설정에 기록한다.
 - CLI: `bin/blariyo-collector batch --source <key> --chart hot --max-pages 2 --max-items 20 --since 24h --dry-run|--write-db`.
+- DETAIL_ONLY 또는 Discord/manual URL 경로는 목록 discovery 없이 단일 상세 URL만 처리한다. CLI는
+  `bin/blariyo-collector collect-url --source <key> --url <detail-url> --dry-run|--write-db`를 사용한다.
+  이 경로도 Core API를 글마다 호출하지 않고 `collect.batch_run`, `collect.batch_item`, `collect.batch_media`와
+  `collect/raw/*`, `collect/media/*`, `collect/report/*` object prefix를 직접 사용한다. `theqoo`는 fixture 기반으로
+  이 write path를 검증했지만, live URL·운영 S3/R2·Discord Gateway E2E는 별도 검증 전까지 완료로 표시하지 않는다.
   Java 25 jar를 macOS·PowerShell·Docker Linux에서 공통 실행한다. `COLLECTOR_SOURCES_FILE`,
   `COLLECTOR_CONFIG_FILE`, `COLLECTOR_JAR`로 경로를 주입하고 secret은 기존 전용 파일 backend를 사용한다.
 - max-pages 1~10, max-items 1~100, since 1h~720h, interval 최소 10초·최대 1시간. 출처 설정이 더 엄격하면 낮출 수 없다.

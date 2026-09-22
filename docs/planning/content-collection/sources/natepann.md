@@ -149,3 +149,27 @@
 - 현재 활성화 사유: `ROBOTS_DISALLOWED`
 - 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `NATEPANN`
+- collection policy: `DETAIL_ONLY`; `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/talk/{id}` / id
+- 본문 selector: `#contentArea, .viewarea, .post_view, article .content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 미구현. `collect-url`/Discord URL 수동 입력용 detail-only 경로만 있다.
+- 검증 상태: live `https://pann.nate.com/talk/375634702`, run `74efa466-6645-415a-8261-e77207950858`로 임시 Docker 개발 DB와 로컬 object raw/media/report readback 확인. 본문 blocks 57, media 7. 운영 DB/S3와 Discord Gateway는 미검증.
+
+## 2026-09-23 Hot 목록 → 상세 → 개발 DB/object readback
+
+- collection policy: `HOT_LIST`; `approved=true`, `batchApproved=true`는 개발 검증용 source 설정에 반영했다.
+- Hot 목록 URL: `https://pann.nate.com/talk/c20002`
+- 목록 parser: `a[href^=/talk/]`, `a[href^=https://pann.nate.com/talk/]`에서 `/talk/{id}` 상세 URL을 추출한다.
+- 상세 parser: `NATEPANN`; 본문 selector `div.viewarea > div.view-wrap > div.posting > table > tbody > tr > td > div#contentArea`.
+- canonical/source post key: `/talk/{id}` / `{id}`.
+- pagination: `.paginate a.paging[href]`에서 같은 path의 `?page=N+1` 링크만 따른다. CLI의 `maxPages`, `maxItems`, `since`, `interval-ms`는 공통 runner에서 적용된다.
+- 실제 실행: `./bin/blariyo-collector batch --source natepann --chart hot --max-pages 1 --max-items 2 --since 24h --interval-ms 10000 --write-db`
+- 개발 DB readback: run `472a917a-8b64-46b3-8db0-8bd40930eef5`, state `COMPLETED`, discovered 2, fetched 1, duplicate 1. 저장 item `375634055`, title `스물여섯인데 아무것도 없음 | 네이트 판`, blocks 1, media 0, raw object `collect/raw/472a917a-8b64-46b3-8db0-8bd40930eef5/375634055-1397fba38622.html`, report object 확인.
+- 상태: hot-list 연계는 개발 DB/object까지 검증됨. 운영 DB/S3와 Discord Gateway E2E는 아직 미검증.

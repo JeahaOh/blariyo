@@ -35,7 +35,9 @@ public final class SourceRegistry {
     var matches = new ArrayList<Source>();
     for (var entry : config.properties()) {
       var value = entry.getValue();
-      if (!value.path("host").asText().equalsIgnoreCase(host)) continue;
+      boolean hostMatches = value.path("host").asText().equalsIgnoreCase(host);
+      for (var alias : value.path("hostAliases")) hostMatches |= alias.asText().equalsIgnoreCase(host);
+      if (!hostMatches) continue;
       if (coreId != null && value.hasNonNull("coreSourceId") && !value.path("coreSourceId").asText().equals(coreId))
         throw new CollectorFailure(403, "SOURCE_ID_MISMATCH");
       matches.add(new Source(entry.getKey(), value));

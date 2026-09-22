@@ -146,3 +146,23 @@
 - 현재 활성화 사유: `POLICY_APPROVAL_REQUIRED`
 - 이 정책은 공통 Hot 목록을 강제하지 않는다. `HOT_LIST`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `BOBAEDREAM`
+- collection policy: `HOT_LIST`; `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/view?code=&No=` / code:id
+- 본문 selector: `.bodyCont[itemprop=articleBody]`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 구현됨. HOT_LIST batch는 목록→상세→DB/S3까지 같은 pipeline을 사용한다.
+- 검증 상태: 실제 공개 URL 로컬 개발 DB/object readback 확인. 운영 DB/S3와 Discord Gateway는 미검증.
+## 2026-09-23 hot-list live readback
+
+- 실행: `bin/blariyo-collector batch --source bobaedream --chart hot --max-pages 1 --max-items 1 --since 24h --interval-ms 10000 --write-db`
+- 임시 승인 source 파일과 임시 Docker 개발 DB에서 검증했다. 운영 source 설정은 비활성 상태를 유지한다.
+- live URL: `https://www.bobaedream.co.kr/view?code=best&No=1034027`
+- run id: `ce6d24af-a3e7-4562-b77f-190143fefe5c`
+- 결과: 목록→상세 fetch→site detail parser→raw/media/report object→`collect.batch_item` readback `COMPLETED`
+- 운영 DB/S3/R2와 Discord Gateway E2E는 미검증이다.

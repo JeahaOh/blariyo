@@ -16,6 +16,7 @@ public final class PinnedHttp implements SourceTransport {
   private final java.util.function.Function<String, InetAddress[]> resolver;
   private final java.util.function.Supplier<Socket> socketFactory;
   private final javax.net.ssl.SSLContext tls;
+  private final CookieManager cookies = new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
 
   public PinnedHttp() {
     this(PinnedHttp::resolve, Socket::new, null);
@@ -144,6 +145,7 @@ public final class PinnedHttp implements SourceTransport {
                 .sslContext(tls == null ? javax.net.ssl.SSLContext.getDefault() : tls)
                 .connectTimeout(Duration.ofSeconds(5))
                 .followRedirects(HttpClient.Redirect.NEVER)
+                .cookieHandler(cookies)
                 .proxy(
                     ProxySelector.of(
                         new InetSocketAddress(proxy.getInetAddress(), proxy.getLocalPort())))
@@ -152,7 +154,10 @@ public final class PinnedHttp implements SourceTransport {
               HttpRequest.newBuilder(uri)
                   .timeout(Duration.ofNanos(Math.max(1, deadline - System.nanoTime())))
                   .header("User-Agent", userAgent)
+                  .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
+                  .header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
                   .header("Accept-Encoding", "identity")
+                  .header("Referer", uri.getScheme() + "://" + uri.getHost() + "/")
                   .GET()
                   .build();
           var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());

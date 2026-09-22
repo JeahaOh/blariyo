@@ -148,3 +148,27 @@
 - 현재 활성화 사유: `SOURCE_ACCESS_BLOCKED`
 - 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `INSTIZ`
+- collection policy: `DETAIL_ONLY`; `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/{board}/{id}` / board:id
+- 본문 selector: `#memo_content_1, .memo_content, .post_content, article .content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 미구현. `collect-url`/Discord URL 수동 입력용 detail-only 경로만 있다.
+- 검증 상태: live `https://www.instiz.net/pt/7905879`, run `78c6d038-c7b4-4f86-9b08-af72b2e6c33f`로 임시 Docker 개발 DB와 로컬 object raw/media/report readback 확인. 본문 blocks 5, media 2. 운영 DB/S3와 Discord Gateway는 미검증.
+
+## 2026-09-23 Hot 목록 → 상세 → 개발 DB/object readback
+
+- collection policy: `HOT_LIST`; `approved=true`, `batchApproved=true`는 개발 검증용 source 설정에 반영했다.
+- Hot 목록 URL: `https://www.instiz.net/pt`
+- 목록 parser: `a[href*=/pt/]` 중 `javascript:`와 fragment-only 링크를 제외하고 `/pt/{id}` 상세 URL을 추출한다.
+- 상세 parser: `INSTIZ`; 본문 selector `#memo_content_1, .memo_content, .post_content, article .content`.
+- canonical/source post key: `/{board}/{id}` / `{board}:{id}`.
+- pagination: `?page=N` 링크가 실제 HTML에 있으면 `N+1`만 따른다. CLI의 `maxPages`, `maxItems`, `since`, `interval-ms`는 공통 runner에서 적용된다.
+- 실제 실행: dry-run run `37e6b897-48b8-463d-b69f-725ffb618343`은 discovered 2, fetched 2. write-db run `130feccc-7e4b-4a31-9b22-2b681922d5d3`은 discovered 2, fetched 1, duplicate 1.
+- 개발 DB readback: 저장 item `pt:7905965`, title `명절에 조카 때려버림.jpg`, blocks 4, media 3, media bytes 197542, raw object `collect/raw/130feccc-7e4b-4a31-9b22-2b681922d5d3/pt_7905965-5c303922ef25.html`, report object 확인.
+- 상태: hot-list 연계는 개발 DB/object까지 검증됨. 운영 DB/S3와 Discord Gateway E2E는 아직 미검증.

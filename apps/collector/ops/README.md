@@ -199,13 +199,35 @@ COLLECTOR_OBJECT_STORE_DIRECTORY=/state/objects \
 ./bin/blariyo-collector batch --source theqoo --chart hot --max-pages 2 --max-items 20 --since 24h --dry-run
 
 COLLECTOR_SOURCES_FILE=/config/sources.json \
-COLLECTOR_OBJECT_STORE_PUT_URL_TEMPLATE='https://object-store.example/{key}?signature=(운영자 주입)' \
+COLLECTOR_OBJECT_STORE_S3_ENDPOINT=https://(account).r2.cloudflarestorage.com \
+COLLECTOR_OBJECT_STORE_S3_BUCKET=blariyo-collect-private \
+COLLECTOR_OBJECT_STORE_S3_ACCESS_KEY_ID=(운영자 주입) \
+COLLECTOR_OBJECT_STORE_S3_SECRET_ACCESS_KEY=(운영자 주입) \
 ./bin/blariyo-collector batch --source theqoo --chart hot --max-pages 2 --max-items 20 --since 24h --write-db
 ```
 
-PowerShell에서는 `COLLECTOR_SOURCES_FILE`, `COLLECTOR_OBJECT_STORE_DIRECTORY`를 `$env:`로 설정하고
+object store는 `COLLECTOR_OBJECT_STORE_DIRECTORY`가 있으면 로컬 파일시스템에 쓰고, 없으면
+`COLLECTOR_OBJECT_STORE_S3_*` 또는 `COLLECTOR_R2_*`/`R2_PRIVATE_*` 환경 변수로 S3/R2-compatible PUT 후 HEAD readback을 확인한다.
+legacy presigned PUT template(`COLLECTOR_OBJECT_STORE_PUT_URL_TEMPLATE`)은 마지막 fallback이다.
+운영 secret 값은 shell history에 남지 않게 별도 0600 env 파일을 source하거나 process manager의 비공개 환경으로 주입한다.
+
+PowerShell에서는 `COLLECTOR_SOURCES_FILE`, `COLLECTOR_OBJECT_STORE_DIRECTORY` 또는 `COLLECTOR_OBJECT_STORE_S3_*`를 `$env:`로 설정하고
 `bin\blariyo-collector.ps1 batch ...`를 실행한다. Docker Linux에서는 같은 변수를 compose의 collector에 주입한다.
 실제 설정의 source는 `batchApproved`, `chartVerified`, robots·약관 검토가 모두 확인된 경우에만 활성화한다.
+운영 DB/S3/R2 readback은 비밀값이 주입된 운영 터미널에서 다음 검증 스크립트로 제한 실행한다.
+스크립트는 기본적으로 `theqoo`, `humoruniv`, `todayhumor` 각 1건을 `--write-db`로 실행하고,
+`collect.batch_run`·`collect.batch_item` readback을 markdown과 JSONL로 남긴다. 비밀값은 출력하지 않는다.
+
+```sh
+apps/collector/ops/verify-write-db-readback.sh theqoo humoruniv todayhumor
+```
+
+Windows PowerShell에서는 같은 환경 변수를 `$env:`로 설정한 뒤 다음을 실행한다. `psql`은 PATH에 있어야 한다.
+
+```powershell
+apps\collector\ops\verify-write-db-readback.ps1 theqoo humoruniv todayhumor
+```
+
 실행 report에는 run ID·상태·개수·일반 오류 코드만 남기며 원문 URL·본문·cookie·secret·절대 경로를 넣지 않는다.
 
 [Compose 파일](compose.yaml)은 서비스용 루트 compose와 독립이다. Mac·Windows의 Docker Desktop에서도 Linux

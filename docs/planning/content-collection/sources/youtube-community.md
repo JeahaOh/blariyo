@@ -91,3 +91,27 @@
 - 현재 활성화 사유: `PLATFORM_PERMISSION_REQUIRED`
 - 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `YOUTUBE_COMMUNITY`
+- collection policy: `UNVERIFIED`; `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/post/{id}` / post id
+- 본문 selector: `ytd-backstage-post-renderer #content-text, yt-formatted-string#content-text, #content-text, article .content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 미구현. `collect-url`/Discord URL 수동 입력용 detail-only 경로만 있다.
+- 검증 상태: live `https://www.youtube.com/post/UgkxHHtsak1SC8mRGHMZewc4HzeAY3yhPPmJ`, run `2ad7ece4-f030-4a25-815c-9802052d1173`에서 fetch는 200이었으나 정적 HTML에 `backstagePostRenderer`/`contentText`가 없어 `PARSE_FAILED`. HTML에는 `/feed/post_detail` endpoint와 post id만 존재한다. 공식/동적 API 또는 별도 권한 경로 전까지 live DB readback 미완료.
+
+## 2026-09-23 live 검증 갱신
+
+- `https://www.youtube.com/post/UgkxHHtsak1SC8mRGHMZewc4HzeAY3yhPPmJ`는 HTTP 200 HTML을 반환하지만 정적 문서에는 `backstagePostRenderer`, `contentText`, `postMultiImageRenderer`가 없고 `/feed/post_detail` command만 포함한다.
+- HTML에서 추출한 `youtubei/v1/browse` 공개 웹 context 호출은 `INVALID_ARGUMENT`로 실패했다.
+- `YOUTUBE_COMMUNITY` detail parser fixture는 유지하지만, 현재 실행 환경에서는 live 본문 추출과 DB/S3 readback을 완료로 표시하지 않는다. 공식 API 또는 안정적인 공개 데이터 경로가 필요하다.
+
+## 2026-09-23 parser 구현 갱신
+
+- `YOUTUBE_COMMUNITY` detail parser에 `ytInitialData.backstagePostRenderer` fallback을 추가했다.
+- fixture에서는 `contentText.runs[].text`를 `TEXT` block으로, `i.ytimg.com`/`yt3.ggpht.com` thumbnail을 `IMAGE` block과 media candidate로 추출한다.
+- live `https://www.youtube.com/post/UgkxHHtsak1SC8mRGHMZewc4HzeAY3yhPPmJ` dry-run `77d264e5-aa01-4f78-9ca9-f2fe9bffeeb9`는 여전히 `PARSE_FAILED`다. 해당 HTML에는 post 본문 renderer가 없으므로 DB/S3 readback 완료로 표시하지 않는다.

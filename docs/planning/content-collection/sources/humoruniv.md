@@ -148,3 +148,34 @@
 - 현재 활성화 사유: `ROBOTS_DISALLOWED`
 - 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `HUMORUNIV`
+- collection policy: `UNVERIFIED`; `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/board/.../read.html?table=&number=` / table:number
+- 본문 selector: `#cnts, #board_view, .view_content, .board-view-contents, article .content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 미구현. `collect-url`/Discord URL 수동 입력용 detail-only 경로만 있다.
+- 검증 상태: synthetic fixture와 `DirectUrlRunnerAllSiteParserTests` 저장 경로만 검증. 실제 공개 URL·개발/운영 DB/S3 readback은 미검증.
+
+## 2026-09-23 Hot 목록/detail parser 재검증 진행
+
+- 공개 모바일 목록 URL `https://m.humoruniv.com/board/list.html?table=pds`와 모바일 상세 URL `https://m.humoruniv.com/board/read.html?table=pds&number={id}`를 기준으로 list adapter와 `HUMORUNIV` 전용 detail parser를 추가했다.
+- source 설정은 `hostAliases`로 `m.humoruniv.com`, `web.humoruniv.com`, `humoruniv.com`을 같은 출처로 취급한다.
+- 상세 parser는 공통 ordered parser가 아니라 사이트 전용으로 `p.content_body_padding` 본문 텍스트와 `.daum-wm-content .wrap_img img` 본문 이미지만 추출한다. 모바일 HTML에서 댓글 영역이 같은 컨테이너 뒤에 붙어 있어 공통 selector를 쓰면 댓글 이미지까지 섞이기 때문이다.
+- 실제 검증 결과: direct run `2063e865-50c5-4480-907a-aca22aaf7509`는 `SOURCE_NOT_ALLOWED`, batch run `5bc5876f-f86a-4b13-b294-b7760b847bf6`은 discovered 2 후 `PARSE_FAILED` 2건으로 실패했다. 따라서 개발 DB readback은 아직 미완료이며 완료로 표시하지 않는다.
+- 다음 조치: PinnedHttp referer/cookie 유지 상태와 모바일 상세 응답 차이를 fixture로 저장해 parser 입력 HTML을 고정하고, media fetch에서 막히는 URL을 `collect.batch_failure.detail`에 남기도록 실패 기록을 확장한다.
+
+## 2026-09-23 검증 갱신
+
+- hot list → detail → write-db 개발 DB readback 확인.
+- 실행 run: `bbd800b5-87f2-4e5f-9a81-60e67c29729d`
+- 실제 상세 URL: `https://m.humoruniv.com/board/read.html?table=pds&number=1425984`
+- source post key: `pds:1425984`
+- DB readback: `collect.batch_item.state=FETCHED`, `body_blocks=1`, `batch_media=1`, raw object 저장 확인.
+- Object readback: `collect/report/bbd800b5-87f2-4e5f-9a81-60e67c29729d.jsonl`, `collect/raw/bbd800b5-87f2-4e5f-9a81-60e67c29729d/pds_1425984-0a5bdda040c3.html`, `collect/media/ce005ed4-5cab-46be-9093-e5694ce5cad8/1`.
+- 이 샘플은 이미지형 글이어서 본문 block은 `IMAGE` 1개로 저장됐다. 텍스트형 글의 본문 보존은 별도 샘플로 추가 검증 필요.
+- 보강 사항: 모바일 상세의 본문 이미지 CDN `https://down-webp.humoruniv.com/`을 media allowlist에 추가했다.

@@ -14,9 +14,13 @@ public record SourcePolicy(
     String imageSelector,
     String userAgent,
     String parser,
-    Map<String, List<String>> imageOrigins) {
+    Map<String, List<String>> imageOrigins,
+    List<String> hostAliases) {
   public SourcePolicy(String host, List<String> paths, String title, String image, String agent) {
-    this(host, paths, title, image, agent, "METADATA", Map.of());
+    this(host, paths, title, image, agent, "METADATA", Map.of(), List.of());
+  }
+  public SourcePolicy(String host, List<String> paths, String title, String image, String agent, String parser, Map<String, List<String>> imageOrigins) {
+    this(host, paths, title, image, agent, parser, imageOrigins, List.of());
   }
 
   public static SourcePolicy from(JsonNode config) {
@@ -30,6 +34,10 @@ public record SourcePolicy(
     String parser = config.path("parser").asText("METADATA");
     if (paths.isEmpty() || paths.stream().anyMatch(p -> !p.startsWith("/")) || agent.isBlank() || agent.contains("미정") || !agent.contains("contact")
         || !(Set.of("METADATA", "THEQOO").contains(parser) || SiteAdapters.supported(parser)))
+      throw new CollectorFailure(503, "SOURCE_CONFIG_REQUIRED");
+    var aliases = new ArrayList<String>();
+    config.path("hostAliases").forEach(v -> aliases.add(v.asText()));
+    if (aliases.stream().anyMatch(a -> a.isBlank() || a.contains("/") || a.contains(":")))
       throw new CollectorFailure(503, "SOURCE_CONFIG_REQUIRED");
     var origins = new LinkedHashMap<String, List<String>>();
     for (var item : config.path("imageOrigins").properties()) {
@@ -46,7 +54,7 @@ public record SourcePolicy(
     }
     return new SourcePolicy(config.path("host").asText(), paths,
         config.path("titleSelector").asText(), config.path("imageSelector").asText(),
-        agent, parser, Map.copyOf(origins));
+        agent, parser, Map.copyOf(origins), List.copyOf(aliases));
   }
 
   /** Images have a separate exact-origin allowlist; detail fetch never inherits it. */
@@ -64,7 +72,7 @@ public record SourcePolicy(
     try {
       URI uri = URI.create(value);
       if (!"https".equals(uri.getScheme())
-          || !host.equalsIgnoreCase(uri.getHost())
+          || !(host.equalsIgnoreCase(uri.getHost()) || hostAliases.stream().anyMatch(a -> a.equalsIgnoreCase(uri.getHost())))
           || uri.getUserInfo() != null
           || uri.getPort() != -1
           || uri.getFragment() != null

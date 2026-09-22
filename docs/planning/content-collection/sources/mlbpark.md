@@ -149,3 +149,16 @@
 - 현재 활성화 사유: `ROBOTS_DISALLOWED`
 - 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `MLBPARK`
+- collection policy: `HOT_LIST`; `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/mp/b.php?m=view&b=&id=` / board:id
+- 본문 selector: `#contentDetail, .ar_txt, .view_content, article .content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 미구현. `collect-url`/Discord URL 수동 입력용 detail-only 경로만 있다.
+- 검증 상태: live `https://mlbpark.donga.com/mp/b.php?id=202609230118885833&p=1&b=bullpen&m=view...`, run `058fe150-77be-4c34-a15f-56c340dcc502`로 임시 Docker 개발 DB와 로컬 object raw/report readback 확인. 본문 blocks 34, media 0인 공개글이다. 이미지 포함 공개글·운영 DB/S3·Discord Gateway는 미검증.
+- hot-list batch 검증: `https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen`, run `58deb42d-1763-4fbe-b2b7-702c8e95535e`, pages 1, discovered 2, report fetched 1, failures 1, state `PARTIAL`. 이후 저장 순서 보정 후 run `961b90ce-87d1-43af-a33f-f760195357dd`는 pages 1, discovered 6, fetched 4, duplicates 2, state `COMPLETED`. 이미지 포함 글 media 검증은 추가 필요.

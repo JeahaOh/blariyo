@@ -29,15 +29,22 @@ public final class OperatorSettings {
   }
 
   public static String url() {
-    return get("spring.datasource.url", "COLLECTOR_DATABASE_URL", null);
+    String explicit = System.getenv("COLLECTOR_DB_URL");
+    return explicit != null && !explicit.isBlank()
+        ? explicit
+        : get("spring.datasource.url", "COLLECTOR_DATABASE_URL", null);
   }
 
   public static String user() {
-    return get("spring.datasource.username", "COLLECTOR_DATABASE_USER", "collector");
+    String explicit = System.getenv("COLLECTOR_DB_USER");
+    return explicit != null && !explicit.isBlank()
+        ? explicit
+        : get("spring.datasource.username", "COLLECTOR_DATABASE_USER", "collector");
   }
 
   public static String password() {
-    String explicit = System.getenv("COLLECTOR_DATABASE_PASSWORD");
+    String explicit = System.getenv("COLLECTOR_DB_PASSWORD");
+    if (explicit == null) explicit = System.getenv("COLLECTOR_DATABASE_PASSWORD");
     return explicit != null
         ? explicit
         : secrets().require("database-password");

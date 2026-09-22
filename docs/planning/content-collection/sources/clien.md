@@ -146,3 +146,27 @@
 - 현재 활성화 사유: `ROBOTS_AGENT_BLOCKED`
 - 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `CLIEN`
+- collection policy: `DETAIL_ONLY`; `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/service/board/{board}/{id}` / board:id
+- 본문 selector: `.post_article, article .post-content, .board_read .content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 미구현. `collect-url`/Discord URL 수동 입력용 detail-only 경로만 있다.
+- 검증 상태: live `https://www.clien.net/service/board/park/19268240`, run `bac2d52c-da74-472a-a49c-7424f485d3c7`로 임시 Docker 개발 DB와 로컬 object raw/report readback 확인. 본문 blocks 2, media 0인 공개글이다. 이미지 포함 공개글·운영 DB/S3·Discord Gateway는 미검증.
+
+## 2026-09-23 Hot 목록 → 상세 → 개발 DB/object readback
+
+- collection policy: `HOT_LIST`; `approved=true`, `batchApproved=true`는 개발 검증용 source 설정에 반영했다.
+- Hot 목록 URL: `https://www.clien.net/service/board/park`
+- 목록 parser: `.list_item:not(.notice) a.list_subject[href]`, `[data-role=list-row] a.list_subject[href]`에서 `/service/board/park/{id}` 상세 URL을 추출한다. 공지·규칙 게시판은 `identify()`에서 제외되고, 같은 source post key는 중복 제거된다.
+- 상세 parser: `CLIEN`; 본문 selector `.post_article, article .post-content, .board_read .content_view`.
+- canonical/source post key: `/service/board/{board}/{id}` / `{board}:{id}`.
+- pagination: 현재 공개 HTML의 다음 페이지가 JavaScript 호출 중심이라 안전하게 `next=null`로 둔다. CLI의 `maxPages`, `maxItems`, `since`, `interval-ms`는 공통 runner에서 적용된다.
+- 실제 실행: `./bin/blariyo-collector batch --source clien --chart hot --max-pages 1 --max-items 2 --since 24h --interval-ms 10000 --write-db`
+- 개발 DB readback: run `adea86a9-d476-4488-98e0-2080613821d8`, state `COMPLETED`, discovered 2, fetched 1, duplicate 1. 저장 item `park:19268242`, title `서울에 꼭 살아야 하나요? : 클리앙`, blocks 7, media 0, raw object `collect/raw/adea86a9-d476-4488-98e0-2080613821d8/park_19268242-a19367b1b934.html`, report object 확인.
+- 상태: hot-list 연계는 개발 DB/object까지 검증됨. 운영 DB/S3와 Discord Gateway E2E는 아직 미검증.

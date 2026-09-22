@@ -116,3 +116,22 @@ fixture 작성 대상이 아니다.
 - 현재 활성화 사유: `ROBOTS_CHALLENGE`
 - 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `PGR21`
+- collection policy: `UNVERIFIED`; `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/{board}/{id}` / board:id
+- 본문 selector: `.viewContent, .post_content, #view_content, article .content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 미구현. `collect-url`/Discord URL 수동 입력용 detail-only 경로만 있다.
+- 검증 상태: synthetic fixture와 `DirectUrlRunnerAllSiteParserTests` 저장 경로만 검증. 실제 공개 URL·개발/운영 DB/S3 readback은 미검증.
+
+## 2026-09-23 live 검증 갱신
+
+- `https://pgr21.com/humor/123456`은 HTTP 200이지만 실제 게시글 HTML이 아니라 Anubis `연결 확인 중` challenge 페이지를 반환했다.
+- `PGR21` detail parser fixture는 유지하지만, 현재 실행 환경에서는 live 게시글 fetch와 DB/S3 readback을 완료로 표시하지 않는다.
+- challenge 우회는 구현하지 않는다. 공개 접근이 가능한 allowlisted 환경 또는 별도 수동 fixture 검증이 필요하다.
+- 추가 확인: `https://pgr21.com/`, `https://pgr21.com/humor` 모두 실제 게시판 HTML이 아니라 Anubis `연결 확인 중` 페이지를 반환했다. 공개 대체 목록 경로로 live 검증을 완료하지 못했다.

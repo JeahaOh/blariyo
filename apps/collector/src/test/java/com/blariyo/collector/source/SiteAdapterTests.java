@@ -80,7 +80,7 @@ class SiteAdapterTests {
     assertEquals("https://arca.live/b/live/123",registry.host("arca.live",null).canonical("https://arca.live/b/live/123?p=2"));
     assertThrows(CollectorFailure.class, () -> new SourceRegistry(Json.tree(Map.of("a",source,"b",source))).host("arca.live",null));
     assertThrows(CollectorFailure.class, () -> SiteAdapters.require("METADATA"));
-    assertThrows(CollectorFailure.class, () -> SiteAdapters.require("youtube-community"));
+    assertThrows(CollectorFailure.class, () -> SiteAdapters.require("UNKNOWN_SITE"));
   }
   @Test void robotsHonorsQueryLongestRulesAndDoesNotAcceptChallenge() {
     var rules = new RobotsRules("User-agent: *\nDisallow: /\nAllow: /best\nDisallow: /*?secret=\nCrawl-delay: 10\n");

@@ -45,14 +45,15 @@ class DirectBatchRunnerReadbackTests {
       var report = new DirectBatchRunner(
           transport(postKey),
           new BatchStore(dataSource),
-          new BatchObjectStore.Local(objectRoot.toString()))
+          new BatchObjectStore.Local(objectRoot.toString()),
+          ignored -> {})
           .run(source, new DirectBatchRunner.Options("arcalive", "hot", 1, 1, Duration.ofHours(24), 10000, true));
 
       assertEquals("COMPLETED", report.state(), report.toString());
       assertEquals(1, report.fetched());
       try (var connection = dataSource.getConnection();
            var item = connection.prepareStatement(
-               "SELECT id, title, body_blocks, sns_links, raw_object_key FROM collect.batch_item WHERE source_key=? AND source_post_key=?")) {
+               "SELECT id, title, body_blocks, sns_links, raw_object_key, fetched_at FROM collect.batch_item WHERE source_key=? AND source_post_key=?")) {
         item.setString(1, "arcalive");
         item.setString(2, postKey);
         try (var rows = item.executeQuery()) {
@@ -60,6 +61,7 @@ class DirectBatchRunnerReadbackTests {
           assertEquals("fixture title", rows.getString("title"));
           assertTrue(rows.getString("body_blocks").contains("fixture body"));
           assertTrue(rows.getString("sns_links").contains("x.com/fixture/status/123"));
+          assertNotNull(rows.getTimestamp("fetched_at"));
           assertTrue(Files.exists(objectRoot.resolve(rows.getString("raw_object_key"))));
           try (var media = connection.prepareStatement(
               "SELECT object_key, mime_type, byte_size, sha256 FROM collect.batch_media WHERE item_id=?")) {
@@ -72,6 +74,16 @@ class DirectBatchRunnerReadbackTests {
               assertTrue(Files.exists(objectRoot.resolve(mediaRows.getString("object_key"))));
             }
           }
+        }
+      }
+      try (var connection = dataSource.getConnection();
+           var runs = connection.prepareStatement("SELECT report_object_key FROM collect.batch_run WHERE id=?")) {
+        runs.setObject(1, report.runId());
+        try (var rows = runs.executeQuery()) {
+          assertTrue(rows.next());
+          Path reportPath = objectRoot.resolve(rows.getString("report_object_key"));
+          assertTrue(Files.exists(reportPath));
+          assertTrue(Files.readString(reportPath).contains("\"fetched\":1"));
         }
       }
     }

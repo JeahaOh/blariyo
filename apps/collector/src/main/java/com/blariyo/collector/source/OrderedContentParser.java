@@ -15,15 +15,26 @@ public final class OrderedContentParser {
   private static final Set<String> BOUNDARIES = Set.of("p", "div", "section", "article", "li", "blockquote", "pre", "h1", "h2", "h3", "tr");
   private static final Pattern URL = Pattern.compile("https?://[^\\s<>\"\\u200b]+");
   private final SourcePolicy policy;
-  private final List<Map<String, Object>> blocks = new ArrayList<>(), images = new ArrayList<>();
+  private final int maxBlocks;
+  private final int maxImages;
+  private final boolean truncateExtraImages;
+  private static final Pattern ATTACHMENT = Pattern.compile("(?i).*[.](pdf|zip|7z|rar|hwp|hwpx|doc|docx|xls|xlsx|ppt|pptx|txt|csv|mp4|mov|mp3|wav)(?:[?#].*)?$");
+  private static final Pattern IMAGE_URL = Pattern.compile("(?i).*[.](jpg|jpeg|png|gif|webp|avif)(?:[?#].*)?$");
+  private final List<Map<String, Object>> blocks = new ArrayList<>(), images = new ArrayList<>(), attachments = new ArrayList<>();
   private final StringBuilder pending = new StringBuilder();
   private URI base;
 
-  public OrderedContentParser(SourcePolicy policy) { this.policy = policy; }
+  public OrderedContentParser(SourcePolicy policy) { this(policy, 40, 20, false); }
+  public OrderedContentParser(SourcePolicy policy, int maxBlocks, int maxImages, boolean truncateExtraImages) {
+    this.policy = policy;
+    this.maxBlocks = maxBlocks;
+    this.maxImages = maxImages;
+    this.truncateExtraImages = truncateExtraImages;
+  }
 
   public JsonNode extract(byte[] html, URI uri, String bodySelector, String titleSelector, String version) {
     try {
-      blocks.clear(); images.clear(); pending.setLength(0);
+      blocks.clear(); images.clear(); attachments.clear(); pending.setLength(0);
       base = uri;
       var document = Jsoup.parse(new java.io.ByteArrayInputStream(html), null, uri.toString());
       var articles = document.select(bodySelector);
@@ -38,7 +49,7 @@ public final class OrderedContentParser {
       flush();
       long expanded = blocks.stream().mapToLong(b -> b.get("type").equals("LINK")
           && !b.get("label").equals("") && !b.get("label").equals(b.get("url")) ? 2 : 1).sum();
-      if (blocks.isEmpty() || expanded > 40 || images.size() > 20) throw failed();
+      if (blocks.isEmpty() || expanded > maxBlocks || images.size() > maxImages) throw failed();
       var result = new LinkedHashMap<String, Object>();
       result.put("status", "NEW");
       result.put("title", title);
@@ -47,6 +58,7 @@ public final class OrderedContentParser {
       result.put("parserVersion", version);
       result.put("warnings", List.of());
       result.put("imageCandidates", images);
+      result.put("attachmentCandidates", attachments);
       result.put("contentBlocks", blocks);
       return Json.tree(result);
     } catch (CollectorFailure e) { throw e; }
@@ -73,17 +85,39 @@ public final class OrderedContentParser {
   }
   private void add(Map<String, Object> block) {
     blocks.add(block);
-    if (blocks.size() > 40) throw failed();
+    if (blocks.size() > maxBlocks) throw failed();
   }
   private void text(String value) {
     if (value.isBlank()) return;
     if (length(value) > 20000) throw failed();
     add(Map.of("type", "TEXT", "text", value));
   }
-  private void link(String value, String label) {
+  private void image(String value, String alt) {
+    String remote = url(value);
+    policy.imagePolicy(remote).allow(remote);
+    if (length(alt) > 300) throw failed();
+    if (images.size() == maxImages) {
+      if (truncateExtraImages) return;
+      throw failed();
+    }
+    int position = images.size() + 1;
+    images.add(Map.of("position", position, "remoteUrl", remote));
+    add(Map.of("type", "IMAGE", "imagePosition", position, "alt", alt));
+  }
+  private String link(String value, String label) {
     label = label.strip();
     if (length(label) > 300) throw failed();
-    add(Map.of("type", "LINK", "url", url(value), "label", label));
+    String resolved = url(value);
+    add(Map.of("type", "LINK", "url", resolved, "label", label));
+    return resolved;
+  }
+  private void attachment(String value, String label) {
+    String resolved = url(value);
+    if (!ATTACHMENT.matcher(resolved).matches()) return;
+    label = label.strip();
+    if (length(label) > 300) throw failed();
+    attachments.add(Map.of("position", attachments.size() + 1, "remoteUrl", resolved, "label", label));
+    if (attachments.size() > 20) throw failed();
   }
   private void flush() {
     String value = pending.toString().replace('\u00a0', ' ').replaceAll("[ \\t]+\\n", "\n").replaceAll("\\n{3,}", "\n\n").strip();
@@ -93,7 +127,8 @@ public final class OrderedContentParser {
     while (matcher.find()) {
       String reference = matcher.group().replaceAll("[),.!?]+$", "");
       text(value.substring(cursor, matcher.start()).strip());
-      link(reference, "");
+      if (IMAGE_URL.matcher(reference).matches()) image(reference, "");
+      else link(reference, "");
       cursor = matcher.start() + reference.length();
     }
     text(value.substring(cursor).strip());
@@ -108,10 +143,12 @@ public final class OrderedContentParser {
       String remote = attributeUrl(el, "data-original", "data-src", "data-lazy-src", "src");
       policy.imagePolicy(remote).allow(remote);
       String alt = el.attr("alt");
-      if (length(alt) > 300 || images.size() == 20) throw failed();
-      int position = images.size() + 1;
-      images.add(Map.of("position", position, "remoteUrl", remote));
-      add(Map.of("type", "IMAGE", "imagePosition", position, "alt", alt));
+      if (length(alt) > 300) throw failed();
+      if (images.size() == maxImages) {
+        if (truncateExtraImages) return;
+        throw failed();
+      }
+      image(remote, alt);
       return;
     }
     if (tag.equals("blockquote")) {
@@ -134,11 +171,20 @@ public final class OrderedContentParser {
       return;
     }
     if (tag.equals("a") && !el.attr("href").isBlank()) {
-      if (el.attr("href").startsWith("#")) { for (var child : el.childNodes()) walk(child); return; }
+      String href = el.attr("href").strip();
+      String lowerHref = href.toLowerCase(Locale.ROOT);
+      if (href.startsWith("#") || lowerHref.startsWith("javascript:")
+          || lowerHref.startsWith("mailto:") || lowerHref.startsWith("tel:")) {
+        for (var child : el.childNodes()) walk(child);
+        return;
+      }
       flush();
       // Preserve linked images and their accompanying caption, not just the thumbnail link.
       if (!el.select("img").isEmpty()) { for (var child : el.childNodes()) walk(child); }
-      else link(el.attr("href"), el.text());
+      else {
+        link(el.attr("href"), el.text());
+        attachment(el.attr("href"), el.text());
+      }
       return;
     }
     if (BOUNDARIES.contains(tag)) pending.append('\n');

@@ -1,12 +1,12 @@
 # 오늘의유머 수집 명세
 
-- 명세 상태: 정책 확인 완료 · 비활성
+- 명세 상태: fixture parser 검증·운영 비활성
 - source key: `todayhumor`
 - 작성일: 2026-09-03
-- 최종 확인일: 2026-09-03
+- 최종 확인일: 2026-09-23
 - 확인 담당자: Codex
 - 활성 단계: 비활성
-- parser version: `(미정)`
+- parser version: `todayhumor-ordered-v1`
 
 ## 1. 출처 식별
 
@@ -52,7 +52,7 @@
 | 항목 | 확인값 |
 | --- | --- |
 | 목록·feed URL | 사용하지 않음 |
-| 상세 URL pattern | `https://www.todayhumor.co.kr/board/view.php?table={board}&no={id}` 후보이나 사용 결정 전 |
+| 상세 URL pattern | `https://www.todayhumor.co.kr/board/view.php?table={board}&no={id}` |
 | canonical URL 위치 | `(미정)` |
 | 허용 redirect | 동일 host만 후보, 사용 결정 전 비활성 |
 | 제거할 query parameter | `(미정)` |
@@ -70,8 +70,9 @@
 | 대상 | 추출 규칙 | 우선순위 | 실패 처리 |
 | --- | --- | --- | --- |
 | canonical URL | `(미정)` | `(미정)` | 후보 실패 |
-| 제목 | `(미정)` | `(미정)` | 후보 실패 |
-| 본문 이미지 | `(미정)` | `(미정)` | 후보 실패 또는 운영자 보정 |
+| 제목 | `meta[property=og:title]`, `title` | 1 | 후보 실패 |
+| 본문 | `#viewContent`, `.viewContent`, `.board_view .content` | 1 | 후보 실패 |
+| 본문 이미지 | 본문 내부 `img` | 1 | 후보 실패 또는 운영자 보정 |
 | 이미지 순서 | `(미정)` | `(미정)` | DOM 순서 |
 | 게시 시각 | `(미정)` | `(미정)` | `null` |
 
@@ -105,9 +106,9 @@
 
 | 유형 | 샘플 식별값 | 기대 결과 | 확인 결과 |
 | --- | --- | --- | --- |
-| 정상 목록 | 없음 | BLOCKED/UNVERIFIED policy | 실행하지 않음 |
-| 빈 목록 | 없음 | BLOCKED/UNVERIFIED policy | 실행하지 않음 |
-| 정상 상세 | `(미정)` | 제목·이미지 후보 추출 | 미검증 |
+| 정상 목록 | `hot` 목록 | 상세 URL 추출 후 detail parser로 연계 | live 개발 DB/object readback 완료 |
+| 빈 목록 | `hot` 목록 fixture | 후보 0건이면 실패 없이 report에 기록 | fixture/runner 정책으로 검증 |
+| 정상 상세 | synthetic fixture | 제목·본문·이미지·SNS 추출 | `ManualSiteAdapterTests` 통과 |
 | 이미지 없는 상세 | `(미정)` | 명시적 실패 또는 운영자 보정 | 미검증 |
 | 삭제·차단 | `(미정)` | 실패 기록·재시도 제한 | 미검증 |
 | 구조 변경 | synthetic fixture | parser 실패 감지 | 미검증 |
@@ -117,7 +118,7 @@
 
 - [ ] 운영 주체와 기준 URL 확인
 - [x] 이용약관·`robots.txt` 확인
-- [ ] Discord·운영자 URL 수집 보조 fixture 검증
+- [x] Discord·운영자 URL 수집 보조 fixture 검증: 상세 parser 단위 테스트
 - [ ] 목록·feed fixture 검증 해당 없음
 - [ ] URL 정규화와 중복 방지 검증
 - [ ] 요청 간격·일일 상한·연속 실패 기준 확정
@@ -130,19 +131,42 @@
 - Discord·운영자 URL 수집 보조: 보류
 - 자동 수집: 차단
 - 판정일·운영 위험 판정자: 2026-09-03 / `(미정)`
-- 보류·차단 사유: 이용약관·운영 주체·문의 채널·fixture 미확정
+- 보류·차단 사유: 약관·운영 주체·문의 채널 미확정. live URL·운영 S3/R2 readback 미검증.
 
 ## 10. 변경 이력
 
 | 날짜 | parser version | 변경 내용 | 재검증 결과 |
 | --- | --- | --- | --- |
+| 2026-09-23 | `todayhumor-ordered-v1` | 목록 parser + 상세 parser + live 개발 DB/object readback 검증 | `ManualSiteAdapterTests`와 live batch write-db 통과 |
 | 2026-09-03 | `(미정)` | 최초 검토 | 정책·기술 gate 미통과 |
 
 
 ## 2026-09-21 출처별 자동 수집 정책
 
-- 자동 수집 정책: `BLOCKED`
+- 자동 수집 정책: `HOT_LIST` 구현, 운영 source 예제는 비활성
 - Hot/Top 목록 URL: `(없음)`
-- 현재 활성화 사유: `ROBOTS_UNVERIFIED`
-- 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
+- 현재 활성화 사유: 운영 DB/S3/R2와 Discord Gateway 미검증
+- 이 정책은 공통 Hot 목록을 강제하지 않는다. `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `TODAYHUMOR`
+- collection policy: `HOT_LIST`; 운영 source 예제는 `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/board/view.php?table=&no=` / table:no
+- 본문 selector: `#viewContent, .viewContent, .board_view .content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 구현. `hot` 목록에서 상세 URL을 추출하고 같은 batch 실행에서 detail parser로 이어간다.
+- 검증 상태: synthetic fixture, live hot-list batch, 임시 개발 DB/object readback 검증. 운영 DB/S3/R2와 Discord Gateway는 미검증. live URL `https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797970`, run `0455c65f-0605-45b7-99e2-d7f6e1668d45`, DB readback `source_post_key=humorbest:1797970`, blocks 3, media 3.
+## 2026-09-23 hot-list live readback
+
+- 실행: `bin/blariyo-collector batch --source todayhumor --chart hot --max-pages 1 --max-items 1 --since 24h --interval-ms 10000 --write-db`
+- 임시 승인 source 파일과 임시 Docker 개발 DB에서 검증했다. 운영 source 설정은 비활성 상태를 유지한다.
+- list URL: `https://www.todayhumor.co.kr/board/list.php?table=humorbest`
+- live URL: `https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797970`
+- run id: `0455c65f-0605-45b7-99e2-d7f6e1668d45`
+- DB readback: `source_post_key=humorbest:1797970`, blocks 3, media 3, raw/report object 확인
+- 결과: 목록→상세 fetch→site detail parser→raw/media/report object→`collect.batch_item` readback `COMPLETED`
+- 운영 DB/S3/R2와 Discord Gateway E2E는 미검증이다.

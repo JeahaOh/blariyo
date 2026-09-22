@@ -119,8 +119,28 @@
 
 ## 2026-09-21 출처별 자동 수집 정책
 
-- 자동 수집 정책: `BLOCKED`
+- 자동 수집 정책: `HOT_LIST` 구현, 운영 source 예제는 비활성
 - Hot/Top 목록 URL: `(없음)`
-- 현재 활성화 사유: `ROBOTS_LIST_DISALLOWED`
-- 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
+- 현재 활성화 사유: 운영 DB/S3/R2와 Discord Gateway 미검증
+- 이 정책은 공통 Hot 목록을 강제하지 않는다. `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `RULIWEB`
+- collection policy: `HOT_LIST`; 운영 source 예제는 `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/.../board/{board}/read/{id}` / board:id
+- 본문 selector: `.view_content[itemprop=articleBody], .view_content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 구현. `hot` 목록에서 상세 URL을 추출하고 같은 batch 실행에서 detail parser로 이어간다.
+- 검증 상태: synthetic fixture, live hot-list batch, 임시 개발 DB/object readback 검증. 운영 DB/S3/R2와 Discord Gateway는 미검증. live URL `https://bbs.ruliweb.com/community/board/300143/read/76767888`, run `babebfb1-4915-456f-bf37-8d5b807c342d`, DB readback `source_post_key=300143:76767888`, blocks 6, media 3.
+
+## 2026-09-23 live 개발 DB readback
+
+- 실행: `bin/blariyo-collector batch --source ruliweb --chart hot --max-pages 1 --max-items 1 --since 24h --interval-ms 10000 --write-db`
+- live URL: `https://bbs.ruliweb.com/community/board/300143/read/76767888`
+- run id: `babebfb1-4915-456f-bf37-8d5b807c342d`
+- DB readback: `blocks 6, media 3`
+- object readback: raw HTML, media object, JSONL report 확인. 운영 DB/S3/R2와 Discord Gateway는 미검증.

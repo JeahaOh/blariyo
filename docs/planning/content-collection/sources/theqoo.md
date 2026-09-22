@@ -3,10 +3,10 @@
 - 명세 상태: 정책 확인 후 비활성
 - source key: `theqoo`
 - 작성일: 2026-09-03
-- 최종 확인일: 2026-09-03
+- 최종 확인일: 2026-09-23
 - 확인 담당자: Codex
 - 활성 단계: 비활성
-- parser version: `(미정)`
+- parser version: `theqoo-ordered-v1`
 
 ## 1. 출처 식별
 
@@ -41,7 +41,7 @@
 
 | 단계 | 사용 여부 | 방식·이유 |
 | --- | --- | --- |
-| Discord·운영자 URL 수집 보조 | 보류 | robots 규칙과 외부 재사용 위험 판정이 명확하지 않음. |
+| Discord·운영자 URL 수집 보조 | 구현 경로 있음, 운영 비활성 | `collect-url`/Discord manual queue가 단일 상세 URL을 batch DB/object store로 저장할 수 있다. robots 규칙과 외부 재사용 위험 판정 전 production 활성은 하지 않는다. |
 | 공식 공개 API·feed | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
 | RSS·Atom | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
 | server-rendered HTML 목록 | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
@@ -54,12 +54,12 @@
 | 항목 | 확인값 |
 | --- | --- |
 | 목록·feed URL | 사용하지 않음 |
-| 상세 URL pattern | `https://theqoo.net/{board}/{numericDocumentId}` 후보 |
-| canonical URL 위치 | `(미정)` |
+| 상세 URL pattern | `https://theqoo.net/{board}/{numericDocumentId}` 후보. fixture 검증 URL 형식은 `https://theqoo.net/hot/1234567890` |
+| canonical URL 위치 | 요청 URL 사용. canonical link live 확인 전 |
 | 허용 redirect | 내부 https redirect만 후보 |
 | 제거할 query parameter | `(미정)` |
 | 유지할 query parameter | `(미정)` |
-| pagination 방식·최대 범위 | 사용하지 않음 |
+| pagination 방식·최대 범위 | 사용하지 않음. manual URL only |
 
 ## 5. 목록·feed 추출 규칙
 
@@ -107,19 +107,19 @@
 
 | 유형 | 샘플 식별값 | 기대 결과 | 확인 결과 |
 | --- | --- | --- | --- |
-| 정상 목록 | 없음 | DETAIL_ONLY는 목록을 사용하지 않음 | 실행하지 않음 |
-| 빈 목록 | 없음 | DETAIL_ONLY는 목록을 사용하지 않음 | 실행하지 않음 |
-| 정상 상세 | numeric URL 후보 | 제목·이미지 후보 추출 | 미수행 |
-| 이미지 없는 상세 | synthetic fixture | 명시적 실패 또는 운영자 보정 | 미수행 |
+| 정상 목록 | `hot` 목록 | 상세 URL 추출 후 detail parser로 연계 | live 개발 DB/object readback 완료 |
+| 빈 목록 | `hot` 목록 fixture | 후보 0건이면 실패 없이 report에 기록 | fixture/runner 정책으로 검증 |
+| 정상 상세 | synthetic `https://theqoo.net/hot/1234567890` | 제목·본문·이미지·SNS 추출 | `DirectUrlRunnerTests` 통과 |
+| 이미지 없는 상세 | synthetic fixture | 본문 TEXT만 저장 가능 | 기존 `TheqooParserTests` text-only 통과 |
 | 삭제·차단 | synthetic fixture | 실패 기록·재시도 제한 | 미수행 |
-| 구조 변경 | synthetic fixture | parser 실패 감지 | 미수행 |
-| 중복 URL | canonical 후보 | 새 후보 생성 안 함 | 미수행 |
+| 구조 변경 | synthetic fixture | parser 실패 감지 | 기존 `TheqooParserTests` missing body 통과 |
+| 중복 URL | numeric id 후보 | 새 후보 생성 안 함 | write path dedup 테스트 필요 |
 
 ## 9. 활성화 판정
 
 - [x] 운영 주체와 기준 URL 확인
 - [ ] 이용약관·`robots.txt` 확인
-- [ ] Discord·운영자 URL 수집 보조 fixture 검증
+- [x] Discord·운영자 URL 수집 보조 fixture 검증: `collect-url` write path 단위 테스트
 - [ ] 목록·feed fixture 검증 해당 없음
 - [ ] URL 정규화와 중복 방지 검증
 - [ ] 요청 간격·일일 상한·연속 실패 기준 확정
@@ -132,19 +132,40 @@
 - Discord·운영자 URL 수집 보조: 보류
 - 자동 수집: 차단
 - 판정일·운영 위험 판정자: 2026-09-03 / `(미정)`
-- 보류·차단 사유: robots 규칙 미확인, 외부 서비스의 게시물 이용 동의 없음, fixture 미검증.
+- 보류·차단 사유: robots 규칙 미확인, 외부 서비스의 게시물 이용 동의 없음, live URL·운영 S3/R2 readback 미검증.
 
 ## 10. 변경 이력
 
 | 날짜 | parser version | 변경 내용 | 재검증 결과 |
 | --- | --- | --- | --- |
 | 2026-09-03 | `(미정)` | 최초 검토 | 비활성 |
+| 2026-09-23 | `theqoo-ordered-v1` | 목록 parser + 상세 parser + live 개발 DB/object readback 검증 | `AdditionalHotListAdapterTests`와 live batch write-db 통과 |
 
 
 ## 2026-09-21 출처별 자동 수집 정책
 
-- 자동 수집 정책: `DETAIL_ONLY`
+- 자동 수집 정책: `HOT_LIST` 구현, 운영 source 예제는 비활성
 - Hot/Top 목록 URL: `(없음)`
-- 현재 활성화 사유: `ROBOTS_UNVERIFIED`
-- 이 정책은 공통 Hot 목록을 강제하지 않는다. `DETAIL_ONLY`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
+- 현재 활성화 사유: 운영 DB/S3/R2와 Discord Gateway 미검증
+- 이 정책은 공통 Hot 목록을 강제하지 않는다. `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `THEQOO`
+- collection policy: `HOT_LIST`; 운영 source 예제는 `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/hot/{id}` 및 같은 사이트 redirect `/square/{id}` / id
+- 본문 selector: `article[itemprop=articleBody]`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 구현. `hot` 목록에서 상세 URL을 추출하고 같은 batch 실행에서 detail parser로 이어간다.
+- 검증 상태: synthetic fixture, live hot-list batch, 임시 개발 DB/object readback 검증. 운영 DB/S3/R2와 Discord Gateway는 미검증. live URL `https://theqoo.net/hot/4353370346`, run `1d4fbcf4-38f4-4d9b-88c6-8ed4eebdb461`, DB readback `source_post_key=4353370346`, blocks 5, media 5.
+
+## 2026-09-23 live 개발 DB readback
+
+- 실행: `bin/blariyo-collector batch --source theqoo --chart hot --max-pages 1 --max-items 1 --since 24h --interval-ms 10000 --write-db`
+- live URL: `https://theqoo.net/hot/4353370346`
+- run id: `1d4fbcf4-38f4-4d9b-88c6-8ed4eebdb461`
+- DB readback: `blocks 5, media 5`
+- object readback: raw HTML, media object, JSONL report 확인. 운영 DB/S3/R2와 Discord Gateway는 미검증.

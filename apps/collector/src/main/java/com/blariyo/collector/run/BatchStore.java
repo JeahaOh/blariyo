@@ -25,7 +25,7 @@ public final class BatchStore {
         try(var s=c.prepareStatement("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,interval_ms) VALUES(?,?,?,'WRITE_DB','QUEUED',1,1,10000)")){
           s.setObject(1,run);s.setString(2,source);s.setString(3,"discord");s.executeUpdate();
         }
-        if(insertItem(c,run,source,postKey,url,"DISCOVERED",null,null,"[]",null)==null)
+        if(insertItem(c,run,source,postKey,url,"DISCOVERED",null,null,"[]","[]",null)==null)
           throw new CollectorFailure(409,"BATCH_DUPLICATE");
         c.commit();
         return run;
@@ -44,8 +44,11 @@ public final class BatchStore {
     } catch(SQLException e) { throw new CollectorFailure(503,"BATCH_DB_UNAVAILABLE"); }
   }
   public UUID item(UUID run,String source,String postKey,String url,String state,String title,String blocks,String sns,String raw) {
+    return item(run,source,postKey,url,state,title,blocks,"[]",sns,raw);
+  }
+  public UUID item(UUID run,String source,String postKey,String url,String state,String title,String blocks,String attachments,String sns,String raw) {
     try (var c=connection()) {
-      return insertItem(c,run,source,postKey,url,state,title,blocks,sns,raw);
+      return insertItem(c,run,source,postKey,url,state,title,blocks,attachments,sns,raw);
     } catch(SQLException e) { if("23505".equals(e.getSQLState())) return null; throw new CollectorFailure(503,"BATCH_DB_WRITE_FAILED"); }
   }
   public void finish(UUID run,String state,Map<String,Object> checkpoint,String reportKey) {
@@ -56,18 +59,71 @@ public final class BatchStore {
       s.setString(1,objectKey);s.setObject(2,item);if(s.executeUpdate()!=1)throw new CollectorFailure(409,"BATCH_ITEM_LOCK_CONFLICT");
     }catch(SQLException e){throw new CollectorFailure(503,"BATCH_DB_WRITE_FAILED");}
   }
+  public void completeItem(UUID item) {
+    try (var c = connection(); var s = c.prepareStatement("UPDATE collect.batch_item SET state='FETCHED',fetched_at=now(),version=version+1 WHERE id=?")) {
+      s.setObject(1, item);
+      if (s.executeUpdate() != 1) throw new CollectorFailure(409, "BATCH_ITEM_LOCK_CONFLICT");
+    } catch (SQLException e) { throw new CollectorFailure(503, "BATCH_DB_WRITE_FAILED"); }
+  }
+  public void failItem(UUID run, UUID item, String phase, String code) {
+    failItem(run, item, phase, code, Map.of());
+  }
+  public void failItem(UUID run, UUID item, String phase, String code, Map<String, Object> detail) {
+    try (var c = connection()) {
+      c.setAutoCommit(false);
+      try {
+        if (item != null) {
+          try (var s = c.prepareStatement("UPDATE collect.batch_item SET state='FAILED',version=version+1 WHERE id=?")) {
+            s.setObject(1, item);
+            if (s.executeUpdate() != 1) throw new CollectorFailure(409, "BATCH_ITEM_LOCK_CONFLICT");
+          }
+        }
+        try (var s = c.prepareStatement("INSERT INTO collect.batch_failure(id,run_id,item_id,phase,code,detail) VALUES(?,?,?,?,?,?::jsonb)")) {
+          s.setObject(1, UUID.randomUUID());
+          s.setObject(2, run);
+          if (item == null) s.setNull(3, Types.OTHER); else s.setObject(3, item);
+          s.setString(4, phase);
+          s.setString(5, code);
+          s.setString(6, Json.tree(detail == null ? Map.of() : detail).toString());
+          s.executeUpdate();
+        }
+        c.commit();
+      } catch (RuntimeException | SQLException e) {
+        try { c.rollback(); } catch (SQLException ignored) {}
+        if (e instanceof RuntimeException r) throw r;
+        throw e;
+      }
+    } catch (SQLException e) { throw new CollectorFailure(503, "BATCH_DB_WRITE_FAILED"); }
+  }
   private static void ensureSource(Connection c,String source,String policy) throws SQLException {
     try(var sourceInsert=c.prepareStatement("INSERT INTO collect.batch_source(source_key,host,policy_version,enabled) VALUES(?,?,?,true) ON CONFLICT(source_key) DO NOTHING")){
       sourceInsert.setString(1,source);sourceInsert.setString(2,source);sourceInsert.setString(3,policy);sourceInsert.executeUpdate();
     }
   }
-  private static UUID insertItem(Connection c,UUID run,String source,String postKey,String url,String state,String title,String blocks,String sns,String raw) throws SQLException {
+  private static UUID insertItem(Connection c,UUID run,String source,String postKey,String url,String state,String title,String blocks,String attachments,String sns,String raw) throws SQLException {
     UUID id=UUID.randomUUID(); byte[] hash=sha(url);
-    try (var s=c.prepareStatement("INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,sns_links,raw_object_key) VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING")) {
+    String sql = """
+        INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,attachment_metadata,sns_links,raw_object_key,fetched_at)
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,CASE WHEN ?='FETCHED' THEN now() ELSE NULL END)
+        ON CONFLICT(source_key,source_post_key) DO UPDATE SET
+          canonical_url=EXCLUDED.canonical_url,
+          canonical_url_hash=EXCLUDED.canonical_url_hash,
+          state=EXCLUDED.state,
+          title=EXCLUDED.title,
+          body_blocks=EXCLUDED.body_blocks,
+          attachment_metadata=EXCLUDED.attachment_metadata,
+          sns_links=EXCLUDED.sns_links,
+          raw_object_key=EXCLUDED.raw_object_key,
+          fetched_at=CASE WHEN EXCLUDED.state='FETCHED' THEN now() ELSE collect.batch_item.fetched_at END,
+          version=collect.batch_item.version+1
+        WHERE collect.batch_item.raw_object_key IS NULL
+        RETURNING id
+        """;
+    try (var s=c.prepareStatement(sql)) {
       s.setObject(1,id);s.setObject(2,run);s.setString(3,source);s.setString(4,postKey);s.setString(5,url);s.setBytes(6,hash);s.setString(7,state);s.setString(8,title);
       if(blocks==null)s.setNull(9,Types.OTHER);else s.setObject(9,blocks,Types.OTHER);
-      s.setObject(10,sns==null?"[]":sns,Types.OTHER);s.setString(11,raw);
-      return s.executeUpdate()==1?id:null;
+      s.setObject(10,attachments==null?"[]":attachments,Types.OTHER);s.setObject(11,sns==null?"[]":sns,Types.OTHER);s.setString(12,raw);s.setString(13,state);
+      try(var rs=s.executeQuery()){return rs.next()?(UUID)rs.getObject(1):null;}
     }
   }
   public static byte[] sha(String text){try{return MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8));}catch(Exception e){throw new IllegalStateException(e);}}

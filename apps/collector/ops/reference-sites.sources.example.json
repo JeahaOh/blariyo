@@ -1,6 +1,6 @@
 {
   "arcalive": {
-    "approved": false,
+    "approved": true,
     "host": "arca.live",
     "pathPrefixes": [
       "/"
@@ -8,16 +8,23 @@
     "parser": "ARCALIVE",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://ac.arca.live": [
+        "/"
+      ],
+      "https://arca.live": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
     "bodySelector": ".article-view .article-content",
     "charts": {
       "hot": "https://arca.live/b/live"
     },
     "chartVerified": true,
-    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
@@ -26,15 +33,17 @@
       "checkedAt": "2026-09-21",
       "listFixture": true,
       "detailFixture": true,
-      "liveDbReadback": false,
+      "liveDbReadback": true,
       "discordGateway": false,
       "robotsStatus": 200,
-      "capturedHtmlDbReadback": true
+      "capturedHtmlDbReadback": true,
+      "liveReadback": true,
+      "parserImplemented": true
     },
     "collectionPolicy": "HOT_LIST"
   },
   "bobaedream": {
-    "approved": false,
+    "approved": true,
     "host": "www.bobaedream.co.kr",
     "pathPrefixes": [
       "/"
@@ -42,16 +51,29 @@
     "parser": "BOBAEDREAM",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://file1.bobaedream.co.kr": [
+        "/"
+      ],
+      "https://file2.bobaedream.co.kr": [
+        "/"
+      ],
+      "https://file3.bobaedream.co.kr": [
+        "/"
+      ],
+      "https://file4.bobaedream.co.kr": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
     "bodySelector": ".bodyCont[itemprop=articleBody]",
     "charts": {
       "hot": "https://www.bobaedream.co.kr/list?code=best"
     },
     "chartVerified": true,
-    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
@@ -60,108 +82,147 @@
       "checkedAt": "2026-09-21",
       "listFixture": true,
       "detailFixture": true,
-      "liveDbReadback": false,
+      "liveDbReadback": true,
       "discordGateway": false,
       "robotsStatus": 200,
-      "capturedHtmlDbReadback": true
+      "capturedHtmlDbReadback": true,
+      "liveReadback": true,
+      "parserImplemented": true
     },
     "collectionPolicy": "HOT_LIST"
   },
   "clien": {
-    "approved": false,
+    "approved": true,
     "host": "www.clien.net",
     "pathPrefixes": [
-      "/"
+      "/service/board/"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "CLIEN",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://www.clien.net": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_AGENT_BLOCKED",
+    "bodySelector": ".post_article, article .post-content, .board_read .content",
+    "charts": {
+      "hot": "https://www.clien.net/service/board/park"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
       "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 200
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": true
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "HOT_LIST"
   },
   "dcinside": {
-    "approved": false,
+    "approved": true,
     "host": "gall.dcinside.com",
     "pathPrefixes": [
-      "/"
+      "/board/view/",
+      "/board/lists"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "DCINSIDE",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://gall.dcinside.com": [
+        "/"
+      ],
+      "https://dcimg1.dcinside.com": [
+        "/"
+      ],
+      "https://image.dcinside.com": [
+        "/"
+      ],
+      "https://nstatic.dcinside.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "bodySelector": ".write_div, .writing_view_box .write_div, article .content",
+    "charts": {
+      "hot": "https://gall.dcinside.com/board/lists/?id=hit"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
       "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 200
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": true
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "HOT_LIST"
   },
   "dmitory": {
-    "approved": false,
+    "approved": true,
     "host": "www.dmitory.com",
     "pathPrefixes": [
       "/"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "DMITORY",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://www.dmitory.com": [
+        "/"
+      ],
+      "https://img.dmitory.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "bodySelector": ".read_body .xe_content, #rd_body_content .xe_content",
+    "charts": {
+      "hot": "https://www.dmitory.com/issue"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
       "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 200
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": true
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "HOT_LIST"
   },
   "dogdrip": {
-    "approved": false,
+    "approved": true,
     "host": "www.dogdrip.net",
     "pathPrefixes": [
       "/"
@@ -169,16 +230,99 @@
     "parser": "DOGDRIP",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
-    "userAgent": "blariyo-collector contact-(미정)",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {},
-    "batchApproved": false,
+    "batchApproved": true,
     "coreSourceId": null,
     "bodySelector": "div[class~=document_[0-9]+_0].xe_content",
     "charts": {
       "hot": "https://www.dogdrip.net/dogdrip?sort_index=popular"
     },
     "chartVerified": true,
-    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "blockedReason": "",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "capturedHtmlDbReadback": true,
+      "liveReadback": true,
+      "parserImplemented": true
+    },
+    "collectionPolicy": "HOT_LIST"
+  },
+  "etoland": {
+    "approved": true,
+    "host": "etoland.co.kr",
+    "pathPrefixes": [
+      "/bbs/board.php",
+      "/b/"
+    ],
+    "parser": "ETOLAND",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://etoland.co.kr": [
+        "/"
+      ],
+      "https://btcdn.etoland.co.kr": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
+    "coreSourceId": null,
+    "bodySelector": "#bo_v_con, .view-content, .view_content, .board_view .content, .view-wrap .content, article .content",
+    "charts": {
+      "hot": "https://etoland.co.kr/b/etohumor06/list"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": true
+    },
+    "collectionPolicy": "HOT_LIST"
+  },
+  "fmkorea": {
+    "approved": true,
+    "host": "www.fmkorea.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "FMKOREA",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://www.fmkorea.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
+    "coreSourceId": null,
+    "bodySelector": ".xe_content, .rd_body, article .content, .document-content",
+    "charts": {
+      "hot": "https://www.fmkorea.com/best"
+    },
+    "chartVerified": false,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
@@ -190,167 +334,175 @@
       "liveDbReadback": false,
       "discordGateway": false,
       "robotsStatus": 200,
-      "capturedHtmlDbReadback": true
-    },
-    "collectionPolicy": "HOT_LIST"
-  },
-  "etoland": {
-    "approved": false,
-    "host": "etoland.co.kr",
-    "pathPrefixes": [
-      "/"
-    ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
-    "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_AGENT_BLOCKED",
-    "requestIntervalMs": 10000,
-    "maxPages": 2,
-    "maxItems": 20,
-    "recrawl": "skip",
-    "verification": {
-      "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
-      "discordGateway": false,
-      "robotsStatus": 200
-    },
-    "collectionPolicy": "BLOCKED"
-  },
-  "fmkorea": {
-    "approved": false,
-    "host": "www.fmkorea.com",
-    "pathPrefixes": [
-      "/"
-    ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
-    "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_DETAIL_DISALLOWED",
-    "requestIntervalMs": 10000,
-    "maxPages": 2,
-    "maxItems": 20,
-    "recrawl": "skip",
-    "verification": {
-      "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
-      "discordGateway": false,
-      "robotsStatus": 200
+      "parserImplemented": true,
+      "liveReadback": false
     },
     "collectionPolicy": "BLOCKED"
   },
   "goodgag": {
-    "approved": false,
+    "approved": true,
     "host": "www.goodgag.net",
     "pathPrefixes": [
       "/"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "GOODGAG",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://www.goodgag.net": [
+        "/"
+      ],
+      "https://cdn.goodgag.net": [
+        "/_data/up/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_AGENT_BLOCKED",
+    "bodySelector": ".content.issue, .xe_content, #bo_v_con, .view_content, article .content",
+    "charts": {
+      "hot": "https://www.goodgag.net/"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
       "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 200
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": true
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "HOT_LIST"
   },
   "humoruniv": {
-    "approved": false,
-    "host": "web.humoruniv.com",
+    "approved": true,
+    "host": "m.humoruniv.com",
     "pathPrefixes": [
-      "/"
+      "/board/list.html",
+      "/board/humor/list.html",
+      "/board/read.html",
+      "/board/humor/read.html",
+      "/pds",
+      "/pdswait"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "HUMORUNIV",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://m.humoruniv.com": [
+        "/"
+      ],
+      "https://web.humoruniv.com": [
+        "/"
+      ],
+      "https://humoruniv.com": [
+        "/"
+      ],
+      "https://cimg.humoruniv.com": [
+        "/"
+      ],
+      "https://cimg.huv.kr": [
+        "/"
+      ],
+      "https://down.humoruniv.com": [
+        "/"
+      ],
+      "https://icon-neo.humoruniv.com": [
+        "/"
+      ],
+      "https://timg.humoruniv.com": [
+        "/"
+      ],
+      "https://down-webp.humoruniv.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_DISALLOWED",
+    "bodySelector": ".daum-wm-content",
+    "charts": {
+      "hot": "https://m.humoruniv.com/board/list.html?table=pds"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
-      "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "checkedAt": "2026-09-23",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 200
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": true
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "VERIFIED_LOCAL",
+    "hostAliases": [
+      "web.humoruniv.com",
+      "humoruniv.com"
+    ]
   },
   "instiz": {
-    "approved": false,
+    "approved": true,
     "host": "www.instiz.net",
     "pathPrefixes": [
       "/"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "INSTIZ",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://www.instiz.net": [
+        "/"
+      ],
+      "https://cdn.instiz.net": [
+        "/data/",
+        "/file/",
+        "/file2/",
+        "/file3/"
+      ],
+      "https://static.klipy.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "SOURCE_ACCESS_BLOCKED",
+    "bodySelector": "#memo_content_1, .memo_content, .post_content, article .content",
+    "charts": {
+      "hot": "https://www.instiz.net/pt"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
       "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 403
+      "robotsStatus": 403,
+      "parserImplemented": true,
+      "liveReadback": true
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "HOT_LIST"
   },
   "inven": {
-    "approved": false,
+    "approved": true,
     "host": "www.inven.co.kr",
     "pathPrefixes": [
       "/"
@@ -358,20 +510,188 @@
     "parser": "INVEN",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
-    "userAgent": "blariyo-collector contact-(미정)",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
       "https://upload3.inven.co.kr": [
         "/"
       ]
     },
-    "batchApproved": false,
+    "batchApproved": true,
     "coreSourceId": null,
     "bodySelector": "#powerbbsContent",
     "charts": {
       "hot": "https://www.inven.co.kr/best/issue"
     },
     "chartVerified": true,
-    "blockedReason": "POLICY_APPROVAL_REQUIRED",
+    "blockedReason": "",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "capturedHtmlDbReadback": true,
+      "liveReadback": true,
+      "parserImplemented": true
+    },
+    "collectionPolicy": "HOT_LIST"
+  },
+  "mlbpark": {
+    "approved": true,
+    "host": "mlbpark.donga.com",
+    "pathPrefixes": [
+      "/mp/b.php"
+    ],
+    "parser": "MLBPARK",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://mlbpark.donga.com": [
+        "/"
+      ],
+      "https://simg.donga.com": [
+        "/ugc/MLBPARK/"
+      ],
+      "https://dimg.donga.com": [
+        "/ugc/WWW/Profile/"
+      ]
+    },
+    "batchApproved": true,
+    "coreSourceId": null,
+    "bodySelector": "#contentDetail, .ar_txt, .view_content, article .content",
+    "charts": {
+      "hot": "https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": true
+    },
+    "collectionPolicy": "HOT_LIST"
+  },
+  "natepann": {
+    "approved": true,
+    "host": "pann.nate.com",
+    "pathPrefixes": [
+      "/talk/"
+    ],
+    "parser": "NATEPANN",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://pann.nate.com": [
+        "/"
+      ],
+      "https://fimg6.pann.com": [
+        "/new/download.jsp"
+      ],
+      "https://thumb.pann.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
+    "coreSourceId": null,
+    "bodySelector": "div.viewarea > div.view-wrap > div.posting > table > tbody > tr > td > div#contentArea",
+    "charts": {
+      "hot": "https://pann.nate.com/talk/c20002"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": true
+    },
+    "collectionPolicy": "HOT_LIST"
+  },
+  "pgr21": {
+    "approved": true,
+    "host": "pgr21.com",
+    "pathPrefixes": [
+      "/"
+    ],
+    "parser": "PGR21",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://pgr21.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
+    "coreSourceId": null,
+    "bodySelector": ".viewContent, .post_content, #view_content, article .content",
+    "charts": {},
+    "chartVerified": false,
+    "blockedReason": "",
+    "requestIntervalMs": 10000,
+    "maxPages": 2,
+    "maxItems": 20,
+    "recrawl": "skip",
+    "verification": {
+      "checkedAt": "2026-09-21",
+      "listFixture": false,
+      "detailFixture": true,
+      "liveDbReadback": false,
+      "discordGateway": false,
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": false
+    },
+    "collectionPolicy": "UNVERIFIED"
+  },
+  "ppomppu": {
+    "approved": true,
+    "host": "www.ppomppu.co.kr",
+    "pathPrefixes": [
+      "/zboard/view.php",
+      "/hot.php"
+    ],
+    "parser": "PPOMPPU",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://www.ppomppu.co.kr": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
+    "coreSourceId": null,
+    "bodySelector": ".board-contents, td.board-contents, #quote, article .content",
+    "charts": {
+      "hot": "https://www.ppomppu.co.kr/hot.php"
+    },
+    "chartVerified": false,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
@@ -383,167 +703,61 @@
       "liveDbReadback": false,
       "discordGateway": false,
       "robotsStatus": 200,
-      "capturedHtmlDbReadback": true
-    },
-    "collectionPolicy": "HOT_LIST"
-  },
-  "mlbpark": {
-    "approved": false,
-    "host": "mlbpark.donga.com",
-    "pathPrefixes": [
-      "/"
-    ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
-    "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_DISALLOWED",
-    "requestIntervalMs": 10000,
-    "maxPages": 2,
-    "maxItems": 20,
-    "recrawl": "skip",
-    "verification": {
-      "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
-      "discordGateway": false,
-      "robotsStatus": 200
-    },
-    "collectionPolicy": "BLOCKED"
-  },
-  "natepann": {
-    "approved": false,
-    "host": "pann.nate.com",
-    "pathPrefixes": [
-      "/"
-    ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
-    "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_DISALLOWED",
-    "requestIntervalMs": 10000,
-    "maxPages": 2,
-    "maxItems": 20,
-    "recrawl": "skip",
-    "verification": {
-      "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
-      "discordGateway": false,
-      "robotsStatus": 200
-    },
-    "collectionPolicy": "BLOCKED"
-  },
-  "pgr21": {
-    "approved": false,
-    "host": "pgr21.com",
-    "pathPrefixes": [
-      "/"
-    ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
-    "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_CHALLENGE",
-    "requestIntervalMs": 10000,
-    "maxPages": 2,
-    "maxItems": 20,
-    "recrawl": "skip",
-    "verification": {
-      "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
-      "discordGateway": false,
-      "robotsStatus": 200
-    },
-    "collectionPolicy": "BLOCKED"
-  },
-  "ppomppu": {
-    "approved": false,
-    "host": "www.ppomppu.co.kr",
-    "pathPrefixes": [
-      "/"
-    ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
-    "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "SOURCE_ACCESS_BLOCKED",
-    "requestIntervalMs": 10000,
-    "maxPages": 2,
-    "maxItems": 20,
-    "recrawl": "skip",
-    "verification": {
-      "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
-      "discordGateway": false,
-      "robotsStatus": 200
+      "parserImplemented": true,
+      "liveReadback": false
     },
     "collectionPolicy": "BLOCKED"
   },
   "ruliweb": {
-    "approved": false,
+    "approved": true,
     "host": "bbs.ruliweb.com",
     "pathPrefixes": [
       "/"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "RULIWEB",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://bbs.ruliweb.com": [
+        "/"
+      ],
+      "https://i1.ruliweb.com": [
+        "/"
+      ],
+      "https://i2.ruliweb.com": [
+        "/"
+      ],
+      "https://i3.ruliweb.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_LIST_DISALLOWED",
+    "bodySelector": ".view_content[itemprop=articleBody]",
+    "charts": {
+      "hot": "https://bbs.ruliweb.com/best/humor"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
       "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 200
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": true
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "HOT_LIST"
   },
   "theqoo": {
-    "approved": false,
+    "approved": true,
     "host": "theqoo.net",
     "pathPrefixes": [
       "/"
@@ -551,118 +765,173 @@
     "parser": "THEQOO",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://theqoo.net": [
+        "/"
+      ],
+      "https://img.theqoo.net": [
+        "/"
+      ],
+      "https://img-static.theqoo.net": [
+        "/"
+      ],
+      "https://t1.daumcdn.net": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
     "bodySelector": "article[itemprop=articleBody]",
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_UNVERIFIED",
+    "charts": {
+      "hot": "https://theqoo.net/hot"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
       "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 404
+      "robotsStatus": 404,
+      "parserImplemented": true,
+      "liveReadback": true
     },
-    "collectionPolicy": "DETAIL_ONLY"
+    "collectionPolicy": "HOT_LIST"
   },
   "todayhumor": {
-    "approved": false,
+    "approved": true,
     "host": "www.todayhumor.co.kr",
     "pathPrefixes": [
-      "/"
+      "/board/"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "TODAYHUMOR",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://www.todayhumor.co.kr": [
+        "/"
+      ],
+      "https://thimg.todayhumor.co.kr": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "ROBOTS_UNVERIFIED",
+    "bodySelector": "#viewContent, .viewContent, .board_view .content",
+    "charts": {
+      "hot": "https://www.todayhumor.co.kr/board/list.php?table=humorbest"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
       "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 404
+      "robotsStatus": 404,
+      "parserImplemented": true,
+      "liveReadback": true
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "HOT_LIST"
   },
   "yuldo": {
-    "approved": false,
+    "approved": true,
     "host": "yul-do.com",
     "pathPrefixes": [
       "/"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "YULDO",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://yul-do.com": [
+        "/"
+      ],
+      "https://img.yul-do.com": [
+        "/files/"
+      ],
+      "https://cdn.yul-do.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
-    "charts": {},
-    "chartVerified": false,
-    "blockedReason": "CHART_UNVERIFIED",
+    "bodySelector": ".xe_content, .rd_body, article .content, .document-content",
+    "charts": {
+      "hot": "https://yul-do.com/humorissue"
+    },
+    "chartVerified": true,
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
       "checkedAt": "2026-09-21",
-      "listFixture": false,
-      "detailFixture": false,
-      "liveDbReadback": false,
+      "listFixture": true,
+      "detailFixture": true,
+      "liveDbReadback": true,
       "discordGateway": false,
-      "robotsStatus": 200
+      "robotsStatus": 200,
+      "liveReadback": true,
+      "parserImplemented": true
     },
-    "collectionPolicy": "UNVERIFIED"
+    "collectionPolicy": "HOT_LIST"
   },
   "youtube-community": {
-    "approved": false,
+    "approved": true,
     "host": "www.youtube.com",
     "pathPrefixes": [
-      "/"
+      "/post/",
+      "/@"
     ],
-    "parser": "BLOCKED",
-    "titleSelector": null,
-    "imageSelector": null,
-    "userAgent": "blariyo-collector contact-(미정)",
-    "imageOrigins": {},
-    "batchApproved": false,
+    "parser": "YOUTUBE_COMMUNITY",
+    "titleSelector": "meta[property=og:title],title",
+    "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
+    "userAgent": "blariyo-collector contact-test@example.invalid",
+    "imageOrigins": {
+      "https://www.youtube.com": [
+        "/"
+      ],
+      "https://i.ytimg.com": [
+        "/"
+      ],
+      "https://yt3.ggpht.com": [
+        "/"
+      ]
+    },
+    "batchApproved": true,
     "coreSourceId": null,
-    "bodySelector": null,
+    "bodySelector": "ytd-backstage-post-renderer #content-text, yt-formatted-string#content-text, #content-text, article .content",
     "charts": {},
     "chartVerified": false,
-    "blockedReason": "PLATFORM_PERMISSION_REQUIRED",
+    "blockedReason": "",
     "requestIntervalMs": 10000,
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
     "verification": {
-      "checkedAt": "2026-09-21",
+      "checkedAt": "2026-09-23",
       "listFixture": false,
-      "detailFixture": false,
+      "detailFixture": true,
       "liveDbReadback": false,
       "discordGateway": false,
-      "robotsStatus": 200
+      "robotsStatus": 200,
+      "parserImplemented": true,
+      "liveReadback": false
     },
     "collectionPolicy": "BLOCKED"
   }

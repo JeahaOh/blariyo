@@ -146,3 +146,28 @@
 - 현재 활성화 사유: `ROBOTS_DETAIL_DISALLOWED`
 - 이 정책은 공통 Hot 목록을 강제하지 않는다. `BLOCKED`가 `HOT_LIST`가 아니면 목록 parser와 pagination을 성공으로 표시하지 않는다.
 - `HOT_LIST`도 정책 승인·robots·실제 fixture·DB/S3 readback 전까지 `approved=false`, `batchApproved=false`로 유지한다.
+
+## 2026-09-23 상세 parser 구현 상태
+
+- collector parser: `FMKOREA`
+- collection policy: `UNVERIFIED`; `approved=false`, `batchApproved=false` 유지
+- 상세 URL 규칙: `/{id}` / id
+- 본문 selector: `.xe_content, .rd_body, article .content, .document-content`
+- 이미지 selector: `img[data-original]`, `img[data-src]`, `img[data-lazy-src]`, `img[src]`
+- 첨부 파일 추출: `a[href]` 중 파일 확장자(`pdf`, `zip`, `hwp`, `docx`, `xlsx`, `pptx`, `mp4` 등)를 `attachmentCandidates`로 분리하고 write-db에서는 `FILE` media로 저장한다.
+- SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
+- 목록 parser: 미구현. `collect-url`/Discord URL 수동 입력용 detail-only 경로만 있다.
+- 검증 상태: synthetic fixture와 `DirectUrlRunnerAllSiteParserTests` 저장 경로만 검증. 실제 공개 URL·개발/운영 DB/S3 readback은 미검증.
+
+## 2026-09-23 live 검증 갱신
+
+- `https://www.fmkorea.com/best`, `https://www.fmkorea.com/humor`, `https://m.fmkorea.com/best`, `https://m.fmkorea.com/humor` 모두 HTTP 430 `에펨코리아 보안 시스템` 응답을 반환했다.
+- `FMKOREA` detail parser fixture는 유지하지만, 현재 실행 환경에서는 list/detail live fetch와 DB/S3 readback을 완료로 표시하지 않는다.
+- CAPTCHA·보안 시스템 우회는 구현하지 않는다. 운영 전에는 허용된 API/제휴/수동 fixture 반입 등 별도 합법 경로가 필요하다.
+
+## 2026-09-23 parser 구현 갱신
+
+- `https://www.fmkorea.com/best`를 hot 후보 URL로 source registry에 기록했다.
+- `FMKOREA` list parser fixture는 `/1234567890` 형태의 상세 링크와 `?page=N` pagination을 추출하도록 구현했다.
+- live 실행은 여전히 HTTP 430 보안 페이지로 차단되므로 `chartVerified=false`, `collectionPolicy=BLOCKED`로 유지한다.
+- 추가 확인: `https://m.fmkorea.com/best`도 같은 HTTP 430 보안 페이지를 반환했다. 공개 대체 host로 live 검증을 완료하지 못했다.

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "scope": "anonymous public GET only",
+  "observedAt": "2026-09-22T14:30:51.534Z",
+  "commands": [
+    "curl -sS --max-time 20 -o /dev/null -w '<path,status,content-type>' https://blariyo.com/<path>",
+    "curl -sS --max-time 20 'https://blariyo.com/api/v1/boards/meme/posts?page=1' | local JSON counter"
+  ],
+  "responses": [
+    { "path": "/meme", "httpStatus": 200, "contentType": "text/html;charset=utf-8" },
+    { "path": "/terms", "httpStatus": 200, "contentType": "text/html;charset=utf-8" },
+    { "path": "/privacy", "httpStatus": 200, "contentType": "text/html;charset=utf-8" },
+    { "path": "/cookie-settings", "httpStatus": 200, "contentType": "text/html;charset=utf-8", "note": "첫 15초 요청은 timeout, 45초 재시도와 후속 20초 요청은 200" },
+    { "path": "/health/live", "httpStatus": 200, "contentType": "application/json" },
+    { "path": "/admin", "httpStatus": 302, "note": "Cloudflare Access 로그인으로 redirect; redirect URL과 쿠키 값은 기록하지 않음" },
+    { "path": "/internal/health/ready", "httpStatus": 404, "contentType": "text/html" }
+  ],
+  "publicList": {
+    "path": "/api/v1/boards/meme/posts?page=1",
+    "httpStatus": 200,
+    "board": "meme",
+    "itemCount": 0,
+    "pinnedItemCount": 0,
+    "responseFieldsObserved": ["data", "meta", "success"],
+    "bodyStored": false
+  },
+  "limits": [
+    "응답 상태와 목록 수만 확인했다.",
+    "관리자 로그인, 게시물 생성·발행·숨김, POST/PUT/DELETE, 설정·계정·외부 메시지는 수행하지 않았다.",
+    "단발 GET은 장기 가용성, 브라우저 UX, 운영자 권한 또는 캐시 전파를 증명하지 않는다."
+  ]
+}

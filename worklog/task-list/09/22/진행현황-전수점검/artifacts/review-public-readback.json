@@ -1,0 +1,16 @@
+{
+  "observed_at": "2026-09-22T14:34:26.775762+00:00",
+  "url": "https://blariyo.com/api/v1/boards/meme/posts?page=1",
+  "reviewer": "primary agent",
+  "request": "anonymous GET",
+  "result": {
+    "success": true,
+    "pinned_items_count": 0,
+    "items_count": 0
+  },
+  "exact_fields": [
+    "data.pinnedItems",
+    "data.items"
+  ],
+  "limits": "Point-in-time public API counts only; no writes, admin login or full browser check."
+}

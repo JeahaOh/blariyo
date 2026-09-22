@@ -1,0 +1,101 @@
+[
+  {
+    "id": "I-01",
+    "milestone": "M0 Core",
+    "requirement": "비회원 공개 게시판 목록·상세·조회 수·공유/SSR metadata",
+    "canonical_evidence": ["docs/development-specs/m0-core/public-post-browsing/public-post-browsing.dev.md:51-64", "docs/development-specs/m0-core/public-post-browsing/public-post-browsing.dev.md:618-722"],
+    "source_evidence": ["apps/api/src/features/public/public.controller.ts:14-70", "apps/web/app/pages/[boardSlug]/index.vue:1-34", "apps/web/app/pages/[boardSlug]/posts/[postId].vue:6-136"],
+    "test_evidence": ["docs/migration/PROGRESS.md:21-39 (2026-09-09 historical full run)", "current Node24 subset: social-posts 7 + x-posts 4 = 11 cases pass"],
+    "status": "구현 존재·과거 로컬 PASS·이번 부분 테스트 PASS; 전체 현 HEAD 재실행 미완료",
+    "gaps": ["브라우저·API/DB 통합은 이번에 실행하지 않음", "Kakao 활성화 gate의 실제 운영값/domain/CSP 확인은 이번 범위에서 미실행"],
+    "acceptance": "Node24/JDK25 및 격리 PostgreSQL·Chromium에서 verify:migration 또는 공개 API/브라우저 범위를 재실행하고 Kakao 활성화 gate를 별도 확인"
+  },
+  {
+    "id": "I-02",
+    "milestone": "M0 Core",
+    "requirement": "관리자 게시글 초안·수정·발행/예약·숨김/재공개/삭제와 이미지 staging",
+    "canonical_evidence": ["docs/development-specs/m0-core/admin-post-management/admin-post-management.dev.md:81-105", "docs/development-specs/m0-core/admin-post-management/admin-post-management.dev.md:1125-1134"],
+    "source_evidence": ["apps/api/src/features/posts/posts.controller.ts:7-76", "apps/api/src/features/images/images.controller.ts:8-33", "apps/web/app/pages/admin.vue:69-307"],
+    "test_evidence": ["apps/api/test/admin-http.integration.test.ts (정의)", "docs/migration/PROGRESS.md:27-35 (2026-09-09 historical full run)"],
+    "status": "구현 존재·과거 로컬 PASS; 이번 API/브라우저 통합 미실행",
+    "gaps": ["현재 Web typecheck는 workspace contracts 미설치로 유효 완료 판정 불가", "운영자 로그인 후 전체 쓰기 수용은 미검증"],
+    "acceptance": "완전한 workspace 의존성 및 격리 DB에서 관리자 CRUD·이미지·예약·권리 숨김 회귀를 재실행하고, 운영자 로그인 후 전체 쓰기 수용을 별도 확인"
+  },
+  {
+    "id": "I-03",
+    "milestone": "M0 Core",
+    "requirement": "정책 version 조회·시행 command·권리 문의 mailto/fallback",
+    "canonical_evidence": ["docs/development-specs/m0-core/policy-and-rights/policy-and-rights.dev.md:49-72", "docs/development-specs/m0-core/policy-and-rights/policy-and-rights.dev.md:470-490"],
+    "source_evidence": ["apps/api/src/features/public/public.controller.ts:57-69", "apps/web/app/components/PolicyViewer.vue:3-52", "apps/web/app/components/SiteFooter.vue:7-73"],
+    "test_evidence": ["apps/api/test/policies.integration.test.ts (정의)", "docs/migration/PROGRESS.md:27-35 (2026-09-09 historical full run)"],
+    "status": "로컬 구현 존재·공개 배포와 정책 v0.1 발행 증거 있음·반복 운영 수용 미검증",
+    "gaps": ["실제 권리 요청 접수·처리·파기 및 mailto·clipboard 반복 운영 증거 없음"],
+    "acceptance": "TASK-03의 공개 배포/정책 발행 기준을 유지하면서 권리 문의 처리·policy cache purge·mail client fallback을 운영 흐름에서 검증"
+  },
+  {
+    "id": "I-04",
+    "milestone": "M0 Core",
+    "requirement": "GA4 동의, 허용 뒤 이벤트, 철회 뒤 차단",
+    "canonical_evidence": ["docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md:19-41", "docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md:50-77", "docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md:292-302"],
+    "source_evidence": ["apps/web/app/composables/useConsent.ts:1-31", "apps/web/app/plugins/analytics.client.ts:1-37", "apps/web/nuxt.config.ts:50-52", "apps/web/app/components/SiteFooter.vue:144-150"],
+    "test_evidence": ["current Node24: tests/consent.test.ts 5 cases pass"],
+    "status": "구현 존재·기본 비활성·이번 단위 테스트 PASS",
+    "gaps": ["GA4 활성화 gate의 Measurement ID, 보관/국외이전/법인/CSP 실제 운영값 확인은 이번 범위에서 미실행", "실제 브라우저 network와 Google tag 검증 미실행"],
+    "acceptance": "실값과 법무 gate 확정 뒤 동의 전 0 요청, 허용 후 1회 로드, 철회 후 cookie/request 차단을 브라우저에서 검증"
+  },
+  {
+    "id": "I-05",
+    "milestone": "M0 Core",
+    "requirement": "PostgreSQL migration, transaction/idempotency, outbox·정리·예약 실패 알림 CLI",
+    "canonical_evidence": ["docs/migration/PLAN.md:87-94", "docs/migration/REPORT.md:24-42"],
+    "source_evidence": ["apps/api/migrations/V001__core.sql:15-92", "apps/api/src/persistence/database.ts:8-24", "apps/api/src/persistence/database.ts:50-103", "apps/api/src/operations/outbox.service.ts:17-46", "apps/api/src/commands/command.ts:1-96"],
+    "test_evidence": ["apps/api/test/migrations.integration.test.ts, runtime-operations.integration.test.ts, schema-restore.integration.test.ts (정의)", "docs/migration/PROGRESS.md:21-39 (2026-09-09 historical full run)", "current Node24: tests/migration-contracts.test.ts FAIL"],
+    "status": "구현 존재·현재 계약 기준선 검사 실패",
+    "gaps": ["docs/migration/contract-baseline.json:14의 collection OpenAPI hash가 현재 canonical/package 동시 사본 SHA-256과 불일치", "현 HEAD에는 V006/V007 SQL과 collection OpenAPI/generated contract 확장이 있어 역사 migration-start baseline의 전수 동일성 검사와 충돌", "이번 DB/CLI 실행은 격리 DB 소유권 확인 전 미실행"],
+    "acceptance": "역사 baseline을 보존하고 승인된 확장과 보존 대상 계약을 분리한 현행 검사로 재설계한 뒤, migration-contracts 및 격리 PostgreSQL 복원 회귀 통과"
+  },
+  {
+    "id": "I-06",
+    "milestone": "M0 수집 보조",
+    "requirement": "legacy/V2 collector 후보·lease·quota·preview·운영 event와 관리자 검수/승격",
+    "canonical_evidence": ["docs/implementation/m0-completion/acceptance.md:20-28", "docs/implementation/m0-completion/acceptance.md:38-60", "docs/system-design/07-spring-collector-design.md:149-180"],
+    "source_evidence": ["apps/api/src/features/collection/collector.controller.ts:15-102", "apps/api/src/features/collection/collection.controller.ts:17-124", "apps/api/src/features/collection/collection-promotion.service.ts:42-166", "apps/api/migrations/V005__spring_collection.sql:1-38"],
+    "test_evidence": ["apps/api/test/collection-v2-http.integration.test.ts, collector-lease.integration.test.ts, collection-operations.integration.test.ts (정의)", "docs/migration/PROGRESS.md:30-35 (2026-09-09 historical full run)"],
+    "status": "구현 존재·과거 격리 로컬 PASS·운영 미검증",
+    "gaps": ["실제 출처, Discord, 실행 PC/계정, Keychain, R2/CDN 및 7일 관찰 없음"],
+    "acceptance": "승인 출처와 운영 계정에서 Spring→BFF→Core 흐름, 장애 복구, 실제 관찰을 별도 수행"
+  },
+  {
+    "id": "I-07",
+    "milestone": "M0 자동 수집 / direct batch",
+    "requirement": "Hot/Top 목록 발견, ledger/object store, 읽기 전용 검수와 기존 초안 승격 연결",
+    "canonical_evidence": ["docs/planning/content-collection/README.md:30-42", "docs/planning/content-collection/README.md:64-72", "docs/planning/content-collection/README.md:130-144", "docs/system-design/07-spring-collector-design.md:706-768"],
+    "source_evidence": ["apps/collector/src/main/resources/db/collector-v002.sql:1-58", "apps/collector/src/main/java/com/blariyo/collector/run/DirectBatchRunner.java:11-52", "apps/collector/src/main/java/com/blariyo/collector/storage/BatchObjectStore.java:11-40", "apps/api/src/features/collection/collection.controller.ts:110-115", "apps/api/src/persistence/batch-result.repository.ts:6-28"],
+    "test_evidence": ["apps/collector/src/test/java/com/blariyo/collector/run/DirectBatchRunnerReadbackTests.java:25-78 (COLLECTOR_READBACK_DATABASE_URL 없으면 skip; fixture transport/local store)", "apps/collector/src/test/java/com/blariyo/collector/ops/MigrationMainTests.java:12-37 (동일 env 없으면 skip)", "docs/implementation/m0-completion/collector-batch-architecture-reset-20260921.md:23-32 (historical/partial)"],
+    "status": "부분 구현·현재 경로 도달 불가 결함",
+    "gaps": ["batch-items GET는 OpenAPI/schema에 없어 BFF와 Core contract guard에서 404", "batch_item에서 기존 candidate 검수/초안 승격으로 가는 변환·API·테스트 없음", "4 parser fixture만 있고 theqoo 목록/readback 및 16 source blocked", "최신 reset은 API SELECT/batch write의 공유 DB 방향이나 이전 별도 DB 설명·운영 도구 동기화와 실제 role/연결 검증이 남음", "실출처, direct DB readback, S3/R2 upload/readback, Discord gateway, Windows/Docker 실행 미검증"],
+    "acceptance": "batch item contract와 BFF/Core route를 같은 변경으로 등록하고 batch→검수→draft 승격을 구현·격리 E2E한 뒤, 승인된 source별 실제 운영 gate를 확인"
+  },
+  {
+    "id": "I-08",
+    "milestone": "M1",
+    "requirement": "회원 인증·가입 필수동의·계정/연동·탈퇴",
+    "canonical_evidence": ["docs/development-specs/m1/member-identity/member-identity.dev.md:3-17", "docs/development-specs/m1/account-lifecycle/account-lifecycle.dev.md:3-17", "docs/development-specs/m1/account-lifecycle/account-lifecycle.dev.md:98-105"],
+    "source_evidence": ["apps/api/src/app.module.ts:1-69 (M1 module 부재)", "apps/web/app/pages (login/account route 부재)"],
+    "test_evidence": ["두 M1 기능 명세: source·migration·OpenAPI·test·build·browser·production 모두 미검증"],
+    "status": "미구현",
+    "gaps": ["M1 migration/API/BFF/UI/test/worker 없음", "provider·법무·보존 운영 gate 차단"],
+    "acceptance": "M1 정본 API/DB 계약을 구현하고 provider adapter, 경쟁/탈퇴 worker 및 browser 수용 시험을 수행"
+  },
+  {
+    "id": "I-09",
+    "milestone": "M1.5",
+    "requirement": "익게 글·댓글·랜덤 이름·신고·운영 검토·참여 제한",
+    "canonical_evidence": ["docs/development-specs/m1-5/community-participation/community-participation.dev.md:1-14", "docs/development-specs/m1-5/community-participation/community-participation.dev.md:114-122", "docs/development-specs/m1-5/community-moderation/community-moderation.dev.md:1-17", "docs/development-specs/m1-5/community-moderation/community-moderation.dev.md:105-114"],
+    "source_evidence": ["apps/api/src/app.module.ts:1-69 (community/moderation module 부재)", "apps/web/app/pages (community/admin moderation route 부재)"],
+    "test_evidence": ["두 M1.5 기능 명세: source·migration·OpenAPI·test·build·browser·production 모두 미검증"],
+    "status": "미구현",
+    "gaps": ["M1 선행·익게 API/DB/BFF/UI/test 없음", "신고/제재 보존 근거와 이의제기 운영값 차단"],
+    "acceptance": "M1 완료 후 community/moderation 전체 contract·migration·동시성·접근성 수용 시험을 구현하고 법무/운영 gate를 해제"
+  }
+]

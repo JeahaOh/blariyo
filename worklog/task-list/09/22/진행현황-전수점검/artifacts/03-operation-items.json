@@ -1,0 +1,134 @@
+[
+  {
+    "id": "OPS-01",
+    "milestone": "M0 Core",
+    "requirement": "공개 웹·정책·liveness와 관리자/내부 경계가 외부에서 의도대로 응답한다.",
+    "canonical_evidence": ["docs/implementation/operations/current-status.md:12-21", "docs/system-design/05-security-operations.md:51-75"],
+    "source_evidence": ["deploy/gateway/compose.yaml:1-40", "deploy/application/compose.yaml:1-85"],
+    "execution_evidence": ["2026-09-22 UTC 공개 GET: /meme, /terms, /privacy, /cookie-settings, /health/live = 200; /admin = Cloudflare Access 302; /internal/health/ready = 404"],
+    "status": "부분 완료",
+    "gaps": ["브라우저 렌더·목록 데이터·인증 완료 후 쓰기는 이 읽기 점검으로 검증되지 않음"],
+    "acceptance": ["익명 공개 경로와 Access/내부 경계의 HTTP 결과를 배포마다 기록", "실제 관리자 흐름은 OPS-02에서 별도 수용"]
+  },
+  {
+    "id": "OPS-02",
+    "milestone": "M0 Core",
+    "requirement": "실제 운영자가 MFA 후 권한 매핑, 업로드, 작성, 발행, 숨김을 수행할 수 있다.",
+    "canonical_evidence": ["docs/implementation/operations/current-status.md:31,44", "docs/system-design/05-security-operations.md:51-66"],
+    "source_evidence": ["apps/api/src/commands/command.ts:37-42", "deploy/application/prepare-runtime-config.cjs:107-125"],
+    "execution_evidence": ["worklog/task-list/09/20/infrastructure-setup/TASK-19.md:51-66은 Access 진입과 TOTP 화면까지만 기록"],
+    "status": "미검증",
+    "gaps": ["실제 TOTP 완료", "Access identity→활성 operator 매핑", "이미지 업로드·초안·발행·숨김·재공개와 권리 요청 숨김의 end-to-end 증거"],
+    "acceptance": ["운영자 본인이 인증을 마친 뒤 1개 비민감 테스트 게시물로 전체 쓰기 흐름과 public 404/purge를 확인", "OTP·쿠키·토큰은 기록하지 않고 결과·시각·게시물 ID만 남김"]
+  },
+  {
+    "id": "OPS-03",
+    "milestone": "M0 Core",
+    "requirement": "공개 피드가 운영자가 검수·발행한 실제 콘텐츠를 제공한다.",
+    "canonical_evidence": ["docs/implementation/operations/current-status.md:30", "docs/planning/content-collection/README.md:30-42"],
+    "source_evidence": ["scripts/content/README.md:141-167"],
+    "execution_evidence": ["artifacts/public-readback.json: 2026-09-22T14:30:51.534Z GET /api/v1/boards/meme/posts?page=1 = 200, pinnedItemCount=0, itemCount=0", "worklog/task-list/09/20/infrastructure-setup/TASK-19.md:61-66: 당시 운영 공개 글 없음; 로컬 25건은 development DB 기록"],
+    "status": "미완료",
+    "gaps": ["현재 공개 목록의 0건", "운영자 실제 발행 수용 미완료", "출처·권리·편집 검토를 마친 운영 콘텐츠 묶음 없음"],
+    "acceptance": ["권리·출처·사실관계 검토가 끝난 콘텐츠를 OPS-02 절차로 발행", "목록·상세·이미지·권리 연락처를 실제 브라우저에서 확인"]
+  },
+  {
+    "id": "OPS-04",
+    "milestone": "배포/형상",
+    "requirement": "운영 release가 어떤 Git revision·image digest·설정 묶음인지 추적되고 최신 승인 변경이 배포 여부와 분리된다.",
+    "canonical_evidence": ["docs/implementation/operations/current-status.md:17-20,55-64", "docs/implementation/operations/deployment-policy.md:47-61"],
+    "source_evidence": ["deploy/application/compose.yaml:5-43", ".github/workflows/ci.yml:53-90"],
+    "execution_evidence": ["TASK-13.md: 최종 image bundle의 Git HEAD·source hash·archive SHA-256 기록", "TASK-15.md: 운영 release stage와 archive/image 검증 기록", "현재 HEAD c69aa53 (2026-09-22); 이번 감사에서는 최신 main과 운영 release의 readback 매핑을 재확인하지 않음"],
+    "status": "진행",
+    "gaps": ["최신 main과 운영 release의 Git SHA/image digest/config bundle readback 매핑 미확인", "9월 21~22 수집·보안 변경이 운영에 반영됐는지 미확인"],
+    "acceptance": ["각 배포에 Git SHA, API/Web digest, config bundle 식별자, migration, smoke 결과와 rollback 대상 기록", "배포하지 않은 변경은 운영 기능으로 보고하지 않음"]
+  },
+  {
+    "id": "OPS-05",
+    "milestone": "복구",
+    "requirement": "RPO 24시간·RTO 4시간 목표를 실제 복구 훈련으로 확인한다.",
+    "canonical_evidence": ["docs/system-design/05-security-operations.md:17-28", "docs/implementation/operations/current-status.md:35-47"],
+    "source_evidence": ["deploy/backup/README.md:1-8", "deploy/operations/README.md:21-26"],
+    "execution_evidence": ["worklog/task-list/09/20/infrastructure-setup/TASK-19.md:37-47: DB dump→격리 PostgreSQL 복원 PASS; TASK-19.md:57-66: VM 재부팅·새 VM 복구 미실행"],
+    "status": "부분 완료",
+    "gaps": ["복구키의 독립 안전 사본", "새 VM 전체 복구와 실제 소요시간", "media 전체 별도 복제", "7일 실제 보관 삭제 관찰"],
+    "acceptance": ["별도 일정에서 새 VM 복구를 read-only 상태로 실행해 RTO를 측정", "월간 DB 복원·복구키 접근성·삭제 재반영을 기록"]
+  },
+  {
+    "id": "OPS-06",
+    "milestone": "관측/알림",
+    "requirement": "외부 가용성, 백업·timer 실패, 예약 실패, 비용 이상을 감지하고 담당자가 실제 수신한다.",
+    "canonical_evidence": ["docs/system-design/05-security-operations.md:332-347,481-489", "docs/implementation/operations/current-status.md:33,46-49"],
+    "source_evidence": ["apps/api/src/adapters/schedule-webhook.ts:1-10", "apps/api/src/operations/schedule-alerts.service.ts:12-24"],
+    "execution_evidence": ["docs/implementation/operations/security-protection-status.md:23-27,95-98: Cloudflare 알림 설정은 기록됐으나 실제 수신과 AWS 확인은 미검증; runtime input 기본값에는 SCHEDULE_ALERT_WEBHOOK_URL이 없음"],
+    "status": "미검증",
+    "gaps": ["외부 monitor 사업자·수신 경로 미정", "예약 실패 webhook 운영값 및 수신 시험 미확인", "timer/백업 age 감시와 담당자 escalation 미확인"],
+    "acceptance": ["외부에서 5분 이내 공개 health·목록 실패를 탐지하는 monitor를 구성하고 시험 알림 수신 기록", "합법적 비파괴 failure fixture로 schedule/timer/backup 알림 전달과 재시도 확인"]
+  },
+  {
+    "id": "OPS-07",
+    "milestone": "보안/비용",
+    "requirement": "보안·비용 보호 변경은 정상 이용 회귀와 24시간/7일 관찰을 거쳐 수용한다.",
+    "canonical_evidence": ["docs/system-design/09-security-cost-protection-plan.md:296-322,351-408", "docs/implementation/operations/current-status.md:37,49"],
+    "source_evidence": ["deploy/gateway/nginx.conf:1-240"],
+    "execution_evidence": ["docs/implementation/operations/security-protection-status.md:95-98: 30분·다음 날·7일 관찰 미실행"],
+    "status": "진행",
+    "gaps": ["공유 IP·모바일·이미지·관리자 정상 이용 수용 시험", "AWS 비용 알림/MFA readback", "관찰·되돌리기 실적"],
+    "acceptance": ["N01-N08와 필요한 C/A/R 시나리오를 저위험 범위로 실행", "각 규칙별 30분·다음 날·7일 지표와 rollback 결과를 기록"]
+  },
+  {
+    "id": "OPS-08",
+    "milestone": "M0 수집 보조/자동 수집",
+    "requirement": "실제 출처, robots, 이용 조건, 운영 PC·Discord·연락 수단이 검증된 출처에서만 수집을 활성화한다.",
+    "canonical_evidence": ["docs/planning/content-collection/README.md:62-75", "docs/system-design/05-security-operations.md:189-208,511-521"],
+    "source_evidence": ["deploy/application/prepare-runtime-config.cjs:103-106,115", "apps/collector/ops/README.md:1-3"],
+    "execution_evidence": ["docs/planning/content-collection/sources/*.md: 다수 출처가 차단·보류·약관/robots 미확인; current runtime 준비값은 수집 flag false"],
+    "status": "비활성 유지",
+    "gaps": ["사용 결정·허용된 실제 source 없음", "live Discord/운영 PC/Keychain·launchd 증거 없음", "90일 재확인과 실패 알림 관찰 없음"],
+    "acceptance": ["출처별 문서에 허용 근거, robots 판정, host, 속도/일일 상한, 연락 수단과 parser fixture를 확정", "한 출처씩 false→제한 활성화 후 후보만 생성하고 운영자 검수·실패 차단을 확인"]
+  },
+  {
+    "id": "OPS-09",
+    "milestone": "GA4/카카오",
+    "requirement": "GA4·카카오의 실값·계약·동의·CSP gate 전에는 외부 요청과 기능을 비활성으로 유지한다.",
+    "canonical_evidence": ["docs/planning/04-analytics-ad-plan.md:18-35,190-210", "docs/system-design/05-security-operations.md:99-116,438-445"],
+    "source_evidence": ["deploy/application/prepare-runtime-config.cjs:121-124"],
+    "execution_evidence": ["운영 status와 runtime 기본값에서 GA4/카카오 false 및 Measurement ID/키 빈값"],
+    "status": "완료(비활성 gate)",
+    "gaps": ["GA4·카카오 기능 자체의 운영 활성화 증거는 없음"],
+    "acceptance": ["활성화 요청 시에만 Measurement ID·계약 법인·국외이전 고지·동의 network 검증 및 Kakao Web domain/SRI/CSP를 별도 수용"]
+  },
+  {
+    "id": "OPS-10",
+    "milestone": "M0 법무 공개",
+    "requirement": "M0에 적용되는 정책이 실제 artifact로 발행되고 공개 경로에서 제공된다.",
+    "canonical_evidence": ["docs/legal/m0-core/README.md:1-4,58-60", "docs/legal/README.md:3,72-91"],
+    "source_evidence": ["deploy/application/publish-policies-from-mac.py:1-240", "deploy/application/policy-release-review.md:1-120"],
+    "execution_evidence": ["TASK-19.md:8-17: TERMS/PRIVACY v0.1 DB hash/API/화면 확인; 2026-09-22 공개 GET /terms,/privacy,/cookie-settings = 200"],
+    "status": "부분 완료",
+    "gaps": ["권리 요청 이메일을 실제로 접수·처리·파기하는 운영 증거", "사건별 법정 보존 예외와 수탁/국외 처리 조건의 지속 운영 검토"],
+    "acceptance": ["법률 적합성 결론이 아니라, 실제 연락 채널의 수신·처리·파기 책임과 변경 versioning을 운영 기록으로 확인"]
+  },
+  {
+    "id": "OPS-11",
+    "milestone": "정본 정합성",
+    "requirement": "현행 readiness 문서가 M0 공개 배포와 남은 운영 수용을 정확히 구분한다.",
+    "canonical_evidence": ["docs/system-design/design-readiness.md:17-24,46-52"],
+    "source_evidence": ["docs/implementation/operations/current-status.md:1-37", "docs/legal/m0-core/README.md:1-4"],
+    "execution_evidence": ["TASK-19.md:1-17: 2026-09-20 공개 배포·정책 발행 기록"],
+    "status": "문서 상충 (실행 영향 미확인)",
+    "gaps": ["design-readiness M0 Core 행은 법무 실값·production 계정 전체를 이유로 production 공개 승인 '차단'으로 남김", "현행 운영/법무 문서는 발행·공개를 기록하면서 운영 수용만 잔여로 분리", "문서 이중화가 실제 배포 동작에 영향을 줬다는 증거는 이번 감사 범위에 없음"],
+    "acceptance": ["M0 Core를 '공개 배포 완료·운영 수용 진행'으로, M1/수집/GA4 등 기능별 production gate와 분리해 갱신", "실제 수용되지 않은 OPS-02~07을 완료로 바꾸지 않음"]
+  },
+  {
+    "id": "OPS-12",
+    "milestone": "CI/CD",
+    "requirement": "CI 원격 실행 상태와 배포 자동화 범위를 최신 commit 기준으로 모순 없이 기록한다.",
+    "canonical_evidence": ["docs/implementation/operations/deployment-policy.md:31-45,47-61", "README.md:7-13"],
+    "source_evidence": [".github/workflows/ci.yml:1-90", ".github/workflows/backup-restore.yml:1-36"],
+    "execution_evidence": ["worklog/task-list/09/20/local-ui-cicd/TODO-CICD-DEPLOY.md:7-13은 f38758a verify/images 성공 기록; 현재 HEAD c69aa53; gh CLI 부재로 원격 run 재확인 불가"],
+    "status": "문서 상충/미검증",
+    "gaps": ["deployment-policy.md:43과 README.md:11은 원격 실행 별도라 하나 TODO는 이전 SHA의 성공을 기록", "최신 HEAD CI run·branch protection·GHCR pull·자동 CD 미확인"],
+    "acceptance": ["원격 Actions run URL/commit/conclusion을 최신 상태 문서에 기록", "CI success, image publish, 수동 운영 배포를 별도 상태로 유지"]
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "observed_at": "2026-09-22T14:38:29.819326+00:00",
+  "baseline_head_unchanged": true,
+  "head": "c69aa53c0112bcff8f50405c3a81b80969bef05a",
+  "tracked_worktree_unchanged": true,
+  "index_unchanged": true,
+  "all_untracked_within_requested_directory": true,
+  "artifact_file_count": 21,
+  "json_files_checked": [
+    "artifacts/01-plan-items.json",
+    "artifacts/02-implementation-items.json",
+    "artifacts/03-operation-items.json",
+    "artifacts/final-validation.json",
+    "artifacts/progress-counts.json",
+    "artifacts/public-readback.json",
+    "artifacts/repository-inventory-and-links.json",
+    "artifacts/review-contract-baseline.json",
+    "artifacts/review-public-readback.json"
+  ],
+  "json_errors": [],
+  "new_report_relative_links_checked": 46,
+  "missing_report_link_targets": [],
+  "new_markdown_whitespace_errors": [],
+  "git_diff_check": {
+    "exit_code": 0,
+    "output": ""
+  },
+  "limits": [
+    "Checks local link file existence, not source line meaning, Markdown anchors or external URLs.",
+    "Historical source-link issue remains in unchanged repository documentation, separately recorded."
+  ],
+  "audit_artifact_checks_passed": true
+}

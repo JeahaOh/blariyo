@@ -1,0 +1,28 @@
+{
+  "baseline_source": "docs/migration/contract-baseline.json",
+  "mismatched_files": [
+    {
+      "path": "packages/contracts/openapi/m0-collection-assist.yaml",
+      "expected": "9f31e550f30a7f80c119b7ed0e553e22bb60211507a51a4a8faecabfa976be17",
+      "actual": "401f4a580ac30c71d2f2e5bda2a0d3212691ecbd6376a066628e73bddada5029"
+    },
+    {
+      "path": "packages/contracts/src/collection-api.d.ts",
+      "expected": "03dcac61af757e7d58f52fd02b79e80b5a0cd4cdf1eadcb134fc50eb4930b1f5",
+      "actual": "357bf43385dbd29c499e5f4efd81f3348202115f337abaeae121d3c2a4ef67b4"
+    },
+    {
+      "path": "packages/contracts/src/schema.mjs",
+      "expected": "e43249c0dc4d11da8ef9c00b9c5f97a35b644f8bced633134493b9e15aedc8c4",
+      "actual": "b32e446d0bdf94d4425e89fd5fd97629bab1061bee00ddb9406a5c0e7e8d88fa"
+    }
+  ],
+  "new_sql_files": [
+    "apps/api/migrations/V006__collection_content.down.sql",
+    "apps/api/migrations/V006__collection_content.sql",
+    "apps/api/migrations/V007__collection_discovery.down.sql",
+    "apps/api/migrations/V007__collection_discovery.sql"
+  ],
+  "missing_sql_files": [],
+  "interpretation": "Historical migration baseline versus later approved changes; current test still enforces exact baseline. Do not overwrite historical evidence only to turn tests green."
+}

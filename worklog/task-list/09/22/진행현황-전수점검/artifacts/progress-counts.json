@@ -1,0 +1,85 @@
+{
+  "baseline_head": "c69aa53c0112bcff8f50405c3a81b80969bef05a",
+  "denominator": 9,
+  "method": "One current development specification is one equal-weight feature group; partial items receive no completion credit. This is scope inventory, not effort, requirements compliance or release readiness.",
+  "counts": {
+    "partial": 1,
+    "implementation_present_with_prior_validation": 4,
+    "not_implemented": 4
+  },
+  "percentages": {
+    "partial": 11.1,
+    "implementation_present_with_prior_validation": 44.4,
+    "not_implemented": 44.4
+  },
+  "items": [
+    {
+      "path": "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+      "feature": "collection-assist",
+      "group": "M0 collection",
+      "state": "partial",
+      "weight": 1
+    },
+    {
+      "path": "docs/development-specs/m0-core/admin-post-management/admin-post-management.dev.md",
+      "feature": "admin-post-management",
+      "group": "M0 Core",
+      "state": "implementation_present_with_prior_validation",
+      "weight": 1
+    },
+    {
+      "path": "docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md",
+      "feature": "analytics-consent",
+      "group": "M0 Core",
+      "state": "implementation_present_with_prior_validation",
+      "weight": 1
+    },
+    {
+      "path": "docs/development-specs/m0-core/policy-and-rights/policy-and-rights.dev.md",
+      "feature": "policy-and-rights",
+      "group": "M0 Core",
+      "state": "implementation_present_with_prior_validation",
+      "weight": 1
+    },
+    {
+      "path": "docs/development-specs/m0-core/public-post-browsing/public-post-browsing.dev.md",
+      "feature": "public-post-browsing",
+      "group": "M0 Core",
+      "state": "implementation_present_with_prior_validation",
+      "weight": 1
+    },
+    {
+      "path": "docs/development-specs/m1-5/community-moderation/community-moderation.dev.md",
+      "feature": "community-moderation",
+      "group": "M1.5",
+      "state": "not_implemented",
+      "weight": 1
+    },
+    {
+      "path": "docs/development-specs/m1-5/community-participation/community-participation.dev.md",
+      "feature": "community-participation",
+      "group": "M1.5",
+      "state": "not_implemented",
+      "weight": 1
+    },
+    {
+      "path": "docs/development-specs/m1/account-lifecycle/account-lifecycle.dev.md",
+      "feature": "account-lifecycle",
+      "group": "M1",
+      "state": "not_implemented",
+      "weight": 1
+    },
+    {
+      "path": "docs/development-specs/m1/member-identity/member-identity.dev.md",
+      "feature": "member-identity",
+      "group": "M1",
+      "state": "not_implemented",
+      "weight": 1
+    }
+  ],
+  "limitations": [
+    "Current whole-suite validation is incomplete and a contract-baseline test fails.",
+    "Collection assist and direct batch share one specification; their implementation states are separately described in REPORT.md.",
+    "Optional activation, operational gates and changed/removed 2025 scope are excluded."
+  ]
+}

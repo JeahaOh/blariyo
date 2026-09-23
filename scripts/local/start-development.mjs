@@ -1,7 +1,7 @@
 // Stable, loopback-only Web + Core using the persistent development database.
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, writeFile, realpath } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { createServer } from 'node:net';
 import { once } from 'node:events';
@@ -10,14 +10,22 @@ import { createNestApplication } from '../../apps/api/dist/bootstrap/application
 import { localStorage } from '../../apps/api/dist/adapters/storage.js';
 import { LocalCollectReader } from '../../apps/api/dist/adapters/collect-reader.js';
 import { localActorSecret } from './local-identity.mjs';
+import { startCoreWorkers } from './core-workers.mjs';
 
 const origin = 'http://localhost:3000';
 let app,
   child,
+  stopWorkers,
   stopped = false;
 async function stop(code = 0) {
   if (stopped) return;
   stopped = true;
+  try {
+    await stopWorkers?.();
+  } catch {
+    code = 1;
+    console.error('Local worker shutdown failed; values omitted.');
+  }
   if (child && child.exitCode === null && child.signalCode === null) {
     const exited = once(child, 'exit');
     child.kill('SIGTERM');
@@ -29,27 +37,82 @@ async function stop(code = 0) {
   process.exitCode = code;
 }
 async function main() {
-  if (process.argv.length !== 2) throw Error('No remote targets or extra arguments allowed');
+  const args = process.argv.slice(2);
+  const sandboxArg = args.find((arg) => arg.startsWith('--sandbox='));
+  const intervalArg = args.find((arg) => arg.startsWith('--worker-interval-ms='));
+  const workers = args.includes('--workers');
+  if (
+    new Set(args).size !== args.length ||
+    args.some((arg) => arg !== sandboxArg && arg !== intervalArg && arg !== '--workers') ||
+    args.filter((arg) => arg.startsWith('--sandbox=')).length > 1 ||
+    args.filter((arg) => arg.startsWith('--worker-interval-ms=')).length > 1
+  )
+    throw Error('Unknown or duplicate local arguments');
+  if ((workers && !sandboxArg) || (intervalArg && !workers))
+    throw Error('Workers require an isolated sandbox');
+  const intervalMs = intervalArg
+    ? Number(intervalArg.slice('--worker-interval-ms='.length))
+    : 60000;
+  if (!Number.isInteger(intervalMs) || intervalMs < 1000 || intervalMs > 60000)
+    throw Error('Worker interval must be 1000..60000ms');
   for (const port of [3000, 3100]) {
     const probe = createServer();
     probe.listen(port, '127.0.0.1');
     await once(probe, 'listening');
     await new Promise((resolve) => probe.close(resolve));
   }
-  const { config } = contacts.prepare();
-  await contacts.validate(config);
+  const config = sandboxArg
+    ? {
+        rightsEmail: 'rights@example.test',
+        contactEmail: 'contact@example.test',
+        privacyEmail: 'privacy@example.test',
+        privacyOfficer: '격리 검증',
+        operatorDisplayName: '격리 검증',
+      }
+    : contacts.prepare().config;
+  if (!sandboxArg) await contacts.validate(config);
   const token = () => randomBytes(32).toString('hex');
   const serviceToken = token(),
     adminToken = token();
-  const directory = resolve('.local-data/development');
+  const directory = sandboxArg
+    ? await realpath(resolve(sandboxArg.slice('--sandbox='.length)))
+    : resolve('.local-data/development');
+  let sandbox;
+  if (sandboxArg) {
+    sandbox = JSON.parse(await readFile(resolve(directory, 'sandbox.json'), 'utf8'));
+    const target = new URL(sandbox.databaseUrl);
+    if (
+      sandbox.version !== 1 ||
+      target.protocol !== 'postgresql:' ||
+      !['127.0.0.1', 'localhost'].includes(target.hostname) ||
+      !['55449', '5439'].includes(target.port) ||
+      !/^\/blariyo_sandbox_[a-f0-9]{12}$/.test(target.pathname) ||
+      target.search ||
+      target.hash
+    )
+      throw Error('LOCAL_SANDBOX_INVALID');
+  }
   await mkdir(directory, { recursive: true, mode: 0o700 });
   const actorSecret = await localActorSecret(directory);
   let batch;
-  try { batch = JSON.parse(await readFile(resolve(directory, 'batch-config.json'), 'utf8')); }
-  catch (error) { if (error.code !== 'ENOENT') throw error; }
-  const database = new URL('postgresql://blariyo_local@127.0.0.1:5439/blariyo_local');
+  try {
+    if (!sandbox)
+      batch = JSON.parse(await readFile(resolve(directory, 'batch-config.json'), 'utf8'));
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  const database = new URL(
+    sandbox ? sandbox.databaseUrl : 'postgresql://blariyo_local@127.0.0.1:5439/blariyo_local'
+  );
+  const storageRoot = sandbox ? resolve(directory, 'media') : resolve('.local-data/media');
   if (batch) {
-    if (batch.version !== 1 || batch.apiRole !== 'blariyo_api_local' || !/^[a-f0-9]{64}$/.test(batch.apiPassword) || batch.objectRoot !== resolve('.local-data/collector-objects')) throw Error('LOCAL_CONFIG_MISMATCH');
+    if (
+      batch.version !== 1 ||
+      batch.apiRole !== 'blariyo_api_local' ||
+      !/^[a-f0-9]{64}$/.test(batch.apiPassword) ||
+      batch.objectRoot !== resolve('.local-data/collector-objects')
+    )
+      throw Error('LOCAL_CONFIG_MISMATCH');
     database.username = batch.apiRole;
     database.password = batch.apiPassword;
   }
@@ -64,12 +127,20 @@ async function main() {
     collectBatchReviewEnabled: Boolean(batch),
     ...(batch ? { collectReader: new LocalCollectReader(batch.objectRoot) } : {}),
     serviceToken,
-    storage: localStorage(resolve('.local-data/media')),
+    storage: localStorage(storageRoot),
     localMedia: true,
     siteOrigin: origin,
     imageOrigin: origin + '/media',
   });
   await app.listen(3100, '127.0.0.1');
+  if (workers)
+    stopWorkers = await startCoreWorkers({
+      databaseUrl: database.href,
+      storageRoot,
+      origin,
+      intervalMs,
+      fatal: () => void stop(1),
+    });
   child = spawn(process.execPath, [resolve(webOutput, 'server/index.mjs')], {
     stdio: ['ignore', 'inherit', 'inherit'],
     env: {
@@ -102,10 +173,12 @@ async function main() {
     if (!stopped) void stop(code ?? 1);
   });
   console.log(
-    `Persistent local development: ${origin}/meme; Core loopback:3100; DB loopback:5439/blariyo_local`
+    `Local development: ${origin}/meme; Core loopback:3100; ${sandbox ? 'isolated sandbox' : 'persistent development DB'}; workers=${workers}`
   );
   console.log(
-    'Policies and posts are read from the development DB. No automatic content publication.'
+    workers
+      ? 'Explicitly scheduled sandbox posts and sandbox outbox only; collection remains disabled.'
+      : 'Workers disabled. No scheduled publication or outbox processing.'
   );
 }
 process.on('SIGINT', () => void stop());

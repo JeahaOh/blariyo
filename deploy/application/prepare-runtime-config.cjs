@@ -103,6 +103,7 @@ async function prepare(directory = defaultDirectory, create = false) {
     LEGAL_CONFIG: JSON.stringify(publicConfig),
     SITE_ORIGIN: 'https://blariyo.com', IMAGE_ORIGIN: 'https://media.blariyo.com',
     COLLECT_MANUAL_URL_ENABLED: 'false', COLLECT_DISCORD_COMMAND_ENABLED: 'false',
+    COLLECT_BATCH_REVIEW_ENABLED: 'false',
   };
   const web = {
     NODE_ENV: 'production', NITRO_HOST: '0.0.0.0', NITRO_PORT: '3000',
@@ -113,6 +114,7 @@ async function prepare(directory = defaultDirectory, create = false) {
     NUXT_SERVICE_TOKEN: auth.NUXT_SERVICE_TOKEN, NUXT_ACTOR_SECRET: auth.NUXT_ACTOR_SECRET,
     NUXT_TRUSTED_CLIENT_IP_HEADER: '',
     NUXT_COLLECT_MANUAL_URL_ENABLED: 'false', NUXT_COLLECT_DISCORD_COMMAND_ENABLED: 'false',
+    NUXT_COLLECT_BATCH_REVIEW_ENABLED: 'false',
     NUXT_PUBLIC_SITE_ORIGIN: api.SITE_ORIGIN, NUXT_PUBLIC_IMAGE_ORIGIN: api.IMAGE_ORIGIN,
     NUXT_PUBLIC_SITE_NAME: '블라리요', NUXT_PUBLIC_HOME_TAGLINE: '블라블라블라',
     NUXT_PUBLIC_HOME_TITLE: '블라리요 - 블라블라블라',

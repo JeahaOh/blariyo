@@ -51,6 +51,10 @@ async function run() {
     assert.equal(api.APP_DB_PASSWORD_FILE, '/run/secrets/app-password');
     assert.equal(web.NUXT_CORE_ORIGIN, 'http://api:' + api.PORT);
     assert.equal(web.NUXT_LOCAL_ADMIN_TOKEN, '');
+    for (const flag of ['COLLECT_MANUAL_URL_ENABLED', 'COLLECT_DISCORD_COMMAND_ENABLED', 'COLLECT_BATCH_REVIEW_ENABLED']) {
+      assert.equal(api[flag], 'false');
+      assert.equal(web['NUXT_' + flag], 'false');
+    }
     for (const text of Object.values(snapshot)) {
       assert(!text.includes('management-secret'));
       assert(!text.includes('3'.repeat(64)));

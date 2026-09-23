@@ -63,6 +63,11 @@
 [화면 검증](../testing/ui-wireframe-review-20260920.md), [콘텐츠 저장](../../../scripts/content/README.md),
 [배포 실행서](deployment-runbook.md), [배포 정책](deployment-policy.md)을 따른다.
 
+## 환경 설정 기준
+
+local/dev/stage/prod `.env` 예시와 이미지 URL 조립 규칙은 [환경별 설정과 이미지 URL 계약](environment-configuration.md)을 따른다.
+공개 이미지는 `IMAGE_ORIGIN + '/' + publicStorageKey`로 계산한다. 공개 게시글 이미지는 `content/published/posts/{postId}/{imageId}-{sha256}.{ext}` key를 사용하고, 수집용 `collect/media/*`는 public origin에 직접 노출하지 않는다.
+
 ## 운영 진입점
 
 - [서비스·정기 작업 확인과 되돌리기](../../../deploy/operations/README.md)

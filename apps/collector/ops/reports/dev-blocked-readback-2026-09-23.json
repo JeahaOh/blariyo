@@ -1,0 +1,54 @@
+[
+  {
+    "sourceKey": "pgr21",
+    "runId": "3a83f15c-0098-4bfe-bb99-85773debc421",
+    "state": "FAILED",
+    "failureCode": "SOURCE_ACCESS_BLOCKED",
+    "phase": "DETAIL",
+    "detailUrl": "https://pgr21.com/humor/507793",
+    "sourcePostKey": "humor:507793",
+    "canonicalUrl": "",
+    "reportObjectKey": "collect/report/3a83f15c-0098-4bfe-bb99-85773debc421.jsonl",
+    "reportObjectExists": true,
+    "reportObjectBytes": 158
+  },
+  {
+    "sourceKey": "fmkorea",
+    "runId": "c3a478e7-f9c2-47b2-ba73-0373d4ed3d4b",
+    "state": "FAILED",
+    "failureCode": "SOURCE_ACCESS_BLOCKED",
+    "phase": "DETAIL",
+    "detailUrl": "https://www.fmkorea.com/8468698945",
+    "sourcePostKey": "8468698945",
+    "canonicalUrl": "",
+    "reportObjectKey": "collect/report/c3a478e7-f9c2-47b2-ba73-0373d4ed3d4b.jsonl",
+    "reportObjectExists": true,
+    "reportObjectBytes": 160
+  },
+  {
+    "sourceKey": "ppomppu",
+    "runId": "7997fa18-fb43-4310-bbe1-6ac8afe2cfa5",
+    "state": "FAILED",
+    "failureCode": "SOURCE_ACCESS_BLOCKED",
+    "phase": "DETAIL",
+    "detailUrl": "https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&no=10108060",
+    "sourcePostKey": "freeboard:10108060",
+    "canonicalUrl": "",
+    "reportObjectKey": "collect/report/7997fa18-fb43-4310-bbe1-6ac8afe2cfa5.jsonl",
+    "reportObjectExists": true,
+    "reportObjectBytes": 160
+  },
+  {
+    "sourceKey": "youtube-community",
+    "runId": "45ca0295-ecd8-423e-9af7-4aadcaf822a0",
+    "state": "FAILED",
+    "failureCode": "PARSE_FAILED",
+    "phase": "DETAIL",
+    "detailUrl": "https://www.youtube.com/post/UgkxHHtsak1SC8mRGHMZewc4HzeAY3yhPPmJ",
+    "sourcePostKey": "UgkxHHtsak1SC8mRGHMZewc4HzeAY3yhPPmJ",
+    "canonicalUrl": "",
+    "reportObjectKey": "collect/report/45ca0295-ecd8-423e-9af7-4aadcaf822a0.jsonl",
+    "reportObjectExists": true,
+    "reportObjectBytes": 161
+  }
+]

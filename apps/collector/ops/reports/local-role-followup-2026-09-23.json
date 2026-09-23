@@ -1,0 +1,292 @@
+{
+  "scope": "local PostgreSQL + local object store; no publication; no remote S3 or Discord Gateway verification",
+  "sources": [
+    {
+      "source": "todayhumor",
+      "runId": "1c67d17d-19e9-4748-a501-5ca64633597c",
+      "listUrl": "https://www.todayhumor.co.kr/board/list.php?table=humorbest",
+      "listRawSha256": "5cae3c8f0d081cad25daa9879146ee8ab9cb6f4669582a0e924500647690dcce",
+      "listRawPath": ".local-data/site-probes/todayhumor/1790127323885-list.html",
+      "listEntries": 30,
+      "report": {
+        "runId": "1c67d17d-19e9-4748-a501-5ca64633597c",
+        "source": "todayhumor",
+        "state": "PARTIAL",
+        "pages": 1,
+        "discovered": 5,
+        "fetched": 1,
+        "duplicates": 3,
+        "failures": 1,
+        "unknownDates": 1,
+        "skippedByDate": 0,
+        "errors": [
+          "SOURCE_IMAGE_LIMIT_EXCEEDED"
+        ]
+      },
+      "readbackPass": true,
+      "images": 4,
+      "items": [
+        {
+          "id": "3fbaf696-a882-429e-a737-c183fc18ecab",
+          "state": "FAILED",
+          "url": "https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797973",
+          "blocks": 0,
+          "sns": 0,
+          "rawBytes": 116804,
+          "rawSha256": "73c9e33aca0af33744ca3629f874e4fe8ad50fae9f4aa6389f9fe92ed0d4592a",
+          "failureCode": "SOURCE_IMAGE_LIMIT_EXCEEDED",
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "da6279bb-00f2-4564-af5c-8c6cdd066806",
+          "state": "FETCHED",
+          "url": "https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797974",
+          "blocks": 4,
+          "sns": 0,
+          "rawBytes": 110283,
+          "rawSha256": "6fe8d6684866f476a68ad133bdd57ddda660b18836f2865151fd079ea9b95daf",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "source": "yuldo",
+      "runId": "b9c302ac-c4b9-44cb-bab7-4548e431db1a",
+      "listUrl": "https://yul-do.com/humorissue",
+      "listRawSha256": "cc3fec7708affbecda3f377bb502906fd8e602c8626d962062ac1aca9d007cd0",
+      "listRawPath": ".local-data/site-probes/yuldo/1790127335363-list.html",
+      "listEntries": 15,
+      "report": {
+        "runId": "b9c302ac-c4b9-44cb-bab7-4548e431db1a",
+        "source": "yuldo",
+        "state": "COMPLETED",
+        "pages": 1,
+        "discovered": 5,
+        "fetched": 4,
+        "duplicates": 1,
+        "failures": 0,
+        "unknownDates": 0,
+        "skippedByDate": 0,
+        "errors": []
+      },
+      "readbackPass": true,
+      "images": 6,
+      "items": [
+        {
+          "id": "02fcf6e7-5644-45ed-874b-61df0e76476f",
+          "state": "FETCHED",
+          "url": "https://yul-do.com/humorissue/102746824",
+          "blocks": 2,
+          "sns": 1,
+          "rawBytes": 49094,
+          "rawSha256": "01cc4af8ee2934ee7c1ebb2a804431c55098d7181f654feadc10916dc5b38244",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "622038bd-bd45-42d9-9ba5-74e3ce88ea1a",
+          "state": "FETCHED",
+          "url": "https://yul-do.com/humorissue/102747000",
+          "blocks": 2,
+          "sns": 0,
+          "rawBytes": 49265,
+          "rawSha256": "f8d6cbd82f498fd8c9168462b157033d757c722dd874eaa81934871f1116f274",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "1a09d8b6-0c90-45d1-8c97-5bd1e6d8cca2",
+          "state": "FETCHED",
+          "url": "https://yul-do.com/humorissue/102747320",
+          "blocks": 1,
+          "sns": 0,
+          "rawBytes": 49155,
+          "rawSha256": "f0fd4e5d3c950942fc66f272759cc8753748bc9677550ab1adf531e447240aa3",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "d35db838-c6aa-4006-b50e-3ff7100136c6",
+          "state": "FETCHED",
+          "url": "https://yul-do.com/humorissue/102748247",
+          "blocks": 4,
+          "sns": 0,
+          "rawBytes": 49516,
+          "rawSha256": "1d0bfd2b7d817d6548e46f93e55ecd8821c2fcf8e0136ea076ca8302f6546534",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "source": "dmitory",
+      "runId": "53d83bab-7e61-4ebf-bb38-012bf672b263",
+      "listUrl": "https://www.dmitory.com/issue",
+      "listRawSha256": "7a13058403b92251393ab5b048e628d193304593c627ef5cc22a53f6fc883236",
+      "listRawPath": ".local-data/site-probes/dmitory/1790127335639-list.html",
+      "listEntries": 20,
+      "report": {
+        "runId": "53d83bab-7e61-4ebf-bb38-012bf672b263",
+        "source": "dmitory",
+        "state": "COMPLETED",
+        "pages": 1,
+        "discovered": 5,
+        "fetched": 5,
+        "duplicates": 0,
+        "failures": 0,
+        "unknownDates": 5,
+        "skippedByDate": 0,
+        "errors": []
+      },
+      "readbackPass": true,
+      "images": 5,
+      "items": [
+        {
+          "id": "e6b69aff-fcf8-4c6d-82b0-3de06556a9df",
+          "state": "FETCHED",
+          "url": "https://www.dmitory.com/issue/426348405",
+          "blocks": 2,
+          "sns": 0,
+          "rawBytes": 61072,
+          "rawSha256": "b7c53d7979898346da6e0b84fa97cb616b23ce29b7bb75fdd1e01a11f508fad9",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "074207de-7ce2-462a-a5d3-86e5bb7094b8",
+          "state": "FETCHED",
+          "url": "https://www.dmitory.com/issue/426348290",
+          "blocks": 2,
+          "sns": 0,
+          "rawBytes": 67757,
+          "rawSha256": "f4b88fd2a4fcbcb4f8a84399cedf599bcbfb04e45ff6e72a1403d3ec31419bcc",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "33ebd61b-994a-40dd-bd24-5ad6055f5dd4",
+          "state": "FETCHED",
+          "url": "https://www.dmitory.com/issue/426348845",
+          "blocks": 2,
+          "sns": 0,
+          "rawBytes": 67662,
+          "rawSha256": "3359e0d05b28f35e94c7ef1c4f47ef11f2981729f52121f10a49e0021df6ede7",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "23e4fbf3-3dad-44b8-8d7a-6adeba46d710",
+          "state": "FETCHED",
+          "url": "https://www.dmitory.com/issue/426348284",
+          "blocks": 2,
+          "sns": 0,
+          "rawBytes": 58632,
+          "rawSha256": "f711a60a6ce9a4b2fcd68302171fbe26b088a3f5407931fe2f2ea95cb42a7198",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "5df83bc7-ebed-438b-b047-4a9461e3ba74",
+          "state": "FETCHED",
+          "url": "https://www.dmitory.com/issue/426348008",
+          "blocks": 3,
+          "sns": 3,
+          "rawBytes": 59321,
+          "rawSha256": "141605d5632c1deac548f510581c86d9ff4ddd3c14894b5eb54adc45219d5c35",
+          "failureCode": null,
+          "skipReason": null,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "source": "dcinside",
+      "runId": "fb597d66-d042-4cf4-a2ba-fcd7930af028",
+      "listUrl": "https://gall.dcinside.com/board/lists/?id=hit",
+      "listRawSha256": "084a7e5ae60e79ae2edc46e09937b7f7ef9132873171bd7991020a8480edfe15",
+      "listRawPath": ".local-data/site-probes/dcinside/1790127324208-list.html",
+      "listEntries": 47,
+      "report": {
+        "runId": "fb597d66-d042-4cf4-a2ba-fcd7930af028",
+        "source": "dcinside",
+        "state": "FAILED",
+        "pages": 1,
+        "discovered": 5,
+        "fetched": 0,
+        "duplicates": 1,
+        "failures": 4,
+        "unknownDates": 0,
+        "skippedByDate": 0,
+        "errors": [
+          "SOURCE_IMAGE_LIMIT_EXCEEDED",
+          "SOURCE_IMAGE_LIMIT_EXCEEDED",
+          "SOURCE_IMAGE_LIMIT_EXCEEDED",
+          "SOURCE_IMAGE_LIMIT_EXCEEDED"
+        ]
+      },
+      "readbackPass": true,
+      "images": 0,
+      "items": [
+        {
+          "id": "65248721-e355-4379-a654-1f27ae6b3528",
+          "state": "FAILED",
+          "url": "https://gall.dcinside.com/board/view/?id=hit&no=17809",
+          "blocks": 0,
+          "sns": 0,
+          "rawBytes": 360970,
+          "rawSha256": "77631d3ce8fb5e927adab35f1678c57acd86f1f850b083560cd8f69d78a7d5fd",
+          "failureCode": "SOURCE_IMAGE_LIMIT_EXCEEDED",
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "f28a41b9-1244-4615-b497-56daa7f4a093",
+          "state": "FAILED",
+          "url": "https://gall.dcinside.com/board/view/?id=hit&no=17808",
+          "blocks": 0,
+          "sns": 0,
+          "rawBytes": 338426,
+          "rawSha256": "beb2af5ad32e4af296f8d9ce69c4a59f299dfe89d70238dfe644ccf0ada5594e",
+          "failureCode": "SOURCE_IMAGE_LIMIT_EXCEEDED",
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "ae98482a-aae4-4643-ab95-a9e35e02afaf",
+          "state": "FAILED",
+          "url": "https://gall.dcinside.com/board/view/?id=hit&no=17807",
+          "blocks": 0,
+          "sns": 0,
+          "rawBytes": 300499,
+          "rawSha256": "51208c0431043912ef53b98562359de3f3d000d9fd56a00709b5e0f8f37bec2a",
+          "failureCode": "SOURCE_IMAGE_LIMIT_EXCEEDED",
+          "skipReason": null,
+          "pass": true
+        },
+        {
+          "id": "e908741c-359e-4c3a-a118-835b05fe5798",
+          "state": "FAILED",
+          "url": "https://gall.dcinside.com/board/view/?id=hit&no=17805",
+          "blocks": 0,
+          "sns": 0,
+          "rawBytes": 328373,
+          "rawSha256": "18998a6935e7be1dba8760dac660ddd6fbe01109766bd0073a3d4f2b7d2d8743",
+          "failureCode": "SOURCE_IMAGE_LIMIT_EXCEEDED",
+          "skipReason": null,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

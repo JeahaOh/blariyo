@@ -1,0 +1,310 @@
+{
+  "at": "2026-09-23T02:25:44.467Z",
+  "database": "blariyo_local",
+  "scope": "All FETCHED rows in one read-only snapshot; running/failed rows are not declared complete.",
+  "states": [
+    {
+      "source_key": "arcalive",
+      "state": "FETCHED",
+      "count": 7
+    },
+    {
+      "source_key": "bobaedream",
+      "state": "FETCHED",
+      "count": 4
+    },
+    {
+      "source_key": "clien",
+      "state": "FETCHED",
+      "count": 4
+    },
+    {
+      "source_key": "dcinside",
+      "state": "FETCHED",
+      "count": 5
+    },
+    {
+      "source_key": "dmitory",
+      "state": "FETCHED",
+      "count": 10
+    },
+    {
+      "source_key": "dogdrip",
+      "state": "FETCHED",
+      "count": 4
+    },
+    {
+      "source_key": "etoland",
+      "state": "FETCHED",
+      "count": 4
+    },
+    {
+      "source_key": "goodgag",
+      "state": "FAILED",
+      "count": 1
+    },
+    {
+      "source_key": "goodgag",
+      "state": "FETCHED",
+      "count": 9
+    },
+    {
+      "source_key": "humoruniv",
+      "state": "FETCHED",
+      "count": 6
+    },
+    {
+      "source_key": "instiz",
+      "state": "FETCHED",
+      "count": 5
+    },
+    {
+      "source_key": "inven",
+      "state": "FETCHED",
+      "count": 4
+    },
+    {
+      "source_key": "mlbpark",
+      "state": "FETCHED",
+      "count": 5
+    },
+    {
+      "source_key": "natepann",
+      "state": "FETCHED",
+      "count": 5
+    },
+    {
+      "source_key": "pgr21",
+      "state": "BLOCKED",
+      "count": 1
+    },
+    {
+      "source_key": "ruliweb",
+      "state": "FETCHED",
+      "count": 5
+    },
+    {
+      "source_key": "theqoo",
+      "state": "FETCHED",
+      "count": 5
+    },
+    {
+      "source_key": "theqoo",
+      "state": "SKIPPED_POLICY",
+      "count": 1
+    },
+    {
+      "source_key": "todayhumor",
+      "state": "FETCHED",
+      "count": 7
+    },
+    {
+      "source_key": "youtube-community",
+      "state": "FAILED",
+      "count": 1
+    },
+    {
+      "source_key": "yuldo",
+      "state": "FETCHED",
+      "count": 14
+    }
+  ],
+  "sources": {
+    "arcalive": {
+      "items": 7,
+      "images": 17,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "bobaedream": {
+      "items": 4,
+      "images": 10,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "clien": {
+      "items": 4,
+      "images": 0,
+      "files": 0,
+      "sns": 1,
+      "failures": 0
+    },
+    "dcinside": {
+      "items": 5,
+      "images": 175,
+      "files": 0,
+      "sns": 0,
+      "failures": 5
+    },
+    "dmitory": {
+      "items": 10,
+      "images": 14,
+      "files": 0,
+      "sns": 8,
+      "failures": 0
+    },
+    "dogdrip": {
+      "items": 4,
+      "images": 14,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "etoland": {
+      "items": 4,
+      "images": 1,
+      "files": 0,
+      "sns": 1,
+      "failures": 0
+    },
+    "goodgag": {
+      "items": 9,
+      "images": 10,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "humoruniv": {
+      "items": 6,
+      "images": 18,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "instiz": {
+      "items": 5,
+      "images": 19,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "inven": {
+      "items": 4,
+      "images": 4,
+      "files": 0,
+      "sns": 1,
+      "failures": 0
+    },
+    "mlbpark": {
+      "items": 5,
+      "images": 2,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "natepann": {
+      "items": 5,
+      "images": 10,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "ruliweb": {
+      "items": 5,
+      "images": 12,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "theqoo": {
+      "items": 5,
+      "images": 4,
+      "files": 0,
+      "sns": 0,
+      "failures": 0
+    },
+    "todayhumor": {
+      "items": 7,
+      "images": 37,
+      "files": 0,
+      "sns": 1,
+      "failures": 12
+    },
+    "yuldo": {
+      "items": 14,
+      "images": 25,
+      "files": 0,
+      "sns": 9,
+      "failures": 0
+    }
+  },
+  "failures": [
+    {
+      "id": "e908741c-359e-4c3a-a118-835b05fe5798",
+      "source": "dcinside",
+      "codes": [
+        "IMAGE_DECODE_POLICY_EXCEEDED:39"
+      ]
+    },
+    {
+      "id": "f28a41b9-1244-4615-b497-56daa7f4a093",
+      "source": "dcinside",
+      "codes": [
+        "IMAGE_DECODE_POLICY_EXCEEDED:2",
+        "IMAGE_DECODE_POLICY_EXCEEDED:8",
+        "IMAGE_DECODE_POLICY_EXCEEDED:12",
+        "IMAGE_DECODE_POLICY_EXCEEDED:17"
+      ]
+    },
+    {
+      "id": "1f3e0262-6517-4bf9-974c-a2c26dd56ef7",
+      "source": "todayhumor",
+      "codes": [
+        "IMAGE_MIME:2",
+        "IMAGE_MIME:4"
+      ]
+    },
+    {
+      "id": "7895126e-93c4-45d1-9618-0302db53a736",
+      "source": "todayhumor",
+      "codes": [
+        "IMAGE_MIME:2"
+      ]
+    },
+    {
+      "id": "0f32bbbe-a3ec-4e77-90a7-99d6a726f982",
+      "source": "todayhumor",
+      "codes": [
+        "IMAGE_MIME:3"
+      ]
+    },
+    {
+      "id": "6d7930e1-4f2c-4b04-8b3f-4ee173dc58db",
+      "source": "todayhumor",
+      "codes": [
+        "IMAGE_MIME:2"
+      ]
+    },
+    {
+      "id": "6de5fece-13c3-4504-baab-5ff0e0f0de49",
+      "source": "todayhumor",
+      "codes": [
+        "IMAGE_MIME:1"
+      ]
+    },
+    {
+      "id": "3fbaf696-a882-429e-a737-c183fc18ecab",
+      "source": "todayhumor",
+      "codes": [
+        "IMAGE_MIME:20",
+        "IMAGE_MIME:21"
+      ]
+    },
+    {
+      "id": "da6279bb-00f2-4564-af5c-8c6cdd066806",
+      "source": "todayhumor",
+      "codes": [
+        "IMAGE_MIME:1",
+        "IMAGE_MIME:2",
+        "IMAGE_MIME:3",
+        "IMAGE_MIME:4"
+      ]
+    }
+  ],
+  "items": 103,
+  "images": 372,
+  "files": 0,
+  "sns": 21
+}

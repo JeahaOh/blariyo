@@ -1,0 +1,41 @@
+[
+  {
+    "source": "fmkorea",
+    "mode": "list",
+    "at": "2026-09-23T02:21:04.403010Z",
+    "url": "https://www.fmkorea.com/best",
+    "responses": [
+      {
+        "sha256": "1ee70ed691660b3e05aa5a9a1fc76aed5b34db3ebdb0ee184f1b28e4af21308a",
+        "status": 430,
+        "bytes": 6169
+      }
+    ],
+    "state": "BLOCKED_OR_FAILED",
+    "code": "SOURCE_HTTP_REJECTED",
+    "failureStatus": 422,
+    "exit": 2
+  },
+  {
+    "source": "ppomppu",
+    "mode": "list",
+    "at": "2026-09-23T02:21:04.397800Z",
+    "url": "https://www.ppomppu.co.kr/hot.php",
+    "responses": [
+      {
+        "sha256": "88864cdd1e7ed3cff24b0ee6c8a7b3f2957cf25bc39e18c72b37b88e530fe80a",
+        "status": 302,
+        "bytes": 161
+      },
+      {
+        "sha256": "24ae6d1f9eacfbec3638fbba5715b2c93d96c651d577646ae9942bdf4fa5de8a",
+        "status": 403,
+        "bytes": 169
+      }
+    ],
+    "state": "BLOCKED_OR_FAILED",
+    "code": "SOURCE_ACCESS_BLOCKED",
+    "failureStatus": 403,
+    "exit": 2
+  }
+]

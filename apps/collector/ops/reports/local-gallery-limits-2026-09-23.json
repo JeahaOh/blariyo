@@ -1,0 +1,77 @@
+{
+  "scope": "Local PostgreSQL/object storage; two previously failed public articles; formal review/draft/separate publish. No remote S3 or Discord Gateway claim.",
+  "limits": {
+    "images": 200,
+    "fileBytes": 31457280,
+    "articleBytes": 157286400
+  },
+  "runs": [
+    {
+      "source": "todayhumor",
+      "runId": "a3ac4fde-19e8-433f-acd8-d8a7d1841dd6",
+      "promotion": {
+        "source": "todayhumor",
+        "itemId": "3fbaf696-a882-429e-a737-c183fc18ecab",
+        "postId": 106,
+        "draftImages": 21,
+        "privateReadback": true,
+        "publicUrl": "http://localhost:3000/meme/posts/106",
+        "at": "2026-09-23T01:53:08.465Z"
+      },
+      "readbackFile": ".local-data/verification/batch-run-a3ac4fde-19e8-433f-acd8-d8a7d1841dd6.json",
+      "readbackPass": true
+    },
+    {
+      "source": "dcinside",
+      "runId": "a0500dfe-5e97-4621-8442-3c1a5b780cac",
+      "promotion": {
+        "source": "dcinside",
+        "itemId": "65248721-e355-4379-a654-1f27ae6b3528",
+        "postId": 107,
+        "draftImages": 49,
+        "privateReadback": true,
+        "sourceBlocks": 143,
+        "publicUrl": "http://localhost:3000/meme/posts/107",
+        "at": "2026-09-23T01:59:30.756Z"
+      },
+      "readbackFile": ".local-data/verification/batch-run-a0500dfe-5e97-4621-8442-3c1a5b780cac.json",
+      "readbackPass": true
+    }
+  ],
+  "public": {
+    "posts": 70,
+    "images": 207,
+    "bodies": 70,
+    "sns": {
+      "total": 10,
+      "missing": 0
+    },
+    "failures": 0
+  },
+  "dryRun": {
+    "source": "dcinside",
+    "tables": 11,
+    "objects": 379,
+    "unchanged": true
+  },
+  "remaining": "Three DCInside items require new hot-list batch results; Goodgag oversized image requires current retry; full 21-site acceptance remains active.",
+  "goodgagRetry": {
+    "runId": "dc4be5cd-3010-4b5b-a309-c726179f9771",
+    "state": "FAILED",
+    "reason": "SOURCE_TOO_LARGE",
+    "media": 0,
+    "readbackPass": true,
+    "collectionComplete": false,
+    "headStatus": 200,
+    "declaredBytes": 45590774,
+    "fileLimitBytes": 31457280,
+    "classification": "Resource policy limit, not access blocked."
+  },
+  "continuingHotBatch": {
+    "source": "dcinside",
+    "runId": "5bef4c3f-d638-41ac-bb4e-310dfac23307",
+    "observedState": "RUNNING",
+    "maxPages": 1,
+    "maxItems": 5
+  }
+}

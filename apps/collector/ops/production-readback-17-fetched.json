@@ -1,0 +1,172 @@
+[
+  {
+    "kind": "batch",
+    "source": "arcalive",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 hot list→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "bobaedream",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 hot list→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "clien",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 일반 목록→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "dcinside",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 hot list→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "dmitory",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 일반 목록→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "dogdrip",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 hot list→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "etoland",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 일반 목록→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "goodgag",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 일반 목록→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "humoruniv",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 일반 목록→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "instiz",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 일반 목록→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "inven",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 hot list→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "mlbpark",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 일반 목록→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "natepann",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 일반 목록→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "ruliweb",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 hot list→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "theqoo",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 hot list→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "todayhumor",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 hot list→detail→DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "yuldo",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "개발 DB에서 FETCHED_DEV_READBACK 확인된 사이트의 운영 일반 목록→detail→DB/S3 readback 확인"
+  }
+]

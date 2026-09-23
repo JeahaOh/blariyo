@@ -1,0 +1,30 @@
+[
+  {
+    "kind": "collect-url",
+    "source": "pgr21",
+    "url": "https://pgr21.com/humor/507793",
+    "intervalMs": 10000,
+    "purpose": "Anubis/연결 확인 challenge 상세 URL의 SOURCE_ACCESS_BLOCKED 저장/readback 확인"
+  },
+  {
+    "kind": "collect-url",
+    "source": "fmkorea",
+    "url": "https://www.fmkorea.com/best/8468698945",
+    "intervalMs": 10000,
+    "purpose": "보안 페이지/HTTP 430 상세 URL의 SOURCE_ACCESS_BLOCKED 저장/readback 확인"
+  },
+  {
+    "kind": "collect-url",
+    "source": "ppomppu",
+    "url": "https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&no=10108060",
+    "intervalMs": 10000,
+    "purpose": "nginx 403 상세 URL의 SOURCE_ACCESS_BLOCKED 저장/readback 확인"
+  },
+  {
+    "kind": "collect-url",
+    "source": "youtube-community",
+    "url": "https://www.youtube.com/post/UgkxHHtsak1SC8mRGHMZewc4HzeAY3yhPPmJ",
+    "intervalMs": 10000,
+    "purpose": "정적 HTML renderer 부재 상세 URL의 PARSE_FAILED 저장/readback 확인"
+  }
+]

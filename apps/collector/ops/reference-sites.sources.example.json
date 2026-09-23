@@ -38,9 +38,12 @@
       "robotsStatus": 200,
       "capturedHtmlDbReadback": true,
       "liveReadback": true,
-      "parserImplemented": true
+      "parserImplemented": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "HOT_LIST",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "bobaedream": {
     "approved": true,
@@ -87,9 +90,12 @@
       "robotsStatus": 200,
       "capturedHtmlDbReadback": true,
       "liveReadback": true,
-      "parserImplemented": true
+      "parserImplemented": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "HOT_LIST",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "clien": {
     "approved": true,
@@ -110,7 +116,7 @@
     "coreSourceId": null,
     "bodySelector": ".post_article, article .post-content, .board_read .content",
     "charts": {
-      "hot": "https://www.clien.net/service/board/park"
+      "latest": "https://www.clien.net/service/board/park"
     },
     "chartVerified": true,
     "blockedReason": "",
@@ -126,9 +132,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "GENERAL_LIST",
+    "defaultChart": "latest",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "dcinside": {
     "approved": true,
@@ -153,6 +162,9 @@
       ],
       "https://nstatic.dcinside.com": [
         "/"
+      ],
+      "https://dcimg5.dcinside.com": [
+        "/dccon.php"
       ]
     },
     "batchApproved": true,
@@ -175,9 +187,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "HOT_LIST",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "dmitory": {
     "approved": true,
@@ -201,7 +216,7 @@
     "coreSourceId": null,
     "bodySelector": ".read_body .xe_content, #rd_body_content .xe_content",
     "charts": {
-      "hot": "https://www.dmitory.com/issue"
+      "latest": "https://www.dmitory.com/issue"
     },
     "chartVerified": true,
     "blockedReason": "",
@@ -217,9 +232,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "GENERAL_LIST",
+    "defaultChart": "latest",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "dogdrip": {
     "approved": true,
@@ -253,9 +271,12 @@
       "robotsStatus": 200,
       "capturedHtmlDbReadback": true,
       "liveReadback": true,
-      "parserImplemented": true
+      "parserImplemented": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "HOT_LIST",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "etoland": {
     "approved": true,
@@ -280,7 +301,7 @@
     "coreSourceId": null,
     "bodySelector": "#bo_v_con, .view-content, .view_content, .board_view .content, .view-wrap .content, article .content",
     "charts": {
-      "hot": "https://etoland.co.kr/b/etohumor06/list"
+      "latest": "https://etoland.co.kr/b/etohumor06/list"
     },
     "chartVerified": true,
     "blockedReason": "",
@@ -296,9 +317,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "GENERAL_LIST",
+    "defaultChart": "latest",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "fmkorea": {
     "approved": true,
@@ -335,9 +359,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": false
+      "liveReadback": false,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "BLOCKED",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "goodgag": {
     "approved": true,
@@ -361,7 +388,7 @@
     "coreSourceId": null,
     "bodySelector": ".content.issue, .xe_content, #bo_v_con, .view_content, article .content",
     "charts": {
-      "hot": "https://www.goodgag.net/"
+      "latest": "https://www.goodgag.net/"
     },
     "chartVerified": true,
     "blockedReason": "",
@@ -377,9 +404,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "GENERAL_LIST",
+    "defaultChart": "latest",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "humoruniv": {
     "approved": true,
@@ -429,7 +459,7 @@
     "coreSourceId": null,
     "bodySelector": ".daum-wm-content",
     "charts": {
-      "hot": "https://m.humoruniv.com/board/list.html?table=pds"
+      "latest": "https://m.humoruniv.com/board/list.html?table=pds"
     },
     "chartVerified": true,
     "blockedReason": "",
@@ -445,13 +475,16 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "VERIFIED_LOCAL",
+    "collectionPolicy": "GENERAL_LIST",
     "hostAliases": [
       "web.humoruniv.com",
       "humoruniv.com"
-    ]
+    ],
+    "defaultChart": "latest",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "instiz": {
     "approved": true,
@@ -481,7 +514,7 @@
     "coreSourceId": null,
     "bodySelector": "#memo_content_1, .memo_content, .post_content, article .content",
     "charts": {
-      "hot": "https://www.instiz.net/pt"
+      "latest": "https://www.instiz.net/pt"
     },
     "chartVerified": true,
     "blockedReason": "",
@@ -497,9 +530,12 @@
       "discordGateway": false,
       "robotsStatus": 403,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "GENERAL_LIST",
+    "defaultChart": "latest",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "inven": {
     "approved": true,
@@ -537,9 +573,12 @@
       "robotsStatus": 200,
       "capturedHtmlDbReadback": true,
       "liveReadback": true,
-      "parserImplemented": true
+      "parserImplemented": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "HOT_LIST",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "mlbpark": {
     "approved": true,
@@ -566,7 +605,7 @@
     "coreSourceId": null,
     "bodySelector": "#contentDetail, .ar_txt, .view_content, article .content",
     "charts": {
-      "hot": "https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen"
+      "latest": "https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen"
     },
     "chartVerified": true,
     "blockedReason": "",
@@ -582,9 +621,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "GENERAL_LIST",
+    "defaultChart": "latest",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "natepann": {
     "approved": true,
@@ -611,7 +653,7 @@
     "coreSourceId": null,
     "bodySelector": "div.viewarea > div.view-wrap > div.posting > table > tbody > tr > td > div#contentArea",
     "charts": {
-      "hot": "https://pann.nate.com/talk/c20002"
+      "latest": "https://pann.nate.com/talk/c20002"
     },
     "chartVerified": true,
     "blockedReason": "",
@@ -627,9 +669,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "GENERAL_LIST",
+    "defaultChart": "latest",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "pgr21": {
     "approved": true,
@@ -664,9 +709,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": false
+      "liveReadback": false,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "UNVERIFIED"
+    "collectionPolicy": "DETAIL_ONLY",
+    "defaultChart": null,
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "ppomppu": {
     "approved": true,
@@ -704,9 +752,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": false
+      "liveReadback": false,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "BLOCKED",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "ruliweb": {
     "approved": true,
@@ -752,9 +803,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "HOT_LIST",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "theqoo": {
     "approved": true,
@@ -778,6 +832,9 @@
       ],
       "https://t1.daumcdn.net": [
         "/"
+      ],
+      "https://img-cdn.theqoo.net": [
+        "/"
       ]
     },
     "batchApproved": true,
@@ -800,9 +857,12 @@
       "discordGateway": false,
       "robotsStatus": 404,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "HOT_LIST",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "todayhumor": {
     "approved": true,
@@ -842,9 +902,12 @@
       "discordGateway": false,
       "robotsStatus": 404,
       "parserImplemented": true,
-      "liveReadback": true
+      "liveReadback": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "HOT_LIST",
+    "defaultChart": "hot",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "yuldo": {
     "approved": true,
@@ -871,7 +934,7 @@
     "coreSourceId": null,
     "bodySelector": ".xe_content, .rd_body, article .content, .document-content",
     "charts": {
-      "hot": "https://yul-do.com/humorissue"
+      "latest": "https://yul-do.com/humorissue"
     },
     "chartVerified": true,
     "blockedReason": "",
@@ -887,9 +950,12 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "liveReadback": true,
-      "parserImplemented": true
+      "parserImplemented": true,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "HOT_LIST"
+    "collectionPolicy": "GENERAL_LIST",
+    "defaultChart": "latest",
+    "datePolicy": "INCLUDE_UNKNOWN"
   },
   "youtube-community": {
     "approved": true,
@@ -931,8 +997,11 @@
       "discordGateway": false,
       "robotsStatus": 200,
       "parserImplemented": true,
-      "liveReadback": false
+      "liveReadback": false,
+      "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
-    "collectionPolicy": "BLOCKED"
+    "collectionPolicy": "DETAIL_ONLY",
+    "defaultChart": null,
+    "datePolicy": "INCLUDE_UNKNOWN"
   }
 }

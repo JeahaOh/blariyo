@@ -1,0 +1,6 @@
+{
+  "url": "https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797973",
+  "rawSha256": "7406bbd981761731caeeaf29fea5e293967360ba6c61e27435fd6c9a264eaa05",
+  "fixtureSha256": "00af5658cdac16007266caf0f3e1c0a26adf3d0be36777b77fc9213a19f0ccc3",
+  "transformation": "Actual div.viewContent had no text and 21 img[src] elements. Retained order/count in a minimal body; title, alt and image URLs replaced with fixture values. Live DB/object readback is separate from this sanitized regression fixture."
+}

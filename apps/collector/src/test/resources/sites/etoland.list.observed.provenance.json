@@ -1,0 +1,7 @@
+{
+  "url": "https://etoland.co.kr/b/etohumor06/list",
+  "capturedAt": "2026-09-23T00:14:36.963466Z",
+  "rawSha256": "afe1ef85e524094d027bbf265df712594c5761c99e62bd75a8ec20a6237b3742",
+  "fixtureSha256": "6dc3cffb6813652b78b97910d617dcd427e2b5b317a54e2f63887217c009a3dc",
+  "transformation": "Three observed list rows; kept DOM/class/id/href; replaced text and removed SVG/images; no invented selectors. Includes two category notices and a regular row. Removed unrelated profile/action href attributes."
+}

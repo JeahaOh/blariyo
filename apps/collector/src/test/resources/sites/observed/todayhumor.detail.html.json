@@ -1,0 +1,33 @@
+{
+  "source": "todayhumor",
+  "kind": "detail",
+  "url": "https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797973",
+  "rawSha256": "7406bbd981761731caeeaf29fea5e293967360ba6c61e27435fd6c9a264eaa05",
+  "fixtureSha256": "13b0f1131730209e4d702e4e3e00745d15a5360aeb5596825dbc6f98dce9c71a",
+  "shape": [
+    "IMAGE:1",
+    "IMAGE:2",
+    "IMAGE:3",
+    "IMAGE:4",
+    "IMAGE:5",
+    "IMAGE:6",
+    "IMAGE:7",
+    "IMAGE:8",
+    "IMAGE:9",
+    "IMAGE:10",
+    "IMAGE:11",
+    "IMAGE:12",
+    "IMAGE:13",
+    "IMAGE:14",
+    "IMAGE:15",
+    "IMAGE:16",
+    "IMAGE:17",
+    "IMAGE:18",
+    "IMAGE:19",
+    "IMAGE:20",
+    "IMAGE:21"
+  ],
+  "images": 21,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

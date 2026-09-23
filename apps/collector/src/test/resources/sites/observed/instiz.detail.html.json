@@ -1,0 +1,28 @@
+{
+  "source": "instiz",
+  "kind": "detail",
+  "url": "https://www.instiz.net/pt/7906097",
+  "rawSha256": "1bbb6f0378c5e3cce8343f5339d8aaad8984167e41480b06b291a1f2defc799c",
+  "fixtureSha256": "d79010e6503ab591ee91a27a17f85598cb843c3210b859806f3b106fb8daf316",
+  "shape": [
+    "TEXT",
+    "IMAGE:1",
+    "IMAGE:2",
+    "TEXT",
+    "IMAGE:3",
+    "TEXT",
+    "IMAGE:4",
+    "TEXT",
+    "IMAGE:5",
+    "IMAGE:6",
+    "IMAGE:7",
+    "IMAGE:8",
+    "TEXT",
+    "IMAGE:9",
+    "TEXT",
+    "TEXT"
+  ],
+  "images": 9,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

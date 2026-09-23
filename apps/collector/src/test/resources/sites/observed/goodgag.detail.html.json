@@ -1,0 +1,13 @@
+{
+  "source": "goodgag",
+  "kind": "detail",
+  "url": "https://www.goodgag.net/371438",
+  "rawSha256": "b41dbbd50c6779618063f7ad67e7039a64a028e9ecb084cf4039ac370717ef2a",
+  "fixtureSha256": "b0be138471b87da84d872bc2ca5c77554ad50149cd4f39ecd497f9eceb620584",
+  "shape": [
+    "IMAGE:1"
+  ],
+  "images": 1,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

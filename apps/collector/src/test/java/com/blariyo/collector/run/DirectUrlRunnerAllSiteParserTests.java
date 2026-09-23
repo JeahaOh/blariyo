@@ -27,7 +27,7 @@ class DirectUrlRunnerAllSiteParserTests {
     var objects = mock(BatchObjectStore.class);
     UUID run = UUID.randomUUID(), item = UUID.randomUUID();
     when(store.begin(eq(sourceKey), eq("manual"), eq("WRITE_DB"), eq(1), eq(1), eq(0L), isNull())).thenReturn(run);
-    when(store.item(eq(run), eq(sourceKey), anyString(), eq(url), eq("FETCHING"), contains("fixture title"), contains("fixture body"), contains("file.pdf"), contains("x.com/fixture/status/123"), isNull())).thenReturn(item);
+    when(store.claim(eq(run),eq(sourceKey),anyString(),eq(url))).thenReturn(item);
     when(objects.put(anyString(), any(), anyString())).thenAnswer(invocation ->
         new BatchObjectStore.Record(invocation.getArgument(0), new byte[32], ((byte[]) invocation.getArgument(1)).length, invocation.getArgument(2)));
 
@@ -38,11 +38,12 @@ class DirectUrlRunnerAllSiteParserTests {
     assertEquals(1, report.fetched());
     verify(objects).put(contains("collect/raw/"), any(), eq("text/html"));
     verify(store).raw(eq(item), contains("collect/raw/"));
+    verify(store).parsed(eq(item),eq(url),contains("fixture title"),contains("fixture body"),contains("file.pdf"),contains("x.com/fixture/status/123"));
     verify(store).media(eq(item), eq(1), eq("IMAGE"), eq("https://cdn.fixture.invalid/one.png"), contains("collect/media/"), any(), eq("image/png"), eq(4L));
     verify(store).media(eq(item), eq(2), eq("FILE"), eq("https://cdn.fixture.invalid/file.pdf"), contains("collect/media/"), any(), eq("application/pdf"), eq(4L));
     verify(store).completeItem(eq(item));
     verify(objects).put(contains("collect/report/"), any(), eq("application/jsonl"));
-    verify(store).finish(eq(run), eq("COMPLETED"), anyMap(), contains("collect/report/"));
+    verify(store).finish(eq(run), eq("COMPLETED"), anyMap(), contains("collect/report/"), any(byte[].class));
   }
 
   static Stream<Arguments> manualSites() {

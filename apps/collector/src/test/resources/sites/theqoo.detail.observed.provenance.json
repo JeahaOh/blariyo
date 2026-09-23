@@ -1,0 +1,6 @@
+{
+  "url": "https://theqoo.net/hot/4353582713",
+  "rawSha256": "074ccf13bfcc9a89799c1082839b52e869dbf28a98eb820f41ff32abf8b190f9",
+  "fixtureSha256": "4111a8af4c06b3ab7df9780171f3712b957588f88d90e7c32db894b79e308be0",
+  "transformation": "실제 article 본문 img의 src/alt만 보존; 제목과 주변 markup 최소화. 전체 live HTML은 gitignored probe 파일에 보관. 이미지 파일 live fetch/readback은 별도."
+}

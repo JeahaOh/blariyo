@@ -1,0 +1,21 @@
+{
+  "source": "dogdrip",
+  "kind": "detail",
+  "url": "https://www.dogdrip.net/726066289",
+  "rawSha256": "ae6f99a6e138e65cb531be3fe433bfc880f1236cc7e055ddf2cb839e96675b7a",
+  "fixtureSha256": "d45174f5631c1d434a726cd4f65b861fda4df897f99ff0e256e16abd76a36f48",
+  "shape": [
+    "IMAGE:1",
+    "IMAGE:2",
+    "TEXT",
+    "TEXT",
+    "TEXT",
+    "TEXT",
+    "IMAGE:3",
+    "TEXT",
+    "TEXT"
+  ],
+  "images": 3,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

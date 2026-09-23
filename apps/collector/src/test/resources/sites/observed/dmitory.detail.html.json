@@ -1,0 +1,15 @@
+{
+  "source": "dmitory",
+  "kind": "detail",
+  "url": "https://www.dmitory.com/issue/426348008",
+  "rawSha256": "141605d5632c1deac548f510581c86d9ff4ddd3c14894b5eb54adc45219d5c35",
+  "fixtureSha256": "08d06af81f7b9dd8131d27c88ba7d9d09519a58a4e77562e9b488d435c9d935b",
+  "shape": [
+    "LINK",
+    "LINK",
+    "LINK"
+  ],
+  "images": 0,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

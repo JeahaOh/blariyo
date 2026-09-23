@@ -1,0 +1,14 @@
+{
+  "source": "humoruniv",
+  "kind": "detail",
+  "url": "https://m.humoruniv.com/board/read.html?table=pds&number=1425997",
+  "rawSha256": "3124fe9059fd64a7a1c19be1c704e31b6eefacd7a4f1795ff4e19d7d4ef231c9",
+  "fixtureSha256": "59c591b012444846f93e2b91067d372e0f6f58fc34d7d3e9cf0da87224600e66",
+  "shape": [
+    "IMAGE:1",
+    "IMAGE:2"
+  ],
+  "images": 2,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

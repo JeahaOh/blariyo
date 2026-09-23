@@ -1,18 +1,14 @@
 package com.blariyo.collector.discord;
 
 import com.blariyo.collector.config.Secrets;
-import com.blariyo.collector.core.CoreClient;
-import com.blariyo.collector.run.CollectorRunService;
-import com.blariyo.collector.run.RunRepository;
-import com.blariyo.collector.run.CandidateIntake;
 import com.blariyo.collector.run.BatchStore;
+import com.blariyo.collector.run.BatchQueueStore;
+import com.blariyo.collector.source.SourceRegistry;
 import com.blariyo.collector.shared.CollectorFailure;
 import com.blariyo.collector.shared.Json;
 import com.blariyo.collector.spool.EncryptedSpool;
 import jakarta.annotation.PreDestroy;
 import java.net.URI;
-import java.nio.file.*;
-import java.time.*;
 import java.util.*;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
@@ -24,42 +20,28 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.JsonNode;
 
 @Component
 @ConditionalOnProperty(name = "collector.discord-enabled", havingValue = "true")
 public final class DiscordGateway extends ListenerAdapter {
-  private final Secrets secrets;
-  private final CoreClient core;
-  private final RunRepository runs;
-  private final CollectorRunService submissions;
   private final EncryptedSpool spool;
   private final Environment env;
   private final JDA jda;
-  private final CandidateIntake intake;
-  private final BatchStore batchStore;
+  private final BatchDiscordIntake intake;
+  private final BatchQueueStore queue;
 
-  public DiscordGateway(
-      Secrets secrets,
-      CoreClient core,
-      RunRepository runs,
-      EncryptedSpool spool,
-      Environment env,
-      CollectorRunService submissions,
-      CandidateIntake intake,
-      BatchStore batchStore) {
-    this.intake = intake;
-    this.batchStore = batchStore;
-    this.secrets = secrets;
-    this.core = core;
-    this.runs = runs;
-    this.submissions = submissions;
+  public DiscordGateway(Secrets secrets, EncryptedSpool spool, Environment env, BatchStore batchStore) {
     this.spool = spool;
     this.env = env;
+    this.queue = new BatchQueueStore(batchStore);
+    this.intake = new BatchDiscordIntake(queue,
+        () -> SourceRegistry.read(env.getProperty("collector.sources-file", "apps/collector/ops/reference-sites.sources.example.json")), secrets::hmac);
     if (allowed("guilds").isEmpty()
         || allowed("channels").isEmpty()
         || allowed("users").isEmpty() && allowed("roles").isEmpty())
       throw new CollectorFailure(503, "DISCORD_ALLOWLIST_REQUIRED");
+    if (org.slf4j.LoggerFactory.getLogger("net.dv8tion.jda") instanceof ch.qos.logback.classic.Logger logger)
+      logger.setLevel(ch.qos.logback.classic.Level.OFF);
     jda =
         JDABuilder.createLight(
                 secrets.require("discord-token"), EnumSet.noneOf(GatewayIntent.class))
@@ -69,6 +51,7 @@ public final class DiscordGateway extends ListenerAdapter {
 
   @Override
   public void onReady(net.dv8tion.jda.api.events.session.ReadyEvent event) {
+    System.out.println("{\"event\":\"DISCORD_GATEWAY_CONNECTED\"}");
     if (!env.getProperty("collector.discord-register-commands", Boolean.class, false)) return;
     for (String id : allowed("guilds")) {
       var guild = event.getJDA().getGuildById(id);
@@ -80,7 +63,7 @@ public final class DiscordGateway extends ListenerAdapter {
 
   private Set<String> allowed(String field) {
     String value = env.getProperty("collector.discord-" + field, "");
-    return value.isBlank() ? Set.of() : Set.copyOf(Arrays.asList(value.split(",")));
+    return value.isBlank() ? Set.of() : new HashSet<>(Arrays.stream(value.split(",")).map(String::strip).filter(v -> !v.isBlank()).toList());
   }
 
   private boolean authorized(String guild, String channel, String user, List<String> roles) {
@@ -108,52 +91,24 @@ public final class DiscordGateway extends ListenerAdapter {
             hook -> {
               try {
                 if ("status".equals(event.getSubcommandName())) {
-                  var status = core.get("/status");
-                  hook.editOriginal(
-                          "수집 상태: "
-                              + status.path("candidateCounts").toString()
-                              + " / 로컬: "
-                              + runs.counts())
-                      .queue();
+                  hook.editOriginal("batch 수집 상태: " + queue.counts()).queue();
                   return;
                 }
                 if (!"url".equals(event.getSubcommandName()) || event.getOption("url") == null) {
                   hook.editOriginal("URL 수집 또는 상태 조회 명령을 사용하세요.").queue();
                   return;
                 }
-                String url = event.getOption("url").getAsString();
-                var resolved = intake.resolve(url);
-                url = resolved.canonical(url);
+                var confirmation = intake.prepare(event.getId(), event.getUser().getId(), event.getChannel().getId(), event.getOption("url").getAsString());
+                String url = confirmation.url();
                 URI uri = URI.create(url);
-                UUID confirmation = UUID.randomUUID(),
-                    ref =
-                        spool.put(
-                            Json.bytes(
-                                Map.of(
-                                    "url",
-                                    url,
-                                    "channel",
-                                    event.getChannel().getId(),
-                                    "user",
-                                    event.getUser().getId())));
-                runs.jdbc()
-                    .update(
-                        "INSERT INTO"
-                            + " collector.confirmation(id,actor_hmac,channel_hmac,spool_ref,trigger_key_hash)"
-                            + " VALUES(?,?,?,?,?)",
-                        confirmation,
-                        secrets.hmac(event.getUser().getId()),
-                        secrets.hmac(event.getChannel().getId()),
-                        ref,
-                        secrets.hmac(event.getId()));
                 hook.editOriginal(
                         "출처: "
-                            + resolved.key() + " (" + uri.getHost() + ")"
+                            + confirmation.source() + " (" + uri.getHost() + ")"
                             + "\n대상: "
                             + url
                             + "\nrobots·상세·이미지 요청이 발생하며 검수 후에만 발행됩니다.")
                     .setComponents(
-                        ActionRow.of(Button.primary("collect-confirm:" + confirmation, "수집 확인")))
+                        ActionRow.of(Button.primary("collect-confirm:" + confirmation.id(), "수집 확인")))
                     .queue();
               } catch (Exception e) {
                 hook.editOriginal("수집 요청을 준비하지 못했습니다. 설정과 허용 출처를 확인하세요.").queue();
@@ -181,30 +136,8 @@ public final class DiscordGateway extends ListenerAdapter {
               try {
                 UUID id =
                     UUID.fromString(event.getComponentId().substring("collect-confirm:".length()));
-                var rows =
-                    runs.jdbc()
-                        .queryForList(
-                            "SELECT * FROM collector.confirmation WHERE id=? AND expires_at>now()",
-                            id);
-                if (rows.isEmpty()) throw new CollectorFailure(409, "CONFIRMATION_EXPIRED");
-                var row = rows.getFirst();
-                if (!row.get("actor_hmac").equals(secrets.hmac(event.getUser().getId()))
-                    || !row.get("channel_hmac").equals(secrets.hmac(event.getChannel().getId())))
-                  throw new CollectorFailure(403, "LOCAL_FORBIDDEN");
-                if (row.get("job_request_id") != null) {
-                  hook.editOriginal("이미 접수한 작업 ID: " + row.get("job_request_id")).queue();
-                  return;
-                }
-                JsonNode content = Json.parse(spool.get((UUID) row.get("spool_ref")));
-                var resolved = intake.resolve(content.path("url").asText());
-                var identity = resolved.adapter().identify(URI.create(content.path("url").asText()));
-                UUID target =
-                    spool.put(Json.bytes(Map.of("channel", content.path("channel").asText())));
-                UUID queued = batchStore.queueManual(resolved.key(), identity.postKey(), resolved.canonical(content.path("url").asText()));
-                spool.delete((UUID) row.get("spool_ref"));
-                spool.delete(target);
-                runs.jdbc().update("UPDATE collector.confirmation SET job_request_id=? WHERE id=?", queued, id);
-                hook.editOriginal("수집 작업을 batch queue에 접수했습니다. 실행 ID: " + queued).queue();
+                UUID queued = intake.confirm(id, event.getUser().getId(), event.getChannel().getId());
+                hook.editOriginal("수집 작업을 batch queue에 접수했습니다. 요청 ID: " + queued).queue();
               } catch (Exception e) {
                 hook.editOriginal("수집 요청을 처리하지 못했습니다. 같은 확인 요청을 다시 시도할 수 있습니다.").queue();
               }
@@ -212,6 +145,7 @@ public final class DiscordGateway extends ListenerAdapter {
   }
 
   public void notify(UUID ref, String outcome) {
+    if (spool == null) throw new CollectorFailure(503,"LEGACY_NOTIFICATION_DISABLED");
     var target = Json.parse(spool.get(ref));
     var channel = jda.getTextChannelById(target.path("channel").asText());
     if (channel == null) throw new CollectorFailure(503, "DISCORD_UNAVAILABLE");

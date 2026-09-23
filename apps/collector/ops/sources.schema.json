@@ -149,7 +149,8 @@
           "HOT_LIST",
           "DETAIL_ONLY",
           "BLOCKED",
-          "UNVERIFIED"
+          "UNVERIFIED",
+          "GENERAL_LIST"
         ]
       },
       "hostAliases": {
@@ -159,6 +160,43 @@
           "pattern": "^[a-z0-9.-]+$"
         },
         "uniqueItems": true
+      },
+      "defaultChart": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "pattern": "^[a-z]{1,20}$"
+      },
+      "datePolicy": {
+        "enum": [
+          "INCLUDE_UNKNOWN",
+          "REQUIRE_KNOWN"
+        ]
+      },
+      "mediaLimits": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "maxImages": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 200
+          },
+          "maxFileBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31457280,
+            "default": 31457280
+          },
+          "maxTotalBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 157286400,
+            "default": 157286400
+          }
+        }
       }
     },
     "additionalProperties": false

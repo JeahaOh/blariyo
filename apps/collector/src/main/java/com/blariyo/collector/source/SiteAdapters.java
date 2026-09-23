@@ -45,14 +45,24 @@ public final class SiteAdapters {
     return Set.of("ARCALIVE", "BOBAEDREAM", "CLIEN", "DCINSIDE", "DMITORY", "DOGDRIP", "ETOLAND", "FMKOREA", "GOODGAG", "HUMORUNIV", "INSTIZ", "INVEN", "MLBPARK", "NATEPANN", "PGR21", "PPOMPPU", "RULIWEB", "THEQOO", "TODAYHUMOR", "YULDO", "YOUTUBE_COMMUNITY").contains(key.toUpperCase(Locale.ROOT));
   }
 
+
+  private static boolean isNoticeCandidate(Element row, Element link) {
+    String marker = ((row == null ? "" : row.className() + " " + row.id() + " " + row.attr("data-type") + " " + row.attr("data-category"))
+        + " " + link.className() + " " + link.attr("data-type") + " " + link.attr("data-category")).toLowerCase(Locale.ROOT);
+    if (marker.matches(".*(?:^|[ _-])(notice|noti|notice-service|공지|fixed|sticky|pin|pinned)(?:$|[ _-]).*")) return true;
+    Element badge = row == null ? null : row.selectFirst(".notice,.noti,.category,.badge,.label,.prefix,.ico_notice,.icon_notice,.gall_subject");
+    String badgeText = badge == null ? "" : badge.text().strip();
+    if (badgeText.matches("^(공지|알림|필독|NOTICE|Notice|notice)$")) return true;
+    String title = link.text().replace('\u00a0', ' ').strip();
+    return title.matches("^(\\[?\\s*(공지|알림|필독|운영|이벤트)\\s*\\]?|NOTICE|Notice|notice)(?:\\s|[:：\\]|-]).*");
+  }
+
   private abstract static class ManualSite implements SiteAdapter {
     abstract String host();
     abstract String body();
     abstract String dateSelector();
     String titleSelector() { return "meta[property=og:title],title"; }
-    int maxBlocks() { return 40; }
-    int maxImages() { return 20; }
-    boolean truncateExtraImages() { return false; }
+    int maxBlocks() { return 1000; }
     void check(URI u) {
       if (!"https".equals(u.getScheme()) || !host().equalsIgnoreCase(u.getHost())
           || u.getUserInfo() != null || u.getPort() != -1 || u.getPath().contains("..")) throw invalid();
@@ -68,7 +78,7 @@ public final class SiteAdapters {
         canonical = identify(url.resolve(link.attr("href")));
         if (!canonical.postKey().equals(requested.postKey())) throw invalid();
       }
-      ObjectNode result = (ObjectNode) new OrderedContentParser(policy, maxBlocks(), maxImages(), truncateExtraImages()).extract(bytes, url,
+      ObjectNode result = (ObjectNode) new OrderedContentParser(policy, maxBlocks(), policy.mediaLimits().maxImages()).extract(bytes, url,
           body(), titleSelector(), getClass().getSimpleName().toLowerCase(Locale.ROOT) + "-ordered-v1");
       result.put("canonicalUrl", canonical.canonical().toString());
       var date = doc.selectFirst(dateSelector());
@@ -87,9 +97,7 @@ public final class SiteAdapters {
     abstract String pageParameter();
     abstract String dateSelector();
     String titleSelector() { return "meta[property=og:title],title"; }
-    int maxBlocks() { return 40; }
-    int maxImages() { return 20; }
-    boolean truncateExtraImages() { return false; }
+    int maxBlocks() { return 1000; }
     boolean acceptListLink(Element a) { return true; }
     void check(URI u) {
       if (!"https".equals(u.getScheme()) || !host().equalsIgnoreCase(u.getHost())
@@ -103,7 +111,7 @@ public final class SiteAdapters {
       for (var a : doc.select(links())) {
         if (!acceptListLink(a)) continue;
         var parent = a.closest(row());
-        if (parent == null || parent.hasClass("notice") || parent.hasClass("notice-service")) continue;
+        if (parent == null || isNoticeCandidate(parent, a)) continue;
         try {
           var id = identify(url.resolve(a.attr("href")));
           var date = parent.selectFirst("time[datetime]");
@@ -140,7 +148,7 @@ public final class SiteAdapters {
         canonical = identify(url.resolve(link.attr("href")));
         if (!canonical.postKey().equals(requested.postKey())) throw invalid();
       }
-      ObjectNode result = (ObjectNode) new OrderedContentParser(policy, maxBlocks(), maxImages(), truncateExtraImages()).extract(bytes, url,
+      ObjectNode result = (ObjectNode) new OrderedContentParser(policy, maxBlocks(), policy.mediaLimits().maxImages()).extract(bytes, url,
           body(), titleSelector(), getClass().getSimpleName().toLowerCase(Locale.ROOT) + "-ordered-v1");
       result.put("canonicalUrl", canonical.canonical().toString());
       var date = doc.selectFirst(dateSelector());
@@ -158,8 +166,7 @@ public final class SiteAdapters {
     String row() { return ".vrow"; }
     String pageParameter() { return "p"; }
     String dateSelector() { return ".article-head time[datetime]"; }
-    boolean truncateExtraImages() { return true; }
-    int maxBlocks() { return 120; }
+    int maxBlocks() { return 1000; }
     public Identity identify(URI u) {
       check(u); var m = Pattern.compile("^/b/([A-Za-z0-9_]+)/([0-9]+)$").matcher(u.getPath());
       if (!m.matches()) throw invalid();
@@ -173,8 +180,7 @@ public final class SiteAdapters {
     String row() { return "tr"; }
     String pageParameter() { return "page"; }
     String dateSelector() { return ".writerInfo03 .date"; }
-    int maxBlocks() { return 80; }
-    boolean truncateExtraImages() { return true; }
+    int maxBlocks() { return 1000; }
     public Identity identify(URI u) {
       check(u); var q = query(u); String board = q.getOrDefault("code", ""), id = q.getOrDefault("No", "");
       if (!Set.of("/view", "/board/bulletin/view.php").contains(u.getPath())
@@ -202,6 +208,25 @@ public final class SiteAdapters {
     String row() { return "tr"; }
     String pageParameter() { return "p"; }
     String dateSelector() { return ".articleInfo .articleDate"; }
+    @Override public JsonNode detail(byte[] bytes, URI url, SourcePolicy policy) {
+      var doc = parse(bytes, url);
+      var articles = doc.select(body());
+      if (articles.size() != 1) throw new CollectorFailure(422, "PARSE_FAILED");
+      var files = new Element("div");
+      // The observed download area belongs to this article but sits outside its body.
+      for (var anchor : doc.select("#tbArticle > .articleFile a[href]")) {
+        if (anchor.closest("#powerbbsContent") == null) {
+          // The download icon is navigation chrome, not an attached article image.
+          files.appendElement("a").attr("href", anchor.attr("href")).text(anchor.text());
+          files.appendElement("br");
+        }
+      }
+      if (files.childrenSize() > 0) articles.first().prependChild(files);
+      doc.charset(StandardCharsets.UTF_8);
+      var result = (ObjectNode) super.detail(doc.outerHtml().getBytes(StandardCharsets.UTF_8), url, policy);
+      result.put("parserVersion", "inven-ordered-v2");
+      return result;
+    }
     public Identity identify(URI u) {
       check(u); var m = Pattern.compile("^/board/([a-zA-Z0-9_]+)/([0-9]+)/([0-9]+)$").matcher(u.getPath());
       if (!m.matches()) throw invalid();
@@ -219,6 +244,7 @@ public final class SiteAdapters {
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select(".list_item:not(.notice) a.list_subject[href], [data-role=list-row] a.list_subject[href]")) {
         try {
+          if (isNoticeCandidate(a.closest(".list_item,[data-role=list-row],tr,li,div"), a)) continue;
           URI candidate = url.resolve(a.attr("href"));
           var id = identify(candidate);
           if (!id.postKey().startsWith("park:")) continue;
@@ -244,6 +270,7 @@ public final class SiteAdapters {
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select("tr.ub-content td.gall_tit a[href*=/board/view/], .gall_list a[href*=/board/view/]")) {
         try {
+          if (isNoticeCandidate(a.closest("tr,li,div"), a)) continue;
           String href = a.attr("href").strip();
           if (href.startsWith("javascript:") || href.startsWith("#") || href.contains("#")) href = href.split("#", 2)[0];
           var id = identify(url.resolve(href));
@@ -284,12 +311,22 @@ public final class SiteAdapters {
       Document doc = parse(bytes, url);
       var found = new LinkedHashMap<String, Entry>();
       String board = etolandBoard(url);
+      // The current list nests titles in two divs; the notice category is a sibling in the li.
+      // Collect identities first so repeated normal-list/comment links cannot reintroduce a pinned notice.
+      var notices = new HashSet<String>();
+      for(var a:doc.select("a[href*=/b/"+board+"/view/]")) {
+        var row=a.closest("li,tr");
+        if(row!=null&&row.select("a[href*=category]").stream().anyMatch(c->c.text().strip().matches("공지|알림|필독|광고")))
+          try{notices.add(identify(url.resolve(a.attr("href").split("#",2)[0])).postKey());}catch(IllegalArgumentException|CollectorFailure ignored){}
+      }
       for (var a : doc.select("a[href*=/b/" + board + "/view/]")) {
         try {
+          if (isNoticeCandidate(a.closest("tr,li,div,.item"), a)) continue;
           String href = a.attr("href").strip();
           if (href.startsWith("javascript:") || href.startsWith("#")) continue;
           if (href.contains("#")) href = href.split("#", 2)[0];
           var id = identify(url.resolve(href));
+          if(notices.contains(id.postKey()))continue;
           found.putIfAbsent(id.postKey(), new Entry(id, null));
         } catch (IllegalArgumentException | CollectorFailure ignored) { }
       }
@@ -336,6 +373,7 @@ public final class SiteAdapters {
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select("a[href]")) {
         try {
+          if (isNoticeCandidate(a.closest("tr,li,div,.item,.card"), a)) continue;
           var id = identify(url.resolve(a.attr("href")));
           found.putIfAbsent(id.postKey(), new Entry(id, null));
         } catch (CollectorFailure ignored) { }
@@ -369,6 +407,7 @@ public final class SiteAdapters {
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select(".list ul.photo li:not(.notice) p.subject > a[href]")) {
         try {
+          if (isNoticeCandidate(a.closest("tr,li,div,.item,.card"), a)) continue;
           var id = identify(url.resolve(a.attr("href")));
           found.putIfAbsent(id.postKey(), new Entry(id, null));
         } catch (CollectorFailure ignored) { }
@@ -400,6 +439,7 @@ public final class SiteAdapters {
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select("a[href*=read.html][href*=table][href*=number]")) {
         try {
+          if (isNoticeCandidate(a.closest("tr,li,div,.item,.card"), a)) continue;
           var id = identify(url.resolve(a.attr("href")));
           found.putIfAbsent(id.postKey(), new Entry(id, null));
         } catch (IllegalArgumentException | CollectorFailure ignored) { }
@@ -435,44 +475,20 @@ public final class SiteAdapters {
       title = title.strip();
       if (title.isBlank()) throw new CollectorFailure(422, "PARSE_FAILED");
       var realMobileBody = doc.selectFirst("p.content_body_padding");
-      if ("true".equalsIgnoreCase(System.getenv("COLLECTOR_DEBUG_ERRORS")))
-        System.err.println("humoruniv detail debug title=" + title + " mobileBody=" + (realMobileBody != null) + " cookieMsg=" + doc.text().contains("브라우저 쿠키") + " len=" + bytes.length);
       if (realMobileBody == null) {
-        ObjectNode result = (ObjectNode) new OrderedContentParser(policy, maxBlocks(), maxImages(), truncateExtraImages()).extract(bytes, url,
+        ObjectNode result = (ObjectNode) new OrderedContentParser(policy, maxBlocks(), policy.mediaLimits().maxImages()).extract(bytes, url,
             "#cnts, #board_view, .view_content, .board-view-contents, article .content", titleSelector(), "humoruniv-ordered-fallback-v1");
         result.put("canonicalUrl", requested.canonical().toString());
         return result;
       }
-      var textEl = realMobileBody;
-      var text = textEl.text().strip();
-      var blocks = new ArrayList<Map<String,Object>>();
-      var images = new ArrayList<Map<String,Object>>();
-      for (var img : doc.select(".daum-wm-content .wrap_img img[src], .daum-wm-content .wrap_img img[data-src], #cnts img[src], #cnts img[data-src], #board_view img[src], .view_content img[src]")) {
-        String remote = img.hasAttr("data-src") ? img.absUrl("data-src") : img.absUrl("src");
-        if (remote.isBlank() || remote.contains("loading_bar")) continue;
-        try { policy.imagePolicy(remote).allow(remote); }
-        catch (CollectorFailure e) {
-          if ("true".equalsIgnoreCase(System.getenv("COLLECTOR_DEBUG_ERRORS"))) System.err.println("humoruniv image rejected: " + remote);
-          throw e;
-        }
-        int position = images.size() + 1;
-        images.add(Map.of("position", position, "remoteUrl", remote));
-        blocks.add(Map.of("type", "IMAGE", "imagePosition", position, "alt", img.attr("alt")));
-        if (images.size() == 20) break;
-      }
-      if (!text.isBlank()) blocks.add(Map.of("type", "TEXT", "text", text));
-      if (blocks.isEmpty()) throw new CollectorFailure(422, "PARSE_FAILED");
-      var result = new LinkedHashMap<String, Object>();
-      result.put("status", "NEW");
-      result.put("title", title);
+      // Real mobile HTML puts body_editor beside the auto-closed p, not inside it.
+      // Prune observed controls only, then preserve the entire article in DOM order.
+      doc.select(".daum-wm-content #btn_nemo_expand_all, .daum-wm-content [id^=timg_prog_], .daum-wm-content img[src*=loading_bar]").remove();
+      doc.charset(StandardCharsets.UTF_8);
+      ObjectNode result = (ObjectNode) new OrderedContentParser(policy, maxBlocks(), policy.mediaLimits().maxImages()).extract(
+          doc.outerHtml().getBytes(StandardCharsets.UTF_8), url, ".daum-wm-content", titleSelector(), "humoruniv-mobile-ordered-v2");
       result.put("canonicalUrl", requested.canonical().toString());
-      result.put("sourcePublishedAt", null);
-      result.put("parserVersion", "humoruniv-mobile-v1");
-      result.put("warnings", List.of());
-      result.put("imageCandidates", images);
-      result.put("attachmentCandidates", List.of());
-      result.put("contentBlocks", blocks);
-      return Json.tree(result);
+      return result;
     }
     public Identity identify(URI u) {
       check(u);
@@ -493,6 +509,7 @@ public final class SiteAdapters {
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select("a[href*=/pt/]")) {
         try {
+          if (isNoticeCandidate(a.closest("tr,li,div,.item"), a)) continue;
           String href = a.attr("href").strip();
           if (href.startsWith("javascript:") || href.startsWith("#")) continue;
           URI candidate = url.resolve(href);
@@ -536,6 +553,7 @@ public final class SiteAdapters {
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select("div.tit > a.txt[href]")) {
         try {
+          if (isNoticeCandidate(a.closest(".list_item,[data-role=list-row],tr,li,div"), a)) continue;
           URI candidate = url.resolve(a.attr("href"));
           var id = identify(candidate);
           found.putIfAbsent(id.postKey(), new Entry(new Identity(candidate, id.postKey()), null));
@@ -569,13 +587,14 @@ public final class SiteAdapters {
     String host() { return "pann.nate.com"; }
     String body() { return "div.viewarea > div.view-wrap > div.posting > table > tbody > tr > td > div#contentArea"; }
     String dateSelector() { return "time[datetime], .date, .regdate"; }
-    int maxBlocks() { return 160; }
+    int maxBlocks() { return 1000; }
     @Override public Page list(byte[] bytes, URI url) {
       check(url);
       Document doc = parse(bytes, url);
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select("a[href^=/talk/], a[href^=https://pann.nate.com/talk/]")) {
         try {
+          if (isNoticeCandidate(a.closest("tr,li,div,.item,.card"), a)) continue;
           var id = identify(url.resolve(a.attr("href")));
           found.putIfAbsent(id.postKey(), new Entry(id, null));
         } catch (CollectorFailure ignored) { }
@@ -623,6 +642,7 @@ public final class SiteAdapters {
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select("a[href*=/zboard/view.php][href*=id][href*=no]")) {
         try {
+          if (isNoticeCandidate(a.closest("tr,li,div,.item,.card"), a)) continue;
           var id = identify(url.resolve(a.attr("href")));
           found.putIfAbsent(id.postKey(), new Entry(id, null));
         } catch (CollectorFailure ignored) { }
@@ -654,7 +674,6 @@ public final class SiteAdapters {
     String pageParameter() { return "page"; }
     String dateSelector() { return "time[datetime], .date, .regdate"; }
     String titleSelector() { return ".subject_inner_text, meta[property=og:title],title"; }
-    boolean truncateExtraImages() { return true; }
     public Identity identify(URI u) {
       check(u); var m = Pattern.compile("^/(?:best/board|community/board|family/board|news/board|hobby/board)/([A-Za-z0-9_]+)/read/([0-9]+)$").matcher(u.getPath());
       if (!m.matches()) throw invalid();
@@ -669,7 +688,6 @@ public final class SiteAdapters {
     String row() { return "tr"; }
     String pageParameter() { return "page"; }
     String dateSelector() { return "time[datetime], .date, .regdate"; }
-    boolean truncateExtraImages() { return true; }
     boolean acceptListLink(Element a) {
       String text = a.text();
       return !text.contains("체험") && !text.contains("이벤트") && !text.contains("공지") && !text.contains("필독") && !text.contains("로그인 보안") && !text.contains("비밀번호") && !a.hasClass("replyNum");
@@ -694,7 +712,6 @@ public final class SiteAdapters {
     String row() { return "tr, .view"; }
     String pageParameter() { return "page"; }
     String dateSelector() { return "time[datetime], .writerInfoContents .date, .date"; }
-    boolean truncateExtraImages() { return true; }
     public Identity identify(URI u) {
       check(u); var q = query(u); String table = q.getOrDefault("table", ""), id = q.getOrDefault("no", "");
       if (!"/board/view.php".equals(u.getPath()) || !table.matches("[a-zA-Z0-9_]+") || !id.matches("[0-9]+")) throw invalid();
@@ -711,6 +728,7 @@ public final class SiteAdapters {
       var found = new LinkedHashMap<String, Entry>();
       for (var a : doc.select(".list_body .list_title a.title[href]")) {
         try {
+          if (isNoticeCandidate(a.closest("tr,li,div,.item,.card"), a)) continue;
           var id = identify(url.resolve(a.attr("href")));
           found.putIfAbsent(id.postKey(), new Entry(id, null));
         } catch (CollectorFailure ignored) { }
@@ -746,8 +764,7 @@ public final class SiteAdapters {
     String row() { return "tr, li, .item"; }
     String pageParameter() { return "page"; }
     String dateSelector() { return "time[datetime], .date, .regdate"; }
-    boolean truncateExtraImages() { return true; }
-    int maxBlocks() { return 120; }
+    int maxBlocks() { return 1000; }
     public Identity identify(URI u) {
       check(u);
       var direct = Pattern.compile("^/([A-Za-z0-9_]+)/([0-9]+)$").matcher(u.getPath());
@@ -802,7 +819,7 @@ public final class SiteAdapters {
               int position = images.size() + 1;
               images.add(Map.of("position", position, "remoteUrl", remote));
               blocks.add(Map.of("type", "IMAGE", "imagePosition", position, "alt", ""));
-              if (images.size() == 20) break;
+              if (images.size() > policy.mediaLimits().maxImages()) throw new CollectorFailure(422, "SOURCE_IMAGE_LIMIT_EXCEEDED");
             }
             if (blocks.isEmpty()) continue;
             var result = new LinkedHashMap<String, Object>();
@@ -857,8 +874,25 @@ public final class SiteAdapters {
     catch (NumberFormatException e) { return -1; }
   }
   private static Document parse(byte[] bytes, URI url) {
-    try { return Jsoup.parse(new java.io.ByteArrayInputStream(bytes), null, url.toString()); }
+    try {
+      Document doc = Jsoup.parse(new java.io.ByteArrayInputStream(bytes), null, url.toString());
+      String text = doc.text();
+      String title = doc.title();
+      if (looksLikeAccessChallenge(title, text)) throw new CollectorFailure(403, "SOURCE_ACCESS_BLOCKED");
+      return doc;
+    }
+    catch (CollectorFailure e) { throw e; }
     catch (Exception e) { throw new CollectorFailure(422, "PARSE_FAILED"); }
+  }
+  private static boolean looksLikeAccessChallenge(String title, String text) {
+    String sample = (title + "\n" + text).toLowerCase(Locale.ROOT);
+    return sample.contains("연결 확인 중")
+        || sample.contains("사람인지 확인")
+        || sample.contains("checking if")
+        || sample.contains("just a moment")
+        || sample.contains("cloudflare") && sample.contains("turnstile")
+        || sample.contains("access denied")
+        || sample.contains("nginx") && sample.contains("403");
   }
   private static Instant instant(String text) {
     try { return Instant.parse(text); } catch (Exception ignored) { }

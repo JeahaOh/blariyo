@@ -1,0 +1,6 @@
+{
+  "url": "https://gall.dcinside.com/board/view/?id=hit&no=17809",
+  "rawSha256": "08419e3ef98108add9fd3379667a80ffdf84aabb70696237c526e25a06a3a2ef",
+  "fixtureSha256": "9bb61e9404551a11a201538955518b8981fa14c72880161d9ce2664fad0d81bd",
+  "transformation": "관측한 write_div의 49개 image 수와 lazy placeholder/data-original 구조를 보존한 최소 회귀 fixture. 원문 텍스트·onclick 제거, 이미지 query는 fixture 번호로 치환; 이 파일의 이미지 URL을 live 다운로드한 것으로 보지 않는다. 전체 HTML은 gitignored probe에 보관."
+}

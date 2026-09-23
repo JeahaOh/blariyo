@@ -15,7 +15,11 @@ public record SourcePolicy(
     String userAgent,
     String parser,
     Map<String, List<String>> imageOrigins,
-    List<String> hostAliases) {
+    List<String> hostAliases,
+    SourceMediaLimits mediaLimits) {
+  public SourcePolicy(String host, List<String> paths, String title, String image, String agent, String parser, Map<String, List<String>> imageOrigins, List<String> aliases) {
+    this(host, paths, title, image, agent, parser, imageOrigins, aliases, SourceMediaLimits.DEFAULT);
+  }
   public SourcePolicy(String host, List<String> paths, String title, String image, String agent) {
     this(host, paths, title, image, agent, "METADATA", Map.of(), List.of());
   }
@@ -54,7 +58,7 @@ public record SourcePolicy(
     }
     return new SourcePolicy(config.path("host").asText(), paths,
         config.path("titleSelector").asText(), config.path("imageSelector").asText(),
-        agent, parser, Map.copyOf(origins), List.copyOf(aliases));
+        agent, parser, Map.copyOf(origins), List.copyOf(aliases), SourceMediaLimits.from(config.path("mediaLimits")));
   }
 
   /** Images have a separate exact-origin allowlist; detail fetch never inherits it. */

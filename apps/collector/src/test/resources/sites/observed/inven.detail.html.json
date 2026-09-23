@@ -1,0 +1,14 @@
+{
+  "source": "inven",
+  "kind": "detail",
+  "url": "https://www.inven.co.kr/board/webzine/2097/2731612",
+  "rawSha256": "e48b27ea5a5c35de229fb19a6591f8243803a6f2408c8d58661576cd235a0c69",
+  "fixtureSha256": "49bcfc6b2e40b148adc28ca7f549bb3bb3706f4d5b49d16f841a235fd7aa2aea",
+  "shape": [
+    "IMAGE:1",
+    "TEXT"
+  ],
+  "images": 1,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

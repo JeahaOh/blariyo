@@ -1,0 +1,43 @@
+{
+  "source": "goodgag",
+  "kind": "list",
+  "url": "https://www.goodgag.net/",
+  "rawSha256": "4f11ea983f2a97c4cf3ca10e667b204c7ea9dfbb15f95fbe1ed62138bab8b948",
+  "fixtureSha256": "b58e8769c5d774b7412308744cc9cffb2dc73db8440275cdd23dfea2738b7647",
+  "entries": [
+    "371442",
+    "371441",
+    "371440",
+    "371439",
+    "371438",
+    "371437",
+    "371436",
+    "371435",
+    "371434",
+    "371433",
+    "371432",
+    "371431",
+    "371430",
+    "371429",
+    "371428"
+  ],
+  "next": "",
+  "identitiesAndDates": [
+    "https://www.goodgag.net/371442|371442|",
+    "https://www.goodgag.net/371441|371441|",
+    "https://www.goodgag.net/371440|371440|",
+    "https://www.goodgag.net/371439|371439|",
+    "https://www.goodgag.net/371438|371438|",
+    "https://www.goodgag.net/371437|371437|",
+    "https://www.goodgag.net/371436|371436|",
+    "https://www.goodgag.net/371435|371435|",
+    "https://www.goodgag.net/371434|371434|",
+    "https://www.goodgag.net/371433|371433|",
+    "https://www.goodgag.net/371432|371432|",
+    "https://www.goodgag.net/371431|371431|",
+    "https://www.goodgag.net/371430|371430|",
+    "https://www.goodgag.net/371429|371429|",
+    "https://www.goodgag.net/371428|371428|"
+  ],
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

@@ -20,26 +20,29 @@ public interface BatchObjectStore {
   record Record(String objectKey, byte[] sha256, long bytes, String contentType) {}
 
   static BatchObjectStore fromEnvironment() {
-    String directory = System.getenv("COLLECTOR_OBJECT_STORE_DIRECTORY");
+    return fromEnvironment(System.getenv());
+  }
+  static BatchObjectStore fromEnvironment(Map<String,String> environment) {
+    String directory = environment.get("COLLECTOR_OBJECT_STORE_DIRECTORY");
     if (directory != null && !directory.isBlank()) return new Local(directory);
-    String endpoint = first("COLLECTOR_OBJECT_STORE_S3_ENDPOINT", "COLLECTOR_R2_ENDPOINT", "R2_ENDPOINT");
-    String bucket = first("COLLECTOR_OBJECT_STORE_S3_BUCKET", "COLLECTOR_R2_BUCKET", "R2_PRIVATE_BUCKET");
-    String access = first("COLLECTOR_OBJECT_STORE_S3_ACCESS_KEY_ID", "COLLECTOR_R2_ACCESS_KEY_ID", "R2_PRIVATE_ACCESS_KEY_ID");
-    String secret = first("COLLECTOR_OBJECT_STORE_S3_SECRET_ACCESS_KEY", "COLLECTOR_R2_SECRET_ACCESS_KEY", "R2_PRIVATE_SECRET_ACCESS_KEY");
+    String endpoint = first(environment,"COLLECTOR_OBJECT_STORE_S3_ENDPOINT", "COLLECTOR_R2_ENDPOINT");
+    String bucket = first(environment,"COLLECTOR_OBJECT_STORE_S3_BUCKET", "COLLECTOR_R2_BUCKET");
+    String access = first(environment,"COLLECTOR_OBJECT_STORE_S3_ACCESS_KEY_ID", "COLLECTOR_R2_ACCESS_KEY_ID");
+    String secret = first(environment,"COLLECTOR_OBJECT_STORE_S3_SECRET_ACCESS_KEY", "COLLECTOR_R2_SECRET_ACCESS_KEY");
     if (!endpoint.isBlank() || !bucket.isBlank() || !access.isBlank() || !secret.isBlank()) return new S3Compatible(endpoint, bucket, access, secret);
-    String template = System.getenv("COLLECTOR_OBJECT_STORE_PUT_URL_TEMPLATE");
+    String template = environment.get("COLLECTOR_OBJECT_STORE_PUT_URL_TEMPLATE");
     if (template != null && !template.isBlank()) return new Presigned(template);
     throw new CollectorFailure(503, "BATCH_OBJECT_STORE_REQUIRED");
   }
-  private static String first(String... names) {
+  private static String first(Map<String,String> environment,String... names) {
     for (String name : names) {
-      String value = System.getenv(name);
+      String value = environment.get(name);
       if (value != null && !value.isBlank()) return value;
     }
     return "";
   }
   private static void validateKey(String prefix) {
-    if (!prefix.matches("collect/(raw|media|report)/[A-Za-z0-9._/-]+")) throw new CollectorFailure(400,"OBJECT_KEY_INVALID");
+    if (!prefix.matches("collect/(raw|media|report)/[A-Za-z0-9._/-]+") || Arrays.stream(prefix.split("/", -1)).anyMatch(s -> s.isEmpty() || s.equals(".") || s.equals(".."))) throw new CollectorFailure(400,"OBJECT_KEY_INVALID");
   }
   final class Local implements BatchObjectStore {
     private final Path root;
@@ -55,7 +58,7 @@ public interface BatchObjectStore {
     public Presigned(String template){this.template=template;}
     public Record put(String prefix,byte[] bytes,String contentType){
       validateKey(prefix);
-      String url=template.replace("{key}",URI.create(prefix).getPath().substring(1));
+      String url=template.replace("{key}",prefix);
       try {var r=http.send(HttpRequest.newBuilder(URI.create(url)).header("Content-Type",contentType).PUT(HttpRequest.BodyPublishers.ofByteArray(bytes)).build(),HttpResponse.BodyHandlers.discarding());if(r.statusCode()/100!=2)throw new IOException();return new Record(prefix,sha(bytes),bytes.length,contentType);}catch(Exception e){throw new CollectorFailure(503,"OBJECT_STORE_WRITE_FAILED");}
     }
   }

@@ -1,0 +1,19 @@
+{
+  "verifiedAt": null,
+  "collectorCommit": null,
+  "discordGatewayConnected": false,
+  "commandRegistrationVerified": false,
+  "allowlistRejectionVerified": false,
+  "collectStatusVerified": false,
+  "collectUrlConfirmationShown": false,
+  "preConfirmationCollectionWriteAbsent": false,
+  "postConfirmationRequestId": null,
+  "postConfirmationSourceKey": null,
+  "postConfirmationSourcePostKey": null,
+  "detailWriteDbRunId": null,
+  "dbReadbackVerified": false,
+  "objectReadbackVerified": false,
+  "discordNotificationVerified": false,
+  "status": "UNVERIFIED",
+  "notes": []
+}

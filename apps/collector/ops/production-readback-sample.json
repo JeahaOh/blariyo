@@ -1,0 +1,39 @@
+[
+  {
+    "kind": "batch",
+    "source": "theqoo",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "hot list에서 상세 fetch/parser/DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "todayhumor",
+    "chart": "hot",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "hot list에서 상세 fetch/parser/DB/S3 readback 확인"
+  },
+  {
+    "kind": "batch",
+    "source": "humoruniv",
+    "chart": "latest",
+    "maxPages": 1,
+    "maxItems": 1,
+    "since": "24h",
+    "intervalMs": 10000,
+    "purpose": "모바일 일반 목록에서 상세 fetch/parser/DB/S3 readback 확인"
+  },
+  {
+    "kind": "collect-url",
+    "source": "pgr21",
+    "url": "https://pgr21.com/humor/507793",
+    "intervalMs": 10000,
+    "purpose": "접근 차단 상세 URL의 실패 상태와 원인 저장/readback 확인"
+  }
+]

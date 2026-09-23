@@ -33,8 +33,7 @@ class DirectUrlRunnerTests {
     var objects = mock(BatchObjectStore.class);
     UUID run = UUID.randomUUID(), item = UUID.randomUUID();
     when(store.begin(eq("theqoo"), eq("manual"), eq("WRITE_DB"), eq(1), eq(1), eq(10000L), isNull())).thenReturn(run);
-    when(store.item(eq(run), eq("theqoo"), eq("1234567890"), eq("https://theqoo.net/hot/1234567890"), eq("FETCHING"),
-        anyString(), contains("fixture body"), contains("file.pdf"), contains("x.com/fixture/status/123"), isNull())).thenReturn(item);
+    when(store.claim(eq(run),eq("theqoo"),eq("1234567890"),eq("https://theqoo.net/hot/1234567890"))).thenReturn(item);
     when(objects.put(anyString(), any(), anyString())).thenAnswer(invocation ->
         new BatchObjectStore.Record(invocation.getArgument(0), new byte[32], ((byte[]) invocation.getArgument(1)).length, invocation.getArgument(2)));
 
@@ -45,11 +44,12 @@ class DirectUrlRunnerTests {
     assertEquals(1, report.fetched());
     verify(objects).put(contains("collect/raw/"), any(), eq("text/html"));
     verify(store).raw(eq(item), contains("collect/raw/"));
+    verify(store).parsed(eq(item),eq("https://theqoo.net/hot/1234567890"),contains("fixture title"),contains("fixture body"),contains("file.pdf"),contains("x.com/fixture/status/123"));
     verify(store).media(eq(item), eq(1), eq("IMAGE"), eq("https://img.theqoo.net/one.png"), contains("collect/media/"), any(), eq("image/png"), eq(4L));
     verify(store).media(eq(item), eq(2), eq("FILE"), eq("https://img.theqoo.net/file.pdf"), contains("collect/media/"), any(), eq("application/pdf"), eq(4L));
     verify(store).completeItem(eq(item));
     verify(objects).put(contains("collect/report/"), any(), eq("application/jsonl"));
-    verify(store).finish(eq(run), eq("COMPLETED"), anyMap(), contains("collect/report/"));
+    verify(store).finish(eq(run), eq("COMPLETED"), anyMap(), contains("collect/report/"), any(byte[].class));
   }
 
   private static SourceRegistry.Source source() {

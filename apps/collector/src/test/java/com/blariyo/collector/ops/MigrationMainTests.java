@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 class MigrationMainTests {
   @Test
-  void migrationRecordsV001AndV002AndIsIdempotent() throws Exception {
+  void migrationRecordsAllVersionsAndIsIdempotent() throws Exception {
     String jdbc = System.getenv("COLLECTOR_READBACK_DATABASE_URL");
     Assumptions.assumeTrue(jdbc != null && !jdbc.isBlank(), "COLLECTOR_READBACK_DATABASE_URL not set");
     String user = System.getenv().getOrDefault("COLLECTOR_READBACK_DATABASE_USER", "blariyo_local");
@@ -24,7 +24,7 @@ class MigrationMainTests {
             .executeQuery("SELECT version FROM collector.schema_migration ORDER BY version")) {
       var found = new TreeSet<String>();
       while (versions.next()) found.add(versions.getString(1));
-      assertTrue(found.containsAll(Set.of("V001", "V002")), found.toString());
+      assertTrue(found.containsAll(Set.of("V001", "V002", "V003", "V004", "V005", "V006")), found.toString());
     }
     try (var connection = DriverManager.getConnection(jdbc, user, password);
         var objects = connection.createStatement()

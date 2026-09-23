@@ -10,6 +10,7 @@ import org.jsoup.Jsoup;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import tools.jackson.databind.JsonNode;
 
 class SiteAdapterTests {
   private static byte[] fixture(String site, String kind) throws Exception {
@@ -67,12 +68,54 @@ class SiteAdapterTests {
     assertEquals(0, parser.detail(doc.outerHtml().getBytes(StandardCharsets.UTF_8),url,policy(site,url)).path("imageCandidates").size());
     body.html("<a href='https://x.com/fixture/status/123'>link only</a>");
     assertEquals("LINK", parser.detail(doc.outerHtml().getBytes(StandardCharsets.UTF_8),url,policy(site,url)).path("contentBlocks").get(0).path("type").asText());
+    body.html("<img src='https://cdn.fixture.invalid/one.png'>".repeat(201));
+    assertThrows(CollectorFailure.class, () -> parser.detail(doc.outerHtml().getBytes(StandardCharsets.UTF_8),url,policy(site,url)));
     body.empty();
     assertThrows(CollectorFailure.class, () -> parser.detail(doc.outerHtml().getBytes(StandardCharsets.UTF_8),url,policy(site,url)));
     String separator = url.getQuery()==null ? "?" : "&";
     assertEquals(parser.identify(url), parser.identify(URI.create(url + separator + "utm_source=test#comment")));
     assertThrows(CollectorFailure.class, () -> parser.identify(URI.create(url.toString().replace(url.getHost(),"localhost"))));
   }
+  @Test void orderedParserKeepsLazySrcsetAndBackgroundImagesButDoesNotDownloadVideoAttachments() {
+    URI uri = URI.create("https://fixture.invalid/post/123");
+    SourcePolicy policy = new SourcePolicy("fixture.invalid", List.of("/"), "meta[property=og:title],title", "img",
+        "fixture contact-fixture.invalid", "ARCALIVE", Map.of("cdn.fixture.invalid", List.of("/")));
+    String html = "<html><head><meta property='og:title' content='lazy fixture'></head><body>"
+        + "<article><p>before</p>"
+        + "<img data-original-src='https://cdn.fixture.invalid/original.jpg' alt='original'>"
+        + "<img srcset='https://cdn.fixture.invalid/small.jpg 320w, https://cdn.fixture.invalid/large.jpg 1280w' alt='large'>"
+        + "<div style=\"background-image:url('https://cdn.fixture.invalid/bg.webp')\" aria-label='background'></div>"
+        + "<a href='https://cdn.fixture.invalid/movie.mp4'>video file</a>"
+        + "<a href='https://cdn.fixture.invalid/file.pdf'>document</a>"
+        + "</article></body></html>";
+
+    JsonNode result = new OrderedContentParser(policy, 20, 20).extract(
+        html.getBytes(StandardCharsets.UTF_8), uri, "article", "meta[property=og:title],title", "fixture-v1");
+
+    assertEquals(3, result.path("imageCandidates").size());
+    assertEquals("https://cdn.fixture.invalid/original.jpg", result.path("imageCandidates").get(0).path("remoteUrl").asText());
+    assertEquals("https://cdn.fixture.invalid/large.jpg", result.path("imageCandidates").get(1).path("remoteUrl").asText());
+    assertEquals("https://cdn.fixture.invalid/bg.webp", result.path("imageCandidates").get(2).path("remoteUrl").asText());
+    assertEquals(1, result.path("attachmentCandidates").size());
+    assertEquals("https://cdn.fixture.invalid/file.pdf", result.path("attachmentCandidates").get(0).path("remoteUrl").asText());
+    assertTrue(result.path("contentBlocks").toString().contains("movie.mp4"));
+  }
+
+  @Test void listAdaptersSkipNoticeRowsAndKeepRegularPosts() {
+    var adapter = SiteAdapters.require("ARCALIVE");
+    URI listUrl = URI.create("https://arca.live/b/live");
+    String html = "<div class='article-list'>"
+        + "<div class='vrow notice'><a class='title' href='/b/live/111'>공지: 운영 안내</a></div>"
+        + "<div class='vrow'><span class='badge'>공지</span><a class='title' href='/b/live/222'>필독 안내</a></div>"
+        + "<div class='vrow'><a class='title' href='/b/live/333'>일반 게시글</a></div>"
+        + "</div>";
+
+    var page = adapter.list(html.getBytes(StandardCharsets.UTF_8), listUrl);
+
+    assertEquals(1, page.entries().size());
+    assertEquals("333", page.entries().getFirst().identity().postKey());
+  }
+
   @Test void registryNeverConfusesCoreIdWithSlugAndRejectsAmbiguity() {
     var source = Map.of("host","arca.live","approved",true,"parser","ARCALIVE","pathPrefixes",List.of("/b/"),"userAgent","fixture contact-fixture.invalid");
     var registry = new SourceRegistry(Json.tree(Map.of("arcalive",source)));
@@ -81,6 +124,16 @@ class SiteAdapterTests {
     assertThrows(CollectorFailure.class, () -> new SourceRegistry(Json.tree(Map.of("a",source,"b",source))).host("arca.live",null));
     assertThrows(CollectorFailure.class, () -> SiteAdapters.require("METADATA"));
     assertThrows(CollectorFailure.class, () -> SiteAdapters.require("UNKNOWN_SITE"));
+  }
+  @Test void observedDcconOriginUsesOnlyConfiguredImagePathAndNeverDetailPermission() throws Exception {
+    var policy = SourceRegistry.read("ops/reference-sites.sources.example.json").key("dcinside").policy();
+    var uri = URI.create("https://gall.dcinside.com/board/view/?id=hit&no=17805");
+    var parsed = policy.extract(Files.readAllBytes(Path.of("src/test/resources/sites/dcinside.dccon.observed.html")), uri);
+    assertEquals(1,parsed.path("imageCandidates").size());
+    assertEquals("https://dcimg5.dcinside.com/dccon.php?no=fixture",parsed.path("imageCandidates").get(0).path("remoteUrl").asText());
+    assertThrows(CollectorFailure.class,()->policy.imagePolicy("https://dcimg5.dcinside.com/unobserved/path"));
+    assertThrows(CollectorFailure.class,()->policy.imagePolicy("https://dcimg6.dcinside.com/dccon.php?no=fixture"));
+    assertThrows(CollectorFailure.class,()->policy.allow("https://dcimg5.dcinside.com/dccon.php?no=fixture"));
   }
   @Test void robotsHonorsQueryLongestRulesAndDoesNotAcceptChallenge() {
     var rules = new RobotsRules("User-agent: *\nDisallow: /\nAllow: /best\nDisallow: /*?secret=\nCrawl-delay: 10\n");

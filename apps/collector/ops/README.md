@@ -2,7 +2,12 @@
 
 현재 구현·테스트 단계다. 실제 출처·Discord·운영 PC 값과 7일 관찰 전에는 운영 완료가 아니다.
 
-## 설정과 기동
+현행 direct batch는 [직접 저장 batch 실행](#직접-저장-batch-실행)과
+[환경별 연결·권한](../../../docs/implementation/operations/environment-configuration.md#9-core-연결과-direct-batch-검수의-실행-경계)을 따른다.
+아래 legacy 운영 절의 Core 전송·별도 collector DB·spool 명령은 기존 호환 코드에 해당하며
+새 direct batch 실행 절차가 아니다. 새 batch는 같은 PostgreSQL database에 제한 role로 직접 저장한다.
+
+## Legacy 호환 서버 설정과 기동
 
 JDK 25, 별도 PostgreSQL 18, `pg_dump`·`pg_restore`가 필요하다. 서비스 Core DB와 물리 인스턴스를 분리한다. `apps/collector/gradlew -p apps/collector test bootJar cyclonedxBom`으로 jar·SBOM을 만든다. wrapper의 distribution SHA-256과 dependency lock을 유지한다.
 
@@ -129,21 +134,21 @@ JSON 로그는 Spring Boot ECS 형식을 사용하고 exception message·전체 
 
 ## 웹/API와 다른 컴퓨터에서 실행
 
-수집기 jar·Quartz·Discord 연결은 **배치 PC**에 설치한다. 서비스 서버에는 수집기나 cron을 추가하지 않는다.
-위 `collector.core-origin`은 실제 서비스의 HTTPS origin으로 지정한다. 환경 변수 사용 시
-`COLLECTOR_CORE_ORIGIN`이며 `/api/collector/v1`은 프로그램이 붙인다. 다른 PC에서 `127.0.0.1:3000`은 서비스가 아니라
-그 PC 자신을 가리킨다. API 3100·서비스 DB 5439를 원격 공개하거나 DB credential을 수집기로 복사하지 않는다.
+수집 CLI와 Discord 입력은 **배치 PC**에서 실행한다. 서비스 서버가 외부 사이트 수집을 실행하지 않는다.
+Direct batch는 Core HTTP API를 글마다 호출하지 않는다. API와 batch는 현재 같은 PostgreSQL database를
+공유하되 batch는 collect 소유 테이블만 쓰고 API는 검수·content를 소유한다. 다른 PC에서는 VPN/사설망으로
+DB에 연결하며 API/owner credential 대신 batch 제한 role을 사용한다. DB를 공개 인터넷에 노출하지 않는다.
+수집 PC가 꺼져 있어도 기존 공개 서비스는 계속 동작한다.
 
-수집 PC의 PostgreSQL은 batch의 `collect.batch_*` 실행·결과·checkpoint·media metadata를 직접 보관한다.
-게시글 `content.*`와 공개 상태는 저장하지 않는다. PC가 꺼져 있으면 batch는 멈추고 기존 공개 서비스는 계속 동작한다.
-Hot 목록 자동 발견은 `HOT_LIST` 정책 출처만 수행하며, `DETAIL_ONLY` 출처는 URL 입력만 처리하고,
-`BLOCKED`·`UNVERIFIED` 출처는 실행하지 않는다.
+목록은 HOT_LIST/hot, GENERAL_LIST/latest로 구분하고 DETAIL_ONLY는 URL만 받는다.
+BLOCKED/UNVERIFIED 목록을 generic parser로 성공 처리하지 않는다. `--since`는 날짜 미확인 정책과
+함께 해석한다. 시각 미확인은 INCLUDE_UNKNOWN에서 unknownDates로 보고하고 REQUIRE_KNOWN에서는 제외한다.
 
-더쿠 원문 모드의 source 설정 예시(실제 Core source ID와 승인값으로 대체):
+더쿠 원문 모드의 축약 source 설정 예시(실제 승인값과 확인한 CDN으로 대체):
 
 ```json
 {
-  "(sourceId)": {
+  "theqoo": {
     "approved": false,
     "host": "theqoo.net",
     "pathPrefixes": ["/hot/"],
@@ -158,7 +163,7 @@ Hot 목록 자동 발견은 `HOT_LIST` 정책 출처만 수행하며, `DETAIL_ON
 ```
 
 `imageOrigins`는 확인한 첨부 CDN의 정확한 origin·경로만 넣는다. source 승인과 robots 확인은 위 예시로 대신하지 않는다.
-본문 40블록·이미지 20개를 초과하면 PARSE_FAILED이며 잘라서 저장하지 않는다. SNS 주소는 보존하고 화면에서 임베드한다.
+본문 1000블록·이미지 20개를 초과하면 각각 SOURCE_BODY_LIMIT_EXCEEDED/SOURCE_IMAGE_LIMIT_EXCEEDED로 실패하며 잘라서 저장하지 않는다. SNS 주소는 보존하고 화면에서 임베드한다.
 Node/Python 일회성 25건 교체 스크립트나 서비스 DB 직접 쓰기는 이 실행 경로에서 사용하지 않는다.
 secret은 macOS Keychain 또는 `collector.secrets-directory`의 계정별 파일에서 읽는다.
 파일 backend는 `COLLECTOR_SECRETS_DIRECTORY`로도 지정할 수 있다. 파일 이름은 위 Keychain account와 같고
@@ -169,7 +174,7 @@ Windows에서는 [권한 설정 스크립트](set-private-acl.ps1)를 운영자 
 Windows의 설정 경로는 properties에서 `C:/Blariyo/...`처럼 `/`를 사용한다. launchd는 macOS용이고 Windows 자동 시작은
 작업 스케줄러, Linux는 서비스 관리자를 사용한다. OS별 실제 자동 시작·절전 복구 시험은 별도다.
 
-### 공통 URL 접수 CLI
+### Legacy URL 접수 CLI
 
 실행 중인 로컬 수집기에 다음 요청 파일(비공개 권한)을 전달한다. 같은 요청을 재시도할 때 key를 바꾸지 않는다.
 
@@ -186,9 +191,13 @@ java -Dloader.main=com.blariyo.collector.ops.SubmitUrlMain \
 CLI는 자기 컴퓨터의 loopback API만 호출하고 candidateId와 jobRequestId만 출력한다. 원문 URL은 명령 인자·로그에
 출력하지 않는다. 실패 시 파일을 그대로 두고 같은 key로 재시도할 수 있다. 다른 사이트는 검증된 parser와 source 설정이 필요하다.
 
-### 별도 PC의 Docker/Linux
-
 ### 직접 저장 batch 실행
+
+먼저 실행 중인 batch를 종료하고 DB/object 백업 후 MigrationMain으로 V006까지 적용한다.
+V003과 새 collector 코드는 함께 사용한다. V003 DB에서 구버전 collector만 재시작하는 rollback은 지원하지 않는다.
+DB 연결은 직접 연결 또는 session pooling이어야 하며 transaction pooling은 지원하지 않는다.
+새 media key는 collect/media/{runId}/{itemId}/{position}이고 기존 key는 조회 호환을 유지한다.
+DB가 source 잠금 소유·상태 전이·version을 검사하며, 완성 report/checkpoint와 run 종료를 함께 확정한다.
 
 `batch`는 목록·상세 요청과 parser 결과를 직접 collect DB와 object store에 기록한다. Core 후보 endpoint를 호출하지
 않는다. `--dry-run`은 network read와 robots 확인만 수행하고 DB/object store를 쓰지 않는다.
@@ -207,7 +216,9 @@ COLLECTOR_OBJECT_STORE_S3_SECRET_ACCESS_KEY=(운영자 주입) \
 ```
 
 object store는 `COLLECTOR_OBJECT_STORE_DIRECTORY`가 있으면 로컬 파일시스템에 쓰고, 없으면
-`COLLECTOR_OBJECT_STORE_S3_*` 또는 `COLLECTOR_R2_*`/`R2_PRIVATE_*` 환경 변수로 S3/R2-compatible PUT 후 HEAD readback을 확인한다.
+`COLLECTOR_OBJECT_STORE_S3_*` 또는 batch 전용 `COLLECTOR_R2_*` 환경 변수로 S3/R2-compatible PUT 후 HEAD 응답을 확인한다.
+API의 `R2_PRIVATE_*`는 batch fallback으로 사용하지 않는다. HEAD 성공만으로 bytes 검증을 완료하지 않으며
+아래 별도 readback에서 실제 GET bytes/hash를 대조한다. 로컬 실행은 [로컬 명령](../../../scripts/local/README.md#정식-batch-검수-실행)을 따른다.
 legacy presigned PUT template(`COLLECTOR_OBJECT_STORE_PUT_URL_TEMPLATE`)은 마지막 fallback이다.
 운영 secret 값은 shell history에 남지 않게 별도 0600 env 파일을 source하거나 process manager의 비공개 환경으로 주입한다.
 
@@ -222,6 +233,32 @@ PowerShell에서는 `COLLECTOR_SOURCES_FILE`, `COLLECTOR_OBJECT_STORE_DIRECTORY`
 apps/collector/ops/verify-write-db-readback.sh theqoo humoruniv todayhumor
 ```
 
+운영 최소 샘플은 batch 3건과 접근 차단 실패 저장 1건을 함께 검증한다. manifest는 `apps/collector/ops/production-readback-sample.json`이다.
+
+```sh
+apps/collector/ops/verify-write-db-readback.sh --manifest apps/collector/ops/production-readback-sample.json
+```
+
+최소 샘플이 통과한 뒤에는 개발 DB에서 `FETCHED_DEV_READBACK`을 확인한 17개 사이트를 같은 형식으로 검증한다.
+
+```sh
+apps/collector/ops/verify-write-db-readback.sh --manifest apps/collector/ops/production-readback-17-fetched.json
+```
+
+본문 수집이 차단되거나 live renderer가 없는 4개 사이트는 실패 상태 저장/readback을 별도 manifest로 확인한다.
+
+```sh
+apps/collector/ops/verify-write-db-readback.sh --manifest apps/collector/ops/production-readback-4-failed.json
+```
+
+Windows PowerShell도 같은 manifest를 받는다.
+
+```powershell
+apps\collector\opserify-write-db-readback.ps1 --manifest apps\collector\ops\production-readback-sample.json
+apps\collector\opserify-write-db-readback.ps1 --manifest apps\collector\ops\production-readback-17-fetched.json
+apps\collector\opserify-write-db-readback.ps1 --manifest apps\collector\ops\production-readback-4-failed.json
+```
+
 Windows PowerShell에서는 같은 환경 변수를 `$env:`로 설정한 뒤 다음을 실행한다. `psql`은 PATH에 있어야 한다.
 
 ```powershell
@@ -229,6 +266,21 @@ apps\collector\ops\verify-write-db-readback.ps1 theqoo humoruniv todayhumor
 ```
 
 실행 report에는 run ID·상태·개수·일반 오류 코드만 남기며 원문 URL·본문·cookie·secret·절대 경로를 넣지 않는다.
+
+개발 DB readback 검토 자료를 다시 묶을 때는 성공 readback JSON과 실패 readback JSON을 만든 뒤 다음을 실행한다.
+이 명령은 DB나 object store에 접속하지 않고, 기존 JSON 산출물을 21개 통합 검토 표로 재생성한다.
+
+```sh
+python3 apps/collector/ops/build-21-site-review.py
+```
+
+출력은 `apps/collector/ops/reports/dev-21-site-review-2026-09-23.md`와 `.json`이다.
+
+Discord Gateway E2E는 실제 bot token과 테스트 guild/channel에서만 검증할 수 있다. fixture test나 코드 존재를 완료로 표시하지 않는다.
+운영 검증 절차와 결과 템플릿은 다음 파일을 사용한다.
+
+- `apps/collector/ops/discord-e2e-checklist.md`
+- `apps/collector/ops/discord-e2e-result.example.json`
 
 [Compose 파일](compose.yaml)은 서비스용 루트 compose와 독립이다. Mac·Windows의 Docker Desktop에서도 Linux
 container로 실행한다. collector·실행 DB의 host port는 공개하지 않으며 URL 접수는 container 안에서 공통 CLI로 한다.
@@ -260,3 +312,74 @@ docker compose -f apps/collector/ops/compose.yaml exec collector java \
 `pg_dump`·`pg_restore` 18이 있는 이미지를 별도로 준비하고 복원 시험을 해야 한다. DB volume만으로 백업이 끝난 것으로 보지 않는다.
 Docker 파일 mount의 권한·소유자 제한은 [Docker secrets 문서](https://docs.docker.com/compose/how-tos/use-secrets/)와
 [서비스 mount 계약](https://docs.docker.com/reference/compose-file/services/)을 따른다. Compose 선언만으로 host 파일 권한이 바뀐다고 가정하지 않는다.
+
+V004 item lifecycle: 상세 fetch 이전 claim → raw 저장 → parse → 날짜 정책 → 본문/미디어 → FETCHED.
+상세 fetch/parse 실패는 item과 failure phase/code에 남고, 날짜 제외는 SKIPPED_POLICY/skip_reason으로
+기록한다. 중복 FETCHED는 외부 상세 요청 전에 skip하며 기간 제외·실패 item은 재시도할 수 있다.
+
+## Direct Discord queue (V005)
+
+`discord --write-db`는 독립 batch JVM에서 Gateway 입력과 queue worker를 함께 실행한다.
+Core API, Spring Web 서버, Quartz, legacy `collector.run` dispatcher는 필요하지 않다.
+`COLLECTOR_SOURCES_FILE`, DB 및 object 설정은 기존 direct batch와 같다.
+
+```sh
+# macOS: JDK 25와 DB/object 설정을 주입한 같은 셸
+./bin/blariyo-collector queue --once --write-db
+./bin/blariyo-collector discord --write-db
+```
+
+```powershell
+# Windows PowerShell: 동일 환경 변수와 소유자 전용 secret 디렉터리
+.\bin\blariyo-collector.ps1 queue --once --write-db
+.\bin\blariyo-collector.ps1 discord --write-db
+```
+
+```sh
+# Linux Docker: 예시 image 이름은 배포 전에 실제 빌드한 것으로 교체한다.
+# private env 파일에는 DB/object 설정과 secret 디렉터리 경로를 지정한다.
+docker run --rm --env-file /secure/collector.env \
+  --mount type=bind,src=/secure/collector-secrets,dst=/run/collector-secrets,readonly \
+  --entrypoint java blariyo-collector:local \
+  -Dloader.main=com.blariyo.collector.ops.BatchMain -cp /app/collector.jar \
+  org.springframework.boot.loader.launch.PropertiesLauncher queue --once --write-db
+```
+
+추가 환경 변수는 `COLLECTOR_DISCORD_GUILDS`, `COLLECTOR_DISCORD_CHANNELS`,
+`COLLECTOR_DISCORD_USERS` 또는 `COLLECTOR_DISCORD_ROLES`이며 쉼표 구분 allowlist다.
+`COLLECTOR_DISCORD_REGISTER_COMMANDS=true`는 최초 테스트 guild 명령 등록 때만 사용한다.
+`COLLECTOR_SECRETS_DIRECTORY`의 `discord-token`, `request-key` 파일을 사용한다.
+`request-key`는 32바이트 키의 base64이며 다른 PC에서도 같은 키를 사용해야 확인 재전송을 검증할 수 있다.
+secret 원문을 환경변수·CLI 인자·로그에 넣지 않는다. 실제 ID/키는 예시 파일에 기록하지 않는다.
+
+`DISCORD_GATEWAY_CONNECTED`는 실제 JDA ready 이벤트에서만 출력한다.
+연결 로그만으로 전체 E2E 완료를 판정하지 않고 [실연동 체크리스트](discord-e2e-checklist.md)를 수행한다.
+`/collect status`는 batch queue 상태별 수량을 반환한다. `/collect url`은 10분 동안 유효한 확인을 준비하고,
+확인 후 stable request ID를 반환한다. confirmation receipt 외에는 확인 전에 수집 DB/object를 변경하지 않는다.
+
+queue request는 실행마다 새 `batch_run`을 연결한다. 중단 후 재개 시 기존 실행 기록을 보존하고,
+이미 완료된 run은 재수집하지 않는다. source advisory lock이 유지되는 동안 다른 PC의 worker는 건너뛴다.
+네트워크/DNS/일시 서버 오류 또는 실행 중단은 최대 3회(30초·60초 backoff) 실행한다.
+403·삭제·parser·크기 초과·rate-limit은 요청을 종결한다. 403/정책 거부/rate-limit 뒤 같은 source의
+다른 대기 요청도 15분간 유예한다. 만료된 confirmation은 접수하지 않고, 확인 완료 receipt는 재전송에 같은 ID를 반환한다.
+`queue --once`는 한 건의 처리/복구 결과 또는 IDLE을 JSON으로 출력하며, 장기 실행 `queue --write-db`는 JSONL로 기록한다.
+queue/discord 명령은 `--write-db`가 필수다. 기존 `batch --dry-run`은 여전히 DB/object 무쓰기다.
+
+V005 migration은 기존 QUEUED run의 payload를 같은 ID의 request로 옮기고 이전 run에
+`BATCH_QUEUE_MIGRATED`를 기록한다. 원문·미디어·기존 게시글은 삭제하지 않는다.
+모든 수집 실행을 중지한 뒤 migration owner로 적용하고 제한 role 권한을 재적용한다.
+batch role에는 기존 7개 ledger와 `collect.batch_queue`, `collect.batch_confirmation`을 허용한다.
+API role은 queue/confirmation에 SELECT도 허용하지 않는다. `prepare-batch-review.mjs --apply`는
+로컬 백업·migration·권한·기존 object readback을 수행한다. 원격 환경에도 동일 소유권을 적용해야 한다.
+
+### 글별 미디어 한도
+
+source JSON의 선택적 `mediaLimits`로 제한을 낮출 수 있다. 생략하면 다음 상한을 적용한다.
+
+```json
+"mediaLimits": { "maxImages": 200, "maxFileBytes": 31457280, "maxTotalBytes": 157286400 }
+```
+
+이미지와 첨부 파일을 합해 글당 150MiB, 파일당 30MiB다. 200장/1000블록을 넘는 원문을 잘라
+성공으로 처리하지 않는다. 남은 용량보다 큰 파일은 object 저장 전에 실패하며 다음 글은 새 예산으로
+진행한다. dry-run은 파싱만 수행하므로 실제 파일 용량 검증은 write-db/readback에서 확인한다.

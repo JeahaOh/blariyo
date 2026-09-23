@@ -14,6 +14,24 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.JsonNode;
 
 class ManualSiteAdapterTests {
+  @org.junit.jupiter.api.Test void observedDcinsideLongImageBodyPreservesAllFortyNineImages() throws Exception {
+    var source=SourceRegistry.read("ops/reference-sites.sources.example.json").key("dcinside");
+    try(var fixture=getClass().getResourceAsStream("/sites/dcinside.detail.observed.html")) {
+      org.junit.jupiter.api.Assertions.assertNotNull(fixture);
+      var html=fixture.readAllBytes();
+      var result=source.adapter().detail(html,java.net.URI.create("https://gall.dcinside.com/board/view/?id=hit&no=17809"),source.policy());
+      assertEquals(49,result.path("imageCandidates").size());
+      assertEquals(49,java.util.stream.StreamSupport.stream(result.path("contentBlocks").spliterator(),false)
+          .filter(block->"IMAGE".equals(block.path("type").asText())).count());
+      assertFalse(result.toString().contains("gallview_loading_ori.gif"));
+    }
+  }
+  @org.junit.jupiter.api.Test void observedEtolandNestedNoticeCategoryIsExcluded() throws Exception {
+    var bytes=getClass().getResourceAsStream("/sites/etoland.list.observed.html").readAllBytes();
+    var page=SiteAdapters.require("ETOLAND").list(bytes,URI.create("https://etoland.co.kr/b/etohumor06/list"));
+    assertEquals(1,page.entries().size());
+    assertFalse(page.entries().stream().anyMatch(e->e.identity().postKey().matches(".*:(2812904|2803717)")));
+  }
   @ParameterizedTest
   @MethodSource("manualSites")
   void detailOnlyManualParsersExtractOrderedBodyImagesAndSns(
@@ -37,6 +55,9 @@ class ManualSiteAdapterTests {
     assertTrue(result.path("contentBlocks").toString().contains("fixture body"));
     assertEquals(1, result.path("imageCandidates").size());
     assertTrue(result.path("contentBlocks").toString().contains("x.com/fixture/status/123"));
+    String tooManyImages = "<title>oversized</title>" + element(bodySelector,
+        "<img src='https://cdn.fixture.invalid/one.png'>".repeat(201));
+    assertThrows(CollectorFailure.class, () -> adapter.detail(tooManyImages.getBytes(StandardCharsets.UTF_8), uri, policy));
     assertThrows(CollectorFailure.class, () -> adapter.list("<html></html>".getBytes(StandardCharsets.UTF_8), uri));
     assertThrows(CollectorFailure.class, () -> adapter.detail("<title>gone</title>".getBytes(StandardCharsets.UTF_8), uri, policy));
     assertThrows(CollectorFailure.class, () -> adapter.identify(URI.create(url.replace(uri.getHost(), "localhost"))));
@@ -90,6 +111,19 @@ class ManualSiteAdapterTests {
     assertEquals("youtube-community-ytinitialdata-v1", result.path("parserVersion").asText());
     assertTrue(result.path("contentBlocks").toString().contains("커뮤니티 본문"));
     assertEquals(1, result.path("imageCandidates").size());
+  }
+
+  @org.junit.jupiter.api.Test
+  void challengeHtmlIsAccessBlockedNotParseFailed() {
+    var adapter = SiteAdapters.require("PGR21");
+    URI uri = URI.create("https://pgr21.com/humor/507793");
+    SourcePolicy policy = new SourcePolicy(uri.getHost(), List.of("/"), "meta[property=og:title],title", "img",
+        "fixture contact-test", "PGR21", Map.of());
+    String html = "<html><head><title>PGR21.com · 연결 확인 중</title></head>"
+        + "<body><h1>사람인지 확인하고 있어요</h1><p>자동 수집 봇의 과도한 접속</p></body></html>";
+    CollectorFailure failure = assertThrows(CollectorFailure.class,
+        () -> adapter.detail(html.getBytes(StandardCharsets.UTF_8), uri, policy));
+    assertEquals("SOURCE_ACCESS_BLOCKED", failure.getMessage());
   }
 
 }

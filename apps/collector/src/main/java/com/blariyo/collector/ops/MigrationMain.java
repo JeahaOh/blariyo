@@ -41,7 +41,11 @@ public final class MigrationMain {
           if (r.next()) {
             if (!checksum.equals(r.getString(1)))
               throw new IllegalStateException("MIGRATION_CHECKSUM");
-            applyV002(db);
+            apply(db,"V002");
+            apply(db,"V003");
+            apply(db,"V004");
+            apply(db,"V005");
+            apply(db,"V006");
             db.commit();
             return;
           }
@@ -58,7 +62,11 @@ public final class MigrationMain {
           insert.setString(1, checksum);
           insert.executeUpdate();
         }
-        applyV002(db);
+        apply(db,"V002");
+        apply(db,"V003");
+        apply(db,"V004");
+        apply(db,"V005");
+        apply(db,"V006");
         db.commit();
       } catch (Exception e) {
         db.rollback();
@@ -67,18 +75,18 @@ public final class MigrationMain {
     }
   }
 
-  private static void applyV002(Connection db) throws Exception {
-    String own = resource("db/collector-v002.sql"),
+  private static void apply(Connection db,String version) throws Exception {
+    String own = resource("db/collector-"+version.toLowerCase(java.util.Locale.ROOT)+".sql"),
         checksum = Json.sha(own.getBytes(StandardCharsets.UTF_8));
     try (var schema = db.createStatement()) {
       schema.execute("CREATE SCHEMA IF NOT EXISTS collect");
     }
     try (var check=db.prepareStatement("SELECT checksum FROM collector.schema_migration WHERE version=?")) {
-      check.setString(1, "V002");
+      check.setString(1, version);
       try (var r = check.executeQuery()) {
         if (r.next()) {
           if (!checksum.equals(r.getString(1)))
-            throw new IllegalStateException("MIGRATION_CHECKSUM_V002");
+            throw new IllegalStateException("MIGRATION_CHECKSUM_"+version);
           return;
         }
       }
@@ -88,7 +96,7 @@ public final class MigrationMain {
     }
     try (var insert =
         db.prepareStatement("INSERT INTO collector.schema_migration(version,checksum) VALUES(?,?)")) {
-      insert.setString(1, "V002");
+      insert.setString(1, version);
       insert.setString(2, checksum);
       insert.executeUpdate();
     }

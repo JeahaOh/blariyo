@@ -1,0 +1,14 @@
+{
+  "source": "theqoo",
+  "kind": "detail",
+  "url": "https://theqoo.net/hot/4353573802",
+  "rawSha256": "2ee17b1f63bd6a6aa3730a4bc7e4c50a4ad67fc163f4155bd2baaa872b909065",
+  "fixtureSha256": "9be4798149e9ff302f385d97453a9220e158354a70a8d9c46d97c575e6268cca",
+  "shape": [
+    "TEXT",
+    "LINK"
+  ],
+  "images": 0,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

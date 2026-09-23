@@ -1,0 +1,43 @@
+{
+  "source": "yuldo",
+  "kind": "list",
+  "url": "https://yul-do.com/humorissue",
+  "rawSha256": "cc3fec7708affbecda3f377bb502906fd8e602c8626d962062ac1aca9d007cd0",
+  "fixtureSha256": "09be0cc68771888921668fcd062ae77fb666b1979d5717bf66ab92e0edab0a6c",
+  "entries": [
+    "humorissue:102747320",
+    "humorissue:102742447",
+    "humorissue:102747000",
+    "humorissue:102746824",
+    "humorissue:102748247",
+    "humorissue:102741656",
+    "humorissue:102748046",
+    "humorissue:102747501",
+    "humorissue:102747954",
+    "humorissue:102747230",
+    "humorissue:102745742",
+    "humorissue:102746267",
+    "humorissue:102746522",
+    "humorissue:102743379",
+    "humorissue:102747618"
+  ],
+  "next": "https://yul-do.com/index.php?mid=humorissue&page=2",
+  "identitiesAndDates": [
+    "https://yul-do.com/humorissue/102747320|humorissue:102747320|",
+    "https://yul-do.com/humorissue/102742447|humorissue:102742447|",
+    "https://yul-do.com/humorissue/102747000|humorissue:102747000|",
+    "https://yul-do.com/humorissue/102746824|humorissue:102746824|",
+    "https://yul-do.com/humorissue/102748247|humorissue:102748247|",
+    "https://yul-do.com/humorissue/102741656|humorissue:102741656|",
+    "https://yul-do.com/humorissue/102748046|humorissue:102748046|",
+    "https://yul-do.com/humorissue/102747501|humorissue:102747501|",
+    "https://yul-do.com/humorissue/102747954|humorissue:102747954|",
+    "https://yul-do.com/humorissue/102747230|humorissue:102747230|",
+    "https://yul-do.com/humorissue/102745742|humorissue:102745742|",
+    "https://yul-do.com/humorissue/102746267|humorissue:102746267|",
+    "https://yul-do.com/humorissue/102746522|humorissue:102746522|",
+    "https://yul-do.com/humorissue/102743379|humorissue:102743379|",
+    "https://yul-do.com/humorissue/102747618|humorissue:102747618|"
+  ],
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

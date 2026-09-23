@@ -1,0 +1,17 @@
+{
+  "source": "natepann",
+  "kind": "detail",
+  "url": "https://pann.nate.com/talk/375635110",
+  "rawSha256": "cf5e679946a3576d15a1f930d23abddbfb950c1d7c7865c8286f58c3d66108dd",
+  "fixtureSha256": "3293967af48538e6b44faf3ef8834fd9b87760f3bf23f832805126dfa41b59c6",
+  "shape": [
+    "TEXT",
+    "IMAGE:1",
+    "IMAGE:2",
+    "IMAGE:3",
+    "TEXT"
+  ],
+  "images": 3,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

@@ -1,0 +1,16 @@
+{
+  "source": "yuldo",
+  "kind": "detail",
+  "url": "https://yul-do.com/humorissue/102748247",
+  "rawSha256": "1d0bfd2b7d817d6548e46f93e55ecd8821c2fcf8e0136ea076ca8302f6546534",
+  "fixtureSha256": "0af61f5de26fab9e826331486051009c6c3ee823e03d6d114d896746c8643c14",
+  "shape": [
+    "IMAGE:1",
+    "IMAGE:2",
+    "IMAGE:3",
+    "TEXT"
+  ],
+  "images": 3,
+  "attachments": 0,
+  "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."
+}

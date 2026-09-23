@@ -17,24 +17,24 @@ public final class OrderedContentParser {
   private final SourcePolicy policy;
   private final int maxBlocks;
   private final int maxImages;
-  private final boolean truncateExtraImages;
-  private static final Pattern ATTACHMENT = Pattern.compile("(?i).*[.](pdf|zip|7z|rar|hwp|hwpx|doc|docx|xls|xlsx|ppt|pptx|txt|csv|mp4|mov|mp3|wav)(?:[?#].*)?$");
+  private static final Pattern ATTACHMENT = Pattern.compile("(?i).*[.](pdf|zip|7z|rar|hwp|hwpx|doc|docx|xls|xlsx|ppt|pptx|txt|csv)(?:[?#].*)?$");
   private static final Pattern IMAGE_URL = Pattern.compile("(?i).*[.](jpg|jpeg|png|gif|webp|avif)(?:[?#].*)?$");
+  private static final Pattern CSS_BACKGROUND_URL = Pattern.compile("(?i)background(?:-image)?\\s*:\\s*url\\((['\"]?)(.*?)\\1\\)");
   private final List<Map<String, Object>> blocks = new ArrayList<>(), images = new ArrayList<>(), attachments = new ArrayList<>();
+  private final Set<String> attachmentUrls = new LinkedHashSet<>();
   private final StringBuilder pending = new StringBuilder();
   private URI base;
 
-  public OrderedContentParser(SourcePolicy policy) { this(policy, 40, 20, false); }
-  public OrderedContentParser(SourcePolicy policy, int maxBlocks, int maxImages, boolean truncateExtraImages) {
+  public OrderedContentParser(SourcePolicy policy) { this(policy, 1000, policy.mediaLimits().maxImages()); }
+  public OrderedContentParser(SourcePolicy policy, int maxBlocks, int maxImages) {
     this.policy = policy;
     this.maxBlocks = maxBlocks;
     this.maxImages = maxImages;
-    this.truncateExtraImages = truncateExtraImages;
   }
 
   public JsonNode extract(byte[] html, URI uri, String bodySelector, String titleSelector, String version) {
     try {
-      blocks.clear(); images.clear(); attachments.clear(); pending.setLength(0);
+      blocks.clear(); images.clear(); attachments.clear(); attachmentUrls.clear(); pending.setLength(0);
       base = uri;
       var document = Jsoup.parse(new java.io.ByteArrayInputStream(html), null, uri.toString());
       var articles = document.select(bodySelector);
@@ -49,7 +49,9 @@ public final class OrderedContentParser {
       flush();
       long expanded = blocks.stream().mapToLong(b -> b.get("type").equals("LINK")
           && !b.get("label").equals("") && !b.get("label").equals(b.get("url")) ? 2 : 1).sum();
-      if (blocks.isEmpty() || expanded > maxBlocks || images.size() > maxImages) throw failed();
+      if (blocks.isEmpty()) throw failed();
+      if (expanded > maxBlocks) throw new CollectorFailure(422, "SOURCE_BODY_LIMIT_EXCEEDED");
+      if (images.size() > maxImages) throw new CollectorFailure(422, "SOURCE_IMAGE_LIMIT_EXCEEDED");
       var result = new LinkedHashMap<String, Object>();
       result.put("status", "NEW");
       result.put("title", title);
@@ -79,17 +81,38 @@ public final class OrderedContentParser {
   private String attributeUrl(Element el, String... names) {
     for (String name : names) {
       String value = el.attr(name);
-      if (!value.isBlank() && !value.startsWith("data:") && !value.startsWith("blob:")) return url(value);
+      if (value.isBlank() || value.startsWith("data:") || value.startsWith("blob:")) continue;
+      if (name.toLowerCase(Locale.ROOT).contains("srcset")) return url(srcsetUrl(value));
+      return url(value);
     }
     throw failed();
   }
+  private String srcsetUrl(String value) {
+    String selected = "";
+    double selectedScore = -1;
+    for (String part : value.split(",")) {
+      String[] tokens = part.strip().split("\\s+");
+      if (tokens.length == 0 || tokens[0].isBlank() || tokens[0].startsWith("data:") || tokens[0].startsWith("blob:")) continue;
+      double score = 1;
+      if (tokens.length > 1) {
+        String descriptor = tokens[tokens.length - 1].toLowerCase(Locale.ROOT);
+        try {
+          if (descriptor.endsWith("w")) score = Double.parseDouble(descriptor.substring(0, descriptor.length() - 1));
+          else if (descriptor.endsWith("x")) score = Double.parseDouble(descriptor.substring(0, descriptor.length() - 1)) * 1000;
+        } catch (NumberFormatException ignored) { score = 1; }
+      }
+      if (score > selectedScore) { selected = tokens[0]; selectedScore = score; }
+    }
+    if (selected.isBlank()) throw failed();
+    return selected;
+  }
   private void add(Map<String, Object> block) {
     blocks.add(block);
-    if (blocks.size() > maxBlocks) throw failed();
+    if (blocks.size() > maxBlocks) throw new CollectorFailure(422, "SOURCE_BODY_LIMIT_EXCEEDED");
   }
   private void text(String value) {
     if (value.isBlank()) return;
-    if (length(value) > 20000) throw failed();
+    if (length(value) > 20000) throw new CollectorFailure(422, "SOURCE_TEXT_LIMIT_EXCEEDED");
     add(Map.of("type", "TEXT", "text", value));
   }
   private void image(String value, String alt) {
@@ -97,8 +120,7 @@ public final class OrderedContentParser {
     policy.imagePolicy(remote).allow(remote);
     if (length(alt) > 300) throw failed();
     if (images.size() == maxImages) {
-      if (truncateExtraImages) return;
-      throw failed();
+      throw new CollectorFailure(422, "SOURCE_IMAGE_LIMIT_EXCEEDED");
     }
     int position = images.size() + 1;
     images.add(Map.of("position", position, "remoteUrl", remote));
@@ -109,11 +131,13 @@ public final class OrderedContentParser {
     if (length(label) > 300) throw failed();
     String resolved = url(value);
     add(Map.of("type", "LINK", "url", resolved, "label", label));
+    attachment(resolved, label);
     return resolved;
   }
   private void attachment(String value, String label) {
     String resolved = url(value);
     if (!ATTACHMENT.matcher(resolved).matches()) return;
+    if (!attachmentUrls.add(resolved)) return;
     label = label.strip();
     if (length(label) > 300) throw failed();
     attachments.add(Map.of("position", attachments.size() + 1, "remoteUrl", resolved, "label", label));
@@ -140,15 +164,21 @@ public final class OrderedContentParser {
     if (tag.equals("br")) { pending.append('\n'); return; }
     if (tag.equals("img")) {
       flush();
-      String remote = attributeUrl(el, "data-original", "data-src", "data-lazy-src", "src");
+      String remote = attributeUrl(el, "data-original", "data-original-src", "data-src", "data-lazy-src", "data-url",
+          "data-full", "data-image", "data-echo", "data-srcset", "srcset", "src");
       policy.imagePolicy(remote).allow(remote);
       String alt = el.attr("alt");
       if (length(alt) > 300) throw failed();
       if (images.size() == maxImages) {
-        if (truncateExtraImages) return;
-        throw failed();
+          throw new CollectorFailure(422, "SOURCE_IMAGE_LIMIT_EXCEEDED");
       }
       image(remote, alt);
+      return;
+    }
+    var background = CSS_BACKGROUND_URL.matcher(el.attr("style"));
+    if (background.find()) {
+      flush();
+      image(background.group(2), el.attr("aria-label"));
       return;
     }
     if (tag.equals("blockquote")) {
@@ -183,7 +213,6 @@ public final class OrderedContentParser {
       if (!el.select("img").isEmpty()) { for (var child : el.childNodes()) walk(child); }
       else {
         link(el.attr("href"), el.text());
-        attachment(el.attr("href"), el.text());
       }
       return;
     }

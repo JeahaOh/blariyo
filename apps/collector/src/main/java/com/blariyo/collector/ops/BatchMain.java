@@ -58,6 +58,11 @@ public final class BatchMain {
         OperatorSettings.get("collector.sources-file", "COLLECTOR_SOURCES_FILE",
             "apps/collector/ops/reference-sites.sources.example.json"));
     var source = SourceRegistry.read(sourceFile).key(values.get("--source"));
+    long interval=Long.parseLong(values.getOrDefault("--interval-ms","10000"));
+    if(interval<source.config().path("requestIntervalMs").asLong(10000)||interval>3600000)
+      throw new CollectorFailure(400,"SOURCE_LIMIT_EXCEEDED");
+    // Reject disallowed sources before opening a DB connection or reading object-store credentials.
+    source.policy();
     com.zaxxer.hikari.HikariDataSource datasource = null;
     boolean write = flags.contains("--write-db");
     if (write) {
@@ -68,7 +73,7 @@ public final class BatchMain {
     var report = new DirectUrlRunner(new PinnedHttp(), datasource == null ? null : new BatchStore(datasource),
         write ? BatchObjectStore.fromEnvironment() : null)
         .run(source, new DirectUrlRunner.Options(values.get("--source"), values.get("--url"),
-            Long.parseLong(values.getOrDefault("--interval-ms", "10000")), write));
+            interval, write));
     if (datasource != null) datasource.close();
     System.out.println(Json.tree(Map.of("runId", report.runId().toString(), "mode", write ? "WRITE_DB" : "DRY_RUN", "report", report)));
     System.exit(switch (report.state()) { case "BLOCKED" -> 2; case "FAILED" -> 1; default -> 0; });
@@ -76,6 +81,7 @@ public final class BatchMain {
 
   public static void main(String[] args) {
     try {
+      if (args.length > 0 && Set.of("queue","discord").contains(args[0])) { QueueMain.execute(args); return; }
       if (args.length > 0 && args[0].equals("collect-url")) { collectUrl(args); return; }
       var options = options(args);
       String config = System.getenv("COLLECTOR_CONFIG_FILE");
@@ -84,6 +90,7 @@ public final class BatchMain {
           OperatorSettings.get("collector.sources-file", "COLLECTOR_SOURCES_FILE",
               "apps/collector/ops/reference-sites.sources.example.json"));
       var source = SourceRegistry.read(sourceFile).key(options.source());
+      String chart=Arrays.asList(args).contains("--chart")?options.chart():source.config().path("defaultChart").asText("hot");
       String blocked = source.config().path("blockedReason").asText();
       if (!blocked.isBlank() || !source.config().path("approved").asBoolean(false)) {
         var report = Map.of("runId", UUID.randomUUID().toString(), "mode", options.writeDb() ? "WRITE_DB" : "DRY_RUN",
@@ -99,7 +106,7 @@ public final class BatchMain {
       }
       var report = new DirectBatchRunner(new PinnedHttp(), datasource == null ? null : new BatchStore(datasource),
           options.writeDb() ? BatchObjectStore.fromEnvironment() : null)
-          .run(source, new DirectBatchRunner.Options(options.source(), options.chart(), options.maxPages(), options.maxItems(), options.since(), options.intervalMillis(), options.writeDb()));
+          .run(source, new DirectBatchRunner.Options(options.source(), chart, options.maxPages(), options.maxItems(), options.since(), options.intervalMillis(), options.writeDb()));
       if (datasource != null) datasource.close();
       System.out.println(Json.tree(Map.of("runId", report.runId().toString(), "mode", options.writeDb() ? "WRITE_DB" : "DRY_RUN",
           "report", report)));

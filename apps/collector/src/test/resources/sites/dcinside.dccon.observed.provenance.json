@@ -1,0 +1,6 @@
+{
+  "url": "https://gall.dcinside.com/board/view/?id=hit&no=17805",
+  "rawSha256": "01a8c9d239fcfd811f8b19d13995be5ac97f3dade5b3f7ad73559e4791ede82b",
+  "fixtureSha256": "704bc5059d02ddd2db22841e112c445d4be9a3e4898dc3656f3b9fe0ad553673",
+  "transformation": "관측한 write_div 내부 dcimg5.dcinside.com/dccon.php img 구조의 최소 회귀 fixture. 제목/본문/query를 합성값으로 치환했다. HTML 구조와 origin/path 허용만 검증하며 이미지 다운로드 성공 증거가 아니다."
+}

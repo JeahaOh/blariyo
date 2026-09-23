@@ -32,7 +32,8 @@ function prepareMailFallback(event: MouseEvent, type: 'rights' | 'contact') {
     return;
   cancelMailWait();
   const text = type === 'rights' ? rightsMail.value.text : contactMail.value.text;
-  mailAnchor.value = event.currentTarget as HTMLAnchorElement;
+  if (!(event.currentTarget instanceof HTMLAnchorElement)) return;
+  mailAnchor.value = event.currentTarget;
   manualTitle.value = type === 'rights' ? '권리 문의 양식' : '문의·오류 제보 양식';
   let active = true;
   // Browsers expose no mailto result. Cancel on departure; silence is only a fallback hint.

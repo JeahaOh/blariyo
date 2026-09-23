@@ -244,8 +244,8 @@ async function upload(event: Event) {
   input.value = '';
   if (!files.length) return;
   const imageCount = editor.value.blocks.filter((b) => b.type === 'IMAGE').length;
-  if (imageCount + files.length > 20 || editor.value.blocks.length + files.length > 40) {
-    message.value = '게시글은 본문 블록 40개, 이미지 20개까지 사용할 수 있습니다.';
+  if (imageCount + files.length > 20 || editor.value.blocks.length + files.length > 1000) {
+    message.value = '게시글은 본문 블록 1,000개, 이미지 20개까지 사용할 수 있습니다.';
     return;
   }
   busy.value = true;
@@ -470,7 +470,7 @@ onBeforeRouteLeave(
           </div>
           <button
             type="button"
-            :disabled="editor.blocks.length >= 40"
+            :disabled="editor.blocks.length >= 1000"
             @click="editor.blocks.push({ type: 'TEXT', text: '' })"
           >
             텍스트 추가</button

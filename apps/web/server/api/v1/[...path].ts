@@ -24,8 +24,10 @@ export default defineEventHandler(async (event) => {
     const url = getRequestURL(event),
       operation = matchOperation(event.method, url.pathname);
     if (!operation) return error(404, 'POST_NOT_FOUND');
+    const batchReview = /^\/api\/v1\/admin\/collect\/batch-items(?:\/|$)/.test(url.pathname);
+    if (batchReview && !config.collectBatchReviewEnabled) return error(404, 'BATCH_ITEM_NOT_FOUND');
     if (
-      url.pathname.startsWith('/api/v1/admin/collect/') &&
+      !batchReview && url.pathname.startsWith('/api/v1/admin/collect/') &&
       !config.collectManualUrlEnabled &&
       !config.collectDiscordCommandEnabled
     )
@@ -105,9 +107,12 @@ export default defineEventHandler(async (event) => {
         : body === undefined
           ? {}
           : { body: JSON.stringify(body) }),
-      signal: AbortSignal.timeout(multipart ? 60000 : 15000),
+      // Collected galleries may require sequential validation of up to 200 images.
+      // A lost response must be retried with the original idempotency key.
+      signal: AbortSignal.timeout(operation.operationId === 'promoteBatchItem' ? 180000
+        : operation.operationId === 'previewBatchImage' || multipart ? 60000 : 15000),
     });
-    if (['previewImage', 'previewCollectionImage'].includes(operation.operationId) && response.ok) {
+    if (['previewImage', 'previewCollectionImage', 'previewBatchImage'].includes(operation.operationId) && response.ok) {
       const type = response.headers.get('content-type') || '';
       if (!/^image\/(jpeg|png|webp|gif)$/.test(type)) return error(503, 'DEPENDENCY_UNAVAILABLE');
       setHeader(event, 'Cache-Control', 'private, no-store');

@@ -26,10 +26,10 @@ export function editorErrors(editor, sourceName, sourceUrl) {
       errors.sourceUrl = '출처 URL을 https://로 시작하는 주소로 입력해 주세요.';
     }
   }
-  if (!editor.blocks.length || editor.blocks.length > 40)
-    errors.blocks = '본문 블록을 1~40개 구성해 주세요.';
-  if (editor.blocks.filter((b) => b.type === 'IMAGE').length > 20)
-    errors.blocks = '이미지는 게시글당 최대 20개까지 사용할 수 있습니다.';
+  if (!editor.blocks.length || editor.blocks.length > 1000)
+    errors.blocks = '본문 블록을 1~1,000개 구성해 주세요.';
+  if (editor.blocks.filter((b) => b.type === 'IMAGE').length > 200)
+    errors.blocks = '이미지는 게시글당 최대 200개까지 사용할 수 있습니다.';
   editor.blocks.forEach((block, index) => {
     const key = `block-${index}`;
     if (block.type === 'TEXT' && (!length(block.text) || length(block.text) > 20000))

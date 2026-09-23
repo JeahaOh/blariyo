@@ -168,7 +168,7 @@ async function share() {
       </div>
       <div class="article-body">
         <template v-for="(block, i) in bodyBlocks" :key="i"
-          ><p v-if="block.kind === 'TEXT'" class="body-text">{{ block.text }}</p>
+          ><p v-if="block.kind === 'TEXT'" class="body-text"><LinkedText :text="block.text" /></p>
           <XPost v-else-if="block.kind === 'X'" :card="block" />
           <SocialPost v-else-if="block.kind === 'SOCIAL'" :reference="block.reference" />
           <p v-else-if="block.kind === 'LINK'" class="body-text">

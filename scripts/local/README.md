@@ -40,6 +40,22 @@ node scripts/local/start-development.mjs
 자동 브라우저 검사의 `browserFixture()`는 별도 임시 DB와 가짜 정책을 사용하는 검사 도구다.
 지속적인 개발 서버나 실제 정책 확인 용도로 안내하지 않는다.
 
+### 로컬 관리자 화면 열기
+
+서버를 시작한 다음 Node 24.18.0으로 실행한다.
+
+```sh
+node scripts/local/open-admin.mjs
+# 읽기 전용 UI/API smoke 및 화면 캡처만 수행:
+node scripts/local/open-admin.mjs --verify
+```
+
+기존 로컬 세션 파일을 메모리에서 읽어 별도 Chromium 창에 인증한다. 토큰을 출력하거나 URL에 넣지
+않고 브라우저를 닫으면 종료한다. 일반 Chrome에서 `/admin`을 바로 열면 세션이 없어 인증 안내가
+나오는 것이 정상이다. 이 도구는 localhost:3000 전용 테스트 인증이며 실제 운영 Access 인수와 구분한다.
+`--verify`는 기존 글을 조회하고 빈 편집기만 열며 저장·발행하지 않는다. 결과는 Git 제외
+`.local-data/verification/admin-core-3000.json` 및 같은 이름의 PNG에 남긴다.
+
 ## 2026-09-23 수집 게시글 정합성 복구
 
 현재 기본 접속 주소는 `http://localhost:3000/meme`다. 저장소 루트에서 실행한다.

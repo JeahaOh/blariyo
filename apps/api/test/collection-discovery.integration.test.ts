@@ -78,7 +78,11 @@ await test('Discovery: migration, shared quota, post-key dedup and Java parser -
       const parsed=await execute(resolve(javaHome,'bin/java'),['-cp',cp,'com.blariyo.collector.source.FixtureParserMain',site,fixturePath,url],{maxBuffer:2*1024*1024});
       const result: unknown=JSON.parse(parsed.stdout);assert.ok(typeof result==='object' && result!==null);
       const fields=Object.fromEntries(Object.entries(result));
-      const payload={...fields,collectorId:'discovery-fixture',collectorExecutionId:execution,lockVersion:claim.lockVersion};
+      // This test bridges direct parser fixtures into the legacy candidate contract.
+      // That contract cannot persist attachments: fail instead of silently losing any.
+      const { attachmentCandidates, ...legacyFields } = fields;
+      assert.deepEqual(attachmentCandidates, [], 'Legacy fixture readback requires no attachments');
+      const payload={...legacyFields,collectorId:'discovery-fixture',collectorExecutionId:execution,lockVersion:claim.lockVersion};
       const resultKey=randomUUID();
       data(await post(`/candidates/${String(created.candidateId)}/result`,payload,resultKey),200);
       data(await post(`/candidates/${String(created.candidateId)}/result`,payload,resultKey),200);
@@ -95,6 +99,26 @@ await test('Discovery: migration, shared quota, post-key dedup and Java parser -
         binaryDownloaded:false,discordGateway:false,batchGateway:false}));
     });
   }
-  await assert.rejects(migrationContext(database).then(async ctx=>{try{await ctx.get(MigrationsService).migrate('down');}finally{await ctx.close();}}));
-  assert.equal(requiredRow(await db.query("SELECT ops.is_schema_ready('V008') ready")).ready,true);
+  const rollback = async () => {
+    const context = await migrationContext(database);
+    try { await context.get(MigrationsService).migrate('down'); }
+    finally { await context.close(); }
+  };
+  const latestVersion = async () => requiredRow(await db.query(
+    'SELECT version FROM ops.schema_migration ORDER BY version DESC LIMIT 1'
+  )).version;
+  // V008 owns the empty batch-review tables and is reversible in this fixture.
+  // Only the subsequent V007 rollback must refuse to discard discovery records.
+  assert.equal(await latestVersion(), 'V008');
+  await rollback();
+  assert.equal(await latestVersion(), 'V007');
+  const candidatesBefore: unknown = await db.query(
+    'SELECT id, discovery_mode, source_post_key, content_blocks FROM collect.candidate ORDER BY id'
+  );
+  await assert.rejects(rollback, { code: '23514' });
+  assert.equal(await latestVersion(), 'V007');
+  assert.equal(requiredRow(await db.query("SELECT ops.is_schema_ready('V007') ready")).ready,true);
+  assert.deepEqual(await db.query(
+    'SELECT id, discovery_mode, source_post_key, content_blocks FROM collect.candidate ORDER BY id'
+  ), candidatesBefore);
 });

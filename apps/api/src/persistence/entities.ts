@@ -738,7 +738,58 @@ export class OpsSchemaMigrationEntity {
   duration_ms!: number;
 }
 export type OpsSchemaMigrationRow = OpsSchemaMigrationEntity;
+// V007/V008 tables are SQL-owned, like the rest of this mapping. Registering
+// metadata does not enable schema synchronization or implicit relation writes.
+@Entity({ schema: 'collect', name: 'source_discovery_policy', synchronize: false })
+export class CollectSourceDiscoveryPolicyEntity {
+  @PrimaryColumn({ type: 'bigint' }) source_id!: string;
+  @Column({ type: 'boolean', default: false }) enabled!: boolean;
+  @Column({ type: 'varchar', length: 2048 }) list_url!: string;
+  @Column({ type: 'timestamptz', precision: 3 }) reviewed_at!: Date;
+  @Column({ type: 'varchar', length: 100 }) policy_version!: string;
+  @ManyToOne(() => CollectSourceEntity, {
+    nullable: false, onDelete: 'NO ACTION', onUpdate: 'NO ACTION',
+    cascade: false, eager: false, lazy: false, persistence: false,
+    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+  })
+  @JoinColumn([{ name: 'source_id', referencedColumnName: 'id' }])
+  source?: Relation<CollectSourceEntity>;
+}
+@Entity({ schema: 'collect', name: 'batch_review', synchronize: false })
+export class CollectBatchReviewEntity {
+  @PrimaryColumn({ type: 'uuid' }) item_id!: string;
+  @Column({ type: 'bigint' }) item_version!: string;
+  @Column({ type: 'bytea' }) content_digest!: Buffer;
+  @Column({ type: 'varchar', length: 80 }) source_key!: string;
+  @Column({ type: 'varchar', length: 200, nullable: true }) source_post_key!: string | null;
+  @Column({ type: 'bytea' }) canonical_url_hash!: Buffer;
+  @Column({ type: 'varchar', length: 16 }) status!: string;
+  @Column({ type: 'integer', default: 1 }) lock_version!: number;
+  @Column({ type: 'bigint', nullable: true, unique: true }) post_id!: string | null;
+  @Column({ type: 'varchar', length: 100 }) updated_by!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'now()' }) updated_at!: Date;
+  @ManyToOne(() => ContentBoardPostEntity, {
+    nullable: true, onDelete: 'NO ACTION', onUpdate: 'NO ACTION',
+    cascade: false, eager: false, lazy: false, persistence: false,
+    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+  })
+  @JoinColumn([{ name: 'post_id', referencedColumnName: 'id' }])
+  post?: Relation<ContentBoardPostEntity>;
+}
+@Entity({ schema: 'collect', name: 'batch_review_request', synchronize: false })
+export class CollectBatchReviewRequestEntity {
+  @PrimaryColumn({ type: 'varchar', length: 100 }) actor!: string;
+  @PrimaryColumn({ type: 'varchar', length: 200 }) scope!: string;
+  @PrimaryColumn({ type: 'varchar', length: 200 }) request_key!: string;
+  @Column({ type: 'bytea' }) digest!: Buffer;
+  @Column({ type: 'integer' }) response_status!: number;
+  @Column({ type: 'jsonb' }) response_data!: unknown;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'now()' }) created_at!: Date;
+}
 export const entities = [
+  CollectSourceDiscoveryPolicyEntity,
+  CollectBatchReviewEntity,
+  CollectBatchReviewRequestEntity,
   CollectCandidateEntity,
   CollectCandidateImageEntity,
   CollectCollectorOperationalEventEntity,

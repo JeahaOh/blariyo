@@ -48,7 +48,7 @@ await test('TypeORM maps all SQL columns without changing schema and coordinates
   assert.equal(source.options.synchronize, false);
   assert.equal(source.options.migrationsRun, false);
   const columns = before.filter((row) => row.kind === 'column');
-  assert.equal(source.entityMetadatas.length, 17);
+  assert.equal(source.entityMetadatas.length, 20);
   assert.equal(
     source.entityMetadatas.reduce((n, m) => n + m.columns.length, 0),
     columns.length
@@ -117,7 +117,7 @@ await test('TypeORM maps all SQL columns without changing schema and coordinates
         .getMany();
     }
   }
-  assert.equal(foreignKeys.length, 15);
+  assert.equal(foreignKeys.length, 17);
   assert.equal(mapped.length, foreignKeys.length);
   assert.deepEqual(
     mapped.map((row) => JSON.stringify(row)).sort(),

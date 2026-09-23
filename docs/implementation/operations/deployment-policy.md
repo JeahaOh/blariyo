@@ -1,6 +1,6 @@
 # GitHub CI와 배포 정책
 
-2026-09-20 결정. **로컬에서 수정 → PR 검증 → main의 검증된 이미지 → 운영자가 배포 실행**을 기본으로 한다.
+2026-09-20 결정. 2026-09-23 기록·workflow source 정합성 검토. **로컬에서 수정 → PR 검증 → main의 검증된 이미지 → 운영자가 배포 실행**을 기본으로 한다.
 운영 서버는 이미 가동 중이며 이번 UI·수집 작업은 운영에 적용하지 않는다.
 실제 명령과 최초 배포 증거는 [배포 실행서](deployment-runbook.md)에 있다.
 
@@ -40,9 +40,22 @@ tag는 전체 Git SHA, 배포 식별자는 `image@sha256:...` digest다. `latest
 image 생성 job만 `packages: write`를 갖고 PR은 읽기 권한만 쓴다. fork PR에 운영 secret을 주지 않는다.
 collector는 운영 이미지 대상이 아니며 현재 CI는 M0 Core/Web 범위다. collector 변경은 기존 Spring 검사도 별도로 수행한다.
 
-**로컬 작성 상태이며 GitHub에서 실행한 결과는 아직 없다.** push 후 `CI / verify`를 실제 통과시킨 뒤
-main 보호 규칙의 필수 검사로 지정한다. 관리자 우회 여부와 GitHub 요금제의 보호 기능은 저장소 설정에서 확인한다.
-GHCR package 접근은 private로 확인하고 서버 pull에는 필요한 package 읽기 권한만 부여한다.
+**2026-09-20 후속 기록에는 `f38758a` 기준 `verify`와 API/Web 이미지 게시 job 성공이 남아 있다.**
+근거는 [CI/CD 후속 기록의 현재 확인](../../../worklog/task-list/09/20/local-ui-cicd/TODO-CICD-DEPLOY.md#현재-확인)이다.
+초기 작성 시점의 미실행 상태를 현재 상태로 반복하지 않는다. 이 성공은 해당 커밋의 검사·GHCR 게시
+증거이며, 이번 로컬 변경의 CI 통과나 운영 배포 증거는 아니다. 2026-09-23 정정에서는 GitHub 실행·
+package·운영 서버를 직접 재조회하지 않았다.
+
+2026-09-23 후속 GitHub 조회에서 [CI #9](https://github.com/JeahaOh/blariyo/actions/runs/35852208616)의
+통합 검사 실패·images skipped를 확인했다. Java fixture 준비 누락과 migration 테스트 기대 불일치이며,
+[원인·현재 로컬 대응·재검증 계획](../../../worklog/task-list/09/23/admin-core/FOLLOW-UP.md)에 기록했다.
+이 실패는 운영 서버 배포 실패를 뜻하지 않는다.
+
+현재 workflow source에는 `verify` 이후 API/Web 이미지 게시만 있고 서버 pull·Compose 교체·readiness·
+rollback job은 없다. schema dump/restore는 일반 CI에서 제외하고
+[별도 수동·일일 workflow](../../../.github/workflows/backup-restore.yml)로 분리돼 있다.
+main 보호 규칙의 `CI / verify` 필수 검사 지정 여부, 관리자 우회·요금제의 보호 기능, GHCR package
+private 접근과 서버의 최소 package 읽기 권한은 별도 설정 확인 대상이다.
 
 ## CD: 검증된 산출물의 수동 운영 배포
 

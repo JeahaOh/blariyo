@@ -489,6 +489,8 @@ await test('collector leases retain SKIP LOCKED claiming, expiration and executi
         parserVersion: 'fixture-v1',
         sourcePublishedAt: null,
         warnings: [],
+        // Zero-image success requires original content; empty metadata is invalid.
+        contentBlocks: [{ type: 'TEXT', text: 'Canonical race fixture body' }],
         imageCandidates: [],
       };
       const results = await Promise.allSettled([
@@ -505,6 +507,16 @@ await test('collector leases retain SKIP LOCKED claiming, expiration and executi
       const error: unknown = failure.reason;
       assert.ok(error instanceof Error);
       assert.equal(error.message, 'CANDIDATE_DUPLICATE');
+      const stored = await candidates.findBy([{ id: left.id }, { id: right.id }]);
+      assert.deepEqual(stored.map((row) => row.status).sort(), ['NEW', 'RUNNING']);
+      const winner = stored.find((row) => row.status === 'NEW');
+      assert.ok(winner);
+      assert.equal(winner.origin_url, body.canonicalUrl);
+      assert.deepEqual(winner.content_blocks, body.contentBlocks);
+      const loser = stored.find((row) => row.status === 'RUNNING');
+      assert.ok(loser);
+      assert.equal(loser.origin_url, loser.id === left.id ? left.origin_url : right.origin_url);
+      assert.equal(loser.lock_version, 2);
     }
   );
 });

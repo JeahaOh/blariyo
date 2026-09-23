@@ -3,10 +3,11 @@
 - 문서 상태: `초안`
 - milestone: `M0 Core`
 - 기준일: 2026-09-03
+- OD-M0-006 정합성 검토일: 2026-09-23 (2026-09-20 발행 기록 대조, 운영 환경 재조회 없음)
 - 목적: 기능별 개발 Spec에 흩어진 `결정 필요`, `(미정)`, `[출시 차단]` 항목을 한곳에서 추적한다.
 - 범위: `docs/development-specs/m0-core/`의 공개 탐색, 관리자 게시글, 분석 동의, 정책·권리 문서
 - 제외: `M0 수집 보조`, `M0 자동 수집`, `M1`, `M1.5`, 후속 광고·제휴·회원 기능
-- 미검증: source, migration, OpenAPI, test, build, runtime, browser, deployment
+- 검증 경계: 결정 확정과 구현·운영 검증은 구분한다. OD-M0-006의 기록된 발행 증거는 아래에 연결하며, 이 문서 정정에서 source·runtime·운영 전체를 재검증하지 않았다.
 
 이 문서는 결정 추적용 색인이다. 제품 범위는 `docs/planning/`, 법무 실값과 출시 차단은
 `docs/legal/`, 공통 기술 계약은 `docs/system-design/`이 소유한다. 여기서 결정을 확정하지 않고,
@@ -39,7 +40,7 @@
 | OD-M0-003 | P0 | 관리자 API | 관리자 검색에서 `page`가 전체 page를 넘으면 `200`과 빈 `items`로 응답하기로 결정 | 확정·문서 동기화 완료 (2026-09-03). 형식·범위 오류는 `400 VALIDATION_FAILED`, 유효한 초과 page는 `200` 빈 결과 | [API 설계](../../../system-design/03-api-design.md) | [관리자 보강서](../admin-post-management/admin-post-management.dev.md), [관리자 검색 API](../admin-post-management/admin-post-management.dev.md#api-search-posts) | OpenAPI·source·contract test는 구현 단계에서 검증 |
 | OD-M0-004 | P0 | 관리자 API | 관리자 `postId` 형식 오류도 `404 POST_NOT_FOUND`로 일반화하기로 결정 | 확정·문서 동기화 완료 (2026-09-03). 형식 오류·미존재·접근 불가를 동일하게 처리 | [API 설계](../../../system-design/03-api-design.md) | [관리자 보강서](../admin-post-management/admin-post-management.dev.md), [편집 상세 API](../admin-post-management/admin-post-management.dev.md#api-get-post-editor) | OpenAPI·source·contract test는 구현 단계에서 검증 |
 | OD-M0-005 | P0 | 관리자 API | staging 이미지 폐기 성공은 `202 Accepted`와 공통 성공 envelope로 반환하기로 결정 | 확정·문서 동기화 완료 (2026-09-03). `imageId`, `PRIVATE_DELETE_PENDING`, `requestId`를 반환하고 실제 삭제는 outbox 처리 | [API 설계](../../../system-design/03-api-design.md) | [관리자 보강서](../admin-post-management/admin-post-management.dev.md), [이미지 폐기 API](../admin-post-management/admin-post-management.dev.md#api-discard-image) | outbox worker·재시도는 구현 단계에서 검증 |
-| OD-M0-006 | P0 | 법무·정책 | 법무·문의 실값은 properties/config로 관리하기로 결정. 사업자등록 전 사업자 정보는 보류하고, 문의·권리·개인정보 contact 값과 법무 시행 필수값은 production 공개 전 확정 | 확정·문서 동기화 완료 (2026-09-03). 운영자 표시명, 시행일, 일반 문의 이메일, 권리 침해 신고/요청 이메일, 개인정보 문의 이메일, 개인정보 보호책임자 또는 담당자, M0 Core에서 실제 사용하는 호스팅·이미지 저장·이메일 수탁자 값, M0 접속·보안 로그의 적법 근거·이익형량은 production 공개 전 실값·근거 필요. 사업자명, 사업자등록번호, 통신판매업신고번호, 대표자명, 주소, 전화번호는 사업자등록 또는 거래 기능 확정 전까지 보류. 실제 값 미입력 상태이므로 `policy-and-rights` 전체 `차단`과 M0 Core production 공개 차단은 유지. 참고: [법무·문의 표시 조사](legal-contact-benchmark-research.md), [운영 실값 체크리스트](operational-values-checklist.md) | [법무 README](../../../legal/README.md), [이용약관](../../../legal/terms-of-service.md), [개인정보처리방침](../../../legal/privacy-policy.md), [권리자 요청 안내](../../../legal/rights-request.md), [인프라 설계](../../../system-design/04-infrastructure-design.md) | [정책·권리 보강서](../policy-and-rights/policy-and-rights.dev.md), [정책 조회 API](../policy-and-rights/policy-and-rights.dev.md#api-get-policy), [정책 viewer](../policy-and-rights/policy-and-rights.dev.md#d08-policy-viewer) | `BLARIYO_OPERATOR_DISPLAY_NAME`, `BLARIYO_GENERAL_CONTACT_EMAIL`, `BLARIYO_RIGHTS_CONTACT_EMAIL`, `BLARIYO_PRIVACY_CONTACT_EMAIL`, `BLARIYO_PRIVACY_OFFICER_*`, `BLARIYO_PRIVACY_DEPARTMENT`를 config로 주입. 시행일, 실제 사용 수탁자, 접속·보안 로그 적법 근거는 법무 정본에서 확정한다. 사업자 정보 key는 두되 실값은 준비 전까지 `(미정)` 유지 |
+| OD-M0-006 | P0 | 법무·정책 | 법무·문의 실값은 properties/config로 관리하기로 결정. 사업자등록 전 사업자 정보는 보류하고, 문의·권리·개인정보 contact 값과 법무 시행 필수값은 production 공개 전 확정 | 관리 방식 확정 (2026-09-03). [운영 실값 체크리스트](operational-values-checklist.md)와 [M0 공개 정책 v0.1](../../../legal/m0-core/README.md)에 2026-09-20 연락처·운영자 표시·시행일 주입, 실제 호스팅·이미지·메일 및 로그 처리 고지 반영이 기록돼 있다. [TASK-19](../../../../worklog/task-list/09/20/infrastructure-setup/TASK-19.md)는 TERMS/PRIVACY v0.1 EFFECTIVE·SQL 본문 해시·공개 API·화면 확인 증거다. 따라서 현행 M0를 실값 전부 미입력으로 일괄 차단하지 않는다. 담당자 적정성, 별도 법률 검토·사건별 처리, 후속 기능 활성화 조건은 유지하며 사업자 정보는 등록 또는 거래 기능 확정 전까지 보류. 이번 정정은 기록 대조이며 운영 재검증이 아니다. 참고: [법무·문의 표시 조사](legal-contact-benchmark-research.md) | [법무 README](../../../legal/README.md), [이용약관](../../../legal/terms-of-service.md), [개인정보처리방침](../../../legal/privacy-policy.md), [권리자 요청 안내](../../../legal/rights-request.md), [인프라 설계](../../../system-design/04-infrastructure-design.md) | [정책·권리 보강서](../policy-and-rights/policy-and-rights.dev.md), [정책 조회 API](../policy-and-rights/policy-and-rights.dev.md#api-get-policy), [정책 viewer](../policy-and-rights/policy-and-rights.dev.md#d08-policy-viewer) | 현재 앱의 `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME`, `NUXT_PUBLIC_CONTACT_EMAIL`, `NUXT_PUBLIC_RIGHTS_EMAIL`, `NUXT_PUBLIC_PRIVACY_EMAIL`, `NUXT_PUBLIC_PRIVACY_OFFICER`와 Core `LEGAL_CONFIG` 매핑은 운영 실값 체크리스트를 따른다. 변경된 처리·기능은 법무 정본과 새 정책 버전으로 검토한다. 사업자 정보 실값은 준비 전까지 `(미정)` 유지 |
 | OD-M0-007 | P0 | 권리 문의 UX | `권리 문의` 하나로 mailto와 복사 대체 안내 제공 | 2026-09-20 사용자 요청으로 갱신. 1.6초 동안 blur·hidden 신호가 없으면 주소·제목·양식을 복사하고 alert. 실행 결과는 확정하지 않음. 복사 거부 시 읽기 전용 양식 제공. 접수 form/API/DB 없음 | [화면 설계](../../../planning/03-screen-design.md#권리-침해게시-중단-이메일) | [정책·권리 명세](../policy-and-rights/policy-and-rights.dev.md) | 실제 외부 메일 앱 실행은 별도 검증 |
 | OD-M0-008 | P1 | 상세 SSR metadata | IMAGE 없는 상세는 기본 fallback 이미지와 본문 기반 description으로 처리하기로 결정 | 확정·문서 동기화 완료 (2026-09-03). 첫 공개 TEXT block plain text의 앞뒤 Unicode whitespace를 제거하고 내부의 하나 이상 연속된 Unicode whitespace를 단일 U+0020 space로 치환한 뒤 grapheme 수를 계산. 120자 이하면 80자 미만이어도 padding 없이 사용하고, 초과하면 Unicode grapheme cluster 기준 앞 119자와 단일 `…`로 최대 120자를 만들어 세 description metadata에 동일하게 적용. TEXT가 없으면 확정 서비스 기본 문구 적용. 첫 공개 IMAGE block의 절대 HTTPS URL을 사용하고 없으면 `/og/blariyo-default.png` 적용 | [화면 설계](../../../planning/03-screen-design.md), [카피 계약](../../../planning/06-copy-contract.md) | [공개 탐색 보강서](../public-post-browsing/public-post-browsing.dev.md), [게시글 상세 D08](../public-post-browsing/public-post-browsing.dev.md#d08-post-detail) | SSR 첫 HTML·Unicode whitespace 정규화·grapheme cluster 절단·fallback 자산·viewport별 공유 미리보기는 구현 단계에서 검증 |
 | OD-M0-009 | P1 | 공유 provider | 서비스 도메인은 `https://blariyo.com/`로 확정하고, 카카오톡 공유는 Kakao JavaScript SDK 기반으로 구현하기로 결정 | 결정 계약 확정·문서 동기화 완료 (2026-09-03). 도메인·SDK 방식·config 경계는 확정. 실제 JavaScript key·카카오 개발자 콘솔 Web domain 등록·SDK script URL·SRI integrity·CSP host는 미확정이므로 카카오 공유 활성화는 차단하며 링크 복사·기본 공유는 유지. 실값은 [운영 실값 체크리스트](operational-values-checklist.md)에서 추적 | [서비스 기획](../../../planning/01-service-plan.md), [보안·운영](../../../system-design/05-security-operations.md) | [공개 탐색 보강서](../public-post-browsing/public-post-browsing.dev.md), [공유 D01](../public-post-browsing/public-post-browsing.dev.md#d01-share-post), [게시글 상세 D08](../public-post-browsing/public-post-browsing.dev.md#d08-post-detail) | 미확정 운영값과 등록을 모두 확인한 뒤 카카오 항목 활성화 |
@@ -50,16 +51,17 @@
 
 ## 4. 출시 차단 항목 요약
 
-M0 Core production 공개 전에는 최소한 다음 항목을 확정해야 한다.
+M0 Core production 공개에는 법무·문의 실값과 실제 처리 고지가 필요하다. 현재 입력·발행 기록과
+후속 확인 조건은 구분한다.
 
-- OD-M0-006: 법무·문의 정보의 properties/config 관리 방식은 확정. 운영자 표시명, 시행일, 문의 이메일, 권리 접수 이메일, 개인정보 문의 이메일, 개인정보 보호책임자/담당자, M0 Core에서 실제 사용하는 호스팅·이미지 저장·이메일 수탁자 값, M0 접속·보안 로그의 적법 근거·이익형량은 아직 필요
+- OD-M0-006: 2026-09-20 M0 공개 정책 v0.1의 입력·발행·공개 확인 기록은 위 표와 [현재 운영 상태](../../../implementation/operations/current-status.md)를 따른다. 미입력을 이유로 M0 전체를 차단하던 표현은 이 기록으로 정정한다. 담당자 적정성, 개별 처리·법률 검토와 후속 기능의 미확정 값·출시 차단 조건은 [법무 README](../../../legal/README.md)를 유지한다. 현재 운영 환경의 유지 여부는 이번 작업에서 재조회하지 않았다.
 
 OD-M0-001~005는 2026-09-03에 소유 정본과 관련 개발 Spec 동기화를 완료했다. OpenAPI·source·test·
 runtime 검증은 별도 구현 증거가 필요하다.
 
-OD-M0-006~007은 2026-09-03에 소유 정본과 관련 개발 Spec 동기화를 완료했다. 실제 contact 실값,
-시행일, 실제 사용 수탁자, 접속·보안 로그 법무 근거, 법률 검토, source·browser 검증은 별도 증거가
-필요하다.
+OD-M0-006의 2026-09-03 관리 방식 결정 이후 2026-09-20 M0 정책 발행 기록이 추가됐다.
+해당 기록은 법률상 모든 쟁점의 검토나 이번 관리자 변경의 운영 적용을 증명하지 않는다.
+OD-M0-007의 2026-09-20 UX 계약과 실제 외부 메일 앱 실행 검증도 구분한다.
 
 OD-M0-008~009와 OD-M0-013은 2026-09-03에 소유 정본과 관련 공개 탐색 Spec 동기화를 완료했다.
 Kakao 실제 운영값·Web domain 등록 확인과 source·SSR·browser 검증은 별도 증거가 필요하다.

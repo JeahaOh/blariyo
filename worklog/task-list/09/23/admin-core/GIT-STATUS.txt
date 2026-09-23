@@ -1,0 +1,26 @@
+## main...origin/main
+ M apps/api/src/persistence/entities.ts
+ M apps/api/test/collection-discovery.integration.test.ts
+ M apps/api/test/collector-lease.integration.test.ts
+ M apps/api/test/database.integration.test.ts
+ M apps/api/test/schema-restore.integration.test.ts
+ M apps/web/app/pages/admin.vue
+ M docs/development-specs/m0-core/admin-post-management/admin-post-management.dev.md
+ M docs/development-specs/m0-core/decisions/open-decisions.md
+ M docs/implementation/m0-interim-2026-09-23/next-plan.md
+ M docs/implementation/operations/deployment-policy.md
+ M docs/planning/03-screen-design.md
+ M scripts/local/README.md
+ M tests/admin-render.test.ts
+ M tests/browser/core.test.ts
+ M worklog/task-list/09/23/README.md
+?? docs/publishing/admin-core-review.md
+?? docs/publishing/admin-core/desktop.png
+?? docs/publishing/admin-core/mobile-editor.png
+?? docs/publishing/admin-core/mobile-list.png
+?? scripts/local/open-admin.mjs
+?? tests/browser/admin-workflow.test.ts
+?? worklog/task-list/09/23/admin-core/GIT-STATUS.txt
+?? worklog/task-list/09/23/admin-core/PROGRESS.md
+?? worklog/task-list/09/23/admin-core/REQUEST.md
+?? worklog/task-list/09/23/admin-core/RESULTS.md

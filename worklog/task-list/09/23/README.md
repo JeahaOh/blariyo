@@ -12,12 +12,21 @@
 | M0 전체에서 무엇이 남았는가 | [M0 중간 점검](../../../../docs/implementation/m0-interim-2026-09-23/README.md), [40개 요구사항 대조](../../../../docs/implementation/m0-interim-2026-09-23/requirements.md) | 작성 시점의 감사 결과. M0 전체 부분 완료 |
 | 로컬 수집 목표를 어디까지 검증했는가 | [수용 기준 감사](batch-고도화/ACCEPTANCE-AUDIT.md) | 로컬 최종 종합 판정과 한계 |
 | 전체 개발을 어떤 순서로 재개하는가 | [M0 실행 계획](../../../../docs/implementation/m0-interim-2026-09-23/next-plan.md) | 앞으로 할 일의 전체 우선순위·완료 조건 |
+| 재검토 후 전체 남은 순서와 완료 조건은 무엇인가 | [M0 잔여 과정](../../../../docs/implementation/m0-interim-2026-09-23/remaining-process.md) | 결함 보완→재검증→인수→배포→운영→수집·관찰 |
 | 수집 후속 작업의 준비 조건은 무엇인가 | [수집 후속 작업](../../../../docs/implementation/m0-interim-2026-09-23/collector-follow-up.md) | 수집 작업의 구체 범위·선행 입력·검증 절차 |
 
 전체 작업 순서는 M0 실행 계획에서 관리하고, 수집 세부 절차는 수집 후속 작업에 연결한다.
 이 목차에 별도 진행 체크리스트나 완료율을 복제하지 않는다.
 
 ## 이미 수행한 작업과 검증 보고서
+
+### Core 관리자 후속 마감
+
+- [관리자 마감 결과](admin-core/RESULTS.md): 최초 로컬 검증 기록. 후속 재검토에서 P0-03/04는 부분 완료로 정정했다. 과거 검사 결과를 소급 변경하지 않는다.
+- [후속 검토·GitHub 오류 확인](admin-core/FOLLOW-UP.md): 저장 복구·로컬 실행 연결의 잔여 결함과 CI 확인 결과. [커밋 메시지](admin-core/COMMIT-MESSAGE.txt)는 초안이며 실제 커밋은 하지 않았다.
+- [관리자 진행 기록](admin-core/PROGRESS.md), [화면 검토물](../../../../docs/publishing/admin-core-review.md): 기존 변경 보존, 실제 결함·회귀 수리 및 반응형 상태 비교.
+
+### 수집 작업의 기존 보고서
 
 수집 결과의 검수·초안 승격·별도 발행, 로컬 공개 이미지와 본문/링크 보존, 출처별 parser와
 DB/object readback을 구현·검증한 기록이다. 아래의 최종 보고서와 중간 보고서는 작성 시점이 다르므로
@@ -40,7 +49,7 @@ DB/object readback을 구현·검증한 기록이다. 아래의 최종 보고서
 
 ## 앞으로 수행할 작업
 
-- M0 Core 관리자 화면과 운영 검증: **계획·마감 작업이 남음**. 전체 순서는 M0 실행 계획을 따른다.
+- M0 Core 관리자: **P0-03/04 부분 완료: 저장 복구·로컬 worker 연결·재검증·운영자 인수 잔여**. 위 관리자 결과와 M0 실행 계획을 따른다.
 - 사이트별 adapter·목록/detail parser 독립 파일 분리: **미완료**. [모듈 계약](../../../../docs/system-design/08-code-structure.md#collector-site-modules)에 따라 기존 fixture 결과를 유지하며 진행한다.
 - 실제 관리자 인증 UI, 다른 PC의 공유 개발 DB·원격 S3/R2, Discord Gateway, 지원 OS·CI: **후속 구현 또는 실연동 검증 필요**. 세부 준비 조건은 수집 후속 작업에 있다.
 - fmkorea·ppomppu·pgr21·youtube-community: **차단 또는 실제 본문 미검증**. 허용된 공개 응답/경로가 준비되면 해당 출처를 재검증한다.

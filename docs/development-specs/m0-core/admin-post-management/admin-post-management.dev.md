@@ -6,7 +6,7 @@
 - milestone: `M0 Core` (`m0-core`)
 - 기능: `admin-post-management` — 검색·이미지·초안·발행·예약·숨김·삭제
 - 기준일: 2026-09-07
-- 미검증: `/admin` source, 외부 관리자 adapter, migration, OpenAPI, test, R2·outbox·scheduler runtime
+- 검증 상태 갱신(2026-09-23): `/admin` source·계약·격리 DB·로컬 미디어·Chromium 검증은 [마감 결과](../../../../worklog/task-list/09/23/admin-core/RESULTS.md)를 따른다. 아래 각 API/D01의 초기 `미검증` 표기는 작성 시점의 검증 과제이며 현재 통과 여부를 이 결과와 대조한다. 실제 Access·운영 R2/CDN·운영자 수동 인수는 미검증이다.
 - 주요 근거:
   - [서비스 기획 §3~§5, §10, §14](../../../planning/01-service-plan.md)
   - [화면 설계 §2 관리자 게시글 화면](../../../planning/03-screen-design.md)
@@ -1049,10 +1049,12 @@ R2·DB·outbox runtime은 미검증이다.
 
 ### 관리자 게시글 편집기
 
-- 계약 상태: `초안`
+- 계약 상태: `작성 완료` — M0 Core 화면 계약. 개발자 로컬 검증과 실제 운영 인수는 구분한다.
 
 - 입력 근거: [화면 설계 §2 관리자 게시글 화면](../../../planning/03-screen-design.md), [관리 API 목록](#8-api-작업-목록)
-- 미검증: publishing 산출물 없음, 실제 UI·browser·accessibility test
+- 검증: [화면 검토물](../../../publishing/admin-core-review.md), [2026-09-23 로컬 마감 결과](../../../../worklog/task-list/09/23/admin-core/RESULTS.md). 합성 인증 Chromium·격리 DB·로컬 미디어 범위다. 실제 Access·운영자 사용성 인수·보조기기 전수 접근성은 미검증이다.
+
+- 후속 재검토: 저장 결과 불확실 후 인증 오류의 요청 키 보존과 로컬 예약/outbox 실행 연결은 보완·재검증 필요다. 현재 P0-03/04는 [잔여 과정](../../../implementation/m0-interim-2026-09-23/remaining-process.md)에 따라 부분 완료로 관리한다.
 
 #### 목적·route·milestone
 
@@ -1066,12 +1068,13 @@ R2·DB·outbox runtime은 미검증이다.
 #### UI 영역과 구성요소
 
 - 검색: 상태, 게시판, 제목 prefix, 수정일, page
-- 결과: 제목·상태·게시판·수정일·lockVersion
+- 결과: 제목·한국어 상태·게시판·수정일(KST). lockVersion은 내부 요청에만 유지
 - 편집: 제목, source pair, TEXT/IMAGE block 추가·제거·순서, alt, 공지 위치
 - 이미지: upload, 인증 preview, 미사용 폐기
 - 상태 action: 저장, 즉시 발행, 예약, 예약 취소, 숨김, 재공개, 최종 제거
 - 예약: `07:30`, `17:30` KST(`Asia/Seoul`) 기본 슬롯과 게시글별 임의 미래 시각 입력
-- desktop 좌측 목록/우측 편집; mobile 상하 배치
+- desktop 좌측 목록/우측 편집; mobile(767px 이하) 목록→편집 전환·목록 복귀와 포커스 복귀
+- 상태 변경으로 선택 글이 현재 검색 결과에서 빠지면 목록 복귀 포커스는 `새 초안`으로 이동
 
 #### 필드·표시값·validation
 
@@ -1091,7 +1094,9 @@ image file 10MiB·요청 10개/100MiB. 오류는 field 가까이에 표시한다
 - 상태 action: 저장되지 않은 변경이 없고 현재 상태에 허용된 버튼만 활성.
 - 예약: 기본 슬롯을 바로 선택하거나 offset이 포함된 임의 미래 시각을 입력한다. 기본 슬롯 외 시각도
   허용하며 API 응답의 UTC 정규화 시각을 현재 예약 상태에 반영한다.
-- 최종 제거: `REMOVED`가 되돌릴 수 없음을 명시한 확인창 후 실행.
+- 예약 입력·수정일 검색은 KST 고정. 예약·취소·숨김은 대상과 영향을 표시한 확인창 뒤 실행한다.
+- 저장 결과 불확실 시 입력과 동일 요청 키를 유지하고 편집·선택을 잠근다. 결과 확인 재시도로 복구하며 확정 실패·충돌 시에는 입력을 유지한 채 다시 편집한다.
+- 최종 제거: 삭제 상태가 되돌릴 수 없음을 명시한 확인창 후 실행.
 
 #### 화면 상태
 
@@ -1130,8 +1135,8 @@ label·오류 연결, block 순서 키보드 조작 대안, dialog focus trap/re
 #### 미정·차단·미검증
 
 upload 실패 UX는 all-or-nothing, 요청 단위 gate `413`의 `fields` 없음, 파일별 `413`·`415`의 모든
-실패 파일 표시, `503`의 파일 표시 없음으로 확정됐다. 관리자 화면 publishing과 실제 UI·browser 증거가
-없어 `초안`이다.
+실패 파일 표시, `503`의 파일 표시 없음으로 확정됐다. 2026-09-23 UI·browser 실행 증거는 위 결과에
+연결한다. 실제 운영자 인증·수동 반복 업무 인수·운영 R2/CDN은 별도 미검증이며 로컬 결과로 대체하지 않는다.
 
 
 수집 초안의 원문 보존을 위해 게시글 편집 IMAGE 블록 상한은 200개다. 일반 업로드 요청의 10개/100MiB·파일당 10MiB 제한은 유지한다. direct batch 미디어 용량은 [수집 명세](../../m0-collection-assist/collection-assist/collection-assist.dev.md#2026-09-23-다중-이미지와-수집-용량-계약)를 따른다.

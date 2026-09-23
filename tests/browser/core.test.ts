@@ -57,7 +57,7 @@ await test(
     });
     const input = page.getByLabel('이미지 추가', { exact: true });
     const title = page.getByLabel('제목', { exact: true });
-    const feedback = page.locator('main > [role="status"]');
+    const feedback = page.locator('main > [role="status"]').first();
     async function upload(files: Parameters<typeof input.setInputFiles>[0], status: number) {
       const response = page.waitForResponse(
         (r) => r.url().endsWith('/api/v1/admin/images') && r.request().method() === 'POST'
@@ -153,6 +153,7 @@ await test(
         await expect(current.locator('a, [tabindex]')).toHaveCount(0);
         await expect(publicPage.locator('header')).toHaveCount(0);
         await publicPage.close();
+        page.once('dialog', (dialog) => dialog.accept());
         await page.getByRole('button', { name: '숨김', exact: true }).click();
         await expect(page.getByRole('button', { name: '재공개', exact: true })).toBeDisabled();
         assert.equal(
@@ -164,6 +165,7 @@ await test(
         await expect(page.getByRole('button', { name: '재공개', exact: true })).toBeEnabled();
         await page.getByRole('button', { name: '재공개', exact: true }).click();
         await expect(link).toBeVisible();
+        page.once('dialog', (dialog) => dialog.accept());
         await page.getByRole('button', { name: '숨김', exact: true }).click();
         await expect(page.getByRole('button', { name: '최종 삭제', exact: true })).toBeDisabled();
         await fixture.flush();
@@ -174,7 +176,7 @@ await test(
           await dialog.accept();
         });
         await page.getByRole('button', { name: '최종 삭제', exact: true }).click();
-        await expect(page.locator('section > p').first()).toContainText('REMOVED');
+        await expect(page.locator('.save-state')).toContainText('삭제됨');
         await expect(title).toBeDisabled();
         await fixture.flush();
       }
@@ -210,7 +212,8 @@ await test(
         } finally {
           await page.unroute(/\/api\/v1\/admin\/posts\/\d+$/, failDetail);
         }
-        await page.getByRole('button', { name: '초안 생성', exact: true }).click();
+        await expect(title).toBeDisabled();
+        await page.getByRole('button', { name: '저장 결과 다시 확인', exact: true }).click();
         await expect(feedback).toHaveText('저장했습니다.');
         page.off('request', capture);
         assert.equal(keys.length, 2);
@@ -235,13 +238,16 @@ await test(
       await page.getByRole('button', { name: '초안 생성', exact: true }).click();
       await expect(feedback).toHaveText('저장했습니다.');
       await page.getByRole('button', { name: '07:30 KST', exact: true }).click();
+      page.once('dialog', (dialog) => dialog.accept());
       await page.getByRole('button', { name: '예약', exact: true }).click();
-      await expect(page.locator('section > p').first()).toContainText('SCHEDULED');
+      await expect(page.locator('.save-state')).toContainText('예약됨');
+      page.once('dialog', (dialog) => dialog.accept());
       await page.getByRole('button', { name: '예약 취소', exact: true }).click();
-      await expect(page.locator('section > p').first()).toContainText('DRAFT');
+      await expect(page.locator('.save-state')).toContainText('초안');
       await page.getByRole('button', { name: '17:30 KST', exact: true }).click();
+      page.once('dialog', (dialog) => dialog.accept());
       await page.getByRole('button', { name: '예약', exact: true }).click();
-      await expect(page.locator('section > p').first()).toContainText('SCHEDULED');
+      await expect(page.locator('.save-state')).toContainText('예약됨');
       await fixture.pool.query(
         "UPDATE content.board_post SET scheduled_at=now()-interval '1 minute' WHERE status='SCHEDULED'"
       );

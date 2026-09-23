@@ -28,7 +28,26 @@ await test('actual admin template renders scheduled immediate action and escaped
       data: () => ({
         message: '업로드 실패',
         validation: {},
-        collectAvailable: false,
+        labels: { DRAFT: '초안', SCHEDULED: '예약됨' },
+        locked: false,
+        recovery: null,
+        detailRetry: null,
+        conflict: false,
+        searchBusy: false,
+        searchError: '',
+        mobileEditor: false,
+        taskLabel: '',
+        imageFailures: {},
+        imageAttempts: {},
+        stateLabel(value: string) {
+          return value;
+        },
+        boardName(value: string) {
+          return value;
+        },
+        kst(value: string) {
+          return value;
+        },
         uploadErrors: [
           { index: 1, name: '<broken>.gif', reason: '파일 크기가 10MiB를 초과합니다.' },
         ],
@@ -40,7 +59,7 @@ await test('actual admin template renders scheduled immediate action and escaped
         to: '',
         page: 1,
         search: null,
-        boards: { data: { items: [] } },
+        boards: { data: { items: [{ slug: 'meme', displayName: '짤' }] } },
         dirty: false,
         busy: false,
         editable: true,

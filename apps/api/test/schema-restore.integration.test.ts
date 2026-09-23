@@ -28,8 +28,12 @@ function command(args: string[], input?: Buffer): Promise<Buffer> {
   });
 }
 function normalizeDump(bytes: Buffer) {
-  // pg_dump 18 generates a random psql restriction token; no schema statements are excluded.
-  return bytes.toString('utf8').split('\n').filter(line => !/^\\(?:un)?restrict /.test(line)).join('\n');
+  // Random psql restriction tokens and distro suffixes in the server-version
+  // comment are not schema. Keep the numeric version and every DDL/ACL statement.
+  return bytes.toString('utf8').split('\n')
+    .filter(line => !/^\\(?:un)?restrict /.test(line))
+    .map(line => line.replace(/^(-- Dumped from database version \d+(?:\.\d+)+)(?: \([^\n]*\))?$/, '$1'))
+    .join('\n');
 }
 async function snapshot(source: DataSource) {
   const tables = rows(await source.query("SELECT schemaname,tablename FROM pg_tables WHERE schemaname IN ('content','legal','ops','collect') ORDER BY schemaname,tablename"));

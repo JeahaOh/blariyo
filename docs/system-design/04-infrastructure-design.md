@@ -5,7 +5,7 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-20 (실제 배포 반영)
 - 가격 기준: 2026-08-14, USD, 세금·환율·도메인·메일 비용 제외
-- 관련 문서: [시스템 아키텍처](./01-system-architecture.md), [보안·운영](./05-security-operations.md)
+- 관련 문서: [시스템 아키텍처](01-system-architecture.md), [보안·운영](05-security-operations.md)
 
 가격과 무료 한도는 바뀔 수 있다. 배포 직전 공식 가격표를 다시 확인하고 월 예산 알림을 설정한다.
 
@@ -182,7 +182,7 @@ Cloudflare R2 Standard
 Tunnel을 사용한다. A안과 위 사업자·가격 표는 과거 비교 자료이며 현재 운영 위치를 뜻하지 않는다.
 실제 메모리·OOM·swap 지표를 관찰한 뒤 증설을 판단한다. 저트래픽이라는 예상만으로 용량을
 보장하거나 운영 측정 없이 4GB로 올리지 않는다. 실제 결과는
-[현재 운영 상태](../implementation/operations/current-status.md)를 따른다.
+[현재 운영 상태](../operations/current-status.md)를 따른다.
 
 ## 4. 네트워크 설계
 
@@ -206,7 +206,7 @@ Internet
 - [Nginx 준비 구성](../../deploy/gateway/README.md)은 별도 `blariyo-gateway` project에서 기존
   `blariyo-app_edge`에만 연결하고 host port를 열지 않는다. Web 주소 재조회·header 전달·내부 경로
   차단은 로컬 격리 검사 대상이며 실제 Tunnel 연결·Access 검증은 별도다.
-- 로컬 collector는 Tunnel→Nginx→Web의 `/api/collector/v1/*` 전용 중계를 사용한다. Web이 Core `/internal/collect/*`로 매핑하며 token 검증은 Core CollectorAuth가 수행한다. 경계·허용 목록은 [아키텍처](./01-system-architecture.md)의 Collector 전용 중계를 따른다.
+- 로컬 collector는 Tunnel→Nginx→Web의 `/api/collector/v1/*` 전용 중계를 사용한다. Web이 Core `/internal/collect/*`로 매핑하며 token 검증은 Core CollectorAuth가 수행한다. 경계·허용 목록은 [아키텍처](01-system-architecture.md)의 Collector 전용 중계를 따른다.
 - backup job은 `postgresql`과 R2 endpoint에만 접근한다.
 - 외부 사이트로 나가는 수집 outbound HTTP는 운영자 로컬 collector에서만 허용한다. `web`, `api`,
   `nginx`, `postgresql`은 수집 대상 외부 사이트를 호출하지 않는다. Web의 Access 서명 공개키 조회와
@@ -431,8 +431,8 @@ Core는 `R2_PRIVATE_*`와 `R2_PUBLIC_*`만 사용하고 backup key는 backup 작
 ## 7. 빌드와 배포
 
 현재 단일 VM 순차 교체 방식이며 무중단 배포는 아니다. 상세 결정과 적용 조건은
-[배포 정책](../implementation/operations/deployment-policy.md), 실제 순서는
-[실서버 배포 실행서](../implementation/operations/deployment-runbook.md)를 따른다.
+[배포 정책](../operations/deployment-policy.md), 실제 순서는
+[실서버 배포 실행서](../operations/deployment-runbook.md)를 따른다.
 GitHub workflow는 로컬 작성 상태이며 원격 실행·자동 CD 활성화와 구분한다.
 
 1. CI가 Node `24.18.0`에서 타입·lint·unit·integration·브라우저 test를 실행한다.
@@ -561,4 +561,4 @@ Spring source·migration·OpenAPI·test·runtime과 실제 출처·Discord·운�
 
 확정 정책 v0.1을 실제 command로 발행한 뒤 Core·Web·Nginx를 기동했다. blariyo.com의 이전 Squarespace A를 proxied Tunnel CNAME으로 전환하고, www는 같은 Tunnel의 Nginx 308 대표 주소 전환 전용 경로로 연결했다. DB·Core·Web·Nginx의 host port는 없다. 기존 메일 MX/TXT와 R2 media 도메인은 유지했다. Always Use HTTPS와 최소 TLS 1.2를 적용한다.
 
-현재는 **단일 Lightsail + Docker Compose 교체 배포**다. 블루그린·다중 서버·무중단 전환을 구현했다고 하지 않는다. image는 맥에서 빌드한 amd64 digest를 사용한다. 현재 release에 대한 부팅 복구 service와 예약 발행/outbox/cleanup timer, 7일 진단 로그, 12시간 주기 암호화 R2 DB 백업을 설치했다. 상세 검증과 제한은 [운영 기록](../../worklog/task-list/09/20/infrastructure-setup/TASK-19.md)을 따른다.
+현재는 **단일 Lightsail + Docker Compose 교체 배포**다. 블루그린·다중 서버·무중단 전환을 구현했다고 하지 않는다. image는 맥에서 빌드한 amd64 digest를 사용한다. 현재 release에 대한 부팅 복구 service와 예약 발행/outbox/cleanup timer, 7일 진단 로그, 12시간 주기 암호화 R2 DB 백업을 설치했다. 상세 검증과 제한은 [운영 기록](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)을 따른다.

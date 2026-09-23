@@ -14,7 +14,7 @@
   - [시스템 아키텍처 §4~§6](../../../system-design/01-system-architecture.md)
   - [데이터 모델 §3, §7~§9](../../../system-design/02-data-model.md)
   - [API 설계 §1~§3, §6~§9](../../../system-design/03-api-design.md)
-  - [반응형 퍼블리싱 프로토타입](../../../publishing/responsive/README.md)
+  - [반응형 퍼블리싱 프로토타입](../../../ui/publishing/responsive/README.md)
 
 ## 2. 목표와 대상 milestone
 
@@ -551,7 +551,7 @@ grapheme cluster 기준으로만 잘라 세 metadata 값이 일치해야 한다.
 
 - 계약 상태: `작성 완료`
 
-- 입력 근거: [화면 설계 §2·§5·§13](../../../planning/03-screen-design.md), [퍼블리싱 기준](../../../publishing/responsive/README.md)
+- 입력 근거: [화면 설계 §2·§5·§13](../../../planning/03-screen-design.md), [퍼블리싱 기준](../../../ui/publishing/responsive/README.md)
 - 미검증: 실제 Nuxt 화면, browser visual·accessibility test
 
 #### 목적·route·milestone
@@ -630,7 +630,7 @@ empty·error 문구는 화면 설계를 사용한다. 홈 `<title>`은 `블라�
 
 - 계약 상태: `작성 완료`
 
-- 입력 근거: [화면 설계 §4·§6·§7·§13](../../../planning/03-screen-design.md), [퍼블리싱 기준](../../../publishing/responsive/README.md)
+- 입력 근거: [화면 설계 §4·§6·§7·§13](../../../planning/03-screen-design.md), [퍼블리싱 기준](../../../ui/publishing/responsive/README.md)
 - 미검증: SSR metadata, browser sharing, viewport·accessibility test
 
 #### 목적·route·milestone

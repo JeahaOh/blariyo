@@ -79,4 +79,4 @@ DB 보관과 새 DB 초기화에는 별도의 [정책 seed](../../../deploy/post
 - [Cloudflare 한국 부록](https://www.cloudflare.com/privacypolicy/southkorea-addendum/): 글로벌 처리 사업자·국가 안내. 개별 요청의 실제 처리 위치를 증명하지 않음.
 - [Cloudflare 로그 보존](https://developers.cloudflare.com/cloudflare-one/insights/logs/): Free Access 로그 24시간, 관리자 감사 로그 18개월.
 - [Access 인증 쿠키](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/): 앱·전역 인증 쿠키 구분.
-- [운영 배포 기록](../../../worklog/task-list/09/20/infrastructure-setup/TASK-19.md): 공개 연결·백업·복구·운영 적용 증거.
+- [운영 배포 기록](../../../worklog/2026-09-20/infrastructure-setup/TASK-19.md): 공개 연결·백업·복구·운영 적용 증거.

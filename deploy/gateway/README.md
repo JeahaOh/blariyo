@@ -1,7 +1,7 @@
 # Nginx gateway 준비
 
 현재 상태는 **2026-09-20 앱 기동·Tunnel 공개 연결 완료**다.
-[실서버 배포 실행서](../../docs/implementation/operations/deployment-runbook.md)를 먼저 확인한다.
+[실서버 배포 실행서](../../docs/operations/deployment-runbook.md)를 먼저 확인한다.
 아래 설치 도구 설명은 최초 준비 단계이며, 가동 중인 서버에 반복 실행하지 않는다.
 gateway는 `blariyo-gateway` project로 앱과 분리돼 있다.
 

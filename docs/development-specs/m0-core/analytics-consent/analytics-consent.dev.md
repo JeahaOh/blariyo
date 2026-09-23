@@ -111,7 +111,7 @@ API 해당 없음. Google tag는 browser에서 동의 후 직접 로드하며 BF
 
 - 계약 상태: `작성 완료`
 
-- 입력 근거: [분석 계획 §5](../../../planning/04-analytics-ad-plan.md), [쿠키 안내 §3~§5](../../../legal/cookie-settings.md), [퍼블리싱 동의 저장 비교물](../../../publishing/responsive/app.js)
+- 입력 근거: [분석 계획 §5](../../../planning/04-analytics-ad-plan.md), [쿠키 안내 §3~§5](../../../legal/cookie-settings.md), [퍼블리싱 동의 저장 비교물](../../../ui/publishing/responsive/app.js)
 - 미검증: browser storage·tag/network test
 
 #### 프로세스 목적과 범위
@@ -361,7 +361,7 @@ GA4 활성 gate는 차단 상태지만 banner contract는 확정. browser 검증
 
 - 계약 상태: `작성 완료`
 
-- 입력 근거: [화면 설계 §10](../../../planning/03-screen-design.md), [쿠키 안내](../../../legal/cookie-settings.md), [퍼블리싱 동의 저장 비교물](../../../publishing/responsive/app.js)
+- 입력 근거: [화면 설계 §10](../../../planning/03-screen-design.md), [쿠키 안내](../../../legal/cookie-settings.md), [퍼블리싱 동의 저장 비교물](../../../ui/publishing/responsive/app.js)
 - 미검증: actual modal/direct route·storage test
 
 #### 목적·route·milestone

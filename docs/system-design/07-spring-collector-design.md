@@ -3,7 +3,7 @@
 - 기준일: 2026-09-08
 - 상태: source·migration·OpenAPI 구현 및 격리 환경 검증 진행. 실제 출처·Discord·운영 전환은 미검증
 - 대상 단계: `M0 수집 보조`
-- 상위 계약: [시스템 아키텍처](./01-system-architecture.md#spring-collector-transition), [데이터 모델](./02-data-model.md#spring-수집-배치-저장-경계), [API 설계](./03-api-design.md#spring-수집-서버의-실행-api와-기존-중계)
+- 상위 계약: [시스템 아키텍처](01-system-architecture.md#spring-collector-transition), [데이터 모델](02-data-model.md#spring-수집-배치-저장-경계), [API 설계](03-api-design.md#spring-수집-서버의-실행-api와-기존-중계)
 - 기능 명세: [M0 수집 보조 개발 명세](../development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md)
 
 현행 수집 경로는 웹/API와 별도 컴퓨터에서 실행하는 Java direct batch다. batch가 외부 fetch,
@@ -13,7 +13,7 @@ Spring Batch·Quartz·Core 후보/lease를 사용하는 아래 초기 절은 leg
 현행 direct 경로의 정본은 이 문서의 Direct batch Discord 계약, §17~18과 2026-09-23 구현 계약이다.
 
 `M0 Core` 공개와 이 서버의 구현·활성화는 분리한다. 이 설계가 확정되어도 Spring source, Core migration,
-OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는 뜻은 아니다. 현재 구현 범위와 실행 결과는 [M0 완료 조건](../implementation/m0-completion/acceptance.md)과 [검증 기록](../implementation/m0-completion/evidence.md)에서 분리해 관리한다.
+OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는 뜻은 아니다. 현재 구현 범위와 실행 결과는 [M0 완료 조건](../../worklog/2026-09-08/core-spring-acceptance/acceptance.md)과 [검증 기록](../../worklog/2026-09-09/core-spring-verification/evidence.md)에서 분리해 관리한다.
 
 내부 패키지·의존성 규칙과 CLI 배치는 [M0 코드 구조](08-code-structure.md)를 따른다.
 

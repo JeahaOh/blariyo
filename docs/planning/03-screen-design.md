@@ -3,7 +3,7 @@
 - 문서 상태: 사용자 확정안 반영 정본
 - 기준일: 2026-09-03
 - 정합성 검토일: 2026-09-03
-- 관련 문서: [01-service-plan.md](./01-service-plan.md), [02-infra-plan.md](./02-infra-plan.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
+- 관련 문서: [01-service-plan.md](01-service-plan.md), [02-infra-plan.md](02-infra-plan.md), [04-analytics-ad-plan.md](04-analytics-ad-plan.md), [05-benchmark-spec.md](05-benchmark-spec.md)
 - 설계 대상: 데스크톱·모바일 반응형 웹
 - M1·M1.5 정책: [회원·익게 제품 계약](08-member-community-plan.md) (2026-09-08 설계 기본안)
 
@@ -63,7 +63,7 @@
 - 저장 응답이 불확실하면 제출 내용과 요청 키를 보존하고 복구 전 편집·다른 글 선택을 막는다. `저장 결과 다시 확인`은 같은 요청을 재전송해 중복 생성을 방지한다.
 - 예약 입력·수정일 검색은 KST 기준이다. 예약·예약 취소·숨김·최종 삭제에는 대상과 영향을 알리는 확인창을 제공한다.
 - Core 관리 메뉴에는 게시글 관리와 공개 목록을 둔다. 비활성 수집 메뉴는 표시하지 않으며 수집 경로 통합은 P1 범위다.
-- [관리자 화면 검토물·상태 체크리스트](../publishing/admin-core-review.md)로 설계와 실행 증거를 비교한다.
+- [관리자 화면 검토물·상태 체크리스트](../ui/publishing/admin-core-review.md)로 설계와 실행 증거를 비교한다.
 
 ### 수집 후보 검수 화면
 
@@ -137,7 +137,7 @@
 7. 정책 링크 푸터
 
 목록 제목과 홈 보조 문구는 왼쪽에서 위아래로 배치하고, 오른쪽에는 현재 페이지와 최신순 정렬을
-표시한다. 시각 기준은 `docs/publishing/responsive/`의 두 줄 목록이다. 기존 와이어프레임의
+표시한다. 시각 기준은 `docs/ui/publishing/responsive/`의 두 줄 목록이다. 기존 와이어프레임의
 데스크톱 다열 표는 현 구현의 시각 기준으로 혼용하지 않는다. 정적 예시의 발행 주기 문구를 실제
 자동 발행 보장처럼 표시하지 않는다.
 
@@ -287,7 +287,7 @@
   앞 119자 뒤에 단일 `…`를 붙여 총 120자 이하로 만든다. UTF-16 code unit이나 byte 수로 자르지
   않는다. 공개 TEXT block도 없으면 확정 서비스 기본 문구 `블라리요에서 블라블라블라`를 사용한다.
 
-홈·OG·푸터 카피와 properties/config key는 [06-copy-contract.md](./06-copy-contract.md)의 확정 계약을 따른다.
+홈·OG·푸터 카피와 properties/config key는 [06-copy-contract.md](06-copy-contract.md)의 확정 계약을 따른다.
 
 ## 8. 후속 광고
 
@@ -447,11 +447,11 @@
 
 ## 12. 와이어프레임과 퍼블리싱 기준
 
-- 반응형 시각 참고: [../wireframes/responsive/index.html](../wireframes/responsive/index.html)
-- 광고 참고: [../wireframes/ads/index.html](../wireframes/ads/index.html)
-- 정책 참고: [../wireframes/legal/index.html](../wireframes/legal/index.html)
-- 추후 사용자 게시판 참고: [../wireframes/community/index.html](../wireframes/community/index.html)
-- 퍼블리싱 프로토타입: [../publishing/responsive/index.html](../publishing/responsive/index.html)
+- 반응형 시각 참고: [../wireframes/responsive/index.html](../ui/wireframes/responsive/index.html)
+- 광고 참고: [../wireframes/ads/index.html](../ui/wireframes/ads/index.html)
+- 정책 참고: [../wireframes/legal/index.html](../ui/wireframes/legal/index.html)
+- 추후 사용자 게시판 참고: [../wireframes/community/index.html](../ui/wireframes/community/index.html)
+- 퍼블리싱 프로토타입: [../publishing/responsive/index.html](../ui/publishing/responsive/index.html)
 
 archive 디렉터리는 과거 비교용이며 현행 화면 계약으로 사용하지 않는다.
 이 절의 HTML은 시각 비교 자료이며 화면 계약과 단계 판정은 이 문서 본문이 우선한다.

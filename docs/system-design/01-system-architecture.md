@@ -4,7 +4,7 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 - 문서 상태: M0 아키텍처 설계 계약 · 프로토타입 폐기 후 신규 개발 기준
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-04
-- 관련 문서: [데이터 모델](./02-data-model.md), [API 설계](./03-api-design.md), [인프라 설계](./04-infrastructure-design.md), [보안·운영](./05-security-operations.md)
+- 관련 문서: [데이터 모델](02-data-model.md), [API 설계](03-api-design.md), [인프라 설계](04-infrastructure-design.md), [보안·운영](05-security-operations.md)
 
 ## 1. 목표와 제약
 
@@ -352,7 +352,7 @@ Redis, queue broker, Kubernetes, Elasticsearch는 위 조건과 직접 연결된
 ## Spring 수집 서버 전환 계약 (2026-09-08)
 
 상태: 전환 방향 확정·설계 정본 반영, Spring 구현 미착수·검증 미완료.
-입력은 구현 작업 트리의 `docs/ai/handoffs/2026-09-08-spring-collector-design-handoff.md`다.
+입력은 구현 작업 트리의 `worklog/2026-09-08/handoff/spring-collector-design-handoff.md`다.
 인계 문서의 결정만 반영했으며 구현 브랜치나 docs 전체를 가져온 것이 아니다.
 
 ### 확정한 컴포넌트와 경계
@@ -388,14 +388,14 @@ Spring Batch·Quartz -> 운영자 PC의 전용 PostgreSQL 18 (`batch`·`quartz`�
   강화하고, 필요한 상태 조회·quota 예약·운영 이벤트 endpoint만 additive하게 확장한다.
 - Batch transaction은 원격 Core API와 단일 transaction이 아니다. 응답 유실 시 같은 payload·멱등 key로
   결과를 재확인하며 새 key로 중복 결과를 만들지 않는다. lease·version 불일치는 재선점 계약에 따라 복구한다.
-- Core 상태 조회와 로컬 중지는 [Spring 상세 설계](./07-spring-collector-design.md)에 정의한 새 계약만 사용한다.
+- Core 상태 조회와 로컬 중지는 [Spring 상세 설계](07-spring-collector-design.md)에 정의한 새 계약만 사용한다.
   응답 유실·멱등 만료·Job/Step restart는 execution-state와 payload digest로 재확인하며 추측 재실행하지 않는다.
 - source host/CDN·robots·요청 간격/일일 한도·DNS/SSRF·redirect·크기·timeout 통제를 유지한다.
   quota 저장소를 바꾸더라도 재시작으로 일일 상한이 초기화되면 안 된다.
 
 ### 상세 설계 기준선
 
-[Spring 수집 서버 상세 설계](./07-spring-collector-design.md)를 구현 정본으로 사용한다.
+[Spring 수집 서버 상세 설계](07-spring-collector-design.md)를 구현 정본으로 사용한다.
 
 - M0 구현 저장소의 `apps/collector`, JDK 25 LTS, Spring Boot 4.1.1 BOM, Spring Batch 6.0.5,
   Quartz 2.5.2와 전용 local PostgreSQL 18을 사용한다. patch 호환성과 실제 runtime은 구현 때 재검증한다.

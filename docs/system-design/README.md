@@ -6,8 +6,8 @@
 - 상위 기획: [서비스 기획서](../planning/01-service-plan.md)
 - 수집 상위 기획: [콘텐츠 수집 기획](../planning/content-collection/README.md)
 - 화면 상위 정본: [화면 설계](../planning/03-screen-design.md)
-- 정적 검토물: [반응형 퍼블리싱](../publishing/responsive/README.md)
-- 데이터베이스 결정: [2026-08-14 PostgreSQL 전환 결정](../../worklog/session-log/2026-08-14-postgresql-transition.md)
+- 정적 검토물: [반응형 퍼블리싱](../ui/publishing/responsive/README.md)
+- 데이터베이스 결정: [2026-08-14 PostgreSQL 전환 결정](../../worklog/2026-08-14/session/postgresql-transition.md)
 
 이 디렉터리는 확정된 기획을 구현 가능한 기술 계약으로 구체화한다. `docs/planning`은 무엇을 만들지 정의하고, 이 디렉터리는 컴포넌트 경계, 데이터 구조, API, 배포와 운영 방식을 정의한다.
 
@@ -62,15 +62,15 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 
 | 문서 | 역할 |
 | --- | --- |
-| [01-system-architecture.md](./01-system-architecture.md) | 시스템 경계, 컴포넌트, 요청·발행·숨김·수집 흐름 |
-| [02-data-model.md](./02-data-model.md) | ERD, 테이블·인덱스·상태 전이·보존 계약 |
-| [03-api-design.md](./03-api-design.md) | 공개·관리자 API와 공통 응답·오류 계약 |
-| [04-infrastructure-design.md](./04-infrastructure-design.md) | 저비용 사업자 비교, 배포 토폴로지와 비용 상한 |
-| [05-security-operations.md](./05-security-operations.md) | 접근통제, secret, 백업·복구·관측·장애 대응 |
-| [06-member-community-design.md](./06-member-community-design.md) | M1·M1.5 아키텍처·데이터·API·보안·운영 확장; 문서 작성과 공개 gate 별도 |
-| [07-spring-collector-design.md](./07-spring-collector-design.md) | M0 수집 보조 Spring 실행·복구·quota·보안·전환 상세 계약; 구현·활성화 별도 |
-| [09-security-cost-protection-plan.md](./09-security-cost-protection-plan.md) | Cloudflare·AWS 보안/비용 보강 적용 계획; 정적 JS 캐시·알림 1차 적용, 요청 제한·전체 정상 이용 검증은 별도 |
-| [design-readiness.md](./design-readiness.md) | 단계별 설계 기준선·구현 수용·production 공개 승인 현행 판정 |
+| [01-system-architecture.md](01-system-architecture.md) | 시스템 경계, 컴포넌트, 요청·발행·숨김·수집 흐름 |
+| [02-data-model.md](02-data-model.md) | ERD, 테이블·인덱스·상태 전이·보존 계약 |
+| [03-api-design.md](03-api-design.md) | 공개·관리자 API와 공통 응답·오류 계약 |
+| [04-infrastructure-design.md](04-infrastructure-design.md) | 저비용 사업자 비교, 배포 토폴로지와 비용 상한 |
+| [05-security-operations.md](05-security-operations.md) | 접근통제, secret, 백업·복구·관측·장애 대응 |
+| [06-member-community-design.md](06-member-community-design.md) | M1·M1.5 아키텍처·데이터·API·보안·운영 확장; 문서 작성과 공개 gate 별도 |
+| [07-spring-collector-design.md](07-spring-collector-design.md) | M0 수집 보조 Spring 실행·복구·quota·보안·전환 상세 계약; 구현·활성화 별도 |
+| [09-security-cost-protection-plan.md](09-security-cost-protection-plan.md) | Cloudflare·AWS 보안/비용 보강 적용 계획; 정적 JS 캐시·알림 1차 적용, 요청 제한·전체 정상 이용 검증은 별도 |
+| [design-readiness.md](design-readiness.md) | 단계별 설계 기준선·구현 수용·production 공개 승인 현행 판정 |
 
 ## 핵심 결정
 

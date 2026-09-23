@@ -6,7 +6,7 @@
 - milestone: `M0 Core` (`m0-core`)
 - 기능: `admin-post-management` — 검색·이미지·초안·발행·예약·숨김·삭제
 - 기준일: 2026-09-07
-- 검증 상태 갱신(2026-09-23): `/admin` source·계약·격리 DB·로컬 미디어·Chromium 검증은 [마감 결과](../../../../worklog/task-list/09/23/admin-core/RESULTS.md)를 따른다. 아래 각 API/D01의 초기 `미검증` 표기는 작성 시점의 검증 과제이며 현재 통과 여부를 이 결과와 대조한다. 실제 Access·운영 R2/CDN·운영자 수동 인수는 미검증이다.
+- 검증 상태 갱신(2026-09-23): `/admin` source·계약·격리 DB·로컬 미디어·Chromium 검증은 [마감 결과](../../../../worklog/2026-09-23/admin-core/RESULTS.md)를 따른다. 아래 각 API/D01의 초기 `미검증` 표기는 작성 시점의 검증 과제이며 현재 통과 여부를 이 결과와 대조한다. 실제 Access·운영 R2/CDN·운영자 수동 인수는 미검증이다.
 - 주요 근거:
   - [서비스 기획 §3~§5, §10, §14](../../../planning/01-service-plan.md)
   - [화면 설계 §2 관리자 게시글 화면](../../../planning/03-screen-design.md)
@@ -1043,7 +1043,7 @@ key다. 일시 장애는 `SCHEDULED` 상태를 재시도 표지로 사용하고 
 #### 미정·차단·미검증
 
 기본 슬롯은 `07:30`, `17:30` KST로 확정됐고 per-post 임의 예약도 허용한다. cron·scheduler·알림·
-R2·DB·outbox의 운영 runtime은 미검증이다. 격리 로컬 실행 결과는 [보완 검증 기록](../../../../worklog/task-list/09/23/admin-core/FIX-RESULTS.md)과 구분한다.
+R2·DB·outbox의 운영 runtime은 미검증이다. 격리 로컬 실행 결과는 [보완 검증 기록](../../../../worklog/2026-09-23/admin-core/FIX-RESULTS.md)과 구분한다.
 
 <a id="d08-admin-post-editor"></a>
 
@@ -1052,9 +1052,9 @@ R2·DB·outbox의 운영 runtime은 미검증이다. 격리 로컬 실행 결과
 - 계약 상태: `작성 완료` — M0 Core 화면 계약. 개발자 로컬 검증과 실제 운영 인수는 구분한다.
 
 - 입력 근거: [화면 설계 §2 관리자 게시글 화면](../../../planning/03-screen-design.md), [관리 API 목록](#8-api-작업-목록)
-- 검증: [화면 검토물](../../../publishing/admin-core-review.md), [2026-09-23 로컬 마감 결과](../../../../worklog/task-list/09/23/admin-core/RESULTS.md). 합성 인증 Chromium·격리 DB·로컬 미디어 범위다. 실제 Access·운영자 사용성 인수·보조기기 전수 접근성은 미검증이다.
+- 검증: [화면 검토물](../../../ui/publishing/admin-core-review.md), [2026-09-23 로컬 마감 결과](../../../../worklog/2026-09-23/admin-core/RESULTS.md). 합성 인증 Chromium·격리 DB·로컬 미디어 범위다. 실제 Access·운영자 사용성 인수·보조기기 전수 접근성은 미검증이다.
 
-- 후속 보완: 저장 결과 불확실 후 인증 오류의 요청 키 보존과 격리 로컬 예약/outbox 실행 연결을 구현·재검증했다. [보완 결과](../../../../worklog/task-list/09/23/admin-core/FIX-RESULTS.md)를 따르며 P0-04의 실제 운영자 수동 인수는 [잔여 과정](../../../implementation/m0-interim-2026-09-23/remaining-process.md)에 남긴다.
+- 후속 보완: 저장 결과 불확실 후 인증 오류의 요청 키 보존과 격리 로컬 예약/outbox 실행 연결을 구현·재검증했다. [보완 결과](../../../../worklog/2026-09-23/admin-core/FIX-RESULTS.md)를 따르며 P0-04의 실제 운영자 수동 인수는 [잔여 과정](../../../roadmap.md)에 남긴다.
 
 #### 목적·route·milestone
 

@@ -1,0 +1,159 @@
+{
+  "moves": 197,
+  "moveErrors": [],
+  "linksBefore": 3437,
+  "linksAfter": 3532,
+  "preexistingIssues": [
+    {
+      "file": "README.md",
+      "link": "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md#spring-v2-전환과-이번-호환-보완의-경계",
+      "target": "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+      "fragment": "spring-v2-전환과-이번-호환-보완의-경계",
+      "kind": "anchor"
+    },
+    {
+      "file": "docs/ai/handoffs/2026-09-08-main-merge-implementation-status.md",
+      "link": "../../../apps/api/src/collection.mjs",
+      "target": "apps/api/src/collection.mjs",
+      "kind": "file"
+    },
+    {
+      "file": "docs/legal/m0-core/draft-2/privacy.html",
+      "link": "cookies.html",
+      "target": "docs/legal/m0-core/draft-2/cookies.html",
+      "kind": "file"
+    },
+    {
+      "file": "docs/legal/m0-core/draft-2/terms.html",
+      "link": "rights.html",
+      "target": "docs/legal/m0-core/draft-2/rights.html",
+      "kind": "file"
+    },
+    {
+      "file": "docs/legal/m0-core/draft-2/terms.html",
+      "link": "cookies.html",
+      "target": "docs/legal/m0-core/draft-2/cookies.html",
+      "kind": "file"
+    }
+  ],
+  "remainingIssues": [
+    {
+      "file": "worklog/2026-09-08/handoff/main-merge-implementation-status.md",
+      "link": "../../../apps/api/src/collection.mjs",
+      "target": "apps/api/src/collection.mjs",
+      "kind": "file"
+    },
+    {
+      "file": "docs/legal/m0-core/draft-2/terms.html",
+      "link": "rights.html",
+      "target": "docs/legal/m0-core/draft-2/rights.html",
+      "kind": "file"
+    },
+    {
+      "file": "docs/legal/m0-core/draft-2/terms.html",
+      "link": "cookies.html",
+      "target": "docs/legal/m0-core/draft-2/cookies.html",
+      "kind": "file"
+    },
+    {
+      "file": "docs/legal/m0-core/draft-2/privacy.html",
+      "link": "cookies.html",
+      "target": "docs/legal/m0-core/draft-2/cookies.html",
+      "kind": "file"
+    }
+  ],
+  "newIssues": [],
+  "historyDocuments": 117,
+  "historyNonLinkChanges": [],
+  "movedBinaryChanges": [],
+  "nonDocumentRuntimeChanges": [
+    "deploy/operations/start-application.py"
+  ],
+  "unitTests": {
+    "command": "node --test tests/*.test.ts",
+    "node": "24.18.0",
+    "pass": 29,
+    "fail": 0,
+    "skip": 0
+  },
+  "contractGeneration": {
+    "command": "node scripts/generate-contracts.ts",
+    "exitCode": 0
+  },
+  "staticBrowser": {
+    "pages": [
+      {
+        "path": "docs/ui/publishing/responsive/index.html",
+        "status": 200,
+        "title": "블라리요 - 블라블라블라",
+        "scriptErrors": [],
+        "localFailures": []
+      },
+      {
+        "path": "docs/ui/wireframes/ads/index.html",
+        "status": 200,
+        "title": "블라리요 분석·광고 확장 참고 와이어프레임",
+        "scriptErrors": [],
+        "localFailures": []
+      },
+      {
+        "path": "docs/ui/wireframes/archive/app/index.html",
+        "status": 200,
+        "title": "블라리요 앱 와이어프레임 보류",
+        "scriptErrors": [],
+        "localFailures": []
+      },
+      {
+        "path": "docs/ui/wireframes/archive/desktop/index.html",
+        "status": 200,
+        "title": "블라리요 데스크톱 웹 와이어프레임",
+        "scriptErrors": [],
+        "localFailures": []
+      },
+      {
+        "path": "docs/ui/wireframes/archive/mobile/index.html",
+        "status": 200,
+        "title": "블라리요 모바일 웹 와이어프레임",
+        "scriptErrors": [],
+        "localFailures": []
+      },
+      {
+        "path": "docs/ui/wireframes/community/index.html",
+        "status": 200,
+        "title": "블라리요 익게 확장 참고 와이어프레임",
+        "scriptErrors": [],
+        "localFailures": []
+      },
+      {
+        "path": "docs/ui/wireframes/legal/index.html",
+        "status": 200,
+        "title": "블라리요 정책 모달 와이어프레임",
+        "scriptErrors": [],
+        "localFailures": []
+      },
+      {
+        "path": "docs/ui/wireframes/responsive/index.html",
+        "status": 200,
+        "title": "블라리요 - 블라블라블라",
+        "scriptErrors": [],
+        "localFailures": []
+      },
+      {
+        "hash": "terms",
+        "title": "이용약관"
+      },
+      {
+        "hash": "privacy",
+        "title": "개인정보처리방침"
+      },
+      {
+        "hash": "cookies",
+        "title": "쿠키 설정"
+      }
+    ],
+    "externalRequests": "blocked; not verified",
+    "applicationRuntime": "not tested"
+  },
+  "nonDocumentRuntimeChangesNote": "deploy/operations/start-application.py was changed separately during final review; preserved and excluded from directory reorganization.",
+  "diffCheck": "pass"
+}

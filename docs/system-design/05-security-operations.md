@@ -9,7 +9,7 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 
 2026-09-20 추가 점검에 따른 [보안·비용 보호 적용 계획](09-security-cost-protection-plan.md)은 정상 이용
 측정, 캐시·요청 제한·알림·원본 보호의 단계별 검증과 되돌리기를 정의한다. 정적 JS 캐시·비용/DDoS
-알림의 [1차 적용 결과](../implementation/operations/security-protection-status.md)는 별도로 기록한다.
+알림의 [1차 적용 결과](../operations/security-protection-status.md)는 별도로 기록한다.
 이를 본문의 전체 미검증 항목 완료로 확대하지 않는다. 공개 이용 제한을 포함한 비상 정책은 별도 확정한다.
 
 ## 1. 운영 목표
@@ -278,7 +278,7 @@ blariyo_backup
 - migration은 배포 한 번에 한 process만 실행하도록 `pg_advisory_lock`을 사용한다.
 - production database와 application role의 `timezone`은 `UTC`로 고정하고 API 연결에 `statement_timeout`, `lock_timeout`, `idle_in_transaction_session_timeout`을 설정한다.
 
-readiness 함수의 소유권·고정 search_path·PUBLIC EXECUTE 회수는 [데이터 모델 §6](./02-data-model.md)을 따른다. API에 migrator credential을 주입하지 않는다.
+readiness 함수의 소유권·고정 search_path·PUBLIC EXECUTE 회수는 [데이터 모델 §6](02-data-model.md)을 따른다. API에 migrator credential을 주입하지 않는다.
 
 ## 7. 로깅
 
@@ -471,7 +471,7 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
   앱만 되돌리는 복귀를 보장하지 못한다. readiness 우회·ledger 값 수정으로 호환성을 만들지 않는다.
 - 2026-09-23 Core 후보는 수집 OFF에서 V005 유지와 이전 이미지 복귀를 격리 검증했다.
   V006~V008 적용은 수집 release의 별도 호환·복귀 검증 뒤 수행한다. 적용 대상과 실제 검증 경계는
-  [Core 배포 후보](../implementation/m0-interim-2026-09-23/release-candidate.md)를 따른다.
+  [Core 배포 후보](../../worklog/2026-09-23/release/candidate.md)를 따른다.
 
 
 ## 12. 운영 runbook

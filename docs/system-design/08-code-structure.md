@@ -17,7 +17,7 @@ collector → Web/BFF → Core 경로는 legacy 호환 경로이며 신규 사�
 ## 2. Core API
 
 2026-09-09 사용자 요청에 따라 NestJS + 엄격한 TypeScript + TypeORM으로 내부 구현을 전환한다.
-현재 실행 전환 상태와 검증 결과는 [진행 기록](../migration/PROGRESS.md)을 따른다.
+현재 실행 전환 상태와 검증 결과는 [진행 기록](../../worklog/2026-09-09/nest-transition/PROGRESS.md)을 따른다.
 
 ```text
 HTTP → 도메인 Controller → Service → Repository 계약 → TypeORM Repository → PostgreSQL
@@ -82,7 +82,7 @@ Gradle task·launchd 렌더러·운영 문서·프로세스 테스트와 함께 
 **2026-09-23 로컬 구현:** `source/sites/`의 21개 패키지에 adapter 21개·상세 parser 21개·목록 parser
 19개를 분리했다. `SiteAdapters.java`는 adapter 선택과 기존 query helper 위임만 담당한다. PGR21과
 YouTube Community는 목록 parser를 만들지 않고 `CHART_UNVERIFIED`를 유지한다. 파일 분리와 실제 출처
-수집·운영 검증은 별도이며 실행 근거는 [분리 결과](../../worklog/task-list/09/23/collector-site-modules/RESULTS.md)를 따른다.
+수집·운영 검증은 별도이며 실행 근거는 [분리 결과](../../worklog/2026-09-23/collector-site-modules/RESULTS.md)를 따른다.
 `SourceRegistry`가 adapter를 선택하고 `DirectBatchRunner`가 목록·상세 메서드를 호출하는 구조는 유지한다.
 
 디렉터리별 책임은 다음과 같다. `OrderedContentParser`는 `source/common/`에 두고 사이트별 selector와
@@ -147,6 +147,6 @@ Nuxt 경로 규약을 유지한다. `app/pages`는 URL과 페이지 조립, `app
 
 `npm run test:architecture` 구조 검사는 API import 경계·Collector 패키지 순환과 금지 의존성·Web 앱 경계를 검사한다.
 Core/브라우저 회귀, Spring 단위·프로세스·복구 시험, Docker build/운영 명령으로 경로와 실행을 확인한다.
-현재 Nest의 종합 실행은 `npm run verify:migration`이며 결과는 [전환 검증 보고](../migration/REPORT.md)에 기록한다.
-[이전 구현 검증 기록](../implementation/m0-completion/evidence.md)은 이전 M0/Spring 개별 검증 이력으로 구분한다.
+현재 Nest의 종합 실행은 `npm run verify:migration`이며 결과는 [전환 검증 보고](../../worklog/2026-09-09/nest-transition/REPORT.md)에 기록한다.
+[이전 구현 검증 기록](../../worklog/2026-09-09/core-spring-verification/evidence.md)은 이전 M0/Spring 개별 검증 이력으로 구분한다.
 구조 정리가 실제 출처·Discord·Keychain·launchd·7일 관찰의 완료를 의미하지 않는다.

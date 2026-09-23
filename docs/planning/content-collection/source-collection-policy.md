@@ -52,4 +52,4 @@
 - 실패한 실행도 DB failure/report 및 object readback을 확인한다. 과거 임시 DB의 성공을 현재 지속 개발 DB 성공으로 옮겨 쓰지 않는다.
 
 세부 parser·과거 실행 증거는 [출처별 검증표](reference-site-validation.md), 현재 목표별 진행은
-[batch 고도화 진행 기록](../../../worklog/task-list/09/23/batch-고도화/PROGRESS.md)을 따른다.
+[batch 고도화 진행 기록](../../../worklog/2026-09-23/batch-고도화/PROGRESS.md)을 따른다.

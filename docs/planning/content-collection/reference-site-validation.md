@@ -15,7 +15,7 @@
 원문에 없는 첨부나 SNS까지 실제 수집했다고 해석하지 않는다. 본문 수집 실패 사이트 4개는 성공 fixture에 포함하지 않았다.
 
 현재 접근·저장 관측은 [최근 fixture 및 차단 보고서](../../../apps/collector/ops/reports/observed-fixtures-2026-09-23.md)와
-[고도화 진행 기록](../../../worklog/task-list/09/23/batch-고도화/PROGRESS.md)을 함께 확인한다.
+[고도화 진행 기록](../../../worklog/2026-09-23/batch-고도화/PROGRESS.md)을 함께 확인한다.
 아래 초기 실행 기록의 `hot` 이름, 20장 제한과 절단 보정, `list parser 없음`, 승인 플래그는 현재 계약이 아니다.
 현행은 사이트별 Hot/일반 목록 정책과 200장/30MiB/150MiB 제한을 사용하고 초과 본문을 잘라 성공 처리하지 않는다.
 

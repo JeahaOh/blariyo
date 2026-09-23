@@ -384,7 +384,7 @@ outbox, artifact 제거를 검증해야 한다.
 
 - 계약 상태: `차단`
 
-- 입력 근거: [화면 설계 §10](../../../planning/03-screen-design.md), [퍼블리싱 기준](../../../publishing/responsive/README.md)
+- 입력 근거: [화면 설계 §10](../../../planning/03-screen-design.md), [퍼블리싱 기준](../../../ui/publishing/responsive/README.md)
 - 미검증: 승인 본문, actual browser·accessibility test
 
 #### 목적·route·milestone

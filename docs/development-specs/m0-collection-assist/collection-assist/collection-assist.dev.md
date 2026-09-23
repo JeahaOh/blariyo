@@ -6,8 +6,8 @@
 - milestone: `M0 수집 보조` (`m0-collection-assist`)
 - 기능: `collection-assist` — 로컬 collector 기반 Discord·운영자 URL 지정 후보 생성·검수·반려·초안 승격
 - 기준일: 2026-09-08, 현행/legacy 계약 정합성 갱신: 2026-09-23
-- 구현 판정: direct source·migration·OpenAPI와 격리 검증은 [요구사항 대조](../../../implementation/m0-interim-2026-09-23/requirements.md)의 현재 증거를 따른다. 실제 운영자·Access·원격 DB/object·Discord Gateway·출처 활성화·보존/고지는 별도 미검증이다.
-- 기존 구현 증거: Node/Core·Python collector 구현과 전환 전 로컬 검증 범위는 [main 병합 구현 상태 인계](../../../ai/handoffs/2026-09-08-main-merge-implementation-status.md)를 따른다. 이 증거를 Spring 구현 완료로 해석하지 않는다.
+- 구현 판정: direct source·migration·OpenAPI와 격리 검증은 [요구사항 대조](../../requirements-status.md)의 현재 증거를 따른다. 실제 운영자·Access·원격 DB/object·Discord Gateway·출처 활성화·보존/고지는 별도 미검증이다.
+- 기존 구현 증거: Node/Core·Python collector 구현과 전환 전 로컬 검증 범위는 [main 병합 구현 상태 인계](../../../../worklog/2026-09-08/handoff/main-merge-implementation-status.md)를 따른다. 이 증거를 Spring 구현 완료로 해석하지 않는다.
 - 주요 근거:
   - [콘텐츠 수집 기획](../../../planning/content-collection/README.md)
   - [출처 명세 템플릿](../../../planning/content-collection/source-spec-template.md)
@@ -57,7 +57,7 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 | 요구사항 | 계약·구현 근거 | 남은 수용 조건 |
 | --- | --- | --- |
 | API 외부 fetch 없이 batch가 직접 저장 | [direct 기술 설계](../../../system-design/07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약) | 실제 다른 PC·원격 제한 계정 |
-| Web URL 입력 전달·source 변경 권한 | [미정 경계](../../../implementation/m0-interim-2026-09-23/next-plan.md#관리자-url-입력의-미정-경계) | QD-03 확정·구현, 기존 source UI와 direct 설정 분리 |
+| Web URL 입력 전달·source 변경 권한 | [미정 경계](../../../roadmap.md#관리자-url-입력의-미정-경계) | QD-03 확정·구현, 기존 source UI와 direct 설정 분리 |
 | 목록·출처/수집/검수 필터·private preview | OpenAPI `listBatchItems`, `getBatchItem`, `previewBatchImage` | 실제 운영자·Access·원격 object 인수 |
 | 검수·승인/반려와 snapshot/버전·멱등 | OpenAPI `reviewBatchItem`, 아래 Batch 검수 snapshot 계약 | 내용 변경·경합·인증 실패 수용 |
 | 승인→전체 본문과 검증된 이미지의 DRAFT | OpenAPI `promoteBatchItem`, 별도 Core 발행 명령 | 누락·중복·부분 실패·원격 private/public 경계 |
@@ -1034,7 +1034,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
   어느 경로도 title·origin URL·HTML·image binary·token·절대 경로를 일반 로그에 남기지 않는다.
 - 승인된 수집 결과를 `/meme` 공개 화면에 노출하는 것은 batch가 아니라 API 검수·승격 단계의 책임이다. 승격 단계는 `collect/media/*`를 public key로 직접 쓰지 않고, 이미지를 `content/published/posts/{postId}/{imageId}-{sha256}.{ext}`로 복사한 뒤 `content.board_post_image.public_storage_key`에 저장한다.
 - 구현 수용은 여섯 Step checkpoint, same-key replay, stale execution fencing, Core quota/permit, spool TTL, stop·restart·reconcile, REST·Discord·Quartz 공통 경로와 legacy drain을 07의 수용 시험으로 검증한다.
-- source·migration·OpenAPI 구현과 격리 환경 test·build·runtime 결과는 [M0 검증 기록](../../../implementation/m0-completion/evidence.md)에 기록한다. 실제 출처·Discord·운영 배포·법무 승인·7일 관찰은 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정만으로 Spring 전체 완료를 판단하지 않는다.
+- source·migration·OpenAPI 구현과 격리 환경 test·build·runtime 결과는 [M0 검증 기록](../../../../worklog/2026-09-09/core-spring-verification/evidence.md)에 기록한다. 실제 출처·Discord·운영 배포·법무 승인·7일 관찰은 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정만으로 Spring 전체 완료를 판단하지 않는다.
 
 
 ## 원문 수집 확장 (2026-09-20)

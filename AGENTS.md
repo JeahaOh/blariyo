@@ -1,7 +1,7 @@
 # Blariyo AI 에이전트 지침
 
-이 저장소는 현재 애플리케이션 구현보다 제품 기획, 화면 설계, 기술 설계와 정책 정리를
-우선한다. 지원 진입점인 Codex, Claude와 Gemini는 작업 전에 이 문서와
+이 저장소는 제품·기술 정본과 실제 애플리케이션 구현·검증을 구분해 관리한다.
+지원 진입점인 Codex, Claude와 Gemini는 작업 전에 이 문서와
 [AI 작업 안내](docs/ai/README.md)를 읽는다.
 
 ## 응답과 작업 방식
@@ -11,6 +11,9 @@
 - 불명확한 사실, ID, URL, 사업자 정보와 법률 문구는 추측하지 않고 `(미정)`으로 남긴다.
 - 완료, 진행, 미검증, 차단을 구분한다. 설계 문서가 있다는 이유로 구현 완료라고 보고하지 않는다.
 - 기존 사용자 변경과 범위 밖 파일을 보존한다. 작업 전후 `git status --short --branch`를 확인한다.
+
+현재 진행은 [docs/status.md](docs/status.md), 남은 작업은 [docs/roadmap.md](docs/roadmap.md),
+문서 전체 위치는 [docs/README.md](docs/README.md)를 먼저 확인한다.
 
 ## 정본과 증거의 역할
 
@@ -23,7 +26,7 @@
 | 약관·개인정보·권리 정책 | `docs/legal/` | 법무 초안과 출시 차단 조건 |
 | 아키텍처·DB·API·인프라 | `docs/system-design/` | 어떻게 구현할지 정한 기술 계약 |
 | 기능별 개발 명세 | `docs/development-specs/` | planning·system-design을 기능별 API·D01·D08 구현 계약으로 구체화 |
-| 정적 화면 검토물 | `docs/publishing/`, `docs/wireframes/` | planning 화면 계약의 시각 비교 자료, 제품 정본 아님 |
+| 정적 화면 검토물 | `docs/ui/publishing/`, `docs/ui/wireframes/` | planning 화면 계약의 시각 비교 자료, 제품 정본 아님 |
 | AI 절차 | `docs/ai/` | 정본 탐색, 작업 순서와 증거 계약 |
 | 작업 이력 | `worklog/` | 과거 작업·검증 기록, 현행 정본 아님 |
 | 구현 여부 | 실제 source·migration·test·build·runtime과 Git | 설계와 별도로 확인할 실행 증거 |

@@ -6,10 +6,10 @@
 - 대상: 현재 M0 Core, Cloudflare Free·Tunnel·Access·R2, Lightsail 서울 2GB.
 - 문서 역할: 적용 후보, 선행 검증, 단계별 적용과 되돌리기 기준. 운영 적용 완료 증거가 아니다.
 - 상위 기준: [인프라 계획](../planning/02-infra-plan.md), [아키텍처](01-system-architecture.md), [인프라 설계](04-infrastructure-design.md), [보안·운영](05-security-operations.md).
-- 실행 상태: [현재 운영 상태](../implementation/operations/current-status.md). 이 문서의 계획을 현재 설정으로 간주하지 않는다.
-- 실행 증거: [2026-09-20 보안 보강 결과](../implementation/operations/security-protection-status.md). 아래 계획 중 실제 적용한 범위만 별도 판정한다.
+- 실행 상태: [현재 운영 상태](../operations/current-status.md). 이 문서의 계획을 현재 설정으로 간주하지 않는다.
+- 실행 증거: [2026-09-20 보안 보강 결과](../operations/security-protection-status.md). 아래 계획 중 실제 적용한 범위만 별도 판정한다.
 - 최신 작업 범위: 사용자 요청에 따라 코드·설정·문서, 기존 SSH 서버 점검, 공개 HTTP 검증까지만 수행했다.
-  Cloudflare/AWS 관리 설정과 인증 경로 마련은 이번 범위 밖이다. [수행한 일·남은 일](../implementation/operations/security-protection-status.md#7-이번-작업-마감과-남은-일)을 재개 기준으로 사용한다.
+  Cloudflare/AWS 관리 설정과 인증 경로 마련은 이번 범위 밖이다. [수행한 일·남은 일](../operations/security-protection-status.md#7-이번-작업-마감과-남은-일)을 재개 기준으로 사용한다.
 
 ## 1. 적용 방향과 완료 경계
 
@@ -346,7 +346,7 @@ Nginx 제한 로그를 위해 원문 요청이 포함되는 error log 수준을 
 기존 적용한 정적 캐시·알림·게이트웨이 오류 `no-store`는 새로운 이용량 차단 정책이 아니다.
 정상 이용 회귀의 근거 없이 선제 해제하지 않는다. 이번 완화 기준의 문서 반영만으로 운영 설정을
 변경하거나 다음 앱 배포에 새 차단 규칙을 포함하지 않는다. 항목별 적용 시점은
-[배포 구분](../implementation/operations/security-protection-status.md#8-현재-설정-유지와-다음-배포의-구분)을 따른다.
+[배포 구분](../operations/security-protection-status.md#8-현재-설정-유지와-다음-배포의-구분)을 따른다.
 
 ### 적용 직전 확인
 

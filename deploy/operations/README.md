@@ -4,8 +4,8 @@
 PostgreSQL·Core·Web·Nginx와 기존 cloudflared를 연결했다. blue/green은 구성하지 않았다.
 최초 release는 `/opt/blariyo/application/release-56351a45eea650c0f02e5043`이다.
 
-최초 설치부터 재배포·복귀까지의 순서는 [실서버 배포 실행서](../../docs/implementation/operations/deployment-runbook.md),
-GitHub 검증·이미지 게시와 운영 전환 정책은 [배포 정책](../../docs/implementation/operations/deployment-policy.md)을 따른다.
+최초 설치부터 재배포·복귀까지의 순서는 [실서버 배포 실행서](../../docs/operations/deployment-runbook.md),
+GitHub 검증·이미지 게시와 운영 전환 정책은 [배포 정책](../../docs/operations/deployment-policy.md)을 따른다.
 
 ## 서비스와 확인
 

@@ -5,7 +5,7 @@
 2026-09-20 사용자 실행 출력으로 Lightsail의 DB healthy·영속 volume·역할 3개 접속을 확인했다.
 초기 앱 migration 도구는 로컬 임시 PostgreSQL 18과 합성 비밀번호로 검사했으며,
 이후 실제 서버 V001–V005·테이블 권한 적용과 정책 v0.1 정식 발행까지 완료했다.
-[배포 실행서](../../docs/implementation/operations/deployment-runbook.md)에 전체 순서가 있다.
+[배포 실행서](../../docs/operations/deployment-runbook.md)에 전체 순서가 있다.
 아래 초안 seed 설명은 최초 준비 단계이며 현재 유효 정책이 없다는 뜻이 아니다.
 
 계약은 [보안·운영 설계](../../docs/system-design/05-security-operations.md#6-db-권한)와

@@ -1,7 +1,7 @@
 # 앱 운영 설정과 배포
 
 2026-09-20 Lightsail 운영 서버의 정책 발행·Web/Core 기동·공개 연결을 완료했다.
-[현재 운영 상태](../../docs/implementation/operations/current-status.md)와
+[현재 운영 상태](../../docs/operations/current-status.md)와
 [운영 명령](../operations/README.md)을 먼저 확인한다.
 
 아래 절은 새 입력·image·release를 준비하는 단계별 도구 설명이다. 각 준비 도구가 앱을 기동하지
@@ -71,7 +71,7 @@ container만 사용하며 운영 앱을 기동하거나 기존 DB/Tunnel network
 `prepare-runtime-config.cjs`는 manual URL·Discord·batch review의 API/Web flag를 모두 명시적 false로 만든다.
 기존 비공개 입력은 보존하며, 새 사본이 실제 서버의 신뢰 IP 헤더·mount·운영 설정과 일치하는지는 별도 대조한다.
 
-[현재 로컬 후보](../../docs/implementation/m0-interim-2026-09-23/release-candidate.md)와
+[현재 로컬 후보](../../worklog/2026-09-23/release/candidate.md)와
 [호환 검사](test-release-compatibility.py)는 로컬의 두 immutable API image로 일회성 DB·network·미디어를 만들어
 V005→후보 쓰기→이전 앱 복귀→V008→이전 앱 readiness 거부를 검사한다. 원격 DB·SSH·운영 입력을 사용하지 않는다.
 V008에서 이전 앱 503을 정상 복귀로 보고하지 않으며 Core V005 유지와 수집 migration 배포를 구분한다.
@@ -248,7 +248,7 @@ Core의 `assertLegalConfig`를 호출한다. 빈 값, 미정 문구, 잘못된 �
 ## 현재 운영 배포 (2026-09-20)
 
 위 준비 절차와 별개로 운영 서버의 확정 정책 발행·앱 기동·Tunnel/DNS 전환을 완료했다.
-[배포 기록](../../worklog/task-list/09/20/infrastructure-setup/TASK-19.md)과
+[배포 기록](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)과
 [운영 실행 안내](../operations/README.md)를 현재 상태로 사용한다.
 기존 초기 준비 문맥의 "다음 단계"를 현재 미배포 상태로 해석하지 않는다.
 

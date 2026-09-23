@@ -3,7 +3,7 @@
 - 문서 상태: M0 운영 입력 주입·공개 배포 완료, 후속 활성화 gate 및 일부 검증 잔여
 - 기준일: 2026-09-03
 - 정합성 검토일: 2026-09-20
-- 관련 결정: [OD-M0-006, OD-M0-009, OD-M0-011](./open-decisions.md)
+- 관련 결정: [OD-M0-006, OD-M0-009, OD-M0-011](open-decisions.md)
 - 범위: M0 Core production 공개 또는 provider 활성화 전에 입력·검증할 실제 운영값
 - 제외: secret 원문, token, password, private key, `.env` 실값
 
@@ -24,8 +24,8 @@ runtime 동작을 확인했을 때만 완료로 바꾼다.
 
 ## 2. M0 Core 운영 입력과 확인 범위
 
-2026-09-20 기준이다. [현재 운영 상태](../../../implementation/operations/current-status.md)와
-[TASK-19](../../../../worklog/task-list/09/20/infrastructure-setup/TASK-19.md)에 실행 증거를 기록한다.
+2026-09-20 기준이다. [현재 운영 상태](../../../operations/current-status.md)와
+[TASK-19](../../../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)에 실행 증거를 기록한다.
 설정 형식·화면 반영을 담당자 적정성이나 법률상 모든 쟁점의 확인으로 확대하지 않는다.
 
 | 항목 | 실제 config key 또는 위치 | 현재 상태·검증 경계 |

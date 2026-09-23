@@ -519,7 +519,7 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
   다시 받아 올린다. result나 후보를 다시 만들지 않고, 선택 이미지의 영구 저장은 초안 승격 때만 한다.
 - Job·API·quota·lease·멱등·보안·복구의 단일 기술 계약은
   [Spring 수집 서버 상세 설계](../../system-design/07-spring-collector-design.md)를 따른다. 기존 Python 구현은
-  참고 증거다. 현행 구현·격리 검증은 [요구사항 대조](../../implementation/m0-interim-2026-09-23/requirements.md)에서 확인한다.
+  참고 증거다. 현행 구현·격리 검증은 [요구사항 대조](../../development-specs/requirements-status.md)에서 확인한다.
   실제 Discord·원격 환경·운영 승인·고지/보존 검토는 별도 미완료다. 이 미검증 항목은 `M0 Core` 공개를 막지 않지만 수집 활성화는 막는다.
 
 ## 2026-09-21: 21개 출처 Discord·Hot batch 확장

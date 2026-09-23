@@ -3,7 +3,7 @@
 - 기준일: 2026-09-20
 - 현재 상태: 약관·개인정보처리방침 `v0.1` 운영 DB EFFECTIVE, Core·Web 기동, 공개 HTTPS 확인
 - 편집 정본: [M0 공개 정책](../../docs/legal/m0-core/README.md)
-- 실행 증거: [운영 배포 기록](../../worklog/task-list/09/20/infrastructure-setup/TASK-19.md)
+- 실행 증거: [운영 배포 기록](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)
 
 현재 M0는 로그인 없는 짤 열람·운영자 발행·정책·이메일 문의·누적 조회 수다.
 일반 회원·소셜 로그인·GA4·광고·자동 수집은 활성화하지 않았다. 후속 기능의 미확정 조건을

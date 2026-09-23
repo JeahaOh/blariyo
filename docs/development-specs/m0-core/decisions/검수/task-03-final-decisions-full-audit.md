@@ -2,7 +2,7 @@
 
 - 상태: 세부 결정 반영·전체 감사 완료 · 정정 권장 항목 남음
 - 기준일: 2026-09-03
-- 선행 기록: [사용자 결정 반영 및 재검수](./task-02-user-corrections.md)
+- 선행 기록: [사용자 결정 반영 및 재검수](task-02-user-corrections.md)
 - 변경 권한: 직전 보고의 세 가지 추천 결정을 확정값으로 정본과 관련 Spec에 반영한다.
 - Git 경계: 기존 사용자 변경을 보존하고 stage, commit, push는 수행하지 않는다.
 
@@ -56,7 +56,7 @@ Critical·High는 없다. 다음 불일치가 남아 있어 현 상태를 commit
 
 ### Medium
 
-1. `docs/publishing/responsive/index.html`의 404 설명이 `권리자 요청으로 검토 중`이라는 내부 사유를
+1. `docs/ui/publishing/responsive/index.html`의 404 설명이 `권리자 요청으로 검토 중`이라는 내부 사유를
    노출한다. planning과 D08의 원인 비노출 동일 404 계약에 맞춰 일반 문구로 정정해야 한다.
 2. 현재 responsive publishing·wireframe은 Kakao 운영값과 Web domain이 미확정인데도 카카오톡 버튼을
    기본 표시한다. 정본 계약처럼 기본 숨김으로 바꾸고 명시적 검토 모드에서만 표시해야 한다.

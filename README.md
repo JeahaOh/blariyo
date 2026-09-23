@@ -7,10 +7,15 @@
 - 현재 단계: M0 Core 운영 서버 배포·공개 연결 완료 (2026-09-20)
 - 공개 주소: https://blariyo.com/ · 공개 이미지: https://media.blariyo.com/
 - 현재 상태: Lightsail 서울 2GB에서 Nuxt Web/BFF·Nest Core·PostgreSQL·Nginx를 Cloudflare Tunnel로 연결했다. 정책 v0.1 발행, 공개 HTTPS, 암호화 R2 DB 백업과 격리 복원을 확인했다. 관리자 실제 로그인 후 작성·발행과 장기 운영 관찰은 남아 있다.
-- 운영 정본: [현재 운영 상태와 남은 작업](docs/implementation/operations/current-status.md), [운영 명령](deploy/operations/README.md), [TASK-19 배포 증거](worklog/task-list/09/20/infrastructure-setup/TASK-19.md).
-- 배포 방법: [최초 설치·재배포·복귀 실행서](docs/implementation/operations/deployment-runbook.md), [GitHub CI·배포 정책과 무중단 전환 조건](docs/implementation/operations/deployment-policy.md). CI workflow는 로컬 작성 상태이며 원격 실행·자동 CD는 별도다.
+- 운영 정본: [현재 운영 상태와 남은 작업](docs/operations/current-status.md), [운영 명령](deploy/operations/README.md), [TASK-19 배포 증거](worklog/2026-09-20/infrastructure-setup/TASK-19.md).
+- 배포 방법: [최초 설치·재배포·복귀 실행서](docs/operations/deployment-runbook.md), [GitHub CI·배포 정책과 무중단 전환 조건](docs/operations/deployment-policy.md). CI workflow는 로컬 작성 상태이며 원격 실행·자동 CD는 별도다.
 - 로컬 콘텐츠: [실제 HOT 25건 수집·초안 DB 저장](scripts/content/README.md). 운영 발행이나 운영 collector 활성화와 구분한다.
-- Nest 전환의 DONE_LOCAL 기록은 [최종 보고](docs/migration/REPORT.md)와 [진행 기록](docs/migration/PROGRESS.md)에 보존한다. Spring Collector·회원·광고·GA4·카카오는 이번 운영에서 활성화하지 않았다.
+- Nest 전환의 DONE_LOCAL 기록은 [최종 보고](worklog/2026-09-09/nest-transition/REPORT.md)와 [진행 기록](worklog/2026-09-09/nest-transition/PROGRESS.md)에 보존한다. Spring Collector·회원·광고·GA4·카카오는 이번 운영에서 활성화하지 않았다.
+
+## 현재 작업과 문서 탐색
+
+- [현재 진행 상태](docs/status.md) · [다음 작업과 완료 조건](docs/roadmap.md)
+- [전체 문서 안내](docs/README.md) · [날짜별 작업 기록](worklog/README.md)
 
 ## 문서 정본
 
@@ -52,11 +57,13 @@ blariyo/
     planning/               product and stage decisions
     system-design/          M0 implementation contracts
     legal/                  release-blocking policy drafts
-    publishing/             responsive publishing prototype
-    wireframes/             screen references
+    ui/                     publishing prototype and wireframes
+    operations/             operation procedures
+    testing/                verification and operator acceptance
+    status.md               current progress
+    roadmap.md              remaining work and completion gates
   worklog/
-    task-list/              task scopes and verification artifacts
-    session-log/            decision and review history
+    YYYY-MM-DD/task/        task, verification, decision and handoff records
 ```
 
 ## 로컬 실행
@@ -103,8 +110,8 @@ Web·API 이미지 빌드, 실제 실행과 백업 복구를 검증한다. 기�
 ## 검증
 
 전체 Nest 전환의 실행 진입점은 `npm run verify:migration`이다. 최종 PASS와 문서 감사·자원 정리가
-모두 끝나야 로컬 완료로 판정한다. 현재 결과와 실패 이력은 [진행 기록](docs/migration/PROGRESS.md),
-검증 대응은 [전환 계획](docs/migration/PLAN.md), 환경 준비는 [전환 보고](docs/migration/REPORT.md)를 따른다.
+모두 끝나야 로컬 완료로 판정한다. 현재 결과와 실패 이력은 [진행 기록](worklog/2026-09-09/nest-transition/PROGRESS.md),
+검증 대응은 [전환 계획](worklog/2026-09-09/nest-transition/PLAN.md), 환경 준비는 [전환 보고](worklog/2026-09-09/nest-transition/REPORT.md)를 따른다.
 
 ```sh
 nvm use 24.18.0
@@ -141,13 +148,13 @@ Docker 외부 HTTP는 전용 네트워크의 합성 저장소·CDN·인증 대�
 이 로컬 검증과 별도로 운영 R2 어댑터·공개 이미지·캐시 삭제 API, 정책 발행, 서버 배포,
 예약 작업의 단발 실행과 암호화 원격 백업 복원을 확인했다. 실제 관리자 로그인 후 전체 쓰기 흐름,
 CDN 캐시 전파, 외부 실패 알림, 7일 관찰, live Discord·실제 수집 출처는 미검증이다.
-세부 증거는 [현재 운영 상태](docs/implementation/operations/current-status.md)를 따른다. Kakao·GA4 gate는 유지한다.
+세부 증거는 [현재 운영 상태](docs/operations/current-status.md)를 따른다. Kakao·GA4 gate는 유지한다.
 
 ## 수집 보조
 
 이 절은 보존 커밋 `c788f18` 기준의 전환 전 Python/Core 구현과 검증 증거다. 최종 Spring 수집
 서버의 구현 완료나 운영 준비 완료를 뜻하지 않는다. 이번 legacy 호환 보완과 별도 Spring V2 범위는
-[수집 개발 명세의 전환 경계](docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md#spring-v2-전환과-이번-호환-보완의-경계)를 따른다.
+[수집 개발 명세의 전환 경계](docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md#spring-전환-job-계약과-검증-경계)를 따른다.
 
 `/admin/collect`에서 상세 URL 요청·후보 검수·이미지 선택과 설명·직접 대체 업로드·반려·재수집·
 초안 생성을 처리한다. `/admin/collect/sources`는 등록한 출처의 활성·robots 확인·요청 제한 설정이다.
@@ -213,7 +220,7 @@ root 소유 `0600` read-only artifact가 필요하다. 사업자 보류값·법�
   거부한다. 이전 subject→operatorId 객체는 목록으로 변환해야 한다. 외부 assertion은 Core에 중계하지 않는다.
 - `SITE_ORIGIN`, `IMAGE_ORIGIN`과 Web의 `NUXT_PUBLIC_SITE_ORIGIN`, `NUXT_PUBLIC_IMAGE_ORIGIN`을 맞춘다.
   이미지 URL은 `IMAGE_ORIGIN + '/' + storage key`로 계산하며 환경별 host/base와 저장 path를 분리한다.
-  local/dev/stage/prod 예시는 [환경별 설정과 이미지 URL 계약](docs/implementation/operations/environment-configuration.md)을 따른다.
+  local/dev/stage/prod 예시는 [환경별 설정과 이미지 URL 계약](docs/operations/environment-configuration.md)을 따른다.
 - 실제 법무·문의 공개값은 Web의 `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME`, `NUXT_PUBLIC_CONTACT_EMAIL`,
   `NUXT_PUBLIC_RIGHTS_EMAIL`, `NUXT_PUBLIC_PRIVACY_EMAIL`, `NUXT_PUBLIC_PRIVACY_OFFICER`에 주입한다.
 - `NUXT_TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip`는 Tunnel 밖 origin 직접 접근을 차단한 배포에서만 사용한다.
@@ -234,12 +241,12 @@ root 소유 `0600` read-only artifact가 필요하다. 사업자 보류값·법�
 ## 주요 결정 기록
 
 - [작업 기록 안내](worklog/README.md)
-- [세션 기록 규칙](worklog/session-log/README.md)
-- [PostgreSQL 전환 결정](worklog/session-log/2026-08-14-postgresql-transition.md)
-- [planning·system-design 경계 재검토](worklog/session-log/2026-08-14-planning-system-design-boundary-review.md)
-- [게시판·권리 정책 정정](worklog/session-log/2026-08-12-board-policy-correction.md)
+- [세션 기록 규칙](worklog/2026-09-23/directory-reorganization/previous-session-log-index.md)
+- [PostgreSQL 전환 결정](worklog/2026-08-14/session/postgresql-transition.md)
+- [planning·system-design 경계 재검토](worklog/2026-08-14/session/planning-system-design-boundary-review.md)
+- [게시판·권리 정책 정정](worklog/2026-08-12/session/board-policy-correction.md)
 
 
 ## M0 Core + Spring 수집 보조 진행
 
-이전 `feature/m0-core`의 [1~7 완료 조건](docs/implementation/m0-completion/acceptance.md), [실행 검증 기록](docs/implementation/m0-completion/evidence.md), [Spring 설치·복구 안내](apps/collector/ops/README.md)를 참고한다. 로컬 통과와 실제 운영 전환·7일 관찰은 별도이며 전체 완료로 표시하지 않는다.
+이전 `feature/m0-core`의 [1~7 완료 조건](worklog/2026-09-08/core-spring-acceptance/acceptance.md), [실행 검증 기록](worklog/2026-09-09/core-spring-verification/evidence.md), [Spring 설치·복구 안내](apps/collector/ops/README.md)를 참고한다. 로컬 통과와 실제 운영 전환·7일 관찰은 별도이며 전체 완료로 표시하지 않는다.

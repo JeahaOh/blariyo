@@ -8,7 +8,7 @@
 개발 입력으로 사용할 제품·기술 계약이 정리됐다는 뜻이다. 구현 수용은 source·migration·자동화
 test·build·DB와 외부 adapter 실행 증거를 충족한 상태다. production 공개 승인은 운영 실값·법무·
 복구 훈련·실제 서비스 검증까지 끝난 상태다. 앞 단계가 끝나도 뒤 단계가 자동으로 완료되지 않는다.
-단계별 적용 범위와 선행 관계의 과거 정의는 [설계 기준선 manifest](../baselines/README.md)를 참고한다.
+단계별 적용 범위와 선행 관계의 과거 정의는 [설계 기준선 manifest](../../worklog/2026-09-08/design-baselines/README.md)를 참고한다.
 해당 design tag는 삭제됐으므로 현행 Git 기준선으로 사용하지 않는다. 현재 정본과 구현 상태는 실제
 branch·commit·source·migration·test·build·runtime을 다시 조회해 판정한다.
 
@@ -16,8 +16,8 @@ branch·commit·source·migration·test·build·runtime을 다시 조회해 판�
 
 | 범위 | 설계 기준선 | 구현 수용 | production 공개 승인 |
 | --- | --- | --- | --- |
-| M0 Core | 조건부 확정 가능. 공개 짤·수동 운영·정책·복구 계약을 개발 입력으로 사용 가능 | main의 Nest/TypeORM 전환은 필수 로컬 종합 검증·감사·자원 정리를 마친 DONE_LOCAL이다. 기존 schema/API·독립 복원·실제 브라우저·production Docker 증거는 [최종 보고](../migration/REPORT.md)를 따른다 | 차단. 법무 실값·처리 근거·실수탁자·production 계정·복구 훈련 필요 |
-| M0 수집 보조 | 조건부 확정 가능. Spring 상세 계약을 개발 입력으로 사용 가능 | Nest 최종 종합 실행에서 실제 Spring·별도 DB·Batch/Quartz·Core/BFF/브라우저, 6개 응답 유실·12개 Step 경계·암호화 복원을 통과했다. [최종 보고](../migration/REPORT.md)의 로컬 수용 범위이며 실제 운영 수용은 별도다 | 차단. 실제 출처·robots·이용 조건, Discord 계정·User-Agent 연락처, 법무·운영 수용 필요 |
+| M0 Core | 조건부 확정 가능. 공개 짤·수동 운영·정책·복구 계약을 개발 입력으로 사용 가능 | main의 Nest/TypeORM 전환은 필수 로컬 종합 검증·감사·자원 정리를 마친 DONE_LOCAL이다. 기존 schema/API·독립 복원·실제 브라우저·production Docker 증거는 [최종 보고](../../worklog/2026-09-09/nest-transition/REPORT.md)를 따른다 | 차단. 법무 실값·처리 근거·실수탁자·production 계정·복구 훈련 필요 |
+| M0 수집 보조 | 조건부 확정 가능. Spring 상세 계약을 개발 입력으로 사용 가능 | Nest 최종 종합 실행에서 실제 Spring·별도 DB·Batch/Quartz·Core/BFF/브라우저, 6개 응답 유실·12개 Step 경계·암호화 복원을 통과했다. [최종 보고](../../worklog/2026-09-09/nest-transition/REPORT.md)의 로컬 수용 범위이며 실제 운영 수용은 별도다 | 차단. 실제 출처·robots·이용 조건, Discord 계정·User-Agent 연락처, 법무·운영 수용 필요 |
 | M0 자동 수집 | 후속 범위만 확정. 출처별 목록·feed·상한을 정하기 전 상세 기준선 대상 아님 | 미구현·미검증 | 비활성. 출처별 사용 결정 전 공개하지 않음 |
 | M1 회원 | 조건부 확정 가능. 직접 입력 생년월일 원문 미보관, TERMS·SIGNUP_PRIVACY, 계정·연동·탈퇴 계약을 개발 입력으로 사용 가능 | 미검증. provider·DB 경쟁·cookie·탈퇴 worker·복원 시험 필요 | 차단. 실제 provider 앱·callback·secret, 동의 전문 운영값, 연령·보존·국외이전 법무 검토 필요 |
 | M1.5 익게 | 조건부 확정 가능. 글 단위 이름, 탈퇴 KEEP, ACTIVE 제재 predicate, Unicode code point 계약을 개발 입력으로 사용 가능 | 미검증. API·DB 제약·동시성·worker·UI·관리자 수용 시험 필요 | 차단. M1 gate, 약관 시행, 신고·ledger 보존 근거, 이의제기 실값·운영 수용 필요 |

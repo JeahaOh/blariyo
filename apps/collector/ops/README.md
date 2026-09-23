@@ -3,7 +3,7 @@
 현재 구현·테스트 단계다. 실제 출처·Discord·운영 PC 값과 7일 관찰 전에는 운영 완료가 아니다.
 
 현행 direct batch는 [직접 저장 batch 실행](#직접-저장-batch-실행)과
-[환경별 연결·권한](../../../docs/implementation/operations/environment-configuration.md#9-core-연결과-direct-batch-검수의-실행-경계)을 따른다.
+[환경별 연결·권한](../../../docs/operations/environment-configuration.md#9-core-연결과-direct-batch-검수의-실행-경계)을 따른다.
 아래 legacy 운영 절의 Core 전송·별도 collector DB·spool 명령은 기존 호환 코드에 해당하며
 새 direct batch 실행 절차가 아니다. 새 batch는 같은 PostgreSQL database에 제한 role로 직접 저장한다.
 
@@ -16,7 +16,7 @@ Node 24.18.0·Java 25와 격리 PostgreSQL 18을 준비하고 저장소 루트�
 
 [CI workflow](../../../.github/workflows/ci.yml)의 `collector` job은 같은 검사 뒤 `bootJar fixtureClasspath`로
 JAR·SBOM을 만들고 검사 artifact를 보관한다. 원격 실행, Windows·별도 PC, 운영 설치·외부 연동 완료와는
-구분한다. 자세한 DB 제한과 명령은 [테스트 실행서](../../../docs/implementation/testing/README.md#실행-환경)를 따른다.
+구분한다. 자세한 DB 제한과 명령은 [테스트 실행서](../../../docs/testing/README.md#실행-환경)를 따른다.
 
 ## Legacy 호환 서버 설정과 기동
 

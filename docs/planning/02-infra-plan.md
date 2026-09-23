@@ -4,7 +4,7 @@
 - 기준일: 2026-09-03
 - 정합성 검토일: 2026-09-20 (운영 사업자 선택 반영)
 - 역할: 배포 방향·비용 경계·공급자 선택을 정의한다. 스키마, API payload, container 자원값과 운영 명령은 정의하지 않는다.
-- 관련 문서: [서비스 기획서](./01-service-plan.md), [콘텐츠 수집 기획](./content-collection/README.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
+- 관련 문서: [서비스 기획서](01-service-plan.md), [콘텐츠 수집 기획](content-collection/README.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
 
 ## 1. 문서 경계
 
@@ -122,7 +122,7 @@ planning을 확정하고 system-design을 대조한다. 수집 계약은 M0 전�
 ## 9. 배포 전에 확정할 운영값
 
 공개 도메인·R2·Access·내부 인증·DB 설정은 운영에 주입했다. 값 원문은 저장소에 두지 않는다.
-현재 증거와 잔여 항목은 [운영 상태](../implementation/operations/current-status.md)에서 추적한다.
+현재 증거와 잔여 항목은 [운영 상태](../operations/current-status.md)에서 추적한다.
 아래 목록 중 외부 알림은 미구성이고, 카카오·수집 입력은 해당 기능 활성화 전 조건이다.
 
 - 실제 service domain

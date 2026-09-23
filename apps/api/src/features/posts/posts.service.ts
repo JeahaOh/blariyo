@@ -17,6 +17,7 @@ import { Storage } from '../../shared/storage.js';
 import { UnitOfWork } from '../../shared/unit-of-work.js';
 import { fail, validId, validSlug, pagination } from '../../shared/errors.js';
 import { canonical } from '../../shared/canonical.js';
+import { schemaValidator } from '@blariyo/contracts';
 export const POST_ORIGINS = Symbol('POST_ORIGINS');
 export interface PostOrigins {
   siteOrigin: string;
@@ -88,6 +89,7 @@ export class PostsService {
     });
   }
   private async createDraft(body: CreatePost, actor: string) {
+    if (!schemaValidator({ $ref: '#/components/schemas/CreatePostRequest' })(body)) fail(400, 'VALIDATION_FAILED');
     if (!validSlug(body.boardSlug)) fail(404, 'BOARD_NOT_FOUND');
     const board = await this.repository.postingBoard(body.boardSlug);
     if (!board) fail(404, 'BOARD_NOT_FOUND');
@@ -152,7 +154,7 @@ export class PostsService {
         for (const image of attached) {
           const ext = image.mime.split('/')[1]?.replace('jpeg', 'jpg');
           if (!ext) throw new Error('INVALID_IMAGE_MIME');
-          const publicKey = `posts/${post.id}/${image.id}-${image.hash.toString('hex')}.${ext}`;
+          const publicKey = `content/published/posts/${post.id}/${image.id}-${image.hash.toString('hex')}.${ext}`;
           promoted.push({ image, key: publicKey });
           try {
             await this.storage.promote(image.privateKey, publicKey);

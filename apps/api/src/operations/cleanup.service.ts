@@ -42,7 +42,7 @@ export class CleanupService {
     for (const bucket of ['private', 'public'] as const) {
       for (const object of await this.storage.inventory(bucket)) {
         if (Date.now() - object.createdAt.getTime() < 86400000) continue;
-        if (bucket === 'private' && !object.key.startsWith('staging/') && !object.key.startsWith('collect-preview/')) continue;
+        if (bucket === 'private' && !object.key.startsWith('staging/') && !object.key.startsWith('content/private/staging/') && !object.key.startsWith('collect-preview/')) continue;
         const collectionPreview = bucket === 'private' && object.key.startsWith('collect-preview/');
         if (collectionPreview && !collectionAvailable) continue;
         const removeOrphan = async () => {
@@ -57,7 +57,7 @@ export class CleanupService {
           }
           if (!referenced) await this.storage.delete(bucket, object.key);
         };
-        const postId = bucket === 'public' && /^posts\/(\d+)\//.exec(object.key)?.[1];
+        const postId = bucket === 'public' && /^(?:posts|content\/published\/posts)\/(\d+)\//.exec(object.key)?.[1];
         if (postId) await this.work.lock(`post-storage:${postId}`, removeOrphan);
         else await removeOrphan();
       }

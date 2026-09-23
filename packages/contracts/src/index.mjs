@@ -125,12 +125,20 @@ export function normalizeInput(value) {
     return Object.fromEntries(
       Object.entries(object(value)).map(([key, item]) => [
         key,
-        typeof item === 'string' && ['title', 'text', 'alt', 'name', 'titlePrefix'].includes(key)
+        typeof item === 'string' && ['url', 'remoteUrl'].includes(key) && /^https?:\/\//.test(item)
+          ? normalizeUrl(item)
+          : typeof item === 'string' && ['title', 'text', 'alt', 'name', 'titlePrefix'].includes(key)
           ? item.trim()
           : normalizeInput(item),
       ])
     );
   return value;
+}
+/** Normalize Unicode paths without weakening subsequent URI/HTTPS validation.
+ * @param {string} value
+ */
+function normalizeUrl(value) {
+  try { return new URL(value).href; } catch { return value; }
 }
 /** @param {Operation} operation @param {number} status @param {unknown} value @returns {unknown} */
 export function projectResponse(operation, status, value) {

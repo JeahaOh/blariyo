@@ -1,11 +1,10 @@
 import { CollectionPromotionService } from './collection-promotion.service.js';
-import { Controller, Get, Post, Patch, Inject, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Inject, UseGuards } from '@nestjs/common';
 import { AdminGuard, Actor } from '../../http/auth.guard.js';
 import { ContractPipe, Input, stringField, type RequestInput } from '../../http/contracts.js';
 import { HttpResult, BinaryResult } from '../../http/response.js';
 import { CollectionEnabledGuard, CollectionMaintenanceGuard } from './collection-admin.guard.js';
 import { CollectionService } from './collection.service.js';
-import { BatchResultRepository } from './batch-result.repository.js';
 import {
   promotionBody,
   sourceDto,
@@ -19,8 +18,7 @@ import {
 export class CollectionController {
   constructor(
     @Inject(CollectionService) private readonly service: CollectionService,
-    @Inject(CollectionPromotionService) private readonly promotion: CollectionPromotionService,
-    @Inject(BatchResultRepository) private readonly batchResults: BatchResultRepository
+    @Inject(CollectionPromotionService) private readonly promotion: CollectionPromotionService
   ) {}
   @Post('candidates/:candidateId/draft') async draft(
     @Input(ContractPipe) input: RequestInput,
@@ -106,12 +104,6 @@ export class CollectionController {
       200,
       'private, no-store'
     );
-  }
-  /** Batch-owned rows are read-only here; promotion still goes through the existing approval flow. */
-  @Get('batch-items/:itemId') async batchItem(@Param('itemId') itemId: string) {
-    const row = await this.batchResults.find(itemId);
-    if (!row) return new HttpResult({ code: 'BATCH_ITEM_NOT_FOUND' }, {}, 404, 'private, no-store');
-    return new HttpResult({ item: row }, {}, 200, 'private, no-store');
   }
   @Get('candidates/:candidateId/images/:candidateImageId/preview') async preview(
     @Input(ContractPipe) input: RequestInput

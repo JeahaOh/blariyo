@@ -21,9 +21,11 @@
 ## 2. 목표와 대상 milestone
 
 운영자가 관리자 화면 또는 Discord `/collect url`로 등록·활성 출처의 단일 상세 페이지 원문 URL을
-한 건 입력하면, 운영자 로컬 컴퓨터의 collector가 제목과 이미지 후보 metadata를 추출해 BE에 제출하고
-운영자가 검수·반려·초안 승격을 수행하게 한다. BE·FE는 외부 사이트를 직접 fetch하지 않는다. 수집
-결과는 자동 발행하지 않고, `M0 Core`의 수동 작성·발행 경로를 재사용한다.
+한 건 입력하면, 별도 컴퓨터의 batch가 확인 후 공통 대기열을 통해 원문 본문·이미지·첨부·SNS 링크를
+수집해 collect DB/object에 직접 저장한다. API는 운영자의 검수·반려·초안 승격과 별도 발행을 처리한다.
+API·Web은 외부 원문 사이트를 fetch하지 않으며 batch는 글마다 API에 결과를 전송하지 않는다.
+아래 초기 candidate/metadata/preview 절은 legacy 호환 계약이다. 현행 direct batch에는 문서 후반의
+2026-09-21 자동 수집 확장과 2026-09-23 batch 고도화·Discord queue 계약을 적용한다.
 
 ## 3. 행위자와 진입 조건
 
@@ -958,7 +960,8 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 #### 미정·차단·미검증
 
 - 결정 필요: 실제 실행 PC·전용 OS 계정·설치 경로, 선택 JDK 배포판의 운영 조건.
-- 결정 필요: 첫 출처별 parser package와 fixture 위치.
+- 구조 결정: 출처별 parser package와 테스트 배치는 [사이트별 모듈 계약](../../../system-design/08-code-structure.md#collector-site-modules)을 따른다.
+  현재 중첩 클래스의 파일 분리는 미완료이며 기존 fixture 경로는 전환 과정에서 보존한다.
 - 차단: 출처별 source spec의 운영 위험·robots 확인 전 production 활성화 불가.
 - 미검증: source, Discord Gateway·Slash Command, 실제 출처 fetch, Core/local migration, OpenAPI, contract·fault test, build, runtime.
 
@@ -982,6 +985,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - legacy 수동 Spring 경로는 service DB·object storage credential을 갖지 않고 Core API로 후보·preview를 변경한다. direct
   batch 경로는 별도 batch DB role과 `collect/raw`, `collect/media`, `collect/report` object-store prefix만 사용한다.
   어느 경로도 title·origin URL·HTML·image binary·token·절대 경로를 일반 로그에 남기지 않는다.
+- 승인된 수집 결과를 `/meme` 공개 화면에 노출하는 것은 batch가 아니라 API 검수·승격 단계의 책임이다. 승격 단계는 `collect/media/*`를 public key로 직접 쓰지 않고, 이미지를 `content/published/posts/{postId}/{imageId}-{sha256}.{ext}`로 복사한 뒤 `content.board_post_image.public_storage_key`에 저장한다.
 - 구현 수용은 여섯 Step checkpoint, same-key replay, stale execution fencing, Core quota/permit, spool TTL, stop·restart·reconcile, REST·Discord·Quartz 공통 경로와 legacy drain을 07의 수용 시험으로 검증한다.
 - source·migration·OpenAPI 구현과 격리 환경 test·build·runtime 결과는 [M0 검증 기록](../../../implementation/m0-completion/evidence.md)에 기록한다. 실제 출처·Discord·운영 배포·법무 승인·7일 관찰은 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정만으로 Spring 전체 완료를 판단하지 않는다.
 
@@ -1017,20 +1021,92 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - Discord는 권한 검증→registry 출처·상세 URL 확인→확인 버튼→동일 registry 재검사→후보 접수→공통 queue.
   Core 숫자 sourceId와 파일의 source key를 같은 값으로 가정하지 않는다.
 - batch CLI는 유효한 옵션·출처 정책 gate→robots→목록 parser→페이지/기간/글 수 제한→canonical/post key 중복 제거
-  →상세 parser→`collect.batch_*`와 batch object store 저장 순으로 처리한다. `HOT_LIST`만 목록을 조회하고,
+  →상세 parser→`collect.batch_*`와 batch object store 저장 순으로 처리한다. `HOT_LIST`(hot)와 `GENERAL_LIST`(latest)의 검증된 목록을 조회하고,
   `DETAIL_ONLY`는 상세 URL만 처리하며 `BLOCKED`·`UNVERIFIED`는 실행하지 않는다. dry-run은 DB와 object store를 쓰지 않는다.
 - 21개 중 parser/fixture/robots/정책이 미확인인 출처는 blocked 코드로 보고한다.
   BLOCKED adapter에 OG metadata fallback을 제공하지 않는다. 파일 링크 보존과 binary 다운로드 성공을 구분한다.
+- 사진 후보는 lazy-load 속성(`data-src`, `data-original`, `data-original-src`, `data-lazy-src`), `srcset`/`data-srcset`,
+  CSS `background-image`까지 파싱하되 허용 CDN policy를 통과한 URL만 저장한다.
+- mp4/mov/mp3/wav는 아직 수집기 object store에 다운로드하지 않는다. 원문 내 URL은 LINK 블록으로 보존하고,
+  추후 영상 보존 정책·용량·저작권·트랜스코딩·플레이어 계약이 정리된 뒤 별도 attachment kind로 확장한다.
+- Hot/Top 목록은 공지/필독/운영 안내 row를 제외한다. 구조적 notice class·badge·제목 prefix를 기준으로 하며,
+  일반 게시글 제목 중간의 단어만으로는 제외하지 않는다.
 - 수용: registry 오매핑, query robots, 반복 pagination, 0건/삭제/차단/빈 본문/이미지 없음/SNS-only,
   중복·since·상한·간격·재시도·dry-run 무쓰기·DB readback·Discord 확인 전 무쓰기를 검사한다.
   CLI exit 0은 해당 실행 계약 성공일 뿐 21개 전체 완료를 뜻하지 않는다.
+
+### 사이트별 모듈 분리 수용 기준
+
+- 구현 기준은 [코드 구조의 사이트별 모듈 계약](../../../system-design/08-code-structure.md#collector-site-modules)이다.
+  현재 `SiteAdapters.java`의 중첩 클래스와 `list`·`detail` 메서드 분리는 논리적 책임 분리이며,
+  사이트별 패키지·독립 parser 파일 분리까지 끝난 것으로 보고하지 않는다.
+- 사이트 adapter는 URL 식별·canonical·source post key와 parser 조합을 맡는다. 지원하는 목록 parser와
+  상세 parser는 별도 파일·fixture 테스트로 분리하고, 본문 순서 보존 등 공통 처리는 재사용한다.
+  목록 미지원 사이트는 미지원 사유와 상세 전용 정책을 유지하며 형식적인 목록 parser로 통과시키지 않는다.
+- parser는 입력 HTML/API 응답만 해석한다. 네트워크·queue·중복 조회·재시도·DB/S3 저장·report는 공통 계층이 맡는다.
+  사이트별 수정은 해당 fixture를 우선 검증하고 공통 처리 수정은 영향받는 전체 사이트 fixture를 검증한다.
+- 분리 전후 본문·이미지·첨부·SNS·canonical/post key 결과 보존과 공통 runner 회귀를 확인한다.
+  파일 분리·fixture 통과와 live URL·DB/S3 readback·Discord Gateway 완료 판정은 각각 기록한다.
 
 ### 현재 실행 계약
 
 - OpenAPI의 candidate 생성은 선택 `discoveryMode`(기본 MANUAL_URL, 추가 LIST_CRAWL)를 받는다.
   목록 quota 예약은 `discovery:true`, requestKind ROBOTS/LIST/REDIRECT이며 candidateId/lockVersion을 보내면 거부한다.
-- V007은 기존 API 후보 호환을 위한 migration이다. direct batch는 collector V002의 `collect.batch_*`를 직접 쓰며,
+- V007은 기존 API 후보 호환을 위한 migration이다. direct batch는 collector V002/V003/V004의 `collect.batch_*`를 직접 쓰며,
   글마다 Core API를 호출하지 않는다. batch DB role과 API 조회 role을 분리하고 서비스 DB credential을 batch에 배포하지 않는다.
 - API 결과 NEW는 검수 대기이며 게시 완료가 아니다. batch CLI QUEUED는 상세 완료가 아니다.
   캡처한 원본 HTML의 격리 DB readback은 live 목록→상세→이미지 다운로드 E2E를 대체하지 않는다.
 - 이 명세의 이전 MANUAL_URL 전용 설명은 URL 접수 기준이다. 목록 CLI 확장에는 이 절과 최신 OpenAPI를 적용한다.
+
+
+## 2026-09-23 batch 고도화 계약
+
+- 원문/초안/편집/공개 응답은 최대 1000블록을 보존한다. TEXT 블록 20,000자, 이미지 200개, HTTP 요청 크기 제한은 별도로 검증한다. 한도 초과를 잘라 성공시키지 않는다.
+- 출처 URL은 HTTPS URL로 검증한 뒤 URL 직렬화(percent encoding)하여 저장·응답한다. 이미 인코딩된 URL은 중복 인코딩하지 않는다.
+- 기존 로컬 공개 파일은 hash/size/MIME/dimensions/decode 대조 뒤 private 사본을 복구할 수 있다. 복구 manifest와 compare-and-set을 사용하고 기존 파일을 덮어쓰지 않는다. 이는 정식 batch 승격 검증을 대체하지 않는다.
+- direct batch 검수 API는 [2026-09-23 direct batch 구현 계약](../../../system-design/07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약)을 따른다. legacy candidate 상태를 batch item 상태로 재사용하지 않는다.
+
+### Batch 검수 snapshot과 제목 보정
+
+REVIEWING 시 원문/미디어 snapshot digest를 고정한다. 승인·승격에서 내용 또는 media hash/key가 바뀌면
+BATCH_ITEM_VERSION_CONFLICT로 거부하고 재검수를 요구한다. 목록 조회는 개별 본문 검증과 분리해 손상된
+본문 하나가 목록 전체를 막지 않게 한다. DRAFT 응답은 게시글 lockVersion과 reviewLockVersion을 구분한다.
+운영자는 초안 승격 요청에 title(1~200자)을 지정할 수 있다. 생략한 원문 제목이 한도를 넘으면 실패한다.
+
+수집 이미지 미리보기와 초안 승격은 동일한 수집 전용 이미지 검증을 사용한다. 파일당 30MiB,
+최대 500프레임, 한 프레임 40,000,000픽셀을 유지한다. 전체64Mi픽셀 초과 GIF/WebP는
+[분할 검사 계약](../../../system-design/07-spring-collector-design.md#큰-수집-애니메이션의-분할-검사)의 순차 전체프레임 검사·컨테이너 정제를 적용하며 총200,000,000프레임픽셀을 넘으면 거부한다. 일반 수동 업로드의 200프레임 제한은 유지한다. GIF 중복 프레임·지연·반복 정보를
+보존하며 첫 프레임만 추출해 성공 처리하지 않는다. 검수 화면의 이미지 실패 안내는 원문 확인
+링크를 제공하고 일부 이미지 실패를 정상 preview로 표시하지 않는다.
+
+### Batch 저장 실행 소유권
+
+Collector V003은 source당 RUNNING 하나와 session 잠금 연결의 쓰기 권한을 강제한다.
+연결 상실 뒤 새 pool 연결로 이어 쓰지 않으며, 완료 run/FETCHED item/media는 수정하지 않는다.
+재시도 object는 실행별 prefix로 분리해 이전 실행의 늦은 PUT이 새 실행을 덮어쓰지 못한다.
+report key/hash/행 수와 checkpoint는 run 종료와 같은 transaction에 기록하고 실제 object를 readback한다.
+V004에서는 상세 fetch 전 item을 FETCHING claim하고 fetch/parse 실패를 개별 FAILED/BLOCKED와
+실패 phase/code로 기록한다. 날짜 제외는 SKIPPED_POLICY와 skipReason으로 구분한다.
+API 목록·상세의 failureCode/skipReason은 검수 화면에 표시하며 FETCHED 외 상태는 승격하지 않는다.
+기존 item 없는 failure 행은 과거 증거로 유지한다.
+
+## 2026-09-23 Discord direct queue 정렬
+
+Discord 확인은 batch 소유 confirmation/queue에 원자적으로 접수한다. request와 실행 attempt를 분리하여 중복 확인·중단 후 재개를 처리하며, 수집은 API 호출 없이 공통 상세 parser와 DB/object pipeline을 사용한다. source lock·version·최대 3회 재시도·30초 지수 backoff를 적용하고 차단/삭제/parser/크기 제한/rate-limit은 자동 재시도하지 않는다. 실제 Gateway 검증은 독립 완료 조건으로 유지한다. 상세 계약은 Spring 수집 설계의 Direct batch Discord 대기열 계약을 따른다.
+
+
+## 2026-09-23 다중 이미지와 수집 용량 계약
+
+- 처리 시간과 응답 유실 재시도는 [다중 이미지 시간 계약](../../../system-design/07-spring-collector-design.md#2026-09-23-다중-이미지와-수집-용량-계약)을 따른다. Web은 초안 180초·preview 60초를 기다리고, API는 이미지 준비 단계의 120초 예산 초과를 검사해 사본을 회수한다. 같은 멱등 키와 본문을 사용해야 확정된 기존 초안을 안전하게 돌려받는다.
+- direct batch는 원문 이미지 최대 200개, 첨부 최대 20개, 본문 최대 1000블록을 보존한다. 초과한 원문을 잘라 성공 처리하지 않는다.
+- source 설정 `mediaLimits`의 `maxImages`(1~200), `maxFileBytes`(1~31457280), `maxTotalBytes`(1~157286400)는 생략하면 각 상한을 기본값으로 사용한다. 사이트별로 낮출 수 있고 전역 상한을 높일 수 없다.
+- 파일당 30MiB, 이미지와 첨부를 합친 글당 150MiB를 순차 다운로드 중 검증한다. 남은 용량을 넘는 파일은 object 저장 전에 실패한다. HTML 원문 30MiB 제한은 별도다.
+- API 수집 이미지 preview/초안 승격은 동일한 30MiB 입력 한도를 사용한다. 승격 전에 모든 media의 크기 합계 150MiB를 확인하며, 재인코딩한 이미지도 개별 30MiB·합계 150MiB를 넘으면 쓰기 전에 거부한다. 이미 준비한 사본은 기존 실패 복구 경로로 회수한다.
+- 일반 관리자 업로드 요청의 파일당 10MiB·요청당 10개/100MiB와 이미지 픽셀·애니메이션 디코딩 한도는 유지한다. 게시글 편집 계약은 200장까지 허용해 수집 초안을 내용 손실 없이 편집할 수 있다.
+- 레거시 candidate/metadata 선택 이미지 20개 계약과 direct batch를 구분한다. DB migration으로 기존 결과를 강제로 성공 처리하지 않는다.
+- 인벤의 본문 바깥 첨부 영역과 일반 텍스트 파일 URL은 [인벤 첨부 계약](../../../system-design/07-spring-collector-design.md#인벤-첨부-영역과-파일-참조)을 따른다. 다운로드 아이콘은 본문 이미지에 넣지 않으며 반복된 파일 URL은 LINK를 보존하면서 파일 저장만 한 번 수행한다.
+- `SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED`는 해당 글 실패이며 다음 글 수집을 중단시키는 사이트 오류로 누적하지 않는다.
+- 검증은 20장 초과 성공, 200장 경계와 201장 실패, 설정 상한 거부, 전체 용량 초과 무쓰기, 승격 실패 복구, 실제 실패 글 재수집·DB/object readback을 각각 증거로 남긴다.
+
+
+과거 완료 IMAGE의 MIME 정정은 [Batch V006 계약](../../../system-design/07-spring-collector-design.md#batch-v006-완료-이미지-mime-정정)을 따른다. runtime은 완료 media를 수정할 수 없으며, 소유자 전용 감사 함수가 파일 검증 manifest의 기대값과 일치하는 MIME만 정정한다. API 검수 digest가 달라진 미승격 결과는 재검수가 필요하다.

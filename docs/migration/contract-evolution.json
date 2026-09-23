@@ -1,0 +1,43 @@
+{
+  "asOf": "2026-09-23",
+  "specifications": [
+    "docs/system-design/07-spring-collector-design.md",
+    "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+    "docs/development-specs/m0-core/openapi/m0-core.yaml"
+  ],
+  "amendedContracts": {
+    "packages/contracts/openapi/m0-collection-assist.yaml": {
+      "baselineSha256": "9f31e550f30a7f80c119b7ed0e553e22bb60211507a51a4a8faecabfa976be17",
+      "sha256": "7aaebb4f03c7332bf46e4cc2892fae754ff012dd08c3e68189c0c62fe6ec5c1d",
+      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source."
+    },
+    "packages/contracts/openapi/m0-core.yaml": {
+      "baselineSha256": "d3744e62c7a4ce714d7b34be2b9c22f864794ba445e72153423f75706877de60",
+      "sha256": "6fca891507082f908bb9b4f0ed2d17f6823ff97eafcdd84fe59bb2fd0f28a73a",
+      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source."
+    },
+    "packages/contracts/src/collection-api.d.ts": {
+      "baselineSha256": "03dcac61af757e7d58f52fd02b79e80b5a0cd4cdf1eadcb134fc50eb4930b1f5",
+      "sha256": "940d6676589d40d5fc084c32d22e7a75a8ad6073f2acc82550b7581094039303",
+      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source."
+    },
+    "packages/contracts/src/schema.mjs": {
+      "baselineSha256": "e43249c0dc4d11da8ef9c00b9c5f97a35b644f8bced633134493b9e15aedc8c4",
+      "sha256": "67859959792c57e49d0c3ae08180a5b40c72ef92099bf4b29786f5d5974f606f",
+      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source."
+    }
+  },
+  "addedMigrations": {
+    "apps/api/migrations/V006__collection_content.down.sql": "9888b33a2b259a3046f28f4617be1350d5691c97f309f25d9819a02dc0331374",
+    "apps/api/migrations/V006__collection_content.sql": "2e5e842bf6ac63947bb004afa3ca9e9b1cc3da628f6276ceff6b855edc866acc",
+    "apps/api/migrations/V007__collection_discovery.down.sql": "1b2b9dc21b23d07b13294f8ec598e347971308bda4123955572f7727c170c016",
+    "apps/api/migrations/V007__collection_discovery.sql": "dda8a1ac947d62adfdf4bde41ba9f05262a13fb5dd89850bc438284513181378",
+    "apps/api/migrations/V008__batch_review.down.sql": "f4288a5a1ad7db00f8842a68a3d9714de187fbf7a6e15933e1d26f9698eacc8c",
+    "apps/api/migrations/V008__batch_review.sql": "c92e98be23a0e0976ed75381f2da0d78227b1891a02c8c253257eade766e0251",
+    "apps/collector/src/main/resources/db/collector-v002.sql": "91dbe732b97cf27e16fec72e5510d94811b17b7ab1c16f26733a8333a446393b",
+    "apps/collector/src/main/resources/db/collector-v003.sql": "4c9ffece0d9a5d234aaaa637e6449d6de2d09228d06eb1a67aa72c1166a18e84",
+    "apps/collector/src/main/resources/db/collector-v004.sql": "6a175550e3e978cfc305ce61ddfb6f78db44b53962d0b42d719a27118c51c79a",
+    "apps/collector/src/main/resources/db/collector-v005.sql": "dc1eca00a275e9cfe2692acd53ce7334a37bd2d4e36ab5357d3fcc50e628fb3c",
+    "apps/collector/src/main/resources/db/collector-v006.sql": "667212ed76ebdc1adb4954676196ff0e48ebd412bdf6614f4ed0bdea084a3a9f"
+  }
+}

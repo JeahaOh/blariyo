@@ -54,7 +54,7 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
   await service.migrate();
   assert.equal(await health.ready(true), true);
   assert.equal(
-    requiredRow(await source.query("SELECT ops.is_schema_ready('V007') AS ready")).ready,
+    requiredRow(await source.query("SELECT ops.is_schema_ready('V008') AS ready")).ready,
     true
   );
   assert.equal(
@@ -76,14 +76,15 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
     ).count,
     '0'
   );
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 8; i++) {
     await service.migrate('down');
-    if (i === 0) {
+    if (i === 0) assert.equal(requiredRow(await source.query("SELECT to_regclass('collect.batch_review') value")).value, null);
+    if (i === 1) {
       assert.equal(requiredRow(await source.query("SELECT to_regclass('collect.source_discovery_policy') value")).value, null);
       assert.equal(await health.ready(true), false);
       assert.equal(await health.ready(false), true);
     }
-    if (i === 1) {
+    if (i === 2) {
       assert.equal(
         requiredRow(
           await source.query(
@@ -95,13 +96,13 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
       assert.equal(await health.ready(true), false);
       assert.equal(await health.ready(false), true);
     }
-    if (i === 2)
+    if (i === 3)
       assert.equal(
         requiredRow(await source.query("SELECT to_regclass('collect.collector_receipt') value"))
           .value,
         null
       );
-    if (i === 3) {
+    if (i === 4) {
       assert.equal(
         requiredRow(await source.query("SELECT to_regnamespace('collect') value")).value,
         null
@@ -109,13 +110,13 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
       assert.equal(await health.ready(false), true);
       assert.equal(await health.ready(true), false);
     }
-    if (i === 4)
+    if (i === 5)
       assert.equal(
         requiredRow(await source.query("SELECT to_regclass('ops.schedule_failure_alert') value"))
           .value,
         null
       );
-    if (i === 5)
+    if (i === 6)
       assert.equal(
         requiredRow(await source.query("SELECT ops.is_schema_ready('V001') value")).value,
         true
@@ -131,9 +132,18 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
     try {
       const role = 'nest_app_' + randomBytes(6).toString('hex');
       await runner.query(`CREATE ROLE ${role} NOLOGIN`);
+      await runner.query('CREATE TABLE collect.batch_queue(id uuid); CREATE TABLE collect.batch_confirmation(id uuid); CREATE TABLE collect.future_batch_table(id bigint GENERATED ALWAYS AS IDENTITY)');
       await repo.grantApplication(role);
       await runner.query(`SET LOCAL ROLE ${role}`);
       assert.equal(await health.ready(true), true);
+      for (const table of ['batch_queue','batch_confirmation','future_batch_table']) {
+        await runner.query('SAVEPOINT private_queue');
+        await assert.rejects(runner.query(`SELECT * FROM collect.${table}`), {code:'42501'});
+        await runner.query('ROLLBACK TO SAVEPOINT private_queue');
+      }
+      await runner.query('SAVEPOINT future_sequence');
+      await assert.rejects(runner.query("SELECT nextval('collect.future_batch_table_id_seq')"), {code:'42501'});
+      await runner.query('ROLLBACK TO SAVEPOINT future_sequence');
       await runner.query('RESET ROLE');
       await runner.query(`REVOKE INSERT ON collect.collector_receipt FROM ${role}`);
       await runner.query(`SET LOCAL ROLE ${role}`);
@@ -144,7 +154,7 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
       await runner.query(`SET LOCAL ROLE ${role}`);
       assert.equal(await health.ready(true), false);
       assert.equal(
-        requiredRow(await runner.query("SELECT ops.is_schema_ready('V007') ready")).ready,
+        requiredRow(await runner.query("SELECT ops.is_schema_ready('V008') ready")).ready,
         true
       );
       await runner.query('SAVEPOINT ledger_denied');

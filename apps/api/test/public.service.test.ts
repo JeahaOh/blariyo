@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { PublicService } from '../dist/features/public/public.service.js';
 import { PublicRepository, type Board, type PublishedPost, type PublishedBlock, type PublishedPolicy } from '../dist/features/public/public.repository.js';
 import { UnitOfWork, type TransactionOptions } from '../dist/shared/unit-of-work.js';
+import { detailDto } from '../dist/features/public/public.dto.js';
+import { matchOperation, validateResponse, normalizeInput, schemaValidator } from '@blariyo/contracts';
 
 class MemoryWork extends UnitOfWork {
   calls: (TransactionOptions | undefined)[] = [];
@@ -48,4 +50,24 @@ await test('public policy selects the effective version or explicit historical v
   assert.equal((await service.policy('privacy','old')).policy.version, 'old');
   await assert.rejects(service.policy('terms','absent'), {code: 'POLICY_NOT_FOUND'});
   await assert.rejects(service.policy('unknown'), {code: 'POLICY_NOT_FOUND'});
+});
+
+await test('long original body and Unicode source survive the public contract without truncation', async () => {
+  const repository = new MockPublicRepository();
+  repository.current.sourceName = 'fixture';
+  repository.current.sourceUrl = 'https://example.com/게시글-1';
+  const original: PublishedBlock[] = Array.from({length: 57}, (_, index) => ({type: 'TEXT', text: `원문 ${index}`}));
+  repository.blocks = async () => original;
+  const service = new PublicService(repository, new MemoryWork());
+  const data = detailDto(await service.detail('meme', '21'), {siteOrigin: 'http://localhost:3000', imageOrigin: 'http://localhost:3000/media'});
+  const operation = matchOperation('GET', '/api/v1/boards/meme/posts/21');
+  assert.ok(operation);
+  assert.equal(validateResponse(operation, 200, {success: true, data, meta: {requestId: '00000000-0000-4000-8000-000000000000'}}), true);
+  assert.deepEqual(data.post.blocks, original);
+  assert.equal(data.post.source?.url, new URL(repository.current.sourceUrl).href);
+  assert.deepEqual(normalizeInput({source: {url: repository.current.sourceUrl}}), {source: {url: data.post.source?.url}});
+  assert.deepEqual(normalizeInput({source: {url: data.post.source?.url}}), {source: {url: data.post.source?.url}});
+  const validate = schemaValidator({$ref: '#/components/schemas/EditBlocks'});
+  assert.equal(validate(Array.from({length: 1000}, () => ({type: 'TEXT', text: 'body'}))), true);
+  assert.equal(validate(Array.from({length: 1001}, () => ({type: 'TEXT', text: 'body'}))), false);
 });

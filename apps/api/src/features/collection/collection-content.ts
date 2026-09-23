@@ -11,7 +11,7 @@ export function validateContent(
     if (!positions.length) fail(400, 'VALIDATION_FAILED');
     return null;
   }
-  if (!blocks.length || blocks.length > 40) fail(400, 'VALIDATION_FAILED');
+  if (!blocks.length || blocks.length > 1000) fail(400, 'VALIDATION_FAILED');
   const references = blocks.flatMap((b) => (b.type === 'IMAGE' ? [b.imagePosition] : []));
   if (
     references.length !== positions.length ||
@@ -54,6 +54,6 @@ export function originalDraftBlocks(
       { type: 'TEXT', text: block.url },
     ];
   });
-  if (result.length > 40) fail(400, 'VALIDATION_FAILED');
+  if (result.length > 1000) fail(400, 'VALIDATION_FAILED');
   return result;
 }

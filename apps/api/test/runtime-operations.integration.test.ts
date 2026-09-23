@@ -34,7 +34,7 @@ await test('Nest cleanup and built operating commands preserve ownership, failur
   await t.test('staged expiry and orphan cleanup preserve live image and retry-task references', async () => {
     const image = requiredRow(await fixture.query("INSERT INTO content.board_post_image(private_storage_key,content_sha256,mime_type,byte_size,width,height,status,created_by,created_at,updated_by,updated_at) VALUES('staging/expired',$1,'image/png',1,1,1,'STAGED','system:migration',now()-interval '26 hours','system:migration',now()-interval '25 hours') RETURNING id", [randomBytes(32)]));
     await fixture.query("INSERT INTO ops.outbox_task(type,aggregate_type,payload,status,created_by,created_at,updated_by,updated_at,next_attempt_at) VALUES('OBJECT_DELETE_PRIVATE','STORAGE_OBJECT',$1,'DEAD','system:migration',now(),'system:migration',now(),now())", [JSON.stringify({ privateStorageKey: 'staging/dead-reference' })]);
-    for (const key of ['staging/expired', 'staging/orphan', 'staging/dead-reference', 'collect-preview/orphan', 'unmanaged/keep']) await storage.put('private', key, Buffer.from('fixture'));
+    for (const key of ['staging/expired', 'staging/orphan', 'staging/dead-reference', 'content/private/staging/orphan', 'collect-preview/orphan', 'unmanaged/keep']) await storage.put('private', key, Buffer.from('fixture'));
     await cleanup.run();
     assert.equal(requiredRow(await fixture.query('SELECT status FROM content.board_post_image WHERE id=$1', [image.id])).status, 'PRIVATE_DELETE_PENDING');
     const keys = (await storage.inventory('private')).map(item => item.key).sort();

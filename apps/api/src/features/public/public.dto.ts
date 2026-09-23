@@ -60,7 +60,7 @@ export function detailDto(
               },
             }
       ),
-      source: post.sourceUrl ? { name: post.sourceName ?? '', url: post.sourceUrl } : null,
+      source: post.sourceUrl ? { name: post.sourceName ?? '', url: new URL(post.sourceUrl).href } : null,
       shareUrl: `${origins.siteOrigin}/${board.slug}/posts/${post.id}`,
     },
     context: {

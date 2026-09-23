@@ -96,5 +96,5 @@ await test('Discovery: migration, shared quota, post-key dedup and Java parser -
     });
   }
   await assert.rejects(migrationContext(database).then(async ctx=>{try{await ctx.get(MigrationsService).migrate('down');}finally{await ctx.close();}}));
-  assert.equal(requiredRow(await db.query("SELECT ops.is_schema_ready('V007') ready")).ready,true);
+  assert.equal(requiredRow(await db.query("SELECT ops.is_schema_ready('V008') ready")).ready,true);
 });

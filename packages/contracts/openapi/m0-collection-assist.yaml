@@ -2,7 +2,8 @@ openapi: 3.1.0
 info:
   title: Blariyo M0 Collection Assist
   version: 0.1.0
-  description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public Core routes remain unchanged.
+  description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public
+    Core routes remain unchanged.
 paths:
   /api/v1/admin/collect/sources:
     get:
@@ -3041,6 +3042,362 @@ paths:
               additionalProperties: false
               properties: {}
               required: []
+  /api/v1/admin/collect/batch-items:
+    get:
+      operationId: listBatchItems
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+        - in: query
+          name: source
+          schema:
+            type: string
+            pattern: ^[a-z][a-z0-9-]*$
+            maxLength: 80
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/BatchItemSummary"
+                        maxItems: 20
+                      page: &a1
+                        type: integer
+                        minimum: 0
+                        maximum: 9007199254740991
+                      totalItems: *a1
+                      totalPages: *a1
+                    required:
+                      - items
+                      - page
+                      - totalItems
+                      - totalPages
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/batch-items/{itemId}:
+    get:
+      operationId: getBatchItem
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      item:
+                        $ref: "#/components/schemas/BatchItem"
+                    required:
+                      - item
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/batch-items/{itemId}/review:
+    post:
+      operationId: reviewBatchItem
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 200
+            pattern: ^[A-Za-z0-9_-]+$
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      review:
+                        $ref: "#/components/schemas/BatchReview"
+                    required:
+                      - review
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BatchReviewRequest"
+  /api/v1/admin/collect/batch-items/{itemId}/draft:
+    post:
+      operationId: promoteBatchItem
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 200
+            pattern: ^[A-Za-z0-9_-]+$
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/BatchDraftResult"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BatchDraftRequest"
+  /api/v1/admin/collect/batch-items/{itemId}/media/{position}/preview:
+    get:
+      operationId: previewBatchImage
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: position
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+      responses:
+        "200":
+          description: Validated image bytes. Private and never cached.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+            image/gif:
+              schema:
+                type: string
+                format: binary
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      summary: Read a validated collected image for authenticated review
 components:
   securitySchemes:
     CollectorToken:
@@ -3364,12 +3721,340 @@ components:
             - type
             - url
             - label
+    BatchContentBlock:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          properties:
+            type:
+              const: TEXT
+            text:
+              type: string
+              minLength: 1
+              maxLength: 20000
+          required:
+            - type
+            - text
+        - type: object
+          additionalProperties: false
+          properties:
+            type:
+              const: IMAGE
+            imagePosition:
+              type: integer
+              minimum: 1
+              maximum: 200
+            alt:
+              type: string
+              minLength: 0
+              maxLength: 300
+          required:
+            - type
+            - imagePosition
+            - alt
+        - type: object
+          additionalProperties: false
+          properties:
+            type:
+              const: LINK
+            url:
+              type: string
+              minLength: 1
+              maxLength: 2048
+              format: uri
+              pattern: ^https?://
+            label:
+              type: string
+              minLength: 0
+              maxLength: 300
+          required:
+            - type
+            - url
+            - label
     CollectionContentBlocks:
       type: array
       minItems: 1
-      maxItems: 40
+      maxItems: 1000
       items:
         $ref: "#/components/schemas/CollectionContentBlock"
+    BatchReview:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          enum:
+            - UNREVIEWED
+            - REVIEWING
+            - REJECTED
+            - APPROVED
+        lockVersion: &a1
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        itemVersion: *a1
+        postId:
+          anyOf:
+            - type: integer
+              minimum: 1
+            - type: "null"
+      required:
+        - status
+        - lockVersion
+        - itemVersion
+        - postId
+    BatchItemSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        itemId:
+          type: string
+          format: uuid
+        sourceKey:
+          type: string
+          maxLength: 80
+        sourcePostKey:
+          anyOf:
+            - type: string
+              maxLength: 200
+            - type: "null"
+        canonicalUrl:
+          type: string
+          format: uri
+          maxLength: 2048
+          pattern: ^https?://
+        state:
+          enum:
+            - DISCOVERED
+            - FETCHING
+            - FETCHED
+            - FAILED
+            - BLOCKED
+            - SKIPPED_DUPLICATE
+            - SKIPPED_POLICY
+        version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        title:
+          anyOf:
+            - type: string
+              maxLength: 300
+            - type: "null"
+        failureCode:
+          anyOf:
+            - type: string
+              maxLength: 80
+            - type: "null"
+        skipReason:
+          anyOf:
+            - type: string
+              enum: [SOURCE_DATE_UNKNOWN, SOURCE_OUTSIDE_WINDOW]
+            - type: "null"
+        review:
+          $ref: "#/components/schemas/BatchReview"
+      required:
+        - itemId
+        - sourceKey
+        - sourcePostKey
+        - canonicalUrl
+        - state
+        - version
+        - title
+        - review
+        - failureCode
+        - skipReason
+    BatchItem:
+      type: object
+      additionalProperties: false
+      properties:
+        itemId: &a2
+          type: string
+          format: uuid
+        sourceKey:
+          type: string
+          maxLength: 80
+        sourcePostKey:
+          anyOf:
+            - type: string
+              maxLength: 200
+            - type: "null"
+        canonicalUrl: &a1
+          type: string
+          format: uri
+          maxLength: 2048
+          pattern: ^https?://
+        state:
+          enum:
+            - DISCOVERED
+            - FETCHING
+            - FETCHED
+            - FAILED
+            - BLOCKED
+            - SKIPPED_DUPLICATE
+            - SKIPPED_POLICY
+        version: &a3
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        title:
+          anyOf:
+            - type: string
+              maxLength: 300
+            - type: "null"
+        failureCode:
+          anyOf:
+            - type: string
+              maxLength: 80
+            - type: "null"
+        skipReason:
+          anyOf:
+            - type: string
+              enum: [SOURCE_DATE_UNKNOWN, SOURCE_OUTSIDE_WINDOW]
+            - type: "null"
+        review:
+          $ref: "#/components/schemas/BatchReview"
+        bodyBlocks:
+          type: array
+          items:
+            $ref: "#/components/schemas/BatchContentBlock"
+          maxItems: 1000
+        snsLinks:
+          type: array
+          items: *a1
+          maxItems: 1000
+        attachments:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              position:
+                type: integer
+                minimum: 1
+              remoteUrl: *a1
+              label:
+                type: string
+                maxLength: 300
+            required:
+              - position
+              - remoteUrl
+              - label
+          maxItems: 1000
+        media:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              mediaId: *a2
+              position:
+                type: integer
+                minimum: 1
+              kind:
+                enum:
+                  - IMAGE
+                  - FILE
+              remoteUrl:
+                anyOf:
+                  - *a1
+                  - type: "null"
+              mimeType:
+                anyOf:
+                  - type: string
+                    maxLength: 160
+                  - type: "null"
+              byteSize:
+                anyOf:
+                  - *a3
+                  - type: "null"
+            required:
+              - mediaId
+              - position
+              - kind
+              - remoteUrl
+              - mimeType
+              - byteSize
+          maxItems: 1000
+      required:
+        - itemId
+        - sourceKey
+        - sourcePostKey
+        - canonicalUrl
+        - state
+        - version
+        - title
+        - review
+        - failureCode
+        - skipReason
+        - bodyBlocks
+        - snsLinks
+        - attachments
+        - media
+    BatchReviewRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        itemVersion: &a1
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        lockVersion: *a1
+        decision:
+          enum:
+            - REVIEWING
+            - APPROVED
+            - REJECTED
+      required:
+        - itemVersion
+        - lockVersion
+        - decision
+    BatchDraftRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        itemVersion: &a1
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        lockVersion: *a1
+        boardSlug:
+          type: string
+          pattern: ^[a-z][a-z0-9-]*$
+          maxLength: 80
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+        - itemVersion
+        - lockVersion
+        - boardSlug
+    BatchDraftResult:
+      type: object
+      additionalProperties: false
+      properties:
+        itemId:
+          type: string
+          format: uuid
+        postId:
+          type: integer
+          minimum: 1
+        status:
+          const: DRAFT
+        lockVersion:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        reviewLockVersion:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+      required:
+        - itemId
+        - postId
+        - status
+        - lockVersion
+        - reviewLockVersion
   responses:
     CollectionFailure:
       description: Generalized failure

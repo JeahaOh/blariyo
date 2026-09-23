@@ -141,7 +141,7 @@ image를 선점해 `DRAFT` 게시글과 순서가 있는 block을 만든다.
 - `source`: name·HTTPS URL pair; post; 출처
 - `source.name`: source가 있으면 필수; post; 표시 출처명
 - `source.url`: source가 있으면 필수; post; 원문 URL
-- `blocks`: 1~40, IMAGE 최대 20; block; 본문
+- `blocks`: 1~1000, IMAGE 최대 200; block; 본문
 - `blocks[].type`: `TEXT`,`IMAGE`; block; 본문 유형
 - `blocks[].text`: TEXT, trim 1~20000; block; plain text
 - `blocks[].imageId`: 미연결 STAGED; image; 이미지
@@ -749,7 +749,7 @@ due scheduler와 취소 경쟁, key 재전송, 상태 이력을 검증한다. �
 - `source`: pair/null; post; 유지·교체·제거
 - `source.name`: source가 object면 필수; post; 출처명
 - `source.url`: source가 object면 필수; post; 원문 URL
-- `blocks`: 전체 교체, 1~40; block; 본문
+- `blocks`: 전체 교체, 1~1000; block; 본문
 - `blocks[].type`: `TEXT`,`IMAGE`; block; 본문 유형
 - `blocks[].text`: TEXT, trim 1~20000; block; plain text
 - `blocks[].imageId`: IMAGE, 선점 가능 자산; image; 이미지
@@ -1075,7 +1075,7 @@ R2·DB·outbox runtime은 미검증이다.
 
 #### 필드·표시값·validation
 
-제목 1~200, block 1~40, IMAGE 최대 20, TEXT 1~20000, alt 1~300, source는 name·HTTPS URL pair,
+제목 1~200, block 1~1000, IMAGE 최대 200, TEXT 1~20000, alt 1~300, source는 name·HTTPS URL pair,
 image file 10MiB·요청 10개/100MiB. 오류는 field 가까이에 표시한다.
 
 #### 이벤트·버튼·이동·후처리
@@ -1132,3 +1132,6 @@ label·오류 연결, block 순서 키보드 조작 대안, dialog focus trap/re
 upload 실패 UX는 all-or-nothing, 요청 단위 gate `413`의 `fields` 없음, 파일별 `413`·`415`의 모든
 실패 파일 표시, `503`의 파일 표시 없음으로 확정됐다. 관리자 화면 publishing과 실제 UI·browser 증거가
 없어 `초안`이다.
+
+
+수집 초안의 원문 보존을 위해 게시글 편집 IMAGE 블록 상한은 200개다. 일반 업로드 요청의 10개/100MiB·파일당 10MiB 제한은 유지한다. direct batch 미디어 용량은 [수집 명세](../../m0-collection-assist/collection-assist/collection-assist.dev.md#2026-09-23-다중-이미지와-수집-용량-계약)를 따른다.

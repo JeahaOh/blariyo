@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { MigrationsRepository,type MigrationScript,type AppliedMigration } from '../commands/migrations.repository.js';
 import { DatabaseContext } from './database.js';
 import { OpsSchemaMigrationEntity } from './entities.js';
+import { apiCollectTables,batchResultTables,apiCollectSequences } from './collect-ownership.js';
 const directory=new URL('../../migrations/',import.meta.url);
 @Injectable()
 export class TypeOrmMigrationsRepository extends MigrationsRepository {
@@ -25,13 +26,29 @@ export class TypeOrmMigrationsRepository extends MigrationsRepository {
  async grantApplication(role:string){
   if(!/^[a-z][a-z0-9_]{0,62}$/.test(role))throw new Error('Invalid application role');
   await this.db.manager.query(`GRANT USAGE ON SCHEMA content,legal,ops,collect TO ${role};
- GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA content,legal,collect TO ${role};
+ REVOKE ALL ON ALL TABLES IN SCHEMA collect FROM ${role};
+ REVOKE ALL ON ALL SEQUENCES IN SCHEMA collect FROM ${role};
+ REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA collect FROM ${role};
+ GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA content,legal TO ${role};
  GRANT SELECT,INSERT,UPDATE,DELETE ON ops.outbox_task,ops.idempotency_request,ops.schedule_failure_alert TO ${role};
- GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA content,legal,ops,collect TO ${role};
- DO $grant$ BEGIN IF to_regclass('collect.batch_item') IS NOT NULL THEN
-   EXECUTE 'REVOKE INSERT,UPDATE,DELETE ON TABLE collect.batch_source,collect.batch_run,collect.batch_item,collect.batch_media,collect.batch_failure,collect.batch_report,collect.batch_checkpoint FROM ${role}';
-   EXECUTE 'GRANT SELECT ON TABLE collect.batch_source,collect.batch_run,collect.batch_item,collect.batch_media,collect.batch_failure,collect.batch_report,collect.batch_checkpoint TO ${role}';
- END IF; END $grant$;
+ GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA content,legal TO ${role};
+ DO $grant$ DECLARE t text; BEGIN
+ FOREACH t IN ARRAY ARRAY[${apiCollectTables.map(t=>`'${t}'`).join(',')}] LOOP
+   IF to_regclass('collect.'||t) IS NOT NULL THEN
+     EXECUTE format('GRANT SELECT,INSERT,UPDATE,DELETE ON collect.%I TO ${role}',t);
+   END IF;
+ END LOOP;
+ FOREACH t IN ARRAY ARRAY[${batchResultTables.map(t=>`'${t}'`).join(',')}] LOOP
+   IF to_regclass('collect.'||t) IS NOT NULL THEN
+     EXECUTE format('GRANT SELECT ON collect.%I TO ${role}',t);
+   END IF;
+ END LOOP;
+ FOREACH t IN ARRAY ARRAY[${apiCollectSequences.map(t=>`'${t}'`).join(',')}] LOOP
+   IF to_regclass('collect.'||t) IS NOT NULL THEN
+     EXECUTE format('GRANT USAGE,SELECT ON SEQUENCE collect.%I TO ${role}',t);
+   END IF;
+ END LOOP;
+ END $grant$;
  REVOKE ALL ON ops.schema_migration FROM ${role};
  GRANT EXECUTE ON FUNCTION ops.is_schema_ready(TEXT) TO ${role}`);
  }

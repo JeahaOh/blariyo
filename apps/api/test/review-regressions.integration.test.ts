@@ -101,10 +101,10 @@ await test('original publication ownership, stale deletion, scheduled immediate 
     finally { copyFailure = undefined; }
     assert.equal((await service.detail(params.postId)).post.status, 'DRAFT');
     await outbox.run();
-    assert.equal((await storage.inventory('public')).filter(entry => entry.key.startsWith(`posts/${post.postId}/`)).length, 0);
+    assert.equal((await storage.inventory('public')).filter(entry => entry.key.startsWith(`content/published/posts/${post.postId}/`)).length, 0);
     await service.command({ action: 'publish', params, body: { lockVersion: 1, mode: 'IMMEDIATE' } }, actor);
     await outbox.run();
-    assert.equal((await storage.inventory('public')).filter(entry => entry.key.startsWith(`posts/${post.postId}/`)).length, 1);
+    assert.equal((await storage.inventory('public')).filter(entry => entry.key.startsWith(`content/published/posts/${post.postId}/`)).length, 1);
   });
   await t.test('DB rollback after copy is compensated; lost commit acknowledgement preserves publication', async () => {
     for (const committed of [false, true]) {
@@ -124,7 +124,7 @@ await test('original publication ownership, stale deletion, scheduled immediate 
       assert.equal(injected, true);
       assert.equal((await service.detail(String(post.postId))).post.status, committed ? 'PUBLISHED' : 'DRAFT');
       await outbox.run();
-      assert.equal((await storage.inventory('public')).filter(entry => entry.key.startsWith(`posts/${post.postId}/`)).length, committed ? 1 : 0);
+      assert.equal((await storage.inventory('public')).filter(entry => entry.key.startsWith(`content/published/posts/${post.postId}/`)).length, committed ? 1 : 0);
     }
   });
   await t.test('scheduled immediate publish clears schedule and scheduler cannot publish twice', async () => {

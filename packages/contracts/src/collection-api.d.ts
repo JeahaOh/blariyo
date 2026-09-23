@@ -303,6 +303,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/collect/batch-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listBatchItems"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/batch-items/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBatchItem"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/batch-items/{itemId}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reviewBatchItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/batch-items/{itemId}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["promoteBatchItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/batch-items/{itemId}/media/{position}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read a validated collected image for authenticated review */
+        get: operations["previewBatchImage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -382,7 +463,99 @@ export interface components {
             url: string;
             label: string;
         };
+        BatchContentBlock: {
+            /** @constant */
+            type: "TEXT";
+            text: string;
+        } | {
+            /** @constant */
+            type: "IMAGE";
+            imagePosition: number;
+            alt: string;
+        } | {
+            /** @constant */
+            type: "LINK";
+            /** Format: uri */
+            url: string;
+            label: string;
+        };
         CollectionContentBlocks: components["schemas"]["CollectionContentBlock"][];
+        BatchReview: {
+            /** @enum {unknown} */
+            status: "UNREVIEWED" | "REVIEWING" | "REJECTED" | "APPROVED";
+            lockVersion: number;
+            itemVersion: number;
+            postId: number | null;
+        };
+        BatchItemSummary: {
+            /** Format: uuid */
+            itemId: string;
+            sourceKey: string;
+            sourcePostKey: string | null;
+            /** Format: uri */
+            canonicalUrl: string;
+            /** @enum {unknown} */
+            state: "DISCOVERED" | "FETCHING" | "FETCHED" | "FAILED" | "BLOCKED" | "SKIPPED_DUPLICATE" | "SKIPPED_POLICY";
+            version: number;
+            title: string | null;
+            failureCode: string | null;
+            skipReason: ("SOURCE_DATE_UNKNOWN" | "SOURCE_OUTSIDE_WINDOW") | null;
+            review: components["schemas"]["BatchReview"];
+        };
+        BatchItem: {
+            /** Format: uuid */
+            itemId: string;
+            sourceKey: string;
+            sourcePostKey: string | null;
+            /** Format: uri */
+            canonicalUrl: string;
+            /** @enum {unknown} */
+            state: "DISCOVERED" | "FETCHING" | "FETCHED" | "FAILED" | "BLOCKED" | "SKIPPED_DUPLICATE" | "SKIPPED_POLICY";
+            version: number;
+            title: string | null;
+            failureCode: string | null;
+            skipReason: ("SOURCE_DATE_UNKNOWN" | "SOURCE_OUTSIDE_WINDOW") | null;
+            review: components["schemas"]["BatchReview"];
+            bodyBlocks: components["schemas"]["BatchContentBlock"][];
+            snsLinks: string[];
+            attachments: {
+                position: number;
+                /** Format: uri */
+                remoteUrl: string;
+                label: string;
+            }[];
+            media: {
+                /** Format: uuid */
+                mediaId: string;
+                position: number;
+                /** @enum {unknown} */
+                kind: "IMAGE" | "FILE";
+                remoteUrl: string | null;
+                mimeType: string | null;
+                byteSize: number | null;
+            }[];
+        };
+        BatchReviewRequest: {
+            itemVersion: number;
+            lockVersion: number;
+            /** @enum {unknown} */
+            decision: "REVIEWING" | "APPROVED" | "REJECTED";
+        };
+        BatchDraftRequest: {
+            itemVersion: number;
+            lockVersion: number;
+            boardSlug: string;
+            title?: string;
+        };
+        BatchDraftResult: {
+            /** Format: uuid */
+            itemId: string;
+            postId: number;
+            /** @constant */
+            status: "DRAFT";
+            lockVersion: number;
+            reviewLockVersion: number;
+        };
     };
     responses: {
         /** @description Generalized failure */
@@ -1663,6 +1836,215 @@ export interface operations {
             413: components["responses"]["CollectionFailure"];
             415: components["responses"]["CollectionFailure"];
             429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    listBatchItems: {
+        parameters: {
+            query?: {
+                page?: number;
+                source?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: components["schemas"]["BatchItemSummary"][];
+                            page: number;
+                            totalItems: number;
+                            totalPages: number;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    getBatchItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            item: components["schemas"]["BatchItem"];
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    reviewBatchItem: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            review: components["schemas"]["BatchReview"];
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    promoteBatchItem: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchDraftRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["BatchDraftResult"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    previewBatchImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+                position: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Validated image bytes. Private and never cached. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": string;
+                    "image/png": string;
+                    "image/webp": string;
+                    "image/gif": string;
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
             500: components["responses"]["CollectionFailure"];
             503: components["responses"]["CollectionFailure"];
         };

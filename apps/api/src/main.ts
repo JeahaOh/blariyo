@@ -1,3 +1,4 @@
+import { collectReader } from './adapters/collect-reader.js';
 import { pathToFileURL } from 'node:url';
 import { adapters, type Environment } from './bootstrap/config.js';
 import { resolveDatabaseUrl } from './bootstrap/database-config.js';
@@ -13,7 +14,7 @@ export async function start(env: Environment = process.env) {
   const production = env.NODE_ENV === 'production';
   if (production && (!/^https:\/\//.test(env.SITE_ORIGIN || '') || !/^https:\/\//.test(env.IMAGE_ORIGIN || ''))) throw new Error('PRODUCTION_ORIGIN_REQUIRED');
   const app = await createNestApplication({
-    databaseUrl, ...adapters(env), ...collection, collectorTokens,
+    databaseUrl, ...adapters(env), ...collection, collectorTokens, collectReader: collectReader(env),
     localMedia: !production,
     ...(env.SERVICE_TOKEN === undefined ? {} : { serviceToken: env.SERVICE_TOKEN }),
     ...(env.SITE_ORIGIN === undefined ? {} : { siteOrigin: env.SITE_ORIGIN }),

@@ -1,3 +1,6 @@
+import { BatchReviewModule } from './features/collection/batch-review.module.js';
+import { CollectReader } from './shared/collect-reader.js';
+import { DisabledCollectReader } from './adapters/collect-reader.js';
 import type { CollectionOptions } from './features/collection/collection-admin.guard.js';
 import { CollectionModule } from './features/collection/collection.module.js';
 import { Module, type DynamicModule } from '@nestjs/common';
@@ -13,6 +16,7 @@ import { PersistenceModule } from './persistence/persistence.module.js';
 
 export interface ApplicationOptions extends CollectionOptions {
   databaseUrl: string;
+  collectReader?: CollectReader;
   collectorKeySecret?: string;
   collectManualUrlEnabled?: boolean;
   collectDiscordCommandEnabled?: boolean;
@@ -38,6 +42,7 @@ export class AppModule {
       module: AppModule,
       imports: [
         collection,
+        BatchReviewModule.register(persistence, images, posts, options.collectReader ?? new DisabledCollectReader(), options),
         HealthModule.register(persistence, options),
         PoliciesModule.register(persistence),
         PublicModule.register(persistence, {

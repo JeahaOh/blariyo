@@ -1845,6 +1845,8 @@ export interface operations {
             query?: {
                 page?: number;
                 source?: string;
+                state?: "DISCOVERED" | "FETCHING" | "FETCHED" | "FAILED" | "BLOCKED" | "SKIPPED_DUPLICATE" | "SKIPPED_POLICY";
+                reviewStatus?: "UNREVIEWED" | "REVIEWING" | "APPROVED" | "REJECTED";
             };
             header?: never;
             path?: never;

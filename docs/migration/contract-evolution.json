@@ -3,13 +3,14 @@
   "specifications": [
     "docs/system-design/07-spring-collector-design.md",
     "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
-    "docs/development-specs/m0-core/openapi/m0-core.yaml"
+    "docs/development-specs/m0-core/openapi/m0-core.yaml",
+    "docs/development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml"
   ],
   "amendedContracts": {
     "packages/contracts/openapi/m0-collection-assist.yaml": {
       "baselineSha256": "9f31e550f30a7f80c119b7ed0e553e22bb60211507a51a4a8faecabfa976be17",
-      "sha256": "7aaebb4f03c7332bf46e4cc2892fae754ff012dd08c3e68189c0c62fe6ec5c1d",
-      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source."
+      "sha256": "79acc1527733b70d317d6b5f1af7cc6cdf96b4eab6186a7b8d81a27e5076e5a6",
+      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source. Adds optional state and reviewStatus filters for authenticated batch review pagination; no SQL migration changes."
     },
     "packages/contracts/openapi/m0-core.yaml": {
       "baselineSha256": "d3744e62c7a4ce714d7b34be2b9c22f864794ba445e72153423f75706877de60",
@@ -18,13 +19,13 @@
     },
     "packages/contracts/src/collection-api.d.ts": {
       "baselineSha256": "03dcac61af757e7d58f52fd02b79e80b5a0cd4cdf1eadcb134fc50eb4930b1f5",
-      "sha256": "940d6676589d40d5fc084c32d22e7a75a8ad6073f2acc82550b7581094039303",
-      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source."
+      "sha256": "6598402cb6544aba3c58c4f1879e6b945e09b770686397e9fb31c4d43faa5bbc",
+      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source. Adds optional state and reviewStatus filters for authenticated batch review pagination; no SQL migration changes."
     },
     "packages/contracts/src/schema.mjs": {
       "baselineSha256": "e43249c0dc4d11da8ef9c00b9c5f97a35b644f8bced633134493b9e15aedc8c4",
-      "sha256": "67859959792c57e49d0c3ae08180a5b40c72ef92099bf4b29786f5d5974f606f",
-      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source."
+      "sha256": "77286a83a2126e4247621f0d5729ee9b2c42d1a461cc7869516ca2144976487e",
+      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source. Adds optional state and reviewStatus filters for authenticated batch review pagination; no SQL migration changes."
     }
   },
   "addedMigrations": {

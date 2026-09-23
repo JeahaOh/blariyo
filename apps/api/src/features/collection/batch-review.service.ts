@@ -92,9 +92,9 @@ export class BatchReviewService {
     if (!image) fail(415, 'UNSUPPORTED_MEDIA_TYPE');
     return { bytes: image.bytes, mime: image.mime };
   }
-  async list(page: number, source?: string) {
+  async list(page: number, source?: string, state?: string, reviewStatus?: string) {
     return this.work.transaction(async () => {
-      const result = await this.repository.list(page, source), items = [];
+      const result = await this.repository.list(page, source, state, reviewStatus), items = [];
       for (const row of result.items) items.push(this.summary(row, await this.repository.review(row.id)));
       return { items, page, totalItems: result.total, totalPages: Math.max(1, Math.ceil(result.total / 20)) };
     }, { isolation: 'REPEATABLE READ', readOnly: true });

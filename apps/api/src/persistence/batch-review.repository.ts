@@ -15,10 +15,13 @@ function optionalText(value:unknown):string|null {return typeof value==='string'
 export class TypeOrmBatchReviewRepository extends BatchReviewRepository {
   constructor(@Inject(DatabaseContext) private readonly db:DatabaseContext,@Inject(BatchResultRepository) private readonly results:BatchResultRepository){super();}
   item(id:string){return this.results.find(id);}
-  async list(page:number,source?:string){
-    const filter=source??null;
-    const total=Number(requiredRow(await this.db.manager.query('SELECT count(*) FROM collect.batch_item WHERE ($1::text IS NULL OR source_key=$1)',[filter])).count);
-    const ids=rows(await this.db.manager.query('SELECT id FROM collect.batch_item WHERE ($1::text IS NULL OR source_key=$1) ORDER BY fetched_at DESC NULLS LAST,id LIMIT 20 OFFSET $2',[filter,(page-1)*20]));
+  async list(page:number,source?:string,state?:string,reviewStatus?:string){
+    const filters=[source??null,state??null,reviewStatus??null];
+    const selection=`FROM collect.batch_item i LEFT JOIN collect.batch_review r ON r.item_id=i.id
+      WHERE ($1::text IS NULL OR i.source_key=$1) AND ($2::text IS NULL OR i.state=$2)
+      AND ($3::text IS NULL OR COALESCE(r.status,'UNREVIEWED')=$3)`;
+    const total=Number(requiredRow(await this.db.manager.query('SELECT count(*) '+selection,filters)).count);
+    const ids=rows(await this.db.manager.query('SELECT i.id '+selection+' ORDER BY i.fetched_at DESC NULLS LAST,i.id LIMIT 20 OFFSET $4',[...filters,(page-1)*20]));
     const items:BatchResultRow[]=[];
     for(const row of ids){const item=await this.item(String(row.id));if(item)items.push(item);}
     return {items,total};

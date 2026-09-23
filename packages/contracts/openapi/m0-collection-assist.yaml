@@ -3062,6 +3062,16 @@ paths:
             type: string
             pattern: ^[a-z][a-z0-9-]*$
             maxLength: 80
+        - in: query
+          name: state
+          schema:
+            type: string
+            enum: [DISCOVERED, FETCHING, FETCHED, FAILED, BLOCKED, SKIPPED_DUPLICATE, SKIPPED_POLICY]
+        - in: query
+          name: reviewStatus
+          schema:
+            type: string
+            enum: [UNREVIEWED, REVIEWING, APPROVED, REJECTED]
       responses:
         "200":
           description: Success

@@ -19,7 +19,7 @@ function draftIs(value:unknown):value is components['schemas']['BatchDraftReques
 export class BatchReviewController {
   constructor(@Inject(BatchReviewService) private readonly service:BatchReviewService){}
   @Get() async list(@Input(ContractPipe) input:RequestInput){
-    return new HttpResult(await this.service.list(Number(stringField(input.query,'page','1')),stringField(input.query,'source')||undefined),{},200,'private, no-store');
+    return new HttpResult(await this.service.list(Number(stringField(input.query,'page','1')),stringField(input.query,'source')||undefined,stringField(input.query,'state')||undefined,stringField(input.query,'reviewStatus')||undefined),{},200,'private, no-store');
   }
   @Get(':itemId') async detail(@Input(ContractPipe) input:RequestInput){
     return new HttpResult(await this.service.detail(stringField(input.params,'itemId')),{},200,'private, no-store');

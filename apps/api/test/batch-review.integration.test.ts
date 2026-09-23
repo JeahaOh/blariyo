@@ -304,4 +304,34 @@ await test('batch-owned objects pass through API review and draft before separat
     assert.deepEqual(await readFile(`${root}/batch/${objectKey}`),file);
   });
 
+  await t.test('combined source/state/review filters count and paginate unreviewed rows consistently', async () => {
+    const filterRun = randomUUID(), ids: string[] = [];
+    await pool.query("INSERT INTO collect.batch_source(source_key,host,policy_version) VALUES('filter-fixture','filter.invalid','fixture-v1')");
+    await pool.query("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,interval_ms) VALUES($1,'filter-fixture','hot','WRITE_DB','COMPLETED',1,30,10000)", [filterRun]);
+    for (let index = 0; index < 23; index++) {
+      const id = randomUUID(), url = `https://filter.invalid/${id}`;
+      ids.push(id);
+      await pool.query(`INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,version)
+        VALUES($1::uuid,$2,'filter-fixture',$1::text,$3,$4,$5,'필터 표본',$6,1)`,
+      [id,filterRun,url,createHash('sha256').update(url).digest(),index === 22 ? 'FAILED' : 'FETCHED',JSON.stringify([{type:'TEXT',text:'filter fixture'}])]);
+    }
+    const reviewed = '/admin/collect/batch-items/' + ids[0];
+    await status(request(reviewed+'/review',{itemVersion:1,lockVersion:0,decision:'REVIEWING'}),200);
+    await status(request(reviewed+'/review',{itemVersion:1,lockVersion:1,decision:'REJECTED'}),200);
+    const query = '/admin/collect/batch-items?source=filter-fixture&state=FETCHED&reviewStatus=UNREVIEWED';
+    const first = (await contractSuccess('listBatchItems',await request(query))).data;
+    const second = (await contractSuccess('listBatchItems',await request(query+'&page=2'))).data;
+    assert.equal(first.totalItems,21);assert.equal(first.totalPages,2);assert.equal(first.items.length,20);
+    assert.equal(second.totalItems,21);assert.equal(second.page,2);assert.equal(second.items.length,1);
+    assert.equal(new Set([...first.items,...second.items].map(item=>item.itemId)).size,21);
+    assert.ok([...first.items,...second.items].every(item=>item.sourceKey==='filter-fixture'&&item.state==='FETCHED'&&item.review.status==='UNREVIEWED'));
+    const rejected = (await contractSuccess('listBatchItems',await request(query.replace('UNREVIEWED','REJECTED')))).data;
+    assert.equal(rejected.totalItems,1);assert.equal(rejected.items[0]?.itemId,ids[0]);
+    const failed = (await contractSuccess('listBatchItems',await request(query.replace('FETCHED','FAILED')))).data;
+    assert.equal(failed.totalItems,1);assert.equal(failed.items[0]?.itemId,ids[22]);
+    const empty = (await contractSuccess('listBatchItems',await request(query.replace('UNREVIEWED','APPROVED')))).data;
+    assert.equal(empty.totalItems,0);assert.equal(empty.totalPages,1);assert.deepEqual(empty.items,[]);
+    await status(request('/admin/collect/batch-items?state=INVALID'),400);
+    await status(request('/admin/collect/batch-items?reviewStatus=INVALID'),400);
+  });
 });

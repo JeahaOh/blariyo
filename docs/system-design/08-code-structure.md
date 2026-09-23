@@ -1,15 +1,18 @@
 # M0 코드 구조와 의존성 계약
 
-- 기준일: 2026-09-09
-- 범위: M0 Core와 Spring 수집 보조의 내부 구조. API·DB·제품 동작과 운영 활성화 조건은 유지한다.
+- 기준일: 2026-09-23
+- 범위: M0 Core와 Collector의 내부 구조. 사이트별 모듈 분리 목표와 현재 구현 상태를 구분한다.
 - 상위 계약: [아키텍처](01-system-architecture.md), [수집 서버](07-spring-collector-design.md), [수집 기획](../planning/content-collection/README.md)
 
 ## 1. 앱과 공유 계약
 
-`apps/api`는 Nest Core (기본 Express 어댑터), `apps/web`은 Nuxt 화면·BFF, `apps/collector`는 운영자 로컬 Spring 서버다.
+`apps/api`는 Nest Core (기본 Express 어댑터), `apps/web`은 Nuxt 화면·BFF, `apps/collector`는 별도 컴퓨터에서 실행하는 Java batch와 Spring 수집 서버다.
 `packages/contracts`는 OpenAPI·검증·생성 타입이며 실행 앱이 아니다. `tools/collector`의 Python 구현은
 기존 실행의 종료·전환을 위한 legacy이며 신규 기능을 추가하지 않는다.
-collector → Web/BFF → Core 경계를 유지한다. Web에는 SQL·게시 상태 전이를, collector에는 서비스 DB·R2 자격을 두지 않는다.
+현행 direct batch는 외부 사이트 수집과 `collect.*`·`collect/raw/*`·`collect/media/*`·`collect/report/*` 저장을 소유하며 글마다 API를 호출하지 않는다.
+API는 수집 결과 조회·검수·content 초안 승격과 공개 상태를 소유한다. DB role과 object prefix 권한을 분리하고,
+batch에는 content 쓰기·공개 권한을 주지 않는다. Web에는 SQL·게시 상태 전이를 두지 않는다.
+collector → Web/BFF → Core 경로는 legacy 호환 경로이며 신규 사이트 모듈의 전제가 아니다.
 
 ## 2. Core API
 
@@ -46,6 +49,10 @@ apps/api/migrations/      기존 SQL 및 checksum 이력 유지
 
 기본 패키지는 `com.blariyo.collector`이며 `CollectorApplication`만 루트에 둔다.
 
+아래 표와 `CollectorRunService`·6단계 pipeline 의존 규칙은 기존 Spring 서버 경로의 구조다.
+현행 direct batch는 `run.DirectBatchRunner`가 registry에서 선택한 사이트 adapter와 공통 fetch·저장을 조합한다.
+신규 사이트 구현과 파일 분리는 아래 [사이트별 모듈 계약](#collector-site-modules)을 따른다.
+
 | 패키지 | 책임 |
 | --- | --- |
 | shared | JSON·공통 오류 |
@@ -66,6 +73,64 @@ execution은 run·state·source·core를 조합하며 web·discord·scheduling�
 shared는 다른 내부 패키지를 참조하지 않고 config는 shared만 참조한다. 패키지 간 순환 참조를 허용하지 않는다.
 테스트도 대상 패키지로 옮기며 fixture 설정은 테스트 source set에만 둔다. 운영 CLI의 FQCN 변경은
 Gradle task·launchd 렌더러·운영 문서·프로세스 테스트와 함께 반영한다.
+
+<a id="collector-site-modules"></a>
+
+### 3.1. 사이트별 모듈 계약
+
+**현재 상태와 목표를 구분한다.** 2026-09-23 코드 확인 기준으로 `SiteAdapters.java`에 21개 사이트의
+중첩 클래스가 모여 있다. `SiteAdapter`의 `identify`·`list`·`detail` 메서드는 역할을 나누지만,
+사이트별 패키지와 독립 목록·상세 parser 파일로의 분리는 아직 완료되지 않았다.
+`SourceRegistry`가 adapter를 선택하고 `DirectBatchRunner`가 목록·상세 메서드를 호출하는 구조는 유지한다.
+
+목표 디렉터리는 다음과 같다. 아래 경로는 구현 완료 목록이 아니라 파일 분리 시 적용할 계약이다.
+
+```text
+apps/collector/src/main/java/com/blariyo/collector/
+  source/
+    SiteAdapter.java             사이트 공통 진입 계약
+    SourceRegistry.java          source key·설정·adapter 연결
+    common/                     순서 보존·URL·이미지·첨부·SNS 공통 파싱
+    sites/
+      dcinside/
+        DcinsideAdapter.java    상세 URL 식별·canonical·post key와 parser 조합
+        DcinsideListParser.java 목록 항목·게시 시각·다음 페이지 추출
+        DcinsideDetailParser.java 제목·본문·미디어·SNS 추출
+      todayhumor/                같은 책임 분리
+      yuldo/                     같은 책임 분리
+      ...                        나머지 source key별 패키지
+  run/                           공통 실행·제한·재시도·중복 제거·저장·report 조합
+```
+
+- 사이트 adapter는 해당 사이트의 URL 식별 규칙과 목록·상세 parser 조합을 소유한다.
+  selector·목록 API 응답 구조·공지 제외·pagination 해석은 각 사이트 모듈에 둔다.
+- 목록 parser는 가져온 HTML/API 응답에서 상세 URL·게시 시각·다음 페이지를 반환한다.
+  상세 parser는 가져온 응답에서 제목·본문 순서·이미지·첨부·SNS 원문 링크를 반환한다.
+  두 parser는 별도 파일과 테스트로 관리하며 직접 HTTP·DB·S3/R2에 접근하지 않는다.
+- `HOT_LIST`·`GENERAL_LIST`·`DETAIL_ONLY` 등 출처별 수집 정책은 유지한다.
+  목록을 지원하지 않는 사이트에 형식적인 ListParser를 만들지 않는다. 지원 불가 사유를 명시하고
+  목록 실행을 거부하며 상세 URL 경로만 허용한다. 목록이 열려도 상세 접근·파싱 성공은 별도 검증한다.
+- `OrderedContentParser` 같은 본문 순서 보존 로직은 공통으로 재사용한다. 사이트마다 이를 복제하거나
+  불확실한 selector를 generic parser로 대체하지 않는다. 공통 모듈은 개별 사이트 구현에 의존하지 않는다.
+- fetch·요청 간격·retry/backoff·site stop·중복 조회·queue·DB·object 저장·report는 공통 실행 계층이 소유한다.
+  사이트 모듈끼리 서로 참조하지 않으며 registry가 사이트 구현을 조립한다. canonical 생성은 사이트 규칙,
+  canonical hash·source post key의 중복 판정과 unique constraint는 공통 저장 계약이다.
+
+분리는 사이트 단위로 진행한다. 먼저 기존 fixture 결과를 고정하고 해당 사이트의 parser를 옮긴 뒤
+registry 연결을 교체한다. source key·CLI·설정 형식·canonical/post key·오류 코드·저장 결과를 유지하며,
+파일 이동만을 이유로 DB schema를 바꾸지 않는다. `SiteAdapters`에 파싱 분기를 계속 추가하지 않고
+전환 완료 후에는 adapter 조립만 남기거나 registry로 통합한다.
+
+분리 완료 기준은 다음과 같다.
+
+1. 사이트별 adapter와 지원하는 목록·상세 parser가 독립 파일에 있고 서로 다른 사이트 구현에 의존하지 않는다.
+2. 사이트별 fixture 테스트가 목록·pagination·본문 순서·이미지·첨부·SNS·삭제·빈 본문·중복 URL을 확인한다.
+   이미지 없음·외부 링크만 있는 본문도 검사하고, 확인하지 못한 경우는 미검증으로 남긴다.
+3. 분리 전후 fixture 결과와 canonical/post key가 같고, 공통 runner·중복 제거·dry-run 무쓰기 테스트가 통과한다.
+   사이트만 수정하면 해당 fixture를 우선 실행하고, 공통 parser를 수정하면 영향받는 모든 사이트 fixture를 실행한다.
+4. 테스트는 사이트별 패키지에 대응시킨다. 기존 fixture 경로는 먼저 보존하고 경로 이동 시 모든 참조를 함께 수정한다.
+5. 파일 분리 완료와 실제 수집 완료는 따로 기록한다. fixture 통과는 live URL·DB/S3 readback·Discord Gateway
+   검증을 대체하지 않으며 출처별 상태는 [검증표](../planning/content-collection/reference-site-validation.md)를 따른다.
 
 ## 4. Web
 

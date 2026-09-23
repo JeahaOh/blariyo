@@ -1,7 +1,7 @@
 # 블라리요 콘텐츠 수집 기획
 
-- 문서 상태: 수집 방법 제품 정본 · 출처별 검증 전
-- 기준일: 2026-09-04
+- 문서 상태: 수집 방법 제품 정본 · 출처별 로컬 검증과 운영 활성화 분리
+- 기준일: 2026-09-23
 - 상위 정본: [서비스 기획서 §8](../01-service-plan.md#8-콘텐츠-수집)
 - 화면 계약: [화면 설계](../03-screen-design.md)
 - 기술 계약: [시스템 설계](../../system-design/README.md)
@@ -12,14 +12,19 @@
 책임이다. 실제 출처별 URL·파싱·허용 범위는 이 디렉터리의
 [출처 명세 템플릿](source-spec-template.md)으로 검증한 뒤 확정한다.
 
+현행 경로는 batch의 DB/object 직접 저장 → API 검수 → 초안 → 별도 발행이다.
+아래 `legacy`로 표시한 절의 Core 후보 접수·preview 제출·Spring/Quartz 설명은 기존 호환 경로다.
+현행 21개 출처의 정책·실행 상태는 [출처 정책](source-collection-policy.md)과
+[검증표](reference-site-validation.md)를 따른다. 문서의 운영 활성화 체크박스는 로컬 테스트 통과와 구분한다.
+
 2026-09-20 사용자가 복제 허락을 확인한 더쿠 25건의 일회성 로컬 원문 적재는
 [고정 대상·저장 계약](../../../scripts/content/README.md#허락받은-원문-저장-계약)을 따른다.
 이 작업은 원문·첨부·연결 SNS 내용을 보존하며 요약으로 대체하지 않는다. 아래 운영 collector의
 활성화·자동 수집·공개 정책을 변경하지 않으며, 실패와 잘린 SNS 응답은 미완료로 기록한다.
 
 - `scraper`: 외부 공개 페이지를 요청해 수집 후보를 만드는 프로그램
-- `collector`: 운영자 로컬 컴퓨터에서 상시 실행하는 별도 Spring 수집 서버. cron·REST API·Discord 진입과
-  외부 페이지 fetch, parser 실행과 후보 결과 제출을 담당한다.
+- `collector`: 웹/API와 별도 컴퓨터에서 실행하는 Java batch 프로세스. CLI·Discord 진입과 외부 페이지
+  fetch, parser, collect DB/object 저장을 담당한다. API에는 글마다 결과를 제출하지 않는다. Spring REST·Quartz는 legacy 호환 경로다.
 - `parser`: HTML·feed에서 URL·제목·이미지 후보를 추출하는 출처별 규칙
 - `fixture`: parser가 같은 결과를 내는지 반복 확인하는 최소 테스트 샘플
 - `feature flag`: 배포와 기능 활성화를 분리하는 전체 on·off 설정
@@ -44,8 +49,9 @@
 ### 1.1 원문 수집 확장 — 2026-09-20 결정
 
 - 수집기와 예약 배치는 **웹/API 서버와 다른 컴퓨터**에서 실행한다. Discord·URL 직접 입력·예약 실행은
-  같은 수집 작업을 사용하고 서비스에는 인증된 HTTPS API로만 결과를 보낸다. 서비스 DB 접속 정보와
-  object storage credential을 수집기에 배포하지 않는다. 수집 PC의 실행 이력 DB는 서비스 콘텐츠 DB와 역할이 다르다.
+  batch 수집 경로를 사용한다. batch 전용 DB role과 collect object writer로 직접 저장하고 글마다 API를 호출하지 않는다.
+  API의 content 쓰기·공개 bucket 권한은 batch에 배포하지 않는다. 현재 조회 구현은 같은 PostgreSQL database를
+  공유하며 batch 소유 수집 테이블과 API 소유 검수/content 테이블을 분리한다.
 - 기존 제목·이미지 후보 방식에 원문 모드를 추가한다. 원문 모드는 본문의 텍스트·첨부 이미지·외부 링크를
   순서대로 보존하며 요약하지 않는다. 댓글·추천글·광고·스크립트·원시 HTML 전체는 수집 결과에서 제외한다.
 - X·YouTube·Instagram·TikTok 등의 원문 내 참조는 주소로 보존한다. 공개 화면은 지원되는 공식 임베드를
@@ -55,8 +61,9 @@
   교체하는 뜻이다. 모든 사이트를 같은 selector로 처리하지 않는다.
 - 원문 후보의 초안 승격은 모든 첨부를 준비한 뒤 원래 순서대로 수행한다. 누락된 이미지로 일부만 승격하거나
   임의의 첫 문단으로 본문을 대체하지 않는다. 텍스트·SNS만 있는 원문도 후보와 초안으로 만들 수 있다.
-- 기존 작성 한도(본문 40블록·이미지 20개·TEXT 블록 20,000자)를 초과하면 잘라서 성공시키지 않고
-  명시적 수집 실패로 남긴다. 목록·feed 신규 URL 자동 발견, 자동 발행과 실제 운영 활성화는 포함하지 않는다.
+- 기존 작성 한도(본문 1,000블록·이미지 200개·TEXT 블록 20,000자)를 초과하면 잘라서 성공시키지 않고
+  명시적 수집 실패로 남긴다. 목록 신규 URL 발견은 2026-09-21 확장 범위에 포함하며 자동 발행은 하지 않는다.
+  실제 운영 활성화는 별도 gate다.
 - 상세 계약은 [Spring 수집기 원문 확장](../../system-design/07-spring-collector-design.md#16-원문-수집과-별도-pc-실행-확장)을 따른다.
 
 ## 2. 개발·활성화 단계
@@ -98,6 +105,10 @@
 
 ### 3.2 Discord·운영자 URL 단일 페이지 수집 보조
 
+이 절은 기존 API 후보 방식의 호환 설명이다. 현행 Discord와 CLI는 batch 소유 큐·DB/object 직접 저장을 사용하며,
+아래의 글별 API 결과 제출 흐름을 사용하지 않는다. 현행 흐름은 이 문서의 `2026-09-23 Discord direct queue 정렬`과
+[수집 기술 설계](../../system-design/07-spring-collector-design.md)를 따른다.
+
 운영자가 관리자 화면에 공개 원문 URL을 입력하면 BE는 후보 작업을 `PENDING`으로 접수하고 외부
 사이트를 직접 fetch하지 않는다. 운영자 로컬 컴퓨터에서 실행 중인 `collector`가 BE에서 대기 작업을
 가져와 등록·활성 출처, robots, 요청 상한, SSRF 방어 gate를 확인한 뒤 해당 상세 페이지를 한 번
@@ -127,16 +138,17 @@ BE에 URL 작업을 먼저 접수하고 해당 후보를 선점한 뒤 동일한
 | 3 | server-rendered HTML 목록 | 인증 없이 HTML에 원문 링크가 있고 구조를 안정적으로 식별 가능 | 출처별 parser 필요 |
 | 제외 | headless browser·로그인 자동화·차단 우회 | JavaScript 실행, 계정, CAPTCHA 우회가 필요함 | 초기 범위에서 사용하지 않음 |
 
-`HOT_LIST` source의 자동 수집 한 주기 기본 흐름은 다음과 같다.
+`HOT_LIST`와 `GENERAL_LIST` source의 자동 수집 한 주기 기본 흐름은 다음과 같다.
 
 ```text
 전역·출처별 활성 여부 확인
   -> 사용 결정된 목록·feed 한 번 조회
   -> 원문 URL 정규화와 기존 후보·게시글 중복 제거
-  -> 새 URL의 제목·이미지 후보 metadata 확인
-  -> 목록·feed 정보가 부족한 새 URL만 허용 범위 안에서 상세 조회
-  -> 후보 큐 저장
-  -> 운영자 검수(승격 또는 반려)
+  -> 발견한 URL을 batch 후보로 접수
+  -> 중복 정책에 따라 skip하거나 상세 페이지 fetch·사이트별 parser 실행
+  -> 제목·본문 순서·이미지·첨부·SNS 링크와 raw/media/report를 collect DB/object에 저장
+  -> API에서 운영자 검수(승격 또는 반려)
+  -> 승인된 결과를 private 초안으로 승격하고 별도 명령으로 발행
 ```
 
 목록 페이지의 과거 페이지를 무제한 순회하지 않는다. 초기 자동 수집은 출처 명세에서 사용 결정한
@@ -144,6 +156,10 @@ BE에 URL 작업을 먼저 접수하고 해당 후보를 선점한 뒤 동일한
 실행 간격은 출처 명세에서 따로 확정한다.
 
 ## 4. 후보 생성 규칙
+
+이 절은 legacy candidate/preview 계약이다. 현행 direct batch는 제목·OG 이미지만으로 성공하지 않으며,
+원문 본문·이미지·첨부·SNS 링크와 수집 object를 함께 보존한다. API는 원문 이미지를 다시 fetch하지 않고
+collect 저장본을 읽어 검증한 private 사본을 만든다. 정식 검수·승격 계약은 문서 후반의 direct batch 절을 따른다.
 
 ### 4.1 공통 후보 정보
 
@@ -203,7 +219,7 @@ BE에 URL 작업을 먼저 접수하고 해당 후보를 선점한 뒤 동일한
 2. **정책·위험 확인**: 이용약관, `robots.txt`, 공개 API·RSS 제공 여부와 확인일, 운영 위험도를 기록한다.
 3. **기술 검증**: 정상·빈 결과·삭제·차단·구조 변경 샘플에서 추출 결과를 확인한다.
 4. **수집 보조 사용 결정**: Discord 또는 관리자 화면에서 입력한 상세 URL 한 건 조회의 사용 범위와 parser가 검증돼야 한다.
-5. **출처별 자동 수집 사용 결정**: `HOT_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED` 중 하나와 목록·feed 범위,
+5. **출처별 자동 수집 사용 결정**: `HOT_LIST`, `GENERAL_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED` 중 하나와 목록·feed 범위,
    pagination, 간격·일일 상한과 실패 중단 조건까지 확정해야 한다.
 6. **기본 비활성 배포**: parser와 설정을 배포해도 feature flag와 출처 활성값은 끈 상태로 둔다.
 7. **제한 활성화**: 운영자가 소량 결과와 요청 로그를 확인한 뒤 해당 출처만 켠다.
@@ -238,6 +254,10 @@ parser가 가져온 제목·이미지는 신뢰된 게시물 값이 아니라 �
   절차에 따라 판단한다.
 
 ## 8. Discord 보고·실행 연동
+
+아래 Core API 접수·결과 제출 흐름과 collector service token은 legacy 경로다. 현행 `/collect url`은
+이 문서의 `2026-09-23 Discord direct queue 정렬`에 따라 확인 후 batch queue에 접수한다.
+Gateway 연결·권한·확인·중복 방지 검증은 여전히 필요하며, 코드와 fixture만으로 실연동을 완료 처리하지 않는다.
 
 Discord는 수집 시스템의 정본이나 실행 엔진이 아니라 운영 알림·명령 진입점으로 사용한다.
 Discord가 중단돼도 scheduler, 관리자 화면, 수동 게시와 공개 서비스는 계속 동작해야 한다.
@@ -392,6 +412,9 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 
 ## 10. 현재 미정·차단 항목
 
+다음 목록은 production 활성화 점검 항목이다. 출처 URL·parser·간격의 로컬 확인값은
+[출처 정책](source-collection-policy.md)에 있으며, 이 항목들이 전부 구현되지 않았다는 의미가 아니다.
+
 - 첫 가능성 검증 대상 출처
 - 출처별 실제 기준 URL, 상세 URL pattern과 허용 path
 - 출처별 이용약관 위험 판단, `robots.txt` 확인 결과와 확인일
@@ -428,10 +451,13 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 
 ### 출처별 공통 추출·임시 파일 규칙
 
+이 절은 기존 단건 metadata 명세에서 참조하는 legacy 규칙이다. 아래 `사용하지 않음`과 임시 preview
+보존 규칙을 현행 direct batch 목록·raw/media/report 저장에 적용하지 않는다.
+
 다음은 20개 출처 명세에서 공통으로 참조하는 기존 규칙이다. 출처별 URL·정책 판단·fixture·제한값과 활성화 상태는 각 명세를 따른다.
 
 단건 수집 보조는 Discord `/collect url` 또는 관리자 화면에서 입력된 상세 페이지 1건을 처리한다. 자동 수집은
-별도 `M0 자동 수집` 정책을 사용하며, 출처별로 Hot 목록이 불가능하면 `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로
+별도 `M0 자동 수집` 정책을 사용하며, 출처별로 Hot 목록이 불가능하면 `GENERAL_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로
 분기한다. 목록 parser가 없는 출처에 generic 목록 parser를 적용하지 않는다.
 
 | 대상 | 추출 규칙 | 필수 여부 | 실패 처리 |
@@ -454,6 +480,8 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 - 승격 transaction 실패 시 저장된 이미지는 staging orphan 정리 대상으로 분류한다.
 
 ## Spring 수집 서버 전환 결정 (2026-09-08)
+
+이 절은 legacy 전환 당시의 결정이다. 현행 direct batch의 DB/object 소유권과 실행 방법을 대체하지 않는다.
 
 - 운영자 로컬 PC에 별도 Spring Boot 상시 서버를 둔다. Spring Batch Job은 후보 1건을 처리하고,
   Quartz·loopback REST·Discord가 같은 실행 서비스를 호출한다. Java/Spring 추출로 전환하며 Python과
@@ -481,10 +509,46 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 - 위의 단건 전용 설명은 Discord·관리자 URL 진입점의 계약이다. 목록 발견은 이번 자동 수집 확장에서 추가하며
   과거의 “후속·사용하지 않음”을 현재 구현 범위 제한으로 사용하지 않는다. 상세 parser와 후보 검수·수동 발행은 공유한다.
 - 제목·OG 이미지뿐인 결과는 원문 수집 성공이 아니다. 본문·본문 이미지·SNS·첨부 링크를 순서대로 보존하고
-  댓글·작성자 프로필·광고는 제외한다. 첨부 파일 binary 보관은 MIME·크기·보존·비공개 저장 계약과 검증 전까지 차단한다.
+  댓글·작성자 프로필·광고·공지/필독/운영 안내 row는 제외한다. 목록 parser는 구조적 notice class, 고정/상단 badge,
+  `공지:`·`[필독]` 같은 제목 prefix를 제외하되 일반 제목 중간에 들어간 단어만으로는 제외하지 않는다.
 - robots·이용약관·공개 범위·연락처·요청 간격을 확인한 출처만 네트워크 수집을 활성화한다.
   기술 조사에서 공개 HTML을 읽은 사실은 재사용 허용·DB 적재·production 활성화의 증거가 아니다.
-- `--dry-run`은 후보·콘텐츠 DB를 변경하지 않는다. 네트워크 요청을 수행하면 quota 예약은 소비한다.
-  `--write-db`는 서비스 API로 후보만 저장하며 자동 발행하지 않는다. 기본 재수집은 skip이다.
+- direct batch `--dry-run`은 DB와 object store를 변경하지 않는다. 사이트 네트워크 요청과 요청 간격은 적용하며
+  Core quota 예약 API는 호출하지 않는다. `--write-db`는 batch가 collect DB/object store에 직접 저장하고
+  자동 발행하지 않는다. 기본 재수집은 완료된 항목 skip이다.
+- 이미지는 본문 순서를 보존하며 `src`, `data-src`, `data-original`, `data-original-src`, `data-lazy-src`,
+  `data-srcset`/`srcset`, CSS `background-image`에서 허용 CDN URL만 후보로 삼는다. lazy-load placeholder와
+  미허용 origin은 성공으로 포장하지 않고 parser 실패 또는 media 실패로 남긴다.
+- SNS는 a[href], iframe[src], blockquote의 permalink/cite 및 본문 URL을 LINK로 보존한다.
+  SNS API·영상 binary·로그인 요청은 하지 않는다. mp4/mov/mp3/wav 같은 영상·오디오 파일은 아직 다운로드하지 않고
+  LINK로만 남긴다. 화면의 기존 공식 임베드 allowlist를 그대로 적용한다.
 - 사이트별 실제 구조·차단 사유·검증은 [21개 출처 검증표](reference-site-validation.md)를 따른다.
   이름·host 등록, synthetic fixture, 격리 DB 검증, 실제 URL→DB readback, 실제 Discord Gateway를 구분한다.
+
+## 2026-09-23 direct batch 검수·승격
+
+- direct batch는 외부 fetch와 `collect.batch_*` 수집 결과를 소유한다. API는 수집 object를 읽기만 하고 외부 원문을 다시 가져오지 않는다.
+- 운영자는 batch 목록/상세를 조회한 뒤 REVIEWING → APPROVED 또는 REJECTED로 검수한다. APPROVED만 content DRAFT로 승격하며 발행은 별도 게시글 명령이다.
+- 검수 상태와 수집 상태를 분리한다. 수집 item version이 달라지면 기존 승인을 사용해 승격할 수 없다.
+- 같은 item의 중복 승격과 같은 출처의 중복 게시글 생성을 막는다. 실패한 승격은 초안을 남기지 않으며 staging 이미지 정리 후 재시도할 수 있다.
+- 이미지 원본을 모두 검증해 API private 사본을 준비한다. 첨부 파일은 원문 링크와 metadata를 보존하며 익명 collect 다운로드를 열지 않는다.
+- 현재 사이트별 목록은 [출처 정책](source-collection-policy.md)의 HOT_LIST/GENERAL_LIST/DETAIL_ONLY로 구분한다.
+  일반 게시판을 Hot 수집으로 보고하지 않는다. 시각 미확인 글의 포함 여부와 건수도 실행 report로 구분한다.
+- 이 문서에 남은 Core candidate/lease/결과 제출 흐름은 기존 단건 구현의 호환 설명이다. direct batch의
+  DB/object 직접 저장·API 조회/검수 계약을 대체하지 않는다.
+
+## 2026-09-23 Discord direct queue 정렬
+
+Discord 확인은 batch 소유 confirmation/queue에 원자적으로 접수한다. request와 실행 attempt를 분리하여 중복 확인·중단 후 재개를 처리하며, 수집은 API 호출 없이 공통 상세 parser와 DB/object pipeline을 사용한다. source lock·version·최대 3회 재시도·30초 지수 backoff를 적용하고 차단/삭제/parser/크기 제한/rate-limit은 자동 재시도하지 않는다. 실제 Gateway 검증은 독립 완료 조건으로 유지한다. 상세 계약은 Spring 수집 설계의 Direct batch Discord 대기열 계약을 따른다.
+
+
+## 2026-09-23 다중 이미지와 수집 용량 계약
+
+- direct batch는 원문 이미지 최대 200개, 첨부 최대 20개, 본문 최대 1000블록을 보존한다. 초과한 원문을 잘라 성공 처리하지 않는다.
+- source 설정 `mediaLimits`의 `maxImages`(1~200), `maxFileBytes`(1~31457280), `maxTotalBytes`(1~157286400)는 생략하면 각 상한을 기본값으로 사용한다. 사이트별로 낮출 수 있고 전역 상한을 높일 수 없다.
+- 파일당 30MiB, 이미지와 첨부를 합친 글당 150MiB를 순차 다운로드 중 검증한다. 남은 용량을 넘는 파일은 object 저장 전에 실패한다. HTML 원문 30MiB 제한은 별도다.
+- API 수집 이미지 preview/초안 승격은 동일한 30MiB 입력 한도를 사용한다. 승격 전에 모든 media의 크기 합계 150MiB를 확인하며, 재인코딩한 이미지도 개별 30MiB·합계 150MiB를 넘으면 쓰기 전에 거부한다. 이미 준비한 사본은 기존 실패 복구 경로로 회수한다.
+- 일반 관리자 업로드 요청의 파일당 10MiB·요청당 10개/100MiB와 이미지 픽셀·애니메이션 디코딩 한도는 유지한다. 게시글 편집 계약은 200장까지 허용해 수집 초안을 내용 손실 없이 편집할 수 있다.
+- 레거시 candidate/metadata 선택 이미지 20개 계약과 direct batch를 구분한다. DB migration으로 기존 결과를 강제로 성공 처리하지 않는다.
+- `SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED`는 해당 글 실패이며 다음 글 수집을 중단시키는 사이트 오류로 누적하지 않는다.
+- 검증은 20장 초과 성공, 200장 경계와 201장 실패, 설정 상한 거부, 전체 용량 초과 무쓰기, 승격 실패 복구, 실제 실패 글 재수집·DB/object readback을 각각 증거로 남긴다.

@@ -357,7 +357,7 @@ DELETE /api/v1/admin/images/:imageId
 
 응답 필드·형식은 [M0 Core OpenAPI](../development-specs/m0-core/openapi/m0-core.yaml)를 따른다.
 
-- `blocks`는 1~40개, IMAGE block은 최대 20개다.
+- `blocks`는 1~1000개, IMAGE block은 최대 200개다. 일반 업로드 요청의 파일 수·용량 제한은 별도다.
 - `Idempotency-Key` header를 필수로 받고 다른 post command와 같은 actor·scope·key 규칙을 적용한다.
 - `title`은 trim 후 1~200자다. TEXT block은 plain text이며 trim 후 비어 있으면 안 되고 block당 최대 20,000자다. `<tag>` 형태도 HTML이나 Markdown으로 해석하지 않고 문자열 그대로 저장한다.
 - 활성 작성 대상 게시판이 없으면 `404 BOARD_NOT_FOUND`를 반환한다.

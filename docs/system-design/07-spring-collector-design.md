@@ -6,16 +6,30 @@
 - 상위 계약: [시스템 아키텍처](./01-system-architecture.md#spring-collector-transition), [데이터 모델](./02-data-model.md#spring-수집-배치-저장-경계), [API 설계](./03-api-design.md#spring-수집-서버의-실행-api와-기존-중계)
 - 기능 명세: [M0 수집 보조 개발 명세](../development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md)
 
-이 문서는 Spring 수집 서버의 구현 기준선이다. 운영자 로컬 Spring Boot 서버, Spring Batch,
-Quartz, REST·Discord 공통 실행 경로와 Java 추출을 사용한다. 기존 Web/BFF collector 중계와 Core의
-후보·검수·초안 API는 유지하고 필요한 읽기·멱등·quota·운영 이벤트 계약만 추가한다. Spring 서버는
-서비스 DB와 object storage 자격을 갖지 않으며 모든 서비스 데이터 변경과 preview 업로드는 BFF를
-거친 Core API로만 수행한다.
+현행 수집 경로는 웹/API와 별도 컴퓨터에서 실행하는 Java direct batch다. batch가 외부 fetch,
+목록/상세 parser, Discord queue와 `collect.batch_*`·collect object 저장을 소유한다. API는 저장된
+결과의 조회·검수·content 초안 승격·별도 발행만 소유한다. 글별 Core HTTP 전송은 하지 않는다.
+Spring Batch·Quartz·Core 후보/lease를 사용하는 아래 초기 절은 legacy 호환 경로를 설명한다.
+현행 direct 경로의 정본은 이 문서의 Direct batch Discord 계약, §17~18과 2026-09-23 구현 계약이다.
 
 `M0 Core` 공개와 이 서버의 구현·활성화는 분리한다. 이 설계가 확정되어도 Spring source, Core migration,
 OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는 뜻은 아니다. 현재 구현 범위와 실행 결과는 [M0 완료 조건](../implementation/m0-completion/acceptance.md)과 [검증 기록](../implementation/m0-completion/evidence.md)에서 분리해 관리한다.
 
 내부 패키지·의존성 규칙과 CLI 배치는 [M0 코드 구조](08-code-structure.md)를 따른다.
+
+## Direct batch Discord 대기열 계약 (2026-09-23)
+
+현행 direct batch의 Discord 입력은 아래 계약을 따른다. 이 문서의 Core 후보·spool·Spring Batch 설명은 legacy 호환 경로이며 이 대기열에 적용하지 않는다.
+
+- `collect.batch_confirmation`은 공개 canonical URL, source/post key, interaction·actor·channel HMAC과 10분 만료 시각만 보관한다. 확인 전 외부 fetch·수집 실행은 없다.
+- 확인 버튼은 행 잠금 transaction으로 `collect.batch_queue` 등록과 confirmation 연결을 함께 확정한다. 같은 확인의 재전송은 같은 request UUID를 반환한다. 다른 사용자의 확인은 거부한다.
+- queue request UUID와 실행 attempt의 `batch_run.id`는 분리한다. 실행마다 새 run과 object prefix를 사용하며 request에 현재 run·시도 횟수·다음 실행 시각·version을 보관한다.
+- worker는 source session advisory lock을 확보한 뒤 queue를 claim한다. 일반 CLI 수집과도 같은 lock을 사용한다. 네트워크 I/O 동안 DB transaction을 유지하지 않는다.
+- 다른 PC가 lock을 얻으면 이전 owner가 종료된 실행을 복구한다. 완료 run은 다시 fetch하지 않고 queue 결과를 확정한다. 중단된 run은 실패 기록을 보존하고 최대 3회까지만 새 attempt를 허용한다.
+- 네트워크·DNS·일시 서버 오류는 30초부터 지수 backoff한다. 403·삭제·parser·크기 제한·rate-limit은 자동 queue 재시도를 하지 않는다. 요청 내부의 제한 재시도와 queue 재시도를 각각 기록한다.
+- queue/confirmation의 상태 전이·version·식별자 불변성과 active 중복 제약은 V005 migration으로 보장한다. 두 테이블은 batch role만 읽고 쓴다. API는 기존 item/run/media 결과를 읽는다.
+- `bin/blariyo-collector queue --once --write-db`는 대기 작업을 한 건 처리한다. `discord --write-db`는 API 없이 Gateway와 동일 worker를 실행한다. 두 명령은 명시적 쓰기 모드만 허용하며 batch/collect-url의 dry-run 계약은 그대로 유지한다.
+- 실제 Gateway 접속·명령 등록·interaction 실행은 별도 실연동 증거가 필요하다. 로컬 queue test를 Gateway 완료로 표시하지 않는다.
 
 ## 1. 확정 선택과 되돌리기 조건
 
@@ -658,10 +672,10 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 
 ### Result와 후보 보관
 
-- 성공 result의 optional `contentBlocks`는 원문 모드의 표시이며 1~40개다. 없으면 기존 metadata 모드다.
+- 성공 result의 optional `contentBlocks`는 원문 모드의 표시이며 1~1000개다. 없으면 기존 metadata 모드다.
   TEXT는 `{type:TEXT,text}`(trim 후 1~20,000자), IMAGE는 `{type:IMAGE,imagePosition,alt}`(1~20, alt 0~300자),
   LINK는 `{type:LINK,url,label}`(HTTP(S) URL 2,048자 이하, label 0~300자)다. LINK는 서버의 fetch 명령이 아니다.
-- imageCandidates는 원문 모드에서 0~20개, metadata 모드에서 기존 1~20개다. imagePosition은 연속된 후보
+- imageCandidates는 direct batch 원문 모드에서 0~200개, metadata 모드에서 기존 1~20개다. imagePosition은 연속된 후보
   position을 빠짐없이 정확히 한 번씩 참조해야 한다. source title·본문은 요약하거나 한도에 맞춰 자르지 않는다.
 - `collect.candidate.content_blocks JSONB NULL`에 저장한다. NULL은 legacy/PENDING/실패/반려 상태이며
   result metadata·image row·digest·NEW 전환과 같은 transaction에서 저장한다. retry·reject 시 비운다.
@@ -674,7 +688,7 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 - 원문 모드에서는 본문 순서와 첨부 연결을 검수 화면에 보여준다. 본문 전체 대신 leadText를 입력하거나 일부 이미지를
   선택해 누락시키지 않는다. 모든 이미지의 preview 또는 운영자 대체 업로드가 필요하며 설명은 수정할 수 있다.
 - 승격은 저장된 contentBlocks를 사용한다. TEXT를 그대로 복사하고 IMAGE의 position을 새 imageId로 연결한다.
-  LINK는 label(있으면) TEXT와 URL TEXT로 변환해 기존 게시글 표시기를 사용한다. 변환 후 40블록 초과도 거부한다.
+  LINK는 label(있으면) TEXT와 URL TEXT로 변환해 기존 게시글 표시기를 사용한다. 변환 후 1000블록 초과도 거부한다.
   링크 label과 URL이 같으면 URL 한 블록만 만든다. SNS URL은 독립 TEXT로 남아 공식 임베드 대상이 된다.
 - contentBlocks가 있으면 이미지 0건도 허용한다. 모든 참조 이미지의 선택을 요구하며 leadText는 거부한다.
   metadata 후보는 기존 이미지 선택·leadText 방식을 유지한다. 부분 파일 실패는 NEW를 유지하고 초안을 만들지 않는다.
@@ -710,8 +724,12 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 선택 coreSourceId를 대조하고 모호한 중복 설정을 거부한다. 이름만 등록한 출처는 BLOCKED이며 METADATA로 대체하지 않는다.
 
 - source registry → site list adapter → canonical/post key 중복 제거 → 공통 후보 접수 → 기존 상세 pipeline.
-- 사이트별 list/detail adapter는 별도로 선택한다. DOM 순서 보존기는 공유하지만 본문 selector는 사이트별로 고정한다.
-  실측 selector·chart URL·본문/이미지·canonical·post key·fixture는 planning의 검증표와 설정에 기록한다.
+- registry는 사이트별 adapter를 선택한다. 현재 `SiteAdapters.java`의 사이트별 중첩 클래스 안에서
+  `list`·`detail` 메서드가 책임을 나누며, 독립 사이트 패키지·목록 parser·상세 parser 파일 분리는 아직 남아 있다.
+  목표 구조와 분리 완료 기준은 [사이트별 모듈 계약](08-code-structure.md#collector-site-modules)을 따른다.
+  DOM 순서 보존기는 공유하지만 본문 selector는 사이트별로 고정한다. 목록 미지원 사이트는 상세 전용으로 유지하며
+  목록 접근 성공을 상세 수집 성공으로 간주하지 않는다. 실측 selector·chart URL·본문/이미지·canonical·post key·fixture는
+  planning의 검증표와 설정에 기록한다.
 - CLI: `bin/blariyo-collector batch --source <key> --chart hot --max-pages 2 --max-items 20 --since 24h --dry-run|--write-db`.
 - DETAIL_ONLY 또는 Discord/manual URL 경로는 목록 discovery 없이 단일 상세 URL만 처리한다. CLI는
   `bin/blariyo-collector collect-url --source <key> --url <detail-url> --dry-run|--write-db`를 사용한다.
@@ -731,14 +749,25 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
   실행 모드는 검증 fixture와 실제 출처를 구분하며, 로컬 카운터로 Core quota를 우회하지 않는다.
 - 재수집 기본 skip. update는 기존 승인/반려 후보를 덮어쓰지 않는 version·검수 계약을 추가한 뒤 제공하며,
   미구현 update 옵션을 성공으로 받지 않는다. canonical과 source post key가 다른 게시물을 합치면 안 된다.
+- 본문 이미지는 `img[src]`, `data-src`, `data-original`, `data-original-src`, `data-lazy-src`,
+  `data-srcset`/`srcset`, CSS `background-image`를 순서대로 해석한다. `srcset`은 가장 큰 width/density 후보를 선택한다.
+  후보 URL은 `SourcePolicy.imageOrigins`의 정확한 HTTPS host/path prefix를 다시 통과해야 하며 실패 시 성공 처리하지 않는다.
+- 목록 discovery는 타 사이트 공지·필독·운영 안내를 후보 큐에 넣지 않는다. 공통 필터는 row/link class·id의
+  `notice/noti/fixed/sticky/pinned`, badge text `공지/알림/필독/NOTICE`, 제목 prefix `공지:`·`[필독]`을 제외한다.
+  일반 게시글 제목 중간에 같은 단어가 들어간 경우까지 광범위하게 제거하지 않는다.
 - SNS는 a[href], iframe[src], blockquote의 permalink/cite 및 본문 URL을 LINK로 보존한다.
-  SNS API·영상 binary·로그인 요청은 하지 않는다. 화면의 기존 공식 임베드 allowlist를 그대로 적용한다.
+  SNS API·영상 binary·로그인 요청은 하지 않는다. mp4/mov/mp3/wav는 현재 첨부 다운로드 대상이 아니라 LINK 블록으로만
+  보존한다. 화면의 기존 공식 임베드 allowlist를 그대로 적용한다.
 - JSON/JSONL 보고는 run ID·출처 key·상태·개수·일반 오류 코드·candidate/job ID만 포함한다.
   제목·본문·원문 URL·secret·쿠키·내부 경로를 일반 로그로 출력하지 않는다.
 - 성공은 목록→상세→본문/이미지/SNS→Core API 저장→개발 DB readback으로 판정한다.
   실제 Discord Gateway 연결·확인 interaction 검증은 fixture 시험과 별도다.
 
-### V007 저장 계약과 현재 구현 한계
+### V007 저장 계약과 당시 구현 한계 — legacy 경로
+
+이 절은 API candidate 중심 경로를 만들던 당시의 계약과 한계다. 현행 batch CLI의 저장·dry-run·parser 상태는
+아래 §18 이후 direct ownership 계약과 실제 출처별 검증표를 따른다. 아래 API quota 예약·파일 미저장 설명을
+현행 direct batch 실행의 동작으로 해석하지 않는다.
 
 - `collect.source_discovery_policy`: source별 별도 opt-in, 검토일·정책 버전·목록 URL. migration은 출처를 활성화하지 않는다.
 - `collect.candidate.discovery_mode`: MANUAL_URL 또는 LIST_CRAWL. 두 경로는 같은 claim/fencing/result/media 단계를 사용한다.
@@ -771,3 +800,138 @@ object store는 `BatchObjectStore`가 `collect/raw`, `collect/media`, `collect/r
 Discord `/collect url`의 확인 전 단계는 암호화 spool과 confirmation만 만든다. 확인 버튼 이후 `BatchStore.queueManual`이
 `collect.batch_run`과 `collect.batch_item(DISCOVERED)`을 직접 만들며 API 후보·예약·결과 endpoint를 호출하지 않는다.
 Gateway 자체 연결·상호작용은 별도 운영 증거로 기록하며, 테스트에서 Gateway를 대신 표시하지 않는다.
+
+## 2026-09-23 direct batch 검수·승격 구현 계약
+
+- API/batch는 같은 PostgreSQL database의 collect schema를 서로 다른 role로 접근한다. 별도 실행 컴퓨터가 별도 database를 뜻하지 않는다.
+- batch-owned 7개 테이블은 API SELECT only. API-owned `collect.batch_review`, `collect.batch_review_request`는 batch에 권한을 주지 않는다.
+- review는 item UUID를 unique key로 보관하고 item version, canonical hash, source key/post key, 검수 상태, lock version, post ID를 갖는다. batch migration과 독립 적용을 위해 item의 존재와 version은 서비스가 검사하며 content post FK와 중복 제약은 DB에서 보장한다.
+- API: GET `/api/v1/admin/collect/batch-items`, GET `/{itemId}`, POST `/{itemId}/review`, POST `/{itemId}/draft`. 인증·별도 `COLLECT_BATCH_REVIEW_ENABLED` gate·OpenAPI 검증을 사용한다.
+- review 명령은 `itemVersion`, `lockVersion`(최초 0), `decision`을 받는다. 모든 쓰기는 Idempotency-Key를 사용한다. 동일 key/동일 body는 결과 재생, 다른 body는 409. version 충돌·이미 승격된 item·승인 없는 승격을 거부한다.
+- 승격은 collect reader의 고정 local root 또는 전용 read credential의 S3 bucket만 읽는다. object key prefix/path 검증, byte limit, DB sha/size 확인 후 이미지 decode/재인코딩을 수행한다. 원문 remote URL로 대체 fetch하지 않는다.
+- private 이미지 준비 뒤 transaction에서 item/review version과 중복을 재확인하고 전체 순서의 DRAFT와 post 연결·receipt를 함께 commit한다. 실패 시 준비된 미연결 이미지를 정리한다. 공개 object는 별도 발행에서만 만든다.
+- preview는 관리자 인증 경로만 사용한다. 일반 공개 media 프록시는 collect/private를 허용하지 않는다.
+- 완료는 서비스/API 실행·migration/state/unique/optimistic lock·실패재시도·중복·DB/object readback·별도 발행·격리 숨김/재발행 테스트로 판정한다. 설계 기록만으로 완료가 아니다.
+
+검수 일관성 보강(2026-09-23): REVIEWING 시작 시 item 식별자·버전·본문·SNS·첨부·media 위치/hash/key의
+SHA-256 snapshot을 API 소유 review 행에 기록한다. 승인과 초안 승격 때 같은 snapshot인지 대조한다.
+변경된 원문은 기존 승인으로 승격하지 않고 REVIEWING을 다시 시작한다. 조회는 PostgreSQL repeatable-read로
+item/media를 함께 읽는다. 승격 최종 트랜잭션에서도 snapshot을 재대조하며 외부 원문 fetch는 없다.
+초안 응답의 lockVersion은 content 게시글 버전이고 reviewLockVersion은 검수 행 버전이다.
+승격 제목은 운영자가 200자 이내로 별도 지정할 수 있으며, 지정하지 않으면 원문 제목을 사용한다.
+신규 API private 이미지는 content/private/staging/*를 사용하며, 기존 staging/*의 조회·회수 호환은 유지한다.
+
+관리자 batch 이미지 preview는 인증된 GET `/api/v1/admin/collect/batch-items/{itemId}/media/{position}/preview`만 제공한다.
+DB에 저장된 collect object key를 읽고 hash/size를 대조하며 허용한 실제 이미지 형식으로 디코딩·검증한다.
+외부 URL을 재요청하거나 collect prefix를 익명 공개하지 않는다. 수집 서버의 잘못된 Content-Type은 파일의
+실제 디코더 형식으로 판정한다. 수집 이미지의 preview와 초안 승격은 같은 전용 검증을 사용한다.
+수집 파일당 30MiB, 한 프레임 40,000,000픽셀, 최대 500프레임을 유지한다.
+전체 64Mi픽셀 이내는 기존 재인코딩 경로를 사용한다. 이를 넘는 GIF/WebP는 아래 분할 디코딩·컨테이너
+정제 경로를 사용하며, 메모리 제한을 해제하지 않는다. 일반 업로드의 200프레임/
+40,000,000 디코딩 픽셀 제한은 변경하지 않는다. 수집 GIF는 중복 프레임과 지연·반복 정보를 유지한다.
+한도 초과는 일부 프레임으로 잘라 성공시키지 않고 명시적으로 거부한다. 검수 UI는 이미지 로딩 실패 시
+미리보기 불가 안내와 원문 확인 링크를 표시한다. 제한 자체를 우회하는 다운로드 경로는 만들지 않는다.
+원본 bytes는 collect에 남고 API private/public에는 검증·재인코딩 또는 아래 컨테이너 정제를 마친 사본을 사용한다.
+
+Direct batch 재시도 계약(2026-09-23): 목록/상세/redirect/이미지/첨부에 같은 요청 간격을 적용한다.
+429/408/5xx 및 제한된 DNS/transport 오류는 최초 포함 최대3회, interval과 지수 대기 및 Retry-After 중
+긴 값을 사용한다. Retry-After가60초를 넘으면 일찍 재요청하지 않고 이번 사이트 실행을 중단한다.
+403/401은 재시도하지 않는다. 접근 제한·일시 장애의 재시도 소진은 site stop이며 HTML 구조 오류는
+최대3개 실패 후 중단한다. 404/410 삭제는 SOURCE_GONE으로 구분한다. 개별 글 삭제·파일 크기·본문/이미지
+한도 초과는 다른 글의 구조 장애로 합산하지 않고 최대 글 수 안에서 skip한다. 실패 자체는 report와 failure에 남긴다.
+DB session advisory lock으로 동일 source의 manual/list write 실행을 직렬화한다. 잠금이 있으면
+BATCH_SOURCE_BUSY로 종료하며, 잠금 확보 후 남은 RUNNING 실행은 BATCH_OWNER_LOST로 실패 처리한다.
+새 실행에서 미완성 DISCOVERED/FETCHING/FAILED/BLOCKED item만 다시 처리하며 미완성 media 행을
+같은 트랜잭션에서 교체한다. FETCHED snapshot과 API 검수/content는 변경하지 않는다.
+이 동작은 사용자가 새 CLI 실행을 요청했을 때의 재시도이며 차단 우회가 아니다.
+batch object 설정은 COLLECTOR_*만 사용한다. API의 R2_PRIVATE_* 자격 증명으로 fallback하지 않는다.
+
+목록 유형 보정(2026-09-23): HOT_LIST는 hot, GENERAL_LIST는 latest를 사용하고 chart 생략 시 defaultChart를 따른다.
+DETAIL_ONLY에는 chart를 정의하지 않는다. 날짜 미확인 항목은 INCLUDE_UNKNOWN에서 unknownDates로 보고하며,
+REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 skippedByDate에 포함한다. since 24h만으로 시각 미확인 글까지 최근24시간으로
+판정하지 않는다. 상세 수량·페이지·요청 간격은 source별 상한/최솟값을 준수한다.
+
+### Batch V003 상태 전이와 실행 소유권
+
+이 절은 구현 계약이다. 실제 적용·검증은 migration ledger와 테스트 결과로 별도 확인한다.
+
+- source advisory lock을 보유한 동일 PostgreSQL 연결에서 모든 수집 쓰기를 실행한다. 연결이 끊기면
+  다른 pool 연결로 쓰기를 이어가지 않는다. `RUNNING`은 source당 하나이며 run의 backend 소유자를 기록한다.
+- DB trigger가 해당 source 잠금 보유, 실행 상태, backend, version 증가, item/source 일치를 검사한다.
+  종료된 run과 FETCHED item/media는 runtime에서 불변이다. 아래 V006의 소유자 전용 MIME 정정은 별도 감사 경로다. 새 잠금 소유자만 이전 RUNNING을 BATCH_OWNER_LOST로 종료할 수 있다.
+- DISCOVERED/FETCHING/FAILED/BLOCKED의 재시도는 새 실행에서 FETCHING으로 claim한다.
+  V004에서 상세 fetch 전 item 등록과 fetch·parse 오류의 item 상태 기록, 기간 제외 상태를 추가한다.
+  V003까지의 과거 parser 이전 실패는 failure 행만 남을 수 있다.
+- 네트워크 대기 동안 DB transaction을 유지하지 않는다. 잠금은 session 범위이며 DB 변경만 짧은 transaction이다.
+- 새로운 media key는 `collect/media/{runId}/{itemId}/{position}`이다. 연결을 잃은 이전 실행의 늦은 object PUT이
+  새 실행의 사본을 덮어쓰지 못한다. 기존 `collect/media/{itemId}/{position}`는 읽기 호환을 유지한다.
+- `batch_report`는 실제 저장한 report key/hash/JSONL 행 수를, `batch_checkpoint`는 실행의 진행 상태/version을 기록한다.
+  report·checkpoint 기록과 run 종료는 동일 DB transaction으로 확정한다. 갑작스러운 process 종료는 완성 report 없이
+  owner lost로 남을 수 있으며, 새 실행이 성공했다고 과거 실행을 성공으로 바꾸지 않는다.
+- V003 적용 전 실행 중인 batch를 정상 종료하고 백업한다. 기존 ledger checksum은 수정하지 않는다.
+  migration·lost backend·무잠금 쓰기·불법 전이·완료 snapshot 불변·재시도는 격리 PostgreSQL에서 검증한다.
+
+### Batch V004 개별 실패와 기간 제외 계약
+
+- 목록과 수동 URL 모두 상세 fetch 전에 source post key/canonical hash로 item을 FETCHING claim한다.
+  FETCHED 중복은 상세·미디어 요청 전에 건너뛴다. fetch 성공 원문은 parse 전에 저장한다.
+- fetch/parse/raw/media 실패는 해당 item의 FAILED/BLOCKED와 failure phase/code를 함께 기록한다.
+  과거 item 없는 failure 행을 성공·실패 item으로 소급 조작하지 않는다.
+- 날짜 미확인 REQUIRE_KNOWN, 기간 밖 날짜는 SKIPPED_POLICY로 구분한다. skip_reason은
+  SOURCE_DATE_UNKNOWN 또는 SOURCE_OUTSIDE_WINDOW다. 실패 건수에는 더하지 않으며 재실행 시 다시 판단할 수 있다.
+- API 결과 조회는 failureCode와 skipReason을 반환한다. 실패·기간제외 항목은 승인/초안 승격할 수 없다.
+- V004는 V003 위에 새 migration으로 적용한다. 기존 완료 snapshot과 migration checksum을 변경하지 않는다.
+
+
+## 2026-09-23 다중 이미지와 수집 용량 계약
+
+- Web 중계 대기 시간은 batch 초안 승격 180초, batch 이미지 preview 60초다. 일반 JSON 요청 15초와 일반 이미지 업로드 60초는 유지한다. 응답을 받지 못하면 새 요청 키로 다시 생성하지 않고 같은 멱등 키와 본문으로 완료 결과를 조회한다.
+- 멱등 영수증은 관리자 식별값에도 종속된다. 지속적인 로컬 개발 서버는 cookie 토큰을 재발급해도 관리자 식별용 비밀값을 권한 600의 Git 제외 파일로 보존한다. 이전 임시 식별값의 영수증은 이력으로 남기며 새 식별값에 임의로 이전하지 않는다.
+- API 초안의 이미지 준비에는 120초의 처리 예산을 둔다. 이미지 처리 전·후와 DB 확정 직전에 경과 시간을 검사하며, 초과하면 503으로 거부하고 준비한 사본을 기존 회수 경로로 넘긴다. 이미 시작된 파일 I/O를 강제로 중단하는 전체 요청의 절대 기한은 아니다. 이미지 디코딩/재인코딩은 작업당 30초로 제한한다. 잠금·저장소 지연으로 중계 응답을 잃어도 DB에 확정한 초안과 영수증을 먼저 확인해 사본을 잘못 삭제하지 않는다.
+- direct batch는 원문 이미지 최대 200개, 첨부 최대 20개, 본문 최대 1000블록을 보존한다. 초과한 원문을 잘라 성공 처리하지 않는다.
+
+- source 설정 `mediaLimits`의 `maxImages`(1~200), `maxFileBytes`(1~31457280), `maxTotalBytes`(1~157286400)는 생략하면 각 상한을 기본값으로 사용한다. 사이트별로 낮출 수 있고 전역 상한을 높일 수 없다.
+- 파일당 30MiB, 이미지와 첨부를 합친 글당 150MiB를 순차 다운로드 중 검증한다. 남은 용량을 넘는 파일은 object 저장 전에 실패한다. HTML 원문 30MiB 제한은 별도다.
+- API 수집 이미지 preview/초안 승격은 동일한 30MiB 입력 한도를 사용한다. 승격 전에 모든 media의 크기 합계 150MiB를 확인하며, 재인코딩한 이미지도 개별 30MiB·합계 150MiB를 넘으면 쓰기 전에 거부한다. 이미 준비한 사본은 기존 실패 복구 경로로 회수한다.
+- 일반 관리자 업로드 요청의 파일당 10MiB·요청당 10개/100MiB와 이미지 픽셀·애니메이션 디코딩 한도는 유지한다. 게시글 편집 계약은 200장까지 허용해 수집 초안을 내용 손실 없이 편집할 수 있다.
+- 레거시 candidate/metadata 선택 이미지 20개 계약과 direct batch를 구분한다. DB migration으로 기존 결과를 강제로 성공 처리하지 않는다.
+- `SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED`는 해당 글 실패이며 다음 글 수집을 중단시키는 사이트 오류로 누적하지 않는다.
+- 원문 이미지 HTTP Content-Type은 실제 파일과 다를 수 있다. 알려진 PNG/JPEG/GIF/WebP/AVIF 바이트 서명이 있으면 이를 DB/object MIME에 우선 사용하고, 실제 디코딩 검증과 구분한다. 과거 FETCHED 결과의 MIME 정정은 완료 snapshot 불변 규칙을 우회하지 않는 별도 복구 절차로 처리한다.
+- 검증은 20장 초과 성공, 200장 경계와 201장 실패, 설정 상한 거부, 전체 용량 초과 무쓰기, 승격 실패 복구, 실제 실패 글 재수집·DB/object readback을 각각 증거로 남긴다.
+
+### 실제 HTML 회귀와 웃긴대학 모바일 본문
+
+- 정제 fixture는 원본 SHA-256, 공개 URL, 정제본 SHA-256, 목록의 식별자·순서·시각·다음 페이지와 상세의 블록 순서·미디어 수를 함께 저장한다. 정제 전후 결과가 달라지면 저장하지 않는다. fixture 통과는 실시간 접근이나 DB/object readback 성공을 대신하지 않는다.
+- 웃긴대학 모바일은 `p.content_body_padding`만 읽으면 브라우저의 HTML 보정으로 그 밖에 놓인 `.body_editor`의 텍스트·링크를 잃을 수 있다. `.daum-wm-content` 전체를 문서 순서대로 읽는다. 실제 관측한 이미지 확대 버튼 `#btn_nemo_expand_all`과 로딩 표시 `[id^=timg_prog_]`, `img[src*=loading_bar]`만 제외하고 본문·이미지·SNS·첨부 링크는 공통 ordered parser로 보존한다.
+- 이미지 전부를 먼저 나열하고 본문을 한 문단으로 붙이는 모바일 경로는 사용하지 않는다. 실제 HTML 회귀와 혼합 본문·이미지·SNS·첨부 테스트를 함께 실행하며, 변경 후 live 저장 증거는 별도 기록한다.
+
+### 인벤 첨부 영역과 파일 참조
+
+- 실제 공개 상세 HTML에서 확인한 `#tbArticle > .articleFile a[href]`는 `#powerbbsContent` 바깥의 첨부 영역이다. 인벤 adapter는 이 영역의 링크를 본문 앞에 문서 순서대로 연결하고 본문 parser는 기존 본문·이미지를 유지한다. 작성자 정보·댓글·추천글은 포함하지 않는다.
+- 첨부 anchor 안의 다운로드 아이콘은 본문 이미지가 아니다. 링크 URL과 표시명만 연결한다. 원문 charset을 해석한 뒤 UTF-8로 직렬화하므로 CP949/EUC-KR 페이지의 한글을 중복 디코딩하지 않는다.
+- 지원 확장자의 파일 링크는 anchor와 일반 텍스트 URL 모두 첨부 후보로 등록한다. 본문 내 반복 LINK는 원문 순서대로 유지하되 같은 절대 파일 URL은 한 번만 다운로드한다. 첨부 한도20개는 고유 URL 기준이며, 이미지는 이 규칙으로 임의 제거하지 않는다.
+- 저장은 기존 정확한 CDN origin 허용·요청 간격·파일/합계 크기 제한을 따른다. 첨부 bytes는 collect에만 보관하고 API 초안/공개에는 원문 링크를 보존한다. 압축 파일의 압축 해제·실행과 익명 collect 다운로드는 하지 않는다.
+
+
+### Batch V006 완료 이미지 MIME 정정
+
+- 목적: 원문 HTTP Content-Type을 우선했던 과거 IMAGE 행의 MIME만 실제 파일 형식에 맞게 정정한다. API/batch runtime의 완료 snapshot 쓰기 권한은 확대하지 않는다.
+- migrator 소유자만 `collect.correct_batch_media_mime`를 실행한다. SECURITY DEFINER나 trigger 비활성화를 사용하지 않는다. PUBLIC과 runtime 역할에는 함수 실행·정정 ledger 쓰기 권한을 주지 않는다.
+- 정정 전에 백업과 고정 대상 manifest를 만든다. 파일 SHA256/크기/전체 디코딩/실제 MIME을 확인하고 media ID, 기존 MIME, 파일 hash/size, item version, 정정 revision을 조건부 대조한다.
+- 함수는 source 및 API의 `batch-review:{itemId}` advisory lock을 얻고 종료된 실행의 FETCHED IMAGE만 허용한다. 정정 ledger INSERT와 MIME UPDATE는 한 transaction이다. 다른 media 필드, item 본문·version·상태, object bytes, 기존 report, content 공개 상태는 변경하지 않는다.
+- `batch_media_correction`은 operation UUID, media ID, 증가하는 revision, 변경 전 media snapshot, 새 MIME, item version, 사유 코드, 실행자·transaction·시각을 append-only로 보존한다. 동일 요청 UUID의 같은 내용은 재실행해도 한 번만 반영되고 다른 내용은 거부한다.
+- API 검수 digest는 media MIME을 포함한다. 기존 미승격 승인은 정정 이후 다시 검수해야 하며, 정정 함수는 검수/발행을 대신하지 않는다. 이미 승격한 글의 과거 검수 이력과 content 사본을 소급 수정하지 않는다.
+- 복구는 새 operation UUID와 현재 revision으로 역방향 정정을 남기는 방식이다. 감사 행 삭제나 version 되감기를 하지 않는다. 원래 MIME이 틀렸던 상태로 되돌아간다는 점을 복구 보고에 표시한다.
+- 이 경로는 DB metadata 정정이다. 원격 S3 Content-Type metadata 정정이나 원문 재수집을 자동으로 수행하지 않는다. 로컬 파일 저장소 검증을 원격 bucket 검증으로 간주하지 않는다.
+- 수용: 격리 DB에서 migration 재실행, stale 조건/hash/size 거부, 중복 요청, rollback, runtime 직접 수정·함수 실행 거부, 감사 변경 금지, review 잠금 경합을 검증하고 실제 로컬 파일/DB를 재대조한다.
+
+
+### 큰 수집 애니메이션의 분할 검사
+
+- 전체 64Mi픽셀을 넘는 GIF/WebP만 별도 경로로 처리한다. 최대500프레임/총200,000,000프레임픽셀/파일30MiB, 프레임당40,000,000픽셀 한도를 둔다. 여러 프레임을 동시에 펼치는 대신 chunk당 최대16프레임 및40,000,000픽셀(추정RGBA160MB)로 순차 검사한다.
+- 각 chunk를 엄격한 decoder(`failOn=warning`)로 끝까지 디코딩한다. chunk당10초, 전체30초 기한을 두며 시간 초과·잘린 마지막 프레임·틀린 크기·프레임 개수 불일치는 실패한다. 이는 decoder 작업량/버퍼 상한이며 프로세스 전체 RSS의 OS hard limit을 뜻하지 않는다.
+- 큰 애니메이션을 새로 양자화하거나 첫 프레임으로 바꾸지 않는다. GIF는 색상표·이미지 데이터·GCE 및 인식한 반복 확장을 유지하고 comment/뒤따른 bytes를 제거한다. 해석하지 못한 application/plain-text 확장은 내용을 버리지 않고 실패시킨다.
+- WebP는 VP8X/ICCP/ANIM/ANMF와 프레임 ALPH/VP8/VP8L 데이터를 보존하고 EXIF/XMP/비표시 unknown chunk/뒤따른 bytes를 제거한다. VP8X metadata flags와 RIFF 크기를 재작성한다. orientation이 필요한 원문은 이 경로에서 거부한다.
+- 정제 출력의 프레임수·크기·지연·반복을 원본과 대조한다. 컨테이너 구조 검사는 전체 프레임 디코딩을 대체하지 않는다. 테스트에서 각 프레임 픽셀 해시도 원본과 대조한다.
+- 원본 readback과 공개 이미지 readback도 같은 분할 디코딩 한도를 사용한다. 실제 원본을 모두 읽지 않고 검사 기대값만 바꿔 성공시키지 않는다. 일반 정적 이미지와 작은 애니메이션의 기존 처리 경로는 유지한다.
+- 근거: [sharp의 page/pages와 animated 처리](https://sharp.pixelplumbing.com/api-constructor/), [GIF89a 구조](https://www.w3.org/Graphics/GIF/spec-gif89a.txt), [WebP RIFF 구조](https://developers.google.com/speed/webp/docs/riff_container).

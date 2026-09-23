@@ -1,5 +1,9 @@
-package com.blariyo.collector.source;
+package com.blariyo.collector.source.sites.theqoo;
 
+import com.blariyo.collector.source.SourcePolicy;
+
+import com.blariyo.collector.source.common.OrderedContentParser;
+import com.blariyo.collector.source.common.OrderedContentParser;
 import java.net.URI;
 import tools.jackson.databind.JsonNode;
 

@@ -1,5 +1,6 @@
 package com.blariyo.collector.source;
 
+import com.blariyo.collector.source.common.OrderedContentParser;
 import static org.junit.jupiter.api.Assertions.*;
 import com.blariyo.collector.shared.*;
 import java.net.URI;

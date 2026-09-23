@@ -1,5 +1,6 @@
 package com.blariyo.collector.source;
 
+import com.blariyo.collector.source.sites.theqoo.TheqooParser;
 import com.blariyo.collector.shared.CollectorFailure;
 import com.blariyo.collector.shared.Json;
 import java.net.URI;

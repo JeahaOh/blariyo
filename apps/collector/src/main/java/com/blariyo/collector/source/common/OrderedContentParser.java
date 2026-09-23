@@ -1,4 +1,6 @@
-package com.blariyo.collector.source;
+package com.blariyo.collector.source.common;
+
+import com.blariyo.collector.source.SourcePolicy;
 
 import com.blariyo.collector.shared.CollectorFailure;
 import com.blariyo.collector.shared.Json;

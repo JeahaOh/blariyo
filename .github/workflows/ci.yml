@@ -30,7 +30,13 @@ jobs:
         with:
           node-version: 24.18.0
           cache: npm
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '25'
       - run: npm ci --no-audit --no-fund
+      # Discovery integration invokes the real Java parser; build its test classpath on every checkout.
+      - run: npm run test:fixtures
       # Scripts/tests import generated API dist modules; build before checking them.
       - run: npm run build && npm run build:test -w @blariyo/api
       - run: npm run typecheck:scripts && npm run lint:scripts && npm run typecheck:tests && npm run lint:tests
@@ -46,12 +52,61 @@ jobs:
         if: always()
         with:
           name: browser-evidence-${{ github.sha }}
-          path: test-results/m0-browser/
+          path: |
+            test-results/m0-browser/
+            test-results/admin-core/
           retention-days: 7
           if-no-files-found: ignore
 
+  collector:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['55449:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_ADMIN_URL: postgresql://postgres@127.0.0.1:55449/postgres
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.18.0
+          cache: npm
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - run: npm ci --no-audit --no-fund
+      # Full Java suite, including fixture and real disposable PostgreSQL readback; skips fail the job.
+      - run: npm run test:collector
+      - run: apps/collector/gradlew -p apps/collector bootJar fixtureClasspath
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: collector-evidence-${{ github.sha }}
+          path: |
+            apps/collector/build/reports/tests/test/
+            apps/collector/build/test-results/test/TEST-*.xml
+            test-results/collector-ci/
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: collector-build-${{ github.sha }}
+          path: |
+            apps/collector/build/libs/blariyo-collector-0.1.0.jar
+            apps/collector/build/reports/cyclonedx/
+          retention-days: 7
+          if-no-files-found: error
+
   images:
-    needs: verify
+    needs: [verify, collector]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 30

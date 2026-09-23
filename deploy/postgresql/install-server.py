@@ -10,7 +10,7 @@ import stat
 import subprocess
 import sys
 
-FILES = ('compose.yaml', 'pg_hba.conf', 'create-roles.py', 'create-roles.sql', 'apply-privileges.sql')
+FILES = ('compose.yaml', 'pg_hba.conf', 'create-roles.py', 'create-roles.sql', 'create-batch-role.sql', 'apply-privileges.sql')
 ROLES = ('app', 'migrator', 'backup')
 MARKER = b'blariyo-postgresql-setup-v1\n'
 

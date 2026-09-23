@@ -27,6 +27,11 @@ yarn.lock
 .env
 .env.*
 !.env.template
+!.env.example
+!.env.local.example
+!.env.dev.example
+!.env.stage.example
+!.env.prod.example
 
 # Build output
 dist/

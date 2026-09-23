@@ -130,3 +130,11 @@ TASK의 필수 로컬 작업은 남아 있지 않다. 최종 검증 뒤 코드·
 
 브라우저 screenshot은 `test-results/m0-browser/`에 있다. 실제 외부 연동, 대용량 부하 시험과
 production 배포의 증거로 확대하지 않는다. 종합 실행 중과 이후 코드·설정·테스트는 변경하지 않았고 결과 문서만 갱신했다.
+
+## 2026-09-23 이후 기능 계약의 검증 경계
+
+Nest 전환 당시 `contract-baseline.json`은 과거 증거로 보존한다. 전환 뒤 승인된 direct batch
+조회·검수·초안 API와 본문/이미지 확장은 `contract-evolution.json`에 원래 해시와 새 해시,
+정본·변경 사유를 따로 기록한다. `migration-contracts.test.ts`는 기존 SQL 원본의 불변성,
+새 migration 전체 목록과 해시, 명시적으로 변경한 계약 해시, 정본/패키지 사본 일치를 모두 검사한다.
+과거 migration SQL을 현재 구현에 맞춰 재생성하거나 기준선 해시를 덮어쓰지 않는다.

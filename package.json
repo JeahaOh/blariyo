@@ -24,7 +24,7 @@
     "test:browser": "npm run build && node --test --test-concurrency=1 tests/browser/*.test.ts",
     "test:web-cache": "npm run build -w @blariyo/web && node --test tests/http/web-cache.test.ts",
     "test:docker": "node scripts/test-docker.ts",
-    "test:database-roles": "npm run build -w @blariyo/api && node scripts/test-database-roles.ts",
+    "test:database-roles": "npm run build -w @blariyo/api && apps/collector/gradlew -p apps/collector testClasses fixtureClasspath && node scripts/test-database-roles.ts",
     "test:architecture": "npm run build:test -w @blariyo/api && node --test tests/architecture.test.ts",
     "collection:transition": "node apps/api/dist/commands/collection-transition.js",
     "test:nest": "npm run build && npm run build:test -w @blariyo/api && node scripts/test-nest-integration.ts",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create the three roles in a new local Docker PostgreSQL database.
+"""Create initial application roles, or add a separate batch role, in Docker PostgreSQL.
 
 Passwords stay in permission-restricted files and psql stdin. Existing roles are never reset.
 """
@@ -29,7 +29,8 @@ def read_password(file):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--container", required=True, help="target PostgreSQL container name")
-    parser.add_argument("--secrets-dir", required=True, help="absolute directory holding the three password files")
+    parser.add_argument("--secrets-dir", required=True, help="absolute directory holding role password files")
+    parser.add_argument("--batch-only", action="store_true", help="add only blariyo_batch after initial role setup")
     args = parser.parse_args()
     if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*", args.container):
         raise ValueError("CONTAINER_NAME_INVALID")
@@ -37,12 +38,17 @@ def main():
     info = directory.lstat()
     if not directory.is_absolute() or not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022:
         raise ValueError("SECRET_DIRECTORY_INVALID")
-    names = ("app", "migrator", "backup")
+    names = ("batch",) if args.batch_only else ("app", "migrator", "backup")
     passwords = [read_password(directory / f"{name}-password") for name in names]
-    if len(set(passwords)) != 3:
+    if len(set(passwords)) != len(names):
         raise ValueError("PASSWORDS_MUST_DIFFER")
+    if args.batch_only:
+        for name in ("app", "migrator", "backup"):
+            file = directory / f"{name}-password"
+            if file.exists() and read_password(file) == passwords[0]:
+                raise ValueError("PASSWORDS_MUST_DIFFER")
     variables = "".join(f"\\set {name}_password {value}\n" for name, value in zip(names, passwords))
-    sql = variables + Path(__file__).with_name("create-roles.sql").read_text()
+    sql = variables + Path(__file__).with_name("create-batch-role.sql" if args.batch_only else "create-roles.sql").read_text()
     result = subprocess.run(
         ["docker", "exec", "-i", "--user", "postgres", args.container,
          "psql", "--no-psqlrc", "--no-password", "--quiet", "--username", "postgres", "--dbname", "blariyo"],
@@ -51,7 +57,7 @@ def main():
     if result.returncode:
         # psql errors can quote the statement. Never emit stdout/stderr from this invocation.
         raise ValueError("DB_ROLE_SETUP_FAILED_EXISTING_STATE_OR_CONNECTION")
-    print("PASS DB 역할 생성 — app · migrator · backup, 기존 역할 재설정 없음")
+    print("PASS DB 역할 생성 — " + " · ".join(names) + ", 기존 역할 재설정 없음")
     print("검증 범위: 새 DB 역할·기본 권한 생성. migration·테이블 권한·접속 검사는 별도입니다.")
 
 

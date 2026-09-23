@@ -52,6 +52,7 @@ python3 deploy/postgresql/initialize-from-mac.py --host 13.124.55.99 --apply
 | 파일 | 실행 주체와 용도 |
 | --- | --- |
 | [create-roles.py](create-roles.py) | 서버의 Docker 관리 권한 사용자. 역할별 파일을 읽어 SQL을 표준입력으로 전달 |
+| [create-batch-role.sql](create-batch-role.sql) | 초기 3역할 이후 batch login만 추가, 기존 비밀번호 유지 |
 | [create-roles.sql](create-roles.sql) | PostgreSQL의 `postgres`. 새 `blariyo` DB에 역할·기본 접근 권한 생성 |
 | [pg_hba.conf](pg_hba.conf) | PostgreSQL 시작 설정. Unix socket 관리 접근과 역할별 TCP 인증 제한 |
 | [apply-privileges.sql](apply-privileges.sql) | `blariyo_migrator`. migration 이후 기존·향후 객체 권한 적용 |
@@ -180,16 +181,21 @@ migration에는 migrator, backup에는 backup 비밀번호만 전달한다. 실�
 
 ## 권한 범위
 
-- `blariyo_app`: 기존 application table의 데이터 읽기·추가·수정·삭제와 sequence 사용.
+- `blariyo_app`: content/legal 및 명시한 API 소유 collect table의 읽기·추가·수정·삭제와 sequence 사용.
+  batch 결과 7개 table은 SELECT만, batch queue/confirmation 및 Collector framework schema는 접근 금지.
   schema/table 생성·변경, 다른 역할로 전환, migration 이력 직접 접근은 금지한다.
   `ops.is_schema_ready(TEXT)` 함수로 준비 여부만 확인한다.
 - `blariyo_migrator`: application schema의 소유자이며 DDL을 실행한다. DB를 새로 만드는
   `CREATEDB`, 역할을 만드는 `CREATEROLE`, superuser 권한은 주지 않는다.
 - `blariyo_backup`: 모든 application table·sequence와 migration 이력 읽기만 허용한다.
   기본 read-only 설정을 사용자가 끄더라도 객체 권한으로 쓰기를 차단한다.
-- future `content`, `legal`, `collect` table에는 app DML, backup SELECT를 부여한다.
-  future `ops` table에는 backup SELECT만 자동 부여한다. app의 ops table 허용 목록은
-  `apply-privileges.sql`에서 검토·추가한다. readiness 외 function 직접 실행은 자동 허용하지 않는다.
+- `blariyo_batch`: batch 결과 7개와 queue/confirmation에 SELECT/INSERT/UPDATE, media에만 DELETE.
+  API 검수/content/legal/ops와 Collector framework schema에는 접근하지 않는다.
+  소유권 trigger가 호출하는 `assert_source_owner(text)`, `assert_run_owner(uuid)`만 직접 실행할 수 있다.
+- future `content`, `legal` table에는 app DML, backup SELECT를 부여한다.
+  future `ops`, `collect`, `collector`, `batch`, `quartz` table에는 backup SELECT만 자동 부여한다.
+  API/batch는 새 collect table/sequence 권한을 자동 상속하지 않는다. 각 허용 목록을 명시적으로 갱신한다.
+  모든 framework schema/ledger도 backup dump·restore 비교에 포함한다.
 
 기존 객체 권한과 향후 객체의 기본 권한은 별개이므로 둘 다 적용한다. 기본 권한은 객체를
 생성한 역할에 종속된다. 따라서 schema 변경은 지정된 migrator로 실행해야 한다.
@@ -198,7 +204,7 @@ migration에는 migrator, backup에는 backup 비밀번호만 전달한다. 실�
 
 ## 격리 검사
 
-Docker와 Node 24가 실행되는 Mac의 저장소 루트에서:
+Docker, Node 24, JDK 25가 준비된 macOS/Linux 저장소 루트에서 (`JAVA_HOME`은 해당 JDK 경로):
 
 ```sh
 PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run test:database-roles
@@ -208,7 +214,9 @@ PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run test:database-ro
 비밀번호를 생성한다. 검사 때만 loopback의 임의 host port를 사용하고 종료 시 container·임시
 파일을 정리한다. `~/.config/blariyo`와 운영 서버에는 접근하지 않는다.
 
-검사 항목은 실제 V001–V005 migration, 비밀번호 인증, 앱의 실제 draft/publish,
+검사 항목은 API V001–V008와 Collector V001–V005 migration, 4역할 비밀번호 인증,
+별도 Java 프로세스의 제한 batch 계정 수집·중복 skip·DB/local object readback,
+제한 API 계정의 검수·private DRAFT·별도 publish,
 DDL·ledger 접근 거부, trigger 유지, 향후 객체 권한, backup의 쓰기 거부, backup 계정의
 custom-format dump와 별도 DB 복원이다. 복원 후 모든 application table의 행·ledger와
 sequence 값을 비교한다. 복원 검사는 `--no-owner --no-acl`을 사용하므로 복원 대상의
@@ -240,3 +248,28 @@ python3 deploy/postgresql/initialize-from-mac.py --host 13.124.55.99 --apply --p
 이 최초 설치 도구의 서버 hostname·release 경로는 현재 검증 대상에 고정돼 있다.
 서버 교체 시 대상 검증값을 갱신해야 하며, 운영 중 일반 release migration용으로 반복하지 않는다.
 이미 배포된 서버에서 단순 확인을 위해 위 초기화 명령을 다시 실행하지 않는다.
+
+
+## Direct batch 역할 추가 (운영 적용은 별도)
+
+초기 설치는 기존 app/migrator/backup 3개 역할만 만든다. batch를 활성화할 때는 별도
+`batch-password` 파일을 소유자 전용 `0600`으로 준비하고 다음을 실행한다.
+값은 64자리 hex이며 다른 역할과 공유하지 않는다. 동일 디렉터리의 기존 비밀번호 파일이
+있으면 wrapper가 재사용을 거부한다. 파일·비밀번호 값을 터미널 출력이나 명령 인자에 넣지 않는다.
+
+```sh
+python3 deploy/postgresql/create-roles.py --container <postgres-container> \
+  --secrets-dir <absolute-private-directory> --batch-only
+```
+
+이 명령은 이미 존재하는 batch 역할을 재설정하지 않는다. 같은 migrator로 API/Collector migration을
+적용하고 `apply-privileges.sql`을 실행해야 table 권한이 생긴다. Collector migration 전후 및 역할
+추가 전후 모두 권한 SQL을 재실행할 수 있다. 실행 중 batch를 멈추고 백업한 뒤 적용한다.
+HBA의 batch login 추가는 새 네트워크 공개를 의미하지 않는다. 원격 PC는 별도로 검증한
+VPN/사설 경로만 사용하며 PostgreSQL port를 인터넷에 공개하지 않는다.
+
+
+Collector V006의 MIME 정정 함수와 `batch_media_correction`은 migrator 전용이다.
+`apply-privileges.sql`의 API/batch 명시 목록에 이 테이블·함수를 추가하지 않는다.
+소유자는 백업과 파일 검증 manifest를 확인한 뒤 별도 유지보수로 실행하며 runtime은 완료 media를
+직접 수정하지 않는다. 로컬 적용 결과는 운영 migration 적용 증거가 아니다.

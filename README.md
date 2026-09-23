@@ -212,6 +212,8 @@ root 소유 `0600` read-only artifact가 필요하다. 사업자 보류값·법�
   목록 형식이며 BFF에만 읽기 전용 mount한다. 비활성·미등록 사용자, 중복 identity·잘못된 형식은
   거부한다. 이전 subject→operatorId 객체는 목록으로 변환해야 한다. 외부 assertion은 Core에 중계하지 않는다.
 - `SITE_ORIGIN`, `IMAGE_ORIGIN`과 Web의 `NUXT_PUBLIC_SITE_ORIGIN`, `NUXT_PUBLIC_IMAGE_ORIGIN`을 맞춘다.
+  이미지 URL은 `IMAGE_ORIGIN + '/' + storage key`로 계산하며 환경별 host/base와 저장 path를 분리한다.
+  local/dev/stage/prod 예시는 [환경별 설정과 이미지 URL 계약](docs/implementation/operations/environment-configuration.md)을 따른다.
 - 실제 법무·문의 공개값은 Web의 `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME`, `NUXT_PUBLIC_CONTACT_EMAIL`,
   `NUXT_PUBLIC_RIGHTS_EMAIL`, `NUXT_PUBLIC_PRIVACY_EMAIL`, `NUXT_PUBLIC_PRIVACY_OFFICER`에 주입한다.
 - `NUXT_TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip`는 Tunnel 밖 origin 직접 접근을 차단한 배포에서만 사용한다.

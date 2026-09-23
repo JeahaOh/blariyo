@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { expect, type Route } from '@playwright/test';
 import sharp from 'sharp';
-import { browserFixture } from '../helpers/browser-fixture.ts';
+import { localDevelopmentFixture } from '../helpers/local-development-fixture.ts';
 import { launchBrowser } from '../helpers/launch-browser.ts';
 import { object } from '../helpers/browser-values.ts';
 
@@ -12,7 +12,7 @@ await test(
   'administrator repeated 12-post workflow and recovery with DB/media readback',
   { timeout: 300000 },
   async (t) => {
-    const fixture = await browserFixture(t);
+    const fixture = await localDevelopmentFixture(t);
     const browser = await launchBrowser();
     t.after(() => browser.close());
     // The workstation timezone must not change KST scheduling.
@@ -156,7 +156,7 @@ await test(
             404
           );
           await expect(button('재공개')).toBeDisabled();
-          await fixture.flush();
+          await fixture.waitForOutbox();
           for (const row of stored.rows)
             await assert.rejects(fixture.storage.get('public', String(row.public_storage_key)));
           await button('최신 내용 확인').click();
@@ -228,7 +228,7 @@ await test(
         await page.locator('.admin-result').click();
         await expect(page.locator('#editor-heading')).toBeFocused();
         await command('숨김', true);
-        await fixture.flush();
+        await fixture.waitForOutbox();
         await button('최신 내용 확인').click();
         await expect(title).toBeEnabled();
         await title.fill('내가 편집하던 제목');
@@ -283,7 +283,7 @@ await test(
       await page.locator(`[data-post-id="${ids[1]}"]`).click();
       await expect(button('숨김')).toBeVisible();
       await command('숨김', true);
-      await fixture.flush();
+      await fixture.waitForOutbox();
       await button('최신 내용 확인').click();
       await expect(title).toBeEnabled();
       await mkdir('test-results/admin-core', { recursive: true });
@@ -345,10 +345,14 @@ await test(
       await command('재공개');
       completedStages++;
     });
-    assert.equal(completedStages, 3, 'Do not record completed workflow evidence after a failed stage');
+    assert.equal(
+      completedStages,
+      3,
+      'Do not record completed workflow evidence after a failed stage'
+    );
     assert.deepEqual(errors, []);
     const finalPosts = await fixture.pool.query(
-      "SELECT status,count(*)::int AS count FROM content.board_post GROUP BY status"
+      'SELECT status,count(*)::int AS count FROM content.board_post GROUP BY status'
     );
     assert.deepEqual(finalPosts.rows, [{ status: 'PUBLISHED', count: 12 }]);
     await writeFile(
@@ -366,6 +370,9 @@ await test(
           operatorAcceptance: 'not-performed',
           database: 'isolated-random-fixture',
           media: 'temporary-local-storage',
+          launcher: 'scripts/local/start-development.mjs --sandbox --workers',
+          origin: fixture.origin,
+          workerExecution: 'periodic commands, no direct test invocation',
         },
         null,
         2

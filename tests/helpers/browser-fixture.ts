@@ -8,7 +8,7 @@ import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { createServer } from 'node:net';
 import { once } from 'node:events';
 import { randomBytes, createHash } from 'node:crypto';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { Readable } from 'node:stream';
@@ -17,6 +17,7 @@ import { migrationContext } from '../../apps/api/dist/commands/migrate.js';
 import { MigrationsService } from '../../apps/api/dist/commands/migrations.service.js';
 import { createNestApplication } from '../../apps/api/dist/bootstrap/application.js';
 import { localStorage } from '../../apps/api/dist/adapters/storage.js';
+import { LocalCollectReader } from '../../apps/api/dist/adapters/collect-reader.js';
 import { PostsService } from '../../apps/api/dist/features/posts/posts.service.js';
 import { PoliciesService } from '../../apps/api/dist/features/policies/policies.service.js';
 import { artifactChecksum } from '../../apps/api/dist/features/policies/policy-artifact.js';
@@ -28,12 +29,14 @@ export async function browserFixture(
     analytics = false,
     collection = false,
     spring = false,
+    batchReview = false,
     rightsEmail = '',
     contactEmail = '',
   }: {
     analytics?: boolean;
     collection?: boolean;
     spring?: boolean;
+    batchReview?: boolean;
     rightsEmail?: string;
     contactEmail?: string;
   } = {}
@@ -111,6 +114,21 @@ export async function browserFixture(
     await migration.close();
   }
   directory = await mkdtemp(join(tmpdir(), 'blariyo-browser-'));
+  const collectRoot = join(directory, 'batch');
+  if (batchReview) {
+    await mkdir(collectRoot, { recursive: true });
+    await source.query(
+      await readFile('apps/collector/src/main/resources/db/collector-v002.sql', 'utf8')
+    );
+    // Match the API fixture: allow stale-content injection. Collector tests separately verify ownership triggers.
+    const lifecycle = await readFile(
+      'apps/collector/src/main/resources/db/collector-v004.sql',
+      'utf8'
+    );
+    await source.transaction((manager) =>
+      manager.query(lifecycle.slice(0, lifecycle.indexOf('CREATE OR REPLACE FUNCTION')))
+    );
+  }
   const storage = localStorage(directory);
   let failStorage = false;
   const adapter: Storage = {
@@ -140,6 +158,8 @@ export async function browserFixture(
     storage: adapter,
     collectManualUrlEnabled: collection,
     collectDiscordCommandEnabled: collection,
+    collectBatchReviewEnabled: batchReview,
+    ...(batchReview ? { collectReader: new LocalCollectReader(collectRoot) } : {}),
     collectContractMode: spring ? 'SPRING_V2' : 'LEGACY_V1',
     ...(spring ? { collectorKeySecret: randomBytes(32).toString('hex') } : {}),
     collectorTokens: [
@@ -178,6 +198,7 @@ export async function browserFixture(
       NUXT_PUBLIC_CONTACT_EMAIL: contactEmail,
       NUXT_COLLECT_MANUAL_URL_ENABLED: String(collection),
       NUXT_COLLECT_DISCORD_COMMAND_ENABLED: String(collection),
+      NUXT_COLLECT_BATCH_REVIEW_ENABLED: String(batchReview),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -217,6 +238,7 @@ export async function browserFixture(
     origin,
     pool,
     storage,
+    collectRoot,
     posts,
     adminToken,
     collectorToken,

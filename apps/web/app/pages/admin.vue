@@ -77,7 +77,7 @@ const status = ref(''),
   message = ref(''),
   saved = ref(''),
   scheduled = ref(''),
-  pending = ref<{ signature: string; key: string } | null>(null);
+  pending = ref<{ signature: string; key: string; confirmed: boolean } | null>(null);
 const republishPin = ref<components['schemas']['PinnedPosition']>(null),
   hideReason = ref('RIGHTS_EMAIL');
 function scheduleSlot(hour: number, minute: number) {
@@ -209,12 +209,15 @@ async function execute(
   if (busy.value) return;
   const signature = JSON.stringify({ path, method, body });
   if (!pending.value || pending.value.signature !== signature)
-    pending.value = { signature, key: crypto.randomUUID() };
+    pending.value = { signature, key: crypto.randomUUID(), confirmed: false };
   busy.value = true;
   taskLabel.value = '저장 결과를 확인하는 중…';
   message.value = '';
+  // A rejection of this retry does not establish the outcome of the earlier submission.
+  // Keep its body/key locked until an idempotent replay and detail read both succeed.
+  const recovering = recovery.value !== null;
   recovery.value = { path, method, body };
-  let confirmed = false;
+  let confirmed = pending.value.confirmed;
   try {
     const result = await $fetch<
       ApiResponse<
@@ -233,6 +236,7 @@ async function execute(
       retry: 0,
     });
     confirmed = true;
+    pending.value.confirmed = true;
     const resultDetail = await $fetch<ApiResponse<'getPostEditor'>>(
       `/api/v1/admin/posts/${result.data.postId}`
     );
@@ -247,9 +251,13 @@ async function execute(
     message.value = '저장했습니다.';
   } catch (e) {
     const code = apiError(e).code;
+    const statusCode = typeof e === 'object' && e !== null && 'statusCode' in e ? e.statusCode : 0;
+    const authenticationFailure =
+      statusCode === 401 || statusCode === 403 || /UNAUTHORIZED|FORBIDDEN|AUTH/.test(code || '');
     conflict.value = code === 'POST_VERSION_CONFLICT';
     if (
       !confirmed &&
+      !(recovering && authenticationFailure) &&
       code &&
       ![
         'DEPENDENCY_UNAVAILABLE',
@@ -450,9 +458,7 @@ onBeforeRouteLeave(
 <template>
   <main class="admin-page">
     <h1>게시글 관리</h1>
-    <nav aria-label="관리 메뉴">
-      <strong aria-current="page">게시글 관리</strong><NuxtLink to="/meme">공개 목록</NuxtLink>
-    </nav>
+    <AdminNavigation />
     <p role="status">{{ message }}</p>
     <p v-if="busy" role="status">{{ taskLabel }}</p>
     <div v-if="recovery" role="alert" class="notice">

@@ -57,6 +57,32 @@ DB 롤백·잠금을 검증하면서 DB까지 대역으로 바꾸면 실제 DB�
 컨테이너의 정확한 ID·volume·port는 [검증 환경](../../migration/REPORT.md#전환-전용-검증-환경)을 따른다.
 이 문서를 읽는 시점에 컨테이너가 실행 중이라고 가정하지 않는다. ID가 다르면 해당 자원을 사용하지 않는다.
 
+2026-09-23 추가: discovery 통합 검사는 실제 Java parser fixture를 호출한다. `JAVA_HOME`을 Java 25
+JDK로 설정한 뒤 `npm run test:fixtures`를 실행한다. 이 명령은 Java 버전을 확인하고
+`apps/collector/gradlew -p apps/collector testClasses fixtureClasspath`를 실행한다.
+`npm run test:nest`도 이 준비를 먼저 수행한다. 개별 runner 직접 호출 전에는 별도로 준비해야 한다.
+Git 제외 `apps/collector/build`가 이미 있다는 이유로 준비 단계를 생략하지 않는다.
+CI 역시 Java 25 설정→`test:fixtures`→build→통합 검사를 수행한다. 별도 Collector job은 다음을 실행한다.
+
+```sh
+# Node 24.18.0, JAVA_HOME=Java 25, 로컬 PostgreSQL 18의 /postgres 관리 DB
+TEST_DATABASE_ADMIN_URL=postgresql://postgres@127.0.0.1:55449/postgres npm run test:collector
+apps/collector/gradlew -p apps/collector bootJar fixtureClasspath
+```
+
+`test:collector`는 무작위 `blariyo_collector_test_<값>` DB만 생성·제거한다. 주소를 생략하면 기존 로컬
+`blariyo_local@127.0.0.1:5439/postgres`를 사용한다. 허용 대상은 localhost/127.0.0.1의 5439/55449 포트와
+`/postgres`이며 지속 개발 DB 이름·원격 host·query override는 연결 전에 거부한다.
+JUnit 결과에 실패·건너뜀이 있거나 DB readback suite가 없으면 실패한다.
+최종 집계는 `test-results/collector-ci/summary.json`에 저장한다. Linux/macOS 로컬 실행과 원격 CI 성공은
+별도 증거이며 Windows 전체 검증을 대신하지 않는다.
+
+`admin-workflow.test.ts`와 `local-workers.test.ts`는 실제 [로컬 실행기](../../../scripts/local/README.md)를
+별도 DB·임시 미디어로 기동한다. `localhost:3000`과 `127.0.0.1:3100`이 비어 있어야 하며,
+브라우저 파일은 `--test-concurrency=1`로 실행한다. 예약 검사는 실제 1~2분을 기다리고 outbox 실패는
+기존 2분 backoff를 기다리므로 브라우저 전체 실행에 수 분이 걸린다. worker 직접 호출이나 DB 시각
+조작으로 대체하지 않는다. 자동화 통과와 운영자 수동 인수·실제 Access 인증은 별개다.
+
 - Nest 통합 runner는 loopback `55449/postgres`에 연결해 파일마다 `nest_<임의값>` DB를 만들고 삭제한다.
 - 개발용 DB나 운영 DB를 `TEST_NEST_DATABASE_URL`에 직접 넣지 않는다.
 - `node --test apps/api/dist-test/…`를 직접 실행하기보다 아래 전용 runner를 사용한다.

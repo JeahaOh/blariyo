@@ -5,8 +5,8 @@
 - 문서 상태: `조건부 설계 확정 가능(개발 입력) · 주 검수 완료`, 구현 수용·production 공개 승인 별도
 - milestone: `M0 수집 보조` (`m0-collection-assist`)
 - 기능: `collection-assist` — 로컬 collector 기반 Discord·운영자 URL 지정 후보 생성·검수·반려·초안 승격
-- 기준일: 2026-09-08
-- Spring 전환 미검증: source, Core/local migration, OpenAPI, Batch/Quartz test·build·runtime, 실제 출처별 운영 위험·robots 확인
+- 기준일: 2026-09-08, 현행/legacy 계약 정합성 갱신: 2026-09-23
+- 구현 판정: direct source·migration·OpenAPI와 격리 검증은 [요구사항 대조](../../../implementation/m0-interim-2026-09-23/requirements.md)의 현재 증거를 따른다. 실제 운영자·Access·원격 DB/object·Discord Gateway·출처 활성화·보존/고지는 별도 미검증이다.
 - 기존 구현 증거: Node/Core·Python collector 구현과 전환 전 로컬 검증 범위는 [main 병합 구현 상태 인계](../../../ai/handoffs/2026-09-08-main-merge-implementation-status.md)를 따른다. 이 증거를 Spring 구현 완료로 해석하지 않는다.
 - 주요 근거:
   - [콘텐츠 수집 기획](../../../planning/content-collection/README.md)
@@ -26,33 +26,48 @@
 API·Web은 외부 원문 사이트를 fetch하지 않으며 batch는 글마다 API에 결과를 전송하지 않는다.
 아래 초기 candidate/metadata/preview 절은 legacy 호환 계약이다. 현행 direct batch에는 문서 후반의
 2026-09-21 자동 수집 확장과 2026-09-23 batch 고도화·Discord queue 계약을 적용한다.
+Web URL 입력의 direct 전달·source 변경 권한은 `(미정)`이다. 기존 URL 폼이 공통 batch queue에 연결됐다고 보지 않는다.
 
 ## 3. 행위자와 진입 조건
 
 - 행위자: 외부 관리자 인증 allowlist를 통과한 운영자
-- 진입: `/admin/collect`, 로컬 collector의 Discord `/collect url`
+- 진입: direct 결과 검수 `/admin/batch`, 로컬 collector의 Discord `/collect url`. `/admin/collect`는 legacy 후보 경로이며 direct URL 입력 전달 계약은 별도 미정이다.
 - 선행: `M0 Core`의 관리자 인증, 수동 초안·이미지·발행·숨김 흐름 검증
 - 출처 선행: 출처별 명세의 운영 위험 판정, `robots.txt`, 등록·활성 host, parser 방식 사용 결정
 
 ## 4. 범위와 범위 밖
 
-범위:
+| 경로 | 이번 계약 범위 | 구현·검증 경계 |
+| --- | --- | --- |
+| direct 수집 보조 | 상세 URL 확인·공통 queue·원문/이미지/첨부/SNS의 비공개 저장 | CLI/Discord 코드와 실제 Gateway·다른 PC 실행을 구분 |
+| direct 검수 | `/admin/batch` 목록/상세·필터·인증 preview·검수 시작/승인/반려·선택 초안 편집 이동 | 로컬 브라우저·API 증거와 실제 운영자/Access/원격 object 인수 분리 |
+| Web URL 전달·source 변경 | API 외부 fetch·batch queue 무제한 쓰기 없이 입력 전달 | 소유권·전달 계약 미정, 구현 완료 아님 |
+| legacy 후보 | 기존 `/admin/collect`·candidate·임시 preview·선택 이미지 승격 API 호환 | 아래 legacy 절에만 적용. direct source 설정이나 queue를 수정하지 않음 |
+| 자동 목록 수집 | 2026-09-21 확장의 허용 HOT/GENERAL 목록·pagination | source별 실제 검증·기능 활성화는 별도 |
 
-- 관리자 화면 또는 Discord 명령의 운영자 URL 한 건으로 후보 작업 접수·결과 제출
-- `PENDING`, `RUNNING`, `NEW`, `FETCH_FAILED`, `APPROVED`, `REJECTED` 후보 목록·상세 검수
-- 실패 후보 재시도와 후보 반려
-- 선택 이미지 후보를 저장하고 기존 초안 생성 경로로 승격
-- 중복 후보·기존 게시글 경고와 승격 전 확인
-
-범위 밖:
-
-- 자동 발행 (Hot/Top 목록 발견 batch는 아래 2026-09-21 확장 범위에 포함)
-- Discord 일반 메시지 감시, 목록 수집 강제 실행, 후보 검수·발행 명령
-- 출처 신규 등록·삭제·robots 판정 변경 UI
-- 자동 발행, 로그인·CAPTCHA·유료 장벽·차단 우회
-- 원문 HTML 전체 저장, 이미지 binary의 DB·영구 object storage 후보 단계 저장
+자동 발행, Discord 일반 메시지 감시·검수/발행 명령, 로그인·CAPTCHA·유료 장벽·차단 우회,
+비공개 collect 원본의 익명 다운로드·raw HTML 렌더링은 범위 밖이다.
+DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. direct의 비공개 원본 object 저장은 범위에
+포함되며 legacy의 임시 preview만 저장하는 규칙과 구분한다.
 
 ## 5. 요구사항 추적표
+
+### 5.1 현행 direct 요구사항
+
+| 요구사항 | 계약·구현 근거 | 남은 수용 조건 |
+| --- | --- | --- |
+| API 외부 fetch 없이 batch가 직접 저장 | [direct 기술 설계](../../../system-design/07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약) | 실제 다른 PC·원격 제한 계정 |
+| Web URL 입력 전달·source 변경 권한 | [미정 경계](../../../implementation/m0-interim-2026-09-23/next-plan.md#관리자-url-입력의-미정-경계) | QD-03 확정·구현, 기존 source UI와 direct 설정 분리 |
+| 목록·출처/수집/검수 필터·private preview | OpenAPI `listBatchItems`, `getBatchItem`, `previewBatchImage` | 실제 운영자·Access·원격 object 인수 |
+| 검수·승인/반려와 snapshot/버전·멱등 | OpenAPI `reviewBatchItem`, 아래 Batch 검수 snapshot 계약 | 내용 변경·경합·인증 실패 수용 |
+| 승인→전체 본문과 검증된 이미지의 DRAFT | OpenAPI `promoteBatchItem`, 별도 Core 발행 명령 | 누락·중복·부분 실패·원격 private/public 경계 |
+| 본문·이미지·첨부/SNS 원문 보존 | 아래 2026-09-21/23 확장 계약 | 실제 표본과 fixture 분리, 차단 출처 유지 |
+| direct 원본·report·queue 보존 | [수집 기획의 적용 경계](../../../planning/content-collection/README.md#12-현행-direct와-legacy의-적용-경계) | 기간/승격 후 원본 미정, 자동 파기·고지 검증 |
+| 기능별 OFF·운영 활성화 분리 | Core·수집 보조·자동 수집 gate | 로컬 통과만으로 활성화하지 않음 |
+
+### 5.2 Legacy 후보 요구사항 — 기존 호환 경로
+
+다음 표의 metadata/임시 preview·API 결과 제출은 legacy 후보에만 적용한다.
 
 | 요구사항 | 분류 | 출처 | 반영 산출물 | 상태 |
 | --- | --- | --- | --- | --- |
@@ -68,6 +83,21 @@ API·Web은 외부 원문 사이트를 fetch하지 않으며 batch는 글마다 
 | 출처별 실제 selector·요청 간격 | 결정 필요 | 출처 명세 템플릿 | 전체 | 출처별 spec 필요 |
 
 ## 6. 업무 규칙과 수용 조건
+
+### 6.1 Direct batch
+
+- batch가 수집/queue 상태를, API가 검수/content 상태를 소유한다. 같은 database를 쓰더라도 역할별 쓰기 범위는 다르다.
+- item의 DISCOVERED/FETCHING/FETCHED/FAILED/BLOCKED/SKIPPED_DUPLICATE/SKIPPED_POLICY와
+  API의 UNREVIEWED/REVIEWING/APPROVED/REJECTED를 분리한다. FETCHED 결과만 검수/승격 대상이다.
+- REVIEWING의 원문·미디어 snapshot이 바뀌면 재검수한다. 승인 없는 승격·버전 충돌·기존 원문 중복을 거부한다.
+- raw/media/report는 비공개 collect 저장소에 보관하고, API는 고정된 읽기 경로에서 hash/size를 대조한다.
+  원격 원문 URL로 대체 fetch하지 않는다. 첨부는 원문 링크이며 이미지 실패를 정상 preview로 처리하지 않는다.
+- 초안 승격 뒤 별도 즉시/예약 발행이 필요하다. 제목 보정·긴 본문/이미지 한도·실패 복구는 아래 direct 계약을 따른다.
+- 요청 전달·보존 기간·고지 정합성이 결정되지 않은 항목을 자동 추정하거나 legacy 값으로 채우지 않는다.
+
+### 6.2 Legacy 후보·preview
+
+아래 NEW/FETCH_FAILED·Quartz·preview upload 규칙은 기존 후보 중계 API의 호환 계약이다.
 
 - 로컬 collector만 등록·활성 출처 host를 fetch한다.
 - M0 수집 보조는 입력된 단일 상세 페이지 1건만 fetch하고 목록·feed·pagination을 호출하지 않는다. Quartz는 이미 접수된 후보 처리만 예약 실행한다.
@@ -88,13 +118,20 @@ API·Web은 외부 원문 사이트를 fetch하지 않으며 batch는 글마다 
 
 ## 7. 데이터·권한·법무 영향
 
-- 읽기·쓰기: `collect.source`, `collect.candidate`, `collect.candidate_image`.
+- direct: batch 결과 7개 테이블은 API SELECT only, 검수·receipt는 API 소유다. batch queue/confirmation과 content 쓰기 권한을 서로 공유하지 않는다.
+- legacy 읽기·쓰기: `collect.source`, `collect.candidate`, `collect.candidate_image`와 기존 중계 허용 목록.
+- source 설정 파일을 읽는 direct 실행기와 legacy 출처 수정 UI를 구분한다. 후자의 변경이 direct 설정에 적용됐다고 보고하지 않는다.
 - 초안 승격 시 기존 `content.board_post`, `content.board_post_block`, `content.board_post_image` command를 재사용한다.
 - 외부 fetch는 로컬 collector만 수행하고 BFF·Core는 직접 외부 사이트를 호출하지 않는다.
 - 후보 제목·원문 URL 전체·HTML·이미지 binary·로컬 수집기 임시 파일 내부 경로를 application log나 Discord 보고서에 남기지 않는다.
 - 출처별 운영 위험 판정과 robots 확인 전에는 production 활성화하지 않는다. 이용약관은 자동 차단 조건이 아니라 운영 위험 참고값으로 기록한다.
 
 ## 8. API 작업 목록
+
+현행 direct API는 [OpenAPI](../openapi/m0-collection-assist.yaml)의 `listBatchItems`, `getBatchItem`,
+`previewBatchImage`, `reviewBatchItem`, `promoteBatchItem`과
+[direct 기술 계약](../../../system-design/07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약)을 따른다.
+아래 anchor는 legacy 호환 API다.
 
 - [수집 작업 접수와 후보 결과 생성](#api-create-candidate-from-url)
 - [Collector 내부 API](#api-collector-internal-api)
@@ -106,11 +143,17 @@ API·Web은 외부 원문 사이트를 fetch하지 않으며 batch는 글마다 
 
 ## 9. 처리 흐름 찾아보기
 
+- 현행 direct: [검수 snapshot·승격](#batch-검수-snapshot과-제목-보정), [저장 실행 소유권](#batch-저장-실행-소유권), [Discord queue](#2026-09-23-discord-direct-queue-정렬).
+- 아래 D01 anchor는 legacy 후보 흐름이다.
+
 - [URL 후보 생성과 검수](#d01-create-and-review-candidate)
 - [후보 재시도와 반려](#d01-retry-or-reject-candidate)
 - [후보 초안 승격](#d01-promote-candidate-to-draft)
 
 ## 10. 화면·프로그램 찾아보기
+
+- 현행 direct: [검수 화면과 실패 복구](#direct-검수-화면과-실패-복구).
+- 아래 D08 anchor는 legacy 후보 UI·중계 프로그램 계약이다.
 
 - [수집 후보 검수 화면](#d08-collect-candidate-review)
 - [로컬 Collector 프로그램](#d08-local-collector)
@@ -119,14 +162,17 @@ API·Web은 외부 원문 사이트를 fetch하지 않으며 batch는 글마다 
 
 - 확정: M0 수집 보조는 자동 발행하지 않는다.
 - 확정: 수집 실패는 공개 목록·상세와 수동 게시를 막지 않는다.
-- 확정: 후보 단계에서 이미지는 Spring 수집 서버의 작업 경로에 임시 저장할 수 있고, 영구 저장소에는 초안 승격 때만 저장한다.
+- 확정: direct batch는 비공개 원문 object를 저장하고, API는 승격 시 검증된 private 사본을 만든다. 기존 legacy 후보만 임시 preview 계약을 적용한다.
 - 확정: Discord 연결 scraper는 운영자 로컬 컴퓨터에서 별도 프로세스로 실행하고 BE·FE runtime과 분리한다.
-- 결정 필요: 첫 출처별 source spec, 실제 사용 URL, selector, 요청 간격, 일일 상한.
-- 출처 조회·수정 계약은 [시스템 API](../../../system-design/03-api-design.md#수집-출처)를 따른다.
+- 결정/검증 필요: 출처별 실제 접근·parser·요청 간격·상한과 활성화 상태. 등록 또는 fixture 통과를 실제 수집 성공으로 대체하지 않는다.
+- legacy 출처 조회·수정은 [시스템 API](../../../system-design/03-api-design.md#수집-출처)를 따른다. direct Web 입력·source 변경 소유권은 별도 미정이다.
 - 차단: 출처별 운영 위험 판정·robots 확인 전 production 활성화 불가.
-- 미검증: source, migration, OpenAPI, test, runtime, browser.
+- 미검증/미정: 실제 운영자·Access·원격 DB/object·Discord Gateway·지원 OS, direct 보존 기간과 고지/파기. 현재 로컬 구현·검사 증거는 요구사항 대조표로 추적한다.
 
 ## 12. 기능 계약 상세
+
+아래 candidate/collector 접수·결과 제출·preview API와 API/D01/D08 anchor는 **legacy 호환 계약**이다.
+direct 경로의 상태·DB/object 소유권·검수 UI는 위 5.1·6.1과 문서 후반의 2026-09-21/23 확장 절을 따른다.
 
 이 파일은 관리자 업무 흐름·화면·기존 Collector API의 DTO·validation·수용 기준을 관리한다. [Spring 수집 서버 상세 설계](../../../system-design/07-spring-collector-design.md)는 Spring 전환에서 추가된 실행, 멱등, quota, lease, spool 계약의 정본이다. 두 문서의 공통 조건은 함께 충족해야 하며, 문서 통합은 구현 완료를 뜻하지 않는다.
 
@@ -961,7 +1007,8 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 
 - 결정 필요: 실제 실행 PC·전용 OS 계정·설치 경로, 선택 JDK 배포판의 운영 조건.
 - 구조 결정: 출처별 parser package와 테스트 배치는 [사이트별 모듈 계약](../../../system-design/08-code-structure.md#collector-site-modules)을 따른다.
-  현재 중첩 클래스의 파일 분리는 미완료이며 기존 fixture 경로는 전환 과정에서 보존한다.
+  21개 사이트의 독립 adapter·상세 parser와 19개 목록 parser를 분리했고 기존 fixture 경로를 보존했다.
+  이는 구조 변경의 로컬 검증이며 아래 실연동 미검증 항목을 완료로 바꾸지 않는다.
 - 차단: 출처별 source spec의 운영 위험·robots 확인 전 production 활성화 불가.
 - 미검증: source, Discord Gateway·Slash Command, 실제 출처 fetch, Core/local migration, OpenAPI, contract·fault test, build, runtime.
 
@@ -1038,8 +1085,8 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 ### 사이트별 모듈 분리 수용 기준
 
 - 구현 기준은 [코드 구조의 사이트별 모듈 계약](../../../system-design/08-code-structure.md#collector-site-modules)이다.
-  현재 `SiteAdapters.java`의 중첩 클래스와 `list`·`detail` 메서드 분리는 논리적 책임 분리이며,
-  사이트별 패키지·독립 parser 파일 분리까지 끝난 것으로 보고하지 않는다.
+  2026-09-23 사이트별 패키지·독립 parser 파일을 분리했다. `SiteAdapters.java`에는 조립만 남기며
+  분리 전후 결과와 실행 검증은 위 모듈 계약에서 연결하는 결과 문서를 따른다.
 - 사이트 adapter는 URL 식별·canonical·source post key와 parser 조합을 맡는다. 지원하는 목록 parser와
   상세 parser는 별도 파일·fixture 테스트로 분리하고, 본문 순서 보존 등 공통 처리는 재사용한다.
   목록 미지원 사이트는 미지원 사유와 상세 전용 정책을 유지하며 형식적인 목록 parser로 통과시키지 않는다.
@@ -1065,6 +1112,22 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - 출처 URL은 HTTPS URL로 검증한 뒤 URL 직렬화(percent encoding)하여 저장·응답한다. 이미 인코딩된 URL은 중복 인코딩하지 않는다.
 - 기존 로컬 공개 파일은 hash/size/MIME/dimensions/decode 대조 뒤 private 사본을 복구할 수 있다. 복구 manifest와 compare-and-set을 사용하고 기존 파일을 덮어쓰지 않는다. 이는 정식 batch 승격 검증을 대체하지 않는다.
 - direct batch 검수 API는 [2026-09-23 direct batch 구현 계약](../../../system-design/07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약)을 따른다. legacy candidate 상태를 batch item 상태로 재사용하지 않는다.
+
+### Direct 검수 화면과 실패 복구
+
+- `/admin`과 `/admin/batch`의 관리 메뉴는 기존 Web batch 검수 flag가 켜졌을 때만 수집 결과 검수를 표시한다.
+  인증된 `/api/admin/features`는 메뉴 표시용 boolean만 제공한다. Core/BFF의 실제 인증·feature gate는 독립 적용한다.
+- 목록 GET은 `source`, `state`, `reviewStatus`, `page`를 조합한다. 검수 행이 없는 item은 `UNREVIEWED`다.
+  전체 건수·목록에 같은 조건을 적용하며 페이지 이동은 마지막 조회 조건을 유지한다. 검수로 마지막 페이지가
+  비면 유효한 페이지로 이동한다. 조회 실패 때 기존 목록·페이지를 보존하고 다시 조회할 수 있다.
+- 원문 본문·인증 이미지 preview·첨부 원문 링크·수집 실패/기간 제외 사유를 표시한다.
+  이미지 실패를 정상 표시로 처리하지 않으며 원문 확인과 preview 재시도를 제공한다.
+- 검수·초안 생성은 중복 클릭을 막는다. 응답 유실 또는 저장 후 상세 조회 실패 시 요청 본문·키를 보존하고,
+  401/403을 만나도 같은 요청으로 결과를 확인한다. 확인 전 입력·다른 글 선택·화면 이동을 잠근다.
+  확정 충돌/중복 거부는 편집·재조회로 돌아갈 수 있으며 목록 갱신 실패가 확인된 저장 성공을 취소하지 않는다.
+- 초안 링크는 `/admin?postId=<id>`로 선택한 글을 바로 연다. 검수·승격으로 공개 상태나 public object를 만들지 않는다.
+- 이 화면은 batch가 이미 저장한 결과의 검수 경로다. legacy URL 접수와 source 수정 화면을 direct 메뉴에 연결하지 않는다.
+  URL 전달·source 소유권 계약, 실제 Access·운영자 인수·원격 object 수용은 별도다.
 
 ### Batch 검수 snapshot과 제목 보정
 

@@ -724,9 +724,8 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 선택 coreSourceId를 대조하고 모호한 중복 설정을 거부한다. 이름만 등록한 출처는 BLOCKED이며 METADATA로 대체하지 않는다.
 
 - source registry → site list adapter → canonical/post key 중복 제거 → 공통 후보 접수 → 기존 상세 pipeline.
-- registry는 사이트별 adapter를 선택한다. 현재 `SiteAdapters.java`의 사이트별 중첩 클래스 안에서
-  `list`·`detail` 메서드가 책임을 나누며, 독립 사이트 패키지·목록 parser·상세 parser 파일 분리는 아직 남아 있다.
-  목표 구조와 분리 완료 기준은 [사이트별 모듈 계약](08-code-structure.md#collector-site-modules)을 따른다.
+- registry는 `source/sites/`의 사이트별 adapter를 선택한다. 21개 adapter·상세 parser와 목록을
+  지원하는 19개 parser를 독립 파일로 분리했다. 구조·의존 규칙·검증 근거는 [사이트별 모듈 계약](08-code-structure.md#collector-site-modules)을 따른다.
   DOM 순서 보존기는 공유하지만 본문 selector는 사이트별로 고정한다. 목록 미지원 사이트는 상세 전용으로 유지하며
   목록 접근 성공을 상세 수집 성공으로 간주하지 않는다. 실측 selector·chart URL·본문/이미지·canonical·post key·fixture는
   planning의 검증표와 설정에 기록한다.
@@ -807,6 +806,11 @@ Gateway 자체 연결·상호작용은 별도 운영 증거로 기록하며, 테
 - batch-owned 7개 테이블은 API SELECT only. API-owned `collect.batch_review`, `collect.batch_review_request`는 batch에 권한을 주지 않는다.
 - review는 item UUID를 unique key로 보관하고 item version, canonical hash, source key/post key, 검수 상태, lock version, post ID를 갖는다. batch migration과 독립 적용을 위해 item의 존재와 version은 서비스가 검사하며 content post FK와 중복 제약은 DB에서 보장한다.
 - API: GET `/api/v1/admin/collect/batch-items`, GET `/{itemId}`, POST `/{itemId}/review`, POST `/{itemId}/draft`. 인증·별도 `COLLECT_BATCH_REVIEW_ENABLED` gate·OpenAPI 검증을 사용한다.
+- 목록은 page·source·state(수집 상태)·reviewStatus(검수 상태)를 조합하고 같은 조건으로 전체 건수와 페이지를 계산한다.
+  검수 행이 없으면 UNREVIEWED로 분류한다. 검수 필터가 수집 item 상태를 변경하지 않는다.
+- 관리자 메뉴의 수집 결과 검수는 기존 Web `collectBatchReviewEnabled`가 켜진 경우만 표시한다.
+  BFF의 인증된 `GET /api/admin/features`는 메뉴 표시용 batchReview boolean만 반환하며 private/no-store다.
+  실제 API는 기존 Web/Core feature gate와 관리자 인증을 각각 유지한다. 초안 링크는 `/admin?postId=<id>`로 연결한다.
 - review 명령은 `itemVersion`, `lockVersion`(최초 0), `decision`을 받는다. 모든 쓰기는 Idempotency-Key를 사용한다. 동일 key/동일 body는 결과 재생, 다른 body는 409. version 충돌·이미 승격된 item·승인 없는 승격을 거부한다.
 - 승격은 collect reader의 고정 local root 또는 전용 read credential의 S3 bucket만 읽는다. object key prefix/path 검증, byte limit, DB sha/size 확인 후 이미지 decode/재인코딩을 수행한다. 원문 remote URL로 대체 fetch하지 않는다.
 - private 이미지 준비 뒤 transaction에서 item/review version과 중복을 재확인하고 전체 순서의 DRAFT와 post 연결·receipt를 함께 commit한다. 실패 시 준비된 미연결 이미지를 정리한다. 공개 object는 별도 발행에서만 만든다.

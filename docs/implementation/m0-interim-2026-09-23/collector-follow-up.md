@@ -29,9 +29,25 @@
 | 7 | 운영 준비와 관찰 — P0-05/P2 | 검토된 release와 별도 push/배포 권한, 운영 담당 | 출처 활성화·요청 간격·재시도 상한·site stop·알림·보존·복귀 기준 확인. 실제 운영 관찰 기록을 남기고 자동 발행은 추가하지 않음 |
 
 사이트 파일 분리의 정본은 [코드 구조의 사이트별 모듈 계약](../../system-design/08-code-structure.md#collector-site-modules)이다.
-현재 `SiteAdapters.java`의 중첩 구현은 독립 파일 분리 완료가 아니다. 한 사이트씩 옮기며 공통 실행·저장 계층을 유지한다.
+2026-09-23 후속 실행에서 **21개 adapter·21개 상세 parser·19개 목록 parser의 파일 분리와 로컬 회귀를 완료**했다.
+분리 전후 40개 결과가 일치했고 Java 273건·Core 연동 5건이 통과했다.
+[실행 결과와 검증 경계](../../../worklog/task-list/09/23/collector-site-modules/RESULTS.md)를 따른다.
+공통 실행·저장 계층, source 설정·CLI·오류 코드·parserVersion과 기존 HTML fixture 경로를 유지했다.
 목록을 지원하지 않는 출처에는 형식적인 목록 parser를 만들지 않는다.
-관리자 인증이나 원격 환경 준비가 지연되면 2번의 파일 분리와 회귀 검증부터 진행할 수 있다.
+2번은 로컬 완료이며, 실제 접근 차단 4개 출처·다른 PC/원격 object·Discord·운영 검증은 후속으로 남아 있다.
+
+1번의 UI 연결·개발자 격리 검증은 조건부 정식 메뉴·필터·승인/반려·초안 편집 이동까지 완료했다.
+[검수 UI 결과](../../../worklog/task-list/09/23/batch-review-ui/RESULTS.md)의 API 통합 15건·브라우저 27건,
+320/1280px 화면과 DB/private object 대조를 따른다. 로컬 테스트 인증으로 검증했으며 사용자의 실제
+운영자 수동 인수·Access 인증·원격 object 연결을 통과했다는 뜻은 아니다. URL 입력/source 소유권은 미정이다.
+
+6번의 CI 구성은 `collector` job 추가와 macOS·Linux Docker의 Java 273건씩 재현을 완료했다.
+[Collector CI 결과](../../../worklog/task-list/09/23/collector-ci/RESULTS.md)를 따른다. 원격 GitHub 실행·
+Windows·실제 운영 이미지/계정/mount·별도 PC는 여전히 미검증이다.
+
+5번의 선행 문서 정합성 작업은 direct/legacy 저장·권한·검수 경계와 비공개 raw HTML 취급을
+실제 구현에 맞춰 보완했다. [문서 정합성 결과](../../../worklog/task-list/09/23/collection-contract-alignment/RESULTS.md)를 따른다.
+Web 입력/source 소유권·보존 기간·고지 정합성은 미정이며 입력 구현·자동 삭제를 추가하지 않았다.
 
 ## 차단된 4개 출처의 재개 조건
 

@@ -36,9 +36,9 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | SQL injection | parameterized query, validation, DB 최소 권한 |
 | 저장형 XSS | 게시글 TEXT는 plain text escape, 정책 HTML은 허용 목록 sanitize, CSP |
 | 악성 이미지 | MIME·magic byte·decode 검사, SVG 금지, 크기 제한 |
-| SSRF | BE·FE는 외부 수집 URL을 직접 fetch하지 않는다. 외부 fetch는 운영자 로컬 collector만 수행하고, collector는 등록·활성 출처 host 매칭, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 비HTML·비이미지 content-type 거부를 강제한다 |
+| SSRF | BE·FE는 외부 수집 URL을 직접 fetch하지 않는다. 외부 fetch는 운영자 로컬 collector만 수행하고, collector는 등록·활성 출처 host 매칭, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 문서·이미지·첨부 종류별 형식 검증을 강제한다 |
 | 수집 대상 사이트 과부하·차단 | 출처별 요청 간격·일일 상한, 식별 가능한 User-Agent, `robots.txt` 준수, `403`·`429` 누적 시 자동 비활성 |
-| 수집 콘텐츠를 통한 저장형 공격 | 후보 제목은 plain text로 저장·escape, 원문 HTML 미저장, 이미지는 Spring 수집 서버의 작업 경로에 임시 저장 후 승격 시 magic byte·decode·metadata 제거·재인코딩 |
+| 수집 콘텐츠를 통한 저장형 공격 | 제목·본문 TEXT escape, raw HTML은 비공개 collect object로 격리하고 화면에서 렌더하지 않음. 이미지 승격 시 magic byte·decode·metadata 제거·재인코딩, 익명 collect/private 접근 거부 |
 | secret 유출 | 저장소·image·log 제외, provider별 최소 권한 key |
 | 숨김 콘텐츠 cache 잔존 | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store |
 | VM·disk 소실 | R2 암호화 DB backup, image 원본 R2 저장 |
@@ -180,7 +180,7 @@ M0에는 일반 사용자 업로드 endpoint를 추가하지 않는다.
 | --- | ---: |
 | 파일 | 10MiB |
 | 한 요청 | 10개·100MiB |
-| 한 게시글 | 20개 |
+| 한 게시글 | 현행 편집·direct 초안 200개, legacy 후보 선택은 20개 |
 | pixel | 40 megapixel |
 | 형식 | JPEG, PNG, WebP, GIF |
 
@@ -188,33 +188,36 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 
 ### 수집
 
-수집은 외부 사이트에 요청을 보내는 유일한 경로이므로 아래 통제를 로컬 collector 코드와 BE 제출
-검증으로 강제한다.
+현행 direct batch만 외부 원문을 fetch하고 비공개 수집 DB/object에 직접 저장한다. API는 batch 결과를 읽어
+검수·초안 승격·별도 발행을 처리한다. 아래 통제는 [direct 기술 계약](07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약)과
+출처별 정책으로 강제한다. 기존 candidate/preview·collector token 중계는 legacy 호환 경로다.
 
-1. 대상 URL 정규화 후 등록·활성 출처의 host와 정확히 일치하는지 확인
-2. 출처 `robots.txt` 판정 확인. 금지 경로와 미확인 출처의 단건 페이지 수집은 거부
-3. 출처별 최소 요청 간격과 일일 상한 확인
-4. DNS 해석 결과가 공인 주소인지 확인. 사설·loopback·link-local·metadata 주소는 거부
-5. timeout, 응답 크기 상한, redirect 최대 3회, 같은 출처 host 이탈 금지
-6. content-type 확인. 문서 요청은 HTML, 이미지 요청은 허용 이미지 형식만 수용
-7. 이미지는 로컬 수집기 작업 경로에 임시 저장한 뒤 초안 승격 시 관리자 업로드와 같은 magic
-   byte·decode·pixel·metadata 제거·재인코딩 절차 적용
+1. 입력·redirect·이미지·첨부 URL을 정규화하고 허용된 source/미디어 host와 대조한다.
+2. robots·공개 범위·연락 수단·출처별 간격과 요청 상한을 확인한다. 차단을 우회하지 않는다.
+3. DNS 결과의 사설·loopback·link-local·metadata 주소를 거부하고 연결 주소를 검증한다.
+4. timeout·응답 크기·redirect 횟수/host 이탈 제한을 적용하며 문서·이미지·파일의 형식을 구분한다.
+5. raw HTML과 원본 미디어는 비공개 collect 경로에 보관한다. raw는 파싱 전 응답이므로 댓글·프로필·개인정보가
+   전혀 없다고 보장하지 않는다. 웹 렌더링·익명 제공·로그 출력과 분리하고 보존/파기·고지 정합성을 확인한다.
+6. API preview/승격은 DB object key·hash·size와 실제 bytes를 대조한다. 이미지 decode·metadata 제거·재인코딩 또는
+   허용된 애니메이션 정제를 거쳐 private 사본을 만든다. 첨부 파일은 원문 링크만 노출한다.
+7. 검수/승격은 관리자 인증·기능 flag·item/review 버전·검수 snapshot·멱등 키를 검사한다. 공개 복사는 별도 발행 명령에서만 수행한다.
 
-- 요청에는 `COLLECT_USER_AGENT`를 사용하고 서비스명과 연락 수단을 포함한다.
-- 로그인, CAPTCHA, 유료 담장, 접근 차단을 우회하지 않는다. 인증이 필요한 페이지는 수집하지 않는다.
-- `403`, `429`, robots 금지, timeout이 발생하면 해당 batch item 또는 source run을 실패·차단으로 기록한다. `HOT_LIST`
-  source는 연속 실패 임계를 넘으면 목록을 중단하고 source policy 사유를 기록한다. `DETAIL_ONLY`는 목록을 호출하지 않는다.
-- 대상 사이트가 중단 요청을 보내면 해당 출처를 즉시 비활성하고 이미 발행된 게시글은 권리 문의 절차로 처리한다.
-- 수집 실패·차단은 공개 읽기 ready 조건에 넣지 않는다. 수집이 멈춰도 공개 목록·상세와 운영자 발행은 계속 동작해야 한다.
-- collector service token은 로컬 PC에 저장하고 BE에는 token hash와 collectorId·scope 매핑만 둔다. Web 전용 중계가 요청 중 전달할 수 있으나 보관·로그하지 않는다. 분실,
-  PC 교체, 운영자 변경 시 즉시 rotation한다.
+- source 차단·실패·날짜 제외를 성공으로 바꾸지 않는다. 수집 장애는 공개 읽기와 수동 작성의 준비 상태를 막지 않는다.
+- batch에 content/public 쓰기 credential을 주지 않는다. API에 batch queue/confirmation 쓰기나 원문 fetch 권한을 주지 않는다.
+- direct의 raw/media/report/queue 보존 기간·승격 후 원본 유지·실패 orphan 유예는 `(미정)`이다. legacy 후보/preview 자동 파기와 별도 계약이다.
+- 기존 개인정보처리방침의 metadata 중심 설명과 direct 저장 범위가 다르므로 항목·목적·보존/파기·고지를 맞춘 뒤 활성화한다.
+  이는 수집 기능의 확인 조건이며 Core 수동 운영의 새로운 차단 조건이 아니다.
+- legacy collector service token은 기존 전용 중계 API scope만 갖는다. direct CLI/queue의 DB/object 역할과 혼동하지 않으며,
+  분실·PC 교체·운영자 변경 시 해당 역할의 credential을 교체한다. 비밀 원문은 로그·보고서에 쓰지 않는다.
 
 ## 5. Secret 관리
 
 | secret | 권한 |
 | --- | --- |
-| PostgreSQL app password | `content`·`legal`·`ops`·`collect` DML·sequence 사용, migration 권한 없음 |
+| PostgreSQL app password | content/legal·허용 ops 및 API 소유 collect만 DML, batch 결과 7개 테이블 SELECT only, queue/confirmation 접근 없음. migration 권한 없음 |
 | PostgreSQL migration password | schema 변경, 배포 시에만 주입 |
+| PostgreSQL batch password | 명시된 batch 소유 테이블·framework 상태만 처리. API 검수/content/정책/운영 ledger 접근 없음 |
+| Collect object credential | batch는 collect 전용 쓰기, API는 collect 전용 읽기. content/public 권한과 분리 |
 | R2 private media key | private 원본 bucket object read/write/delete, bucket 관리 금지 |
 | R2 public media key | public media bucket object write/delete, bucket 관리 금지 |
 | R2 backup key | backup bucket write/read, media·staging 접근 금지 |
@@ -239,11 +242,16 @@ GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외
 blariyo_app
   CONNECT
   USAGE on content, legal, ops, collect
-  SELECT, INSERT, UPDATE, DELETE on M0 application tables
+  DML on content/legal and explicitly allowed ops/API-owned collect tables
+  SELECT only on batch-owned result tables; no batch queue/confirmation access
   USAGE, SELECT on M0 identity sequences
   no direct access on ops.schema_migration
   EXECUTE on ops.is_schema_ready(TEXT) only (Boolean readiness)
   no CREATE on application schemas or public
+
+blariyo_batch (별도 수집 활성 환경)
+  explicitly allowed batch result/queue/framework tables only
+  no access to API-owned review, content, legal or ops migration ledger
 
 blariyo_migrator
   CONNECT, application schema owner, migration 실행에 필요한 DDL
@@ -255,11 +263,13 @@ blariyo_backup
 ```
 
 - application은 root 계정을 사용하지 않는다.
-- API·application command, migration, backup container는 각각 `blariyo_app`, `blariyo_migrator`, `blariyo_backup` credential만 받고 password file을 서로 mount하지 않는다.
+- API·application command, batch, migration, backup은 각각 분리된 `blariyo_app`, `blariyo_batch`, `blariyo_migrator`, `blariyo_backup` credential만 사용하고 password file을 서로 mount하지 않는다.
 - application SQL은 schema-qualified 물리명을 사용하고 `public` schema의 `CREATE` 권한은 회수한다.
-- PostgreSQL은 Docker data network에서만 listen하고 `pg_hba.conf`는 application·migration·backup role의 database 접근만 허용한다.
+- Core PostgreSQL은 Docker data network에서만 listen하고 `pg_hba.conf`는 application·migration·backup role의 database 접근만 허용한다.
+  별도 PC batch를 연결할 때는 승인된 비운영/운영 네트워크와 batch 전용 역할의 제한 접속을 별도 구성·검증한다. 현재 Core 구성이 원격 batch 접속을 허용한다고 가정하지 않는다.
 - production seed에 공용 비밀번호와 샘플 회원을 넣지 않는다.
-- migrator는 향후 생성되는 table·sequence에도 역할별 default privilege를 설정한다.
+- migrator는 역할별 default privilege와 명시적 허용 목록을 적용한다. 새 collect table/sequence/function은 app/batch에 자동 허용하지 않는다.
+  실제 허용 목록은 [권한 SQL](../../deploy/postgresql/apply-privileges.sql)과 [API 소유권 목록](../../apps/api/src/persistence/collect-ownership.ts)을 대조한다.
 - `ops`의 새 table에는 app 권한을 자동 부여하지 않는다. app이 사용하는
   `outbox_task`, `idempotency_request`, `schedule_failure_alert`만 명시적으로 허용하고,
   새 운영 table은 용도를 검토한 뒤 허용 목록에 추가한다. backup의 읽기 권한에는
@@ -456,6 +466,13 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 - column rename·drop은 두 번째 배포 이후 수행한다.
 - 데이터 변환 migration은 실행 전 별도 backup과 검증 query를 둔다.
 - 복구 불가능한 schema 변경은 자동 rollback하지 않는다.
+- schema 호환성은 열/테이블뿐 아니라 이전 앱의 readiness 판정도 포함한다. `ops.is_schema_ready`는
+  ledger의 최신 버전과 정확히 비교한다. 이전 앱이 모르는 최신 버전이면 additive migration이어도
+  앱만 되돌리는 복귀를 보장하지 못한다. readiness 우회·ledger 값 수정으로 호환성을 만들지 않는다.
+- 2026-09-23 Core 후보는 수집 OFF에서 V005 유지와 이전 이미지 복귀를 격리 검증했다.
+  V006~V008 적용은 수집 release의 별도 호환·복귀 검증 뒤 수행한다. 적용 대상과 실제 검증 경계는
+  [Core 배포 후보](../implementation/m0-interim-2026-09-23/release-candidate.md)를 따른다.
+
 
 ## 12. 운영 runbook
 

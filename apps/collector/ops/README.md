@@ -7,6 +7,17 @@
 아래 legacy 운영 절의 Core 전송·별도 collector DB·spool 명령은 기존 호환 코드에 해당하며
 새 direct batch 실행 절차가 아니다. 새 batch는 같은 PostgreSQL database에 제한 role로 직접 저장한다.
 
+## 변경 검증과 CI
+
+Node 24.18.0·Java 25와 격리 PostgreSQL 18을 준비하고 저장소 루트에서 `npm run test:collector`를 실행한다.
+`TEST_DATABASE_ADMIN_URL`을 지정하면 localhost/127.0.0.1의 5439 또는 55449 `/postgres` 관리 DB에서
+임시 DB만 생성해 전체 Java 테스트를 실행하고 정리한다. 생략 시 기존 로컬 5439 관리 DB를 사용한다.
+건너뜀 0·실패 0을 요구하며 실행 결과는 `test-results/collector-ci/summary.json`에 남긴다.
+
+[CI workflow](../../../.github/workflows/ci.yml)의 `collector` job은 같은 검사 뒤 `bootJar fixtureClasspath`로
+JAR·SBOM을 만들고 검사 artifact를 보관한다. 원격 실행, Windows·별도 PC, 운영 설치·외부 연동 완료와는
+구분한다. 자세한 DB 제한과 명령은 [테스트 실행서](../../../docs/implementation/testing/README.md#실행-환경)를 따른다.
+
 ## Legacy 호환 서버 설정과 기동
 
 JDK 25, 별도 PostgreSQL 18, `pg_dump`·`pg_restore`가 필요하다. 서비스 Core DB와 물리 인스턴스를 분리한다. `apps/collector/gradlew -p apps/collector test bootJar cyclonedxBom`으로 jar·SBOM을 만든다. wrapper의 distribution SHA-256과 dependency lock을 유지한다.

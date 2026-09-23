@@ -66,6 +66,16 @@ GA4·카카오 SDK·수집 기능은 비활성 상태다. 이 구성은 설계�
 로컬 image(`blariyo-api:db-init-20260920-a17c9e4b`)가 필요하다. 합성 설정과 별도 일회성 Node
 container만 사용하며 운영 앱을 기동하거나 기존 DB/Tunnel network에 연결하지 않는다.
 
+### Core 후보와 이전 이미지 호환 검증
+
+`prepare-runtime-config.cjs`는 manual URL·Discord·batch review의 API/Web flag를 모두 명시적 false로 만든다.
+기존 비공개 입력은 보존하며, 새 사본이 실제 서버의 신뢰 IP 헤더·mount·운영 설정과 일치하는지는 별도 대조한다.
+
+[현재 로컬 후보](../../docs/implementation/m0-interim-2026-09-23/release-candidate.md)와
+[호환 검사](test-release-compatibility.py)는 로컬의 두 immutable API image로 일회성 DB·network·미디어를 만들어
+V005→후보 쓰기→이전 앱 복귀→V008→이전 앱 readiness 거부를 검사한다. 원격 DB·SSH·운영 입력을 사용하지 않는다.
+V008에서 이전 앱 503을 정상 복귀로 보고하지 않으며 Core V005 유지와 수집 migration 배포를 구분한다.
+
 ## Lightsail amd64 image 준비
 
 [image 준비 도구](prepare-images.py)는 새 source snapshot에서 Web·Core를 build하고 동일한

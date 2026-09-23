@@ -9,6 +9,7 @@
 
 | 확인하려는 내용 | 문서 | 성격 |
 | --- | --- | --- |
+| 현재 진행 상태·남은 입력·이번 커밋은 무엇인가 | [현재 진행 상황](../../../../docs/implementation/m0-interim-2026-09-23/current-progress.md), [진행 보관·커밋 기록](progress-checkpoint.md) | 최신 재개 위치와 로컬 Git 기록; push·배포 별도 |
 | M0 전체에서 무엇이 남았는가 | [M0 중간 점검](../../../../docs/implementation/m0-interim-2026-09-23/README.md), [40개 요구사항 대조](../../../../docs/implementation/m0-interim-2026-09-23/requirements.md) | 작성 시점의 감사 결과. M0 전체 부분 완료 |
 | 로컬 수집 목표를 어디까지 검증했는가 | [수용 기준 감사](batch-고도화/ACCEPTANCE-AUDIT.md) | 로컬 최종 종합 판정과 한계 |
 | 전체 개발을 어떤 순서로 재개하는가 | [M0 실행 계획](../../../../docs/implementation/m0-interim-2026-09-23/next-plan.md) | 앞으로 할 일의 전체 우선순위·완료 조건 |
@@ -22,9 +23,31 @@
 
 ### Core 관리자 후속 마감
 
+- [CI·저장 복구·실제 로컬 worker 보완 결과](admin-core/FIX-RESULTS.md): 새 실행기의 격리12+4건, 깨끗한 checkout 회귀, 원격 CI·수동 인수 잔여 구분.
+
 - [관리자 마감 결과](admin-core/RESULTS.md): 최초 로컬 검증 기록. 후속 재검토에서 P0-03/04는 부분 완료로 정정했다. 과거 검사 결과를 소급 변경하지 않는다.
 - [후속 검토·GitHub 오류 확인](admin-core/FOLLOW-UP.md): 저장 복구·로컬 실행 연결의 잔여 결함과 CI 확인 결과. [커밋 메시지](admin-core/COMMIT-MESSAGE.txt)는 초안이며 실제 커밋은 하지 않았다.
 - [관리자 진행 기록](admin-core/PROGRESS.md), [화면 검토물](../../../../docs/publishing/admin-core-review.md): 기존 변경 보존, 실제 결함·회귀 수리 및 반응형 상태 비교.
+
+### Core 배포 후보 준비
+
+- [로컬 이미지·설정·DB 호환 결과](../../../../docs/implementation/m0-interim-2026-09-23/release-candidate.md): amd64 API/Web archive, runtime 사본, V005 Core 업무·이전 앱 복귀 통과. V008에서는 이전 앱 readiness 503. 실제 서버·최종 원격 CI·운영 인수는 미검증.
+
+### Direct 수집 검수 UI 후속 결과
+
+- [관리 메뉴·필터·선택 초안·실패 복구](batch-review-ui/RESULTS.md): API 통합 15건·관련 브라우저 27건, 응답 유실 뒤 401/403 복구·단일 DRAFT·private 이미지·320/1280px 확인. 실제 운영자·Access·원격 인수는 미검증.
+
+### 수집 계약 문서 정합성
+
+- [D01~D03 기획·보안·명세 보완](collection-contract-alignment/RESULTS.md): direct/legacy 저장·권한·검수 경계와 raw HTML 취급 정렬. Web 입력/source 변경·보존/고지 결정은 미완료.
+
+### Collector CI 후속 결과
+
+- [Collector CI 구성·macOS/Linux 재현](collector-ci/RESULTS.md): Java 전체·격리 DB 각 273건, JAR·SBOM, 검사 누락/건너뜀 거부와 임시 자원 정리. 원격 CI·Windows·실제 운영 기동은 미검증.
+
+### 사이트 모듈 분리 후속 결과
+
+- [사이트별 parser 분리·회귀 결과](collector-site-modules/RESULTS.md): 21개 adapter·상세/19개 목록 parser, 기존 결과 40개 일치, 격리 DB 포함 Java 273건과 Core 연동 5건 통과. 실제 수집·운영 검증과 구분.
 
 ### 수집 작업의 기존 보고서
 
@@ -49,9 +72,9 @@ DB/object readback을 구현·검증한 기록이다. 아래의 최종 보고서
 
 ## 앞으로 수행할 작업
 
-- M0 Core 관리자: **P0-03/04 부분 완료: 저장 복구·로컬 worker 연결·재검증·운영자 인수 잔여**. 위 관리자 결과와 M0 실행 계획을 따른다.
-- 사이트별 adapter·목록/detail parser 독립 파일 분리: **미완료**. [모듈 계약](../../../../docs/system-design/08-code-structure.md#collector-site-modules)에 따라 기존 fixture 결과를 유지하며 진행한다.
-- 실제 관리자 인증 UI, 다른 PC의 공유 개발 DB·원격 S3/R2, Discord Gateway, 지원 OS·CI: **후속 구현 또는 실연동 검증 필요**. 세부 준비 조건은 수집 후속 작업에 있다.
+- M0 Core 관리자: **P0-03 로컬 보완 완료, P0-04 운영자 인수 잔여**. 저장 복구·실제 실행기·격리 회귀의 새 근거는 위 보완 결과를 따른다. 원격 CI·배포·운영 인증은 별도다.
+- 사이트별 adapter·목록/detail parser 독립 파일 분리: **로컬 완료**. [분리 결과](collector-site-modules/RESULTS.md)의 새 실행 근거를 따른다. 실제 차단 출처·원격 연동·운영 검증은 별도다.
+- 실제 관리자 인증 UI, 다른 PC의 공유 개발 DB·원격 S3/R2, Discord Gateway, Windows·원격 CI: **후속 구현 또는 실연동 검증 필요**. 세부 준비 조건은 수집 후속 작업에 있다.
 - fmkorea·ppomppu·pgr21·youtube-community: **차단 또는 실제 본문 미검증**. 허용된 공개 응답/경로가 준비되면 해당 출처를 재검증한다.
 - 관리자 URL 입력 전달과 direct 원본 보존·회수: **계약 결정과 후속 구현 필요**. 검증 보고서가 존재한다는 이유로 완료 처리하지 않는다.
 

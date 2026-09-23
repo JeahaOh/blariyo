@@ -31,14 +31,19 @@ OS·Docker·Tunnel은 별도다. 상한의 합이 실제 사용량은 아니므�
 ## CI: 변경마다 자동 검사
 
 [CI workflow](../../../.github/workflows/ci.yml)는 PR/main push/수동 실행에서 Node 24.18.0을 사용한다.
-타입·lint·unit·Nest/PostgreSQL 통합·실제 Chromium 검증을 수행한다. 실패하면 image job을 실행하지 않는다.
+Java parser를 호출하는 discovery 통합 검사를 위해 Java 25를 설정하고 `npm run test:fixtures`로
+`testClasses`·`fixtureClasspath`를 생성한다. `verify` job은 타입·lint·unit·Nest/PostgreSQL 통합·
+실제 Chromium 검증을 수행한다. 별도 `collector` job은 Java 전체·fixture·임시 PostgreSQL readback을
+`npm run test:collector`로 검사하고 JAR·SBOM을 빌드한다. 테스트 건너뜀·실패·결과 누락은 실패로 처리한다.
+`verify`와 `collector`가 모두 성공해야 image job을 실행한다.
 운영 DB·SSH·R2·Access secret을 CI에 넣지 않는다. PostgreSQL trust 인증은 일회성 runner의 검사 DB 전용이다.
 Actions는 전체 commit SHA로 고정하며 변경은 버전·테스트를 대조한 PR로 한다.
 
 검사된 main만 GHCR(GitHub 이미지 저장소)에 `linux/amd64` API/Web 이미지를 게시한다.
 tag는 전체 Git SHA, 배포 식별자는 `image@sha256:...` digest다. `latest` 배포는 하지 않는다.
 image 생성 job만 `packages: write`를 갖고 PR은 읽기 권한만 쓴다. fork PR에 운영 secret을 주지 않는다.
-collector는 운영 이미지 대상이 아니며 현재 CI는 M0 Core/Web 범위다. collector 변경은 기존 Spring 검사도 별도로 수행한다.
+Collector JAR·SBOM과 JUnit 결과는 7일 보관하는 검사 artifact로 남긴다. Collector GHCR 이미지 게시·
+설치·운영 배포는 이 job에 포함하지 않는다. 프로세스 복구·실제 외부 연동·Windows 검증은 별도다.
 
 **2026-09-20 후속 기록에는 `f38758a` 기준 `verify`와 API/Web 이미지 게시 job 성공이 남아 있다.**
 근거는 [CI/CD 후속 기록의 현재 확인](../../../worklog/task-list/09/20/local-ui-cicd/TODO-CICD-DEPLOY.md#현재-확인)이다.
@@ -51,11 +56,20 @@ package·운영 서버를 직접 재조회하지 않았다.
 [원인·현재 로컬 대응·재검증 계획](../../../worklog/task-list/09/23/admin-core/FOLLOW-UP.md)에 기록했다.
 이 실패는 운영 서버 배포 실패를 뜻하지 않는다.
 
-현재 workflow source에는 `verify` 이후 API/Web 이미지 게시만 있고 서버 pull·Compose 교체·readiness·
+후속 로컬 수정과 깨끗한 checkout의 검사 결과는 [CI·관리자 보완 결과](../../../worklog/task-list/09/23/admin-core/FIX-RESULTS.md)에
+기록했다. 새 commit/push의 원격 성공 run과 API/Web digest는 아직 없으며 로컬 통과로 대체하지 않는다.
+Collector job 추가와 macOS·Linux Docker의 새 실행 결과는 [Collector CI 결과](../../../worklog/task-list/09/23/collector-ci/RESULTS.md)에
+기록했다. 이 역시 원격 `collector` job 성공이나 실제 운영 환경 검증을 뜻하지 않는다.
+
+현재 workflow source에는 `verify`·`collector` 이후 API/Web 이미지 게시만 있고 서버 pull·Compose 교체·readiness·
 rollback job은 없다. schema dump/restore는 일반 CI에서 제외하고
 [별도 수동·일일 workflow](../../../.github/workflows/backup-restore.yml)로 분리돼 있다.
-main 보호 규칙의 `CI / verify` 필수 검사 지정 여부, 관리자 우회·요금제의 보호 기능, GHCR package
+main 보호 규칙의 `CI / verify`·`CI / collector` 필수 검사 지정 여부, 관리자 우회·요금제의 보호 기능, GHCR package
 private 접근과 서버의 최소 package 읽기 권한은 별도 설정 확인 대상이다.
+
+2026-09-23 [Core 로컬 배포 후보](../m0-interim-2026-09-23/release-candidate.md)는 amd64 API/Web archive와
+설정 사본을 준비하고 V005 Core 호환·이전 앱 복귀를 검사했다. V008에서 이전 앱 readiness 503을 확인해
+Core 배포와 수집 migration을 분리한다. 최종 SHA 원격 CI·운영 인수·실제 서버/백업 검증은 여전히 필요하다.
 
 ## CD: 검증된 산출물의 수동 운영 배포
 

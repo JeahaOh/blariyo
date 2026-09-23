@@ -70,7 +70,8 @@ apps/api/migrations/      기존 SQL 및 checksum 이력 유지
 진입점은 `run.CollectorRunService`를 호출한다. 공통 요청 검증은 `run`이 소유하고 `web`에 의존하지 않는다.
 `run`은 execution·web·discord·scheduling을 참조하지 않는다. `source`, `core`, `spool`은 run·진입점을 참조하지 않는다.
 execution은 run·state·source·core를 조합하며 web·discord·scheduling을 참조하지 않는다.
-shared는 다른 내부 패키지를 참조하지 않고 config는 shared만 참조한다. 패키지 간 순환 참조를 허용하지 않는다.
+shared는 다른 내부 패키지를 참조하지 않고 config는 shared만 참조한다. 위 표의 상위 기능 패키지 간 순환 참조를 허용하지 않는다. `source` 내부의 공통 계약·registry·사이트 모듈은
+아래 모듈 의존 규칙으로 별도 검사한다.
 테스트도 대상 패키지로 옮기며 fixture 설정은 테스트 source set에만 둔다. 운영 CLI의 FQCN 변경은
 Gradle task·launchd 렌더러·운영 문서·프로세스 테스트와 함께 반영한다.
 
@@ -78,12 +79,14 @@ Gradle task·launchd 렌더러·운영 문서·프로세스 테스트와 함께 
 
 ### 3.1. 사이트별 모듈 계약
 
-**현재 상태와 목표를 구분한다.** 2026-09-23 코드 확인 기준으로 `SiteAdapters.java`에 21개 사이트의
-중첩 클래스가 모여 있다. `SiteAdapter`의 `identify`·`list`·`detail` 메서드는 역할을 나누지만,
-사이트별 패키지와 독립 목록·상세 parser 파일로의 분리는 아직 완료되지 않았다.
+**2026-09-23 로컬 구현:** `source/sites/`의 21개 패키지에 adapter 21개·상세 parser 21개·목록 parser
+19개를 분리했다. `SiteAdapters.java`는 adapter 선택과 기존 query helper 위임만 담당한다. PGR21과
+YouTube Community는 목록 parser를 만들지 않고 `CHART_UNVERIFIED`를 유지한다. 파일 분리와 실제 출처
+수집·운영 검증은 별도이며 실행 근거는 [분리 결과](../../worklog/task-list/09/23/collector-site-modules/RESULTS.md)를 따른다.
 `SourceRegistry`가 adapter를 선택하고 `DirectBatchRunner`가 목록·상세 메서드를 호출하는 구조는 유지한다.
 
-목표 디렉터리는 다음과 같다. 아래 경로는 구현 완료 목록이 아니라 파일 분리 시 적용할 계약이다.
+디렉터리별 책임은 다음과 같다. `OrderedContentParser`는 `source/common/`에 두고 사이트별 selector와
+예외 처리는 해당 `source/sites/<site>/` 파일에서 관리한다.
 
 ```text
 apps/collector/src/main/java/com/blariyo/collector/
@@ -113,7 +116,8 @@ apps/collector/src/main/java/com/blariyo/collector/
 - `OrderedContentParser` 같은 본문 순서 보존 로직은 공통으로 재사용한다. 사이트마다 이를 복제하거나
   불확실한 selector를 generic parser로 대체하지 않는다. 공통 모듈은 개별 사이트 구현에 의존하지 않는다.
 - fetch·요청 간격·retry/backoff·site stop·중복 조회·queue·DB·object 저장·report는 공통 실행 계층이 소유한다.
-  사이트 모듈끼리 서로 참조하지 않으며 registry가 사이트 구현을 조립한다. canonical 생성은 사이트 규칙,
+  사이트 모듈끼리 서로 참조하지 않으며 registry가 사이트 구현을 조립한다. 공통·사이트 parser는
+  `source`의 `SiteAdapter`·`SourcePolicy` 계약을 사용할 수 있으나 registry·transport·runner·저장 구현을 호출하지 않는다. canonical 생성은 사이트 규칙,
   canonical hash·source post key의 중복 판정과 unique constraint는 공통 저장 계약이다.
 
 분리는 사이트 단위로 진행한다. 먼저 기존 fixture 결과를 고정하고 해당 사이트의 parser를 옮긴 뒤

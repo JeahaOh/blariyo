@@ -40,6 +40,38 @@ node scripts/local/start-development.mjs
 자동 브라우저 검사의 `browserFixture()`는 별도 임시 DB와 가짜 정책을 사용하는 검사 도구다.
 지속적인 개발 서버나 실제 정책 확인 용도로 안내하지 않는다.
 
+### 관리자 격리 인수 환경과 예약·이미지 회수 worker
+
+기본 실행은 worker가 꺼져 있다. 기존 개발 DB의 대기 작업을 처리하지 않도록 `--workers`는
+새로 만든 `blariyo_sandbox_<random>` DB에서만 허용한다. 아래 명령은 기존 55449 시험용
+PostgreSQL에 새 DB를 만들며 기존 개발 DB·미디어를 변경하지 않는다.
+
+```sh
+nvm use
+npm run build
+TEST_DATABASE_ADMIN_URL=postgresql://postgres@127.0.0.1:55449/postgres \
+  node scripts/local/create-admin-sandbox.mjs
+# 생성 명령이 출력한 실제 디렉터리를 사용한다.
+node scripts/local/start-development.mjs --sandbox=<생성된_디렉터리> --workers
+# 다른 터미널에서 로컬 시험 인증 브라우저 열기
+node scripts/local/open-admin.mjs --sandbox=<생성된_디렉터리>
+```
+
+- `localhost:3000` Web과 `127.0.0.1:3100` Core가 이미 사용 중이면 시작을 거부한다. 임의로 기존 서버를 종료하지 않는다.
+- sandbox는 해당 디렉터리의 `media`, `session.json`, `actor-secret`을 쓴다. 문의 표시는 `example.test`의
+  합성 값이며 정책·운영 콘텐츠는 복사하지 않는다. 실제 정책·Access 인수 환경이 아니다.
+- `posts:publish-due`→`outbox:run` 기존 명령을 순차 실행하고, 완료 뒤 기본 60초 후 다음 주기를 시작한다.
+  시험에서만 `--worker-interval-ms=1000`으로 줄일 수 있다(1~60초). DB 전체 advisory lock으로 다른
+  프로세스의 중복 worker 실행을 거부하며, 잠금 연결을 잃으면 서버를 종료한다.
+- 예약은 운영자가 명시적으로 예약한 글만 처리한다. 수집 기능·자동 승인·수집 결과 자동 발행은 비활성이다.
+- 한 명령 실패가 다른 명령이나 다음 주기를 막지 않는다. outbox의 기존 backoff(첫 실패 2분)를 유지한다.
+  예약 실패 알림은 DB에 남지만 이 sandbox는 외부 webhook을 설정하지 않는다. 로그의
+  `LOCAL_WORKER_RETRY`를 알림 전달 성공으로 해석하지 않는다.
+- Ctrl+C는 진행 중인 명령을 기다린 뒤 worker/Web/Core를 종료한다. sandbox DB·미디어는 보존되어
+  동일 디렉터리로 재시작할 수 있다. 인증 cookie는 교체되므로 `open-admin`을 다시 실행한다.
+- 자동 검증은 `tests/helpers/local-development-fixture.ts`가 같은 실행기를 켜며, 종료 시 그 테스트가
+  만든 무작위 DB·임시 미디어만 회수한다. 테스트에서 worker 서비스를 직접 호출하지 않는다.
+
 ### 로컬 관리자 화면 열기
 
 서버를 시작한 다음 Node 24.18.0으로 실행한다.

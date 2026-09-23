@@ -5,6 +5,13 @@
 - 문서 역할: 현재 작업 트리의 요구사항별 중간 감사와 다음 작업 제안. 제품·기술 정본을 대신하지 않으며 아래 계획의 일정·새 정책은 확정 전 제안이다.
 - 상세: [40개 요구사항 대조표](requirements.md), [실행 순서·완료 조건·결정 목록](next-plan.md).
 
+후속 실행 안내: 아래 수치·결함은 최초 감사 시점의 기록이다. 이후 Core 보완·사이트 파일 분리·Collector CI·
+direct 검수 UI·D01~D03 문서 정합성 작업은 [잔여 과정](remaining-process.md)과 개별 결과로 추적한다. 현재 요구사항 대조표는
+A07의 메뉴·필터·초안 연결과 C09의 검색·목록 구현을 반영해 I 30 / P 9 / U 1이며, 실제 운영 수용 완료율은 아니다.
+
+최신 현황과 재개 입력은 [현재 진행 상황](current-progress.md), 이번 로컬 커밋은
+[진행 보관·커밋 기록](../../../worklog/task-list/09/23/progress-checkpoint.md)을 따른다.
+
 ## 1. 조사 범위와 한계
 
 - 범위: M0 Core 4개 기능 명세, 수집 명세 및 direct batch 확장, 공개·관리자 Vue/BFF, Nest 기능·저장소·migration, Java batch/queue/parser/storage, 테스트·CI·배포·운영 문서.

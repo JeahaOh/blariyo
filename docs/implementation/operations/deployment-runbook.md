@@ -130,6 +130,10 @@ GitHub의 검증된 main image 또는 맥의 검증된 archive만 배포 후보�
 정상 이용을 위한 완화 기준을 이유로 새 요청 제한을 자동 활성화하거나
 기존 인증·서버 격리를 해제하지 않는다.
 
+2026-09-23 [Core 로컬 배포 후보](../m0-interim-2026-09-23/release-candidate.md)는 수집 OFF·DB V005 유지의
+호환성을 확인했다. V008로 올린 DB에서 기존 9월 20일 API는 readiness 503이므로, 이번 Core 배포를
+자동 migration과 묶지 않는다. 아래 순서는 실제 ledger/checksum·최종 CI·운영자 인수 확인 뒤에만 적용한다.
+
 1. 기존/후보 release 경로·image digest·설정 ID·Git SHA·migration 차이를 기록한다.
 2. 새 입력과 이미지를 stage한다. GHCR을 쓰면 먼저 digest로 pull한다. Compose의 `pull_policy: never` 때문에
    `up`이 image를 자동 다운로드하지 않는다. `images.env`에는 실제 로컬에서 확인한 digest 참조를 넣는다.

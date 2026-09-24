@@ -1,8 +1,9 @@
 # 실서버 배포 실행서
 
-마지막 운영 확인은 **2026-09-23 KST**의 [API/Web 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)와
-[DB·콘텐츠 반영](../../worklog/2026-09-23/release/production-db-promotion.md) 기록이다. 2026-09-24 문서 갱신에서
-서버·DB를 다시 조회하거나 배포하지 않았다. 최초 2026-09-20 배포는 [TASK-19](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)에 보존한다.
+마지막 앱 배포는 **2026-09-25 KST**의 [`8af7244` API/Web·GTM 배포](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)다.
+API V008·Collector V006 ledger를 유지했고, 새 백업 다운로드·격리 복원과 운영 응답을 확인했다.
+[DB·콘텐츠 반영](../../worklog/2026-09-23/release/production-db-promotion.md)은 9월 23일 기록을 따른다.
+최초 2026-09-20 배포는 [TASK-19](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)에 보존한다.
 실행 위치는 별도 표시가 없으면 저장소 루트의 **맥 터미널**이다. `--install-db`, `--apply`, `--stage`,
 `docker compose up`, `systemctl start/restart`는 조회가 아닌 설치·발행·변경 명령이다. 문서 검증용으로 실행하지 않는다.
 
@@ -12,7 +13,7 @@
 | --- | --- |
 | SSH | `ubuntu@13.124.55.99`, `ip-172-26-1-91`, 서울 Lightsail 2GB x86_64 |
 | DB | `/opt/blariyo/postgresql`, Compose project `blariyo-db`, volume `blariyo-db_pgdata` |
-| 앱 | 마지막 확인 `/opt/blariyo/application/release-5c581c2-db-v008-20260923`, project `blariyo-app`; 현재 서버 경로 재조회 필요 |
+| 앱 | 마지막 확인 `/opt/blariyo/application/release-8af7244-gtm-20260925`, project `blariyo-app`; 다음 작업 전 서버 경로 재조회 |
 | gateway | `/opt/blariyo/gateway`, project `blariyo-gateway` |
 | 운영·백업 | `/opt/blariyo/operations`, `/opt/blariyo/backup` |
 | 최초 설치 image archive | `~/task_list/blariyo-app-images-20260920T005324Z-rhn14v8g`, manifest와 SHA-256 포함; 현재 운영 image 식별자 아님 |
@@ -117,9 +118,9 @@ sudo systemctl status blariyo-application.service blariyo-logs.service --no-page
 sudo systemctl list-timers 'blariyo-*' --no-pager
 ```
 
-2026-09-24 로컬 [`start-application.py`](../../deploy/operations/start-application.py)는
-`release-5c581c2-db-v008-20260923`을 참조한다. 9월 23일 운영 기록은 서버 helper도 같은 경로로
-갱신했다고 한다. 현재 서버 파일·서비스 설정과 실제 실행 image는 재기동 전에 읽기 전용으로 재대조한다.
+2026-09-25 로컬 [`start-application.py`](../../deploy/operations/start-application.py)와 서버 helper는
+`release-8af7244-gtm-20260925`를 참조한다. 서버 파일·서비스 설정과 실제 실행 image는
+재기동 전에 읽기 전용으로 재대조한다.
 새 release를 수동 교체하고 helper를 갱신하지 않으면 재부팅 때 다른 release가 다시 뜰 수 있다.
 
 ## 4. 이후 재배포 순서

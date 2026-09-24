@@ -1,7 +1,7 @@
 # M0 운영 상태와 남은 작업
 
-- 마지막 운영 확인: **2026-09-23 22:54:49 KST** ([앱 배포 기록](../../worklog/2026-09-23/release/production-deployment-5c581c2.md), [DB·콘텐츠 반영 기록](../../worklog/2026-09-23/release/production-db-promotion.md)). 2026-09-24 문서 갱신에서는 서버·DB·CI를 다시 조회하지 않았다.
-- 판정: **API/Web 배포와 DB·콘텐츠 공개는 당시 검증 완료. 실제 MFA 관리자 업무 인수·장기 운영·복구 훈련은 남아 있다.**
+- 마지막 앱 배포: **2026-09-25 01:47:24 KST**, `8af7244` API/Web 교체와 GTM 실제 로딩 확인. 중단 후 08:23 KST 공개 응답, 이어 서버 배포 기록·부팅 경로를 재확인했다([배포 기록](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)). DB·콘텐츠 반영은 [9월 23일 기록](../../worklog/2026-09-23/release/production-db-promotion.md)을 따른다.
+- 판정: **API/Web 운영 배포·GTM 로딩 검증 완료. 실제 GA4 이벤트 수신·MFA 관리자 업무 인수·장기 운영·복구 훈련은 남아 있다.**
 - 최초 2026-09-20 구성 근거: [TASK-01~20 목록](../../worklog/2026-09-23/directory-reorganization/previous-task-list-index.md), [TASK-19 배포 증거](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)
 - 역할: 현재 실행 결과를 찾아가는 안내. 제품·법무·인프라 정본을 대신하지 않는다.
 
@@ -15,9 +15,10 @@
 | 연결 | Cloudflare → Tunnel → Nginx → Nuxt Web/BFF → Nest Core → PostgreSQL 18 |
 | 포트 | DB·Core·Web·Nginx host port 미공개. SSH 관리 경계와 별도 |
 | 방식 | 단일 VM Docker Compose 교체. 블루그린·무중단 배포 아님 |
-| 운영 이미지 | Git SHA `5c581c2ad82a9f1565ac53349fbaae7afed9c9cd`의 GHCR API/Web digest를 검증해 배포. 서버 build 없음 |
-| 마지막 확인 release | `/opt/blariyo/application/release-5c581c2-db-v008-20260923`; 부팅 helper의 로컬 source도 이 경로를 참조. 현재 서버 값은 재조회 필요 |
+| 운영 이미지 | Git SHA `8af72449a7d56c9701efd0d73dc7d430a66f9610`의 CI 성공·GHCR API/Web digest를 확인해 배포. 서버 build 없음 |
+| 마지막 확인 release | `/opt/blariyo/application/release-8af7244-gtm-20260925`; 서버·저장소 부팅 helper가 같은 경로 참조 |
 | 기능 | M0 Core 공개. 회원·광고·GA4·카카오는 비활성. 관리자 batch 검수는 활성, URL·Discord 접수와 자동 수집 실행은 비활성 |
+| GTM | `GTM-5BRTQ5T3` 운영 HTML 삽입·브라우저 스크립트 HTTP 200·컨테이너 초기화 확인. GTM 내부 태그·GA4 수신은 별도 |
 | 연락처 | 기존 비공개 입력 재사용. Cloudflare Email Routing → 일반 Gmail |
 
 ## 확인된 결과와 한계
@@ -25,7 +26,7 @@
 | 범위 | 확인한 증거 | 완료로 확대하지 않는 범위 |
 | --- | --- | --- |
 | DB | 9/23 API V005→V008, Collector V001–V006 적용·ledger/checksum 및 업무 데이터 17테이블 1,937행 readback. 적용 전후 암호화 백업의 R2 실다운로드·해시·격리 PostgreSQL 18 복원 통과 | 현재 ledger/권한·최신 백업·새 VM/media 복구 |
-| CI·앱 | 해당 SHA의 원격 CI `verify`·`collector`·API/Web `images` 성공, GHCR digest 확인 후 운영 교체. DB·Core·Web·Nginx healthy | 현재 로컬 HEAD의 CI 성공이나 자동 CD, 2GB 최대 수용량·무중단 보장 |
+| CI·앱 | 9/25 `8af7244` 원격 CI `verify`·`collector`·API/Web `images` 성공, digest로 운영 교체. DB·Core·Web·Nginx healthy, timer 5개 active. 새 암호화 백업의 R2 다운로드·격리 복원과 DB ledger 불변 확인 | 이후 로컬 HEAD의 배포나 자동 CD, 2GB 최대 수용량·무중단 보장 |
 | 정책 | TERMS/PRIVACY v0.1, 2026-09-20 시행, SQL 본문 해시·공개 API·화면 확인 | 후속 기능 법무 gate·개별 사건 면책 |
 | 공개 경로 | 9/23 게시글 74건 공개, 목록 4페이지·상세 API 74건·본문 786블록·이미지 308개 전수 대조, 대표 상세 HTML 7건·Chrome 표본 확인. 정책·health HTTPS와 redirect 확인 | 현재 실시간 수량·후속 변경·전체 브라우저 기기 |
 | 관리자 | 이메일 Allow, MFA 6시간, 익명·위조 JWT의 관리자 경로 Access 302, 내부 경로 외부 404 | 실제 TOTP 완료 후 앱 운영자 매핑·작성·업로드·발행·숨김 |
@@ -51,7 +52,7 @@
 4. 7일 보관 관찰, 월간 DB 복원, 별도 일정의 VM 재부팅·새 VM 복구를 수행한다.
 5. AWS 비용 알림을 확인한다. 9월 20일 1차 보강 조회에서는 무료 플랜·잔여 크레딧 $120·2027-03-15 종료 표시를 확인했다. 이는 현재 잔액 조회가 아니다. 결제/요금제는 변경하지 않았다.
 6. [보안·비용 보호 적용 계획](../system-design/09-security-cost-protection-plan.md)의 정적 JS 9개 캐시·Cloudflare 비용/DDoS 알림과 게이트웨이 오류 `no-store`를 유지한다. 9월 23일 앱 배포 후 공개·Web 직접 JSON 404도 `no-store`였다. 새 JS/CSS 파일명의 쿼리 무관 캐시는 기존 9개 규칙에 자동 포함되지 않으므로 별도 관리 작업이다. 정상 이용·공유 IP·관리자 흐름 검증 후 요청 제한을 판단한다.
-7. 다음 후보의 SHA별 원격 CI·GHCR digest와 운영 배포를 다시 대조한다. `5c581c2`의 CI 성공·수동 서버 배포는 9월 23일 기록으로 확인했고, 현재 workflow의 자동 CD는 미구현이다. [CI/CD 후속 기록](../../worklog/2026-09-20/local-ui-cicd/TODO-CICD-DEPLOY.md)은 당시 TODO로 보존한다.
+7. 다음 후보의 SHA별 원격 CI·GHCR digest와 운영 배포를 다시 대조한다. `8af7244`의 CI 성공·수동 서버 배포는 9월 25일 확인했고, 현재 workflow의 자동 CD는 미구현이다. [CI/CD 후속 기록](../../worklog/2026-09-20/local-ui-cicd/TODO-CICD-DEPLOY.md)은 당시 TODO로 보존한다.
 
 9월 20일 보안 후속 작업은 당시 요청의 코드·설정·문서, SSH 서버 점검, 공개 HTTP 검증 범위에서 마감했다.
 당시 남긴 관리 콘솔/API 설정과 재개 조건은 [보안 작업 기록](security-protection-status.md#7-이번-작업-마감과-남은-일)을 따른다.

@@ -17,8 +17,16 @@ await test(
     t.after(() => browser.close());
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     const external: string[] = [],
+      gtmRequests: string[] = [],
       errors: string[] = [];
     await context.route('**/*', (route) => {
+      if (
+        route.request().url() === 'https://www.googletagmanager.com/gtm.js?id=GTM-5BRTQ5T3' &&
+        route.request().resourceType() === 'script'
+      ) {
+        gtmRequests.push(route.request().url());
+        return route.fulfill({ contentType: 'application/javascript', body: '' });
+      }
       if (new URL(route.request().url()).origin !== fixture.origin) {
         external.push(route.request().url());
         return route.abort();
@@ -428,6 +436,7 @@ await test(
           path: 'test-results/m0-browser/not-found-320.png',
           fullPage: true,
         });
+        assert.equal(gtmRequests.length, 5, 'one GTM container per full document navigation');
         assert.deepEqual(external, []);
         assert.deepEqual(errors, []);
       }

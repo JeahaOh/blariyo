@@ -37,8 +37,16 @@ await test(
       { name: 'BLARIYO_ADMIN_SESSION', value: f.adminToken, url: f.origin },
     ]);
     const external: string[] = [],
+      gtmRequests: string[] = [],
       errors: string[] = [];
     await context.route('**/*', (route) => {
+      if (
+        route.request().url() === 'https://www.googletagmanager.com/gtm.js?id=GTM-5BRTQ5T3' &&
+        route.request().resourceType() === 'script'
+      ) {
+        gtmRequests.push(route.request().url());
+        return route.fulfill({ contentType: 'application/javascript', body: '' });
+      }
       if (new URL(route.request().url()).origin !== f.origin) {
         external.push(route.request().url());
         return route.abort();
@@ -153,6 +161,7 @@ await test(
       firstRow(await f.pool.query('SELECT is_active FROM collect.source')).is_active,
       false
     );
+    assert.equal(gtmRequests.length, 2, 'one GTM container per full document navigation');
     assert.deepEqual(external, []);
     assert.deepEqual(errors, []);
   }

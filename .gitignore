@@ -199,3 +199,10 @@ codex-session-*.md
 /bin/*
 !/bin/blariyo-collector
 !/bin/blariyo-collector.ps1
+
+# Local build snapshots and one-off commit recovery artifacts (2026-09-20).
+/worklog/task-list/blariyo-app-images-20260920T005129Z-jqc_0wnp/
+/worklog/task-list/blariyo-app-images-20260920T005324Z-rhn14v8g/
+/worklog/task-list/blariyo-db-migration-20260920/
+/worklog/task-list/blariyo-session-commit-20260920/
+/worklog/task-list/commit-blariyo-deployment.py

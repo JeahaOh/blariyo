@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | 지금 어디까지 진행됐는가 | [현재 상태](status.md) | 구현·로컬 검증·운영 수용을 구분 |
 | 다음에 무엇을 해야 하는가 | [로드맵](roadmap.md) | 남은 작업·우선순위·완료 조건·미정 결정 |
+| 구현 과제를 실행 단위로 어떻게 나눴는가 | [구현 task 목록](implementation-tasks/README.md) | task ID·선행 조건·완료 증거 |
 | 요구사항별 근거는 무엇인가 | [요구사항 대조](development-specs/requirements-status.md) | ID별 source·증거·잔여 조건 |
 | 제품·화면·운영 정책 | [기획](planning/01-service-plan.md) | 제품 범위의 정본 |
 | 법무·권리·개인정보 | [법무](legal/README.md) | 고지 본문·미정·활성화 조건 보존 |

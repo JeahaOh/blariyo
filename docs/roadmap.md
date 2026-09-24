@@ -2,6 +2,7 @@
 
 
 - 최신 상태·재개 입력·로컬 자원: [현재 진행 상황](status.md).
+- 실행 가능한 task 단위와 의존성: [구현 task 목록](implementation-tasks/README.md).
 
 - 기준: [9/23 마지막 운영 관측](operations/current-status.md), [요구사항 40개](development-specs/requirements-status.md). 2026-09-24 문서 갱신에서는 서버·DB·CI를 재조회하지 않았다. 단계·요구사항 ID와 미완료 조건을 유지하고 과거 실행 결과는 worklog에 보존한다.
 - 목표: **Core 관리자와 운영 흐름을 먼저 마감해 콘텐츠 운영을 시작하고, 수집 기능은 운영과 병행해 검증 후 활성화한다.**

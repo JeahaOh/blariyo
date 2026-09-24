@@ -59,6 +59,11 @@ GA4 활성화 전에는 [분석 동의 명세](development-specs/m0-core/analyti
 읽기·cookie 삭제 실패 안내 차이와 실제 Google 속성/자동 측정/network를 확인한다.
 GA4 OFF 상태의 Core 공개와 별개이며, 로컬 대체 tag 테스트를 실제 Google 검증으로 승계하지 않는다.
 
+분석 확장의 첫 구현 계약은 [analytics-v1 명세 §13](development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)로
+확정했다. Core 공개 키·OpenAPI/타입 → 동의 v3·단일 adapter·9개 이벤트 → 격리 검증 → 실제 고지·GTM/GA4/BQ
+설정·일별 수신 → 핵심 집계 대조 순으로 진행한다. 직접 GA4가 유일한 전송 담당이며 같은 목적지의 GTM 태그는
+중지·검증해야 한다. 이는 별도 확장 개발 순서이며 현재 P0 완료·운영 활성화를 뜻하지 않는다.
+
 정책 viewer는 이력 선택 뒤 본문 상단 이동 계약에 대한 명시 처리가 없다(`PolicyViewer.vue`). 긴 본문에서 버전 전환·스크롤/포커스 회귀를 보완한다. [정책·권리 명세](development-specs/m0-core/policy-and-rights/policy-and-rights.dev.md)의 잔여 화면 조건이며 실제 브라우저 장애를 이번 문서 검토에서 재현한 것은 아니다.
 
 공개 화면 잔여: 상세 SSR의 OG/Twitter 이미지 alt·크기 메타정보와 목록 page 변경 뒤 heading 초점 처리가 없다. 하단 목록 오류의 영역 내 재시도·브라우저 공유 성공/취소 안내도 명세대로 인수되지 않았다. [공개 탐색 명세 §13](development-specs/m0-core/public-post-browsing/public-post-browsing.dev.md#13-2026-09-24-소스-대조와-남은-수용-조건)의 소스 차이를 P0 화면 마감/인수에서 추적한다.

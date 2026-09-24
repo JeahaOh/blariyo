@@ -4,6 +4,7 @@
 - 기준일: 2026-09-03
 - 정합성 검토일: 2026-09-24 (동의·분석 소스와 Google 기술 안내 대조)
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
+- 확장 배경: [사용자 행동 분석 확장 제안](04-analytics-expansion-proposal.md). 2026-09-25 확정한 첫 구현 범위는 아래 `analytics-v1`과 [개발 명세 §13](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)이며, 나머지 후보는 후속 제안이다.
 
 ## 1. 화면 기준
 
@@ -31,6 +32,12 @@
 - 광고·제휴 기능을 켜기 전에는 관련 이벤트를 보내지 않는다.
 - GA4 보고서는 동의·브라우저 차단·처리 지연의 영향을 받으므로 공개 조회 수, 광고 정산,
   권리 판단과 사업 KPI의 단독 근거로 사용하지 않는다.
+
+2026-09-25 `analytics-v1`의 설계 범위를 확정했다. 아래 기존 네 이벤트는 현재 소스의 legacy 기준이고,
+확장 구현은 §4.1을 따른다. **앱 직접 GA4 전송을 단일 경로로 사용하며, 같은 GA4 목적지의 GTM
+태그는 운영 활성화 전에 중지한다.** 자체 수집 API·PostgreSQL 이벤트 테이블은 만들지 않는다.
+대신 동의 후 GA4에 수신된 이벤트의 BigQuery 일별 원시 내보내기를 1차 운영 활성화 조건에 포함한다.
+외부 저장 계약·보관 기간·비용 상한이 미확정이면 활성화하지 않는다. 설계 확정은 구현·콘솔 변경·배포 완료가 아니다.
 
 2026-09-24 Google의 [Consent Mode 개요](https://developers.google.com/tag-platform/security/concepts/consent-mode)에서
 동의 전 tag 로드를 막는 기본 방식과 cookieless ping을 사용하는 고급 방식을 구분해 확인했다.
@@ -60,7 +67,8 @@
 
 ## 4. GA4 이벤트
 
-GA4를 활성화한 환경에서 분석 동의가 있을 때만 다음 이벤트를 전송한다.
+현행 legacy adapter는 GA4를 활성화한 환경에서 분석 동의가 있을 때만 다음 이벤트를 전송한다.
+`analytics-v1` 구현으로 교체할 때는 §4.1의 계약을 적용하며 두 버전을 동시에 보내지 않는다.
 
 | 이벤트 | 발생 시점 | 허용 custom parameter |
 | --- | --- | --- |
@@ -90,6 +98,29 @@ GA4는 기본적으로 문서 제목과 현재 URL을 page view에 넣으므로 
 브라우저 history 변경 자동 page view도 꺼야 한다. 현재 adapter는 수동 이벤트만 구성하지만
 운영 속성 설정이 완료됐다는 증거는 아니다.
 
+### 4.1 첫 확장 구현 확정 — analytics-v1
+
+- 범위: M0 공개 목록·상세·정책 화면의 동의 기반 분석. 상세 지표 정의와 필드·발생 조건의 정본은
+  [개발 명세 §13](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)이다.
+- 전송 담당: 앱의 단일 adapter가 동의·형식·허용값 검사 후 명시한 Measurement ID로 직접 전송한다.
+  GTM은 기존 컨테이너 설치만 유지하고 같은 목적지의 Google tag·GA4 이벤트·중복 custom HTML 전송을 맡지 않는다.
+- 수동 이벤트 9개: `page_view`, `list_impression`, `select_content`, `list_page_change`, `scroll`,
+  `content_engagement`, `share_open`, `share`, `share_result`. 재방문·유입 보고는 이 데이터와 GA4 기술 필드로 계산한다.
+- 허용 범주: 화면·목록·노출·공유 시도의 일시 구분값, 공개 콘텐츠 분석용 키, 위치·구간·활성 시간,
+  공유 방식·관측 결과, 고정 허용 목록의 진입 경로·공유 캠페인 분류. 정확한 이름·형식은 개발 명세만 소유한다.
+- 공개 콘텐츠 분석용 키는 서버 전용 HMAC으로 생성하며 내부 `postId`·제목·본문·원문 URL을 전송하지 않는다.
+  분석용 키는 익명 정보라고 단정하지 않으며 고지·보관·접근 통제에 포함한다.
+- `page_title`·`page_location`·`page_referrer`의 고정값과 광고 기능 OFF는 유지한다. 원래 URL·임의 UTM을
+  기본 필드나 SDK 설정으로 보내지 않는다. 표준 유입 보고서와 제한된 자체 진입 경로 분류를 구분한다.
+- 동의 저장은 `version=3`, `scope=analytics_v1`로 전환한다. 기존 version2 선택을 확장 수집 동의로
+  승계하지 않으며, 확장 고지 공개 후 재선택을 받는다. 정책 발행·실제 계약 값은 별도 활성화 조건이다.
+- 체류·이동 연결용 구분값은 동의 후 브라우저 메모리에서만 생성한다. 자체 방문자 쿠키나
+  sessionStorage를 추가하지 않는다. 전체 새로고침·새 탭·BFCache 복원은 새 측정 문맥으로 구분한다.
+- 첫 구현의 다음 글 지표는 동일 측정 문맥·GA4 세션의 **SPA 연속 열람률**이다. 다른 문서·탭까지
+  연결한 전체 다음 글 열람률로 표시하지 않는다. 직접 방문·새로고침의 조회 자체는 별도로 측정한다.
+- BigQuery 일별 원시 저장과 핵심 지표 기본 집계를 먼저 제공한다. GTM 중심 전송 전환, Clarity,
+  미디어 조작, 성능·오류 이벤트, 광고·검색·회원 이벤트와 A/B 테스트는 후속 범위다.
+
 ## 5. 동의 UI
 
 - M0 Core에 아래 선택 UI를 구현하되, 동의가 필요한 선택 기능이 모두 비활성이면 배너를 표시하지 않는다.
@@ -110,6 +141,8 @@ GA4는 기본적으로 문서 제목과 현재 URL을 page view에 넣으므로 
 현행 M0 구현의 선택 범위는 분석 하나다. `blariyo_consent`는 `version=2`, `scope=analytics`,
 `ads=false`와 선택 시각을 localStorage에 저장하고 1년 뒤 만료한다. 광고 독립 선택은 후속 계약이며
 현재 광고 checkbox를 제공하지 않는다. 저장 실패 시 동의 성공으로 처리하지 않고 분석을 끈다.
+위 version2는 현행 구현 기준이다. `analytics-v1`의 version3 전환·철회·구버전 처리 기준은
+[개발 명세 §13](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)을 따른다.
 
 ## 6. 광고 위치
 
@@ -236,6 +269,8 @@ gate가 끝난 뒤 M0 운영 중에도 별도 배포 설정으로
 - GA4 비활성 환경에는 선택 배너와 Google 요청이 없다.
 
 ### GA4 운영 활성화 gate
+
+아래 네 이벤트 검수는 legacy 기준이다. `analytics-v1`은 [확장 수용 조건](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1-acceptance)의 9개 이벤트·재동의·단일 전송·일별 원시 내보내기 검수를 추가한다.
 
 - GA4 활성 환경에서 저장된 선택이 없으면 비차단형 배너가 표시되고, 분석 거부 상태에서는
   방문자 수·page open을 포함한 Google tag/request·cookieless ping과 `_ga*` 생성이 0건이다.

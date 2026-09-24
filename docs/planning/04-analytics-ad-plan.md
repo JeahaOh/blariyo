@@ -46,6 +46,8 @@
 
 ### GTM 컨테이너 설치 — 2026-09-25 사용자 요청
 
+- 실행 상태: 9/25 `8af7244` API/Web 운영 배포 후 HTML 위치·실제 GTM script HTTP 200·컨테이너 초기화를 확인했다([배포 증거](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)). 태그·동의·쿠키·공개 고지 대조와 GA4 수신 완료를 뜻하지 않는다.
+
 - `GTM-5BRTQ5T3`의 공통 script를 HTML `<head>` 맨 앞에, `noscript` iframe을 `<body>` 바로 뒤에 삽입한다.
 - 컨테이너는 GA4 feature flag·동의와 독립적으로 로드한다. JavaScript 사용 시 `gtm.js`, 미사용 시
   `ns.html` 요청이 발생하므로 위의 **동의 전 Google 요청 0건**은 기존 직접 GA4 adapter의 범위로

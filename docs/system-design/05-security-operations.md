@@ -178,7 +178,9 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
 동적으로 생성하는 GTM script에 전달한다. CSP의 script/img/connect/frame에는 정확한
 `https://www.googletagmanager.com` origin을 허용한다. GA4·광고 목적지나 Preview Mode에 필요한
 추가 origin은 자동 허용하지 않는다. [Google의 CSP 안내](https://developers.google.com/tag-platform/security/guides/csp)를
-기준으로 적용하며 실제 콘솔 태그의 실행·수집 검증과 운영 배포는 별도다.
+기준으로 적용했다. 9/25 `8af7244` 운영 배포 후 HTML 위치·nonce, 실제 GTM script HTTP 200과
+컨테이너 초기화를 확인했다([배포 증거](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)).
+실제 콘솔 태그·동의 조건·GA4 수집·공개 정책 대조는 별도 미검증이다.
 
 ### 입력 검증
 

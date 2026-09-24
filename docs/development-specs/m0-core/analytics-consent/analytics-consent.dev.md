@@ -8,7 +8,8 @@
 - 기준일: 2026-09-07
 - 정합성 검토일: 2026-09-24 (소스·테스트 계약 대조, 재실행·운영 GA4 검증 아님)
 - 확장 계약 확정일: 2026-09-25 — [§13 analytics-v1](#analytics-v1)의 이벤트·필드·단일 전송·재동의 계약 작성 완료. 확장 코드·OpenAPI·콘솔·운영은 미반영·미검증.
-- 운영 미검증: GA4 property·Measurement ID·속성 자동 측정·국외이전 고지·실제 Google network/DebugView. 로컬 대체 tag 검증과 구분한다.
+- 운영 확인: 9/25 `8af7244` 배포의 GTM 컨테이너 요청 HTTP 200·초기화([배포 증거](../../../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)).
+- 운영 미검증: GA4 property·Measurement ID·속성 자동 측정·국외이전 고지·GA4 실제 network/DebugView, GTM 태그·동의 설정. GTM 로딩 및 로컬 대체 tag 검증과 구분한다.
 - 주요 근거:
   - [서비스 기획 §11·§13·§14](../../../planning/01-service-plan.md)
   - [화면 설계 §10·§13](../../../planning/03-screen-design.md)

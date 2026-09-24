@@ -1,9 +1,9 @@
 # M0 요구사항 전수 대조표
 
 - 상위 보고서: [중간 점검](../../worklog/2026-09-23/m0-audit/report.md). 후속 실행: [다음 계획](../roadmap.md).
-- 기준: 2026-09-23 로컬 구현·운영 실행 기록을 2026-09-24 문서 대조에 반영했다. 기능 묶음별 40개 점검 단위이며 API endpoint 수나 개발 공수 비율이 아니다. [운영 상태](../operations/current-status.md)의 수량·release는 9월 23일 관측값이다.
+- 기준: 9/23 로컬 구현·DB/콘텐츠 증거에 9/25 앱 배포·백업 복원·GTM 로딩 증거를 추가했다. 기능 묶음별 40개 점검 단위이며 API endpoint 수나 개발 공수 비율이 아니다. [운영 상태](../operations/current-status.md)는 날짜별 관측을 구분한다.
 - 구현 판정: **I = 주요 구현 확인, P = 부분 구현/새 경로 연결 또는 마감 필요, U = 대응 구현 미확인**. I도 현재 테스트·화면·운영 수용 완료를 뜻하지 않는다.
-- 검증 판정: **L = 9월 23일 로컬 증거 확인, R = 9월 23일 운영 실행 기록에서 확인, H = 이전 검증 기록/테스트 소스 확인, N = 해당 실제 흐름 미검증**. `R`은 이번 문서 갱신 중 서버·DB를 재조회했다는 뜻이 아니다. CI 성공은 기록된 SHA, 운영 관측은 기록된 시점에만 적용한다. 최초 감사는 테스트를 재실행하지 않았으며 후속 실행은 각 결과 보고서로 구분한다.
+- 검증 판정: **L = 9월 23일 로컬 증거 확인, R = 행에 명시한 날짜의 운영 실행 기록에서 확인, H = 이전 검증 기록/테스트 소스 확인, N = 해당 실제 흐름 미검증**. `R`은 이번 문서 갱신 중 서버·DB를 재조회했다는 뜻이 아니다. CI 성공은 기록된 SHA, 운영 관측은 기록된 시점에만 적용한다. 최초 감사는 테스트를 재실행하지 않았으며 후속 실행은 각 결과 보고서로 구분한다.
 
 ## 1. M0 Core — 16개
 
@@ -70,11 +70,11 @@ legacy 원문 API/OpenAPI 1000블록과 V006 DB CHECK 40블록의 차이는 [P1-
 | --- | --- | --- | --- | --- |
 | O01 | DB schema·상태·unique/version·분리 role/migration | I | L: [역할 검사](../../scripts/test-database-roles.ts); R: 9/23 API V008·Collector V006 ledger/checksum, 17테이블 1,937행, API batch SELECT·검토 쓰기·backup 읽기 권한 확인 [DB 반영](../../worklog/2026-09-23/release/production-db-promotion.md) | 현재 운영 ledger/권한 재조회·다음 앱/DB 호환성 확인. 다른 PC batch 쓰기 권한은 O02 / 다음 배포·P1-03 |
 | O02 | 원격 DB/object 권한·prefix·새 collect 실연동 | P | N/H: [object adapter](../../apps/collector/src/main/java/com/blariyo/collector/storage/BatchObjectStore.java); R: 9/23 기존 수집 data 108건·R2 파일 1,106개 이전/해시 대조와 내부 service 조회 [DB 반영](../../worklog/2026-09-23/release/production-db-promotion.md). 새 batch 실행 증거는 아님 | 다른 PC의 새 batch→비운영 DB/R2 쓰기, batch/API 상호 쓰기 거부, object GET/hash·승격 회복 검증 / P1-03 |
-| O03 | DB 백업·암호화·격리 복원·복구 절차 | I | L/H: 61테이블/16sequence 복원; R: 9/23 배포 전·DB 반영 전후 age 백업을 R2에서 다운로드·해시·격리 PostgreSQL 18 복원 확인 [앱 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md), [DB 반영](../../worklog/2026-09-23/release/production-db-promotion.md); [backup](../../deploy/backup/README.md) | 다음 배포 전 최신 백업 재확인; 실제 rollback·새 VM/media 복구·7일 보존 관찰 별도 / 다음 배포·P2-01 |
-| O04 | Core CI·image·테스트 재현 명령 | I | H: [CI](../../.github/workflows/ci.yml), [복원 CI](../../.github/workflows/backup-restore.yml); R: SHA `5c581c2`의 원격 verify·collector·API/Web images 성공·GHCR digest [앱 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md) | 이후 SHA의 CI·digest는 별도 검증. Collector 운영 실행·배포는 미실행/미검증, 자동 CD는 미구현 / 다음 배포·P1-07 |
+| O03 | DB 백업·암호화·격리 복원·복구 절차 | I | L/H: 61테이블/16sequence 복원; R: 9/25 새 age 백업 R2 실다운로드·해시·격리 PostgreSQL 18 복원·운영 readback 대조 [배포 기록](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md); [backup](../../deploy/backup/README.md) | 다음 배포 전 최신 백업 재확인; 실제 rollback·새 VM/media 복구·7일 보존 관찰 별도 / 다음 배포·P2-01 |
+| O04 | Core CI·image·테스트 재현 명령 | I | H: [CI](../../.github/workflows/ci.yml), [복원 CI](../../.github/workflows/backup-restore.yml); R: SHA `8af7244` CI #15 verify·collector·API/Web images 성공·digest 배포 [증거](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md) | 이후 SHA의 CI·digest는 별도 검증. Collector 운영 실행·배포는 미실행/미검증, 자동 CD는 미구현 / 다음 배포·P1-07 |
 | O05 | 환경 설정·cross-platform·별도 PC batch 실행 | P | L/N:환경 예시·macOS local 검증; Windows/별도 PC 실증 없음 | 지원 OS별 동일 CLI·재시작·설정 경로 검증 / P1-03·07 |
 | O06 | 운영 감시·실패 알림·일정·자원·보존 관찰 | P | H/N: [운영 상태](../operations/current-status.md), [runtime 검사](../../apps/api/test/runtime-operations.integration.test.ts) | 실제 알림 수신·관찰 담당·점검표·장애 대응 / P0-05·P2-01 |
-| O07 | 최신 release 배포·rollback·운영자 인수 | P | L/H: [로컬 후보·호환 행렬](../../worklog/2026-09-23/release/candidate.md); R: 9/23 `5c581c2` CI·digest→API/Web 교체·공개 smoke, 이어 V008/Collector V006·74건 공개 [앱 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md), [DB 반영](../../worklog/2026-09-23/release/production-db-promotion.md); N: 실제 MFA 운영자 인수·rollback | 다음 후보의 ledger/백업·호환성·digest 재조회, MFA 쓰기·예약/알림 인수, 실제 rollback/재부팅 별도. 9/20 구 API는 V008 readiness 503 / 운영 인수·다음 배포 |
+| O07 | 최신 release 배포·rollback·운영자 인수 | P | L/H: [로컬 후보·호환 행렬](../../worklog/2026-09-23/release/candidate.md); R: 9/25 `8af7244` CI·digest→API/Web 교체·GTM 로딩·부팅 helper·timer·백업 복원 [증거](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md). API V008·Collector V006 유지; N: 실제 MFA 운영자 인수·rollback | 다음 후보 ledger/백업·호환성·digest, MFA 쓰기·예약/알림 인수, 실제 rollback/재부팅 별도. 복귀 후보는 보존한 `5c581c2` / 운영 인수·다음 배포 |
 | O08 | 정본·화면 명세·구현·운영 기록 일치 | P | N:최초 D01~D06 충돌 확인 후 [D01~D03 정합성 보완](../../worklog/2026-09-23/collection-contract-alignment/RESULTS.md) | 현행/legacy·입력 완료/활성화 gate·UI/기능 검증 분리 / P0-01·P1-01 |
 
 ## 5. 집계와 판정 규칙

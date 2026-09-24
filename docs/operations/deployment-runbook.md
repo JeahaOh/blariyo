@@ -129,8 +129,9 @@ sudo systemctl list-timers 'blariyo-*' --no-pager
 GitHub의 검증된 main image 또는 맥의 검증된 archive만 배포 후보로 선택한다.
 
 운영에 적용된 Nginx 오류 `no-store`와 기존 Cloudflare 캐시·알림은 유지한다. 9월 23일 `5c581c2`
-배포 후 공개 HTML/JSON 404와 Web 직접 JSON 404의 `no-store`를 확인했다
-([당시 증거](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)).
+배포 후 확인한 공개 HTML/JSON 404와 Web 직접 JSON 404의 `no-store`를 9/25 `8af7244`에서도
+재확인했다. 새 JS/CSS 10개의 원래 URL·쿼리 변형 해시·immutable도 통과했다
+([9/25 증거](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)).
 다음 후보에서는 `npm run test:web-cache`를 다시 실행하고 배포 후 원본·공개 오류 응답을 재확인한다.
 정상 이용을 위한 완화 기준을 이유로 새 요청 제한을 자동 활성화하거나
 기존 인증·서버 격리를 해제하지 않는다.

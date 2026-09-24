@@ -1,9 +1,9 @@
 # GitHub CI와 배포 정책
 
-2026-09-20 결정, 2026-09-24 문서 갱신. **로컬에서 수정 → PR 검증 → main의 검증된 이미지 → 운영자가 배포 실행**을 기본으로 한다.
-마지막 운영 확인은 2026-09-23의 [`5c581c2` API/Web 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)와
-[DB V008·Collector V006 반영](../../worklog/2026-09-23/release/production-db-promotion.md) 기록이다.
-이 문서 갱신에서 원격 CI·서버를 다시 조회하지 않았다. 실제 명령과 복귀 조건은 [배포 실행서](deployment-runbook.md)에 있다.
+2026-09-20 결정, 2026-09-25 결과 갱신. **로컬에서 수정 → PR 검증 → main의 검증된 이미지 → 운영자가 배포 실행**을 기본으로 한다.
+마지막 앱 배포는 9/25 [`8af7244` API/Web·GTM 운영 반영](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)이다.
+[9/23 DB V008·Collector V006 반영](../../worklog/2026-09-23/release/production-db-promotion.md)을 유지했고 새 백업 다운로드·격리 복원을 확인했다.
+이번 문서 갱신은 해당 실행 증거의 반영이며 신규 배포가 아니다. 명령·복귀 조건은 [배포 실행서](deployment-runbook.md)를 따른다.
 
 ## 현재 방식과 선택
 
@@ -86,14 +86,15 @@ GHCR 경로를 사용할 때 서버의 읽기 전용 registry 인증과 digest p
 배포 단위: Git SHA 또는 dirty snapshot hash + Web/Core image digest + 설정 묶음 식별자 + migration 목록.
 배포 전 DB 백업, timer 중복 방지, 순차 교체, 공개·관리자 smoke, 부팅 복구 대상 갱신을 한 기록에 남긴다.
 실패 시 **현재 DB와 호환성이 확인된 앱 이미지·설정**으로 복귀하며 DB는 자동 역마이그레이션하지 않는다.
-V008의 마지막 확인 기준은 `5c581c2` 앱 image다. DB 전체 복구는 별도 범위·백업 이후 데이터 처리가 필요하다.
+V008에서 현재 `8af7244`와 직전 `5c581c2` 앱을 확인했다. 이번 배포의 복귀 대상은 보존한
+`release-5c581c2-db-v008-20260923`이다. DB 전체 복구는 별도 범위·백업 이후 데이터 처리가 필요하다.
 파괴적인 DB 변경은 호환 단계로 나누고, 불가피한 경우 점검 시간을 별도로 잡는다.
 구 이미지·사전 dump는 다음 배포의 복귀 가능 여부를 확인하기 전까지 정리하지 않는다.
 
 자동 CD는 서버가 승인된 manifest를 가져오는 방식이 다음 후보다. 고정 IP 미사용 결정을 유지하고,
 GitHub runner IP 전체에 SSH를 개방하거나 운영 VM에 PR용 self-hosted runner를 두지 않는다.
-현재 SSH helper에는 최초 대상 정보가 고정된 부분이 있고, 로컬 부팅 helper는 9월 23일
-`release-5c581c2-db-v008-20260923`으로 갱신됐다. 서버 현재 값은 다음 배포 전 확인한다.
+현재 SSH helper에는 최초 대상 정보가 고정된 부분이 있다. 9/25 서버·저장소 부팅 helper를
+`release-8af7244-gtm-20260925`로 맞췄으며 다음 배포 전 서버 값을 다시 확인한다.
 두 도구를 범용 자동 CD로 보지 않는다. 새 후보의 release·설정·migration·백업·복귀를 확인한 뒤
 서버 pull 기반 자동화 여부를 별도 설계·검증한다.
 

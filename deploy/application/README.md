@@ -1,9 +1,9 @@
 # 앱 운영 설정과 배포
 
 2026-09-20 Lightsail 운영 서버의 정책 발행·Web/Core 기동·공개 연결을 완료했다.
-마지막 [9월 23일 운영 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)는
-`5c581c2` GHCR API/Web image를 사용했고, [DB·콘텐츠 반영](../../worklog/2026-09-23/release/production-db-promotion.md)
-후 release는 `release-5c581c2-db-v008-20260923`, API V008·Collector V006이다.
+마지막 [9월 25일 운영 배포](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)는
+`8af7244` GHCR API/Web image와 `release-8af7244-gtm-20260925`를 사용한다.
+[9/23 DB·콘텐츠 반영](../../worklog/2026-09-23/release/production-db-promotion.md)의 API V008·Collector V006을 유지했고 GTM 실제 로딩·새 백업 복원을 확인했다.
 아래 준비 도구의 기본 false flag·9월 20일 archive/설정 ID는 **새 입력/최초 설치 문맥**이다.
 9월 23일 운영 기록에서는 관리자 batch 검수만 API/Web에서 활성이고 URL·Discord 접수·자동 수집은 비활성이다.
 [현재 운영 상태](../../docs/operations/current-status.md)와

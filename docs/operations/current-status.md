@@ -33,9 +33,9 @@
 | R2/CDN | 세 버킷별 키 검사, 앱 어댑터 private→public 복사, 9/23 공개 이미지 308개 다운로드·크기/SHA-256 대조 | CDN HIT·전체 전파·브라우저 CORS·교차 객체 읽기/쓰기 차단 전체 검사 |
 | 작업 | 예약 발행·outbox·cleanup timer 설치, 수동 단발 실행 | 실제 예약 게시글 장기 처리·외부 실패 알림 |
 | 로그 | 전용 rsyslog, root 접근 제한, 최대 7일 보관 timer, 실제 수신·합성 만료 파일 삭제 | 제공자 감사 기록·호스트 로그·DB 운영 이력은 같은 TTL 대상 아님 |
-| DB 백업 | 하루 두 번 age 암호화→R2. 9/23 배포 전·DB 반영 전후 백업의 실제 다운로드 SHA-256·격리 PostgreSQL 18 복원·정책/ledger/수량 대조 | 다음 배포 전 최신 백업, 새 VM 전체 복구·RTO, media 전체 복제, 7일 지난 실제 object 삭제 관찰 |
+| DB 백업 | 하루 두 번 age 암호화→R2. 9/25 배포 전 새 백업의 실다운로드 SHA-256·격리 PostgreSQL 18 복원·정책/ledger/수량 대조 | 다음 배포 전 최신 백업, 새 VM 전체 복구·RTO, media 전체 복제, 7일 지난 실제 object 삭제 관찰 |
 | 부팅 | 서비스·timer enabled/active | 실제 VM 재부팅 시험 |
-| 보안 보강 | JS 9개 쿼리 무관 캐시·Cloudflare $1 비용/DDoS 알림. 게이트웨이 오류 `no-store`에 더해 9/23 배포 후 공개 HTML/JSON 404·Web 직접 JSON 404 `no-store` 확인 | 새 자산의 쿼리 무관 캐시 규칙·구 탭 자산 보존·다른 4xx/5xx·장기 관찰 미검증. [과거/후속 기록](security-protection-status.md) |
+| 보안 보강 | 기존 JS 9개 쿼리 무관 캐시·Cloudflare 비용/DDoS 알림 유지. 9/25 공개 HTML/JSON 404·Web 직접 JSON 404 no-store, 새 JS/CSS 10개 원래 URL·쿼리 변형 해시·immutable 확인 | 새 자산의 쿼리 무관 규칙·구 탭 보존·다른 4xx/5xx·장기 관찰 미검증. [후속 기록](security-protection-status.md) |
 
 위 공개·DB 수량은 **9월 23일 관측값**이며, 새 발행·수정에 따라 달라질 수 있다. 수집 항목은 당시 108건(FETCHED 104·FAILED 2·BLOCKED 1·SKIPPED_POLICY 1)이다. 관리자 batch 검수 API/Web flag는 당시 `true`였고, 내부 service의 108건 조회·16개 출처 이미지 미리보기를 확인했다. 실제 MFA 세션의 관리자 조작은 별도 인수 대상이다. URL 접수·Discord 접수·자동 수집은 활성화하지 않았다. direct raw/media/report/queue 보존·고지 계약(QD-04)은 미정이며, batch 검수 활성화만으로 계약이나 운영 인수가 완료된 것은 아니다.
 

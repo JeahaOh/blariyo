@@ -1,0 +1,13 @@
+# Public pages and rendering assets are crawlable by default.
+# Cloudflare may prepend its managed bot-specific rules in production.
+User-agent: *
+Allow: /
+
+# Administrative, API, internal and health routes.
+Disallow: /admin
+Disallow: /api/
+Disallow: /internal
+Disallow: /health/
+Disallow: /__gateway_health
+
+Sitemap: https://blariyo.com/sitemap.xml

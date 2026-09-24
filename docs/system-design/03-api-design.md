@@ -66,6 +66,12 @@ M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
 따라 실행한다. 현행 Discord 확인→queue는 legacy 후보 접수와 다르며 Web URL 입력의 direct 전달은 미정이다.
 API는 외부 사이트를 fetch하지 않는다. flag·운영 인수 상태는 [현재 상태](../operations/current-status.md)를 따른다.
 
+### 사이트맵 응답
+
+공개 XML `/sitemap.xml`, `/sitemap-pages.xml`, `/sitemap-posts-{shard}.xml`과 Core 내부 조회는
+[사이트맵 계약](05-security-operations.md#사이트맵-자동-생성)을 따른다. `/api/v1` JSON envelope와 별도인
+검색엔진용 GET·HEAD resource이며, 오류 때는 정상 XML로 위장하지 않는다.
+
 ### Health 응답
 
 `/health/live`는 Nuxt BFF process가 HTTP 요청을 처리할 수 있으면 `200 {"status":"UP"}`만 반환한다.

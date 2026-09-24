@@ -76,6 +76,56 @@ GA4 기본 `page_title`, `page_location`, `page_referrer`도 [분석 계획 §4]
 
 ## 4. 애플리케이션 보안
 
+### robots.txt
+
+- 제품 기준은 [서비스 기획의 검색엔진 수집 안내](../planning/01-service-plan.md#검색엔진-수집-안내)다.
+- Nuxt의 `apps/web/public/robots.txt`를 정적 파일로 제공한다. 루트 `/robots.txt`의 GET·HEAD가
+  인증 없이 HTTP 200과 `text/plain`으로 응답해야 한다.
+- `User-agent: *`의 기본 허용 아래 `/admin`, `/api/`, `/internal`, `/health/`, `/__gateway_health`
+  접두 경로를 `Disallow`한다. `/admin`은 `/admin` 자체와 하위·접두 경로를 함께 제외한다.
+- 공개 목록·상세·정책 페이지, `/_nuxt/`, `/og/`, `/media/`를 차단하지 않는다.
+  `Sitemap: https://blariyo.com/sitemap.xml`로 아래 자동 생성 index를 안내한다.
+- 이 파일은 자발적으로 규칙을 따르는 봇의 수집 안내이며, Access·BFF 인증과 내부 경로 차단을 대신하지 않는다.
+  검색 결과 제외는 별도의 404·`noindex` 계약을 따른다.
+- 수집 제외와 같은 접두 경로의 Web 응답에 `X-Robots-Tag: noindex`를 붙인다. 봇이 응답을 읽을 때만
+  효력이 있으므로 기존 검색 결과 삭제 완료로 판정하지 않는다. Web 앞의 Access 인증·Nginx 404 응답은
+  별도 계층이며 이 Web header 검증을 그대로 승계하지 않는다.
+- 2026-09-24 운영 `/robots.txt` 읽기 전용 조회에서는 HTTP 200·`text/plain`과 Cloudflare 관리 규칙만
+  확인했다. 앱 경로 규칙의 운영 반영은 배포 후 별도 검증한다.
+- Cloudflare 관리 기능이 켜져 있으면 origin의 HTTP 200 파일 앞에 관리 규칙을 붙인다.
+  배포 후 최종 응답에 관리 규칙과 앱 규칙이 모두 있는지, 공개 경로 허용·내부 경로 제외·기존 봇별
+  차단이 유지되는지 확인한다. 로컬 응답 검증은 이 운영 병합 검증을 대신하지 않는다.
+- 규칙 근거: [Google robots.txt 해석](https://developers.google.com/crawling/docs/robots-txt/robots-txt-spec),
+  [Cloudflare 관리 파일 병합](https://developers.cloudflare.com/bots/additional-configurations/managed-robots-txt/).
+
+### 사이트맵 자동 생성
+
+- 공개 Web의 GET·HEAD `/sitemap.xml`은 sitemap index, `/sitemap-pages.xml`은 활성 게시판 목록과
+  실제 발효된 약관·개인정보 페이지, `/sitemap-posts-{shard}.xml`은 공개 게시글 URL 목록이다.
+  루트의 canonical 주소만 기록하며 검색 query·관리자·미공개 글·이미지 원본 URL은 넣지 않는다.
+- Web은 Core `/internal/sitemaps/{index.xml|pages.xml|posts-{shard}.xml}`만 조회한다.
+  SQL·공개 상태 판정·XML 생성·캐시는 Core가 담당한다. 내부 route는 기존 Docker network 경계와
+  Nginx `/internal` 거부를 유지하며 공개 `/api/v1` JSON 계약을 확장하지 않는다.
+- 게시글 ID의 고정 1만 구간으로 분할한다: shard 0은 ID 1~10000, shard 1은 10001~20000이다.
+  삭제·숨김으로 뒤 파일의 소속이 밀리지 않으며 본문·이미지·조회 수를 읽지 않는다.
+  활성 게시판의 `PUBLISHED`이면서 `published_at <= now()`인 글만 ID 범위 조회한다.
+- index는 공개 글이 존재하는 구간만 조회한다. 이 구간 집계는 전체 공개 ID에 비례하는 작업이며
+  캐시가 만료된 index 요청에서만 실행한다. 게시글 파일은 PK 범위 조회로 최대 1만 행만 반환한다.
+- 성공한 XML은 Core process 내에서 300초 재사용한다. 같은 파일의 동시 생성은 합치고, 캐시는
+  최대 32개·16 MiB, 동시에 만드는 파일은 최대 4개로 제한한다. 오류는 저장하지 않는다.
+  외부 응답은 `no-store`로 추가 캐시 지연을 막는다. 재시작·여러 replica의 캐시는 독립이다.
+- 게시글 `lastmod`는 발행일·실제 수정일 중 늦은 시각을 사용한다. 생성 시각·조회 수를 수정일로 쓰지 않는다.
+  index와 고정 페이지에는 신뢰할 수정일이 없으면 `lastmod`를 생략한다.
+- 표준의 파일당 5만 URL·비압축 50 MiB 한도를 지킨다. index는 pages 1개와 게시글 파일 최대 49999개다.
+  한도 초과·DB 장애·잘못된 응답은 오류로 처리하며 일부 목록이나 빈 성공으로 대체하지 않는다.
+  비어 있는 게시글 구간은 404다. XML 특수문자와 canonical origin을 검증한다.
+- 추가 cron·외부 서비스·DB migration은 없다. 요청 시 자동 갱신하며 처음 요청은 생성 비용이 든다.
+  index 집계 시간이 길어지거나 여러 replica에서 중복 부하가 관측되면 변경 구간 추적과 정적 파일
+  사전 생성으로 전환한다. 대규모 운영 성능은 별도 측정 대상이며 건수만으로 처리 시간을 보장하지 않는다.
+- 배포 후 `/robots.txt`의 안내와 index·하위 XML의 HTTP 200, 실제 공개/비공개 포함 여부를 재확인한다.
+  표준 근거: [Sitemaps protocol](https://www.sitemaps.org/protocol.html),
+  [Google 사이트맵 작성](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
+
 ### HTTP header
 
 Nginx와 Nuxt가 다음 기준을 적용한다.

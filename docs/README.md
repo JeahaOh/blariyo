@@ -9,6 +9,7 @@
 | 구현 과제를 실행 단위로 어떻게 나눴는가 | [구현 task 목록](implementation-tasks/README.md) | task ID·선행 조건·완료 증거 |
 | 요구사항별 근거는 무엇인가 | [요구사항 대조](development-specs/requirements-status.md) | ID별 source·증거·잔여 조건 |
 | 제품·화면·운영 정책 | [기획](planning/01-service-plan.md) | 제품 범위의 정본 |
+| 사용자 행동 분석 확장 | [분석 확장 제안](planning/04-analytics-expansion-proposal.md) | 측정 후보·지표·도구·도입 순서; 현행 수집 정책과 구분 |
 | 법무·권리·개인정보 | [법무](legal/README.md) | 고지 본문·미정·활성화 조건 보존 |
 | 아키텍처·DB·API·보안 | [기술 설계](system-design/README.md) | 기술 계약의 정본 |
 | 기능별 구현 계약 | [개발 명세](development-specs/) | 기능별 API·업무 흐름·수용 조건 |

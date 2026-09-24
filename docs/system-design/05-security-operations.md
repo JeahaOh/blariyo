@@ -48,6 +48,13 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 
 GA4 기본 `page_title`, `page_location`, `page_referrer`도 [분석 계획 §4](../planning/04-analytics-ad-plan.md)의 고정값 규칙을 따른다. 자동 page view와 향상된 측정을 끄고, 실제 제목·URL·postId가 기본 필드로 전송되지 않는지 network 검증을 운영 활성화 조건에 포함한다.
 
+첫 확장 `analytics-v1`의 단일 전송 주체는 앱 직접 GA4 adapter다. 같은 GA4 목적지의 GTM Google tag·
+GA4 이벤트·custom HTML 전송을 중지하고 콘솔 버전·대상 ID·실제 network로 중복이 없음을 확인한 뒤 활성화한다.
+GTM 컨테이너 로드 자체와 GA4 수집은 구분하며, 기존 `dataLayer` 객체와 GTM 항목을 지우거나 교체하지 않는다.
+이벤트별 `send_to`는 승인된 Measurement ID로 고정한다. 공개 키·메모리 구분값·정제된 유입 분류만
+허용하며 회원 식별자·실제 URL·본문은 금지한다. 구현 계약은 [분석 명세 §13](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)이다.
+동의 version3 재선택, BigQuery 일별 저장의 계약·권한·보관·삭제·비용 상한, 공개 고지 개정은 별도 활성화 조건이다.
+
 ## 3. 관리자 접근
 
 ### 외부 관리자 인증 provider
@@ -289,6 +296,7 @@ direct 수집·API 수집 preview/초안 승격의 입력은 파일당 30MiB·�
 | R2 backup key | backup bucket write/read, media·staging 접근 금지 |
 | cache purge token | 해당 zone cache purge only |
 | admin actor HMAC secret | BFF only, 내부 `operatorId` 가명화 |
+| `ANALYTICS_CONTENT_KEY_SECRET` — analytics-v1 설계·미구현 | Core only, 공개 콘텐츠 분석용 HMAC 키. 관리자 키·서비스 token과 분리, 공개 config·로그·GA4로 전송 금지 |
 | Core service token | BFF·Core만 공유, 외부 노출 금지 |
 | Collector service token | 로컬 collector 보유, 전용 Web 중계에서만 Core로 전달. 후보 접수·claim·heartbeat·결과·preview 전용, 관리자 권한 없음 |
 | 외부 provider audience/team | BFF adapter 설정, 비밀값과 분리 |

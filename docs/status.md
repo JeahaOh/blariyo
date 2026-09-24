@@ -20,6 +20,14 @@
 | 수집 실연동 P1-03~05/07 | 로컬 코드·격리 증거와 실행서 준비 | 다른 PC/Windows·비운영 DB/object·Discord·보존 회수 구현/검증 |
 | 운영 관찰 P2 | 관찰 조건 정의 | 실제 운영 개시 후 7일 기록 |
 
+## 분석 확장 analytics-v1 — 2026-09-25 명세 확정
+
+- [개발 명세 §13](development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)에 첫 수동 이벤트
+  9개·필드·발생 조건·동의 version3·직접 GA4 단일 전송·BigQuery 일별 저장과 기본 집계를 확정했다.
+- 기획·API/아키텍처/보안 설계·법무 편집 초안을 동기화했다. 운영 법무 값과 원시·집계 보관·비용은 미정이다.
+- 신규 콘텐츠 키·확장 계측·OpenAPI/타입·v3 구현, GTM 동일 목적지 태그 중지, GA4/BQ 콘솔 설정·실제 수신·배포는 미실행이다.
+  기존 4개 이벤트 소스·GTM 삽입 테스트의 성공을 확장 기능 완료로 승계하지 않는다.
+
 ## Google Tag Manager — 2026-09-25 로컬 적용
 
 - `GTM-5BRTQ5T3` 공통 script를 `<head>` 맨 앞에, `noscript` iframe을 `<body>` 바로 뒤에 삽입했다.

@@ -204,6 +204,26 @@ Core는 PostgreSQL·허용 schema version을 확인하고 legacy/direct flag에 
 위 image URL은 문서용 `.invalid` 예시다. 실제 응답은 배포 설정 `IMAGE_ORIGIN`과 public storage key로
 만들며 `IMAGE_ORIGIN` 실값을 문서에서 추측하지 않는다.
 
+### analytics-v1 공개 콘텐츠 키 — 확정 설계·미구현
+
+첫 분석 확장의 공개 응답 변경은 아래와 같다. 신규 분석 endpoint·DB 열은 추가하지 않는다.
+
+- 기존 공개 목록의 `PostListItem`, 공개 상세의 `PublicPost`, 상세 하단 `PostContext` 안의 목록 항목에
+  선택 문자열 `analyticsContentKey`를 추가한다. 형식은 `^p1_[0-9a-f]{64}$`다.
+- Core가 공개 조건을 통과한 DTO를 만들 때만 생성한다. 값은 `p1_` +
+  `HMAC-SHA256(ANALYTICS_CONTENT_KEY_SECRET, UTF-8("blariyo:public-post:v1:" + postId의 10진 문자열))`
+  의 소문자 hex다. 동일 환경·키·게시물은 같은 값을 사용한다. 다른 용도의 secret을 재사용하지 않는다.
+- secret은 Core private 설정으로만 제공하며 32바이트 이상의 무작위 원문을 base64로 인코딩한 값을
+  주입하고 HMAC 계산 시 디코딩한다. 값은 `(미정)`. 미설정이면 필드를 생략하며 콘텐츠 조회는 유지한다.
+  잘못된 값이 설정되면 설정 검증에서 실패시킨다. GA4 운영 활성화 전 유효 키와 응답 필드를 확인한다.
+- BFF가 검증·projection을 우회해 값을 덧붙이지 않는다. 구현 시 docs와 packages의 M0 OpenAPI에
+  선택 필드를 함께 반영하고 타입·검증기를 재생성한다. 현재 YAML·타입에는 아직 이 변경이 없다.
+- 관리자·수집 후보·오류·비공개 응답에는 넣지 않는다. 공개 응답 수신은 이용 이벤트 수집이 아니며,
+  클라이언트는 동의 전 분석 이벤트를 만들거나 외부로 보내지 않는다.
+- 키는 게시물 가명 구분값이지 접근 권한이나 익명성 보장이 아니다. 키 회전 시 이전/새 키의
+  통계 기간을 분리하고, 숨김·삭제 후의 과거 분석 데이터 처리는 확정된 보관·삭제 정책을 따른다.
+- 클라이언트 매핑·누락 시 처리·전송 허용 범위는 [분석 명세 §13](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)을 따른다.
+
 ### 정책
 
 ```text

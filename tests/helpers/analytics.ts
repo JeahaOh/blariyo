@@ -14,5 +14,7 @@ export function fire(
 }
 export function events(win: AnalyticsWindow): unknown[][] {
   assert.ok(win.dataLayer);
-  return win.dataLayer.map((args): unknown[] => Array.from(args));
+  return win.dataLayer
+    .filter((entry): entry is IArguments => Symbol.iterator in entry)
+    .map((args): unknown[] => Array.from(args));
 }

@@ -20,8 +20,11 @@ await test('consent expiration, corrupted state, withdrawal, no external adapter
   assert.equal(readConsent(storage, true, new Date('2026-09-07T00:00:00Z')), null);
   map.set('blariyo_consent', 'broken');
   assert.equal(readConsent(storage, true), null);
+  const gtmStart = { 'gtm.start': Date.now(), event: 'gtm.js' };
+  const dataLayer: NonNullable<AnalyticsWindow['dataLayer']> = [gtmStart];
+  const push = dataLayer.push;
   const scripts: AnalyticsScript[] = [],
-    win: AnalyticsWindow = { dataLayer: [] },
+    win: AnalyticsWindow = { dataLayer },
     doc = {
       cookie: '',
       location: { hostname: 'localhost' },
@@ -42,6 +45,8 @@ await test('consent expiration, corrupted state, withdrawal, no external adapter
   runtime.sync();
   runtime.send('page_view');
   assert.equal(scripts.length, 0);
+  assert.equal(win.dataLayer, dataLayer, 'GA4 must preserve the GTM queue before consent');
+  assert.deepEqual(dataLayer, [gtmStart]);
   saveConsent(storage, false, true);
   runtime.sync();
   assert.equal(scripts.length, 0);
@@ -57,6 +62,9 @@ await test('consent expiration, corrupted state, withdrawal, no external adapter
   runtime.sync();
   assert.equal(win['ga-disable-G-TEST'], true);
   assert.equal(recordedEvents(win).length, 0);
+  assert.equal(win.dataLayer, dataLayer, 'withdrawal must preserve the shared GTM queue');
+  assert.equal(dataLayer.push, push);
+  assert.deepEqual(dataLayer, [gtmStart]);
   runtime.send('page_view');
   assert.equal(recordedEvents(win).length, 0);
   saveConsent(storage, true, true);

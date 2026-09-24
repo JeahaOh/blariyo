@@ -2,7 +2,8 @@
  * @typedef {{version: number, scope: string, analytics: boolean, ads: boolean, savedAt: string}} Consent
  * @typedef {{getItem(key: string): string | null}} ConsentReader
  * @typedef {{setItem(key: string, value: string): void}} ConsentWriter
- * @typedef {{gtag?: ((...args: unknown[]) => void) | undefined, dataLayer?: IArguments[] | undefined, [key: `ga-disable-${string}`]: boolean}} AnalyticsWindow
+ * @typedef {IArguments | Record<string, unknown>} AnalyticsDataLayerEntry
+ * @typedef {{gtag?: ((...args: unknown[]) => void) | undefined, dataLayer?: AnalyticsDataLayerEntry[] | undefined, [key: `ga-disable-${string}`]: boolean}} AnalyticsWindow
  */
 /** @param {ConsentReader} storage @param {boolean} enabled @param {Date} [now] @returns {Consent | null} */
 export function readConsent(storage, enabled, now = new Date()) {
@@ -109,6 +110,8 @@ export function analyticsRuntime({
   let pendingPageView = null;
   /** @type {string | null} */
   let lastPageViewKey = null;
+  /** @type {Set<object>} */
+  const commands = new Set();
   const permitted = () =>
     enabled &&
     !storageFailed &&
@@ -122,7 +125,13 @@ export function analyticsRuntime({
     win[`ga-disable-${measurementId}`] = true;
     doc.getElementById('blariyo-ga4')?.remove();
     win.gtag = undefined;
-    win.dataLayer = [];
+    // GTM owns the shared array and its push handler; remove only this adapter's commands.
+    if (win.dataLayer)
+      for (let i = win.dataLayer.length - 1; i >= 0; i--) {
+        const entry = win.dataLayer[i];
+        if (entry && commands.has(entry)) win.dataLayer.splice(i, 1);
+      }
+    commands.clear();
     loading = false;
     loaded = false;
     try {
@@ -190,8 +199,9 @@ export function analyticsRuntime({
     loading = true;
     const current = ++generation;
     win[`ga-disable-${measurementId}`] = false;
-    win.dataLayer = [];
+    win.dataLayer ??= [];
     win.gtag = function () {
+      commands.add(arguments);
       win.dataLayer?.push(arguments);
     };
     const fields = analyticsFields(getPath(), origin);

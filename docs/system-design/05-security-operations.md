@@ -165,6 +165,14 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
 않는다. 수집은 브라우저가 아니라 로컬 collector에서 수행하므로 CSP `connect-src`에 수집 대상
 도메인을 추가하지 않는다.
 
+2026-09-25 사용자 요청으로 GTM `GTM-5BRTQ5T3` 컨테이너를 공통 HTML의 head 첫 부분과 body
+첫 부분에 설치한다. 이 컨테이너 요청은 위 직접 GA4 adapter의 동의 gate와 별개다.
+`apps/web/server/plugins/security.ts`의 `render:html`에서 삽입하고 응답별 nonce를 inline script와
+동적으로 생성하는 GTM script에 전달한다. CSP의 script/img/connect/frame에는 정확한
+`https://www.googletagmanager.com` origin을 허용한다. GA4·광고 목적지나 Preview Mode에 필요한
+추가 origin은 자동 허용하지 않는다. [Google의 CSP 안내](https://developers.google.com/tag-platform/security/guides/csp)를
+기준으로 적용하며 실제 콘솔 태그의 실행·수집 검증과 운영 배포는 별도다.
+
 ### 입력 검증
 
 - X 게시물 표시는 `NUXT_PUBLIC_X_EMBEDS_ENABLED`로 제어하며 기본값은 false다. false에서는

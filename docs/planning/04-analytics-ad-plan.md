@@ -37,6 +37,18 @@
 실제 운영 활성화 전에는 계약·보관 설정과 [GA4 데이터 최신성](https://support.google.com/analytics/answer/11198161?hl=en)을
 다시 확인한다. 소스 대조는 운영 GA4 속성·network 검증을 대신하지 않는다.
 
+### GTM 컨테이너 설치 — 2026-09-25 사용자 요청
+
+- `GTM-5BRTQ5T3`의 공통 script를 HTML `<head>` 맨 앞에, `noscript` iframe을 `<body>` 바로 뒤에 삽입한다.
+- 컨테이너는 GA4 feature flag·동의와 독립적으로 로드한다. JavaScript 사용 시 `gtm.js`, 미사용 시
+  `ns.html` 요청이 발생하므로 위의 **동의 전 Google 요청 0건**은 기존 직접 GA4 adapter의 범위로
+  한정한다. GTM 설치 후 사이트 전체에 Google 요청이 없다고 설명하지 않는다.
+- 기존 GA4 adapter의 동의·허용 이벤트·금지 필드 규칙은 유지하며 GTM 공용 `dataLayer`를 교체하지 않는다.
+- GTM 콘솔의 태그·트리거·동의 조건은 이번 코드 삽입에서 설정하거나 검증하지 않는다. 컨테이너 내부
+  GA4·광고가 기존 feature flag와 자동 연동된다고 가정하지 않으며 중복 측정도 별도로 확인한다.
+- 공개 개인정보·쿠키 안내는 기존 발행본을 소급 변경하지 않고 GTM의 실제 요청·저장 동작과 대조해
+  배포 전에 개정 여부를 확인한다. 실제 계약 법인·처리 국가·보관기간은 `(미정)`이며 추정하지 않는다.
+
 ## 3. 게시글 조회 수
 
 - 목록에 표시하는 `viewCount`는 `content.board_post.view_count`의 참고용 누적값이다.

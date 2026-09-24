@@ -6,7 +6,7 @@ import { expect } from '@playwright/test';
 import { browserFixture } from '../helpers/browser-fixture.ts';
 
 await test(
-  'consent browser gate: no tag before grant, safe event fields, withdrawal and storage failure',
+  'consent browser gate: no GA4 tag before grant, safe fields, withdrawal and storage failure',
   { timeout: 90000 },
   async (t) => {
     const fixture = await browserFixture(t, { analytics: true });
@@ -42,10 +42,15 @@ await test(
     t.after(() => browser.close());
     const context = await browser.newContext();
     const tags: string[] = [],
+      containers: string[] = [],
       otherExternal: string[] = [];
     await context.route('**/*', (route) => {
       const url = new URL(route.request().url());
       if (url.origin === fixture.origin) return route.continue();
+      if (url.hostname === 'www.googletagmanager.com' && url.pathname === '/gtm.js') {
+        containers.push(url.href);
+        return route.fulfill({ contentType: 'application/javascript', body: '' });
+      }
       if (url.hostname === 'www.googletagmanager.com' && url.pathname === '/gtag/js') {
         tags.push(url.href);
         // Exercise the real loader lifecycle without contacting Google or sending telemetry.
@@ -60,8 +65,32 @@ await test(
     context.setDefaultTimeout(8000);
     context.setDefaultNavigationTimeout(15000);
     const page = await context.newPage();
-    await page.goto(fixture.origin + '/meme');
+    const cspErrors: string[] = [];
+    page.on('console', (message) => {
+      if (/content security policy/i.test(message.text())) cspErrors.push(message.text());
+    });
+    const response = await page.goto(fixture.origin + '/meme');
+    assert.ok(response);
+    const html = await response.text();
+    assert.match(html, /<head><!-- Google Tag Manager -->\s*<script nonce="[^"]+">/);
+    assert.match(html, /<body[^>]*><!-- Google Tag Manager \(noscript\) -->\s*<noscript>/);
+    assert.equal(html.match(/<!-- Google Tag Manager -->/g)?.length, 1);
+    assert.equal(html.match(/<!-- Google Tag Manager \(noscript\) -->/g)?.length, 1);
+    assert.equal(containers.length, 1);
+    assert.equal(new URL(containers[0] || '').searchParams.get('id'), 'GTM-5BRTQ5T3');
+    const nonce = await page
+      .locator('script[src*="/gtm.js?"]')
+      .evaluate((element) => (element instanceof HTMLScriptElement ? element.nonce : ''));
+    assert.ok(nonce);
+    assert.ok(response.headers()['content-security-policy']?.includes(`'nonce-${nonce}'`));
     await expect(page.getByRole('complementary', { name: '쿠키 선택' })).toBeVisible();
+    assert.equal(
+      await page.evaluate(
+        () =>
+          window.dataLayer?.filter((entry) => 'event' in entry && entry.event === 'gtm.js').length
+      ),
+      1
+    );
     assert.deepEqual(tags, []);
     await page.getByRole('button', { name: '필수만 사용', exact: true }).click();
     await expect(page.getByRole('complementary', { name: '쿠키 선택' })).toHaveCount(0);
@@ -75,7 +104,9 @@ await test(
     assert.equal(tags.length, 1);
     const events = await page.evaluate(() => {
       if (!window.dataLayer) throw new Error('Missing analytics dataLayer');
-      return window.dataLayer.map((value): unknown[] => [...value]);
+      return window.dataLayer
+        .filter((entry): entry is IArguments => Symbol.iterator in entry)
+        .map((value): unknown[] => [...value]);
     });
     const pageViews = events.filter((entry) => entry[0] === 'event' && entry[1] === 'page_view');
     assert.equal(pageViews.length, 1);
@@ -92,6 +123,15 @@ await test(
     await page.getByRole('checkbox', { name: '이용 통계 분석 허용' }).uncheck();
     await page.getByRole('button', { name: '선택 저장', exact: true }).click();
     await expect(page.locator('#blariyo-ga4')).toHaveCount(0);
+    assert.equal(containers.length, 1, 'consent changes must not reload GTM');
+    assert.equal(
+      await page.evaluate(
+        () =>
+          window.dataLayer?.filter((entry) => 'event' in entry && entry.event === 'gtm.js').length
+      ),
+      1,
+      'GA4 withdrawal must preserve GTM initialization'
+    );
     assert.equal(await page.evaluate(() => window['ga-disable-G-TESTONLY']), true);
     assert.equal(
       (await context.cookies()).some((cookie) => cookie.name.startsWith('_ga')),
@@ -116,6 +156,7 @@ await test(
     const remembered = await browser.newContext();
     t.after(() => remembered.close());
     const rememberedTags: string[] = [],
+      rememberedContainers: string[] = [],
       rememberedExternal: string[] = [];
     await remembered.addInitScript(() =>
       localStorage.setItem(
@@ -132,6 +173,10 @@ await test(
     await remembered.route('**/*', (route) => {
       const url = new URL(route.request().url());
       if (url.origin === fixture.origin) return route.continue();
+      if (url.hostname === 'www.googletagmanager.com' && url.pathname === '/gtm.js') {
+        rememberedContainers.push(url.href);
+        return route.fulfill({ contentType: 'application/javascript', body: '' });
+      }
       if (url.hostname === 'www.googletagmanager.com' && url.pathname === '/gtag/js') {
         rememberedTags.push(url.href);
         return route.fulfill({
@@ -150,8 +195,9 @@ await test(
     const pageViewCount = () =>
       rememberedPage.evaluate(() => {
         if (!window.dataLayer) throw new Error('Missing analytics dataLayer');
-        return window.dataLayer.filter((entry) => entry[0] === 'event' && entry[1] === 'page_view')
-          .length;
+        return window.dataLayer
+          .filter((entry): entry is IArguments => Symbol.iterator in entry)
+          .filter((entry) => entry[0] === 'event' && entry[1] === 'page_view').length;
       });
     await expect.poll(pageViewCount).toBe(1);
     await rememberedPage.locator('.post-row').first().click();
@@ -161,7 +207,36 @@ await test(
     await expect(rememberedPage.locator('.post-row')).toHaveCount(1);
     await expect.poll(pageViewCount).toBe(3);
     assert.equal(rememberedTags.length, 1);
+    assert.equal(rememberedContainers.length, 1, 'SPA navigation must not reload GTM');
     assert.deepEqual(rememberedExternal, []);
     assert.deepEqual(otherExternal, []);
+    assert.deepEqual(cspErrors, []);
+
+    const noScript = await browser.newContext({ javaScriptEnabled: false });
+    t.after(() => noScript.close());
+    const frames: string[] = [];
+    await noScript.route('**/*', (route) => {
+      const url = new URL(route.request().url());
+      if (url.origin === fixture.origin) return route.continue();
+      if (url.href === 'https://www.googletagmanager.com/ns.html?id=GTM-5BRTQ5T3') {
+        frames.push(url.href);
+        return route.fulfill({
+          contentType: 'text/html',
+          body: '<!doctype html><title>GTM fixture</title>',
+        });
+      }
+      return route.abort();
+    });
+    const noScriptPage = await noScript.newPage();
+    await noScriptPage.goto(fixture.origin + '/cookie-settings');
+    assert.equal(frames.length, 1, 'noscript iframe must load through CSP without JavaScript');
+    await expect(noScriptPage.locator('body > noscript:first-child > iframe')).toHaveAttribute(
+      'height',
+      '0'
+    );
+    await expect(noScriptPage.locator('body > noscript:first-child > iframe')).toHaveAttribute(
+      'width',
+      '0'
+    );
   }
 );

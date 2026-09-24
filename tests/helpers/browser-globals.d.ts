@@ -1,7 +1,7 @@
 export {};
 declare global {
   interface Window {
-    dataLayer?: IArguments[];
+    dataLayer?: import('../../apps/web/app/utils/consent.mjs').AnalyticsDataLayerEntry[];
     [key: `ga-disable-${string}`]: boolean;
   }
 }

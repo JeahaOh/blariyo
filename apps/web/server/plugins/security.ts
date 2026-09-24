@@ -1,5 +1,20 @@
 import { randomBytes } from 'node:crypto';
 import { env } from 'node:process';
+
+const gtmOrigin = 'https://www.googletagmanager.com';
+const gtmScript = `<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;var n=d.querySelector('[nonce]');
+n&&j.setAttribute('nonce',n.nonce||n.getAttribute('nonce'));f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5BRTQ5T3');</script>
+<!-- End Google Tag Manager -->`;
+const gtmNoscript = `<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5BRTQ5T3"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->`;
+
 export default defineNitroPlugin((nitro) => {
   nitro.hooks.hook('request', (event) => {
     const config = useRuntimeConfig(event).public,
@@ -11,11 +26,10 @@ export default defineNitroPlugin((nitro) => {
         .split(',')
         .map((v) => v.trim())
         .filter((v) => /^https:\/\/[a-z0-9.-]+(?::[0-9]+)?$/i.test(v));
-    const scripts = ["'self'", `'nonce-${nonce}'`],
-      connect = ["'self'"];
+    const scripts = ["'self'", `'nonce-${nonce}'`, gtmOrigin],
+      connect = ["'self'", gtmOrigin];
     if (env.NODE_ENV !== 'production') connect.push('ws:');
     if (config.ga4Enabled && config.analyticsApproved) {
-      scripts.push('https://www.googletagmanager.com');
       connect.push(...origins(config.analyticsConnectOrigins));
     }
     if (config.kakaoEnabled && config.kakaoKey && config.kakaoIntegrity) {
@@ -24,8 +38,8 @@ export default defineNitroPlugin((nitro) => {
       } catch {}
       connect.push(...origins(config.kakaoConnectOrigins));
     }
-    const image = origins(config.imageOrigin);
-    const frames = ["'self'"];
+    const image = [gtmOrigin, ...origins(config.imageOrigin)];
+    const frames = ["'self'", gtmOrigin];
     if (config.xEmbedsEnabled === true) {
       scripts.push('https://platform.x.com', 'https://platform.twitter.com');
       frames.push(
@@ -49,6 +63,9 @@ export default defineNitroPlugin((nitro) => {
       setHeader(event, 'Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   });
   nitro.hooks.hook('render:html', (html, { event }) => {
+    // Insert once per HTML document, before Nuxt's head and body content.
+    html.head.unshift(gtmScript);
+    html.bodyPrepend.unshift(gtmNoscript);
     for (const key of ['head', 'bodyPrepend', 'body', 'bodyAppend'] as const)
       html[key] = html[key].map((value) =>
         value.replace(/<script\b/g, `<script nonce="${event.context.cspNonce}"`)

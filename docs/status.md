@@ -20,6 +20,15 @@
 | 수집 실연동 P1-03~05/07 | 로컬 코드·격리 증거와 실행서 준비 | 다른 PC/Windows·비운영 DB/object·Discord·보존 회수 구현/검증 |
 | 운영 관찰 P2 | 관찰 조건 정의 | 실제 운영 개시 후 7일 기록 |
 
+## Google Tag Manager — 2026-09-25 로컬 적용
+
+- `GTM-5BRTQ5T3` 공통 script를 `<head>` 맨 앞에, `noscript` iframe을 `<body>` 바로 뒤에 삽입했다.
+- CSP nonce·GTM origin 허용과 기존 GA4 adapter의 공용 `dataLayer` 보존을 반영했다.
+- Web build·Web/테스트 타입·lint, 단위 5건·HTTP 4건·Chromium 통합 1건 통과.
+  HTML 위치·1회 삽입, SPA 이동·동의 변경 시 중복 없음, JavaScript 비활성 iframe 요청을 확인했다.
+- Google 응답은 테스트 대체 응답이다. 실제 GTM 콘솔·태그·수집·공개 정책 대조와 운영 배포는 미실행이다.
+  [변경·검증 기록](../worklog/2026-09-25/google-tag-manager/RESULTS.md)을 따른다.
+
 ## 검색엔진 설정 — 2026-09-24 로컬 변경
 
 - `robots.txt` 경로 수집 규칙과 관리자·API·내부·health 경로 Web 응답의 `noindex`, 분할 사이트맵 자동 생성 구현.

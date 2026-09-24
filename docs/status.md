@@ -1,7 +1,7 @@
 # M0 현재 진행 상황
 
 - **전체 판정: 부분 완료. SHA `5c581c2`의 CI·API/Web 운영 배포와 9월 23일 DB·콘텐츠 공개는 당시 검증됐고, 실제 운영자 인수와 수집 실연동·계약은 남아 있다.**
-- 갱신: 2026-09-24 문서 대조. 아래 운영 수량·release는 [9월 23일 운영 상태 기록](operations/current-status.md)의 관측값이며, 이번에 서버·DB·CI를 재조회하지 않았다.
+- 기본 현황: 2026-09-24 문서 대조. 아래 운영 수량·release는 [9월 23일 운영 상태 기록](operations/current-status.md)의 관측값이다. 9월 24일 문서 대조에서는 서버·DB·CI를 재조회하지 않았으며, 이후 CI·공개 HTTP 확인은 아래 검색엔진 설정·액션 정비 항목에 따로 기록한다.
 - Git 확인: 2026-09-24 로컬 HEAD `82c0ba9`, `main`이 로컬 `origin/main` 추적 참조보다 5커밋 앞섰다([대조 근거](../worklog/2026-09-24/documentation-refresh/EVIDENCE.md)). 이는 원격 현재 상태 확인이 아니다.
 - 과거 전체 goal의 `blocked` 기록은 당시 선행 조건 판단이다. 현재 도구 상태나 기능 폐기를 뜻하지 않는다.
 - 상세 실행 순서는 [잔여 과정](roadmap.md), 실제 커밋 식별자는 [진행 보관·커밋 기록](../worklog/2026-09-23/progress-checkpoint.md)을 따른다.
@@ -35,6 +35,28 @@
 - Dockerfile의 Linux amd64 build stage와 사이트맵 단위 4건·DB→Web 통합 1건도 통과했다.
   [CI 테스트 진입점](../tests/sitemap.test.ts)을 추가해 사이트맵 단위 검사를 `npm test`에 포함했다.
   원격 GitHub Actions·Collector 전체 job·이미지 게시 결과를 대신하는 검증은 아니다.
+- 후속 원격 확인: SHA `1531cf118a39470c616277ac06e3d8aeeb4b8df7`의
+  [CI #13](https://github.com/JeahaOh/blariyo/actions/runs/36015059290)이 8분 30초에 성공했다.
+  `verify`·`collector`·API/Web `images`와 artifact 5개, 사이트맵 단위 4건·DB→Web 통합 실행을 확인했다.
+  이미지 게시 완료이며 운영 서버 교체 증거는 아니다.
+- 2026-09-24 23:59~09-25 00:01 KST 운영 읽기 전용 확인: `/meme`와 CSS·JS 표본은 200,
+  공개 목록의 canonical은 `https://blariyo.com/meme`이고 noindex는 없었다. 실제 브라우저 목록도 정상 표시됐다.
+- 같은 확인에서 `/robots.txt` GET·HEAD는 200이지만 Cloudflare 관리 규칙만 있고 앱의 경로 제외·Sitemap 안내는 없었다.
+  `/sitemap.xml` GET·HEAD와 `/sitemap-pages.xml`·`/sitemap-posts-0.xml` GET은 404 HTML이었다.
+  사이트맵 XML·앱 robots 규칙의 운영 반영은 미완료이며, 공개·비공개 URL의 사이트맵 포함 여부도 확인할 수 없다.
+- `/api/v1/boards`·`/health/live` GET은 200이지만 `X-Robots-Tag`가 없었다. `/admin`은 Access 로그인으로 302,
+  `/internal`은 Nginx 404, `/__gateway_health`는 Nginx 200이며 이 응답들에도 해당 header가 없었다.
+  Access·Nginx가 직접 반환하는 응답은 Web middleware를 거치지 않으므로 앱 배포 후에도 계층별 재확인이 필요하다.
+  서버의 현재 image digest·DB 상태·검색엔진 실제 색인 상태는 이번에 조회하지 않았다.
+
+## CI 액션 런타임 정비 — 2026-09-25 로컬 변경
+
+- CI #13의 Node 20 경고 원인인 `upload-artifact` 3곳과 Docker 액션 3곳의 고정 SHA를 갱신했다.
+  공식 release는 upload-artifact `v7.0.1`, setup-buildx `v4.4.1`, login `v4.6.0`, build-push `v7.4.0`이다.
+- 공식 tag→전체 SHA와 해당 `action.yml`을 대조했다. CI·backup-restore workflow의 전체 7종 액션은
+  `runs.using: node24`이고 현재 입력·필수 입력·build digest 출력이 호환된다. upload-artifact의 ZIP 기본값도 유지된다.
+- `actionlint v1.7.12`의 workflow 2개 검사와 YAML 구조 대조 통과. 액션 SHA 외 job·권한·실행 명령·입력 변경은 없다.
+  이 정비의 원격 실행·경고 0건은 아직 미검증이며, push·운영 배포는 수행하지 않았다.
 
 ## 검증 근거
 

@@ -48,7 +48,7 @@ jobs:
       - run: node scripts/test-nest-integration.ts --exclude-schema-restore
       - run: npx playwright install --with-deps chromium
       - run: node --test --test-concurrency=1 tests/browser/*.test.ts
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (Node 24)
         if: always()
         with:
           name: browser-evidence-${{ github.sha }}
@@ -86,7 +86,7 @@ jobs:
       # Full Java suite, including fixture and real disposable PostgreSQL readback; skips fail the job.
       - run: npm run test:collector
       - run: apps/collector/gradlew -p apps/collector bootJar fixtureClasspath
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (Node 24)
         if: always()
         with:
           name: collector-evidence-${{ github.sha }}
@@ -96,7 +96,7 @@ jobs:
             test-results/collector-ci/
           retention-days: 7
           if-no-files-found: error
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (Node 24)
         with:
           name: collector-build-${{ github.sha }}
           path: |
@@ -118,8 +118,8 @@ jobs:
         target: [api, web]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
-      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1 (Node 24)
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0 (Node 24)
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -128,7 +128,7 @@ jobs:
         env:
           REPOSITORY: ${{ github.repository }}
         run: echo "image=ghcr.io/${REPOSITORY,,}-${{ matrix.target }}" >> "$GITHUB_OUTPUT"
-      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0 (Node 24)
         id: build
         with:
           context: .

@@ -25,7 +25,7 @@
 | --- | --- |
 | 서비스 범위와 단계 | [서비스 기획](../planning/01-service-plan.md) |
 | 인프라 방향과 비용 전제 | [인프라 계획](../planning/02-infra-plan.md) |
-| OCI·Cloudflare·GA4 계정과 운영 설정 준비 | [운영자 준비 체크리스트](../operations/owner-setup-checklist.md) — 사용자 준비 순서·완료 기준·개발자 연결 작업 |
+| AWS Lightsail·Cloudflare·GA4 계정과 운영 설정 준비 | [운영자 준비 체크리스트](../operations/owner-setup-checklist.md) — 사용자 준비 순서·완료 기준·개발자 연결 작업; OCI는 이전 대안 |
 | 화면 흐름과 상태 | [화면 설계](../planning/03-screen-design.md) |
 | M1 회원·M1.5 익게 | [제품 계약](../planning/08-member-community-plan.md), [확장 기술 계약](../system-design/06-member-community-design.md), [랜덤 이름 사전](../planning/09-random-name-catalog.md), [가입 동의 전문](../legal/signup-privacy-consent.md) |
 | 분석·광고 적용 시점 | [분석·광고 계획](../planning/04-analytics-ad-plan.md) |

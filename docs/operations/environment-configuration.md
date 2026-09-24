@@ -1,6 +1,6 @@
 # 환경별 설정과 이미지 URL 계약
 
-- 기준일: 2026-09-23 KST
+- 갱신: 2026-09-24 문서 대조. 운영 반영 근거는 9월 23일 실행 기록이며 이번에 서버·DB를 재조회하지 않았다.
 - 범위: local/dev/stage/prod `.env` 예시, public 이미지 URL 조립 규칙, collect media preview 경계
 - 상태: 설정 문서와 예시 파일 정리. 신규 endpoint 구현이나 운영 배포는 포함하지 않는다.
 
@@ -13,7 +13,8 @@
 | `stage` | production과 같은 방식의 리허설 | stage 서버 | stage 전용 DB | stage 전용 R2/S3 bucket | 관리자·검수자 제한 |
 | `prod` | 실제 서비스 | 운영 서버와 별도 collector PC | 같은 production DB, API/batch role과 테이블 소유권 분리 | production R2 bucket 분리 | 승인된 public만 공개 |
 
-`NODE_ENV=production`은 local/dev가 아니라 stage/prod에서만 사용한다. production 모드의 API는 `DATABASE_URL`과
+예시의 local/dev는 개발·시험 모드를, stage/prod는 `NODE_ENV=production`을 사용한다. 실행 위치와 모드는
+별개여서 로컬 격리 Docker 검사도 production 모드를 검증한다. production 모드의 API는 `DATABASE_URL`과
 평문 DB 비밀번호 환경 변수를 거부하고 `DB_HOST`, `DB_NAME`, `APP_DB_USER`, `APP_DB_PASSWORD_FILE` 형식을 요구한다.
 
 ## 2. 예시 파일
@@ -76,7 +77,8 @@ DB hash/size와 이미지 검증을 통과한 사본만 반환한다. 이 경로
 | stage | `https://stage.blariyo.com` | `https://stage-media.blariyo.com` | 같음 | 같음 |
 | prod | `https://blariyo.com` | `https://media.blariyo.com` | 같음 | 같음 |
 
-stage/prod의 `SITE_ORIGIN`과 `IMAGE_ORIGIN`은 HTTPS여야 한다. API startup은 production 모드에서 이를 검사한다.
+dev/stage 도메인은 설정 예시이며 DNS·서버가 준비됐다는 뜻이 아니다. stage/prod의 `SITE_ORIGIN`과
+`IMAGE_ORIGIN`은 HTTPS여야 한다. API startup은 production 모드에서 이를 검사한다.
 
 ## 6. collector와 API의 object store 분리
 
@@ -120,7 +122,10 @@ batch 수집 결과는 바로 공개 게시글이 아니다. 운영 또는 로�
 - API role: batch 소유 7개 테이블은 SELECT만, `collect.batch_review`/`collect.batch_review_request`와 `content.*`는 API 소유다. batch role에는 API 검수·content 테이블 쓰기 권한을 주지 않는다.
 - API의 `COLLECT_READER_S3_*`는 batch bucket의 `collect/media/*` GET 전용 자격증명이다. API public/private 저장 자격증명 및 batch writer와 구분한다. local에서는 `COLLECT_READER_DIRECTORY`가 batch object root를 가리킨다.
 - API V008, Collector V006 migration, DB role과 object 접근권한 검증 후 `COLLECT_BATCH_REVIEW_ENABLED`와 `NUXT_COLLECT_BATCH_REVIEW_ENABLED`를 함께 true로 설정한다. 기본 예시는 false다. 시작만으로 검수·승격·발행하지 않는다.
-- 현재 isolated DB 통합 테스트에서 조회 → REVIEWING → APPROVED → DRAFT → 별도 발행 → 숨김 → 재발행을 검증했다. 공유 dev/stage/prod 적용과 실제 R2 권한 검증은 별도다.
+- 격리 DB 통합 테스트의 조회 → REVIEWING → APPROVED → DRAFT → 별도 발행 → 숨김 → 재발행 기록과
+  [9월 23일 운영 DB 반영](../../worklog/2026-09-23/release/production-db-promotion.md)을 구분한다. 운영에는
+  API V008·Collector V006과 batch 검수 flag가 반영됐고 내부 service 조회·private R2 미리보기를 확인했다.
+  실제 MFA 관리자 조작·원격 batch writer 연결 및 dev/stage 환경 검증은 별도다.
 
 Collector V003은 source session 잠금과 같은 DB 연결에서 쓰기를 실행한다. batch DB endpoint에는
 transaction pooling을 사용하지 않는다. migration은 batch 실행을 멈추고 백업한 뒤 적용한다.
@@ -138,7 +143,9 @@ V005의 `collect.batch_queue`·`collect.batch_confirmation`은 batch 전용이�
 - `blariyo_backup`은 API와 Collector migration ledger를 포함한 모든 애플리케이션 schema를 읽지만 쓸 수 없다.
 - 미래 collect 테이블/sequence는 API/batch에 자동 권한을 부여하지 않는다. migration 이후 소유권 허용 목록과 권한 SQL을 함께 갱신한다.
 - 기존 3개 운영 역할을 덮어쓰지 않고, batch 활성화 시 `create-roles.py --batch-only`로 별도 비밀번호의 batch 역할만 추가한다. 이미 존재하면 초기화·비밀번호 변경 없이 거부한다.
-- source 파일 변경과 격리 테스트는 운영 반영 증거가 아니다. 운영 SQL 적용·HBA reload·VPN/사설 경로 접속은 별도 작업이다.
+- source 파일 변경과 격리 테스트만으로 운영 반영을 판정하지 않는다. 9월 23일 운영 반영 기록에는
+  migration 소유자·API 수집 결과 SELECT·backup 새 테이블 읽기 권한 확인이 있다. 원격 batch writer의
+  VPN/사설 경로·HBA와 실제 허용/거부 시험까지 완료한 것으로 확대하지 않는다.
 
 
 Collector V006의 `collect.batch_media_correction`은 소유자 전용 유지보수 감사 테이블이다.

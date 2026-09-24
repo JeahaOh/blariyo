@@ -1,9 +1,9 @@
 # M0 시스템 아키텍처
 
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
-- 문서 상태: M0 아키텍처 설계 계약 · 프로토타입 폐기 후 신규 개발 기준
-- 기준일: 2026-09-04
-- 정합성 검토일: 2026-09-04
+- 문서 상태: M0 아키텍처 설계 계약 · direct batch와 legacy 호환 구분
+- 최초 기준일: 2026-09-04
+- 문서 대조일: 2026-09-24 (새 runtime 검증 아님)
 - 관련 문서: [데이터 모델](02-data-model.md), [API 설계](03-api-design.md), [인프라 설계](04-infrastructure-design.md), [보안·운영](05-security-operations.md)
 
 ## 1. 목표와 제약
@@ -52,9 +52,14 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
   |
   +--------------------> [Cloudflare R2]
   +--------------------> [Cloudflare Cache Purge API]
-  +<---- [Nuxt collector 전용 중계] <---- [운영자 로컬 collector] (Discord /collect url, 외부 fetch/parser)
-[운영자 로컬 collector] ----> [Discord API/Webhook]
-[운영자 로컬 collector] ----> [등록된 수집 출처] (outbound only, allowlist)
+
+[별도 PC direct batch] ----> [등록된 수집 출처] (outbound only, allowlist)
+  +----> [같은 PostgreSQL의 batch 소유 collect 테이블] (전용 role)
+  +----> [R2 collect raw/media/report] (전용 writer)
+  +<---> [Discord API/Webhook] (확인 후 batch queue)
+
+API: batch 결과 SELECT -> API 소유 검수 상태 -> content DRAFT -> 별도 발행
+원격 PC의 비공개 DB 연결·writer 권한은 별도 구축/인수 대상
 ```
 
 공개 사용자는 Cloudflare를 통해서만 원본 서버에 접근한다. 운영자 경로는 현재 Cloudflare Access를 외부 인증 provider로 사용하지만 이 검증은 Nuxt BFF adapter에만 둔다. VM의 80·443·5432 포트는 공용 인터넷에 열지 않고 `cloudflared`가 outbound tunnel을 만든다.
@@ -73,7 +78,12 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 수집은 서버 VM에 별도 fetch 컨테이너를 만들지 않는다. 별도 batch 컴퓨터의 `collector`가 source policy에 따라
 Discord URL 확인 입력, 목록·상세 fetch, parser, `collect.batch_*`, object store와 report를 소유한다. `api`는
 batch 결과 조회, 검수와 초안 승격·공개를 담당하며 외부 사이트를 fetch하지 않는다. source policy는 `HOT_LIST`,
-`DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로 구분한다.
+`GENERAL_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로 구분한다.
+
+direct는 글마다 Core API에 결과를 제출하지 않는다. CLI·Discord는 batch queue/저장 경로를 사용하고,
+Web URL 입력·source 변경의 전달/소유권은 미정이다. 기존 `/admin/collect`와 collector 중계는
+legacy 호환 경로로 남아 있으며 현행 [제품 경계](../planning/content-collection/README.md#12-현행-direct와-legacy의-적용-경계)를 따른다.
+로컬·운영 데이터 이전과 다른 PC에서 실행한 신규 수집의 증거를 구분한다.
 
 `worker`는 별도 상시 컨테이너로 시작하지 않는다. 예약 발행과 정리 작업은 API 이미지의 단발성
 명령을 cron에서 실행한다. 수집용 상시 worker는 M0 서버에 두지 않고 로컬 collector로 분리한다.
@@ -99,6 +109,7 @@ pages
   /privacy
   /cookie-settings
   /admin
+  /admin/batch
   /admin/collect
   /admin/collect/sources
 
@@ -142,7 +153,9 @@ ui
 HTTP 입력·응답 처리와 업무 처리를 분리하며, M0의 기능 모듈이 업무 처리와 해당 SQL을 함께 소유한다.
 DB 접근은 Repository와 Unit of Work에 격리하고 저장소·CDN 구현은 `adapters`에 둔다. 전환 구조와 상태는 [코드 구조](08-code-structure.md)를 따른다.
 
-`features/collection`의 수집 서비스가 출처·후보 상태를 관리하고, 후보를 초안으로 승격할 때는 `features/posts`의 `PostsService` 초안 생성 경로를 재사용해 게시글·이미지·상태 이력 규칙을 중복 구현하지 않는다.
+`features/collection`의 `BatchReviewService`는 direct 결과의 조회·검수·초안 승격을 담당하고,
+`PostsService`·`ImagesService`를 재사용한다. batch가 소유한 수집 item/media는 API가 수정하지 않는다.
+기존 `CollectionService`와 출처·후보 API는 legacy 경로다.
 
 - Controller는 SQL과 상태 전이 규칙을 직접 처리하지 않는다.
 - 공개 조회와 관리자 명령 모델을 분리한다.
@@ -151,11 +164,12 @@ DB 접근은 Repository와 Unit of Work에 격리하고 저장소·CDN 구현은
 - host port, public DNS, Nginx upstream을 만들지 않는다. HTTP 호출자는 Docker app network의 `web` 하나로 제한한다.
 - cron은 외부·내부 HTTP route를 호출하지 않고 API image의 단발성 command로 같은 service·repository 계층을 실행한다.
 - 관리자 route는 BFF와 공유한 내부 서비스 토큰과 `admin:vN:<HMAC>` actor 형식만 검증한다. Core는 외부 인증 provider, JWT claim과 JWKS를 알지 않는다.
-- Core API에는 외부 사이트 fetch adapter를 두지 않는다. 외부 fetch와 parser 실행은 로컬 collector의
-  책임이다. Core는 collector service token, 후보 상태 전이, 출처 활성 상태, 요청 상한 기록,
-  제출된 metadata schema와 중복만 검증한다.
+- Core API는 외부 원문을 fetch하지 않는다. direct 결과·collect object를 읽어 검수하고 모든 이미지를 검증한
+  private 사본으로 초안을 준비한다. collector service token·candidate·요청 quota·metadata 제출은 legacy 계약이다.
 
 ### Collector 전용 중계 경계
+
+이 절은 기존 Spring/metadata 호환 경로다. 현행 direct CLI·Discord는 아래 중계를 사용하지 않는다.
 
 M0 수집 보조에서만 `https://<service-origin>/api/collector/v1/*`를 Nuxt의 기계 호출 전용
 중계 경로로 연다. Nginx는 기존처럼 Web에만 연결하며, Web은 명시한 method·path만
@@ -260,6 +274,23 @@ R2 copy 동안 DB row lock이나 transaction을 유지하지 않는다. 여러 s
 
 ### 수집 후보 생성
 
+현행 direct 흐름은 다음과 같다. 목록·단건을 같은 사이트별 상세 parser와 저장 계약으로 연결한다.
+
+```text
+CLI batch(Hot/일반 목록) 또는 collect-url(상세 URL)
+Discord URL -> 권한·확인 -> batch queue -> 상세 URL
+  -> 출처/URL·robots·간격·용량 제한 검사
+  -> 외부 fetch·사이트별 parser·canonical/source post key 중복 검사
+  -> batch 소유 DB와 비공개 raw/media/report 저장
+  -> API 조회·운영자 검수 -> 초안 승격 -> 별도 발행
+```
+
+direct는 본문·이미지·첨부·SNS 링크의 원래 순서를 보존한다. API는 외부 원문을 다시 fetch하지 않는다.
+같은 항목의 중복·실패·차단과 report를 저장하며, `HOT_LIST`·`GENERAL_LIST`만 목록을 사용한다.
+Web 입력은 아래 legacy 접수와 direct 전달 계약을 구분한다.
+
+다음 두 단건 흐름과 metadata/24시간 preview 설명은 legacy 호환이다.
+
 ```text
 관리자 URL 지정
   -> BFF 외부 인증
@@ -281,13 +312,6 @@ Discord /collect url
   -> 같은 단일 상세 페이지 추출과 Core 제출 흐름 실행
 ```
 
-```text
-M0 자동 수집
-  -> source policy별 목록·feed·pagination
-  -> batch direct DB/object-store 저장
-  -> API read-only 조회·검수·초안 승격
-```
-
 후보 생성은 원문 URL과 metadata까지만 DB에 저장한다. Java/Spring 추출기는 운영자 검수 미리보기를
 위해 로컬 작업 경로에 이미지 후보를 임시 파일로 둔다. 관리자 preview는 검증·재인코딩 후 별도
 `collect-preview/` private object로 최대 24시간 저장할 수 있으며 영구 원본·content image row와 구분한다.
@@ -298,10 +322,17 @@ MIME·magic byte·decode·재인코딩 검증을 거쳐 private 원본 bucket에
 접근이 제한되고 만료가 있는 preview로만 보관한다.
 
 같은 원문 URL의 batch item은 정규화된 URL hash와 source post key 기준으로 한 건만 유지한다. `403`, `429`, robots 금지,
-timeout이 발생하면 item 또는 source run을 실패·차단으로 남기고 운영 알림을 만든다. `HOT_LIST` source는 연속 실패 시
+timeout이 발생하면 item 또는 source run을 실패·차단으로 남긴다. Discord 등 외부 알림 실수신은 별도 검증한다. `HOT_LIST`·`GENERAL_LIST` source는 연속 실패 시
 목록 실행을 중단하며 `DETAIL_ONLY` source는 목록을 호출하지 않는다.
 
 ### 후보 초안 승격
+
+현행 direct 검수는 REVIEWING → APPROVED 또는 REJECTED다. 승인한 item version이 일치하는 경우만
+모든 collect 이미지의 private 사본을 준비한 뒤 content DRAFT를 만든다. 첨부는 원문 링크·metadata로
+보존하며 공개 collect 다운로드를 열지 않는다. 같은 item의 중복 승격·동시 수정은 버전·멱등성으로 막고
+실패 사본을 회수한다. [수집 상세 설계](07-spring-collector-design.md)의 direct 계약을 따른다.
+
+아래는 legacy 후보 승격 흐름이다.
 
 ```text
 운영자 승격 요청
@@ -351,7 +382,9 @@ Redis, queue broker, Kubernetes, Elasticsearch는 위 조건과 직접 연결된
 <a id="spring-collector-transition"></a>
 ## Spring 수집 서버 전환 계약 (2026-09-08)
 
-상태: 전환 방향 확정·설계 정본 반영, Spring 구현 미착수·검증 미완료.
+당시 상태: 전환 방향 확정·설계 정본 반영, Spring 구현 미착수·검증 미완료.
+이 절은 9월 8일 legacy 전환 결정이다. 현재 Spring 코드·migration·격리 테스트와 direct 확장은 존재하며
+현행 구현/수용 상태는 [요구사항 대조표](../development-specs/requirements-status.md)를 따른다.
 입력은 구현 작업 트리의 `worklog/2026-09-08/handoff/spring-collector-design-handoff.md`다.
 인계 문서의 결정만 반영했으며 구현 브랜치나 docs 전체를 가져온 것이 아니다.
 
@@ -409,5 +442,6 @@ Spring Batch·Quartz -> 운영자 PC의 전용 PostgreSQL 18 (`batch`·`quartz`�
   상태에서 최대 7일, 이미지는 최대 24시간이며 terminal 후보와 durable 완료는 즉시 삭제한다.
 - Batch·Quartz metadata, 상태 조회, 알림 outbox, macOS `launchd`, 보존·복구·fault test의 상세 조건은 07을 따른다.
 
-실제 실행 PC·OS 계정·Discord와 Core token·출처·연락처·법무 승인·source/migration/OpenAPI/test/build/runtime은
-미정 또는 미검증이다. 기존 Python의 8787 포트·5필드 cron·SQLite·대기 100건·이력 30일은 승계하지 않는다.
+당시 source/migration/OpenAPI/test/build/runtime은 미구현·미검증이었다. 현재 원격 PC·운영 계정·Discord
+실연결·출처 사용 결정·연락처·법무 승인과 장기 관찰은 여전히 별도 인수 대상이다.
+기존 Python의 8787 포트·5필드 cron·SQLite·대기 100건·이력 30일은 승계하지 않는다.

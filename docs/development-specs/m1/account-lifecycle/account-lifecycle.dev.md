@@ -2,6 +2,7 @@
 
 - 문서 상태: `작성 완료` — API·처리 흐름·화면 계약; 아래 운영 활성화 절은 `차단`
 - 기준일: 2026-09-08
+- 2026-09-24 재대조: 후속 설계 상태를 유지한다. 현재 구현 부재와 운영 활성화 조건은 [회원·익게 기술 계약](../../../system-design/06-member-community-design.md)을 따른다.
 - 실행 증거: source·migration·OpenAPI 생성·test·build·브라우저·production 모두 이 문서 작업에서 미검증
 - 입력: [제품 계약](../../../planning/08-member-community-plan.md), [화면 설계](../../../planning/03-screen-design.md), [법무 gate](../../../legal/README.md)
 - 공통 타입·요청/응답·오류·권한: [기술 API 정본](../../../system-design/06-member-community-design.md#api)
@@ -14,7 +15,7 @@
 
 - milestone: M1. 회원의 표시명 변경·제공자 연결/해제·로그아웃·탈퇴.
 - 진입: `/account`, `/account/withdraw`. 선행은 유효 회원 세션과 민감 동작의 최근 재인증이다.
-- M1.5 콘텐츠 처리 자체는 익게 명세가 소유하고 이 기능은 contentAction·계정 폐기 orchestration을 소유한다.
+- M1.5 콘텐츠 처리 자체는 익게 명세가 소유하고 이 기능은 서버의 KEEP 고정 정책·계정 폐기 순서를 소유한다. 요청의 contentAction 입력은 받지 않는다.
 
 ## 2. 요구사항 추적
 

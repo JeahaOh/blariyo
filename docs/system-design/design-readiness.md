@@ -1,7 +1,7 @@
 # 현행 설계 준비 상태
 
-- 기준일: 2026-09-09
-- 상태: R01~R10 보완·주 검수 완료, 조건부 설계 확정 가능; 구현 수용·production 공개 승인 별도
+- 갱신: 2026-09-24 문서 대조. M0 구현·운영 증거는 9월 23일 기록 기준이며 서버·DB를 새로 조회하지 않았다. M1·M1.5는 후속 설계 상태를 유지하며 현재 구현 부재와 계약 정합성을 다시 대조했다.
+- 상태: R01~R10 설계 보완·주 검수는 과거 완료 기록이며, M0 구현·운영은 부분 완료다. 설계 확정·구현 수용·production 공개 승인은 별도로 판정한다.
 - 적용: 현재 planning·legal·system-design·development-specs의 설계 상태 색인
 
 이 문서는 현행 상태를 `설계 기준선`, `구현 수용`, `production 공개 승인`으로 나눈다. 설계 기준선은
@@ -16,14 +16,19 @@ branch·commit·source·migration·test·build·runtime을 다시 조회해 판�
 
 | 범위 | 설계 기준선 | 구현 수용 | production 공개 승인 |
 | --- | --- | --- | --- |
-| M0 Core | 조건부 확정 가능. 공개 짤·수동 운영·정책·복구 계약을 개발 입력으로 사용 가능 | main의 Nest/TypeORM 전환은 필수 로컬 종합 검증·감사·자원 정리를 마친 DONE_LOCAL이다. 기존 schema/API·독립 복원·실제 브라우저·production Docker 증거는 [최종 보고](../../worklog/2026-09-09/nest-transition/REPORT.md)를 따른다 | 차단. 법무 실값·처리 근거·실수탁자·production 계정·복구 훈련 필요 |
-| M0 수집 보조 | 조건부 확정 가능. Spring 상세 계약을 개발 입력으로 사용 가능 | Nest 최종 종합 실행에서 실제 Spring·별도 DB·Batch/Quartz·Core/BFF/브라우저, 6개 응답 유실·12개 Step 경계·암호화 복원을 통과했다. [최종 보고](../../worklog/2026-09-09/nest-transition/REPORT.md)의 로컬 수용 범위이며 실제 운영 수용은 별도다 | 차단. 실제 출처·robots·이용 조건, Discord 계정·User-Agent 연락처, 법무·운영 수용 필요 |
-| M0 자동 수집 | 후속 범위만 확정. 출처별 목록·feed·상한을 정하기 전 상세 기준선 대상 아님 | 미구현·미검증 | 비활성. 출처별 사용 결정 전 공개하지 않음 |
+| M0 Core | 조건부 확정 가능. 공개 짤·수동 운영·정책·복구 계약을 개발 입력으로 사용 가능 | 주요 구현과 로컬 검증·API/Web 배포·DB 반영 증거는 [요구사항 C01~C16](../development-specs/requirements-status.md)을 따른다. 실제 운영자 사용성·업무 인수는 남아 있다 | 공개 배포는 9월 23일 관측됐다. [법무 색인](../legal/README.md#출시-차단-항목)의 9월 20일 입력·발행·백업 복원 기록과 잔여 운영 조건을 구분한다. 실제 MFA 업무·알림·복귀/재부팅 확인은 남아 있으며 배포 기록만으로 전체 운영 수용을 승인하지 않는다 |
+| M0 수집 보조 | [수집 설계](07-spring-collector-design.md)의 legacy/direct 계약을 구분한다. 입력/source 소유권과 direct 보존·고지는 미정 | [요구사항 A01~A08](../development-specs/requirements-status.md) 기준 부분 완료. direct 검수 구현·로컬 검증과 관리자 URL/Discord의 새 경로 연결·실연동을 구분한다 | 9월 23일 관리자 batch 검수 활성 관측. 실제 MFA 검수 인수와 보존·고지 조건 충족을 뜻하지 않는다. URL·Discord 접수는 비활성이고 출처별 허용 범위·법무·운영 수용이 필요하다 |
+| M0 자동 수집 | [수집 기획](../planning/content-collection/README.md)·[수집 설계](07-spring-collector-design.md)에 목록/상세 분리·상한·재시도 계약이 있다. 출처별 활성화와 direct 보존·고지는 별도 조건이다 | [요구사항 B01~B08](../development-specs/requirements-status.md) 기준 I 6 / P 1 / U 1(주요 구현 확인 / 부분 구현 / 대응 구현 미확인). 목록 탐색·상세 처리·저장 구현이 있으며, 17출처 로컬 검증 기록과 4출처 차단·보존/회수 미구현을 구분한다. 전체 수용 완료는 아니다 | 자동 수집 실행은 비활성. 출처별 사용 결정·direct 보존/고지·실연동·운영 수용 조건을 충족하기 전 활성화하지 않는다 |
 | M1 회원 | 조건부 확정 가능. 직접 입력 생년월일 원문 미보관, TERMS·SIGNUP_PRIVACY, 계정·연동·탈퇴 계약을 개발 입력으로 사용 가능 | 미검증. provider·DB 경쟁·cookie·탈퇴 worker·복원 시험 필요 | 차단. 실제 provider 앱·callback·secret, 동의 전문 운영값, 연령·보존·국외이전 법무 검토 필요 |
 | M1.5 익게 | 조건부 확정 가능. 글 단위 이름, 탈퇴 KEEP, ACTIVE 제재 predicate, Unicode code point 계약을 개발 입력으로 사용 가능 | 미검증. API·DB 제약·동시성·worker·UI·관리자 수용 시험 필요 | 차단. M1 gate, 약관 시행, 신고·ledger 보존 근거, 이의제기 실값·운영 수용 필요 |
 | GA4·광고·제휴 | 비활성 경계와 기능별 gate만 확정 | 해당 기능 구현 뒤 별도 검증 | 기능별 실값·동의·계약을 갖추기 전 비활성. M0 Core 공개 전체를 차단하지 않음 |
 
 `조건부 확정 가능`은 주 검수에서 해당 계약을 개발 입력으로 사용할 수 있다고 판정했다는 뜻이다.
+9월 24일 코드 대조에서 direct robots/Crawl-delay·영속 일일 budget·redirect 상한,
+legacy API/DB 1000/40블록 차이를 확인했다. [수집 설계](07-spring-collector-design.md)와
+[로드맵 P1-01/06](../roadmap.md#3-p1--수집-보조자동-수집-마감)의 구현 보완 조건이며 현재 수집 수용 완료가 아니다.
+요구사항의 I 판정도 현재 테스트·화면·운영 인수 완료를 뜻하지 않는다. 전체 진행은 [현재 상태](../status.md),
+마지막 운영 관측은 [운영 상태](../operations/current-status.md), 남은 수용 조건은 [로드맵](../roadmap.md)을 따른다.
 Git으로 고정했는지, 구현을 수용했는지, production 공개를 승인했는지는 각각 별도 상태다. 과거 기준선
 실행은 위 작업 기록에 보존하고, 현행 상태는 현재 Git ref로 다시 확인한다. 외부 법무 판단이나 실제 구현 결과가 현재
 DB·인증·보존 모델을 바꾸면 정본과 영향 범위를 다시 검토한다.
@@ -32,9 +37,9 @@ DB·인증·보존 모델을 바꾸면 정본과 영향 범위를 다시 검토�
 
 | 책임 | 현재 남은 일 | 해제하는 상태 |
 | --- | --- | --- |
-| 설계 문서 | 이번 정합성 보완·주 검수 완료. 이후 계약 변경 시 영향 범위 재검수 | 설계 기준선 |
-| 구현 | source·migration·계약 test·PostgreSQL 경쟁·worker 재시작·build·browser | 구현 수용 |
-| 사용자·운영자 | 운영자·담당자·접수 이메일·시행일·provider 앱·실수탁자·운영 책임자 | production 공개 승인 |
+| 설계 문서 | 과거 R01~R10 보완 기록과 현행 수집 미정 계약을 구분한다. 입력/source 소유권·direct 보존/고지를 확정하고 영향 범위를 재검수한다 | 해당 기능 설계 기준선 |
+| 구현 | [요구사항 대조표](../development-specs/requirements-status.md)의 부분/미구현과 실제 흐름 미검증 항목을 마감한다. 과거 통과를 새 코드·환경에 승계하지 않는다 | 구현 수용 |
+| 사용자·운영자 | M0 입력·발행 완료 기록은 [법무 색인](../legal/README.md#출시-차단-항목)을 따른다. 실제 MFA 업무·알림·복귀 검증과 후속 기능의 provider 앱·실수탁자 등 미정 입력은 남아 있다 | 해당 기능 production 공개 승인 |
 | 외부 검증 | 처리 근거·연령·보존·국외이전·약관·출처별 허용 범위와 실제 provider 계약 | 해당 기능 production 공개 승인 |
 
 법무 차단 조건의 단계별 색인은 [법무 README](../legal/README.md#출시-차단-항목), 회원·익게 실행

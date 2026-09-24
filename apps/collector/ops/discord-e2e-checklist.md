@@ -4,16 +4,19 @@
 
 ## 사전 조건
 
-- collector 전용 PostgreSQL `collect.*` schema migration 적용 완료
+- API와 같은 PostgreSQL database의 `collect.*` schema에 Collector migration 적용 완료. batch 제한 role을 사용하며 API 검수/content 쓰기 권한은 주지 않음
 - `COLLECTOR_SOURCE_CONFIG` 또는 `COLLECTOR_SOURCES_FILE`에 검증 source가 있고 `approved=true`
 - object store backend 준비: `COLLECTOR_OBJECT_STORE_DIRECTORY` 또는 `COLLECTOR_OBJECT_STORE_S3_*`
 - Discord bot token은 secret store에만 있고 shell history, 문서, 로그에 남기지 않음
-- Collector V005와 API/batch role 분리 적용. `./bin/blariyo-collector discord --write-db` 사용 (Core API·Spring 서버 불필요)
-- `collector.discord-register-commands=true`는 최초 등록 검증 때만 사용하고, 등록 후에는 false로 되돌림
+- queue 계약은 Collector V005, 현재 schema 기준은 V006이다. API/batch role 분리 후 `./bin/blariyo-collector discord --write-db` 사용 (Core API·Spring 서버 불필요)
+- `COLLECTOR_DISCORD_REGISTER_COMMANDS=true`는 최초 등록 검증 때만 사용하고, 등록 후에는 false로 되돌림. 비공개 properties를 쓰면 `COLLECTOR_CONFIG_FILE`로 읽고 같은 의미의 `collector.discord-register-commands`를 사용
 - 허용 guild/channel/user 또는 role allowlist 설정 완료
 - 테스트 명령은 운영자 개인 테스트 guild/channel에서만 실행
 
 ## 권장 검증 URL
+
+아래 URL과 성공/차단 기대는 기존 표본이다. 실행 전에 공개 여부·승인 범위를 다시 확인하며,
+출처 응답이 바뀌면 실제 결과를 기록한다. 과거 차단 상태를 재현하려고 접근 제한을 우회하지 않는다.
 
 | source | URL | 기대 결과 |
 |---|---|---|
@@ -44,17 +47,18 @@ from collect.batch_run
 order by started_at desc
 limit 10;
 
-select source_key, source_post_key, state, left(coalesce(title,''),80) title,
-       jsonb_array_length(coalesce(body_blocks,'[]'::jsonb)) blocks,
-       raw_object_key
-from collect.batch_item
-order by discovered_at desc
+select i.source_key, i.source_post_key, i.state, left(coalesce(i.title,''),80) title,
+       jsonb_array_length(coalesce(i.body_blocks,'[]'::jsonb)) blocks,
+       i.raw_object_key
+from collect.batch_item i
+join collect.batch_run r on r.id = i.run_id
+order by r.started_at desc, i.id
 limit 10;
 
 select r.source_key, f.phase, f.code, f.detail->>'detailUrl' detail_url
 from collect.batch_failure f
 join collect.batch_run r on r.id = f.run_id
-order by f.created_at desc
+order by f.occurred_at desc
 limit 10;
 ```
 

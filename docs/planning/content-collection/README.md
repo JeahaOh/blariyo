@@ -1,7 +1,7 @@
 # 블라리요 콘텐츠 수집 기획
 
 - 문서 상태: 수집 방법 제품 정본 · 출처별 로컬 검증과 운영 활성화 분리
-- 기준일: 2026-09-23
+- 문서 대조일: 2026-09-24 (구현·실행 관측은 연결한 9월 23일 증거 기준)
 - 상위 정본: [서비스 기획서 §8](../01-service-plan.md#8-콘텐츠-수집)
 - 화면 계약: [화면 설계](../03-screen-design.md)
 - 기술 계약: [시스템 설계](../../system-design/README.md)
@@ -16,6 +16,10 @@
 아래 `legacy`로 표시한 절의 Core 후보 접수·preview 제출·Spring/Quartz 설명은 기존 호환 경로다.
 현행 21개 출처의 정책·실행 상태는 [출처 정책](source-collection-policy.md)과
 [검증표](reference-site-validation.md)를 따른다. 문서의 운영 활성화 체크박스는 로컬 테스트 통과와 구분한다.
+
+2026-09-24 코드 대조에서 direct의 robots·Crawl-delay·영속 일일 요청 상한 연결과 redirect 상한에
+미충족 부분을 확인했다. 아래 제품 통제를 완화하지 않으며, [기술 차이와 보완 조건](../../system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)을
+충족하기 전 수집 운영 활성화 완료로 판정하지 않는다.
 
 2026-09-20 사용자가 복제 허락을 확인한 더쿠 25건의 일회성 로컬 원문 적재는
 [고정 대상·저장 계약](../../../scripts/content/README.md#허락받은-원문-저장-계약)을 따른다.
@@ -186,7 +190,7 @@ collect 저장본을 읽어 검증한 private 사본을 만든다. 정식 검수
 | --- | --- |
 | 출처 | 사용 결정된 출처 식별자와 표시명 |
 | 원문 URL | 정규화한 `https` URL |
-| 발견 방식 | 수동 상세는 `MANUAL_URL`; `HOT_LIST` direct batch는 `LIST_CRAWL`; `DETAIL_ONLY`는 목록을 사용하지 않음 |
+| 발견 방식 | 수동 상세는 `MANUAL_URL`; `HOT_LIST`·`GENERAL_LIST` direct batch는 `LIST_CRAWL`; `DETAIL_ONLY`는 목록을 사용하지 않음 |
 | 제목 | 원문에서 추출한 후보값, 운영자 수정 가능 |
 | 이미지 후보 | 원격 URL·순서·추출 경고와 인증 preview 경로. DB에는 image binary를 저장하지 않음 |
 | 원문 게시 시각 | 신뢰할 수 있을 때만 저장, 없으면 `null` |
@@ -242,7 +246,7 @@ collect 저장본을 읽어 검증한 private 사본을 만든다. 정식 검수
 7. **제한 활성화**: 운영자가 소량 결과와 요청 로그를 확인한 뒤 해당 출처만 켠다.
 8. **정기 재검토**: 구조, `robots.txt`, 이용약관 또는 응답 정책이 바뀌면 다시 판정한다.
 
-수집 보조 사용 결정과 자동 수집 사용 결정은 별개다. URL 한 건을 보조할 수 있어도 `HOT_LIST` 목록 수집을 허용한
+수집 보조 사용 결정과 자동 수집 사용 결정은 별개다. URL 한 건을 보조할 수 있어도 Hot·일반 목록 수집을 허용한
 것으로 보지 않는다.
 
 ## 6. 운영자 검수
@@ -403,22 +407,27 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 
 ## 9. 단계별 완료 조건
 
+아래는 기능 활성화에 필요한 수용 조건이다. 빈 체크박스를 코드 부재나 로컬 검증 미실행으로 해석하지 않는다.
+구현 판정은 [요구사항 대조표](../../development-specs/requirements-status.md)의 A01~A08·B01~B08,
+출처별 로컬 성공/실패는 [검증표](reference-site-validation.md), 운영 관측은
+[운영 상태](../../operations/current-status.md)를 따른다. Core의 공개와 collector의 운영 활성화는 별도다.
+
 ### 수집 가능성 검증
 
 - [ ] 첫 검증 출처 한 곳이 선정됨
 - [ ] 실제 목록·상세 URL과 확인일이 기록됨
 - [ ] 이용약관·`robots.txt` 확인 결과가 기록됨
 - [ ] 최소 공통 후보 결과를 만들거나 불가능 사유가 기록됨
-- [ ] 원본 콘텐츠를 복제하지 않은 최소 synthetic fixture로 parser 규칙을 재현함
+- [ ] 합성·정제한 실제 fixture를 구분하고 parser 구조·순서·제외 규칙을 재현함
 
 ### M0 수집 보조
 
 - [ ] `M0 Core`의 수동 초안·이미지·발행·숨김 흐름이 먼저 검증됨
-- [ ] 로컬 collector가 Discord `/collect url` 또는 관리자 화면 URL 입력 한 건만 처리함
+- [ ] direct CLI·Discord 단건 흐름을 검증하고 Web URL 입력의 전달 계약을 확정·연결함
 - [ ] 등록·활성 host와 차단 경로를 구분함
 - [ ] 단일 상세 페이지 1건이 후보 또는 명시적 실패 상태로 끝남
-- [ ] 후보 수정·반려·재시도·초안 승격을 검증함
-- [ ] 목록·feed·pagination으로 신규 URL을 자동 발견하지 않음; 접수된 후보의 Quartz 예약 처리는 허용
+- [ ] direct 조회·검수 시작·승인/반려·버전 충돌·초안 승격을 실제 운영자 흐름에서 검증함
+- [ ] 단건 요청은 입력 URL만 처리함; 목록 발견·예약 실행은 자동 수집의 별도 승인 범위로 분리함
 - [ ] 수집 기능을 꺼도 수동 게시와 공개 읽기가 정상 동작함
 
 ### M0 자동 수집
@@ -432,40 +441,41 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 
 ## 10. 현재 미정·차단 항목
 
-다음 목록은 production 활성화 점검 항목이다. 출처 URL·parser·간격의 로컬 확인값은
-[출처 정책](source-collection-policy.md)에 있으며, 이 항목들이 전부 구현되지 않았다는 의미가 아니다.
+다음 목록은 production 활성화 점검 항목이다. 21개 parser와 분류, 17개 출처의 로컬 본문 저장,
+4개 출처의 차단/실패 저장 증거는 [출처 정책](source-collection-policy.md)과 [검증표](reference-site-validation.md)에 있다.
+아래는 그 로컬 증거로 완료 처리할 수 없는 운영 조건이다.
 
-- 첫 가능성 검증 대상 출처
-- 출처별 실제 기준 URL, 상세 URL pattern과 허용 path
-- 출처별 이용약관 위험 판단, `robots.txt` 확인 결과와 확인일
-- 출처별 parser 방식과 selector
+- 첫 운영 활성화 출처·범위와 위험 판정자
+- 운영에 적용할 URL/허용 path·source 설정 식별자, 구조 변경 시 재검증·교체 절차
+- 출처별 이용약관 위험 판단·`robots.txt`·접근 제한의 최신 확인과 사용 결정
 - 수집 User-Agent 문자열과 연락 수단
 - 출처별 실제 요청 간격과 일일 상한. 단건 timeout·응답 크기는 상세 설계의 보수적 기술 기본값을 먼저 적용
 - 구조 변경을 담당하고 출처를 재활성화할 운영자
 - 수집 보조와 자동 수집의 production 활성화 일자
 - Discord Application, guild·channel·운영 역할과 명령 권한
 - Discord 보고 webhook, `/collect url` 명령, 감사 기록 보존 기간
-- 로컬 collector 실행 PC, 실행 계정, service token 발급·회전·분실 대응 절차
+- collector 실행 PC·실행 계정, direct DB role·collect writer·Discord secret 발급/회전/분실 대응
+- Web URL 입력/source 변경의 소유권·전달 방식과 direct 원본·media·queue 보존/파기·고지
 
 위 항목이 미정이어도 `M0 Core` 플랫폼 개발과 공개는 진행할 수 있다. 다만 수집 보조 또는 자동
 수집 기능은 관련 항목과 해당 단계의 gate가 끝나기 전에는 활성화할 수 없다.
 
 ## 11. 후속 시스템 설계 동기화
 
-이 기획을 구현하기 전에 다음 기술 계약을 다시 대조한다.
+현행 direct 경로의 후속 변경 전에 다음 기술 계약을 다시 대조한다. 기존 구현이 없는 것으로 되돌리는 목록이 아니다.
 
-- 로컬 collector와 BE 후보 저장 service의 책임 분리
-- Discord·관리자 화면 URL 입력이 같은 로컬 collector 추출 흐름을 사용하는 조건
+- batch 소유 collect DB/object와 API 소유 검수/content의 권한·쓰기 경계
+- Discord·CLI의 공통 queue/상세 처리와 미정인 Web 입력 전달 계약
 - parser version과 경고·실패 사유 저장 위치
 - feature flag와 출처별 활성값의 우선순위
 - 출처별 request budget 계산과 Discord interaction 멱등성의 관계
-- source fixture, contract test와 구조 변경 감지 방식
-- 로컬 collector의 Discord Gateway 연결 방식·권한 검증·BE 제출 API 호출
+- 합성·관측 source fixture, contract test와 구조 변경 감지 방식
+- collector의 Discord Gateway 연결·권한 검증·direct queue/저장; legacy BE 제출 API와 분리
 - Discord 명령 job·멱등성·확인·감사 actor, 3초 초기 응답·15분 token 한계와 보고 webhook 전환
 - Discord 보고 webhook 재시도·보존·secret 분리
 
-수집 단계의 새 source·migration·OpenAPI·실행 테스트는 별도로 작성해야 하므로 이 문서 작성은 구현 완료나
-수집 가능성 검증을 뜻하지 않는다.
+수집 source·migration·API·실행 테스트는 저장소에 있다. 이 문서의 계약이나 테스트 코드 존재만으로
+모든 출처의 수집 성공·원격 writer 실연동·운영 활성화를 완료 처리하지 않는다.
 
 <a id="source-common-rules"></a>
 

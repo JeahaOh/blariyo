@@ -1,9 +1,9 @@
 # M0 Web BFF API 설계
 
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
-- 문서 상태: M0 API 설계 계약 · 신규 Core·BFF 구현 입력
+- 문서 상태: M0 API 계약 · 현행 Core/BFF 및 legacy/direct 경계
 - 기준일: 2026-09-04
-- 정합성 검토일: 2026-09-04
+- 정합성 검토일: 2026-09-24 (소스·OpenAPI 정적 대조; 운영 호출 재실행 아님)
 - base path: `/api/v1`
 - content type: `application/json; charset=utf-8`
 
@@ -21,7 +21,7 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 - 금액·날짜·상태 같은 계약 값은 locale 문자열로 반환하지 않는다.
 - 빈 값은 의미가 있으면 `null`, 존재하지 않는 필드는 생략한다.
 - `404`에서 숨김·삭제·미존재 원인을 구분하지 않는다.
-- 새 구현은 docs OpenAPI를 공유 계약 경로에 배치하고 그 계약에서 타입·요청 검증을 만든다. BFF에 별도 규칙을 중복 정의하지 않는다. production에서 Swagger UI는 공개하지 않는다.
+- docs OpenAPI와 `packages/contracts/openapi/`의 계약을 동기화하고 그 계약에서 타입·요청 검증을 만든다. BFF에 별도 규칙을 중복 정의하지 않는다. production에서 Swagger UI는 공개하지 않는다.
 
 신규 구현 범위와 검증 구분은 [현재 준비 상태](README.md#현재-준비-상태)를 따른다.
 아래 내용은 공개 Board/Post BFF와 Core 내부 route의 계약이며 파일 존재만으로 완료를 판정하지 않는다.
@@ -61,14 +61,20 @@ Core API의 내부 route는 외부 호환 계약으로
 | 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/draft` | 후보를 초안으로 승격 |
 
 M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
-위 목록의 수집 endpoint는 `M0 Core` OpenAPI와 route에 넣지 않고 `M0 수집 보조` 착수 때
-추가한다. M0 수집 보조는 운영자 로컬 collector가 Discord `/collect url` 또는 관리자 URL 입력 작업으로
-수동 URL API는 단일 상세 페이지 1건을 처리한다. 자동 목록 수집은 API endpoint가 아니라 별도 batch CLI가
-source policy에 따라 수행한다. API는 외부 사이트를 fetch하지 않는다.
+수집 endpoint는 별도 `M0 수집 보조` OpenAPI에 정의되어 있다. 위 `sources`/`candidates`는 legacy 경로이고,
+현행 direct 결과 API는 아래 §5-2의 `batch-items`다. 단건·목록 수집은 별도 batch CLI/queue가 source policy에
+따라 실행한다. 현행 Discord 확인→queue는 legacy 후보 접수와 다르며 Web URL 입력의 direct 전달은 미정이다.
+API는 외부 사이트를 fetch하지 않는다. flag·운영 인수 상태는 [현재 상태](../operations/current-status.md)를 따른다.
 
 ### Health 응답
 
-`/health/live`는 Nuxt BFF process가 HTTP 요청을 처리할 수 있으면 `200 {"status":"UP"}`만 반환한다. `/health/ready`는 BFF가 Docker 내부 Core API의 `/internal/health/ready`를 호출해 Core process, PostgreSQL 연결과 `ops.is_schema_ready(배포 artifact의 기대 version)`의 true 결과를 모두 확인했을 때만 `200 {"status":"READY"}`를 반환한다. 그 외에는 상세 원인 없이 `503 {"status":"NOT_READY"}`를 반환한다. health 응답에는 host·database명·version·secret을 넣지 않는다.
+`/health/live`는 Nuxt BFF process가 HTTP 요청을 처리할 수 있으면 `200 {"status":"UP"}`만 반환한다.
+`/health/ready`는 production에서 관리자 identity 검증 후 내부 Core `/internal/health/ready`를 조회한다.
+Core는 PostgreSQL·허용 schema version을 확인하고 legacy/direct flag에 따라 필요한 테이블·권한을 추가 확인한다.
+현재 legacy 활성은 V007/V008, 비활성은 V003~V008을 허용하며 direct 검수 활성은 V008과 batch read/review 권한이 필요하다.
+구체 조건은 `apps/api/src/persistence/health.repository.ts`를 따른다. Collector 모든 테이블·migration checksum·실제 writer
+인수를 이 응답 하나로 보증하지 않는다. 모두 성공하면 `200 {"status":"READY"}`, 인증·연결·준비 실패는
+상세 원인 없이 `503 {"status":"NOT_READY"}`다. health 응답에 host·database명·version·secret을 넣지 않는다.
 
 ## 2. 공통 응답
 
@@ -473,6 +479,9 @@ DELETE /api/v1/admin/posts/:postId
 
 ## 5-1. 수집 관리자 API
 
+이 절은 legacy `collect.source`·`candidate` API다. 현행 direct CLI/Discord가 아래 중계·claim을 사용한다고
+해석하지 않는다. legacy 활성화 조건과 direct 검수 flag는 별도이며, 현행 결과 API는 §5-2를 따른다.
+
 수집 관리자 API는 모두 관리자 인증이 필요하고 공개 API에 노출하지 않는다. Discord `/collect url`은
 BE 공개 Interactions endpoint가 아니라 운영자 로컬 collector가 Discord App 연결로 처리한다. Discord
 incoming webhook은 결과 알림용이며 URL 수신용으로 사용하지 않는다. 외부 사이트 요청은 BE·FE가
@@ -519,9 +528,9 @@ cutover, quota·execution fencing과 멱등 만료 뒤 digest 조정의 단일 �
 | --- | --- |
 | `sourceId`, `lockVersion` | 양의 정수 |
 | `name`, `baseUrl`, `host` | 출처 표시명, 등록 HTTPS 기준 URL, 소문자 host |
-| `fetchMode`, `parserType` | `URL_ONLY\|LIST_CRAWL`, `RSS\|HTML_LIST\|MANUAL` |
-| `listUrl` | 등록 host의 HTTPS URL 또는 null |
-| `isActive`, `isListCrawlEnabled` | boolean |
+| `fetchMode`, `parserType` | 현행 legacy 값은 `URL_ONLY`, `MANUAL` |
+| `listUrl` | 현행 legacy는 null |
+| `isActive`, `isListCrawlEnabled` | boolean; `isListCrawlEnabled=false` 고정 |
 | `robotsAllowed` | boolean 또는 null(미확인) |
 | `robotsCheckedAt`, `lastFetchedAt` | UTC ISO 8601 또는 null |
 | `requestIntervalMs`, `dailyFetchLimit` | 정수, 각각 1000 이상·1~10000 |
@@ -534,10 +543,11 @@ cutover, quota·execution fencing과 멱등 만료 뒤 digest 조정의 단일 �
 `host`, `baseUrl`, 이름·감사값·확인 시각과 알 수 없는 필드의 입력은 `400 VALIDATION_FAILED`다.
 
 - 변경값을 기존 값과 합쳐 데이터 모델의 출처 제약을 검증한다. URL은 최대 2048자, 등록 host와 같아야 한다.
-- `URL_ONLY`는 `listUrl=null`, `LIST_CRAWL`은 listUrl 필수다. 목록 수집 활성은 `LIST_CRAWL`, 목록 URL,
-  `robotsAllowed=true`와 확인 시각이 모두 있어야 한다. 조합 위반은 `409 SOURCE_STATE_CONFLICT`다.
+- 실제 `CollectionService.updateSource`는 `URL_ONLY`/`MANUAL` 이외 값, non-null listUrl 또는
+  `isListCrawlEnabled=true`를 `409 SOURCE_STATE_CONFLICT`로 거부한다. 이 endpoint로 목록 수집을 켤 수 없다.
+  legacy discovery는 별도 V007 설정이고 direct registry와도 다르다.
 - 기존 API source 설정에서는 수동 호환 경로에 `fetchMode=URL_ONLY`를 사용한다. direct batch source policy는 별도
-  registry에서 `HOT_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로 관리하며 batch가 목록과 상세를 직접 소유한다.
+  registry에서 `HOT_LIST`, `GENERAL_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로 관리하며 batch가 목록과 상세를 직접 소유한다.
 - `robotsAllowed`를 명시하면 같은 값이라도 재확인으로 처리한다. true/false는 서버 현재 시각,
   null은 `robotsCheckedAt=null`로 기록한다. client가 시각을 지정하지 않는다.
 - `isActive=false`를 명시하면 `disabledReasonCode=OPERATOR`, true를 명시하면 해당 사유를 null로 지운다.
@@ -594,7 +604,8 @@ item은 `candidateId`, `sourceId`, `sourceName`, `originUrl`, `title`, `status`,
 - collector 결과 제출이 성공하면 후보는 `NEW` 또는 `FETCH_FAILED`가 된다. 대상 응답 실패·timeout·비HTML
   또는 parser 실패는 `FETCH_FAILED`로 남기고 운영자가 화면에서 사유를 보고 재시도 또는 반려할 수 있게
   한다.
-- Discord `/collect url`도 collector 접수 API로 `PENDING` 후보를 먼저 만들고 해당 ID를 claim한 뒤 같은 검증·fetch·parser 흐름을 실행한다.
+- legacy Discord 호출자는 접수 API로 `PENDING` 후보를 만들고 claim했다. 현행 direct Discord는 확인 뒤
+  batch queue로 전달하므로 이 API를 거치지 않는다.
 
 ### 재수집과 반려
 
@@ -653,6 +664,33 @@ POST /api/v1/admin/collect/candidates/:candidateId/reject
 목록 수집은 API HTTP endpoint로 제공하지 않는다. 별도 batch 실행 주체가 source policy별로 최신 목록·feed 범위를 읽고 새 원문
 URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하게 기본 비활성으로 둔다.
 
+## 5-2. Direct batch 결과 조회·검수·초안 승격
+
+현행 구현은 [수집 OpenAPI](../development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml),
+`BatchReviewController`/`BatchReviewService`, API V008과 Collector migration을 함께 따른다.
+`COLLECT_BATCH_REVIEW_ENABLED` 및 관리자 인증이 필요하며 `private, no-store`다. flag가 꺼지면
+`404 BATCH_ITEM_NOT_FOUND`다. 유지보수 모드에서는 조회를 유지하고 변경을 차단한다.
+
+| Method | Path | 역할 |
+| --- | --- | --- |
+| GET | `/api/v1/admin/collect/batch-items` | `page`·`source`·`state`·`reviewStatus` 필터, 20건 목록 |
+| GET | `/api/v1/admin/collect/batch-items/:itemId` | 원문 블록·SNS·첨부·미디어 metadata·검수 상세 |
+| GET | `/api/v1/admin/collect/batch-items/:itemId/media/:position/preview` | IMAGE만 private stream, 크기/hash 확인·검증 후 제공 |
+| POST | `/api/v1/admin/collect/batch-items/:itemId/review` | 검수 시작·승인·반려 |
+| POST | `/api/v1/admin/collect/batch-items/:itemId/draft` | 승인한 원문을 수동 편집용 DRAFT로 이동 |
+
+- `itemId`는 UUID다. 목록은 공통 `meta.requestId` 외 `data.items/page/totalItems/totalPages`를 반환한다.
+- review 요청은 `itemVersion`, `lockVersion`, `decision=REVIEWING|APPROVED|REJECTED`다.
+  FETCHED 항목만 가능하며 검수 기록이 없으면 lockVersion은 0이다. 승인·반려는 REVIEWING을 거친다.
+- draft 요청은 두 version과 `boardSlug`, 선택 `title`이다. APPROVED와 현재 원문 digest가 일치해야 한다.
+  두 POST 모두 `Idempotency-Key`를 요구하고 actor·작업·item·key 및 body hash로 완료 결과를 재생한다.
+- API는 batch 결과 테이블을 읽고 API 소유 review/receipt 및 Core 초안·이미지를 쓴다. batch item 상태나
+  queue를 수정하지 않는다. 승격 시 수집 이미지를 private Core staging에 복사·검증하며 외부 출처를 fetch하지 않는다.
+- 중복 원문·stale version·검수 중 원문 변경·미디어 누락/hash 불일치를 거부한다. 성공한 draft는 201과
+  `itemId/postId/status=DRAFT/lockVersion/reviewLockVersion`을 반환하며 자동 공개하지 않는다.
+- 로컬 구현·격리 검증과 실제 운영자 MFA/원격 object 인수는 구분한다. 보존/고지·URL 입력 계약은
+  [roadmap P1](../roadmap.md#3-p1--수집-보조자동-수집-마감)에 남아 있다.
+
 ## 6. 상태 코드와 오류 코드
 
 | HTTP | code | 의미 |
@@ -708,7 +746,8 @@ URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하�
 | health | `no-store` |
 | error·404 | `no-store` |
 
-ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
+성공한 GET JSON 응답의 ETag는 data와 requestId를 제외한 meta의 SHA-256이다. 요청마다 바뀌는 requestId를
+제외하므로 동일 콘텐츠를 비교할 수 있다. 일치하는 `If-None-Match`에 304를 반환하며 Cache-Control은 유지한다.
 
 ## 8. API 구현 순서
 
@@ -727,9 +766,9 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 
 ## 9. 실행 준비 gate
 
-새 Core API·BFF·관리자 화면·outbox를 이 계약으로 구현한다.
-공유 계약은 `packages/contracts/openapi/m0-core.yaml`에 새로 배치하고 docs 입력 계약과 동일성을 검사한다.
-아래 항목은 향후 구현·검증 gate이며 실제 산출물과 실행 결과를 확인한 항목만 완료로 바꾼다.
+Core API·BFF·관리자 화면·outbox와 공유 계약이 현재 저장소에 존재한다. 아래는 초기 검증 요구 목록이며
+체크 미표시를 현재 미구현 수로 세지 않는다. 요구별 판정은 [요구사항 상태](../development-specs/requirements-status.md),
+실제 운영 인수는 [운영자 검수](../testing/operator-acceptance.md)를 따른다. docs와 packages 계약 동일성을 검사한다.
 
 - [ ] M0 endpoint만 포함한 OpenAPI `3.1.x` source 작성
 - [ ] request·response·error schema에서 문서 예시 자동 검증
@@ -790,9 +829,12 @@ ETag는 JSON body hash로 제공하고 `If-None-Match`에 `304`를 반환한다.
 - [ ] 로컬 collector의 redirect 3회 초과·비HTML·응답 크기 초과 거부 test
 - [ ] M0에 포함하지 않는 legacy 회원 endpoint와 Swagger UI가 Core API에서 공개되지 않는지 test
 
-모든 항목이 통과하기 전에는 API 계층을 “구현 준비 완료” 또는 “구현 완료”로 표시하지 않는다.
+개별 구현·테스트 증거와 운영 인수를 따로 기록한다. 이 설계 목록만으로 전체 구현 완료·운영 승인을 판정하지 않는다.
 
 ## Spring 수집 서버의 실행 API와 기존 중계
+
+이 절은 legacy Core 연동 Spring 경로다. direct 단건·목록·queue는 Core reservation/후보 중계를 거치지 않는다.
+direct의 robots·일일 budget·redirect 차이는 [미충족 통제](07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)를 따른다.
 
 [Spring 전환](01-system-architecture.md#spring-collector-transition)은 호출자를 교체하면서 응답 유실·quota·
 상태 조회를 additive하게 강화한다. 기존 collector 5개 endpoint와 후보 검수·반려·재수집·초안 생성 API,
@@ -820,4 +862,5 @@ BFF `/api/collector/v1/*`는 유지한다. 추가 endpoint도 같은 prefix로�
 result·후보 상세·초안 승격에 적용한다. 기존 §5-1의 metadata 모드와 구분하며 원문 모드에서는 이미지 0건,
 전체 원문 순서 유지, 모든 첨부 준비를 요구한다. `leadText`로 원문을 대체할 수 없다.
 정확한 DTO는 [수집 OpenAPI](../development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml)를 따른다.
+legacy API/OpenAPI의 1000블록과 V006 DB의 40블록 차이는 [데이터 모델](02-data-model.md#원문-수집-후보-확장-2026-09-20)의 미해결 항목이다.
 로컬 URL 입력은 서비스 서버가 아닌 수집 PC의 `POST /local/v1/candidates`이며 서비스에 새 공개 scraper endpoint를 추가하지 않는다.

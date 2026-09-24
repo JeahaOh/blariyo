@@ -1,9 +1,9 @@
 # 개발 환경 재개 전 안전 기준
 
-- 문서 상태: 로컬 Compose·Nest production image 검증 경로 존재 · 실제 배포 미검증
-- 정합성 검토일: 2026-09-09
+- 문서 상태: 로컬 개발·격리 Docker 검사 안내. 운영 배포·인수 상태는 [현재 운영 상태](current-status.md)에서 별도로 확인한다.
+- 정합성 검토일: 2026-09-24. 운영 증거는 9월 23일 기록이며 이번 문서 검토에서 Docker·서버를 실행하거나 조회하지 않았다.
 
-2026-09-07 구현 worktree에는 `apps/`, `compose.yaml`, migration·seed와 package script가 있다.
+현재 checkout에는 `apps/`, `compose.yaml`, migration·seed와 package script가 있다.
 파일 존재는 실행·배포 성공 증거가 아니다. 실행 대상은 현재 checkout의 Compose와 package script로
 확인하고 과거 경로·명령을 그대로 재사용하지 않는다. 실제 secret·환경값은 이 문서에 기록하지 않는다.
 
@@ -35,9 +35,12 @@
 - 빈 PostgreSQL 18에서 migration·seed를 검증할 명령
 - backup 생성, 별도 보관과 실제 restore 검증 절차
 
-현재 개발 Compose DB는 loopback 55439, Nest 전환 검증 DB는 별도 55449다.
+현재 루트 [Compose](../../compose.yaml)의 개발 DB는 `127.0.0.1:5439`다. `55449`는 9월 9일 Nest 전환
+검증 도구에 고정된 별도 DB 포트이며 현재 실행 중이라는 뜻이 아니다.
 `npm run test:docker`는 고유 이름의 새 image·network·DB만 사용하고 teardown한다.
-`npm run verify:migration`의 시작 전 ID·port·volume 확인 절차는 전환 보고를 따른다.
+`npm run verify:migration`은 특정 과거 컨테이너 ID·포트·Node 버전·main 브랜치를 요구하는
+[전환 전용 검증 도구](../../scripts/verify-migration.ts)다. 일반 개발 DB migration 명령으로 사용하지 않는다.
+일반 로컬 준비·재개는 [로컬 실행 안내](../../scripts/local/README.md)를 따른다.
 
 ## 3. 실행 전 대상 확인
 
@@ -58,7 +61,8 @@ git status --short --branch
 ```
 
 현재 Compose의 service는 `docker compose config --services`, 기동 상태는 `docker compose ps`로 확인한다.
-전환 검증 자원에는 Compose down이나 volume 삭제를 적용하지 않는다. 최종 실행 증거는 PROGRESS에 구분한다.
+전환 검증 자원에는 Compose down이나 volume 삭제를 적용하지 않는다. 새 실행 결과는 해당 날짜의 worklog에
+기록하고 과거 전환 보고의 통과 기록을 덮어쓰지 않는다.
 
 ## 4. 데이터 보존 원칙
 

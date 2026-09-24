@@ -3,7 +3,7 @@
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 보안·운영 설계 계약 · 공개 경계·정기 작업·암호화 백업 복원 검증, 관리자 쓰기·장기 관찰 잔여
 - 기준일: 2026-09-04
-- 정합성 검토일: 2026-09-20 (실제 배포 반영)
+- 문서 대조일: 2026-09-24 (운영 관측은 9월 23일 기록, 이번 실환경 재검증 아님)
 - 운영 인원: 초기 1명
 - 가용성 방식: 고가용성 대신 감지·백업·복구
 
@@ -22,7 +22,7 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 | 공개 장애 감지 | 5분 이내 |
 | 권리 요청 숨김 | 운영자가 메일 확인 후 30분 이내 목표 |
 | 보안 로그 보존 | 현재 M0 앱·Web·Nginx 진단 로그 최대 7일. 제공자 보안 기록과 법정 개인정보 접근 기록은 §7에서 구분 |
-| 수집 후보 보존 | 미승격 후보 30일 |
+| 수집 후보 보존 | legacy 미승격 metadata 후보 30일; direct raw/media/report/queue는 기간·파기 계약 미정 |
 | 수집 출처 robots 재확인 | 90일마다 또는 차단 발생 시 |
 
 RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 검증에서 24시간 RPO를 받아들일 수 없게 되면 WAL archive와 point-in-time recovery 또는 관리형 DB 비용을 추가한다.
@@ -145,7 +145,8 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
 - 정책 링크는 `https`, `mailto`, 서비스 내부 상대 경로와 `#` anchor만 허용하고 외부 새 창 링크에는 `rel="noopener noreferrer"`를 강제한다.
 - 수집 대상 URL은 `https`만 허용하고 최대 2048자다. BE는 접수 시 정규화한 뒤 등록 출처 host와
   대조하고, collector는 실행 직전 활성 상태·robots·DNS·redirect 경계를 다시 확인한다.
-- 수집으로 얻은 제목은 plain text로만 저장하고 원문 응답 HTML 전체는 저장하지 않는다.
+- 수집 제목·본문 TEXT는 plain text로 처리한다. direct는 파싱 전 응답 HTML을 비공개 raw object로 저장하며,
+  공개 본문·로그에서 렌더하지 않는다. 원문 응답을 저장하지 않는 규칙은 legacy metadata 경로에 한정한다.
 - 운영자 검수 미리보기용 이미지는 Java/Spring 추출기 작업 경로에 임시 저장할 수 있지만 내부 절대 경로,
   image binary와 storage key를 application log·Discord·공개 API에 남기지 않는다.
 - 수집 응답의 content-type이 예상과 다르거나 `COLLECT_MAX_RESPONSE_BYTES`를 넘으면 즉시 중단한다.
@@ -167,14 +168,14 @@ private object를 즉시 보상 삭제한다. 즉시 삭제가 실패하면 roll
 `aggregate_type=STORAGE_OBJECT`, `aggregate_id=NULL`을 사용하고 payload에는 `privateStorageKey`,
 `objectCreatedAt`, `cleanupReason=UPLOAD_ROLLBACK`만 둔다. 원본 파일명·관리자 identity·token은 넣지 않는다.
 
-upload object key는 `staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}`로 식별한다.
+upload object key는 `content/private/staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}`로 식별한다.
 `uploadRequestId`는 서버 생성 고유값이고 SHA-256은 재인코딩한 bytes 기준이다. 매일 inventory는 생성 후
-24시간이 지난 `staging/` object를 DB image의 private key와 미완료(`PENDING`,`RUNNING`,`FAILED`,`DEAD`)
+24시간이 지난 `content/private/staging/` 및 기존 `staging/` object를 DB image의 private key와 미완료(`PENDING`,`RUNNING`,`FAILED`,`DEAD`)
 cleanup outbox의 key에 대조하고, 어느 쪽에도 없는 object만 삭제한다. 따라서 process crash로 outbox가
 생성되지 않은 object도 회수하며, 후속 일반 사용자 업로드에도 같은 격리·보상 삭제 원칙을 적용한다.
 M0에는 일반 사용자 업로드 endpoint를 추가하지 않는다.
 
-기본 제한:
+일반 관리자 이미지 업로드 제한(수집 이미지 입력과 구분):
 
 | 항목 | 제한 |
 | --- | ---: |
@@ -185,12 +186,19 @@ M0에는 일반 사용자 업로드 endpoint를 추가하지 않는다.
 | 형식 | JPEG, PNG, WebP, GIF |
 
 GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외부 참조 위험 때문에 M0에서 받지 않는다.
+direct 수집·API 수집 preview/초안 승격의 입력은 파일당 30MiB·글당 150MiB이며 이미지 200개·첨부 20개
+상한을 별도로 적용한다. 픽셀·애니메이션 검증을 생략하지 않는다. 상세는
+[수집 용량 계약](../planning/content-collection/README.md#2026-09-23-다중-이미지와-수집-용량-계약)을 따른다.
 
 ### 수집
 
 현행 direct batch만 외부 원문을 fetch하고 비공개 수집 DB/object에 직접 저장한다. API는 batch 결과를 읽어
 검수·초안 승격·별도 발행을 처리한다. 아래 통제는 [direct 기술 계약](07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약)과
 출처별 정책으로 강제한다. 기존 candidate/preview·collector token 중계는 legacy 호환 경로다.
+
+다음은 필요한 보안 계약이며 전부 구현 완료라는 뜻은 아니다. 9월 24일 대조에서 direct의 robots/Crawl-delay·
+영속 일일 budget 연결 부재와 redirect 상한 차이를 확인했다. [미충족 통제](07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)는
+운영 활성화 전에 구현·검증하며 legacy의 quota/robots 테스트로 대체하지 않는다.
 
 1. 입력·redirect·이미지·첨부 URL을 정규화하고 허용된 source/미디어 host와 대조한다.
 2. robots·공개 범위·연락 수단·출처별 간격과 요청 상한을 확인한다. 차단을 우회하지 않는다.
@@ -329,6 +337,8 @@ IP는 보안 목적의 필요성이 있는 log에서만 사용하고, 일반 보
 ## 8. 모니터링과 알림
 
 M0는 유료 APM을 사용하지 않는다.
+아래 주기·임계치는 설계 목표다. 외부 감시·알림 실수신·장기 관찰의 적용/미검증 상태는
+[운영 상태](../operations/current-status.md)를 따르며 표만으로 설치 완료로 보지 않는다.
 
 ### 외부 감시
 
@@ -441,7 +451,7 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 - lockfile이 저장소에 추적됨
 - lint·unit·integration·migration test 통과
 - secret scan 통과
-- multi-arch image build 성공
+- 실제 배포 architecture의 image build 성공. 현행 CI는 `linux/amd64`이며 ARM64 이동 시 별도 build·runtime 검증 필요; multi-arch 완료로 보고하지 않음
 - DB backup 최근 18시간 이내
 - production URL placeholder 없음
 - `SITE_ORIGIN=https://blariyo.com/`·`NUXT_PUBLIC_SITE_ORIGIN=https://blariyo.com/`, `NUXT_TRUSTED_CLIENT_IP_HEADER`, `NUXT_ADMIN_OPERATORS_FILE` 주입 확인. 운영자 목록의 `active: true`인 identity만 허용한다. `COLLECT_USER_AGENT`는 수집 보조 활성 환경에서만 필수
@@ -451,8 +461,11 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
   tag/CSP domain 확정 확인
 - 위 GA4 운영값이나 고지가 하나라도 없으면 `NUXT_PUBLIC_GA4_ENABLED=false`; 원인과 관계없이 false인
   환경은 `NUXT_PUBLIC_GA4_MEASUREMENT_ID`를 public runtime config에서 unset
-- M0 Core는 수집 flag를 모두 false로 유지하며 수집 gate 미완료가 공개를 막지 않음
-- M0 수집 보조 활성화 시에만 Discord·관리자 URL 접수, collector 중계·인증·출처·preview gate 확인
+- 신규 M0 Core 단독 준비 설정은 수집 flag를 모두 false로 두며 수집 gate 미완료가 Core 수동 공개를 막지 않음.
+  2026-09-23 운영 DB·콘텐츠 반영 후에는 기존 direct 결과의 **관리자 batch 검수 flag만** API/Web에서
+  true로 확인됐다([당시 운영 상태](../operations/current-status.md)). URL·Discord 접수와 자동 수집은
+  비활성이며, 실제 MFA 검수 조작과 direct raw/media/report/queue 보존·고지 조건(§4)은 별도다.
+- direct 수집 보조 활성화 시에만 Discord 확인/queue·출처·전용 DB/object 권한·보존/고지 gate 확인. Web URL 전달 계약은 별도 미정이며 collector 중계·preview gate는 legacy 경로에만 적용
 - M0 자동 수집 활성화 시에만 별도 목록·feed·scheduler gate 확인
 
 현재 `.gitignore`는 `package-lock.json`을 제외하지 않지만 `yarn.lock`은 제외한다. npm을 표준
@@ -461,7 +474,7 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 
 ### rollback
 
-- application-only 변경은 이전 image digest로 되돌린다.
+- application-only 변경은 현재 DB와 호환성이 확인된 이전 image digest로 되돌린다.
 - expand/contract migration을 사용해 이전 image와 한 버전 호환한다.
 - column rename·drop은 두 번째 배포 이후 수행한다.
 - 데이터 변환 migration은 실행 전 별도 backup과 검증 query를 둔다.
@@ -469,9 +482,11 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
 - schema 호환성은 열/테이블뿐 아니라 이전 앱의 readiness 판정도 포함한다. `ops.is_schema_ready`는
   ledger의 최신 버전과 정확히 비교한다. 이전 앱이 모르는 최신 버전이면 additive migration이어도
   앱만 되돌리는 복귀를 보장하지 못한다. readiness 우회·ledger 값 수정으로 호환성을 만들지 않는다.
-- 2026-09-23 Core 후보는 수집 OFF에서 V005 유지와 이전 이미지 복귀를 격리 검증했다.
-  V006~V008 적용은 수집 release의 별도 호환·복귀 검증 뒤 수행한다. 적용 대상과 실제 검증 경계는
-  [Core 배포 후보](../../worklog/2026-09-23/release/candidate.md)를 따른다.
+- 2026-09-23 Core 후보는 수집 OFF에서 V005 유지와 이전 이미지 복귀를 격리 검증했다
+  ([Core 배포 후보](../../worklog/2026-09-23/release/candidate.md)). 이후 운영 DB에 API V008·Collector V006을
+  적용했다([DB 반영 기록](../../worklog/2026-09-23/release/production-db-promotion.md)). V008에서 9월 20일
+  구 API는 readiness 503이므로 앱만 복귀할 때는 V008 호환성이 확인된 직전 `5c581c2` Core release를
+  기준으로 한다. 실제 운영 rollback은 미실행이다.
 
 
 ## 12. 운영 runbook
@@ -528,14 +543,16 @@ outbox worker는 중단된 `RUNNING`을 5분 뒤 회수하고 실패할 때마�
 ### 수집 실패와 차단
 
 1. 알림의 출처와 오류 코드 확인
-2. `disabledReasonCode`로 자동 비활성 여부 확인
+2. direct의 run/item 실패·중단 사유와 실제 source 설정 확인; `disabledReasonCode`는 legacy 출처 상태와 구분
 3. 대상 사이트의 `robots.txt`와 접근 정책 변경 여부 확인
-4. 차단이면 해당 batch item 또는 source run을 실패 처리한다. `HOT_LIST`면 목록 수집을 끄고 `DETAIL_ONLY` 수동 URL 경로만 유지한다.
-5. 파싱 실패면 후보를 반려하고 파서 수정 여부를 판단
+4. 차단이면 해당 batch item/source run의 실패를 보존하고 목록·상세 재시도를 중단한다. 목록 차단을 이유로 상세 경로를 자동 허용하지 않는다. 별도 공개 접근·정책 확인 뒤 상세 전용 사용 여부를 판정한다.
+5. 파싱 실패면 실패 원문/fixture와 parser를 대조한다. 저장 결과를 성공으로 바꾸지 않으며 검수 대상 반려와 기술 실패를 구분한다.
 6. 재활성화 전에 요청 간격·일일 상한을 다시 확인
 7. 대상 사이트의 중단 요청은 권리 문의 runbook과 같은 절차로 처리
 
-수집 후보는 30일이 지나면 삭제되므로 보류가 필요한 후보는 초안으로 승격해 둔다. 후보 화면과 로그에 원문 응답 HTML을 남기지 않는다.
+30일 파기는 legacy metadata 후보 계약이다. direct의 원본·미디어·queue 보존/삭제는 미정이며 기존 cleanup이
+이를 처리한다고 가정하지 않는다. 보존을 위해 미검수 결과를 초안으로 승격하지 않는다.
+raw HTML은 비공개 진단 object에만 두고 후보 화면·일반 로그에서 노출하거나 실행하지 않는다.
 
 ### 비용 이상
 
@@ -558,8 +575,10 @@ Node patch는 검증 후 같은 LTS major 안에서 올린다. major 전환은 �
 
 ## Spring 수집 전환의 보안·운영 조건
 
-[Spring 수집 서버 상세 설계](07-spring-collector-design.md)를 따른다. 언어 변경으로 기존 수집 통제를
-완화하지 않으며 Spring source·Core migration·OpenAPI·runtime이 아직 없다는 상태를 유지한다.
+[Spring 수집 서버 상세 설계](07-spring-collector-design.md)를 따른다. 아래는 기존 Spring 서버의
+Core 중계·quota·spool 계약이다. 현재 source·migration·API·격리 테스트는 존재하고 direct는 별도 실행 경로다.
+현행 구현과 원격/실연동 미검증은 [요구사항 대조표](../development-specs/requirements-status.md)로 구분한다.
+언어·실행 경로 변경을 이유로 접근 제한·비밀·원문 노출 통제를 완화하지 않는다.
 
 - 로컬 REST는 `127.0.0.1:18787`에만 bind한다. 실행·조회·중지 scope별 256-bit bearer를 발급해 macOS
   Keychain에 저장하고 애플리케이션 DB에는 HMAC hash와 발급·회전 시각만 둔다. Discord token과 Core

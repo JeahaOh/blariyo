@@ -1,8 +1,9 @@
 # Nest / TypeORM 전환 결정
 
 - 기준: 2026-09-09 사용자 지시. TypeORM은 필수이며 다른 ORM은 검토하지 않는다.
-- 전환 범위: 미출시 M0 Core 내부 구현. 제품·API·DB 계약과 Nuxt BFF → Core, Spring → BFF → Core 경계 유지.
-- 현재 구현 상태는 [PROGRESS](../../worklog/2026-09-09/nest-transition/PROGRESS.md), 전체 요구사항은 [PLAN](../../worklog/2026-09-09/nest-transition/PLAN.md)을 따른다.
+- 전환 범위: 9월 9일 당시 미출시 M0 Core 내부 구현. 제품·API·DB 계약과 Nuxt BFF → Core, legacy Spring → BFF → Core 경계 유지.
+- 검토일: 2026-09-24, 현재 소스·migration·실행 기록 정적 대조. 아래 수치·시험 결과는 별도 표시가 없으면 9월 9일 전환 기준선이다.
+- 전환 당시 완료 근거는 [PROGRESS](../../worklog/2026-09-09/nest-transition/PROGRESS.md), 요구사항은 [PLAN](../../worklog/2026-09-09/nest-transition/PLAN.md)에 보존한다. 현재 구현/운영 상태는 [현황](../status.md)과 [운영 상태](../operations/current-status.md)를 따른다. 후속 direct batch → 공유 DB/R2 경로는 [수집 설계](07-spring-collector-design.md)의 별도 계약이다.
 
 ## 의존성 및 실행 구조
 
@@ -19,11 +20,11 @@ Controller DTO는 `@blariyo/contracts/api` 생성 타입을 사용한다. 검증
 ## 데이터와 트랜잭션
 
 - TypeORM 0.3의 DataSource / QueryRunner와 PostgreSQL driver를 사용한다.
-- SQL V001–V005, down SQL과 기존 checksum ledger를 변경하지 않는다.
+- 전환 기준선 SQL V001–V005, down SQL과 기존 checksum ledger를 변경하지 않는다. 후속 migration은 V008까지 추가됐으며 적용된 파일을 소급 수정하지 않는다.
 - `synchronize: false`, `dropSchema: false`, `migrationsRun: false`. 엔티티별 synchronize도 false로 둔다.
 - identity PK를 `PrimaryGeneratedColumn('identity')`, bigint를 string, timestamptz를 Date,
   bytea를 Buffer, JSONB를 unknown으로 매핑한다. ORM이 초기화하는 엔티티 필드에만 `!`를 허용한다.
-- 17개 테이블 224개 컬럼의 metadata를 실제 격리 DB와 대조한다. 컬럼/제약/인덱스의 전후 catalog를 비교한다.
+- 전환 당시 17개 테이블 224개 컬럼의 metadata를 실제 격리 DB와 대조했다. 현재는 source discovery policy·batch review·receipt Entity가 추가됐으므로 이 수치를 전체 현행 DB로 사용하지 않는다. 새 변경은 컬럼/제약/인덱스의 전후 catalog를 비교한다.
 - SQL migration이 인덱스·제약·trigger의 정본이다. Entity metadata에서 DDL을 생성하지 않는다.
 - UnitOfWork는 AsyncLocalStorage로 QueryRunner를 공유한다. 여러 Repository가 같은 트랜잭션에 참여한다.
   Service는 DataSource/EntityManager/QueryRunner를 받지 않는다.
@@ -44,7 +45,7 @@ Controller DTO는 `@blariyo/contracts/api` 생성 타입을 사용한다. 검증
 
 개발 중 도메인 단위 검증은 허용하지만 최종 주 실행 경로는 단일 Nest 앱이어야 한다.
 기존 Express 서비스에 위임하는 wrapper로 완료 처리하지 않는다. 기존 함수는 해당 도메인의 회귀 검증과
-운영 명령 이전이 끝난 뒤 제거한다. commit/push/배포는 금지하며 main과 사용자 기준선을 유지한다.
+운영 명령 이전이 끝난 뒤 제거한다. 9월 9일 전환 작업은 commit/push/배포 없이 사용자 기준선을 보존했다. 이후 작업 권한은 현재 사용자 요청과 AGENTS.md를 따르며 당시 제한을 영구 배포 금지로 해석하지 않는다.
 
 참고: [Nest 공식 시작 문서](https://docs.nestjs.com/first-steps),
 [TypeORM DataSource](https://typeorm.io/docs/data-source/data-source-api/),
@@ -155,8 +156,10 @@ health를 503으로 바꾸는 새 동작을 도입하지 않는다. 근거: 04-i
 
 ## raw SQL의 제한된 예외 목록
 
-일반 목록·조회·갱신은 Entity/Repository/QueryBuilder로 처리한다. 아래 raw SQL도 모두
+일반 목록·조회·갱신은 Entity/Repository/QueryBuilder로 처리하는 것이 전환 계약이다. 아래 전환 당시 raw SQL도 모두
 DatabaseContext의 TypeORM manager 또는 같은 QueryRunner를 사용한다. 외부 입력은 값 매개변수로 전달한다.
+
+2026-09-24 대조에서 후속 `batch-result.repository.ts`, `batch-review.repository.ts`의 일반 조회·갱신·receipt와 `collection.repository.ts`의 `discoveryAllowed`가 직접 SQL을 사용하는 차이를 확인했다. 이는 아래의 기존 예외 승인 근거로 자동 포괄하지 않는다. TypeORM manager와 매개변수는 사용하지만 일반 ORM 처리 계약과의 정합성은 [로드맵](../roadmap.md)에서 후속 정리한다. batch 목록의 항목별 재조회도 존재하므로 아래의 과거 공개/관리자 게시글 쿼리 수를 direct 검수 목록에 적용하지 않는다.
 
 | 파일 (persistence/) | 예외와 이유 | 검증 |
 | --- | --- | --- |

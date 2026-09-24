@@ -2,7 +2,7 @@
 
 - 문서 상태: M0 운영 입력 주입·공개 배포 완료, 후속 활성화 gate 및 일부 검증 잔여
 - 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-20
+- 정합성 검토일: 2026-09-24 (현행 Nuxt 설정/검증과 기록 대조, 운영 계정 재조회 없음)
 - 관련 결정: [OD-M0-006, OD-M0-009, OD-M0-011](open-decisions.md)
 - 범위: M0 Core production 공개 또는 provider 활성화 전에 입력·검증할 실제 운영값
 - 제외: secret 원문, token, password, private key, `.env` 실값
@@ -49,7 +49,9 @@ runtime 동작을 확인했을 때만 완료로 바꾼다.
 아래 값은 사업자등록, 통신판매, 유료 거래, 제휴 정산 등 공개 의무가 확정되기 전까지 `(미정)`으로
 둔다. 추정값을 넣지 않는다.
 
-| 항목 | config key | 현재 상태 |
+아래 `BLARIYO_*`는 초기 설계용 이름이며 현행 앱이 읽는 환경변수가 아니다. 실제 후속 기능을 도입할 때 파서·법무 고지와 함께 확정한다.
+
+| 항목 | 초기 설계 key | 현재 상태 |
 | --- | --- | --- |
 | 사업자명 | `BLARIYO_BUSINESS_NAME` | 보류 |
 | 대표자명 | `BLARIYO_REPRESENTATIVE_NAME` | 보류 |
@@ -70,8 +72,8 @@ runtime 동작을 확인했을 때만 완료로 바꾼다.
 | Web domain 등록 | 카카오 개발자 console | 필요 | `https://blariyo.com` 등록 확인 |
 | SDK script URL | `NUXT_PUBLIC_KAKAO_SDK_URL` | 필요 | 공식 SDK URL 재확인 |
 | SDK SRI integrity | `NUXT_PUBLIC_KAKAO_INTEGRITY` | 필요 | 고정한 SDK 파일 hash 확인 |
-| CSP script host | `KAKAO_CSP_SCRIPT_HOST` | 필요 | `script-src`에 필요한 host만 추가 |
-| CSP connect host | `KAKAO_CSP_CONNECT_HOST` | 필요 | `connect-src`에 필요한 host만 추가 |
+| CSP script host | `NUXT_PUBLIC_KAKAO_SDK_URL`에서 origin 추출 | 필요 | 활성 flag·key·integrity 조건과 실제 `script-src` 확인 |
+| CSP connect host | `NUXT_PUBLIC_KAKAO_CONNECT_ORIGINS` | 필요 | 쉼표로 구분한 HTTPS origin만 지정, 실제 `connect-src` 확인 |
 | 활성 flag | `NUXT_PUBLIC_KAKAO_ENABLED` | 필요 | 모든 gate 충족 전 `false`, 충족 후 `true` |
 
 ## 5. GA4 운영 활성화 gate
@@ -82,14 +84,18 @@ unset한다.
 
 | 항목 | config key 또는 확인 위치 | 현재 상태 | 검증 방법 |
 | --- | --- | --- | --- |
-| GA4 활성 flag | `NUXT_PUBLIC_GA4_ENABLED` | 필요 | gate 완료 전 `false` 확인 |
+| GA4 활성 flag | `NUXT_PUBLIC_GA4_ENABLED`, `NUXT_PUBLIC_ANALYTICS_APPROVED` | 필요 | gate 완료 전 둘 다 `false`, 승인 후 둘 다 `true` |
 | Measurement ID | `NUXT_PUBLIC_GA4_MEASUREMENT_ID` | 필요 | flag false 환경에서는 미노출 확인 |
 | GA4 property 보관 설정 | GA4 admin console, 개인정보처리방침 | 필요 | 실제 보관 기간과 cookie 만료 고지 일치 확인 |
 | 실제 Google 계약 법인 | 개인정보처리방침 제6조·제7조 | 필요 | 위탁/국외이전 고지에 동일 법인 표시 |
 | 국외이전 고지 | 개인정보처리방침 제7조 | 필요 | 국가, 항목, 시점, 방법, 기간, 거부 효과 확인 |
 | Google tag host | CSP `script-src` | 필요 | 동의 후 로드에 필요한 host만 추가 |
-| GA4 collect host | CSP `connect-src` | 필요 | 동의 전 request 0건, 동의 후 event 전송 확인 |
+| GA4 collect host | `NUXT_PUBLIC_ANALYTICS_CONNECT_ORIGINS`, CSP `connect-src` | 필요 | 동의 전 request 0건, 동의 후 event 전송 확인 |
 | DebugView 또는 실시간 검증 | GA4 DebugView | 필요 | 허용 event·parameter만 수신되는지 확인 |
+| 자동 이벤트 | GA4 Enhanced Measurement·앱 config | 필요 | 앱의 `send_page_view:false`와 별개인 history 기반 자동 page_view도 꺼서 경로/사용자 입력이 자동 전송되지 않는지 검증 |
+| 실패 피드백 | 동의 저장소 읽기·쿠키 삭제, 분석 동의 명세 | 필요 | 현행 누락 안내를 보완하고 저장/철회 실패 시험 후 활성화 |
+
+현행 초기 설정 생성기와 9월 23일 배포 기록은 GA4·분석 승인·Kakao OFF다. 이는 위 ON 조건을 확인했다는 뜻이 아니다. 앱의 소스/대체 tag 시험과 실제 provider 연결·DebugView를 구분한다.
 
 ## 6. 커밋·문서 운영 원칙
 

@@ -2,6 +2,7 @@
 
 - 작성일: 2026-09-20
 - 상태: **2026-09-20 v0.1 정식 발행. 운영 DB EFFECTIVE·본문 SHA-256·공개 HTTPS 화면 확인**
+- 검토일: 2026-09-24. 편집 HTML·생성 도구·배포 기록을 대조했으며 운영 DB/계정 재조회나 재발행은 하지 않았다.
 - 상위 기준: [법무 정본](../README.md), [서비스 단계](../../planning/01-service-plan.md#출시-단계)
 
 작은 무료 사이트에 맞춰 현재 사용하는 기능만 설명한다. 약관은 8개, 개인정보처리방침은
@@ -19,6 +20,11 @@
 대체하거나 다른 단계의 공개 조건을 없애지 않는다. 향후 조건 변경은 상위 원문과 함께 갱신한다.
 
 ## 책임 문구의 기준
+
+`draft-2/`는 초기 seed의 고정 본문 사본이다. 그 안의 `rights.html`·`cookies.html` 상대 주소는 당시
+원문 표기를 보존하므로 해당 폴더에서 직접 열면 연결되지 않는다. 비교할 때는 위 표의
+[권리자 요청](rights.html)·[쿠키 안내](cookies.html)를 사용한다. 링크 정리를 이유로 고정 초안 본문이나
+이미 발행한 정책의 해시를 바꾸지 않는다. 새 공개 변경은 별도 버전의 검토·발행 절차를 따른다.
 
 - 게시 횟수·목록 수 같은 UI 상세를 약관의 제공 보장으로 반복하지 않는다. 제품 기준은 유지한다.
 - 영구 보관·특정 게시 일정·무중단 제공을 별도 약정 없이 보장하지 않는다.
@@ -50,7 +56,8 @@
 이스케이프해 새 비공개 폴더에 넣는다. 입력 파일·기존 검토본을 덮어쓰지 않는다.
 
 ```sh
-/Users/zeaha/.nvm/versions/node/v24.18.0/bin/node /Users/zeaha/task_list/prepare-blariyo-policy-review.cjs --open
+# 저장소 루트, Node.js 24.18.0 환경
+node deploy/application/prepare-policy-review.cjs --open
 ```
 
 편집 본문은 실제 `/terms`, `/privacy`, `/cookie-settings` 경로를 쓴다. 검토 도구에서만 로컬 HTML 링크로 바꾼다. 권리자 요청 절차는 공개 약관 본문에 포함한다. 이 도구는 서버 등록용
@@ -60,6 +67,8 @@ DB 보관과 새 DB 초기화에는 별도의 [정책 seed](../../../deploy/post
 사용한다. 초기 seed의 `v0.1-draft.2`는 [당시 본문](draft-2/privacy.html)을 고정해 `DRAFT`로 재현한다. 기존 `draft.1`·`draft.2`는 덮어쓰지 않았다. 확정 본문은 별도 [정식 발행 도구](../../../deploy/application/publish-policies-from-mac.py)의 실제 앱 `policies:publish` command로 `v0.1`을 발행했다. 새 DB도 migration → draft seed → 확정 정책 발행 순서로 진행한다. 이미 공개한 `v0.1` 수정은 허용하지 않으며 변경은 새 버전으로 만든다.
 
 ## 확인한 공식 근거
+
+9월 24일 추가 대조에서도 공개 HTML 6개(고정 draft.2 포함)의 원문을 유지했다. direct raw HTML·본문·media·report/queue의 처리/보존은 [개인정보 초안 추가안](../privacy-policy.md#direct-수집의-처리보존-추가안--qd-04-미확정)과 QD-04의 잔여다. 현재 v0.1을 고쳤다고 간주하거나 기존 발행 해시를 덮어쓰지 않는다. 담당자 표시와 필요한 연락 수단의 적정성도 단순 설정 주입·발행 성공만으로 확인됐다고 보지 않는다.
 
 2026-09-20 조회. 구체적인 적용은 실제 운영·계약 사실과 함께 판단한다.
 

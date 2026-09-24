@@ -4,13 +4,13 @@
 
 - 내부 코드명: `blariyo`
 - 공개 서비스명: `블라리요`
-- 현재 단계: M0 Core 운영 서버 배포·공개 연결 완료 (2026-09-20)
+- 현재 단계: M0 Core 운영 배포·DB/콘텐츠 공개 확인, 운영자 인수 진행 전 (마지막 운영 관측 2026-09-23)
 - 공개 주소: https://blariyo.com/ · 공개 이미지: https://media.blariyo.com/
-- 현재 상태: Lightsail 서울 2GB에서 Nuxt Web/BFF·Nest Core·PostgreSQL·Nginx를 Cloudflare Tunnel로 연결했다. 정책 v0.1 발행, 공개 HTTPS, 암호화 R2 DB 백업과 격리 복원을 확인했다. 관리자 실제 로그인 후 작성·발행과 장기 운영 관찰은 남아 있다.
-- 운영 정본: [현재 운영 상태와 남은 작업](docs/operations/current-status.md), [운영 명령](deploy/operations/README.md), [TASK-19 배포 증거](worklog/2026-09-20/infrastructure-setup/TASK-19.md).
-- 배포 방법: [최초 설치·재배포·복귀 실행서](docs/operations/deployment-runbook.md), [GitHub CI·배포 정책과 무중단 전환 조건](docs/operations/deployment-policy.md). CI workflow는 로컬 작성 상태이며 원격 실행·자동 CD는 별도다.
-- 로컬 콘텐츠: [실제 HOT 25건 수집·초안 DB 저장](scripts/content/README.md). 운영 발행이나 운영 collector 활성화와 구분한다.
-- Nest 전환의 DONE_LOCAL 기록은 [최종 보고](worklog/2026-09-09/nest-transition/REPORT.md)와 [진행 기록](worklog/2026-09-09/nest-transition/PROGRESS.md)에 보존한다. Spring Collector·회원·광고·GA4·카카오는 이번 운영에서 활성화하지 않았다.
+- 현재 상태: Lightsail 서울 2GB의 Nuxt Web/BFF·Nest Core·PostgreSQL·Nginx를 Cloudflare Tunnel로 연결했다. SHA `5c581c2`의 원격 CI·GHCR API/Web 배포와 API V008·Collector V006, 게시글·이미지 공개 및 암호화 R2 백업의 격리 복원은 9월 23일 기록에서 확인했다. 실제 Access MFA 관리자 업무 인수·장기 관찰은 남아 있다.
+- 운영 상태와 기록: [마지막 운영 관측·잔여 작업](docs/operations/current-status.md), [운영 명령](deploy/operations/README.md), [9월 23일 배포](worklog/2026-09-23/release/production-deployment-5c581c2.md), [DB·콘텐츠 반영](worklog/2026-09-23/release/production-db-promotion.md). 문서 갱신 중 서버·DB를 다시 조회하지 않았다.
+- 배포 방법: [최초 설치·재배포·복귀 실행서](docs/operations/deployment-runbook.md), [CI·배포 정책](docs/operations/deployment-policy.md). 위 SHA의 원격 CI와 수동 서버 배포는 확인됐고 자동 CD는 미구현이다.
+- 로컬 콘텐츠: [9월 20일 HOT 25건 초안 저장](scripts/content/README.md)은 당시 로컬 작업이다. 별도 9월 23일 운영 데이터 반영·공개 결과는 위 운영 기록을 따른다.
+- Nest 전환의 DONE_LOCAL 기록은 [최종 보고](worklog/2026-09-09/nest-transition/REPORT.md)와 [진행 기록](worklog/2026-09-09/nest-transition/PROGRESS.md)에 보존한다. 관리자 batch 검수만 운영 flag가 켜졌고 URL·Discord 접수, 자동 수집, 회원·광고·GA4·카카오는 비활성이다.
 
 ## 현재 작업과 문서 탐색
 
@@ -34,7 +34,8 @@
 
 제품 범위는 planning, 구현 세부는 system-design, 실제 완료 여부는 migration·OpenAPI·source·test를 기준으로 판단한다.
 
-현재 구현 범위는 M0 Core와 별도 feature flag의 M0 수집 보조다. 회원·광고와 목록 자동 수집은 제외한다. 단계별 제품 범위와 기술 선택은 위 정본 문서에서만 변경한다.
+현재 저장소에는 M0 Core, legacy 수집 보조, direct 단건·목록·queue·검수 구현이 있다. 수집 구현 존재와
+운영 활성화는 구분한다. 회원·익게는 후속 설계이며 광고는 비활성이다. 단계별 범위는 위 정본을 따른다.
 
 내부 디렉터리와 의존성 규칙은 [M0 코드 구조](docs/system-design/08-code-structure.md)를 따른다.
 
@@ -47,7 +48,7 @@ blariyo/
   GEMINI.md                 Gemini entry pointer
   apps/api/                 NestJS/TypeORM Core, SQL migrations, operational commands
   apps/web/                 Nuxt SSR, BFF, public/admin UI
-  apps/collector/           Spring Boot, Batch, Quartz operator-local server
+  apps/collector/           direct collection CLI/queue; legacy Spring Batch/Quartz server
   packages/contracts/       canonical OpenAPI copy, generated types and validators
   tests/                    isolated PostgreSQL and HTTP integration tests
   deploy/                   production Compose, provisioning, jobs, backup and restore
@@ -56,6 +57,7 @@ blariyo/
       skills/               project-local AI workflows
     planning/               product and stage decisions
     system-design/          M0 implementation contracts
+    development-specs/      feature contracts, OpenAPI and requirement evidence
     legal/                  release-blocking policy drafts
     ui/                     publishing prototype and wireframes
     operations/             operation procedures
@@ -109,9 +111,11 @@ Web·API 이미지 빌드, 실제 실행과 백업 복구를 검증한다. 기�
 
 ## 검증
 
-전체 Nest 전환의 실행 진입점은 `npm run verify:migration`이다. 최종 PASS와 문서 감사·자원 정리가
-모두 끝나야 로컬 완료로 판정한다. 현재 결과와 실패 이력은 [진행 기록](worklog/2026-09-09/nest-transition/PROGRESS.md),
-검증 대응은 [전환 계획](worklog/2026-09-09/nest-transition/PLAN.md), 환경 준비는 [전환 보고](worklog/2026-09-09/nest-transition/REPORT.md)를 따른다.
+`npm run verify:migration`은 9월 9일 Nest 전환용 검증기다. Node 24.18.0·main 브랜치·고정된 두 컨테이너
+ID·55449/55450 포트를 검사하므로 환경 변수만 바꿔 다른 PC의 일반 검사로 사용할 수 없다.
+당시 결과와 실패 이력은 [진행 기록](worklog/2026-09-09/nest-transition/PROGRESS.md), 검증 대응은
+[전환 계획](worklog/2026-09-09/nest-transition/PLAN.md)을 따른다. 현재 재현 명령과 준비 조건은
+[검증 안내](docs/testing/README.md)·[CI 구성](.github/workflows/ci.yml)을 확인한다.
 
 ```sh
 nvm use 24.18.0
@@ -146,14 +150,22 @@ schema 비교에 읽기만 사용한다. Chromium은 전용 Playwright 서버에
 
 Docker 외부 HTTP는 전용 네트워크의 합성 저장소·CDN·인증 대역으로만 연결한다.
 이 로컬 검증과 별도로 운영 R2 어댑터·공개 이미지·캐시 삭제 API, 정책 발행, 서버 배포,
-예약 작업의 단발 실행과 암호화 원격 백업 복원을 확인했다. 실제 관리자 로그인 후 전체 쓰기 흐름,
-CDN 캐시 전파, 외부 실패 알림, 7일 관찰, live Discord·실제 수집 출처는 미검증이다.
+예약 작업의 단발 실행과 암호화 원격 백업 복원을 확인했다. 9월 23일 배포·DB 반영의 공개 게시글·이미지
+검사는 [운영 상태](docs/operations/current-status.md)를 따른다. 실제 MFA 관리자 쓰기 흐름,
+CDN 전체 전파, 외부 실패 알림, 7일 관찰, live Discord·다른 PC 수집 실연동은 미검증이다.
 세부 증거는 [현재 운영 상태](docs/operations/current-status.md)를 따른다. Kakao·GA4 gate는 유지한다.
 
 ## 수집 보조
 
-이 절은 보존 커밋 `c788f18` 기준의 전환 전 Python/Core 구현과 검증 증거다. 최종 Spring 수집
-서버의 구현 완료나 운영 준비 완료를 뜻하지 않는다. 이번 legacy 호환 보완과 별도 Spring V2 범위는
+현행 direct 사용법은 [Collector 실행 안내](apps/collector/ops/README.md), 관리자 검수는 `/admin/batch`다.
+API/Web은 외부 원문을 fetch하지 않으며 batch가 DB/object에 저장한 결과를 검수 후 DRAFT로 승격한다.
+robots·일일 budget·redirect 상한의 구현 차이와 원격 PC/Discord 인수·보존 회수는
+[잔여 작업](docs/roadmap.md#3-p1--수집-보조자동-수집-마감)으로 남아 있다.
+
+이 절의 아래 Python/Core 경로는 보존 커밋 `c788f18` 기준 **legacy 호환 구현과 당시 검증 증거**다.
+9월 23일 운영 DB에는 direct 수집 이력이 반영되고 관리자 batch 검수 flag가 켜졌지만 URL·Discord 접수와
+자동 수집 실행은 꺼져 있다. 실제 MFA 검수 조작과 direct 원본 보존·고지 계약은 별도 잔여 조건이다.
+현행 direct 경로와 별도 Spring V2 범위는
 [수집 개발 명세의 전환 경계](docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md#spring-전환-job-계약과-검증-경계)를 따른다.
 
 `/admin/collect`에서 상세 URL 요청·후보 검수·이미지 선택과 설명·직접 대체 업로드·반려·재수집·
@@ -231,10 +243,12 @@ root 소유 `0600` read-only artifact가 필요하다. 사업자 보류값·법�
 - Kakao도 기본값은 꺼짐이다. 운영값·등록 domain·SRI 확인 후에만 `NUXT_PUBLIC_KAKAO_ENABLED`,
   `NUXT_PUBLIC_KAKAO_KEY`, `NUXT_PUBLIC_KAKAO_SDK_URL`, `NUXT_PUBLIC_KAKAO_INTEGRITY`,
   `NUXT_PUBLIC_KAKAO_CONNECT_ORIGINS`를 주입한다.
-- GIF decode는 최대 200 frame·누적 RGBA 256MiB로 제한하며 공통 40MP·10MiB 제한도 적용한다.
+- 수동 업로드 GIF decode는 최대 200 frame·누적 RGBA 256MiB, 공통 40MP·10MiB 제한을 적용한다.
+  direct 수집 이미지의 30MiB·최대500프레임과 큰 animation 처리 경로는 [수집 설계](docs/system-design/07-spring-collector-design.md)를 따른다.
 
 로컬 백업·복구 확인은 `pg_dump -Fc`로 만든 dump를 **새 별도 DB**에 `pg_restore --exit-on-error`한 뒤
-`ops.is_schema_ready('V003')`와 게시글·상태 이력을 대조했다. 운영에서는
+당시 V003 readiness와 게시글·상태 이력을 대조했다. 현재 운영 V008·Collector V006 복원은 해당 ledger와
+checksum·행/sequence 및 현재 앱 호환성을 확인하며 V003 결과로 대신하지 않는다. 운영에서는
 [암호화 R2 백업·복원](deploy/backup/README.md)까지 확인했다. 새 VM 전체 복구와 RTO 달성은
 [보안·운영 설계](docs/system-design/05-security-operations.md)에 따른 별도 미검증 항목이다.
 

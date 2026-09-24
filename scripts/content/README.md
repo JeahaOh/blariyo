@@ -11,8 +11,9 @@ Python 단독 scraper가 아니며 별도 운영 수집기 `apps/collector`(Java
   다른 글이나 사이트용 범용 CLI·예약 수집기로 그대로 재실행하지 않는다.
 - 다른 사이트를 지원하려면 사이트별 본문 parser, URL 입력·저장 설정 분리, 실패·재시도·중복 처리와
   실제 샘플 검증이 필요하다. Python downloader만 있다고 어떤 사이트든 수집할 수 있는 것은 아니다.
-- 정식 URL 한 건 수집은 `apps/collector`의 `/local/v1/candidates`와 `parser=THEQOO`를 사용한다.
-  다른 PC 설치·Core API 제출·예약 실행은 [수집기 운영 안내](../../apps/collector/ops/README.md#웹api와-다른-컴퓨터에서-실행)를 따른다.
+- 현행 URL 한 건 수집은 `./bin/blariyo-collector collect-url --source theqoo --url <승인된-공개-URL> --write-db`의
+  direct 경로를 사용한다. `/local/v1/candidates`는 기존 Core 후보 전송 방식의 legacy 경로다.
+  다른 PC의 DB/object 연결·권한·실연동은 [수집기 운영 안내](../../apps/collector/ops/README.md#웹api와-다른-컴퓨터에서-실행)를 따른다.
   아래 고정 25건 Node/Python 도구는 과거 적재 재현용이며 운영 batch에 연결하지 않는다.
 - SNS 임베드는 수집기와 별개인 Web 표시 기능이다. 현재 게시글의 단독 X·YouTube·TikTok·Instagram
   URL을 인식하며, 삭제·비공개·불러오기 실패 시 원문 링크와 안내를 제공한다. 기존 원문과 첨부 DB를

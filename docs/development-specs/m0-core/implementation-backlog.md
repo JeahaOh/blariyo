@@ -1,23 +1,26 @@
 # M0 Core 구현 Backlog
 
-- 문서 상태: 신규 M0 Core 개발 순서
+- 문서 상태: M0 Core 초기 구현 순서·기능 명세 연결표. 현재 잔여 작업은 [로드맵](../../roadmap.md)을 따른다.
 - milestone: `M0 Core` (`m0-core`)
 - 기준일: 2026-09-03
+- 검토일: 2026-09-24, 저장소와 9월 23일까지의 실행 기록 대조
 - 입력 근거: [서비스 기획](../../planning/01-service-plan.md), [시스템 설계](../../system-design/README.md), [API 설계](../../system-design/03-api-design.md), [M0 Core 결정 색인](./decisions/open-decisions.md)
-- 구현 증거: [현재 소스의 검증 기록](../../../README.md#검증). 운영 외부 서비스·법무 실값·deployment는 별도 미검증.
+- 구현 증거: [검증 기록](../../../README.md#검증), [요구사항별 상태](../requirements-status.md), [현재 운영 상태](../../operations/current-status.md). 9월 20일 정책 발행과 9월 23일 앱/DB 배포 기록이 있으며 운영자 수용·선택 provider·장기 관찰은 별도 잔여다.
 
 이 문서는 이미 작성된 M0 Core 개발 Spec을 구현 순서로 묶는 실행 준비 backlog다. 제품 범위나 API
 계약을 새로 확정하지 않고 각 기능 Spec과 system-design의 계약을 따라 구현 단위를 정렬한다.
 
 ## 1. 구현 전제
 
-- [새 개발 전제](../../system-design/README.md#현재-준비-상태)에 따라 빈 애플리케이션 구조에서 시작한다. 기존 프로토타입 동기화·수정 작업을 선행 조건으로 두지 않는다.
+- 최초 구현은 빈 애플리케이션 구조에서 시작했다. 현재는 Nest/Nuxt 앱과 migration·검증 코드가 있으므로 아래 scaffold를 다시 생성하지 않는다. [현재 준비 상태](../../system-design/README.md#현재-준비-상태)와 기존 변경을 먼저 확인한다.
 - 구현 완료는 이 문서가 아니라 실제 source, migration, test, build, runtime 증거로 판정한다.
 - `M0 Core`는 수집 보조·자동 수집 없이 공개 가능해야 한다.
 - `policy-and-rights`의 법무·문의 실값 `차단`은 production 공개 조건이다. 조회·시행 command·UI 개발은 테스트 fixture로 진행한다.
 - Kakao, GA4, 광고는 구현 경계와 운영 활성화 gate를 분리한다.
 
 ## 2. Backlog 순서
+
+아래는 초기 의존 순서이며 12개 모두 미착수라는 뜻이 아니다. 구현·운영 검증의 현재 판정은 상단의 요구사항별 상태/로드맵에서 관리한다.
 
 | 순서 | 작업 | 주요 산출물 | 선행 조건 | 완료 증거 |
 | --- | --- | --- | --- | --- |
@@ -45,7 +48,7 @@
 
 ## 4. OpenAPI 작성 범위
 
-문서 입력 계약은 [openapi/m0-core.yaml](./openapi/m0-core.yaml), 배치 기준은 [openapi-draft.md](./openapi-draft.md)를 따른다. 새 구현의 공유 계약은 `packages/contracts/openapi/m0-core.yaml`에 두고 docs 원본과 같게 시작한다. 생성 타입은 이 파일에서 새로 만든다.
+문서 입력 계약은 [openapi/m0-core.yaml](./openapi/m0-core.yaml), 배치 기준은 [openapi-draft.md](./openapi-draft.md)를 따른다. 현행 공유 계약은 `packages/contracts/openapi/m0-core.yaml`에 있으며 docs 사본과 함께 갱신한다. 생성 타입·runtime schema는 공통 생성기를 사용한다.
 
 초기 OpenAPI에는 다음만 포함한다.
 
@@ -62,8 +65,8 @@
 
 ## 5. 차단·미검증
 
-- 출시 차단: OD-M0-006 법무·문의 실값, 시행일, 실제 수탁자, 접속·보안 로그 법무 근거
+- 법무: OD-M0-006의 현행 M0 정책 실값·시행일·실제 처리 고지는 9월 20일 발행 기록을 따른다. 담당자 적정성·개별 법률 검토와 후속 기능의 미정/차단 조건은 [법무 정본](../../legal/README.md)에 유지한다.
 - 활성화 차단: OD-M0-009 Kakao 운영값, OD-M0-011 GA4 운영값
 - 로컬 검증: source·migration·OpenAPI·test·build·browser·Docker·DB 복구는 [README](../../../README.md#검증)의 실행 결과를 따른다.
-- 미검증: production 외부 서비스 연결, 운영 cron·알림·암호화 원격 백업·전체 서버 복구, deployment
-- 보류: 수집 보조·자동 수집, 회원, 광고, 제휴는 별도 milestone에서 진행
+- 운영: API/Web 배포·DB 승격·timer·R2 암호화 백업/격리 복원은 실행 기록이 있다. 실제 운영자 MFA 업무 수용·전체 서버 재구축·일부 알림 수신/장기 관찰은 로드맵의 잔여 조건을 따른다.
+- 별도 milestone: 수집 보조·자동 수집은 구현과 부분 운영 증거가 있으며 direct 활성화 조건이 남아 있다. 회원·광고·제휴는 후속 설계/보류로 구분한다.

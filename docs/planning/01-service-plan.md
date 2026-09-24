@@ -2,7 +2,7 @@
 
 - 문서 상태: 제품 요구사항 정본
 - 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-03
+- 정합성 검토일: 2026-09-24 (정본·소스 대조, 운영 재조회 아님)
 - 서비스명: `블라리요`
 - 관련 문서: [02-infra-plan.md](./02-infra-plan.md), [03-screen-design.md](./03-screen-design.md), [04-analytics-ad-plan.md](./04-analytics-ad-plan.md), [05-benchmark-spec.md](./05-benchmark-spec.md), [06-copy-contract.md](./06-copy-contract.md), [07-color-palette.md](./07-color-palette.md), [콘텐츠 수집 기획](./content-collection/README.md), [시스템 설계](../system-design/README.md)
 
@@ -15,7 +15,7 @@
 - M0의 짤 콘텐츠는 로그인 없이 열람한다. 네이버, 카카오, Google, Apple 소셜 회원가입·로그인은 M1에서 제공한다.
 - 목록과 상세는 블로그보다 커뮤니티 게시판 형태로 구성한다.
 - 고급유머의 빠른 목록 탐색, 상세 하단 목록, 목록 중간 광고 배치를 참고한다.
-- 콘텐츠 후보는 운영자가 Discord `/collect url` 또는 관리자 화면으로 원문 URL을 지정해 모을 수 있고, 별도 batch가 source policy의 `HOT_LIST` 목록을 발견할 수 있다. 공개 여부는 항상 운영자가 결정한다.
+- 콘텐츠 후보는 운영자가 Discord `/collect url` 또는 관리자 화면으로 원문 URL을 지정해 모으는 흐름을 제공하며, 별도 batch는 source policy의 `HOT_LIST`·`GENERAL_LIST` 목록을 발견한다. 현재 연결 범위와 미완료 항목은 §8을 따른다. 공개 여부는 항상 운영자가 결정한다.
 - 네이티브 앱은 현재 범위에 포함하지 않는다.
 
 ### 출시 단계
@@ -34,6 +34,10 @@
 [회원·익게 제품 계약](08-member-community-plan.md), 상세 기술 계약은
 [회원·익게 기술 설계](../system-design/06-member-community-design.md)를 따른다. 설계 기준선·구현 수용·
 production 공개 승인은 [현행 설계 준비 상태](../system-design/design-readiness.md)에서 별도로 판정한다.
+
+이 문서는 제품 요구사항이다. 구현 진척은 [요구사항 현황](../development-specs/requirements-status.md),
+마지막 운영 관측은 [운영 현재 상태](../operations/current-status.md)를 따른다. 아래 개발 우선순위와
+활성화 조건을 모두 미착수 또는 모두 충족한 상태로 해석하지 않는다.
 
 ## 2. 게시판과 URL
 
@@ -171,8 +175,8 @@ PUBLISHED
 ### 운영자 화면 `/admin`
 
 - `/admin` 계열은 M0의 비공개 운영자 화면이며 외부 관리자 인증을 통과한 운영자만 접근한다.
-- 게시글 검색·작성·상태 관리는 `/admin`, 수집 후보 검수는 `M0 수집 보조`부터
-  `/admin/collect`에서 처리한다.
+- 게시글 검색·작성·상태 관리는 `/admin`, 직접 수집 결과 검수·승인·초안 승격은 `/admin/batch`에서
+  처리한다. `/admin/collect`와 `/admin/collect/sources`는 legacy 후보·출처 관리 경로이며 direct 설정을 변경하지 않는다.
 - 화면 구성과 상태별 동작은 [03-screen-design.md](./03-screen-design.md), 접근 경계는 [02-infra-plan.md](./02-infra-plan.md)를 따른다.
 - 관리자 화면은 검색 엔진과 공개 목록에 노출하지 않는다.
 
@@ -270,6 +274,8 @@ legacy 출처 수정 화면은 기존 후보 테이블을 변경한다. 그 화�
 - 이미지 검증·복사 중 누락이 생기면 일부 성공으로 승격하지 않는다. 첨부는 원문 링크로 표시하고 collect 파일 익명 다운로드는 열지 않는다.
 - 동일 원문과 기존 게시글 중복·내용/검수 버전 충돌을 확인한다. 완료 건의 기본 재수집 정책은 skip이며 자동 승격하지 않는다.
 - 로그인·CAPTCHA·유료 장벽·접근 차단을 우회하지 않는다. 허용 host·공인 주소·robots·요청 간격·상한·연락 수단을 확인한다.
+- 위 통제는 요구사항이다. 현재 direct 경로에는 robots/Crawl-delay·영속 일일 총량 연결과 redirect 상한 차이가 남아 있다.
+  [수집 기술 설계](../system-design/07-spring-collector-design.md)와 [P1-06](../roadmap.md)에서 추적하며, 목록·단건·queue 활성화 전에 검증한다.
 - direct raw/media/report/queue의 보존 기간과 승격 후 원본 유지 여부는 `(미정)`이다. legacy metadata의 30일·preview 24시간을 자동 적용하지 않는다.
   현재 개인정보처리방침의 수집 설명과 실제 저장 범위·자동 파기를 맞추는 작업도 해당 수집 기능 활성화 전에 완료한다.
 - 출처 표시는 권리 확보를 뜻하지 않으며 권리자 요청 처리 절차는 §3을 따른다.
@@ -381,7 +387,7 @@ planning은 화면과 운영 흐름이 필요로 하는 동작만 정의한다. 
 - 소셜 제공자별 production application, callback URL과 동의 항목 검수 결과
 - GA4 운영 활성화에 필요한 실값과 법무·CSP 조건은 [분석·광고 계획](./04-analytics-ad-plan.md)에서 추적
 - 향후 추가 게시판의 이름과 운영 방식
-- 수집 출처별 `robots.txt` 확인 결과, 이용약관 위험 판단과 `HOT_LIST`/`DETAIL_ONLY`/`BLOCKED`/`UNVERIFIED` 정책
+- 수집 출처별 `robots.txt` 확인 결과, 이용약관 위험 판단과 `HOT_LIST`/`GENERAL_LIST`/`DETAIL_ONLY`/`BLOCKED`/`UNVERIFIED` 운영 정책. 출처별 명세의 개발 분류·예제 승인은 운영 승인과 구분한다.
 - 수집 요청 User-Agent 문자열과 연락 수단
 - 출처별 요청 간격과 일일 수집 상한 실제 값
 - source별 batch 목록 수집 주기·페이지/글 상한·실패 중단 기준
@@ -430,9 +436,9 @@ planning은 화면과 운영 흐름이 필요로 하는 동작만 정의한다. 
 GA4 운영 활성화 gate는 M0 Core 구현 완료와 분리하며, gate가 늦어지면 GA4와 선택 배너를 끈 채
 게시글 조회 수만 운영한다.
 
-### 수집 서버 전환 범위 (2026-09-08)
+### 초기 수집 서버 전환 범위 (2026-09-08, legacy 이력)
 
-수집 보조의 실행 주체는 운영자 로컬의 Spring Boot 상시 서버로 전환한다. Spring Batch가 작업을,
-Quartz가 접수된 후보의 예약 처리를 담당하며 REST API·Discord도 같은 실행 경로를 사용한다.
-기존 Nuxt BFF·Nest Core·검수 화면과 별도 발행 절차는 유지한다. 자동 목록 발견은 후속 범위다.
-확정·미정과 데이터 소유권은 [수집 기획](content-collection/README.md#spring-수집-서버-전환-결정-2026-09-08)을 따른다.
+당시 결정은 수집 보조를 로컬 Spring Boot 상시 서버로 전환하고 Spring Batch·Quartz로 접수된
+legacy 후보를 처리하는 범위였다. 당시 자동 목록 발견은 후속 범위였으며, 현행 direct 단건·목록·queue
+실행과 검수는 §8을 따른다. 초기 결정 원문은
+[수집 기획](content-collection/README.md#spring-수집-서버-전환-결정-2026-09-08)에 보존한다.

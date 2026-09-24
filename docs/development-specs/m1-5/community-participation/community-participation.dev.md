@@ -2,6 +2,7 @@
 
 - 문서 상태: `작성 완료` — API·처리 흐름·화면 계약; 아래 운영 활성화 절은 `차단`
 - 기준일: 2026-09-08
+- 2026-09-24 재대조: 후속 설계 상태를 유지한다. 현재 구현 부재와 운영 활성화 조건은 [회원·익게 기술 계약](../../../system-design/06-member-community-design.md)을 따른다.
 - 실행 증거: source·migration·OpenAPI 생성·test·build·브라우저·production 모두 이 문서 작업에서 미검증
 - 입력: [제품 계약](../../../planning/08-member-community-plan.md), [화면 설계](../../../planning/03-screen-design.md), [법무 gate](../../../legal/README.md)
 - 공통 타입·요청/응답·오류·권한: [기술 API 정본](../../../system-design/06-member-community-design.md#api)
@@ -13,7 +14,7 @@
 ## 1. 범위·행위자
 
 - milestone: M1.5. 공개 읽기, 회원 텍스트 글·댓글 작성/수정/삭제, 글 단위 랜덤 이름, 내 활동.
-- 선행: MEMBER와 COMMUNITY 활성, USER board, 유효 회원·필수 동의. 제재 중 읽기·삭제는 가능하다.
+- 선행: ACCOUNT_ACCESS와 COMMUNITY 활성, USER board, 유효 회원·필수 동의. MEMBER=false는 신규 가입·연결 중단이며 기존 회원 참여를 막지 않는다. 제재 중 읽기·삭제는 가능하다.
 - 제외: 이미지 업로드·추천·검색·대댓글·예약·초안·타인 프로필. 짤의 운영자 작성 권한을 바꾸지 않는다.
 
 ## 2. 요구사항 추적
@@ -75,7 +76,7 @@ board·계정·제재·동의·소유권을 검증한다. 공개 DTO에는 회�
 - me/activity는 session account 기준으로만 조회한다. 숨김 본문 대신 일반 상태·ID·version을 제공한다.
 - 탈퇴 KEEP은 post_author/comment/participant account FK를 null로 바꾸고 감사 actor를 정리한다.
 - 탈퇴는 글·댓글 본문과 기존 공개/숨김/삭제 상태를 유지한다. 삭제 선택은 제공하지 않으며 이미 삭제된 콘텐츠를 복원하지 않는다.
-- 삭제 후 신규 가입은 새 계정이다. 과거 랜덤 이름나 콘텐츠 소유권을 자동 연결하지 않는다.
+- 삭제 후 신규 가입은 새 계정이다. 과거 랜덤 이름이나 콘텐츠 소유권을 자동 연결하지 않는다.
 
 <a id="d08-browse"></a>
 ## 8. 목록·상세 화면

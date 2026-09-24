@@ -2,6 +2,7 @@
 
 - 문서 상태: 작성 완료 — 설계 기본안, 법무·운영 활성화 조건은 미해결
 - 기준일: 2026-09-08
+- 2026-09-24 재대조: 후속 설계 상태를 유지한다. 현재 구현 부재와 운영 활성화 조건은 [회원·익게 기술 계약](../system-design/06-member-community-design.md)을 따른다.
 - 범위: M1 회원 생명주기, M1.5 글·댓글·신고·운영 관리
 - 상위 범위: [서비스 기획](01-service-plan.md)
 - 화면: [화면 설계](03-screen-design.md), 기술: [회원·익게 기술 계약](../system-design/06-member-community-design.md)

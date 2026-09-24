@@ -1,7 +1,7 @@
 # 콘텐츠 수집 출처 명세 템플릿
 
 - 문서 상태: 템플릿
-- 기준일: 2026-09-02
+- 기준일: 2026-09-24 (현행 direct batch 계약 반영)
 - 상위 정본: [콘텐츠 수집 기획](./README.md)
 
 이 파일을 직접 출처 명세로 사용하지 않는다. 출처를 검토할 때 같은 디렉터리의 `sources/` 아래에
@@ -9,9 +9,12 @@
 사용하지 않는다.
 
 원문 HTML 전체, 이미지 binary, credential, cookie, token과 개인정보는 명세나 Git에 저장하지
-않는다. 운영자 검수 미리보기를 위한 이미지는 Python extractor 작업 경로에만 임시 저장할 수 있고,
-게시 확정 전 DB와 영구 object storage에는 저장하지 않는다. 테스트 fixture는 원문 콘텐츠를 복제하지
-않은 최소 synthetic 구조를 사용한다.
+않는다. 현행 direct batch는 원문 응답과 수집 미디어를 비공개 raw/media/report object로 저장하고
+DB에는 본문 블록·미디어 metadata·실행 상태를 기록한다. 공개는 검수·초안·별도 발행 이후다.
+보존 기간·파기와 고지 미정은 [현행 direct와 legacy 경계](README.md#12-현행-direct와-legacy의-적용-경계)를 따른다.
+기존 Python/legacy preview의 임시 파일·24시간 계약을 direct object에 적용하지 않는다.
+테스트는 합성 fixture와 [실제 HTML을 정제한 관측 fixture](../../../apps/collector/src/test/resources/sites/observed/README.md)를 구분한다.
+정제 fixture에는 출처·확인일·원본/정제본 hash·변환 내역과 parser 구조의 일치 근거를 남긴다.
 
 ---
 
@@ -59,42 +62,45 @@
 | 단계 | 사용 여부 | 방식·이유 |
 | --- | --- | --- |
 | Discord·운영자 URL 수집 보조 | `(미정: 사용 / 보류 / 차단)` | 단일 상세 페이지 1건만 추출 |
-| 공식 공개 API·feed | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| RSS·Atom | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| server-rendered HTML 목록 | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
+| 공식 공개 API·feed | `(미정: 사용 / 보류 / 제공 없음)` | 공식 제공 범위와 운영 위험 확인 |
+| RSS·Atom | `(미정: 사용 / 보류 / 제공 없음)` | 원문 식별과 상세 수집 연결 확인 |
+| server-rendered HTML 목록 | `(미정: 사용 / 보류 / 차단)` | Hot/일반 목록 구분, 사이트별 parser와 실제 구조 검증 |
 | headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외 |
 
-선택 수집 정책: `HOT_LIST` / `DETAIL_ONLY` / `BLOCKED` / `UNVERIFIED`
+선택 수집 정책: `HOT_LIST` / `GENERAL_LIST` / `DETAIL_ONLY` / `BLOCKED` / `UNVERIFIED`
 선택 parser type: `(사이트별 parser)`
+
+개발 예제의 승인 플래그, 기술 구현, 실제 수집 성공, 운영 활성화 판정을 각각 기록한다.
+`GENERAL_LIST`는 `latest`를 사용하며 일반 게시판을 인기순으로 표시하지 않는다.
 
 ## 4. URL 규칙
 
 | 항목 | 확인값 |
 | --- | --- |
-| 목록·feed URL | 정책이 `HOT_LIST`일 때만 검증된 URL |
+| 목록·feed URL | `HOT_LIST` 또는 `GENERAL_LIST`일 때 검증된 URL; 나머지는 없음 |
 | 상세 URL pattern | `(미정)` |
 | canonical URL 위치 | `(미정)` |
 | 허용 redirect | `(미정)` |
 | 제거할 query parameter | `(미정)` |
 | 유지할 query parameter | `(미정)` |
-| pagination 방식·최대 범위 | 정책이 `HOT_LIST`일 때만 확인 |
+| pagination 방식·최대 범위 | 목록 정책일 때만 확인; 다음 페이지 미지원과 페이지 한도 구분 |
 
 ## 5. 목록·feed 추출 규칙
 
-`HOT_LIST` source만 목록·feed·pagination을 사용한다. `DETAIL_ONLY`는 입력된 상세 URL만 처리하고,
+`HOT_LIST`·`GENERAL_LIST` source만 목록·feed·pagination을 사용한다. `DETAIL_ONLY`는 입력된 상세 URL만 처리하고,
 `BLOCKED`·`UNVERIFIED`는 실행하지 않는다. 정책과 selector를 확인하기 전에는 generic parser를 사용하지 않는다.
 
 | 대상 | 추출 규칙 | 필수 여부 | 실패 처리 |
 | --- | --- | --- | --- |
-| 원문 URL | 사용하지 않음 | 해당 없음 | 후보 생성 안 함 |
-| 제목 | 사용하지 않음 | 해당 없음 | 상세 페이지 추출 규칙 사용 |
-| thumbnail URL | 사용하지 않음 | 해당 없음 | 상세 페이지 추출 규칙 사용 |
-| 게시 시각 | 사용하지 않음 | 해당 없음 | `null` |
-| 다음 페이지 | 사용하지 않음 | 해당 없음 | 종료 |
+| 원문 URL | `(미정: 사이트별 selector/API field)` | 목록 정책이면 필수 | 구조 오류 또는 명시적 빈 목록 |
+| 제목 | `(미정)` | 목록 후보값과 상세 확정값 구분 | 상세 페이지 추출 규칙 사용 |
+| thumbnail URL | `(미정: 사용 여부)` | 선택 | 본문 이미지 보존의 대체 증거로 사용하지 않음 |
+| 게시 시각 | `(미정: 확인 가능한 field)` | 기간 정책에 따름 | 시각 미확인을 report에 구분 |
+| 다음 페이지 | `(미정: selector/지원 안 함)` | 선택 | 종료; generic URL을 추측하지 않음 |
 
 제외 규칙:
 
-- 목록·feed·pagination: `HOT_LIST` source에 한해 적용
+- 목록·feed·pagination: `HOT_LIST`·`GENERAL_LIST` source에 한해 적용
 - 공지·광고·추천 콘텐츠: 목록에서 추출하지 않음
 - 같은 목록의 중복 링크: 목록에서 추출하지 않음
 
@@ -104,7 +110,9 @@
 | --- | --- | --- | --- |
 | canonical URL | `(미정)` | `(미정)` | 요청 URL 사용 또는 실패 |
 | 제목 | `(미정)` | `(미정)` | 후보 실패 |
+| 본문·외부 링크/SNS | `(미정: 본문 영역·순서)` | `(미정)` | 요약·OG로 대체하지 않고 실패 |
 | 본문 이미지 | `(미정)` | `(미정)` | 후보 실패 또는 운영자 보정 |
+| 첨부 | `(미정: 본문 밖 첨부 영역 포함)` | `(미정)` | 누락·다운로드 실패 구분 |
 | 이미지 순서 | `(미정)` | `(미정)` | DOM 순서 |
 | 게시 시각 | `(미정)` | `(미정)` | `null` |
 
@@ -118,13 +126,16 @@
 
 ## 6-1. 이미지 임시 저장·승격 규칙
 
-- 후보 생성 시 Python extractor는 미리보기에 필요한 이미지 후보만 작업 경로에 임시 저장할 수 있다.
-- 임시 파일 경로는 내부 구현값이며 공개 화면, 로그, Discord 보고와 Git에 남기지 않는다.
-- DB에는 원격 URL, 순서, 추출·검증 상태와 preview 식별자만 저장하고 image binary는 저장하지 않는다.
-- 후보 반려, 보존 기간 만료, 재시도 교체, parser 실패 전환 시 임시 파일은 삭제 대상이다.
-- 게시글 초안 승격이 결정되면 선택 이미지에 한해 관리자 업로드와 같은 MIME·magic byte·decode·pixel·
-  metadata 제거·재인코딩 검증을 거쳐 블라리요 저장소에 저장한다.
-- 승격 transaction 실패 시 저장된 이미지는 staging orphan 정리 대상으로 분류한다.
+- 현행 direct 저장·검수·승격은 [제품 계약](README.md#2026-09-23-direct-batch-검수승격)을 따른다.
+  API는 저장된 collect object를 읽으며 외부 원문을 다시 fetch하지 않는다.
+- 이미지·첨부 binary는 비공개 object에, DB에는 순서·종류·크기·hash·저장 위치를 기록한다.
+  내부 저장 경로·secret·개인정보는 공개 화면·일반 로그·Discord 보고·Git에 노출하지 않는다.
+- 본문 1000블록·이미지 200개·첨부 20개·파일당 30MiB·글당 150MiB 상한은
+  [공통 용량 계약](README.md#2026-09-23-다중-이미지와-수집-용량-계약)을 따른다. 초과 본문을 자르지 않는다.
+- 승인된 결과의 모든 이미지를 검증·재인코딩한 private 사본으로 준비한 뒤 초안으로 승격한다.
+  첨부는 원문 링크와 metadata를 보존하고 익명 collect 다운로드를 열지 않는다.
+- 실패 시 사본 회수, 반려·만료·원본 보존/파기는 direct 기술·법무 계약을 따르며 미정 기간을 추측하지 않는다.
+- legacy metadata 경로를 검토할 때만 [기존 임시 preview 규칙](README.md#source-common-rules)을 별도로 기록한다.
 
 ## 7. 요청·운영 제한
 
@@ -143,13 +154,14 @@
 
 | 유형 | 샘플 식별값 | 기대 결과 | 확인 결과 |
 | --- | --- | --- | --- |
-| 정상 목록 | 정책이 HOT_LIST인 경우 공개 fixture | 상세 URL 추출 | `(미정)` |
-| 빈 목록 | 정책이 HOT_LIST인 경우 | 명시적 0건 또는 구조 변경 | `(미정)` |
-| 정상 상세 | `(미정)` | 제목·이미지 후보 추출 | `(미정)` |
+| 정상 목록 | HOT_LIST/GENERAL_LIST의 관측 fixture | 상세 URL·순서·공지 제외·pagination | `(미정)` |
+| 빈 목록 | 목록 정책일 때 | 명시적 0건 또는 구조 변경 | `(미정)` |
+| 정상 상세 | `(미정)` | 본문·이미지·첨부·SNS의 원문 순서 보존 | `(미정)` |
 | 이미지 없는 상세 | `(미정)` | 명시적 실패 또는 운영자 보정 | `(미정)` |
 | 삭제·차단 | `(미정)` | 실패 기록·재시도 제한 | `(미정)` |
 | 구조 변경 | synthetic fixture | parser 실패 감지 | `(미정)` |
 | 중복 URL | `(미정)` | 새 후보 생성 안 함 | `(미정)` |
+| 저장 readback | `(미정: 환경·run ID·확인일)` | DB/raw/media/report 일치; 실패 저장은 본문 성공과 분리 | `(미정)` |
 
 실제 원문 URL을 기록할 때 공개 URL과 확인일만 남긴다. 페이지 본문·이미지는 문서에 복제하지
 않는다.
@@ -159,7 +171,7 @@
 - [ ] 운영 주체와 기준 URL 확인
 - [ ] 이용약관·`robots.txt` 확인
 - [ ] Discord·운영자 URL 수집 보조 fixture 검증
-- [ ] `HOT_LIST`인 경우 목록·feed fixture 검증
+- [ ] `HOT_LIST`·`GENERAL_LIST`인 경우 목록·feed fixture 검증
 - [ ] URL 정규화와 중복 방지 검증
 - [ ] 요청 간격·일일 상한·연속 실패 기준 확정
 - [ ] 원문 HTML·이미지·개인정보가 로그에 남지 않음
@@ -169,7 +181,8 @@
 판정:
 
 - Discord·운영자 URL 수집 보조: `(미정: 사용 / 보류 / 차단)`
-- 자동 수집: `(HOT_LIST / DETAIL_ONLY / BLOCKED / UNVERIFIED)`
+- 수집 방식: `(HOT_LIST / GENERAL_LIST / DETAIL_ONLY / BLOCKED / UNVERIFIED)`
+- 운영 활성화: `(미정: 승인 / 보류 / 차단)`; 개발 설정의 승인 플래그와 구분
 - 판정일·운영 위험 판정자: `(미정)`
 - 보류·차단 사유: `(미정)`
 

@@ -2,8 +2,8 @@
 
 > 현행 M0 공개본: [2026-09-20 v0.1](m0-core/README.md). 이 전체 초안은 후속 기능도 포함한다. 연락처 placeholder는 비공개 설정 주입 자리이며 실제 M0 공개본에는 남아 있지 않다.
 
-- 문서 상태: 출시 전 확정 필요
-- 정합성 검토일: 2026-09-03
+- 문서 상태: 현재 저장소와 후속 기능의 공개 조건을 분리한 편집 초안
+- 정합성 검토일: 2026-09-24 (Nuxt 동의 구현·M0 공개본 대조)
 - 시행일: `2026년 9월 20일`
 - 서비스명: `블라리요`
 
@@ -20,6 +20,8 @@ M1, GA4와 광고 저장소 및 선택 동의 UI는 각 기능을 운영에서 �
 - 분석 또는 광고를 거부해도 게시글과 같은 게시판의 주변 목록을 열람할 수 있다.
 
 ## 2. 쿠키·로컬·세션 저장소
+
+현재 M0 공개본은 관리자 Cloudflare Access의 `CF_Authorization`과 9월 20일 확인한 6시간 세션을 고지한다. 아래 회원·광고 저장소는 후속 설계이며 실제 생성 확인이 아니다. 현행 Nuxt 분석 동의 구현은 `blariyo_consent` version2·분석 선택·광고 false·1년 만료를 처리하지만 운영 GA4는 비활성이다. 비활성화만으로 과거 localStorage 선택이 삭제된다고 보장하지 않는다.
 
 | 저장소 | 이름 후보 | 구분 | 목적 | 생성 조건 | 만료·삭제 |
 | --- | --- | --- | --- | --- | --- |
@@ -38,6 +40,7 @@ production에서 로드하지 않는다.
 
 - `NUXT_PUBLIC_GA4_ENABLED=false`인 환경에서는 Google tag, `_ga*`, 분석 선택 항목과 선택 배너를 노출하지
   않고 `NUXT_PUBLIC_GA4_MEASUREMENT_ID`를 public runtime config에서 unset한다.
+- 현행 앱은 `NUXT_PUBLIC_ANALYTICS_APPROVED`도 true여야 분석을 켠다. 읽기/쿠키 삭제 실패 안내의 미충족 사항과 실제 Google 전송 검증은 [분석 동의 명세](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md)의 활성화 잔여 조건이다.
 - GA4 Measurement ID·속성 보관 설정·국외이전 고지·실제 Google 계약 법인·Google tag/CSP domain이
   모두 확정된 환경에서만 분석 선택을 활성화한다. 하나라도 미확정이면
   `NUXT_PUBLIC_GA4_ENABLED=false`를 유지하며 이 gate는 M0 Core 공개 자체를 막지 않는다.

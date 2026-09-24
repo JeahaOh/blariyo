@@ -1,8 +1,9 @@
 # GitHub CI와 배포 정책
 
-2026-09-20 결정. 2026-09-23 기록·workflow source 정합성 검토. **로컬에서 수정 → PR 검증 → main의 검증된 이미지 → 운영자가 배포 실행**을 기본으로 한다.
-운영 서버는 이미 가동 중이며 이번 UI·수집 작업은 운영에 적용하지 않는다.
-실제 명령과 최초 배포 증거는 [배포 실행서](deployment-runbook.md)에 있다.
+2026-09-20 결정, 2026-09-24 문서 갱신. **로컬에서 수정 → PR 검증 → main의 검증된 이미지 → 운영자가 배포 실행**을 기본으로 한다.
+마지막 운영 확인은 2026-09-23의 [`5c581c2` API/Web 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)와
+[DB V008·Collector V006 반영](../../worklog/2026-09-23/release/production-db-promotion.md) 기록이다.
+이 문서 갱신에서 원격 CI·서버를 다시 조회하지 않았다. 실제 명령과 복귀 조건은 [배포 실행서](deployment-runbook.md)에 있다.
 
 ## 현재 방식과 선택
 
@@ -57,7 +58,10 @@ package·운영 서버를 직접 재조회하지 않았다.
 이 실패는 운영 서버 배포 실패를 뜻하지 않는다.
 
 후속 로컬 수정과 깨끗한 checkout의 검사 결과는 [CI·관리자 보완 결과](../../worklog/2026-09-23/admin-core/FIX-RESULTS.md)에
-기록했다. 새 commit/push의 원격 성공 run과 API/Web digest는 아직 없으며 로컬 통과로 대체하지 않는다.
+기록했다. **당시에는** 새 commit/push의 원격 성공 run과 API/Web digest가 없었다. 이후 9월 23일
+`5c581c2ad82a9f1565ac53349fbaae7afed9c9cd`의
+[CI #35866422574](https://github.com/JeahaOh/blariyo/actions/runs/35866422574) `verify`·`collector`·API/Web `images`가
+성공했고, GHCR digest를 확인해 실제 서버 API/Web을 교체했다. digest·상세 smoke는 [운영 배포 기록](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)을 따른다.
 Collector job 추가와 macOS·Linux Docker의 새 실행 결과는 [Collector CI 결과](../../worklog/2026-09-23/collector-ci/RESULTS.md)에
 기록했다. 이 역시 원격 `collector` job 성공이나 실제 운영 환경 검증을 뜻하지 않는다.
 
@@ -68,8 +72,10 @@ main 보호 규칙의 `CI / verify`·`CI / collector` 필수 검사 지정 여�
 private 접근과 서버의 최소 package 읽기 권한은 별도 설정 확인 대상이다.
 
 2026-09-23 [Core 로컬 배포 후보](../../worklog/2026-09-23/release/candidate.md)는 amd64 API/Web archive와
-설정 사본을 준비하고 V005 Core 호환·이전 앱 복귀를 검사했다. V008에서 이전 앱 readiness 503을 확인해
-Core 배포와 수집 migration을 분리한다. 최종 SHA 원격 CI·운영 인수·실제 서버/백업 검증은 여전히 필요하다.
+설정 사본을 준비하고 **당시 V005**의 Core 호환·이전 앱 복귀를 검사했다. 이후 API V008·Collector V006을
+운영에 적용하고 게시글 74건을 공개했다. V008에서 9월 20일 구 API는 readiness 503이므로 복귀 기준이
+아니다. 9월 23일 사전·사후 백업의 R2 다운로드·격리 복원은 확인됐으나 실제 rollback·VM 재부팅과
+운영자 MFA 인수는 남아 있다. 새 후보의 SHA별 CI·서버 ledger·백업은 다시 확인한다.
 
 ## CD: 검증된 산출물의 수동 운영 배포
 
@@ -79,15 +85,22 @@ GHCR 경로를 사용할 때 서버의 읽기 전용 registry 인증과 digest p
 
 배포 단위: Git SHA 또는 dirty snapshot hash + Web/Core image digest + 설정 묶음 식별자 + migration 목록.
 배포 전 DB 백업, timer 중복 방지, 순차 교체, 공개·관리자 smoke, 부팅 복구 대상 갱신을 한 기록에 남긴다.
-실패 시 이전 **앱 이미지와 호환 설정**으로 복귀하며 DB는 자동 역마이그레이션하지 않는다.
+실패 시 **현재 DB와 호환성이 확인된 앱 이미지·설정**으로 복귀하며 DB는 자동 역마이그레이션하지 않는다.
+V008의 마지막 확인 기준은 `5c581c2` 앱 image다. DB 전체 복구는 별도 범위·백업 이후 데이터 처리가 필요하다.
 파괴적인 DB 변경은 호환 단계로 나누고, 불가피한 경우 점검 시간을 별도로 잡는다.
 구 이미지·사전 dump는 다음 배포의 복귀 가능 여부를 확인하기 전까지 정리하지 않는다.
 
 자동 CD는 서버가 승인된 manifest를 가져오는 방식이 다음 후보다. 고정 IP 미사용 결정을 유지하고,
 GitHub runner IP 전체에 SSH를 개방하거나 운영 VM에 PR용 self-hosted runner를 두지 않는다.
-현재 SSH helper와 부팅 helper에는 최초 IP/release가 고정돼 있어 범용 자동 CD로 볼 수 없다.
+현재 SSH helper에는 최초 대상 정보가 고정된 부분이 있고, 로컬 부팅 helper는 9월 23일
+`release-5c581c2-db-v008-20260923`으로 갱신됐다. 서버 현재 값은 다음 배포 전 확인한다.
+두 도구를 범용 자동 CD로 보지 않는다. 새 후보의 release·설정·migration·백업·복귀를 확인한 뒤
+서버 pull 기반 자동화 여부를 별도 설계·검증한다.
 
 ## 확인한 공식 근거
+
+2026-09-24 아래 공식 안내의 이미지 게시·인증·최소 권한·환경 보호 경계를 재확인했다.
+이 자료 확인은 해당 저장소의 보호 규칙·요금제·registry 권한을 조회한 결과가 아니다.
 
 - [GitHub Docker image 게시](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images): GITHUB_TOKEN과 이미지 게시 job.
 - [GHCR 인증](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry): 외부 클라이언트 인증·package 접근.

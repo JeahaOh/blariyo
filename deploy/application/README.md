@@ -1,18 +1,27 @@
 # 앱 운영 설정과 배포
 
 2026-09-20 Lightsail 운영 서버의 정책 발행·Web/Core 기동·공개 연결을 완료했다.
+마지막 [9월 23일 운영 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)는
+`5c581c2` GHCR API/Web image를 사용했고, [DB·콘텐츠 반영](../../worklog/2026-09-23/release/production-db-promotion.md)
+후 release는 `release-5c581c2-db-v008-20260923`, API V008·Collector V006이다.
+아래 준비 도구의 기본 false flag·9월 20일 archive/설정 ID는 **새 입력/최초 설치 문맥**이다.
+9월 23일 운영 기록에서는 관리자 batch 검수만 API/Web에서 활성이고 URL·Discord 접수·자동 수집은 비활성이다.
 [현재 운영 상태](../../docs/operations/current-status.md)와
 [운영 명령](../operations/README.md)을 먼저 확인한다.
 
 아래 절은 새 입력·image·release를 준비하는 단계별 도구 설명이다. 각 준비 도구가 앱을 기동하지
 않는다는 설명과 현재 운영 서버가 이미 기동했다는 사실을 구분한다. 최초 배포를 다시 실행할 필요는 없다.
 
+명령은 저장소 루트에서 Node 24.18.0을 선택한 뒤 실행한다. 아래는 저장소 정본 도구 경로이며,
+과거 `~/task_list` 복사본의 최신성을 가정하지 않는다. image 준비 도구는 현재 홈의
+`.nvm/versions/node/v24.18.0/bin/node`를 사용하므로 다른 장비에서는 이 전제부터 확인한다.
+
 ## Web·Core 운영 입력 묶음
 
 기존 키·연락처를 재입력하지 않고 다음 명령으로 분리한다.
 
 ```sh
-/Users/zeaha/.nvm/versions/node/v24.18.0/bin/node /Users/zeaha/task_list/prepare-blariyo-runtime-config.cjs --create
+node deploy/application/prepare-runtime-config.cjs --create
 ```
 
 [도구](prepare-runtime-config.cjs)는 `~/.config/blariyo`의 입력을 읽고 **새**
@@ -52,14 +61,16 @@ container가 실제로 읽는지 별도 확인한다. 로컬 생성 도구는 �
 
 - 검증된 linux/amd64 image와 digest를 정하고 `BLARIYO_API_IMAGE`·`BLARIYO_WEB_IMAGE`에 지정한다.
   현재 Compose는 server build·자동 pull을 하지 않는다.
-- 확정된 약관·개인정보처리방침을 발행한다. production Core의 정책 필수 검사를 우회하지 않는다.
+- 최초 DB 설치 또는 승인된 새 정책 시행 때만 약관·개인정보처리방침을 발행한다. 일반 앱 재배포에서
+  v0.1 발행을 반복하지 않는다. production Core의 정책 필수 검사는 우회하지 않는다.
 - Nginx의 Web 전용 upstream·Tunnel 연결과 신뢰할 IP 헤더 경계를 검증한다. 이 준비 단계는
   `NUXT_TRUSTED_CLIENT_IP_HEADER`를 비워 두며 조회 수 집계와 실제 client IP는 이후 확인한다.
 - Core readiness·Web liveness 외에 Access 인증을 거친 Web readiness, 관리자 로그인,
   공개 화면·정책·R2 업로드를 확인한다. Web `/health/ready`는 운영에서 인증이 필요하므로
   Docker healthcheck에는 `/health/live`를 사용한다. `healthy`만으로 전체 기능 정상 판정을 하지 않는다.
 
-GA4·카카오 SDK·수집 기능은 비활성 상태다. 이 구성은 설계대로 API→Web을 순차 교체하는
+이 준비 도구가 생성하는 설정에서는 GA4·카카오 SDK·수집 flag가 비활성이다. 실제 9월 23일 운영의
+batch 검수 활성화와 구분한다. 이 구성은 설계대로 API→Web을 순차 교체하는
 방식의 준비이며 블루그린 무중단 배포를 구현한 것이 아니다. 적용 전 server 자원·업무 부하 검증이 필요하다.
 
 격리 검사는 `node deploy/application/test-runtime-config.cjs`로 수행한다. Docker와 기존 검증용
@@ -71,10 +82,11 @@ container만 사용하며 운영 앱을 기동하거나 기존 DB/Tunnel network
 `prepare-runtime-config.cjs`는 manual URL·Discord·batch review의 API/Web flag를 모두 명시적 false로 만든다.
 기존 비공개 입력은 보존하며, 새 사본이 실제 서버의 신뢰 IP 헤더·mount·운영 설정과 일치하는지는 별도 대조한다.
 
-[현재 로컬 후보](../../worklog/2026-09-23/release/candidate.md)와
+[9월 23일 로컬 후보](../../worklog/2026-09-23/release/candidate.md)와
 [호환 검사](test-release-compatibility.py)는 로컬의 두 immutable API image로 일회성 DB·network·미디어를 만들어
 V005→후보 쓰기→이전 앱 복귀→V008→이전 앱 readiness 거부를 검사한다. 원격 DB·SSH·운영 입력을 사용하지 않는다.
-V008에서 이전 앱 503을 정상 복귀로 보고하지 않으며 Core V005 유지와 수집 migration 배포를 구분한다.
+V008에서 이전 앱 503을 정상 복귀로 보고하지 않는다. 해당 검사는 당시 V005 후보의 이력이며
+현재 서버가 V005라는 뜻이 아니다. 현재 V008의 호환 image·설정은 새 후보마다 확인한다.
 
 ## Lightsail amd64 image 준비
 
@@ -83,7 +95,7 @@ image ID를 [격리 Docker 검사](../../scripts/test-docker.ts)에 전달한다
 맥의 Node 24.18.0·저장소 dependencies와 빌드된 API 검사 모듈이 필요하다.
 
 ```sh
-python3 /Users/zeaha/task_list/prepare-blariyo-images.py --build
+python3 deploy/application/prepare-images.py --build
 ```
 
 `~/task_list/blariyo-app-images-<UTC 시각>-<구분값>/`에 다음 결과를 새로 보관한다.
@@ -109,7 +121,7 @@ filesystem·실제 gateway·관리자 로그인은 별도 검사 대상이다.
 기존 묶음은 다음 형태로 다시 확인한다. 이 검사는 Docker 기동·서버 접속 없이 파일만 읽는다.
 
 ```sh
-python3 /Users/zeaha/task_list/prepare-blariyo-images.py --verify /절대경로/blariyo-app-images-생성폴더
+python3 deploy/application/prepare-images.py --verify /절대경로/blariyo-app-images-생성폴더
 ```
 
 `manifest.json`이 없는 중단 폴더는 완료 묶음이 아니다. 재실행은 새 폴더를 만들며 중단 결과도
@@ -132,19 +144,24 @@ Docker image store에 따라 local image ID가 config digest 또는 OCI index/ma
 서버에 보관한다. **앱 서버 기동과 공개 연결은 다음 단계**다. 기본 실행은 로컬 검사만 한다.
 
 ```sh
-python3 /Users/zeaha/task_list/stage-blariyo-application.py --host 13.124.55.99
+python3 deploy/application/stage-from-mac.py --host 13.124.55.99
 ```
 
 확인한 대상에 전송·설치할 때 다음 명령을 실행한다.
 
 ```sh
-python3 /Users/zeaha/task_list/stage-blariyo-application.py --host 13.124.55.99 --stage
+python3 deploy/application/stage-from-mac.py --host 13.124.55.99 --stage
 ```
 
 현재 기본 입력은 `application-config-W8Wwp5`와
 `blariyo-app-images-20260920T005324Z-rhn14v8g`다. 다른 검증 묶음은 `--config`·`--images`의
-절대 경로로 지정한다. 최신 폴더를 추측해 선택하지 않는다. 고정 IP는 추가하지 않았으므로
+절대 경로로 지정한다. **새 배포는 두 옵션을 명시해** 초기 묶음의 자동 재사용을 피한다. 최신 폴더를 추측해 선택하지 않는다. 고정 IP는 추가하지 않았으므로
 서버 공인 IP가 바뀌었다면 실제 IP를 확인한다. SSH host key 검증을 비활성화하지 않는다.
+
+`stage-from-mac.py`는 최초 경계의 고정 설정을 검사한다. 예를 들어 신뢰 IP 헤더가 빈 값이 아니면
+거부하며, 운영 release의 모든 mount·flag·인증 설정을 자동 이관하지 않는다. 현행 설정과 다른
+입력을 검사 통과만을 위해 초기값으로 되돌리지 않는다. 새 후보에 필요한 설정·검사 도구 변경을
+검토하고 [배포 실행서](../../docs/operations/deployment-runbook.md)의 사전 대조를 따른다.
 
 설치 동작:
 
@@ -164,7 +181,7 @@ python3 /Users/zeaha/task_list/stage-blariyo-application.py --host 13.124.55.99 
 서버 기존 파일을 덮어쓰지 않는다. 동일 입력 재실행은 내용·권한·image·secret 읽기를 다시
 확인하고 기존 release를 재사용한다. 중단된 `.incomplete-*`는 700 폴더에 남으며 완료 묶음으로
 취급하지 않는다. 다른 입력은 새 release가 된다. 자동 rollback·DB 삭제·기존 image 정리는 없다.
-약 155MiB archive를 서버에 보관하며 load 공간까지 고려해 여유 공간을 검사한다.
+초기 archive는 약 155MiB였다. 새 묶음의 실제 크기와 load 공간을 기준으로 여유 공간을 검사한다.
 
 이 단계는 `compose up`, DB SQL 변경, 정책 발행, 기존 container 재시작, network 연결,
 Tunnel·DNS·방화벽 변경을 수행하지 않는다. Nginx→Web과 기존 cloudflared의 edge network 연결,
@@ -186,7 +203,7 @@ python3 deploy/application/test-stage.py --docker-probe
 맥에서 다음 명령으로 입력 양식을 만든다. 파일이 이미 있으면 값·권한을 유지한다.
 
 ```sh
-/Users/zeaha/.nvm/versions/node/v24.18.0/bin/node /Users/zeaha/task_list/prepare-blariyo-public-config.cjs --create
+node deploy/application/prepare-public-config.cjs --create
 open -e ~/.config/blariyo/public-contact.json
 ```
 
@@ -209,7 +226,7 @@ Core에는 동일 객체를 `LEGAL_CONFIG` JSON으로 전달해야 한다. 입�
 저장한 뒤 다음 명령으로 검사한다.
 
 ```sh
-/Users/zeaha/.nvm/versions/node/v24.18.0/bin/node /Users/zeaha/task_list/prepare-blariyo-public-config.cjs
+node deploy/application/prepare-public-config.cjs
 ```
 
 [준비 도구](prepare-public-config.cjs)는 파일 소유자·권한·일반 파일·형식을 확인한 후 실제 빌드된
@@ -238,18 +255,19 @@ Core의 `assertLegalConfig`를 호출한다. 빈 값, 미정 문구, 잘못된 �
 연락처 입력은 재사용하며 다음 명령으로 새 로컬 검토본을 만들고 연다.
 
 ```sh
-/Users/zeaha/.nvm/versions/node/v24.18.0/bin/node /Users/zeaha/task_list/prepare-blariyo-policy-review.cjs --open
+node deploy/application/prepare-policy-review.cjs --open
 ```
 
 [생성 도구](prepare-policy-review.cjs)는 기존 파일을 읽고 새 `policy-review-*` 폴더에만 쓴다.
 폴더는 700, HTML은 600이며 외부 리소스·스크립트를 로드하지 않는다. 표시된 미확정 사항과 시행일은
 본문 검토 후 확정한다. 정책 발행·서버 변경을 수행하는 명령이 아니다.
 
-## 현재 운영 배포 (2026-09-20)
+## 최초 운영 배포 (2026-09-20)와 후속 반영
 
-위 준비 절차와 별개로 운영 서버의 확정 정책 발행·앱 기동·Tunnel/DNS 전환을 완료했다.
+위 준비 절차와 별개로 9월 20일 운영 서버의 확정 정책 발행·앱 기동·Tunnel/DNS 전환을 완료했다.
 [배포 기록](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)과
-[운영 실행 안내](../operations/README.md)를 현재 상태로 사용한다.
+[운영 실행 안내](../operations/README.md)를 따른다. 이후 release·DB·공개 수량은
+[현재 운영 상태](../../docs/operations/current-status.md)의 마지막 관측일을 따른다.
 기존 초기 준비 문맥의 "다음 단계"를 현재 미배포 상태로 해석하지 않는다.
 
 - 공개: https://blariyo.com/ (`/meme`으로 이동), `www`는 대표 주소로 308 이동

@@ -1,8 +1,8 @@
 # Spring 수집 서버 상세 설계
 
-- 기준일: 2026-09-08
-- 상태: source·migration·OpenAPI 구현 및 격리 환경 검증 진행. 실제 출처·Discord·운영 전환은 미검증
-- 대상 단계: `M0 수집 보조`
+- 최초 기준일: 2026-09-08; 문서 대조일: 2026-09-24
+- 상태: direct/legacy source·migration·API·로컬 검증 증거 있음. 17출처 로컬 readback과 4출처 실패를 구분하며 원격 writer·Discord·운영 활성화는 미완료
+- 대상 단계: `M0 수집 보조`와 `M0 자동 수집`; 초기 Spring 절은 legacy 호환
 - 상위 계약: [시스템 아키텍처](01-system-architecture.md#spring-collector-transition), [데이터 모델](02-data-model.md#spring-수집-배치-저장-경계), [API 설계](03-api-design.md#spring-수집-서버의-실행-api와-기존-중계)
 - 기능 명세: [M0 수집 보조 개발 명세](../development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md)
 
@@ -13,9 +13,25 @@ Spring Batch·Quartz·Core 후보/lease를 사용하는 아래 초기 절은 leg
 현행 direct 경로의 정본은 이 문서의 Direct batch Discord 계약, §17~18과 2026-09-23 구현 계약이다.
 
 `M0 Core` 공개와 이 서버의 구현·활성화는 분리한다. 이 설계가 확정되어도 Spring source, Core migration,
-OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는 뜻은 아니다. 현재 구현 범위와 실행 결과는 [M0 완료 조건](../../worklog/2026-09-08/core-spring-acceptance/acceptance.md)과 [검증 기록](../../worklog/2026-09-09/core-spring-verification/evidence.md)에서 분리해 관리한다.
+OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는 뜻은 아니다. 현행 구현·잔여 수용은
+[요구사항 대조표](../development-specs/requirements-status.md), 출처별 결과는
+[실행 검증표](../planning/content-collection/reference-site-validation.md)를 따른다.
+[9월 8일 완료 조건](../../worklog/2026-09-08/core-spring-acceptance/acceptance.md)과
+[9월 9일 검증 기록](../../worklog/2026-09-09/core-spring-verification/evidence.md)은 당시 legacy 증거다.
 
 내부 패키지·의존성 규칙과 CLI 배치는 [M0 코드 구조](08-code-structure.md)를 따른다.
+
+### direct 실행의 미충족 통제 — 2026-09-24 코드 대조
+
+- 제품 계약의 robots·Crawl-delay 확인, 재시작해도 유지되는 출처별 일일 요청 상한은 여전히 필요하다.
+  현재 `DirectBatchRunner`·`DirectUrlRunner` → `SourceRequests` 경로에는 robots 조회/판정과 일일 budget 저장 호출이 없다.
+  `RobotsRules`·`DiscoveryFetcher`·Core quota가 존재해도 legacy 경로의 기능을 direct 완료 증거로 사용할 수 없다.
+- direct의 승인 설정·URL allowlist·DNS·요청 간격·실행당 maxPages/maxItems·제한 재시도는 별개 통제다.
+  이 설정을 robots 허용이나 일일 총량 제한의 대체로 보지 않는다. `collectionPolicy` 분류명 자체도 실행 gate가 아니다.
+- redirect 설계 상한은 3회다. 현재 `SourceRequests.fetch`는 최대 5회 요청 순회이므로 성공 경로에서 4회 redirect를 허용할 수 있다.
+  이 차이를 문서상 한도 상향으로 해결하지 않고 구현·경계 테스트 보완 대상으로 남긴다.
+- 수집 운영 활성화 전 [P1-06](../roadmap.md#3-p1--수집-보조자동-수집-마감)에서 direct 단건·목록·queue의
+  공통 통제와 실패 시 외부 요청 차단을 검증한다. 이번 검토는 정적 코드 대조이며 네트워크 호출·코드 수정은 하지 않았다.
 
 ## Direct batch Discord 대기열 계약 (2026-09-23)
 
@@ -101,7 +117,7 @@ Core API --> private preview object storage
 
 이 절의 `Core 후보·lease·reservation` 설명은 기존 수동 URL 호환 collector 경로에만 적용한다. 새 direct batch는
 Core HTTP를 글마다 호출하지 않고 `collect.batch_*`와 batch object store를 직접 사용한다. 출처별 목록 가능 여부는
-[출처별 수집 정책](../planning/content-collection/source-collection-policy.md)의 `HOT_LIST`, `DETAIL_ONLY`, `BLOCKED`,
+[출처별 수집 정책](../planning/content-collection/source-collection-policy.md)의 `HOT_LIST`, `GENERAL_LIST`, `DETAIL_ONLY`, `BLOCKED`,
 `UNVERIFIED`로 결정한다.
 
 모든 진입점은 controller나 listener에서 Job을 직접 만들지 않고 `CollectorRunService.submit()`을 호출한다.
@@ -532,8 +548,9 @@ job 조회에서 아직 정해지지 않은 candidateId와 시작·종료 시각
   shutdown 유예 동안 유지하고 종료 뒤 lease 만료 회수에 맡긴다.
 - graceful shutdown 유예 기본값은 90초다. 완료하지 못한 Job은 restartable `STOPPED`로 남긴다.
 
-macOS 자동 기동은 `launchd` 사용자 LaunchAgent를 기본안으로 확정한다. 이번 설계에서는 plist나 설치
-script를 만들지 않는다. 구현 수용 조건은 RunAtLoad, crash 재시작 backoff, 고정 working directory,
+macOS legacy 자동 기동은 `launchd` 사용자 LaunchAgent를 기본안으로 정했다. 현재 렌더러는
+`apps/collector/ops/render-launchd.py`에 있으며 파일 존재와 실제 설치·재시작 검증은 별개다.
+구현 수용 조건은 RunAtLoad, crash 재시작 backoff, 고정 working directory,
 JDK·jar 절대 경로, `umask 077`, stdout/stderr rotation, Keychain 접근 가능한 전용 OS 계정, 종료 시 SIGTERM
 90초 전달이다. secret과 token을 plist argument나 environment에 넣지 않는다. PC·OS 계정과 실제 설치
 경로는 운영자가 제공해야 한다.
@@ -630,17 +647,18 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 - 실제 실행 PC, 전용 macOS 계정, 설치 경로, 선택 JDK 배포판의 라이선스·업데이트 운영
 - Discord Application·guild·channel·user·role, bot token, 보고 webhook과 Core collector token 발급·회전
 - 실제 출처 URL·허용 path·이용 조건·robots 확인일·parser selector·User-Agent 연락처·출처별 interval·daily limit
-- Spring source, Core/local migration, OpenAPI, fixture·contract·integration·fault test, build·SBOM·runtime
+- source·Core/local migration·API·fixture/격리 테스트의 존재와 현재 변경분 검증 구분; 운영 SBOM·runtime·장애 복구 인수
 - 실제 BFF/Core/R2/Discord/출처 연동과 운영자 go-live 승인
 
-위 실제 값은 문서에 secret 원문으로 기록하지 않는다. 구현 증거가 없고 주 검수가 진행 중이므로 현재
-상태는 `설계 보완안`이며 `구현 완료`나 `수집 활성화 가능`이 아니다.
+위 실제 값은 문서에 secret 원문으로 기록하지 않는다. 구현·로컬 증거가 있더라도 외부 입력·남은 direct 통제·
+원격 writer·Discord·운영 인수가 미완료이므로 `수집 활성화 가능`으로 판정하지 않는다.
 
 
 ## 16. 원문 수집과 별도 PC 실행 확장
 
 2026-09-20 사용자 결정에 따른 설계. 문서 작성과 구현·실제 Discord·원격 PC 운영 검증은 별도다.
-기존 metadata 모드와 여섯 Batch Step·lease·quota·spool·멱등 계약을 유지하면서 아래 계약을 추가한다.
+아래는 당시 Core candidate 원문 확장 계약이다. 여섯 Batch Step·lease·quota·spool은 legacy에 한정한다.
+현행 direct는 §18과 9월 23일 queue/검수·승격 계약을 적용한다.
 
 ### 실행과 URL 입력
 
@@ -655,8 +673,8 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
   반환 candidateId로 `CollectorRunService.submit(REST, ...)`를 호출한다. 응답은 candidateId·jobRequestId·state다.
   응답 유실은 같은 key/같은 URL로 재전송한다. 다른 URL은 Core receipt가 409로 거부한다.
   Core 접수 후 로컬 queue 기록 전 중단도 같은 key replay로 복구한다. 새 key의 같은 URL은 기존 중복 계약을 따른다.
-- 기존 수동 Discord 경로는 Core 후보 queue 호환을 유지한다. direct batch Discord 경로는 확인 후 `collect.batch_run`과
-  `collect.batch_item(DISCOVERED)`을 직접 만든다. 수집 PC가 꺼지면 batch checkpoint 기준으로 재시작한다.
+- 기존 수동 Discord 경로는 Core 후보 queue 호환을 유지한다. 현행 direct는 문서 앞의 9월 23일 계약에 따라
+  확인을 `batch_queue` request로 확정하고 worker가 새 run attempt를 만든다. 초기 run/item 직접 생성과 구분한다.
 
 ### 원문 parser와 네트워크 경계
 
@@ -672,10 +690,14 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 
 ### Result와 후보 보관
 
+- **2026-09-24 미해결 차이:** 아래 1000블록은 OpenAPI·API 검증 계약이다. V006의 실제
+  `candidate.content_blocks` DB CHECK는 1~40이라 41~1000블록 저장과 일치하지 않는다.
+  legacy 재활성화 전에 후속 migration·경계 테스트로 정합성을 맞춰야 한다.
+  [데이터 모델의 근거](02-data-model.md#원문-수집-후보-확장-2026-09-20)와 P1-01에서 추적하며 direct batch 저장과 구분한다.
 - 성공 result의 optional `contentBlocks`는 원문 모드의 표시이며 1~1000개다. 없으면 기존 metadata 모드다.
   TEXT는 `{type:TEXT,text}`(trim 후 1~20,000자), IMAGE는 `{type:IMAGE,imagePosition,alt}`(1~20, alt 0~300자),
   LINK는 `{type:LINK,url,label}`(HTTP(S) URL 2,048자 이하, label 0~300자)다. LINK는 서버의 fetch 명령이 아니다.
-- imageCandidates는 direct batch 원문 모드에서 0~200개, metadata 모드에서 기존 1~20개다. imagePosition은 연속된 후보
+- 이 legacy result 계약은 이미지 최대 20개다. 현행 direct 원문은 별도 저장 계약에서 0~200개를 지원한다. imagePosition은 연속된 후보
   position을 빠짐없이 정확히 한 번씩 참조해야 한다. source title·본문은 요약하거나 한도에 맞춰 자르지 않는다.
 - `collect.candidate.content_blocks JSONB NULL`에 저장한다. NULL은 legacy/PENDING/실패/반려 상태이며
   result metadata·image row·digest·NEW 전환과 같은 transaction에서 저장한다. retry·reject 시 비운다.
@@ -693,7 +715,8 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 - contentBlocks가 있으면 이미지 0건도 허용한다. 모든 참조 이미지의 선택을 요구하며 leadText는 거부한다.
   metadata 후보는 기존 이미지 선택·leadText 방식을 유지한다. 부분 파일 실패는 NEW를 유지하고 초안을 만들지 않는다.
 - 새 migration V006은 additive SQL로 적용하며 기존 25건 게시글·원문 보관 schema를 변경하지 않는다.
-  V006은 원문 보존 migration이다. 현재 수집 기능과 Spring transition readiness는 §17의 V007을 요구한다. 수집 기능이 꺼진 Core는 V003~V007의 호환 범위를 유지한다.
+  V006은 당시 원문 보존 migration이며 뒤의 V007은 legacy discovery 계약이다. 현재 API V008·Collector V006과
+  readiness/rollback 호환성은 [운영 상태](../operations/current-status.md)를 따른다. 과거 V003~V007 범위를 현재 운영 호환으로 확대하지 않는다.
 
 ### 수용 검증
 
@@ -719,33 +742,34 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 
 ## 17. Hot/Top discovery와 출처 registry (2026-09-21)
 
-이번 개발 범위는 planning의 21개 출처 확장이다. 기존 여섯 Step은 상세 수집 pipeline으로 유지한다.
+이 개발 범위는 planning의 21개 출처 확장이다. 현행 direct는 공통 runner와 사이트별 parser를 사용하며,
+기존 여섯 Step은 legacy pipeline에만 남아 있다.
 `source key`는 arcalive 같은 안정된 문자열이며 Core의 숫자 `sourceId`와 다르다. registry는 host와
 선택 coreSourceId를 대조하고 모호한 중복 설정을 거부한다. 이름만 등록한 출처는 BLOCKED이며 METADATA로 대체하지 않는다.
 
-- source registry → site list adapter → canonical/post key 중복 제거 → 공통 후보 접수 → 기존 상세 pipeline.
+- source registry → site list adapter → canonical/post key 중복 제거 → direct 상세 parser → DB/raw/media/report 저장.
 - registry는 `source/sites/`의 사이트별 adapter를 선택한다. 21개 adapter·상세 parser와 목록을
   지원하는 19개 parser를 독립 파일로 분리했다. 구조·의존 규칙·검증 근거는 [사이트별 모듈 계약](08-code-structure.md#collector-site-modules)을 따른다.
   DOM 순서 보존기는 공유하지만 본문 selector는 사이트별로 고정한다. 목록 미지원 사이트는 상세 전용으로 유지하며
   목록 접근 성공을 상세 수집 성공으로 간주하지 않는다. 실측 selector·chart URL·본문/이미지·canonical·post key·fixture는
   planning의 검증표와 설정에 기록한다.
-- CLI: `bin/blariyo-collector batch --source <key> --chart hot --max-pages 2 --max-items 20 --since 24h --dry-run|--write-db`.
+- CLI: `bin/blariyo-collector batch --source <key> --max-pages <source 한도 이하> --max-items <source 한도 이하> --since 24h --dry-run|--write-db`.
+  `--chart` 생략 시 defaultChart를 사용한다. Hot은 hot, 일반 목록은 latest이며 두 실행 모드 중 하나만 선택한다.
 - DETAIL_ONLY 또는 Discord/manual URL 경로는 목록 discovery 없이 단일 상세 URL만 처리한다. CLI는
   `bin/blariyo-collector collect-url --source <key> --url <detail-url> --dry-run|--write-db`를 사용한다.
   이 경로도 Core API를 글마다 호출하지 않고 `collect.batch_run`, `collect.batch_item`, `collect.batch_media`와
-  `collect/raw/*`, `collect/media/*`, `collect/report/*` object prefix를 직접 사용한다. `theqoo`는 fixture 기반으로
-  이 write path를 검증했지만, live URL·운영 S3/R2·Discord Gateway E2E는 별도 검증 전까지 완료로 표시하지 않는다.
+  `collect/raw/*`, `collect/media/*`, `collect/report/*` object prefix를 직접 사용한다. 17출처의 live URL→로컬 DB/object
+  readback과 4출처의 실패 기록은 검증표에 있다. 원격 batch writer·Discord Gateway E2E는 별도다.
   Java 25 jar를 macOS·PowerShell·Docker Linux에서 공통 실행한다. `COLLECTOR_SOURCES_FILE`,
   `COLLECTOR_CONFIG_FILE`, `COLLECTOR_JAR`로 경로를 주입하고 secret은 기존 전용 파일 backend를 사용한다.
 - max-pages 1~10, max-items 1~100, since 1h~720h, interval 최소 10초·최대 1시간. 출처 설정이 더 엄격하면 낮출 수 없다.
-  게시 시각을 확정하지 못하면 since 필터를 통과시키지 않는다. 다음 페이지는 실제 목록의 허용 pagination 링크만 따른다.
-- robots는 query·wildcard·가장 구체적인 User-agent와 Allow/Disallow를 평가한다. HTML challenge·미확인은 차단한다.
-  robots가 지정한 Crawl-delay와 설정 interval 중 큰 값을 적용한다. 403·429·robots 금지 시 출처 실행을 즉시 멈춘다.
-  목록 redirect는 변경된 base URL을 검토할 때까지 SOURCE_REDIRECT_REVIEW_REQUIRED로 차단한다.
-  목록 timeout/5xx는 최대 2회만 추가 재시도(1초·2초 backoff와 최소 간격 적용), parser 오류는 자동 재시도하지 않는다.
-- 목록 요청도 Core 전역 source budget에서 예약한다. `discovery:true` 예약은 candidateId/lockVersion 없이
+  게시 시각 미확인은 INCLUDE_UNKNOWN/REQUIRE_KNOWN에 따라 포함·제외하고 report에 구분한다.
+  다음 페이지는 실제 목록의 허용 pagination 링크만 따른다.
+- robots·Crawl-delay·일일 budget은 위 미충족 통제에 따라 보완이 필요하다. 현행 direct의 재시도·redirect·site stop은
+  `SourceRequests`와 뒤의 9월 23일 구현 계약을 따른다. legacy의 목록 redirect 전면 차단을 direct 구현으로 표시하지 않는다.
+- legacy 목록 요청만 Core 전역 source budget에서 예약한다. `discovery:true` 예약은 candidateId/lockVersion 없이
   ROBOTS/LIST/REDIRECT만 허용하고, V007의 `source_discovery_policy.enabled`를 확인한다. 후보는 LIST_CRAWL로 생성한다.
-  실행 모드는 검증 fixture와 실제 출처를 구분하며, 로컬 카운터로 Core quota를 우회하지 않는다.
+  현행 direct는 이 Core API를 호출하지 않는다. direct 소유 일일 상한을 구현하기 전 제한이 보장된 것으로 표시하지 않는다.
 - 재수집 기본 skip. update는 기존 승인/반려 후보를 덮어쓰지 않는 version·검수 계약을 추가한 뒤 제공하며,
   미구현 update 옵션을 성공으로 받지 않는다. canonical과 source post key가 다른 게시물을 합치면 안 된다.
 - 본문 이미지는 `img[src]`, `data-src`, `data-original`, `data-original-src`, `data-lazy-src`,
@@ -759,7 +783,7 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
   보존한다. 화면의 기존 공식 임베드 allowlist를 그대로 적용한다.
 - JSON/JSONL 보고는 run ID·출처 key·상태·개수·일반 오류 코드·candidate/job ID만 포함한다.
   제목·본문·원문 URL·secret·쿠키·내부 경로를 일반 로그로 출력하지 않는다.
-- 성공은 목록→상세→본문/이미지/SNS→Core API 저장→개발 DB readback으로 판정한다.
+- 성공은 목록→상세→본문/이미지/첨부/SNS→batch DB/object 저장→독립 readback으로 판정한다.
   실제 Discord Gateway 연결·확인 interaction 검증은 fixture 시험과 별도다.
 
 ### V007 저장 계약과 당시 구현 한계 — legacy 경로
@@ -783,21 +807,23 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 
 기존 `CandidateIntake`·`CoreClient` 경로는 수동 URL 호환 경로로 남아 있지만 batch 기본 실행 경로가 아니다. batch는
 외부 목록·상세 GET, parser, dedup, Discord 확인 입력, PostgreSQL `collect.batch_*` 쓰기, object store 업로드와 report를
-직접 소유한다. 글마다 Core API를 호출하거나 Core quota/lease를 중계하지 않는다. `DirectBatchRunner`의 write 경로는
-`collect.batch_run`, `batch_item`, `batch_media`, `batch_failure`, `batch_report`, `batch_checkpoint`만 변경한다.
+직접 소유한다. 글마다 Core API를 호출하거나 Core quota/lease를 중계하지 않는다. runner는 batch 소유 source/run/item/media/
+failure/report/checkpoint를 기록하고 Discord 확인·queue는 별도 batch 소유 테이블에서 처리한다.
 
 API 애플리케이션 role은 이 batch 테이블에 SELECT만 가지며, `batch-items/:itemId`는 조회 전용이다. 운영자 검수와
 승인된 결과의 content 초안 승격은 API가 소유한다. batch는 `content.*`와 공개 상태를 변경하지 않는다. batch migration은
-`collector-v002.sql`로 직접 적용되며 기존 API V001~V007 migration과 독립적이다. 운영 DB에서는 batch role에 collect.batch*
-쓰기, API role에 SELECT만 부여한다.
+`collector-v002.sql`에서 시작해 현재 V006까지 확장됐으며 API V008 검수 테이블과 독립적이다.
+`collect.batch*` 전체를 일괄 허용하지 않고 명시적인 소유권 목록으로 권한을 부여한다.
 
 object store는 `BatchObjectStore`가 `collect/raw`, `collect/media`, `collect/report` prefix만 허용한다. 환경 변수로
-로컬 readback 디렉터리 또는 운영자가 제공한 S3/R2 presigned PUT URL template을 선택한다. DB row는 object key·SHA-256·MIME·size를
+로컬 readback 디렉터리, 전용 S3/R2 서명 credential 또는 presigned PUT URL template을 선택한다. DB row는 object key·SHA-256·MIME·size를
 기록하고 binary를 PostgreSQL에 넣지 않는다. upload 후 DB insert가 실패하면 실행은 실패로 남기고 object cleanup/retry 작업이
-필요하다. 현재 구현은 media 원격 binary 다운로드와 실제 S3/R2 readback을 아직 완료하지 않았으므로 운영 성공으로 표시하지 않는다.
+필요하다. 원문 media 다운로드·로컬 DB/object readback은 검증 기록이 있다. 전용 원격 batch writer의 실실행과
+독립 GET/hash 검증은 미완료이며, PUT 뒤 HEAD 성공이나 기존 데이터 R2 이전으로 이를 대체하지 않는다.
 
-Discord `/collect url`의 확인 전 단계는 암호화 spool과 confirmation만 만든다. 확인 버튼 이후 `BatchStore.queueManual`이
-`collect.batch_run`과 `collect.batch_item(DISCOVERED)`을 직접 만들며 API 후보·예약·결과 endpoint를 호출하지 않는다.
+Discord `/collect url`의 확인 전 단계는 `BatchDiscordIntake`가 `BatchQueueStore`에 confirmation만 저장하고 외부 fetch하지 않는다.
+확인 transaction에서 queue request를 만들고 worker가 run attempt를 생성한다. 기존 `BatchStore.queueManual`을
+현행 확인 경로로 해석하지 않으며 API 후보·예약·결과 endpoint를 호출하지 않는다.
 Gateway 자체 연결·상호작용은 별도 운영 증거로 기록하며, 테스트에서 Gateway를 대신 표시하지 않는다.
 
 ## 2026-09-23 direct batch 검수·승격 구현 계약

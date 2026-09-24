@@ -1,0 +1,96 @@
+{
+  "scope": "Syntax and direct local $ref targets only; not API conformance or runtime proof",
+  "results": [
+    {
+      "path": "docs/ai/skills/blariyo-plan-to-development-spec/agents/openai.yaml",
+      "sha256": "a366c93e329692f4d77907669d0485a541a5fbe37af79302291fc00816b3702d",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml",
+      "sha256": "79acc1527733b70d317d6b5f1af7cc6cdf96b4eab6186a7b8d81a27e5076e5a6",
+      "localRefs": 263,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/development-specs/m0-core/openapi/m0-core.yaml",
+      "sha256": "6fca891507082f908bb9b4f0ed2d17f6823ff97eafcdd84fe59bb2fd0f28a73a",
+      "localRefs": 260,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/migration/contract-baseline.json",
+      "sha256": "b889a0f38df2a2d5378699dbd944b7aefc199191f91222d1d51d4a6e616b83fa",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/migration/contract-evolution.json",
+      "sha256": "b9a70dc57932adc98180f5798e97727680b433dcc61788618795d0aeef5ff86b",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-deploy-precheck.json",
+      "sha256": "8ffded76865a54db13f19d383ac8578b3cb4a095875a06ade221f50fd9af9bc1",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-gateway-cache-after.json",
+      "sha256": "24aec13a2f8d8ec72ef1419198c2aa67acb6ea67ed4961959104fcea5692d837",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-origin-static-before.json",
+      "sha256": "cf806f7ba0b8eab633487dc2b9d54a5a4303d908a010f496fd97e3e118119c5c",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-public-static-before.json",
+      "sha256": "9701f5219dbb2faf285740c08d35430a701b8a7fb9abaaaccf31617ce7ddf2ec",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-server-final.json",
+      "sha256": "0db5c87e9d374dbe7d252dfc49d1fa70ec79f47897760d65c6fd8294fcf87c7f",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-static-cache.json",
+      "sha256": "2332de9e437c706ab55329bb215c39dd09c05fa1564c55694475396291d797d4",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-static-inventory.json",
+      "sha256": "bbcaa1831a11d676546c7656426c385accadb14ba4178df4afa9964fcaae6575",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-static-retry-after.json",
+      "sha256": "2d54cc033d99ecf3461143c0bea5ec2a7771368c1452767015f653725c597ef8",
+      "localRefs": 0,
+      "externalRefs": [],
+      "errors": []
+    }
+  ]
+}

@@ -67,11 +67,11 @@ health·UID·memory·port·network를 확인한다. 기존 파일 내용이 다�
 운영 설정·정책 DB·기존 Tunnel route는 변경하지 않는다. 앱이 이미 실행 중인 환경은 재검토하도록 거부한다.
 
 최초 준비 단계에서 Nginx healthy, Web created(미기동)를 확인했고, 이후 TASK-19에서 앱 기동과 공개 연결을 완료했다.
-완료한 application release의 설정·image는 유지한다. 다음 작업은 정책 발행 조건을
-충족한 앱 기동과 Nginx→Web 내부 응답 확인이다.
-그 뒤 기존 cloudflared를 `blariyo-app_edge`에 연결하고 Tunnel의 서비스 주소를 `http://nginx:8080`으로
-전환한다. 현재 대시보드 route를 읽어 대조하고, 기존 주소를 기록한 뒤 적용해야 한다.
-이 문서의 주소는 **예정값**이며 실제 Tunnel 설정을 조회하거나 변경한 결과가 아니다.
+당시에는 정책 발행 조건을 충족한 앱 기동·Nginx→Web 내부 응답을 확인한 뒤 cloudflared를
+`blariyo-app_edge`에 연결하고 Tunnel 서비스 주소를 `http://nginx:8080`으로 전환했다.
+이 연결은 최초 설치 후속 기록이며 재배포마다 수행하는 작업이 아니다. 현재 구성과 남은 검증은
+[운영 상태](../../docs/operations/current-status.md)를 따른다. 향후 route 변경이 필요하면 당시 주소를
+그대로 적용하지 말고 대시보드의 현재 route와 복귀 주소부터 확인한다.
 
 공개 후 실제 Access 허용/거부·정책 화면·이미지·IP 처리와 2GB 서버 부하를 확인한다.
 Nginx 자체의 healthy 상태를 전체 앱 정상 또는 공개 서비스 준비 완료로 사용하지 않는다.

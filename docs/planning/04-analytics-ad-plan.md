@@ -2,7 +2,7 @@
 
 - 문서 상태: M0 GA4·게시글 조회 수·후속 광고 요구사항 정본
 - 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-03
+- 정합성 검토일: 2026-09-24 (동의·분석 소스와 Google 기술 안내 대조)
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
 
 ## 1. 화면 기준
@@ -32,8 +32,10 @@
 - GA4 보고서는 동의·브라우저 차단·처리 지연의 영향을 받으므로 공개 조회 수, 광고 정산,
   권리 판단과 사업 KPI의 단독 근거로 사용하지 않는다.
 
-구현 시 Google의 [Consent Mode 개요](https://developers.google.com/tag-platform/security/concepts/consent-mode?hl=en)와
-[GA4 데이터 최신성](https://support.google.com/analytics/answer/11198161?hl=en)을 다시 확인한다.
+2026-09-24 Google의 [Consent Mode 개요](https://developers.google.com/tag-platform/security/concepts/consent-mode)에서
+동의 전 tag 로드를 막는 기본 방식과 cookieless ping을 사용하는 고급 방식을 구분해 확인했다.
+실제 운영 활성화 전에는 계약·보관 설정과 [GA4 데이터 최신성](https://support.google.com/analytics/answer/11198161?hl=en)을
+다시 확인한다. 소스 대조는 운영 GA4 속성·network 검증을 대신하지 않는다.
 
 ## 3. 게시글 조회 수
 
@@ -72,6 +74,10 @@ GA4를 활성화한 환경에서 분석 동의가 있을 때만 다음 이벤트
 
 GA4는 기본적으로 문서 제목과 현재 URL을 page view에 넣으므로 설정 생략은 허용하지 않는다. [Google의 page view 측정 안내](https://developers.google.com/analytics/devguides/collection/ga4/views)를 근거로 하며, 실제 network에서 금지값 누출·자동 중복 이벤트가 없는지 확인하기 전에는 운영 활성화하지 않는다. SDK가 생성하는 기술 필드까지 네 custom parameter로 제한된다는 의미는 아니다.
 
+2026-09-24 위 공식 안내를 재확인했다. `send_page_view: false`와 별도로 속성의 향상된 측정에서
+브라우저 history 변경 자동 page view도 꺼야 한다. 현재 adapter는 수동 이벤트만 구성하지만
+운영 속성 설정이 완료됐다는 증거는 아니다.
+
 ## 5. 동의 UI
 
 - M0 Core에 아래 선택 UI를 구현하되, 동의가 필요한 선택 기능이 모두 비활성이면 배너를 표시하지 않는다.
@@ -88,6 +94,10 @@ GA4는 기본적으로 문서 제목과 현재 URL을 page view에 넣으므로 
 - 동의 철회 후 관련 외부 tag와 저장값을 제거한다.
 - 분석 동의 전에는 Google tag를 로드하지 않고 consent mode의 cookieless ping을 포함한 Google
   Analytics 요청을 전송하지 않는다.
+
+현행 M0 구현의 선택 범위는 분석 하나다. `blariyo_consent`는 `version=2`, `scope=analytics`,
+`ads=false`와 선택 시각을 localStorage에 저장하고 1년 뒤 만료한다. 광고 독립 선택은 후속 계약이며
+현재 광고 checkbox를 제공하지 않는다. 저장 실패 시 동의 성공으로 처리하지 않고 분석을 끈다.
 
 ## 6. 광고 위치
 
@@ -131,7 +141,9 @@ GA4는 기본적으로 문서 제목과 현재 URL을 page view에 넣으므로 
 
 ## 8. 광고 이벤트
 
-광고 기능을 실제로 시작한 뒤에만 기록한다.
+광고 기능을 실제로 시작한 뒤 검토할 후보 이벤트다. 현재 GA4 adapter에 추가하거나 송신하지 않는다.
+별도 수신처·보존·동의·필드 최소화 계약은 `(미정)`이며, 표의 `postId`는 §4 GA4 금지값이므로
+GA4에 그대로 전송할 수 없다. 활성화 전에 해당 필드의 필요성과 처리 방식을 확정한다.
 
 | 이벤트 | 필드 |
 | --- | --- |
@@ -157,11 +169,18 @@ GA4는 기본적으로 문서 제목과 현재 URL을 page view에 넣으므로 
 - 후보 수집량, 승격·반려 수, 실패와 차단은 내부 운영 로그·지표로만 본다.
 - 후보 제목, 본문, 원문 URL을 GA4나 제품 이벤트에 보내지 않는다.
 - 수집 실행 주체는 초안·예약·발행 권한을 갖지 않는다.
-- 운영자가 확인한 뒤 이미지 저장, 초안, 즉시 또는 예약 발행을 실행한다.
+- direct batch는 검수 전에 이미지·첨부를 비공개 collect 저장소에 저장한다. 운영자가 승인한 뒤
+  이미지 검증·content private 사본 생성·초안 승격을 실행하고, 즉시 또는 예약 발행은 별도로 수행한다.
 - 출처별 요청 수, 오류율, 차단 응답은 출처 단위로 집계해 상한과 자동 비활성 판단에 사용한다.
 - 수집 지표를 GA4로 보내거나 별도 제품 이용 분석 DB에 저장하지 않는다.
 
 ## 11. Feature flag 제안
+
+현재 사용하는 실제 설정 key와 후속 제안을 구분한다. 아래 목록만 복사해 현행 운영 설정을 만들지
+않으며 배포 입력은 [환경설정 안내](../operations/environment-configuration.md)를 따른다.
+현행 direct 검수에는 API `COLLECT_BATCH_REVIEW_ENABLED`와 Web `NUXT_COLLECT_BATCH_REVIEW_ENABLED`가
+추가로 필요하다. 9월 23일 운영 관측에서 두 검수 flag는 ON이며 URL·Discord·자동 수집은 OFF다.
+direct 목록/단건/queue의 실행 옵션과 source 설정은 legacy `COLLECT_LIST_CRAWL_ENABLED` 하나로 제어되지 않는다.
 
 ```text
 NUXT_PUBLIC_GA4_ENABLED=false
@@ -184,8 +203,8 @@ AFFILIATE_ENABLED=false
 `COLLECT_MANUAL_URL_ENABLED`와 `COLLECT_DISCORD_COMMAND_ENABLED`는 `M0 수집 보조` gate가 끝난 뒤에만
 켠다. 두 경로 모두 입력된 단일 상세 페이지 1건만 처리하고 목록·feed·pagination·scheduler를
 호출하지 않는다. `COLLECT_LIST_CRAWL_ENABLED`는 후속 `M0 자동 수집` 전역 차단 스위치이며, 자동
-수집 단계 도입 전까지 `false`로 유지한다. `M0 Core` production의 수집 관련 flag 기본값은 모두
-`false`다.
+수집 단계 도입 전까지 `false`로 유지한다. 이 스위치는 legacy 목록 수집 경로의 설정이며
+direct 실행 승인과 동일하지 않다. 수집 관련 배포 예시의 기본값은 `false`이고 실제 관측과 구분한다.
 
 GA4 Measurement ID·속성 보관 설정·국외이전 고지·실제 Google 계약 법인·Google tag/CSP domain 중
 하나라도 확정되지 않으면 M0 Core production에서 `NUXT_PUBLIC_GA4_ENABLED=false`를 유지한다.

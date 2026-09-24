@@ -5,6 +5,7 @@
 - 제품 정본: [회원·익게 제품 계약](../planning/08-member-community-plan.md)
 - 공통 계약: [아키텍처](01-system-architecture.md), [M0 데이터 모델](02-data-model.md), [API 공통 응답](03-api-design.md), [보안·운영](05-security-operations.md)
 - 미검증: source, migration, machine-readable OpenAPI, 계약·DB·브라우저 테스트, 실제 provider 설정
+- 2026-09-24 저장소 대조: 현재 API feature·migration·Web page·공유 OpenAPI에서 아래 M1/M1.5 구현은 확인되지 않았다. 이 문서는 후속 설계로 유지한다. provider 공식 자료의 확인일은 아래 9월 8일이며 이번에 최신 지원 여부를 재확인한 것은 아니다.
 
 이 문서는 M0 공통 계약을 확장하는 M1·M1.5 전용 정본이다. 기존 M0 endpoint와 YAML에 회원·익게
 필드를 조용히 추가하지 않는다. 아래 명시한 확장은 각 단계 migration·공유 OpenAPI에 반영하고
@@ -121,7 +122,9 @@ FK 삭제는 기본 RESTRICT이며 아래 삭제 절차에서 명시적으로 �
 | `identity.identity_guard` | id; provider VARCHAR(10); subject_hash BYTEA(32); hash_key_version INT; generation UUID; status VARCHAR(16) ACTIVE/DISCONNECTING/QUARANTINED; blocked_until?; lock_version | UNIQUE(provider,subject_hash); 계정/연동 삭제와 독립, 종료·보존은 아래 해제 경합 규칙 |
 | `identity.request_receipt` | id; account_id? FK; owner_hash BYTEA(32); scope VARCHAR(120); request_key VARCHAR(128); request_hash BYTEA(32); resource_id BIGINT?; result JSONB; expires_at | UNIQUE(owner_hash,scope,request_key); 24시간, token/subject/본문 미포함 |
 
-HMAC은 subject의 안정 조회용이며 암호화 대체가 아니다. 암호문은 AEAD와 entity/열을 AAD로 사용한다. 모든 BYTEA(32) 표기는 실제 PostgreSQL BYTEA+octet_length=32 CHECK를 뜻한다.
+HMAC은 subject의 안정 조회용이며 암호화 대체가 아니다. 암호문은 AEAD를 사용하고 AAD는
+[내부 인증 자료 계약](#identity-material)의 provider·자료유형·contextId·keyVersion 배열이다.
+가입 전 임시 자료를 옮길 수 있도록 row ID를 AAD로 쓰지 않는다. 모든 BYTEA(32) 표기는 실제 PostgreSQL BYTEA+octet_length=32 CHECK를 뜻한다.
 키는 DB·backup과 분리한다. `key_version`은 암호문 키, `hash_key_version`은 조회용 HMAC 키다.
 원문을 삭제한 guard hash는 재계산하지 않는다. 키 교체는 [HMAC 교체 계약](#hash-key-rotation)을 따른다.
 DB unique는 유지하지만 서로 다른 키의 hash 사이 중복 방지는 모든 조회 키의 후보 대조·잠금으로 보완한다.
@@ -403,7 +406,7 @@ Apple consent-revoked도 아래 해제 경합 규칙의 현재 세대 확인 후
 
 - M1: identity·rate bucket 테이블·SIGNUP_PRIVACY 정책 유형·system:privacy-worker 감사 CHECK·인증 secret mount·cron 추가. M0 테이블 삭제 없음.
 - M1.5: community/moderation·USER board seed·회원 탈퇴 콘텐츠 처리 확장.
-- 실제 migration 번호는 구현 worktree의 최신 번호 다음으로 할당한다. 이 docs 브랜치에서 번호를 추정하지 않는다.
+- 실제 migration 번호는 구현 착수 시 최신 번호 다음으로 할당한다. 이 후속 설계에서 미래 번호를 예약하지 않는다.
 - app/backup role에 단계별 schema USAGE·table/sequence 최소 권한을 추가하며 app DDL 권한은 주지 않는다.
 - `MEMBER_ENABLED`는 회원 기능 신규 제공(가입·새 연결)을, `ACCOUNT_ACCESS_ENABLED`는 기존 계정
   로그인·재인증·관리 접근을, `COMMUNITY_ENABLED`는 익게 신규 참여·공개를 제어한다. 신규 배포 기본값은 모두 false다.

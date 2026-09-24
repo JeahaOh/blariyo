@@ -1,8 +1,9 @@
 # 수집·운영 테스트 케이스
 
 [구현 안내](README.md)의 공통 규칙을 따른다. 신규 ID는 전부 **미실행**이다.
-Core는 수집 상태·허용량을 관리하고, 외부 페이지 요청은 운영자 로컬 Spring Collector가 수행한다.
+COL-01~05와 OPS-03은 legacy Core 제출 프로토콜을 다룬다. 현행 direct는 batch가 같은 database의 전용 collect 테이블/R2에 기록하고 Core는 관리자 검수·선택 초안 승격을 맡는다. direct에 legacy quota/lease 시험 결과를 승계하지 않는다.
 테스트에서는 실제 출처·Discord로 요청하지 않고 합성 HTTP 서버와 합성 이벤트를 사용한다.
+2026-09-24에 direct6개 케이스를 추가했다. 기존 자동화의 부분 실행 근거는 별도이며 아래 ID별 전체 입력 상태는 미실행이다.
 
 ## 수집 — COL
 
@@ -97,7 +98,7 @@ Core는 수집 상태·허용량을 관리하고, 외부 페이지 요청은 운
 - 실행: 빈 DB에 migration→schema dump. 기존 DB에는 Nest 시작·migration 재실행→다시 dump.
 - 기대: 승인된 원래 schema와 일치. 기존 데이터·감사값·migration ledger/checksum 불변.
   `synchronize`, `dropSchema`, `migrationsRun`은 false다.
-- 추가 검증: 17 Entity의 224컬럼·15FK는 현재 M0 기준값이다. 실제 relation join과 제약도 실행한다.
+- 추가 검증: 17 Entity·224컬럼·15FK는 9월 9일 전환 기준선이다. 현재 `database.integration.test.ts`는 Entity20개·FK17개 및 실제 컬럼 catalog 대조를 사용한다. Collector 소유 batch 테이블 전체가 API Entity로 매핑돼 있다는 뜻은 아니다. 실제 relation join과 제약도 실행한다.
   checksum 불일치는 실패해야 하며 잘못된 파일에 맞춰 ledger를 고치지 않는다.
 - 주의: 미래에 승인된 migration이 추가되면 근거와 함께 기준값을 갱신한다. 숫자 고정을 영구 요구사항으로 삼지 않는다.
 - 참고: [database](../../apps/api/test/database.integration.test.ts),
@@ -165,10 +166,59 @@ Core는 수집 상태·허용량을 관리하고, 외부 페이지 요청은 운
 - 참고: [architecture](../../tests/architecture.test.ts),
   [API architecture](../../apps/api/test/architecture.service.test.ts),
   [종합 runner](../../scripts/verify-migration.ts), [통합 runner](../../scripts/test-nest-integration.ts).
+  종합 runner는 과거 전환 전용 경계다. 후속 계약은 baseline·contract-evolution의 사유/해시를 함께 대조하며 현재 전체 실행은 README의 기능별 검사를 따른다.
+
+## 직접 저장·검수 — DIR
+
+### DIR-01 — batch writer와 API의 DB/object 권한을 분리한다
+
+- **P0 / 기존 확장 / 실제 DB role + 격리 object store**.
+- 준비: Collector migration과 API V008을 적용한 폐기 DB, batch/API 제한 role, 별도 private/public 저장소.
+- 실행: batch의 결과 저장, API의 조회·review/receipt 갱신, 각 role의 상대 소유 테이블 쓰기와 공개 영역 쓰기를 시도한다.
+- 기대: batch는 content/legal/ops·API 검수 소유 테이블을 수정하지 못한다. API의 batch 원본 쓰기는 거부한다. preview는 관리자 인증·flag·DB hash/size 검증을 통과해야 하며 raw/private key를 공개 DTO로 내보내지 않는다.
+- 참고: [role 검사](../../scripts/test-database-roles.ts), Collector `BatchOwnershipReadbackTests`, API `batch-review.integration.test.ts`. 로컬 role 통과와 별도 운영 PC credential/경로 인수는 구분한다.
+
+### DIR-02 — 원문·미디어·첨부·SNS와 순서를 보존한다
+
+- **P0 / 기존 확장 / fixture·HTTP 대역 + DB/object readback**.
+- 준비: TEXT/IMAGE/LINK 순서, 반복 이미지, 첨부·외부 SNS 링크가 포함된 사이트별 fixture와 다운로드 실패/비이미지 응답.
+- 기대: 요약만 저장한 결과를 원문 성공으로 처리하지 않는다. raw object와 본문 순서·출처·첨부 metadata를 DB에서 다시 읽고 bytes/hash·비공개 접근을 대조한다. 지원 불가/누락은 실패·차단 사유로 남긴다.
+- 경계: 수집 이미지200장/1000블록, 개별·전체 용량, redirect·잘못된 MIME·hash를 독립 검사한다. 정제 fixture, 실제 공개 URL 관측, 운영 전체 출처 완성은 각각 다른 증거다.
+- 참고: Collector `DirectBatchRunnerReadbackTests`, `DirectUrlRunnerAllSiteParserTests`, `SourceMediaLimitsTests`, `ObservedSiteFixtureTests`.
+
+### DIR-03 — direct 요청에도 robots·일일 총량·redirect 상한을 적용한다
+
+- **P0 / 구현 차이 보완 필요 / 합성 HTTP·영속 DB**.
+- 입력: robots 금지/미확인/Crawl-delay, 동시 worker, 일일 상한 직전, 프로세스 재시작·KST 날짜 경계, 3회/4회 redirect.
+- 기대: 단건·목록·queue가 공통 정책을 사용하며 허용되지 않은 다음 요청을 보내지 않는다. 영속 사용량을 재시작으로 초기화하지 않고 설계3회 redirect 상한을 지킨다. 허용·거부별 HTTP 수신 수와 DB를 함께 확인한다.
+- 현재 차이: `SourceRequests`의 robots/영속 budget 연결이 없고 최대4회 redirect가 가능하다. legacy `DiscoveryFetcher`/quota PASS를 이 케이스 결과로 사용하지 않는다. [P1-06](../roadmap.md)의 보완·실패 경계 시험이 선행한다.
+
+### DIR-04 — queue 중복·취소·재기동은 상태를 일관되게 유지한다
+
+- **P0 / 기존 확장 / 실제 DB·worker + 합성 입력**.
+- 실행: 같은 URL 중복 접수, 취소와 worker 소유권 획득 경합, 성공 저장 직후 응답 유실·재기동, 영구 실패/재시도 경계를 각각 재현한다.
+- 기대: queue/request/run/item의 계약상 연결과 종료 상태가 일치하고 성공 결과를 중복 생성하지 않는다. 실패를 성공 통계로 올리지 않으며 stale worker가 새 실행을 덮어쓰지 않는다. 외부 알림 전송은 대역으로 관측한다.
+- 참고: Collector `BatchQueueReadbackTests`, `BatchLifecycleReadbackTests`, `QueueMainTests`. 미정 Web URL 입력 계약을 임의 구현해 전제하지 않는다.
+
+### DIR-05 — 검수 승인과 초안 이동은 자동 발행하지 않는다
+
+- **P0 / 기존 확장 / API·DB·브라우저**.
+- 실행: UNREVIEWED→REVIEWING→APPROVED/REJECTED, stale version·원문 변경·중복 원문, 승인 후 선택 초안 이동과 동일 key 재전송.
+- 기대: 승인만으로 게시글을 만들지 않고 명시적 초안 이동은 DRAFT 한 건만 만든다. 공개 조회404, 이미지/private 참조·검수 postId·receipt를 원자적으로 확인한다. 응답 유실 후 같은 key로 결과를 회복한다.
+- UI: `/admin/batch`의 필터/page/빈 결과/오류, preview 권한, 검수 충돌·재조회·초안 편집 이동. 실제 Access MFA 수용은 합성 인증 브라우저와 분리한다.
+- 참고: API `batch-review.integration.test.ts`, [브라우저 검수](../../tests/browser/batch-review.test.ts).
+
+### DIR-06 — 보존·정리는 참조를 보호하고 실패 후 재실행할 수 있다
+
+- **P0 / QD-04 계약 확정 후 구현·실행 / DB/object**.
+- 선행: raw/media/report/queue·실패 orphan·승격 후 원본의 기간/유예 확정. legacy30일을 대입하지 않는다.
+- 실행: manifest dry-run→고정 대상 정리→DB/object readback, 중간 삭제 실패·재실행, 백업 복원 뒤 삭제 재적용.
+- 기대: 진행 중·검수 중·승격/공개 참조를 보존하고 삭제 대상만 제거한다. 실패를 완료 처리하지 않으며 orphan·재시도·잔여 수량이 일치한다.
+- [P1-05](../roadmap.md)의 잔여 작업이다. 현재 삭제 도구나 운영 파기가 이미 검증됐다는 뜻은 아니다.
 
 ## 로컬 케이스 이후의 별도 검증
 
-아래는 이번 10개 케이스로 완료 처리할 수 없다. 실제 환경 검증을 계획할 때 별도 케이스 ID와
+아래는 이 문서의16개 케이스만으로 완료 처리할 수 없다. 실제 환경 검증을 계획할 때 별도 케이스 ID와
 실값·관측 방법·합격 기준을 정한다.
 
 | 항목 | 필요한 추가 증거 |

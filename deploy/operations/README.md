@@ -3,6 +3,8 @@
 현재 운영 주소는 https://blariyo.com/ 이다. 2026-09-20 Lightsail 서울의 단일 VM에
 PostgreSQL·Core·Web·Nginx와 기존 cloudflared를 연결했다. blue/green은 구성하지 않았다.
 최초 release는 `/opt/blariyo/application/release-56351a45eea650c0f02e5043`이다.
+이후 배포·DB 반영의 마지막 관측은 [현재 운영 상태](../../docs/operations/current-status.md)를 따른다.
+최초 release를 현재 배포 또는 복귀 대상으로 재사용하지 않는다.
 
 최초 설치부터 재배포·복귀까지의 순서는 [실서버 배포 실행서](../../docs/operations/deployment-runbook.md),
 GitHub 검증·이미지 게시와 운영 전환 정책은 [배포 정책](../../docs/operations/deployment-policy.md)을 따른다.
@@ -43,7 +45,8 @@ Web은 별도로 JWT와 운영자 매핑을 검사한다. 토큰·인증 쿠키�
 
 ## 되돌리기
 
-- 코드 교체는 이전에 검증한 image/runtime 묶음으로 Compose를 교체한 뒤 readiness를 확인한다.
+- 코드 복귀는 **현재 DB와 호환성을 확인한** image/runtime 묶음으로 Compose를 교체한 뒤 readiness를 확인한다.
+  V008에서 9월 20일 구 API는 readiness에 실패한다. [실행서의 복귀 기준](../../docs/operations/deployment-runbook.md#5-실패-시-복귀)을 따른다.
 - DB migration·정책 이력은 자동 rollback하지 않는다. 필요하면 사전 dump를 격리 DB에 먼저 복원한다.
 - 배포 전 DNS는 apex `A 198.49.23.145`, www `CNAME ext-sq.squarespace.com`, 둘 다 DNS-only였다.
   이는 Squarespace 안내 페이지 복귀용 정보이며 앱 데이터 복구를 대신하지 않는다.

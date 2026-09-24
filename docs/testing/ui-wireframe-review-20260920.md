@@ -1,5 +1,7 @@
 # M0 공개 화면 대조·수정 기록
 
+> 2026-09-24 분류 확인: 아래는 9월 20일 당시 기록이다. `55439` 개발 DB와 독립 복사 버튼 등 이후 바뀐 사실을 소급 수정하지 않는다. 현재 실행 방법은 [로컬 안내](../../scripts/local/README.md), 문의/색상 계약은 [화면 설계](../planning/03-screen-design.md), 후속 배포는 [운영 현황](../operations/current-status.md)을 따른다.
+
 2026-09-20 로컬 구현 기준. 운영 사이트에 이번 수정본을 배포하지 않았다.
 정본은 [화면 설계](../planning/03-screen-design.md), 시각 비교 자료는
 [반응형 퍼블리싱](../ui/publishing/responsive/README.md)과

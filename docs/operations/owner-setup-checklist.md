@@ -1,14 +1,14 @@
 # Lightsail·Cloudflare 운영자 체크리스트
 
 - 최초 작성·공식 안내 확인일: 2026-09-10
-- 현재 상태 반영일: 2026-09-20
-- 상태: M0 공개 배포·정책 발행·암호화 DB 백업 복원 완료. 관리자 실제 쓰기·장기 관찰 잔여.
+- 마지막 상태 대조일: 2026-09-24 문서 갱신. 운영 관측은 [9월 23일 배포·DB 반영](current-status.md)을 따르며 서버·계정을 이번에 재조회하지 않았다.
+- 상태: M0 공개 배포·정책 발행·API V008/Collector V006 및 콘텐츠 공개·암호화 DB 백업 복원은 당시 확인했다. 실제 Access MFA 관리자 쓰기·장기 관찰은 남아 있다.
 - 사용법: [현재 운영 상태](current-status.md)를 먼저 확인한다. 아래 계정 준비 절차는 신규 환경용이며 미체크 항목이 모두 현재 미설정을 뜻하지 않는다.
 - OCI와 GA4 절은 대안·후속 기능 준비 자료다. 현재 Lightsail 운영을 위해 추가 가입하거나 GA4를 켤 필요가 없다.
 
 ## 1. 먼저 알아둘 구성
 
-**현재 서버는 AWS Lightsail 서울 2GB다. Cloudflare는 도메인·관리자 보호·이미지·백업에 사용한다. GA4·카카오·수집 보조는 비활성이다.**
+**마지막 운영 확인에서 서버는 AWS Lightsail 서울 2GB다. Cloudflare는 도메인·관리자 보호·이미지·백업에 사용한다. GA4·카카오·URL/Discord 접수·자동 수집은 비활성이고 관리자 batch 검수만 활성이다.** 검수 활성은 실제 운영자 인수나 direct 보존·고지 조건 완료를 뜻하지 않는다.
 
 | 구분 | 현재 프로젝트의 결정 | 지금 필요한 계정 |
 | --- | --- | --- |
@@ -17,19 +17,22 @@
 | DNS·HTTPS·서버 연결 | Cloudflare DNS·Tunnel | Cloudflare 계정 |
 | 관리자 접근 | Cloudflare Access | 같은 Cloudflare 계정의 Zero Trust 설정 |
 | 이미지·DB 백업 | Cloudflare R2 Standard, 용도별 bucket·자격증명 분리 | 같은 Cloudflare 계정에서 R2 활성화 |
-| 방문 분석 | GA4, 준비 완료 및 이용자 동의 후에만 수집 | Google 계정과 Analytics 계정/속성 |
+| 방문 분석 | GA4, 준비 완료 및 이용자 동의 후에만 수집 | 후속 활성화를 선택할 때 Google 계정과 Analytics 계정/속성 |
 | 수집기 | 운영자 PC의 Spring Collector | 이번 서버 준비와 분리 |
 
 이 구성의 정본은 [인프라 계획](../planning/02-infra-plan.md)과
 [인프라 설계](../system-design/04-infrastructure-design.md)다. GCP 서버나 별도 managed DB는 현재 계획에 없다.
 웹 GA4를 준비하기 위해 GCP 서버·Firebase 앱·Google Tag Manager를 새로 만들 필요도 없다.
 
-## 2. 추천 진행 순서
+## 2. 신규 환경 준비 순서
+
+현재 기준은 Lightsail이다. 기존 계정·버킷·Tunnel을 단순 상태 확인 때문에 다시 만들지 않는다.
+OCI 준비는 §4의 과거 대안이며 새 서버의 필수 선행 단계가 아니다.
 
 | 순서 | 내가 할 일 | 다음 단계로 넘어갈 기준 |
 | --- | --- | --- |
-| 1 | 기존 계정·도메인 관리 권한 확인 | Cloudflare·OCI 로그인과 도메인 DNS 수정 권한 확보 |
-| 2 | OCI 서울 A1 생성 가능 여부 확인 | 서버 확보 또는 Lightsail 전환 결정 |
+| 1 | 기존 계정·도메인 관리 권한 확인 | AWS·Cloudflare 로그인과 도메인 DNS 수정 권한 확보 |
+| 2 | 기존 Lightsail 서버·관리 접속 확인 | 승인된 대상 identity·x86_64·자원·SSH 경계 확인. 신규 서버가 필요할 때만 별도 준비 |
 | 3 | Cloudflare 도메인 연결과 R2 준비 | 도메인 활성, 세 bucket 생성, 공개/비공개 범위 확인 |
 | 4 | Access 운영자 허용 범위와 Tunnel 준비 | 개발자가 배포 설정에 연결할 자료 확보 |
 | 5 | 개발자와 실제 배포·운영 검증 | 이미지·예약·관리자 인증·백업/복원 정상 |
@@ -42,7 +45,7 @@ GA4 준비는 2~5번과 병행할 수 있다. GA4를 끈 채 M0를 공개할 수
 ## 3. 계정·도메인 공통 준비
 
 - [ ] **COMMON-01 — 서비스 관리 계정의 소유권을 확보한다.**
-  Cloudflare·OCI·Google에 사용할 계정을 정하고 로그인한다. 관리 권한이 다른 사람에게만 있는 상태는 완료가 아니다.
+  AWS·Cloudflare에 사용할 계정을 확인한다. Google·OCI는 해당 후속 기능·대안을 선택할 때 준비한다. 관리 권한이 다른 사람에게만 있는 상태는 완료가 아니다.
 - [ ] **COMMON-02 — 2단계 인증과 복구 수단을 준비한다.**
   인증 수단을 등록하고 복구 코드를 비밀번호 관리자 등 저장소 밖에 보관한다. 로그인 가능한지 확인한다.
 - [ ] **COMMON-03 — `blariyo.com` 관리 상태를 확인한다.**
@@ -54,7 +57,10 @@ GA4 준비는 2~5번과 병행할 수 있다. GA4를 끈 채 M0를 공개할 수
 비밀번호, 카드 정보, 복구 코드, SSH 개인키, R2 Secret Access Key, Tunnel token, API token은 이 문서나 Git에 적지 않는다.
 이 문서에는 완료 여부·확인 날짜만 남기고, 실제 값은 provider console·비밀번호 관리자·배포 secret 저장소에서 관리한다.
 
-## 4. OCI에서 내가 할 일
+## 4. 과거 OCI 대안 준비 (현재 추가 가입 불필요)
+
+아래 OCI 항목은 9월 10일 검토 이력과 대안 절차다. 현재 Lightsail 선택을 되돌리는 지시가 아니며,
+실제로 대안을 재선택할 때 무료 조건·가용 용량·ARM64 image와 비용을 다시 확인한다.
 
 OCI는 Oracle Cloud Infrastructure, VM은 클라우드에서 빌려 쓰는 가상 서버를 뜻한다.
 
@@ -113,7 +119,7 @@ Oracle은 가입 시 카드로 본인 확인을 하며 임시 승인 금액이 �
 도메인 등록 업체를 Cloudflare로 이전하는 것은 필수가 아니다. DNS 연결 과정은
 [공식 도메인 연결 안내](https://developers.cloudflare.com/fundamentals/manage-domains/add-site/)를 따른다.
 
-### CF-02 — R2 활성화와 세 bucket 생성
+### CF-02 — R2 활성화와 용도별 bucket 확인
 
 - [ ] Dashboard의 **Storage & databases → R2 → Overview**에서 구독·결제 절차를 확인한다.
 - [ ] R2를 활성화하고 아래 세 bucket을 생성한다.
@@ -127,12 +133,17 @@ Oracle은 가입 시 카드로 본인 확인을 하며 임시 승인 금액이 �
 - [ ] bucket의 저장 위치 관련 설정·실제 처리 사업자를 확인해 운영 정보로 관리한다.
 - 완료 기준: 세 bucket이 구분되고 private/backup에 공개 접근이 활성화되어 있지 않다.
 
+이 세 bucket은 초기 Core 구성이다. direct 수집 raw/media/report는 9월 23일 운영 private R2에
+보관한 기록이 있다. 별도 PC writer·API media reader의 역할과 prefix 허용/거부는
+[direct 환경 계약](environment-configuration.md#9-core-연결과-direct-batch-검수의-실행-경계)을 따른다.
+bucket이 이미 있다는 사실로 해당 역할 분리와 원격 쓰기 검증을 통과 처리하지 않는다.
+
 Cloudflare 웹사이트 Free 요금제와 R2 청구는 별개다. R2는 무료 사용량을 포함하는 사용량 기반 서비스이며
 활성화에 구독 절차가 있다. [R2 시작 안내](https://developers.cloudflare.com/r2/get-started/)
 
 ### CF-03 — 공개 이미지 도메인 결정
 
-- [ ] 이미지용 주소를 정한다. 예: `media.blariyo.com`은 제안이며 현재 확정값은 `(미정)`이다.
+- [ ] 현재 운영 이미지 주소 `media.blariyo.com`의 연결 상태를 확인한다. 9월 23일에는 해당 주소의 공개 이미지 308개 다운로드·해시 대조가 통과했다([운영 기록](../../worklog/2026-09-23/release/production-db-promotion.md)). 신규 환경에서는 승인된 같은 주소의 연결 대상을 확인한다.
 - [ ] `blariyo-media-public`에만 해당 custom domain을 연결한다.
 - [ ] 공개해도 되는 합성 검증 이미지로 HTTPS 접근을 확인한다. 민감한 원본을 시험 파일로 사용하지 않는다.
 - [ ] private/backup의 public access가 여전히 꺼져 있는지 재확인한다.
@@ -147,7 +158,7 @@ Cloudflare 웹사이트 Free 요금제와 R2 청구는 별개다. R2는 무료 �
 - [ ] 각 자격증명의 허용 bucket과 Object Read & Write 등 필요한 권한만 설정한다.
 - [ ] S3 endpoint, Access Key ID, Secret Access Key를 승인된 secret 저장 위치에 보관한다.
 - [ ] Secret Access Key를 문서·대화·코드에 붙이지 않는다. 해당 token의 권한 범위와 보관 완료 여부만 기록한다.
-- 완료 기준: 용도별 자격증명과 허용 범위를 확인했다. **현재 코드와 연결하기 전 §7의 R2 차이를 해결해야 한다.**
+- 완료 기준: 용도별 자격증명과 허용 범위를 확인했다. 9월 20일 운영 연결과 9월 23일 공개 이미지 확인은 §7과 [운영 상태](current-status.md)의 당시 증거이며, 신규 환경 연결은 다시 검증한다.
 
 Cloudflare는 R2 object 권한을 특정 bucket으로 제한할 수 있다. 전체 계정 관리자 권한의 token을 앱용으로
 발급하는 대신 필요한 bucket만 선택한다. [R2 인증 안내](https://developers.cloudflare.com/r2/api/tokens/)
@@ -157,7 +168,9 @@ Cloudflare는 R2 object 권한을 특정 bucket으로 제한할 수 있다. 전�
 - [ ] Zero Trust 설정에서 사용할 조직/team을 준비하고 team domain을 확인한다.
 - [ ] 관리자 로그인 방법과 허용할 운영자 계정을 정한다.
 - [ ] self-hosted Access application으로 `/admin*`와 `/api/v1/admin/*`를 보호한다.
-  실제 path matching은 `/admin`, `/admin-collect`, `/admin-collect-sources`까지 빠짐없이 시험한다.
+  실제 path matching은 `/admin`, `/admin/collect`, `/admin/collect/sources`, `/admin/batch`까지 빠짐없이 시험한다.
+  `admin-collect.vue`·`admin-collect-sources.vue`·`admin-batch.vue`의 실제 경로는 각 `definePageMeta`가 지정한다.
+  파일명에서 경로를 추정하지 않으며 `/api/admin/features`와 운영 `/health/ready`의 앱 인증도 별도 확인한다.
 - [ ] 일반 이용자의 `/meme`·공개 API에는 관리자 로그인을 요구하지 않도록 범위를 확인한다.
 - [ ] application의 issuer/team domain과 audience(AUD), 허용 정책을 개발자와 확인한다.
 - 완료 기준: 승인된 운영자는 접근 가능, 다른 계정은 거부. **앱 내부 운영자 등록까지 마쳐야 전체 로그인 완료다.**
@@ -253,18 +266,19 @@ Google SDK가 자동 생성하는 기술 이벤트·필드까지 네 가지로 �
 
 ## 7. 개발·배포 확인 결과
 
-2026-09-20 배포 기록을 기준으로 한다. 이후 상태 변경은 [운영 상태](current-status.md)에 반영한다.
+아래 최초 설치·정책·Access 확인은 2026-09-20 배포 기록을 기준으로 한다. 9월 23일 후속
+API/Web 배포·DB 반영과 기능별 활성화는 [운영 상태](current-status.md)의 관측 시각을 따른다.
 
 | 항목 | 확인한 상태 | 남은 확인 |
 | --- | --- | --- |
 | production 구성 | `deploy/` 구성으로 DB·Core·Web·Nginx healthy, Tunnel/DNS 공개 연결 | 실제 VM 재부팅·장기 부하 |
-| DB 역할·권한 | app/migrator/backup 분리, V001–V005 적용, 역할별 접속·권한 거부 확인 | 이후 migration마다 재검증 |
+| DB 역할·권한 | 9/20 app/migrator/backup 분리·V001–V005 적용. 9/23 API V008·Collector V006와 업무 데이터 반영, ledger·API 검수/읽기 제한·backup 새 테이블 읽기 권한 확인 | 현재 ledger·권한은 재조회 필요. 이후 migration마다 재검증 |
 | R2 | 버킷별 키 분리, 실제 앱 어댑터 private GET→public PUT·공개 HTTPS 확인 | 관리자 로그인 후 업로드·발행 전체 흐름 |
 | Access | 이메일 Allow·6시간 MFA, 익명/위조 JWT 차단, 별도 운영자 파일 주입 | 실제 TOTP 완료 후 sub 매핑·관리자 작업 |
 | 정책·연락처 | 기존 설정 주입, TERMS/PRIVACY v0.1 발행·SQL/공개 화면 확인 | 정보·처리 변경 시 새 정책 버전 |
 | 백업 | 하루 두 번 암호화 R2 전송, 실제 별도 DB 복원·해시 대조 | 복구키 별도 사본, 7일 삭제 관찰·월간 복원 |
 | 정기 작업·로그 | timer 설치, 수동 실행·로그 수신·합성 만료 파일 정리 확인 | 실패 자동 알림·장기 관찰 |
-| GA4·카카오·수집 | 운영 비활성 | 기능별 gate 이후에만 활성화 |
+| GA4·카카오·수집 접수/자동 실행 | GA4·카카오·URL/Discord 접수·자동 수집은 비활성. 9/23 관리자 batch 검수 API/Web flag만 활성, 내부 service 조회·미리보기 확인 | 실제 MFA 검수 조작, direct 보존·고지(QD-04)와 수집 기능별 gate는 별도 |
 
 확인 근거: [Core 설정](../../apps/api/src/bootstrap/config.ts),
 [DB 설정](../../apps/api/src/bootstrap/database-config.ts),
@@ -301,9 +315,10 @@ Google SDK가 자동 생성하는 기술 이벤트·필드까지 네 가지로 �
 확인 날짜:
 Cloudflare 계정: 준비 / 진행 / 미준비
 도메인 관리 권한·Cloudflare 활성화: 준비 / 진행 / 미준비
-서버 선택: OCI 서울 / Lightsail 서울 / 미확정
+서버 선택: 기존 Lightsail 서울 / 승인된 대안 / 미확정
 서버 생성·관리 접속: 준비 / 진행 / 미준비
-R2 세 bucket과 공개 범위: 준비 / 진행 / 미준비
+R2 Core 세 bucket과 공개 범위: 준비 / 진행 / 미준비
+direct writer / API media reader 역할·prefix 검증: 준비 / 진행 / 별도 검증 대기
 R2 용도별 자격증명 안전 보관: 준비 / 진행 / 미준비
 Access 운영자 정책: 준비 / 진행 / 미준비
 Tunnel: 생성만 완료 / 서버 연결 확인 / 미준비
@@ -319,4 +334,6 @@ GA4 실제 수집: 미활성 / 검증 중 / 검증 완료
 
 작성 시 프로젝트 정본·실제 설정 코드·공식 가입/설정 안내를 대조했다. 계정별 화면은 요금제·권한·언어에
 따라 달라질 수 있으므로 메뉴 이름이 다르면 연결한 공식 안내에서 해당 기능을 찾는다.
-실제 계정 보유 여부·서울 A1 가용 용량·도메인 소유권·청구 금액·GA4 수신은 아직 검증하지 않았다.
+최초 작성 당시 실제 계정 보유 여부·서울 A1 가용 용량·도메인 소유권·청구 금액·GA4 수신은
+검증하지 않았다. 이후 운영 연결은 [현재 운영 상태](current-status.md)의 시점별 증거를 따르고,
+실제 MFA 완료·AWS 예산/MFA·Cloudflare 알림 수신·GA4 수신은 이번 문서 갱신에서 확인하지 않았다.

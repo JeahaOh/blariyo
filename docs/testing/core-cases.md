@@ -3,6 +3,7 @@
 [구현 안내](README.md)의 환경·상태·데이터 규칙을 공통으로 적용한다. 신규 ID는 전부 **미실행**이다.
 아래 `기존 확장`/`보강 제안`은 구현 방향이며 통과 상태가 아니다. API path는 Core와 BFF에서 구분해서
 실행한다. Core 직결 테스트가 통과해도 BFF 인증·필드 제거·요청 제한까지 검증한 것은 아니다.
+2026-09-24 대조: 정책/문의 UX와 분석 동의의 현재 계약을 보완했다. 각 ID의 전체 입력을 이번에 실행한 것은 아니다. 관리자 수동 이미지 한도와 direct 수집200장/1000블록 경계는 별도 케이스로 구분한다.
 
 ## 공개 조회 — PUB
 
@@ -307,23 +308,23 @@
 - 준비: 합성 정책·문의 이메일 설정. 공개 상세를 연다.
 - 실행: footer 정책 modal과 `/terms`, `/privacy` 직접 route를 비교하고 과거 버전을 선택한다.
 - 기대: 같은 버전 전문, 적용 기간·이력 정상. 권리 mailto에 현재 URL이 포함된다.
-- 추가 검증: 이메일 복사는 주소만 복사하고 항상 접근 가능. mail client 실행 성공을 임의로 표시하거나
-  별도 권리 문의 form/API/DB를 만들지 않는다. 실제 이메일 발송은 수행하지 않는다.
+- 추가 검증: 독립 복사 버튼은 없다. `권리 문의` 선택 뒤 1.6초 동안 blur/hidden 신호가 없을 때 주소·제목·양식을 복사하고 안내한다. 전환 신호가 있으면 복사를 취소하며, 클립보드 거부는 읽기 전용 양식으로 복구한다. mail client 실행 성공을 확정하거나 별도 접수 form/API/DB를 만들지 않는다. 실제 이메일 발송은 수행하지 않는다.
 
 ### CNS-01 — 동의 전 외부 분석 요청이 없다
 
 - **P0 / 기존 확장 / 브라우저·네트워크 관측**.
-- 준비: 새 browser context. 먼저 GA4 flag=false, 이어 테스트용 flag=true·미동의 환경을 별도로 만든다.
+- 준비: 새 browser context. 먼저 GA4/분석 승인 flag=false, 이어 테스트용 두 flag=true·미동의 환경을 별도로 만든다. production의 승인 flag 누락은 별도 기동 실패 검사다.
 - 실행: 목록·상세·공유·스크롤을 수행한다.
-- 기대: false이면 분석 선택 UI·저장값·Measurement ID 노출 없음. true라도 미동의 상태의 Google 요청·ping·신규 _ga cookie는 0.
+- 기대: 비활성이면 분석 선택 UI·Measurement ID 노출과 신규 선택 저장 없음. 과거 localStorage 값까지 자동 삭제된다고 기대하지 않는다. 두 flag=true라도 미동의 상태의 Google 요청·ping·신규 _ga cookie는 0.
 - 추가 검증: 거부 상태에서도 콘텐츠와 views API는 작동한다. 네트워크 listener를 페이지 이동 전에 등록한다.
 - 참고: [consent browser](../../tests/browser/consent.test.ts), [consent 단위](../../tests/consent.test.ts).
 
 ### CNS-02 — 동의 철회와 늦은 callback이 전송을 재개하지 않는다
 
 - **P0 / 기존 확장 / 브라우저 + 단위**.
-- 준비: flag=true, 합성 analytics adapter. tag 로드를 보류할 수 있게 만든다.
+- 준비: GA4·분석 승인 flag=true, 합성 analytics adapter. tag 로드를 보류할 수 있게 만든다.
 - 실행: 동의→로드 완료 전 철회→늦은 load/error callback 전달→다시 탐색.
 - 기대: 철회 후 event 0, 현재 domain _ga/_ga_* 삭제. 늦은 callback이 새 동의 상태를 덮어쓰지 않는다.
 - 변형: 손상·만료 저장값, localStorage 읽기/쓰기 예외, 허용 후 경로 재방문을 독립 검사한다.
 - 추가 검증: 허용 event에도 제목·본문·원문 URL·내부 postId·회원 식별자 없음. 자체 전송 queue/DB fallback 없음.
+- 잔여: 저장값 읽기·쿠키 삭제 실패 안내는 현행 구현에서 누락돼 있다. 실패 입력별 요구 피드백을 보완하기 전 전체 케이스를 통과로 올리지 않는다. 실제 GA4 자동 page_view/Enhanced Measurement·DebugView 검사는 대체 tag 결과와 분리한다.

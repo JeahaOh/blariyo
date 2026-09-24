@@ -1,0 +1,110 @@
+[
+  {
+    "path": "docs/legal/m0-core/draft-2/privacy.html",
+    "target": "cookies.html",
+    "resolution": "preserved-immutable-artifact",
+    "evidence": [
+      "docs/legal/m0-core/README.md: fixed draft.2 seed artifact; current sibling links provided by index.",
+      "deploy/postgresql/policy-seed-input.cjs reads the preserved body."
+    ],
+    "source_sha256": "30ab75735c0aad52d89c1971233b5c6f356d4f3183b949d2d0ec00a30d74d776"
+  },
+  {
+    "path": "docs/legal/m0-core/draft-2/terms.html",
+    "target": "rights.html",
+    "resolution": "preserved-immutable-artifact",
+    "evidence": [
+      "docs/legal/m0-core/README.md: fixed draft.2 seed artifact; current sibling links provided by index.",
+      "deploy/postgresql/policy-seed-input.cjs reads the preserved body."
+    ],
+    "source_sha256": "d36df702a86d13cd822115ea9945d7563f10ada1f4e76311c388080a9e007a4e"
+  },
+  {
+    "path": "docs/legal/m0-core/draft-2/terms.html",
+    "target": "cookies.html",
+    "resolution": "preserved-immutable-artifact",
+    "evidence": [
+      "docs/legal/m0-core/README.md: fixed draft.2 seed artifact; current sibling links provided by index.",
+      "deploy/postgresql/policy-seed-input.cjs reads the preserved body."
+    ],
+    "source_sha256": "d36df702a86d13cd822115ea9945d7563f10ada1f4e76311c388080a9e007a4e"
+  },
+  {
+    "path": "docs/ui/wireframes/archive/desktop/index.html",
+    "target": "#home",
+    "resolution": "javascript-route",
+    "evidence": [
+      "Same document declares data-view=home; showScreen(location.hash) and data-go handler select the view. Static source check, not browser runtime proof."
+    ],
+    "source_sha256": "01192e36c554d146f8748ac80ec2acc6efef0a3f39de02329a996821944a3ee4",
+    "target_sha256": "01192e36c554d146f8748ac80ec2acc6efef0a3f39de02329a996821944a3ee4"
+  },
+  {
+    "path": "docs/ui/wireframes/archive/mobile/index.html",
+    "target": "#home",
+    "resolution": "javascript-route",
+    "evidence": [
+      "Same document declares data-view=home; showScreen(location.hash) and data-go handler select the view. Static source check, not browser runtime proof."
+    ],
+    "source_sha256": "3ccc2a2f89807e706217d98f950120bed84b364c4c31d2307943060b03268d6a",
+    "target_sha256": "3ccc2a2f89807e706217d98f950120bed84b364c4c31d2307943060b03268d6a"
+  },
+  {
+    "path": "docs/ui/wireframes/responsive/index.html",
+    "target": "#home",
+    "resolution": "javascript-route",
+    "evidence": [
+      "Same document declares data-view=home; showScreen(location.hash) and data-go handler select the view. Static source check, not browser runtime proof."
+    ],
+    "source_sha256": "0f92e55062ec56c0c680e85f9c1b861679ee594d045a9e5e9f3f677acc621279",
+    "target_sha256": "0f92e55062ec56c0c680e85f9c1b861679ee594d045a9e5e9f3f677acc621279"
+  },
+  {
+    "path": "docs/ui/wireframes/responsive/index.html",
+    "target": "../legal/index.html#terms",
+    "resolution": "javascript-route",
+    "evidence": [
+      "Target legal/index.html declares data-policy tabs and calls showPolicy(location.hash.slice(1)); these hashes are view selectors. Static source check."
+    ],
+    "source_sha256": "0f92e55062ec56c0c680e85f9c1b861679ee594d045a9e5e9f3f677acc621279",
+    "target_sha256": "56e49d4e743e32bd3301e7561f27789cc61184f0bf13d262ec763a94e7016924"
+  },
+  {
+    "path": "docs/ui/wireframes/responsive/index.html",
+    "target": "../legal/index.html#privacy",
+    "resolution": "javascript-route",
+    "evidence": [
+      "Target legal/index.html declares data-policy tabs and calls showPolicy(location.hash.slice(1)); these hashes are view selectors. Static source check."
+    ],
+    "source_sha256": "0f92e55062ec56c0c680e85f9c1b861679ee594d045a9e5e9f3f677acc621279",
+    "target_sha256": "56e49d4e743e32bd3301e7561f27789cc61184f0bf13d262ec763a94e7016924"
+  },
+  {
+    "path": "docs/ui/wireframes/responsive/index.html",
+    "target": "../legal/index.html#cookies",
+    "resolution": "javascript-route",
+    "evidence": [
+      "Target legal/index.html declares data-policy tabs and calls showPolicy(location.hash.slice(1)); these hashes are view selectors. Static source check."
+    ],
+    "source_sha256": "0f92e55062ec56c0c680e85f9c1b861679ee594d045a9e5e9f3f677acc621279",
+    "target_sha256": "56e49d4e743e32bd3301e7561f27789cc61184f0bf13d262ec763a94e7016924"
+  },
+  {
+    "path": "worklog/2026-09-08/handoff/main-merge-implementation-status.md",
+    "target": "../../../apps/api/src/collection.mjs",
+    "resolution": "preserved-historical-source",
+    "evidence": [
+      "2026-09-08 pre-Nest implementation handoff; collection.mjs was evidence at that time. Current TypeScript file must not replace historical implementation evidence."
+    ],
+    "source_sha256": "32dfa42bc0773907deeff0687a834f7d1feee5d7bf2f1f8fa2c0ffec4b8b1bf9"
+  },
+  {
+    "path": "worklog/2026-09-09/nest-transition/user-task.md",
+    "target": "모든",
+    "resolution": "prose-not-link",
+    "evidence": [
+      "The DONE_LOCAL/BLOCKED/IN_PROGRESS/PAUSED definitions are quoted user status vocabulary, not intended navigation or file paths."
+    ],
+    "source_sha256": "38d435cd438fdc2412c9fe86db73d9d72a80c189445bd217348a26612fc2e9d6"
+  }
+]

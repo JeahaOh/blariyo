@@ -2,7 +2,7 @@
 
 - 문서 상태: M0 인프라 의사결정 정본
 - 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-20 (운영 사업자 선택 반영)
+- 정합성 검토일: 2026-09-24 (현행 direct/legacy·9월 23일 운영 기록 대조)
 - 역할: 배포 방향·비용 경계·공급자 선택을 정의한다. 스키마, API payload, container 자원값과 운영 명령은 정의하지 않는다.
 - 관련 문서: [서비스 기획서](01-service-plan.md), [콘텐츠 수집 기획](content-collection/README.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
 
@@ -29,8 +29,8 @@
 - 고가용성보다 검증 가능한 백업·복원과 공급자 이전 경로를 우선한다.
 - `M0 Core`는 외부 콘텐츠 자동 fetch 없이 운영자 수동 작성으로 공개할 수 있게 한다. Discord `/collect url`
   또는 관리자 URL 지정은 `M0 수집 보조`, 허용 출처 목록 수집은 후속 `M0 자동 수집`에서 runtime·schema·API를
-  활성화한다. 수집은 서버에서 외부 HTTP로 나가는 유일한 콘텐츠 경로이므로 대상 허용 범위와
-  요청 상한을 설계로 제한한다.
+  단계별로 활성화한다. 수집 대상 외부 HTTP는 운영자 PC의 batch가 수행하며 Core/Web이 직접 원문을 가져오지 않는다.
+  대상 허용 범위·robots·요청 상한은 구현과 운영 검증으로 확인한다.
 - 소셜 로그인, 사용자 작성 게시판과 광고는 M0 runtime·schema·API에 포함하지 않는다. GA4는
   M0 Web에 기본 비활성 연동으로 포함하고, 활성 환경에서도 분석 동의 후에만 로드하며 자체 분석
   schema·API는 만들지 않는다.
@@ -95,15 +95,16 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 | 단계 | 기능 | 인프라 영향 |
 | --- | --- | --- |
 | M0 Core | 공개 짤 목록·상세, 운영자 발행·숨김, 정책, 참고용 조회 수, 기본 비활성 GA4 연동 | 현재 단일 VM·PostgreSQL·R2와 조건부 Google tag CSP·동의 설정 |
-| M0 수집 보조 | 로컬 collector의 Discord·관리자 URL 지정 단일 페이지 추출과 후보 검수 | 운영자 PC outbound HTTP, 후보 schema·API, collector service token |
-| M0 자동 수집 | 후속 허용 출처 목록 수집 | 출처별 parser·수집 상한·수집 cron 검토 |
+| M0 수집 보조 | 별도 PC 단건·확인 queue·저장 결과 검수, Web URL 전달 계약은 미정 | direct DB/object 제한 역할·private collect 저장·API 검수; 기존 service token 중계는 legacy |
+| M0 자동 수집 | 허용 출처 목록/상세 저장 구현, 운영 실행 비활성 | 출처별 parser·공통 요청 통제·보존 회수·실행 담당/주기 인수 |
 | M1 | 소셜 가입·로그인·탈퇴 | provider secret, callback, session store 계약 추가 |
 | M1.5 | 익게 작성·댓글·신고·moderation | 사용자 쓰기 부하와 abuse 방어 재산정 |
 | 후속 | 광고 | consent, 외부 script와 CSP 검토 |
 
-후속 기능의 테이블과 endpoint를 앞 단계 schema·API에 미리 넣지 않는다. 단계 착수 전에
-planning을 확정하고 system-design을 대조한다. 수집 계약은 M0 전체 시스템 설계에 정의돼 있어도
-`M0 Core` production에서 feature flag와 출처별 활성값을 켜지 않는다.
+M1·광고 같은 후속 기능은 단계 착수 전에 planning·system-design을 확정한다. 현재 운영에는
+수집 V008/Collector V006과 데이터가 반영됐고 관리자 batch 검수만 9월 23일 활성 관측됐다.
+URL·Discord 접수와 자동 수집은 별도 gate이며 검수 flag ON으로 전체 수집 활성화를 승인하지 않는다.
+현재 source/runtime·미충족 robots/일일 요청 통제·보존 조건은 [수집 설계](../system-design/07-spring-collector-design.md)를 따른다.
 
 ## 8. 운영·보안 의사결정
 
@@ -121,7 +122,7 @@ planning을 확정하고 system-design을 대조한다. 수집 계약은 M0 전�
 
 ## 9. 배포 전에 확정할 운영값
 
-공개 도메인·R2·Access·내부 인증·DB 설정은 운영에 주입했다. 값 원문은 저장소에 두지 않는다.
+공개 도메인·R2·Access·내부 인증·DB 설정의 주입은 기존 운영 기록에서 확인했다. 값 원문은 저장소에 두지 않는다.
 현재 증거와 잔여 항목은 [운영 상태](../operations/current-status.md)에서 추적한다.
 아래 목록 중 외부 알림은 미구성이고, 카카오·수집 입력은 해당 기능 활성화 전 조건이다.
 

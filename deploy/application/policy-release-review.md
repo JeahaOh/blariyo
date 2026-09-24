@@ -5,6 +5,9 @@
 - 편집 정본: [M0 공개 정책](../../docs/legal/m0-core/README.md)
 - 실행 증거: [운영 배포 기록](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)
 
+이 표는 9월 20일 발행 당시 기록이다. [9월 23일 DB 반영](../../worklog/2026-09-23/release/production-db-promotion.md)에서도
+정책 6건의 반영 전후 행 해시를 동일하게 유지했다. 현재 배포·인수 잔여는 [운영 상태](../../docs/operations/current-status.md)를 따른다.
+
 현재 M0는 로그인 없는 짤 열람·운영자 발행·정책·이메일 문의·누적 조회 수다.
 일반 회원·소셜 로그인·GA4·광고·자동 수집은 활성화하지 않았다. 후속 기능의 미확정 조건을
 이번 배포에서 제거하지 않았다.

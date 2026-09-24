@@ -23,7 +23,9 @@
 | `styles.css` | 반응형 layout, 44px 터치 대상, 목록·공유·광고·상태 스타일 |
 | `app.js` | 화면 tab, 공유 메뉴, 20개 목록과 현재 글 비활성 샘플 동작 |
 
-## 현재 반영 기준
+## 정적 검토물의 반영 기준
+
+아래는 기존 HTML/JS의 비교 요소다. 2026-09-24 문서 대조에서 확인한 현행 앱과의 차이는 상단 푸터 안내, [색상 계약](../../../planning/07-color-palette.md), [분석 동의 명세](../../../development-specs/m0-core/analytics-consent/analytics-consent.dev.md)를 따른다. 탭 강조색·동의 만료·혼합 단계 화면까지 앱과 완전히 일치한 검수물로 사용하지 않는다. 이 검토에서 정적 HTML/CSS/JS는 변경하지 않았다.
 
 - 초기 게시판은 `짤/meme` 하나이며 `/`는 `/meme`으로 리다이렉트
 - 추후 `익게/community`, `뉴스/news`와 추가 게시판을 활성 데이터로 확장

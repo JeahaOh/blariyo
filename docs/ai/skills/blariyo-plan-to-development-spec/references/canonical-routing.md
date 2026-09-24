@@ -13,7 +13,7 @@
 | 분석, 동의, 광고 활성화 | `docs/planning/04-analytics-ad-plan.md` | legal 쿠키·개인정보, system-design `01`, `03`, `05` |
 | 비교 기준과 수용 조건 | `docs/planning/05-benchmark-spec.md` | 서비스·화면 기획 |
 | 문구와 색상 | planning `06`, `07` | 화면 기획과 publishing; 기능 계약에 필요한 항목만 |
-| 콘텐츠 수집 | `docs/planning/content-collection/README.md` | 서비스 기획 §8, system-design `01`, `02`, `03`, `05`, legal |
+| 콘텐츠 수집 | `docs/planning/content-collection/README.md` | 서비스 기획 §8, system-design `01`, `02`, `03`, `05`, `07`, 수집 OpenAPI, legal |
 | 개인정보·권리·쿠키 | `docs/legal/`의 관련 문서 | planning의 출시 단계, system-design `02`, `03`, `05` |
 
 후속 단계의 문구나 화면이 존재한다는 사실만으로 그 기능을 현재 개발 범위에 포함하지 않는다.
@@ -37,8 +37,9 @@
 ## 출력 라우팅
 
 `docs/development-specs/<milestone>/<feature-slug>/<feature-slug>.dev.md` 하나에 API 보충·처리 흐름·화면 계약을 연결한다.
-API·D01·D08별 독립 파일은 만들지 않는다. Core 필드 형식은 docs의 M0 Core OpenAPI를 참조하고,
-OpenAPI에 없는 수집 계약과 업무 규칙은 기술 정본·기능 절에 보존한다. DB 열·제약은 데이터 모델을 참조한다.
+API·D01·D08별 독립 파일은 만들지 않는다. Core와 수집 필드 형식은 각 docs OpenAPI를 참조하고,
+OpenAPI에 표현되지 않은 업무 규칙은 기술 정본·기능 절에 보존한다. M1/M1.5는 전용 OpenAPI가 없으므로
+회원·익게 기술 계약의 필드 표를 따른다. DB 열·제약은 해당 데이터 모델을 참조한다.
 
 ## 충돌 처리
 

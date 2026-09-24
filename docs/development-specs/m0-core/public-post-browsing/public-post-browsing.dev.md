@@ -5,8 +5,9 @@
 - 문서 상태: `작성 완료`
 - milestone: `M0 Core` (`m0-core`)
 - 기능: `public-post-browsing` — 공개 게시판 목록·상세·공유·조회 수
-- 기준일: 2026-09-07
-- 미검증: Nuxt·BFF·Core source, migration, OpenAPI, test, runtime, 실제 CDN·공유 provider
+- 최초 계약: 2026-09-07 / 소스·문서 대조: 2026-09-24
+- 구현: Nuxt·BFF·Core·migration·OpenAPI와 관련 시험이 존재한다. 실행 결과는 [현재 상태](../../../status.md)와 연결된 날짜별 증거를 따른다. 이번 문서 대조에서 앱·서버를 재실행하지 않았다.
+- 잔여: §13의 소스 차이, 실제 공유 provider·접근성·운영 인수. 정적 계약 작성 완료와 전체 수용 조건 통과를 구분한다.
 - 주요 근거:
   - [서비스 기획 §1, §2, §5, §7, §10, §14](../../../planning/01-service-plan.md)
   - [화면 설계 §2, §5~§7, §13](../../../planning/03-screen-design.md)
@@ -118,12 +119,12 @@
 - 계약 상태: `작성 완료`
 
 - 입력 근거: [API 설계 §3 게시글 상세](../../../system-design/03-api-design.md), [데이터 모델 §3·§8](../../../system-design/02-data-model.md)
-- 미검증: OpenAPI, SSR·Core source, contract·security test
+- 검증 경계: OpenAPI·source와 기존 테스트/실행 기록이 있다. 이번 문서 대조에서 contract·runtime·성능 시험을 재실행하지 않았다.
 
 #### 목적과 호출 경계
 
 Nuxt SSR이 공개 글 본문과 현재 글이 포함된 같은 게시판 목록 context를 받는다. 외부 제공자는 Nuxt
-BFF, 내부 제공자는 Core `PostQueryService`다. BFF는 storage key, 상태와 이력을 제거하고 공개 field만 응답한다.
+BFF, 내부 제공자는 Core `PublicService.detail`이다. Core의 공개 DTO가 storage key·내부 상태·이력을 제외하고 BFF가 이를 전달한다.
 
 #### Method·path·인증·권한
 
@@ -177,16 +178,16 @@ context의 page size는 20이다. 게시판 문맥 없는 상세 alias는 제공
 #### Contract test와 미검증
 
 - 소속 불일치·숨김·삭제·예약·초안의 동일 404, storage key 비노출, context 현재 행을 검증한다.
-- 현재 실행하지 않았다.
+- 관련 시험과 날짜별 실행 기록은 존재한다. 이번 문서 대조에서는 재실행하지 않았다.
 
 <a id="api-increment-post-view"></a>
 
 ### 게시글 조회 수 증가 API
 
-- 계약 상태: `초안`
+- 계약 상태: `작성 완료` (구현 잔여·인수는 별도)
 
 - 입력 근거: [API 설계 §3 조회 수](../../../system-design/03-api-design.md), [분석·광고 계획 §3](../../../planning/04-analytics-ad-plan.md)
-- 미검증: OpenAPI, source, rate-limit·동시성 test
+- 검증 경계: OpenAPI·source와 기존 테스트/실행 기록이 있다. 이번 문서 대조에서 contract·runtime·성능 시험을 재실행하지 않았다.
 
 #### 목적과 호출 경계
 
@@ -240,7 +241,7 @@ pagination 해당 없음. 응답·오류는 `no-store`다.
 #### Contract test와 미검증
 
 - 빈 payload, payload 거부, 동시 증가, 공개 상태 재검증, rate-limit, UI 비차단을 검증한다.
-- 현재 실행 증거는 없다.
+- 기존 실행 증거는 [현재 상태](../../../status.md)에서 추적한다. 이 절의 모든 경계 조건을 이번에 재실행한 것은 아니다.
 
 <a id="api-list-boards"></a>
 
@@ -249,7 +250,7 @@ pagination 해당 없음. 응답·오류는 `no-store`다.
 - 계약 상태: `작성 완료`
 
 - 입력 근거: [API 설계 §3 활성 게시판](../../../system-design/03-api-design.md), [데이터 모델 §3 게시판](../../../system-design/02-data-model.md)
-- 미검증: OpenAPI, BFF·Core source, contract test, runtime
+- 검증 경계: OpenAPI·source와 기존 테스트/실행 기록이 있다. 이번 문서 대조에서 contract·runtime·성능 시험을 재실행하지 않았다.
 
 #### 목적과 호출 경계
 
@@ -260,7 +261,7 @@ Nest Core `PublicService.boards`이며 BFF가 허용 필드만 전달한다.
 
 - `GET /api/v1/boards`
 - 인증: 없음
-- cache: `public, max-age=60, s-maxage=300`; body hash ETag 지원
+- cache: `public, max-age=60, s-maxage=300`; BFF가 `requestId`를 제외한 공개 응답 전체의 hash로 ETag 생성
 
 #### Request
 
@@ -268,7 +269,7 @@ path·query·body·필수 header: 해당 없음.
 
 #### Response
 
-활성 board의 slug·displayName·postingPolicy를 반환한다. M0 작성 정책은 `ADMIN`이며 BFF가 `/{slug}` 목록 경로를 만든다.
+활성 board의 slug·displayName·postingPolicy를 반환한다. M0 작성 정책은 `ADMIN`이며 Core `boardsDto`가 `/{slug}` 목록 경로를 만든다.
 
 #### Validation과 정규화
 
@@ -298,7 +299,7 @@ pagination 없음. 게시판 문맥 없는 게시글 alias를 만들지 않는�
 #### Contract test와 미검증
 
 - 활성·비활성 필터, 표시 순서, 내부 `boardId` 비노출을 검증한다.
-- 현재는 실행하지 않았다.
+- 관련 시험과 날짜별 실행 기록은 존재한다. 이번 문서 대조에서는 재실행하지 않았다.
 
 <a id="api-list-posts"></a>
 
@@ -307,7 +308,7 @@ pagination 없음. 게시판 문맥 없는 게시글 alias를 만들지 않는�
 - 계약 상태: `작성 완료`
 
 - 입력 근거: [API 설계 §3 게시글 목록](../../../system-design/03-api-design.md), [데이터 모델 §8](../../../system-design/02-data-model.md)
-- 미검증: OpenAPI, source, query plan, contract·runtime test
+- 검증 경계: OpenAPI·source와 기존 테스트/실행 기록이 있다. 이번 문서 대조에서 contract·runtime·성능 시험을 재실행하지 않았다.
 
 #### 목적과 호출 경계
 
@@ -365,7 +366,7 @@ page size 20 고정, OFFSET 방식이다. 공지는 total·page size에서 제�
 #### Contract test와 미검증
 
 - 0건, 공지 3건, 20건, 마지막·초과 page, 정렬 tie, 비공개 글 제외를 검증한다.
-- 현재 실행 증거는 없다.
+- 기존 실행 증거는 [현재 상태](../../../status.md)에서 추적한다. 이 절의 모든 경계 조건을 이번에 재실행한 것은 아니다.
 
 <a id="d01-browse-posts"></a>
 
@@ -423,7 +424,7 @@ page size 20 고정, OFFSET 방식이다. 공지는 total·page size에서 제�
 
 #### 미정·차단·미검증
 
-카피는 planning의 확정 계약을 따른다. 실제 SSR·접근성·viewport 검증은 미실행이다.
+카피는 planning의 확정 계약을 따른다. 기존 SSR·브라우저 기록과 이번 소스 대조는 분리한다. 전체 접근성·viewport 재인수는 남아 있다.
 
 <a id="d01-share-post"></a>
 
@@ -449,7 +450,7 @@ page size 20 고정, OFFSET 방식이다. 공지는 total·page size에서 제�
 3. 성공·취소·실패 결과를 `aria-live` 영역에 알린다.
 4. 닫기·바깥 클릭·Escape 후 포커스를 공유 버튼으로 돌린다.
 
-`shareUrl`은 `SERVICE_PUBLIC_BASE_URL=https://blariyo.com/`를 기준으로 만든 canonical 절대 URL이다.
+`shareUrl`은 Core `SITE_ORIGIN`과 Web `NUXT_PUBLIC_SITE_ORIGIN`의 `https://blariyo.com/`를 기준으로 만든 canonical 절대 URL이다.
 카카오톡은 Kakao JavaScript SDK를 사용한다.
 
 #### 대안·실패 흐름
@@ -487,7 +488,7 @@ JavaScript key, CSP host는 properties/config로 관리하며 실제 값은 `(�
 
 ### 게시글 상세 열람
 
-- 계약 상태: `초안`
+- 계약 상태: `작성 완료` (구현 잔여·인수는 별도)
 
 - 입력 근거: [화면 설계 §6](../../../planning/03-screen-design.md), [상세 API](#api-get-post), [조회 수 API](#api-increment-post-view)
 - 미검증: SSR·조회 수 호출 lifecycle·cache purge integration
@@ -618,11 +619,11 @@ empty·error 문구는 화면 설계를 사용한다. 홈 `<title>`은 `블라�
 #### 화면 수용 조건
 
 공지와 일반 글 수·정렬·page가 분리되고 M1 로그인·후속 광고·미활성 게시판이 렌더링되지 않는다.
-권리 이메일 복사는 제목·본문 없이 `BLARIYO_RIGHTS_CONTACT_EMAIL` 주소만 clipboard로 전달한다.
+권리 문의는 Web `NUXT_PUBLIC_RIGHTS_EMAIL`을 사용한다. 단일 mailto 링크 실행 뒤 1.6초 동안 앱 이탈이 감지되지 않으면 주소·제목·본문 전체를 복사할 대체 안내를 제공한다.
 
 #### 미정·차단·미검증
 
-정적 prototype은 혼합 단계이므로 로그인·광고 요소는 M0 구현 근거가 아니다. 실제 화면은 미검증이다.
+정적 prototype은 혼합 단계이므로 로그인·광고 요소는 M0 구현 근거가 아니다. 실제 앱과 기존 화면 기록은 존재하며 현재 브라우저 재인수는 이번 검토에 포함하지 않았다.
 
 <a id="d08-post-detail"></a>
 
@@ -668,7 +669,7 @@ empty·error 문구는 화면 설계를 사용한다. 홈 `<title>`은 `블라�
   - `canonical`, `og:url`: 상세 `shareUrl`과 같은 절대 URL.
   - `og:site_name`: `NUXT_PUBLIC_SITE_NAME`의 `블라리요`; `og:type=article`.
   - `og:image`, `twitter:image`: 첫 공개 IMAGE block의 절대 HTTPS URL. 공개 IMAGE block이 없으면
-    `SERVICE_PUBLIC_BASE_URL`과 `/og/blariyo-default.png`를 결합한
+    상세 `shareUrl`의 origin과 `/og/blariyo-default.png`를 결합한
     `https://blariyo.com/og/blariyo-default.png`를 사용한다.
   - `og:image:alt`, `og:image:width`, `og:image:height`, `twitter:image:alt`: 첫 공개 IMAGE block이
     있을 때 같은 block의 alt·width·height를 사용한다. fallback인 경우 게시글 IMAGE block의 값을
@@ -716,11 +717,18 @@ focus return을 지원한다. 이미지 alt, 44px target, 360px 이상 무가로
 404 콘텐츠 비노출·`noindex`, metadata별 값 출처·canonical·공유 URL 일치를 만족해야 한다. IMAGE가 있는
 정상 상세는 절대 HTTPS OG 이미지와 alt·크기를 첫 HTML에 포함하고, IMAGE가 없으면 확정 fallback
 이미지를 사용한다. TEXT 유무에 따른 description 우선순위도 첫 HTML에 반영한다.
-권리 이메일 복사는 제목·본문 없이 `BLARIYO_RIGHTS_CONTACT_EMAIL` 주소만 clipboard로 전달하며,
-mailto 실행 결과와 무관하게 항상 사용할 수 있어야 한다.
+권리 문의는 Web `NUXT_PUBLIC_RIGHTS_EMAIL`의 단일 mailto 링크를 사용하며, 1.6초 안에 앱 이탈이 감지되지 않으면 주소·제목·본문 전체 복사와 수동 선택 안내를 제공한다. 상세 계약은 정책·권리 명세를 따른다.
 
 #### 미정·차단·미검증
 
 서비스 도메인, 상세 metadata fallback과 카피 계약은 확정됐다. Kakao SDK script URL·SRI integrity,
 JavaScript key, CSP host의 실제 값과 개발자 콘솔 Web domain 등록은 미검증이다. 이를 확인하기 전에는
 카카오톡 공유 항목 활성화를 차단한다. SSR·browser runtime과 접근성 검증은 별도 구현 증거가 필요하다.
+
+## 13. 2026-09-24 소스 대조와 남은 수용 조건
+
+- 공개 API는 `PublicService`·공개 DTO, 화면은 `pages/[boardSlug]/index.vue`와 `posts/[postId].vue`에 구현돼 있다. direct 수집 글도 공개 승격 뒤 같은 DTO/화면을 사용한다. 수집 실행·검수 권한은 이 명세 범위 밖이다.
+- **공유 이미지 metadata:** 상세 `useSeoMeta`에는 이미지 URL이 있지만 `og:image:alt`, `og:image:width`, `og:image:height`, `twitter:image:alt`가 없다. 본문 IMAGE의 alt·크기 표시와 SSR metadata 계약을 구분하고, 첫 IMAGE 유무별 HTML 회귀 검사로 보완한다.
+- **목록 초점:** page 변경은 `navigateTo`로 query를 갱신하지만 목록 heading으로 명시적으로 초점을 옮기는 처리는 없다. 키보드·스크린리더 인수와 함께 구현을 확인한다.
+- **부분 실패/공유 안내:** 상세 하단 목록 실패는 피드백 문구와 기존 page 버튼 재선택으로 복구한다. 별도 영역 내 재시도 버튼은 없다. 브라우저 기본 공유 성공·사용자 취소에는 별도 피드백을 설정하지 않는다. 명세의 실패/성공/취소 안내 수용 조건을 전부 통과한 것으로 기록하지 않는다.
+- 위 차이는 소스에서 확인한 잔여이며 이번에 브라우저 장애·공유 provider 실패를 재현한 결과가 아니다. 카카오 실제 운영 활성화와 CDN 전체 검증도 별도다.

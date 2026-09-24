@@ -6,13 +6,28 @@
 - milestone: `M0 Core` (`m0-core`)
 - 기능: `analytics-consent` — 기본 비활성 GA4 loader·선택·철회
 - 기준일: 2026-09-07
-- 미검증: GA4 property·Measurement ID·CSP·국외이전 고지, browser storage/network, 실제 event
+- 정합성 검토일: 2026-09-24 (소스·테스트 계약 대조, 재실행·운영 GA4 검증 아님)
+- 운영 미검증: GA4 property·Measurement ID·속성 자동 측정·국외이전 고지·실제 Google network/DebugView. 로컬 대체 tag 검증과 구분한다.
 - 주요 근거:
   - [서비스 기획 §11·§13·§14](../../../planning/01-service-plan.md)
   - [화면 설계 §10·§13](../../../planning/03-screen-design.md)
   - [분석·광고 계획 §2~§5·§11·§12](../../../planning/04-analytics-ad-plan.md)
   - [쿠키 설정 안내](../../../legal/cookie-settings.md), [개인정보처리방침 §3·§4·§7·§10](../../../legal/privacy-policy.md)
   - [시스템 아키텍처 §4](../../../system-design/01-system-architecture.md), [보안·운영 §4](../../../system-design/05-security-operations.md)
+
+### 현행 구현·검증 경계
+
+- 구현은 `apps/web/app/utils/consent.mjs`, `useConsent.ts`, `analytics.client.ts`, `CookieSettings.vue`,
+  `SiteFooter.vue`와 server `security.ts`/`production.ts`에서 확인했다. GA4 flag와
+  `NUXT_PUBLIC_ANALYTICS_APPROVED`가 모두 참이어야 선택 UI·loader를 활성화한다.
+- [단위 테스트](../../../../tests/consent.test.ts)와 [브라우저 테스트](../../../../tests/browser/consent.test.ts)가 있다.
+  브라우저 테스트는 Google script를 로컬 응답으로 대체하고 다른 외부 요청은 차단한다.
+  저장·철회·안전한 필드·route 재방문 검증이며 실제 Google 수신·보관·자동 측정을 증명하지 않는다.
+- 이전 검증 증거는 [요구사항 C15](../../requirements-status.md)에서 추적한다. 이번 문서 검토는
+  테스트를 재실행하지 않았다. 아래 미검증은 별도 표시가 없으면 **현재 환경의 수용 검증 잔여**다.
+- 남은 구현 차이: cookie 삭제 예외는 전송을 중단하지만 이용자에게 삭제 실패를 알리는 경로가 없다.
+  잘못된 JSON/schema를 읽을 때도 선택을 다시 받지만 읽기 실패 안내는 없다. 아래 실패 안내 요구는
+  유지하며 GA4 활성화 전에 감지 가능한 실패·안내·검증 범위를 맞춘다. C15의 주요 구현과 별개인 잔여다.
 
 ## 2. 목표와 대상 milestone
 
@@ -22,8 +37,8 @@ M0 Core에 GA4 loader와 동의 제어를 구현하되 production 기본값은 �
 ## 3. 행위자와 진입 조건
 
 - 공개 이용자: 최초 비차단형 banner, footer `/cookie-settings`, modal 또는 직접 route
-- 시작 조건: `NUXT_PUBLIC_GA4_ENABLED=true`이고 활성 선택 범위에 대한 저장값이 없거나 변경됨
-- 기본 M0: flag false이므로 banner·분석 option·Google 요청·`blariyo_consent`가 없다.
+- 시작 조건: `NUXT_PUBLIC_GA4_ENABLED=true`·`NUXT_PUBLIC_ANALYTICS_APPROVED=true`이고 활성 선택 범위에 대한 저장값이 없거나 변경됨
+- 기본 M0: flag false이므로 banner·분석 option·Google 요청·새 consent 저장이 없다. 과거 localStorage 값이 자동 삭제된다고 보장하지 않으며 비활성 중에는 동의로 사용하지 않는다.
 
 ## 4. 범위와 범위 밖
 
@@ -112,7 +127,7 @@ API 해당 없음. Google tag는 browser에서 동의 후 직접 로드하며 BF
 - 계약 상태: `작성 완료`
 
 - 입력 근거: [분석 계획 §5](../../../planning/04-analytics-ad-plan.md), [쿠키 안내 §3~§5](../../../legal/cookie-settings.md), [퍼블리싱 동의 저장 비교물](../../../ui/publishing/responsive/app.js)
-- 미검증: browser storage·tag/network test
+- 현재 수용 잔여: 실제 browser storage·tag/network. 로컬 대체 tag 테스트 범위는 위 현행 구현 절을 따른다.
 
 #### 프로세스 목적과 범위
 
@@ -156,15 +171,16 @@ API 해당 없음. browser localStorage와 tag loader만 사용한다.
 }
 ```
 
-- `version`: 현재 퍼블리싱 비교물과 맞춘 storage schema version인 정수 `2`.
+- `version`: 현행 앱과 퍼블리싱 비교물의 storage schema version인 정수 `2`.
 - `scope`: 현재 활성 선택 기능 slug를 `analytics`, `ads` 고정 순서로 선택해 쉼표로 연결한 문자열.
-  M0 GA4만 활성화하면 `analytics`, 둘 다 활성화하면 `analytics,ads`다.
+  현행 M0 앱은 `analytics`만 허용한다. `analytics,ads`는 후속 광고 확장 계약이며 현재 앱에서는 미지원 scope로 재선택한다.
 - `analytics`, `ads`: boolean. scope에 없는 기능은 항상 `false`이며 동의로 해석하지 않는다.
 - `savedAt`: 저장 성공 시각의 UTC ISO 8601 문자열.
 - 유효 기간: `savedAt`부터 12개월. 달력 기준 12개월이 지난 첫 확인에서 만료로 판정하고 재선택한다.
 
 퍼블리싱 비교물의 `version=2`, 쉼표 구분 scope와 field 구조는 이 계약과 일치하지만 12개월 만료
-판정은 구현돼 있지 않다. 정적 비교물을 실행 증거로 보지 않고 실제 source에서 별도 구현·검증한다.
+판정은 구현돼 있지 않다. 실제 앱의 `readConsent`는 달력 1년·윤일·미래 시각·만료를 검사한다.
+정적 비교물을 앱 실행 증거로 사용하지 않는다.
 
 미저장→analytics false/true; scope 변경·12개월 만료→재선택 필요; true→false 철회다.
 
@@ -181,7 +197,7 @@ flag false·미저장·거부·철회에서 새 Google tag 로드·request·cook
 
 #### 미정·차단·미검증
 
-GA4 활성화 실값은 차단 상태지만 consent state machine 자체는 확정됐다. browser test는 미실행이다.
+GA4 활성화 실값은 차단 상태다. consent 구현·로컬 대체 tag 테스트는 있으나 현재 운영 browser 수용은 별도다.
 
 <a id="d01-send-analytics-events"></a>
 
@@ -190,7 +206,7 @@ GA4 활성화 실값은 차단 상태지만 consent state machine 자체는 확�
 - 계약 상태: `작성 완료`
 
 - 입력 근거: [분석 계획 §2·§4](../../../planning/04-analytics-ad-plan.md), [시스템 아키텍처 §4](../../../system-design/01-system-architecture.md)
-- 미검증: source, browser, GA4 DebugView·network
+- 확인: source·로컬 대체 tag 테스트 구조. 미검증: 현재 운영 browser·GA4 DebugView·실제 network
 
 #### 프로세스 목적과 범위
 
@@ -238,7 +254,7 @@ tag/request·cookieless ping 0건, 금지값 미전송, loader 실패 시 공개
 
 #### 미정·차단·미검증
 
-event 계약은 확정됐다. GA4 운영 gate의 실값과 source·browser·DebugView·network는 미검증이다.
+event 계약과 adapter 구현은 대조했다. GA4 운영 gate의 실값·현재 browser·DebugView·실제 network는 미검증이다.
 
 <a id="d08-analytics-loader"></a>
 
@@ -299,7 +315,7 @@ flag false·미동의·철회에서 방문자 수·page open을 포함한 Google
 event custom parameter 계약은 확정됐다. Measurement ID·property 보관 설정·국외이전 고지·Google
 계약 법인·Google tag/CSP domain은 활성화 차단 실값이며, 모두 확정되기 전 production은
 `NUXT_PUBLIC_GA4_ENABLED=false`다. flag가 false인 환경은 원인과 관계없이 Measurement ID를 public
-runtime config에서 unset한다. source·browser·network는 미검증이다.
+runtime config에서 빈 값으로 만든다. 해당 server hook은 확인했으며 현재 운영 browser·실제 network는 미검증이다.
 
 <a id="d08-consent-banner"></a>
 
@@ -353,7 +369,7 @@ flag false 미노출, true+미선택 표시, 저장 후 닫힘, scope 변경 시
 
 #### 미정·차단·미검증
 
-GA4 활성 gate는 차단 상태지만 banner contract는 확정. browser 검증은 미실행이다.
+GA4 활성 gate는 차단 상태다. banner 구현·로컬 대체 tag 테스트는 있으며 현재 운영 화면 수용은 별도다.
 
 <a id="d08-cookie-settings"></a>
 
@@ -380,7 +396,7 @@ GA4 활성 gate는 차단 상태지만 banner contract는 확정. browser 검증
 
 - `blariyo_consent`: [분석 선택 D01](#d01-manage-analytics-consent)의 `version=2`, 고정 순서 `scope`,
   `analytics`, `ads`, UTC `savedAt` JSON. `savedAt`부터 달력 기준 12개월 뒤 만료한다.
-- 분석 option은 GA4 flag true일 때만 표시한다.
+- 분석 option은 GA4 flag와 분석 승인 flag가 모두 true일 때만 표시한다.
 - GA4 운영값과 법무 고지가 모두 확정되지 않아 flag가 false인 환경에서는 Measurement ID나 provider
   placeholder를 노출하지 않는다.
 - M0에서 광고가 비활성이면 광고 option·cookie를 표시하거나 만들지 않는다.
@@ -414,4 +430,4 @@ modal/direct route 동등 내용, 비활성 option 미노출, 12개월 scope, �
 
 GA4 실제 cookie 만료·property 보관·국외이전 고지·Google 계약 법인·Google tag/CSP domain은 활성화
 차단값이다. 모두 확정되기 전 production flag는 false이며 M0 Core 공개 자체는 막지 않는다. 화면
-runtime은 미검증이다.
+현재 운영 runtime은 미검증이다.

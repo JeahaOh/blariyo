@@ -1,4 +1,4 @@
-# Spring 수집 서버 운영
+# 수집기 운영 — direct batch와 legacy 호환 서버
 
 현재 구현·테스트 단계다. 실제 출처·Discord·운영 PC 값과 7일 관찰 전에는 운영 완료가 아니다.
 
@@ -6,6 +6,10 @@
 [환경별 연결·권한](../../../docs/operations/environment-configuration.md#9-core-연결과-direct-batch-검수의-실행-경계)을 따른다.
 아래 legacy 운영 절의 Core 전송·별도 collector DB·spool 명령은 기존 호환 코드에 해당하며
 새 direct batch 실행 절차가 아니다. 새 batch는 같은 PostgreSQL database에 제한 role로 직접 저장한다.
+
+2026-09-24 코드 대조: direct의 robots/Crawl-delay·영속 일일 budget 연결과 설계 redirect 상한에
+미충족 항목이 있다. 아래 실행 명령·예제의 승인 플래그를 운영 활성화 허가로 해석하지 않는다.
+[필수 보완과 검증 조건](../../../docs/system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)을 먼저 따른다.
 
 ## 변경 검증과 CI
 
@@ -174,7 +178,11 @@ BLOCKED/UNVERIFIED 목록을 generic parser로 성공 처리하지 않는다. `-
 ```
 
 `imageOrigins`는 확인한 첨부 CDN의 정확한 origin·경로만 넣는다. source 승인과 robots 확인은 위 예시로 대신하지 않는다.
-본문 1000블록·이미지 20개를 초과하면 각각 SOURCE_BODY_LIMIT_EXCEEDED/SOURCE_IMAGE_LIMIT_EXCEEDED로 실패하며 잘라서 저장하지 않는다. SNS 주소는 보존하고 화면에서 임베드한다.
+위 예시는 상세 URL 정책의 일부다. 목록 batch에는 `batchApproved`, `chartVerified`, `charts`, 상한·간격 등의
+추가 설정이 필요하다. [source 예시 파일](reference-sites.sources.example.json)의 해당 출처 전체 설정과 대조한다.
+direct parser는 본문 1000블록과 source별 `mediaLimits.maxImages`(기본 200장)를 넘으면
+SOURCE_BODY_LIMIT_EXCEEDED/SOURCE_IMAGE_LIMIT_EXCEEDED로 실패하며 잘라서 저장하지 않는다.
+파일/글 전체 용량은 [글별 미디어 한도](#글별-미디어-한도)를 따른다. SNS 주소는 보존하고 화면에서 임베드한다.
 Node/Python 일회성 25건 교체 스크립트나 서비스 DB 직접 쓰기는 이 실행 경로에서 사용하지 않는다.
 secret은 macOS Keychain 또는 `collector.secrets-directory`의 계정별 파일에서 읽는다.
 파일 backend는 `COLLECTOR_SECRETS_DIRECTORY`로도 지정할 수 있다. 파일 이름은 위 Keychain account와 같고
@@ -265,9 +273,9 @@ apps/collector/ops/verify-write-db-readback.sh --manifest apps/collector/ops/pro
 Windows PowerShell도 같은 manifest를 받는다.
 
 ```powershell
-apps\collector\opserify-write-db-readback.ps1 --manifest apps\collector\ops\production-readback-sample.json
-apps\collector\opserify-write-db-readback.ps1 --manifest apps\collector\ops\production-readback-17-fetched.json
-apps\collector\opserify-write-db-readback.ps1 --manifest apps\collector\ops\production-readback-4-failed.json
+apps\collector\ops\verify-write-db-readback.ps1 --manifest apps\collector\ops\production-readback-sample.json
+apps\collector\ops\verify-write-db-readback.ps1 --manifest apps\collector\ops\production-readback-17-fetched.json
+apps\collector\ops\verify-write-db-readback.ps1 --manifest apps\collector\ops\production-readback-4-failed.json
 ```
 
 Windows PowerShell에서는 같은 환경 변수를 `$env:`로 설정한 뒤 다음을 실행한다. `psql`은 PATH에 있어야 한다.
@@ -293,7 +301,11 @@ Discord Gateway E2E는 실제 bot token과 테스트 guild/channel에서만 검�
 - `apps/collector/ops/discord-e2e-checklist.md`
 - `apps/collector/ops/discord-e2e-result.example.json`
 
-[Compose 파일](compose.yaml)은 서비스용 루트 compose와 독립이다. Mac·Windows의 Docker Desktop에서도 Linux
+### Legacy 호환 서버 Docker 설치
+
+아래 [Compose 파일](compose.yaml)은 별도 DB와 Spring 서버를 기동하는 **legacy 호환 구성**이며 direct batch의
+공유 DB/제한 role 구성이 아니다. direct queue의 Docker 실행은 [Direct Discord queue](#direct-discord-queue-v005)를 따른다.
+서비스용 루트 compose와 독립이며 Mac·Windows의 Docker Desktop에서도 Linux
 container로 실행한다. collector·실행 DB의 host port는 공개하지 않으며 URL 접수는 container 안에서 공통 CLI로 한다.
 
 1. JDK 25에서 `apps/collector/gradlew -p apps/collector test bootJar`로 jar를 만든다. Windows에서 빌드만 할 때는
@@ -348,8 +360,10 @@ Core API, Spring Web 서버, Quartz, legacy `collector.run` dispatcher는 필요
 
 ```sh
 # Linux Docker: 예시 image 이름은 배포 전에 실제 빌드한 것으로 교체한다.
-# private env 파일에는 DB/object 설정과 secret 디렉터리 경로를 지정한다.
+# private env 파일에는 원격 DB/R2 설정, COLLECTOR_SOURCES_FILE=/config/sources.json,
+# COLLECTOR_SECRETS_DIRECTORY=/run/collector-secrets를 지정한다.
 docker run --rm --env-file /secure/collector.env \
+  --mount type=bind,src=/secure/collector-config,dst=/config,readonly \
   --mount type=bind,src=/secure/collector-secrets,dst=/run/collector-secrets,readonly \
   --entrypoint java blariyo-collector:local \
   -Dloader.main=com.blariyo.collector.ops.BatchMain -cp /app/collector.jar \

@@ -2,7 +2,7 @@
 
 이 표는 source registry의 실행 상태와 별개로, 실제 HTML·정책·readback 증거를 기록한다. `implemented`는 코드와 fixture 테스트가 있다는 뜻이고, `verified-local`은 실제 공개 URL을 로컬 개발 DB와 로컬 object store에 저장한 뒤 readback했다는 뜻이다. 운영 DB/S3와 Discord Gateway E2E는 별도 증거 없이는 완료로 보지 않는다.
 
-목록 가능 여부는 [출처별 수집 정책](source-collection-policy.md)의 `HOT_LIST`, `GENERAL_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`를 따른다. 모든 사이트에 Hot 목록을 강제하지 않는다. 단, `HOT_LIST`로 분류한 사이트는 목록 parser와 상세 parser가 모두 있어야 하며 목록에서 찾은 URL을 같은 batch 실행에서 상세 fetch·parse·DB/S3 저장까지 연결해야 한다.
+목록 가능 여부는 [출처별 수집 정책](source-collection-policy.md)의 `HOT_LIST`, `GENERAL_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`를 따른다. 모든 사이트에 Hot 목록을 강제하지 않는다. `HOT_LIST`·`GENERAL_LIST`로 분류한 사이트는 목록 parser와 상세 parser가 모두 있어야 하며 목록에서 찾은 URL을 같은 batch 실행에서 상세 fetch·parse·DB/object 저장까지 연결해야 한다.
 
 현재 chart 명칭과 접근 관측은 [출처별 정책](source-collection-policy.md)이 정본이다. 아래 run ID가 있는 표는 과거 검증 시점의 증거이며, 임시 DB와 현재 지속 개발 DB를 구분한다. 일반 목록의 이전 `hot` 실행 명칭은 인기 목록 검증을 뜻하지 않는다.
 
@@ -57,7 +57,9 @@
 
 ## Hot-list 완료 기준
 
-- `HOT_LIST` 사이트는 list parser만 있으면 실패다. 목록 URL에서 상세 URL을 찾고, 같은 `DirectBatchRunner` 실행에서 상세 fetch·site detail parser·dedup·raw/media/report 저장까지 성공해야 한다.
+이 기준은 `GENERAL_LIST`에도 동일하게 적용하며, 기존 참조를 위해 절 제목은 유지한다.
+
+- `HOT_LIST`·`GENERAL_LIST` 사이트는 list parser만 있으면 실패다. 목록 URL에서 상세 URL을 찾고, 같은 `DirectBatchRunner` 실행에서 상세 fetch·site detail parser·dedup·raw/media/report 저장까지 성공해야 한다.
 - 초기 임시 개발 DB 실행에서는 아래 Hot·일반 목록 사이트들의 저장을 검증했다. 현재 `HOT_LIST`는 arcalive/bobaedream/dcinside/dogdrip/inven/ruliweb/theqoo/todayhumor이고, `GENERAL_LIST`는 clien/dmitory/etoland/goodgag/humoruniv/instiz/mlbpark/natepann/yuldo다. 과거 실행의 `hot` 인자가 일반 목록을 인기 목록으로 바꾸지 않는다. DCInside 초기 실행의 부분 실패는 후속 재수집 결과와 구분한다.
 - `mlbpark`의 초기 `verified-local-text-only` 판정 이후 지속 로컬 DB의 5건·이미지 2개 readback을 확인했다. 현재 수량은 아래 후속 증거를 따른다.
 - `dcinside` 초기 실행의 `DETAIL/PARSE_FAILED` 이력은 유지한다. 후속 저장 원본 5건·이미지 175개 readback과 공개 글의 다중 이미지·애니메이션 검증은 별도 후속 증거다.

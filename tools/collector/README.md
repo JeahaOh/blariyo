@@ -1,4 +1,9 @@
-# 로컬 수집기
+# Legacy Python 로컬 수집기
+
+이 문서는 기존 Python·SQLite 호환 구현의 사용법이다. 현행 신규 수집은
+[Java direct batch 운영 안내](../../apps/collector/ops/README.md#직접-저장-batch-실행)를 따른다.
+아래 Core 후보·cron·별도 상태 DB 절차를 direct batch/Discord queue에 적용하지 않는다.
+운영 활성화·실연동 여부는 [현재 운영 상태](../../docs/operations/current-status.md)와 별도로 확인한다.
 
 관리자 URL 접수 또는 Discord `/collect url` → 작업 선점 → 로컬 HTML·이미지 추출 →
 비공개 후보 검수 → 기존 Core 초안 생성 순서다. 발행은 운영자가 별도로 실행한다.
@@ -132,5 +137,5 @@ INTERRUPTED로 기록하며 QUEUED는 유지한다. Core의 만료 lease는 다�
 놓친 cron을 한꺼번에 재생하지 않는다. 같은 상태 파일을 쓰는 서버·단독 CLI의 중복 기동은 파일 잠금으로 차단한다.
 
 참고한 구조는 s2b_batch의 QuartzBatchJobLauncher·수동 launch API·동시 실행 방지다.
-Java/Spring으로 기술 스택을 바꾸지 않고 Python의 aiohttp HTTP 서버와 croniter를 사용한다.
+이 legacy 구현은 Python의 aiohttp HTTP 서버와 croniter를 사용한다. 현재 Java/Spring 구현과 별개다.
 운영 기기의 로그인 시 자동 기동(launchd) 등록과 실제 Discord·출처 연결은 별도다.

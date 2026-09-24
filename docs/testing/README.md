@@ -1,6 +1,7 @@
 # Blariyo 테스트 케이스 구현 안내
 
 작성일: 2026-09-10. 대상: 현재 NestJS·TypeORM 기반 M0 Core와 수집 보조.
+정합성 검토: 2026-09-24. 현행 runner·테스트 source·direct 저장 계약과 대조했으며 앱 테스트는 재실행하지 않았다.
 
 이 문서는 **개발자가 테스트를 직접 작성하기 위한 명세**다. 제품 요구사항을 새로 결정하지 않는다.
 각 케이스는 준비 데이터, 실행, 기대 결과와 확인할 저장 상태를 설명한다.
@@ -11,7 +12,7 @@
 | 문서 | 용도 |
 | --- | --- |
 | [M0 Core 케이스](core-cases.md) | 공개 조회, 권한, 게시글·이미지, 화면, 정책과 동의 30개 |
-| [수집·운영 케이스](collection-operations-cases.md) | 수집 소유권, 복구, DB·배포 실행 구조 10개 |
+| [수집·운영 케이스](collection-operations-cases.md) | legacy 수집·운영10개와 direct batch·queue·검수6개 |
 | [향후 게시판·익게 케이스](future-board-cases.md) | M1.5 및 선택적인 게시판 관리 기능 6개. 현재 M0 통과 조건에 포함하지 않음 |
 
 추천 순서는 `PUB-02 → PUB-04 → ADM-01 → ADM-02 → IMG-03 → ADM-05 → COL-03 → OPS-02`다.
@@ -26,9 +27,9 @@
 - **보강 제안**: 독립 케이스로 명확히 만들 것을 권한다. 테스트 부재나 현재 결함을 확정한 표시는 아니다.
 - **후속 설계**: 아직 구현 대상이 아니거나 제품 결정이 필요하다. 현재 테스트 실패로 집계하지 않는다.
 
-**모든 신규 케이스 ID의 실행 상태는 `미실행`이다.** 기존 테스트 결과와 이 문서의 결과를 구분한다.
+**이 문서의 케이스 ID별 전체 입력 대조·실행 상태는 `미실행`이다.** 관련 기존 테스트가 실행되지 않았다는 뜻은 아니다. 기존 테스트 결과와 이 문서의 입력별 결과를 구분한다.
 기존 종합 실행의 범위·결과는 [Nest 검증 보고](../../worklog/2026-09-09/nest-transition/REPORT.md), API별 대응은
-[전환 계획](../../worklog/2026-09-09/nest-transition/PLAN.md)에 있다. 이 문서의 46개 ID는 기존 테스트 개수와 일대일 대응하지 않는다.
+[전환 계획](../../worklog/2026-09-09/nest-transition/PLAN.md)에 있다. 초기46개와 추가 direct6개, 총52개 ID는 기존 테스트 개수와 일대일 대응하지 않는다. 후속 9월 23일 실행 근거는 [현재 현황](../status.md)과 [로드맵](../roadmap.md)에서 별도로 확인한다.
 한 ID 안의 입력 표는 가능하면 `t.test()`로 나눠 실패한 조건을 바로 알 수 있게 한다.
 
 ## 3. 테스트의 기본 구조
@@ -53,9 +54,7 @@ DB 롤백·잠금을 검증하면서 DB까지 대역으로 바꾸면 실제 DB�
 
 ### 실행 환경
 
-현재 저장소의 Node 버전은 `24.18.0`이다. 의존성은 lockfile을 사용한다. 준비 명령과 테스트 전용
-컨테이너의 정확한 ID·volume·port는 [검증 환경](../../worklog/2026-09-09/nest-transition/REPORT.md#전환-전용-검증-환경)을 따른다.
-이 문서를 읽는 시점에 컨테이너가 실행 중이라고 가정하지 않는다. ID가 다르면 해당 자원을 사용하지 않는다.
+현재 저장소의 Node 버전은 `24.18.0`이다. 의존성은 lockfile을 사용한다. 개발 DB 준비는 [로컬 안내](../../scripts/local/README.md), 실제 테스트는 `TEST_DATABASE_ADMIN_URL`의 loopback 관리 DB를 사용한다. 9월 9일 전환 자원은 [당시 검증 환경](../../worklog/2026-09-09/nest-transition/REPORT.md#전환-전용-검증-환경)에 보존하며 현재 필수 컨테이너 ID로 강제하지 않는다. 사용할 서버·DB 소유권과 포트를 먼저 확인한다.
 
 2026-09-23 추가: discovery 통합 검사는 실제 Java parser fixture를 호출한다. `JAVA_HOME`을 Java 25
 JDK로 설정한 뒤 `npm run test:fixtures`를 실행한다. 이 명령은 Java 버전을 확인하고
@@ -83,7 +82,7 @@ JUnit 결과에 실패·건너뜀이 있거나 DB readback suite가 없으면 �
 기존 2분 backoff를 기다리므로 브라우저 전체 실행에 수 분이 걸린다. worker 직접 호출이나 DB 시각
 조작으로 대체하지 않는다. 자동화 통과와 운영자 수동 인수·실제 Access 인증은 별개다.
 
-- Nest 통합 runner는 loopback `55449/postgres`에 연결해 파일마다 `nest_<임의값>` DB를 만들고 삭제한다.
+- Nest 통합 runner는 loopback `5439/postgres` 또는 `55449/postgres`에 연결해 파일마다 `nest_<임의값>` DB를 만들고 삭제한다.
 - 개발용 DB나 운영 DB를 `TEST_NEST_DATABASE_URL`에 직접 넣지 않는다.
 - `node --test apps/api/dist-test/…`를 직접 실행하기보다 아래 전용 runner를 사용한다.
 - 파일 안의 하위 테스트는 DB를 공유한다. 행 수를 셀 때 해당 케이스의 ID로 범위를 제한하거나,
@@ -106,7 +105,7 @@ JUnit 결과에 실패·건너뜀이 있거나 DB readback suite가 없으면 �
 
 조회 테스트는 SQL로 데이터를 준비해도 된다. **발행 기능을 테스트할 때는 SQL로 이미 발행된 상태를
 만들고 성공했다고 판단하지 않는다.** 초안을 준비한 뒤 실제 발행 API/서비스를 호출한다.
-예약 시각은 PostgreSQL 시각을 기준으로 만든다. 실제 시간을 바꾸거나 1분 넘게 잠들어 기다리지 않는다.
+서비스·DB 경계 테스트의 예약 시각은 PostgreSQL 시각을 기준으로 만들고 준비 데이터의 due 시각을 조절한다. 별도 `local-workers`의 실행기 인수는 실제 분 단위 timer를 기다려야 하며 위 방법으로 대체하지 않는다. 호스트 실제 시각은 바꾸지 않는다.
 
 ## 5. 따라 작성할 수 있는 완전한 예제
 
@@ -220,8 +219,7 @@ node scripts/test-nest-integration.ts apps/api/dist-test/pagination-example.inte
 기존 공개 테스트를 수정했다면 마지막 인자를 `apps/api/dist-test/public-http.integration.test.js`로 바꾼다.
 runner는 새 파일의 `.integration.test.js`도 자동 수집한다. `.service.test.ts`는 API 단위 테스트,
 `tests/browser/*.test.ts`는 브라우저 실행 대상이다. 이름을 다르게 지어 실행 대상에서 빠뜨리지 않는다.
-전체 검증은 [REPORT의 환경 준비와 명령](../../worklog/2026-09-09/nest-transition/REPORT.md)을 사용한다. 단일 케이스 통과를
-전체 `verify:migration` 통과로 기록하지 않는다.
+현재 검사 명령·CI 분리는 [루트 검증 안내](../../README.md#검증)를 사용한다. `verify:migration`은 9월 9일 전환 기준선과 전용 자원 검증용이므로 모든 작업의 일반 완료 명령으로 사용하지 않는다. 단일 케이스나 빠른 CI 통과를 schema restore·브라우저·Collector·운영 검증 전체 통과로 기록하지 않는다.
 
 ## 6. 실패와 동시성을 제대로 만드는 방법
 

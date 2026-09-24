@@ -5,6 +5,10 @@
 2026-09-20 사용자 실행 출력으로 Lightsail의 DB healthy·영속 volume·역할 3개 접속을 확인했다.
 초기 앱 migration 도구는 로컬 임시 PostgreSQL 18과 합성 비밀번호로 검사했으며,
 이후 실제 서버 V001–V005·테이블 권한 적용과 정책 v0.1 정식 발행까지 완료했다.
+[9월 23일 DB 운영 반영](../../worklog/2026-09-23/release/production-db-promotion.md)에서는 별도 검토 절차로
+API V008·Collector V006을 적용하고 ledger/checksum·역할 권한과 데이터를 대조했다. 이는 당시 관측이며
+2026-09-24에 DB를 재조회하지 않았다. 아래 V001–V005 도구는 **최초 설치·과거 호환 검사 문맥**이며,
+가동 중인 V008 DB의 후속 schema upgrade나 자동 복구에 사용하지 않는다.
 [배포 실행서](../../docs/operations/deployment-runbook.md)에 전체 순서가 있다.
 아래 초안 seed 설명은 최초 준비 단계이며 현재 유효 정책이 없다는 뜻이 아니다.
 
@@ -20,7 +24,8 @@ SQL migration과 `ops.schema_migration`이 스키마 변경의 정본이며 Type
 입력은 SSH 표준입력으로 전달하며 서버 `policy-seeds/<SHA-256>/`에 root 700/600으로 보관한다.
 등록 전 DB dump를 남기고, 등록 후 유형·버전·상태·시행일과 본문 SHA-256을 다시 대조한다.
 
-이미 migration을 마친 현재 서버에는 다음 명령으로 seed만 적용한다.
+아래는 migration을 마친 **최초 설치 당시 서버**에 draft seed만 적용한 명령이다. 현재 운영 정책
+조회나 일반 재배포를 위해 반복 실행하지 않는다.
 
 ```sh
 python3 deploy/postgresql/seed-policies-from-mac.py --host 13.124.55.99 --apply
@@ -29,6 +34,9 @@ python3 deploy/postgresql/seed-policies-from-mac.py --host 13.124.55.99 --apply
 새 서버에서 DB·역할 설치 후에는 아래 초기화 진입점이 **V001–V005 및 권한 적용 → 정책 seed**를
 순서대로 실행한다. 검증된 migration archive와 기존 비공개 연락처 파일이 있어야 한다.
 현재 helper는 기존 서버 hostname을 검사하므로 다른 인스턴스를 준비할 때 대상 검사를 갱신해야 한다.
+초기 archive manifest는 helper·권한 SQL 해시도 고정한다. 현행 권한 SQL은 direct 역할을 포함하므로
+9월 20일 묶음과 다를 수 있다. `TESTED_HELPER_CHANGED`를 우회하거나 manifest만 다시 해시하지 말고
+새 초기 구성 묶음을 격리 재검증한 뒤 사용한다.
 
 ```sh
 python3 deploy/postgresql/initialize-from-mac.py --host 13.124.55.99 --apply
@@ -65,14 +73,14 @@ python3 deploy/postgresql/initialize-from-mac.py --host 13.124.55.99 --apply
 
 ## Lightsail에 DB만 설치하는 단계
 
-현재 사용자 확인 결과는 x86_64, 사용 가능 메모리 1.4GiB, swap 2GiB, 디스크 여유 53GiB,
+2026-09-20 최초 설치 전 사용자 확인값은 x86_64, 사용 가능 메모리 1.4GiB, swap 2GiB, 디스크 여유 53GiB,
 Compose v5.5.1, 기존 cloudflared container 1개다. 설치는 별도 project `blariyo-db`를 사용한다.
 기존 Tunnel, DNS, 방화벽, SSH 설정을 변경하지 않는다. 서버에서 앱 image를 빌드하지 않는다.
 
-맥의 새 터미널에서 보관 파일만 검사하려면:
+맥의 저장소 루트에서 보관 파일만 검사하려면:
 
 ```sh
-python3 /Users/zeaha/task_list/install-blariyo-postgres.py --host 13.124.55.99
+python3 deploy/postgresql/install-from-mac.py --host 13.124.55.99
 ```
 
 동일 명령에 `--install-db`를 추가하면 **실제 서버로 DB 파일·비밀번호 3개를 전달하고 설치한다**.
@@ -82,7 +90,7 @@ host key가 새 주소에 등록되어 있지 않거나 기존 키와 다르면 
 다르면 설치 전에 중단한다. 인스턴스를 실제로 교체한 경우에만 `--expected-hostname`으로 바꾼다.
 
 ```sh
-python3 /Users/zeaha/task_list/install-blariyo-postgres.py --host 13.124.55.99 --install-db
+python3 deploy/postgresql/install-from-mac.py --host 13.124.55.99 --install-db
 ```
 
 설치에 필요한 것은 맥의 Python 3·기존 SSH key, 서버의 Python 3·Docker Compose·비대화식 sudo다.
@@ -117,7 +125,7 @@ data network에 DB 이외 container가 있거나 app·migrator·backup 접속이
 맥에서 실행한다. `--apply`가 없으면 로컬 archive·도구·SSH key 권한 검사만 수행한다.
 
 ```sh
-python3 /Users/zeaha/task_list/migrate-blariyo-db.py --host 13.124.55.99 --apply
+python3 deploy/postgresql/migrate-from-mac.py --host 13.124.55.99 --apply
 ```
 
 - 로컬 묶음: `/Users/zeaha/task_list/blariyo-db-migration-20260920/`의 `api.tar`와 `manifest.json`.
@@ -176,8 +184,8 @@ wrapper를 사용하지 않는다.**
 non-root container에 mount할 때는 container 실행 UID가 읽을 수 있는 별도 staging 파일 또는
 secret volume이 필요하다. 서버 원본은 root `0600`으로 유지하고 staging 파일은 해당 UID의
 `0600`, mount는 읽기 전용으로 맞춘다. `0644`로 넓혀 해결하지 않는다. API에는 app,
-migration에는 migrator, backup에는 backup 비밀번호만 전달한다. 실제 production mount 구성은
-다음 배포 준비 단계에서 검증한다.
+migration에는 migrator, backup에는 backup 비밀번호만 전달한다. 앱의 최초 mount 구성은
+[앱 배포 안내](../application/README.md)를 따르며 새 후보의 UID·mount·권한은 매번 대조한다.
 
 ## 권한 범위
 
@@ -214,7 +222,7 @@ PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run test:database-ro
 비밀번호를 생성한다. 검사 때만 loopback의 임의 host port를 사용하고 종료 시 container·임시
 파일을 정리한다. `~/.config/blariyo`와 운영 서버에는 접근하지 않는다.
 
-검사 항목은 API V001–V008와 Collector V001–V005 migration, 4역할 비밀번호 인증,
+검사 항목은 API V001–V008와 Collector V001–V006 migration, 4역할 비밀번호 인증,
 별도 Java 프로세스의 제한 batch 계정 수집·중복 skip·DB/local object readback,
 제한 API 계정의 검수·private DRAFT·별도 publish,
 DDL·ledger 접근 거부, trigger 유지, 향후 객체 권한, backup의 쓰기 거부, backup 계정의
@@ -250,12 +258,17 @@ python3 deploy/postgresql/initialize-from-mac.py --host 13.124.55.99 --apply --p
 이미 배포된 서버에서 단순 확인을 위해 위 초기화 명령을 다시 실행하지 않는다.
 
 
-## Direct batch 역할 추가 (운영 적용은 별도)
+## Direct batch 역할 추가 (초기 3역할과 별도 절차)
 
-초기 설치는 기존 app/migrator/backup 3개 역할만 만든다. batch를 활성화할 때는 별도
+9월 23일 운영 기록은 API V008·Collector V006과 API/backup 권한을 확인했다. 별도 PC의 batch
+login·실제 쓰기 권한은 별도 인수 대상이다. 현재 역할 존재 여부를 조회하지 않고 추가를 다시
+실행하지 않는다. 아래는 batch 역할이 없는 대상의 추가 절차다.
+
+초기 설치는 app/migrator/backup 3개 역할만 만든다. batch를 활성화할 때는 별도
 `batch-password` 파일을 소유자 전용 `0600`으로 준비하고 다음을 실행한다.
 값은 64자리 hex이며 다른 역할과 공유하지 않는다. 동일 디렉터리의 기존 비밀번호 파일이
-있으면 wrapper가 재사용을 거부한다. 파일·비밀번호 값을 터미널 출력이나 명령 인자에 넣지 않는다.
+있으면 wrapper는 해당 **값과 같은 비밀번호의 재사용**을 거부한다. 기존 파일의 존재 자체를 거부하는 것은 아니다.
+파일·비밀번호 값을 터미널 출력이나 명령 인자에 넣지 않는다.
 
 ```sh
 python3 deploy/postgresql/create-roles.py --container <postgres-container> \
@@ -272,4 +285,5 @@ VPN/사설 경로만 사용하며 PostgreSQL port를 인터넷에 공개하지 �
 Collector V006의 MIME 정정 함수와 `batch_media_correction`은 migrator 전용이다.
 `apply-privileges.sql`의 API/batch 명시 목록에 이 테이블·함수를 추가하지 않는다.
 소유자는 백업과 파일 검증 manifest를 확인한 뒤 별도 유지보수로 실행하며 runtime은 완료 media를
-직접 수정하지 않는다. 로컬 적용 결과는 운영 migration 적용 증거가 아니다.
+직접 수정하지 않는다. 운영 적용은 위 9월 23일 기록으로 확인하며, 새 로컬 검사만으로 현재 운영
+migration 상태를 판정하지 않는다.

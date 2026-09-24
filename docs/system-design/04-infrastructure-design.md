@@ -3,8 +3,8 @@
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 인프라 설계 계약 · Lightsail 공개 배포 완료, 관리자 쓰기 흐름·장기 관찰 미검증
 - 기준일: 2026-09-04
-- 정합성 검토일: 2026-09-20 (실제 배포 반영)
-- 가격 기준: 2026-08-14, USD, 세금·환율·도메인·메일 비용 제외
+- 정합성 검토일: 2026-09-24 (현재 source·Compose·9월 23일 배포 기록 대조; 서버 재조회 없음)
+- 가격 기준: 아래 과거 대안 비교는 2026-08-14. 선택한 Lightsail·Cloudflare·R2는 2026-09-24 공식 가격표 재확인. USD, 세금·환율·도메인·메일 비용 제외
 - 관련 문서: [시스템 아키텍처](01-system-architecture.md), [보안·운영](05-security-operations.md)
 
 가격과 무료 한도는 바뀔 수 있다. 배포 직전 공식 가격표를 다시 확인하고 월 예산 알림을 설정한다.
@@ -26,6 +26,10 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 
 ### 컴퓨트
 
+OCI·Hetzner의 다음 비교는 당시 검토 이력이며 현재 구매 권고가 아니다. 재선택 시 가격·무료량·capacity를
+다시 확인한다. 현행 선택인 Lightsail public IPv4 Linux 2GB/4GB는 공식 가격표상 각각 $12/$24이며
+고정 IP 미사용을 IPv6-only 요금 선택으로 해석하지 않는다.
+
 | 후보 | 위치·사양 | 월 기준 | 장점 | 위험·판단 |
 | --- | --- | ---: | --- | --- |
 | OCI Always Free A1 | 서울, ARM64 `2 OCPU / 12GB`, block 총 200GB 한도 내 | `$0` | 한국 지연시간, 충분한 RAM, 무료 | capacity 부족 가능, 무료 지원 없음, 계정·정책 의존. 검증용 1순위 |
@@ -37,9 +41,10 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 
 공식 근거:
 
-- [OCI Always Free 자원](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm): A1 월 무료량은 현재 `2 OCPU/12GB` 상당이며 block volume 총 200GB와 host capacity 제한을 명시한다.
+- [OCI Always Free 자원](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm): 과거 A1 무료량·block volume·capacity 비교의 원문. 이번에는 최신 무료량을 재검증하지 않았다.
 - [OCI 리전](https://docs.oracle.com/en-us/iaas/Content/General/Concepts/regions.htm): 서울 `ap-seoul-1`과 춘천 리전을 제공한다.
 - [Lightsail bundle 가격](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-bundles.html): 2GB `$12`, 4GB `$24` 계획을 제공한다.
+- [Lightsail 전송량](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-faq-data-transfer-allowance.html): 서울은 위 3TB/4TB 기본량을 따르며 IN+OUT 합산으로 한도를 계산하고 초과 OUT은 $0.13/GB다. 예산 알림은 과금 중단을 보장하지 않는다.
 - [Lightsail 리전](https://docs.aws.amazon.com/lightsail/latest/userguide/understanding-regions-and-availability-zones-in-amazon-lightsail.html): 서울 `ap-northeast-2`를 지원한다.
 - [Hetzner 2026 가격 변경](https://docs.hetzner.com/general/infrastructure-and-availability/price-adjustment/): 싱가포르 CPX12 신규 가격은 `$17.99`로 공지됐다.
 - [Hetzner 위치](https://docs.hetzner.com/cloud/general/locations/): 아시아 위치는 싱가포르다.
@@ -52,7 +57,7 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 | Cloudflare Tunnel | origin inbound port 제거 | `$0` 범위 |
 | Cloudflare Access Free | 1~2명 운영자 route 보호 | `$0` |
 
-Cloudflare Free는 개인·취미 프로젝트에 `$0` CDN·DNS·SSL을 제공하고, Zero Trust Free는 50명 미만 팀에 `$0`이다.
+2026-09-24 공식 [가격표](https://www.cloudflare.com/plans/)에서 Free 웹 요금 $0, Zero Trust Free 사용자 한도 50명을 확인했다. 무료 기능과 유료 부가 기능의 과금은 분리한다.
 
 - [Cloudflare application plan](https://www.cloudflare.com/plans/)
 - [Cloudflare Zero Trust 가격](https://www.cloudflare.com/plans/zero-trust-services/)
@@ -71,15 +76,20 @@ Cloudflare 장애가 공개 origin 전체 장애로 이어질 수 있는 의존�
 - [Cloudflare R2 가격](https://developers.cloudflare.com/r2/pricing/)
 - [Backblaze B2 가격](https://www.backblaze.com/cloud-storage/pricing)
 
-R2 bucket은 공개 범위와 자격증명을 분리하기 위해 세 개로 나눈다.
+2026-09-24 R2 Standard 공식 기준은 저장 $0.015/GB-month, Class A $4.50/백만, Class B $0.36/백만이며
+위 무료량은 Standard에만 적용된다. R2 직접 egress는 무료여도 연결한 다른 유료 서비스 비용은 별도다.
+B2 수치는 과거 대안 비교이며 이번에 최신 가격을 확인하지 않았다.
+
+Core media·backup은 공개 범위와 자격증명을 분리한다. 아래 bucket명은 역할을 설명하는 예시다.
+direct 원본/raw/media/report 저장은 별도 collect prefix/bucket·writer/reader 권한 계약으로 관리하며
+Core staging의 보존 정책을 그대로 적용하지 않는다.
 
 ```text
 blariyo-media-public
-  posts/{postId}/{imageId}-{sha256}.{ext}
+  content/published/posts/{postId}/{imageId}-{sha256}.{ext}
 
 blariyo-media-private
-  drafts/{postId|draftId}/{uuid}
-  staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}
+  content/private/staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}
 
 blariyo-backup
   postgresql/daily/YYYY/MM/DD/{timestamp}.dump.age
@@ -99,7 +109,7 @@ blariyo-backup
 
 ## 3. 권고 배포안
 
-### A안: 자본 최소화 검증안
+### A안: 과거 OCI 검토안
 
 ```text
 Cloudflare Free
@@ -140,11 +150,11 @@ Cloudflare R2 Standard
 
 - OCI home region을 서울로 만들고 A1 capacity를 확보한다.
 - Always Free 표시가 붙은 shape·volume만 사용한다.
-- compartment quota와 budget alert로 유료 자원 생성을 막는다.
+- 허용 자원을 권한·지원되는 quota로 제한한다. [Budget](https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/budgetsoverview.htm)은 비용 알림용 soft limit이며 유료 생성이나 과금을 자동 차단하지 않는다.
 - ARM64용 Docker image를 CI에서 빌드한다.
 - 무료 계정만 사용하면 공식 지원 ticket이 없다는 점을 수용한다.
 
-### B안: 유료 안정 fallback
+### B안: 선택한 Lightsail 운영안
 
 ```text
 Cloudflare Free
@@ -193,7 +203,7 @@ Internet
           -> nginx:8080
               -> web:3000
                   -> api:4000
-                  -> postgresql:5432
+                      -> postgresql:5432
 ```
 
 - VM cloud firewall inbound rule은 기본 `deny all`이다.
@@ -206,7 +216,9 @@ Internet
 - [Nginx 준비 구성](../../deploy/gateway/README.md)은 별도 `blariyo-gateway` project에서 기존
   `blariyo-app_edge`에만 연결하고 host port를 열지 않는다. Web 주소 재조회·header 전달·내부 경로
   차단은 로컬 격리 검사 대상이며 실제 Tunnel 연결·Access 검증은 별도다.
-- 로컬 collector는 Tunnel→Nginx→Web의 `/api/collector/v1/*` 전용 중계를 사용한다. Web이 Core `/internal/collect/*`로 매핑하며 token 검증은 Core CollectorAuth가 수행한다. 경계·허용 목록은 [아키텍처](01-system-architecture.md)의 Collector 전용 중계를 따른다.
+- legacy collector는 Tunnel→Nginx→Web `/api/collector/v1/*` 중계를 사용하고 Core가 token을 검증한다.
+  현행 direct는 제한된 DB/object 접속을 사용한다. 다른 PC의 원격 접속 경로·권한 인수는 미검증이며
+  서비스 PostgreSQL을 공인 host port에 열었다고 가정하지 않는다. [수집 설계](07-spring-collector-design.md)를 따른다.
 - backup job은 `postgresql`과 R2 endpoint에만 접근한다.
 - 외부 사이트로 나가는 수집 outbound HTTP는 운영자 로컬 collector에서만 허용한다. `web`, `api`,
   `nginx`, `postgresql`은 수집 대상 외부 사이트를 호출하지 않는다. Web의 Access 서명 공개키 조회와
@@ -240,9 +252,9 @@ Internet
 OS page cache와 daemon을 위해 나머지를 남긴다. memory limit 초과 재시작을 숨기지 않고 알림 대상으로 둔다.
 
 Web·Core의 [앱 계층 Compose](../../deploy/application/compose.yaml)와
-[운영 입력 분리 도구](../../deploy/application/README.md#webcore-운영-입력-묶음)는 이 기준의 로컬 준비물이다.
+[운영 입력 분리 도구](../../deploy/application/README.md#webcore-운영-입력-묶음)는 현행 실행 산출물이다.
 Core `PORT=4000`과 Web `NUXT_CORE_ORIGIN=http://api:4000`을 명시한다. image·Nginx·Tunnel 연결은
-별도 준비 대상이며, 입력 검사 통과를 실제 기동·자원 적정성 검증으로 보지 않는다. `data`는 기존
+9월 23일 운영 기록에서 확인했고 현재 재조회·자원 적정성 관찰은 별도다. `data`는 기존
 DB project의 internal network `blariyo-db_data`를 external 참조하고 Web은 연결하지 않는다.
 `edge`·`app` bridge의 outbound 목적지 제한은 아직 구현하지 않았다.
 
@@ -282,115 +294,40 @@ Docker의 빈 volume 초기화 hook 대신 migration 이후 별도 seed 단계�
 | --- | --- |
 | local | 개발 PC Compose, local PostgreSQL, local filesystem 또는 R2 test bucket |
 | test | CI service PostgreSQL, 외부 R2 호출 없이 fake adapter |
-| production | OCI 또는 Lightsail 단일 VM, 공개 media·비공개 원본·backup R2 bucket |
+| production | Lightsail 서울 단일 VM, 공개 media·비공개 원본·collect·backup R2 분리 |
 
-M0에서는 별도 상시 staging 서버를 두지 않는다. 배포 후보는 CI 통합 테스트와 production의 `preview` Compose project에서 ephemeral smoke test 후 전환한다.
+M0에서는 별도 상시 staging 서버를 두지 않는다. CI·격리 후보 검증 후 기존 운영 Compose를 순차 교체한다.
+루트 Compose의 preview profile은 로컬용이며 운영 서버의 preview project가 구축됐다는 뜻이 아니다.
 
 수집 보조 환경은 BE·FE runtime과 분리한다. 운영자 로컬 PC에서 `collector`를 실행하고, Discord bot
 token·webhook URL·collector service token은 서버 `.env`와 별도 secret으로 관리한다. production
 서버는 collector가 없어도 공개 읽기, 관리자 수동 작성, 예약 발행과 백업을 계속 수행해야 한다.
 
-환경 변수는 다음 범주로 나눈다.
+환경변수의 실제 이름과 분리는 [환경 설정 안내](../operations/environment-configuration.md),
+`apps/web/nuxt.config.ts`, `deploy/application/prepare-runtime-config.cjs`, API bootstrap이 기준이다.
+다음 표는 주요 책임만 요약한다. 비밀값은 문서나 browser public config에 넣지 않는다.
 
-```text
-browser public config
-  SERVICE_PUBLIC_BASE_URL=https://blariyo.com/
-  IMAGE_ORIGIN=(배포 시 확정한 public media origin)
-  NUXT_PUBLIC_SITE_NAME
-  NUXT_PUBLIC_HOME_TAGLINE
-  NUXT_PUBLIC_HOME_TITLE
-  NUXT_PUBLIC_HOME_DESCRIPTION
-  NUXT_PUBLIC_HOME_OG_DESCRIPTION
-  NUXT_PUBLIC_FOOTER_TAGLINE
-  NUXT_PUBLIC_KAKAO_SHARE_ENABLED
-  NUXT_PUBLIC_KAKAO_SDK_SCRIPT_URL
-  NUXT_PUBLIC_KAKAO_SDK_SRI
-  NUXT_PUBLIC_KAKAO_JS_KEY
-  NUXT_PUBLIC_GA4_ENABLED
-  NUXT_PUBLIC_GA4_MEASUREMENT_ID
+| 범주 | 현행 입력과 역할 |
+| --- | --- |
+| 공개 origin·카피 | API `SITE_ORIGIN`·`IMAGE_ORIGIN`, Web `NUXT_PUBLIC_SITE_ORIGIN`·`NUXT_PUBLIC_IMAGE_ORIGIN`; 홈/푸터 카피는 [카피 계약](../planning/06-copy-contract.md) |
+| 공개 법무 고지 | `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME`, `NUXT_PUBLIC_CONTACT_EMAIL`, `NUXT_PUBLIC_RIGHTS_EMAIL`, `NUXT_PUBLIC_PRIVACY_EMAIL`, `NUXT_PUBLIC_PRIVACY_OFFICER`; 정책 발행 command의 `LEGAL_CONFIG`는 별도 |
+| Kakao | `NUXT_PUBLIC_KAKAO_ENABLED`, `NUXT_PUBLIC_KAKAO_KEY`, `NUXT_PUBLIC_KAKAO_SDK_URL`, `NUXT_PUBLIC_KAKAO_INTEGRITY`, `NUXT_PUBLIC_KAKAO_CONNECT_ORIGINS` |
+| GA4 | `NUXT_PUBLIC_GA4_ENABLED`, `NUXT_PUBLIC_ANALYTICS_APPROVED`, `NUXT_PUBLIC_GA4_MEASUREMENT_ID`, `NUXT_PUBLIC_ANALYTICS_CONNECT_ORIGINS` |
+| 인증·내부 호출 | Core `SERVICE_TOKEN`, Web `NUXT_SERVICE_TOKEN`·`NUXT_ACTOR_SECRET`·`NUXT_ADMIN_*`·`NUXT_ACCESS_*`·`NUXT_CORE_ORIGIN` |
+| 캐시 제거 | API `CACHE_ZONE_ID`, `CACHE_PURGE_TOKEN`; 과거 `CF_ZONE_ID`·`CF_CACHE_PURGE_TOKEN`은 현재 bootstrap 입력이 아님 |
+| DB | `DB_HOST/PORT/NAME`, 역할별 `APP_DB_*`·`MIGRATION_DB_*`·`BACKUP_DB_*`와 password file; 아래 권한 분리 유지 |
+| 저장소·백업 | Core의 private/public R2 설정, backup 전용 R2 credential·공개 age recipient; 복호화 키는 서버 외부 |
+| 수집 flag | Core `COLLECT_BATCH_REVIEW_ENABLED`·`COLLECT_MANUAL_URL_ENABLED`·`COLLECT_DISCORD_COMMAND_ENABLED`와 Web의 대응 `NUXT_COLLECT_*` |
+| direct 실행 | Collector 전용 DB/object 환경과 source config 파일; [실행 안내](../../apps/collector/ops/README.md)를 따르며 Core/Web 설정과 혼합하지 않음 |
 
-server runtime config
-  NUXT_TRUSTED_CLIENT_IP_HEADER
-  KAKAO_CSP_SCRIPT_HOST
-  KAKAO_CSP_CONNECT_HOST
-  BLARIYO_OPERATOR_DISPLAY_NAME
-  BLARIYO_GENERAL_CONTACT_EMAIL
-  BLARIYO_RIGHTS_CONTACT_EMAIL
-  BLARIYO_PRIVACY_CONTACT_EMAIL
-  BLARIYO_PRIVACY_OFFICER_NAME
-  BLARIYO_PRIVACY_OFFICER_TITLE
-  BLARIYO_PRIVACY_DEPARTMENT
-  BLARIYO_BUSINESS_NAME
-  BLARIYO_REPRESENTATIVE_NAME
-  BLARIYO_BUSINESS_REGISTRATION_NUMBER
-  BLARIYO_MAIL_ORDER_REGISTRATION_NUMBER
-  BLARIYO_OPERATOR_ADDRESS
-  BLARIYO_OPERATOR_PHONE
-  COLLECT_USER_AGENT
-  COLLECT_MANUAL_URL_ENABLED
-  COLLECT_DISCORD_COMMAND_ENABLED
-  COLLECT_LIST_CRAWL_ENABLED
-  COLLECT_FETCH_TIMEOUT_MS
-  COLLECT_MAX_RESPONSE_BYTES
-  DB_HOST
-  DB_PORT
-  DB_NAME
-  APP_DB_USER
-  MIGRATION_DB_USER
-  BACKUP_DB_USER
+`NUXT_TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip`는 Tunnel 밖 origin 접근을 차단한 운영 환경에서만 사용한다.
+Kakao/GA4는 운영값·정책·CSP·provider 설정·실제 네트워크 gate를 충족한 뒤 활성화한다. 비활성 환경은
+식별값을 공개 payload에서 제거하고, GA4 활성 환경도 분석 동의 전 Google 요청·cookieless ping을 보내지 않는다.
 
-runtime secret
-  APP_DB_PASSWORD_FILE
-  MIGRATION_DB_PASSWORD_FILE
-  BACKUP_DB_PASSWORD_FILE
-  SERVICE_TOKEN
-  NUXT_SERVICE_TOKEN
-  NUXT_ACTOR_SECRET
-  NUXT_ADMIN_AUTH_MODE
-  NUXT_ADMIN_OPERATORS_FILE
-  NUXT_ACCESS_AUDIENCE
-  NUXT_ACCESS_ISSUER
-  R2_ENDPOINT
-  R2_PRIVATE_ACCESS_KEY_ID
-  R2_PRIVATE_SECRET_ACCESS_KEY
-  R2_PRIVATE_BUCKET
-  R2_PUBLIC_ACCESS_KEY_ID
-  R2_PUBLIC_SECRET_ACCESS_KEY
-  R2_PUBLIC_BUCKET
-  R2_BACKUP_ACCESS_KEY_ID
-  R2_BACKUP_SECRET_ACCESS_KEY
-  R2_BACKUP_BUCKET
-  BACKUP_AGE_RECIPIENT
-  CF_ZONE_ID
-  CF_CACHE_PURGE_TOKEN
-```
-
-`SERVICE_PUBLIC_BASE_URL`의 production 값은 `https://blariyo.com/`이다. `IMAGE_ORIGIN`은 public
-media custom domain을 배포할 때 확정하며 이 문서에서 실값을 추측하지 않는다. `browser public config`는
-브라우저에 전달해도 되는 값만 둔다. 홈·OG·푸터 카피는
-`NUXT_PUBLIC_SITE_NAME`, `NUXT_PUBLIC_HOME_TAGLINE`, `NUXT_PUBLIC_HOME_TITLE`,
-`NUXT_PUBLIC_HOME_DESCRIPTION`, `NUXT_PUBLIC_HOME_OG_DESCRIPTION`,
-`NUXT_PUBLIC_FOOTER_TAGLINE`으로 주입하며 [카피 계약](../planning/06-copy-contract.md)의 값을 사용한다.
-
-`NUXT_TRUSTED_CLIENT_IP_HEADER`는 조회 수 endpoint의 IP 제한에 사용할 단일 header 이름이며
-Cloudflare Tunnel 운영값은 `cf-connecting-ip`다. server runtime config는 비밀값은 아니지만
-브라우저로 자동 노출하지 않는 운영 설정이다.
-
-`NUXT_PUBLIC_KAKAO_JS_KEY`, `NUXT_PUBLIC_KAKAO_SDK_SCRIPT_URL`, `NUXT_PUBLIC_KAKAO_SDK_SRI`와
-`NUXT_PUBLIC_GA4_MEASUREMENT_ID`는 브라우저에 전달되는 공개 설정으로 비밀값이 아니지만 승인된
-도메인·provider 설정과 함께 변경 이력을 관리한다. 실제 Kakao JavaScript key와 개발자 콘솔 Web
-domain 등록을 확인하고 SDK URL·SRI·CSP host를 고정하기 전에는
-`NUXT_PUBLIC_KAKAO_SHARE_ENABLED=false`로 배포한다. GA4 Measurement ID·속성 보관 설정·국외이전
-고지·실제 Google 계약 법인·Google tag/CSP domain 중 하나라도 확정되지 않으면
-`NUXT_PUBLIC_GA4_ENABLED=false`로 배포한다. gate 충족 여부와 관계없이 flag가 false인 환경은
-`NUXT_PUBLIC_GA4_MEASUREMENT_ID`를 public runtime config에서 unset해 응답 payload와 client bundle에
-provider 값을 노출하지 않는다. GA4를 켠 환경에서도
-저장된 분석 동의 전에는 Google tag/request와 cookieless ping을 만들지 않는다. `COLLECT_USER_AGENT`는 블라리요를
-식별할 수 있는 문자열과 연락 수단을 포함한다. `COLLECT_MANUAL_URL_ENABLED`는 관리자 화면 URL 지정, `COLLECT_DISCORD_COMMAND_ENABLED`는 Discord
-`/collect url` 명령의 전체 차단 스위치다. 두 경로 모두 입력된 단일 상세 페이지 1건만 처리한다.
-`COLLECT_LIST_CRAWL_ENABLED`는 legacy API 후보 호환 경로의 비활성 flag다. direct batch는 source별 `HOT_LIST`,
-`DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED` policy와 batch config를 사용한다. 출처별 요청 간격·일일
-상한·robots 확인 결과는 환경변수가 아니라 `collect.source` 데이터로 관리한다.
+legacy source의 robots·상한은 `collect.source`와 Core quota가 관리한다. direct는 별도 source config의
+HOT_LIST/GENERAL_LIST/DETAIL_ONLY/BLOCKED/UNVERIFIED 분류·요청 제한을 사용한다. direct robots·Crawl-delay·
+영속 일일 budget 연결은 현재 미구현이고 redirect도 설계와 차이가 있다. [보완 조건](07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)을 충족해야 한다.
+`COLLECT_LIST_CRAWL_ENABLED`의 legacy 비활성 경계를 direct 전체 차단 스위치로 해석하지 않는다.
 
 `NUXT_ADMIN_OPERATORS_FILE`은 외부 identity를 안정적인 내부 `operatorId`로 매핑하는 파일 경로다. 운영자가 여러 명일 수 있으므로 단일 값 환경변수를 사용하지 않는다. 파일은 `{"identity": "<외부 식별값>", "operatorId": "<내부 식별자>", "active": true}` 항목의 목록이며 BFF container에만 읽기 전용으로 mount한다. identity를 제거해도 기존 `operatorId`는 재사용하지 않고 감사 이력을 보존한다. provider를 교체하면 identity 값만 새 provider 기준으로 바꾸고 `operatorId`는 유지한다.
 
@@ -433,7 +370,8 @@ Core는 `R2_PRIVATE_*`와 `R2_PUBLIC_*`만 사용하고 backup key는 backup 작
 현재 단일 VM 순차 교체 방식이며 무중단 배포는 아니다. 상세 결정과 적용 조건은
 [배포 정책](../operations/deployment-policy.md), 실제 순서는
 [실서버 배포 실행서](../operations/deployment-runbook.md)를 따른다.
-GitHub workflow는 로컬 작성 상태이며 원격 실행·자동 CD 활성화와 구분한다.
+SHA `5c581c2`의 원격 CI·GHCR 게시와 API/Web 수동 서버 배포는 9월 23일 기록에서 확인했다.
+이후 SHA의 성공과 자동 CD를 뜻하지 않는다. Collector CI는 있으나 운영 Collector 배포·기동은 별도다.
 
 1. CI가 Node `24.18.0`에서 타입·lint·unit·integration·브라우저 test를 실행한다.
 2. 검사된 main의 `linux/amd64` image를 commit SHA tag로 build한다. 현재 서울 x86_64 대상이며 arm64는 대상 서버가 생기면 추가한다.
@@ -442,7 +380,7 @@ GitHub workflow는 로컬 작성 상태이며 원격 실행·자동 CD 활성화
 5. backward-compatible migration을 적용한다.
 6. `api`, `web`을 순서대로 recreate한다.
 7. `/health/live`, `/health/ready`, `/meme`, 공개 상세 smoke를 실행한다.
-8. 실패하면 이전 image tag로 rollback한다. schema가 비호환이면 자동 rollback하지 않고 복구 절차를 따른다.
+8. 실패하면 현재 DB와 호환성을 검증한 이전 image digest로 복귀한다. V008에서 9월 20일 구 API는 readiness 503이다. 비호환 schema는 자동 rollback하지 않고 복구 절차를 따른다.
 
 서버에서 `npm install`과 build를 실행하지 않는다. 배포 파일에는 image digest를 기록한다.
 
@@ -468,7 +406,7 @@ public 배포본 월 약 0.47GB
 private canonical 원본 포함 월 약 0.94GB
 ```
 
-수집 후보 metadata와 별도로 관리자 preview는 private bucket의
+legacy 수집 후보 metadata와 별도로 관리자 preview는 private bucket의
 `collect-preview/{candidateId}/{candidateImageId}/{uploadId}`에 최대 24시간 저장한다. public domain을
 연결하지 않고 인증된 관리자 proxy로만 읽는다. 반려·만료·재시도 교체·승격 시 삭제하며 24시간 TTL
 청소는 후보 30일 보존과 독립적으로 실행한다. cleanup 실패는 outbox·운영 알림으로 추적한다.
@@ -476,31 +414,32 @@ preview 저장량과 PUT/GET/DELETE 비용은 위 영구 원본 예산에 포함
 별도 산정한다. 로컬 임시 파일도 같은 생명주기에 맞춰 collector가 삭제한다. source가 검증되지 않아
 실제 후보량과 preview 평균 크기는 `(미정)`이며 활성화 전 비용 검증 항목이다.
 
-M0 기본은 다음과 같다.
+수동 Core 이미지의 기본은 다음과 같다. direct raw/media/report는 별도 저장량·요청 비용·보존 계약을
+산정해야 하며 아래 월 0.94GB 가정이나 legacy 24시간/30일 TTL로 덮지 않는다.
 
 - 사용자가 올린 raw bytes는 검증·재인코딩 후 보관하지 않는다.
 - 재인코딩한 private canonical 원본과 public 배포본을 유지해 숨김·재공개를 지원한다.
 - 업로드 요청이 만드는 미연결 object는
-  `staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}`에 둔다. key에는 원본 파일명·관리자
+  `content/private/staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}`에 둔다. key에는 원본 파일명·관리자
   identity를 넣지 않는다. `uploadRequestId`는 서버가 생성한 불투명한 고유값이고 SHA-256은 재인코딩한
   bytes 기준이다. `objectCreatedAt`은 provider metadata 또는 inventory timestamp로 확인한다.
 - 다중 업로드 실패 시 DB transaction을 rollback한 뒤 이미 저장한 object를 즉시 보상 삭제한다. 삭제가
   실패하면 rollback과 분리된 cleanup transaction에서 private key 기반 `OBJECT_DELETE_PRIVATE` outbox를
   commit한다. rollback된 image ID를 aggregate나 payload에 넣지 않는다.
-- 매일 inventory는 생성 후 24시간이 지난 `staging/` object 가운데 DB image row의
+- 매일 inventory는 생성 후 24시간이 지난 `content/private/staging/` 및 기존 `staging/` object 가운데 DB image row의
   `private_storage_key`와 미완료(`PENDING`,`RUNNING`,`FAILED`,`DEAD`) cleanup outbox의
   `privateStorageKey` 어느 쪽에도 없는 key만 orphan으로 삭제한다. process crash로 보상 삭제와 outbox가
   모두 남지 않은 object도 이 경계로 회수한다.
 - `REMOVED` 게시글의 private canonical 원본은 30일 복구 유예 뒤 삭제한다.
-- image당 최대 10MiB, 한 게시글 최대 20개로 제한한다.
-- R2 저장량 7GB에서 알림, 9GB에서 새 업로드 차단 또는 유료 전환을 결정한다.
+- 수동 업로드는 파일당 10MiB·요청당10개, 게시글은 IMAGE 최대200개다. direct는 파일당30MiB 등 별도 [수집 한도](07-spring-collector-design.md)를 따른다.
+- R2 저장량 7GB 알림·9GB 비용 검토는 운영 목표다. 자동 업로드 차단 구현으로 표시하지 않으며 정상 사용 실패를 피하도록 승인·유료 전환·정리 대상을 검토한다.
 - DB backup은 12시간 간격 최근 28개(14일), weekly 8개를 유지하고 총 4GB 예산을 잡는다.
 
 ## 9. 비용 전환 기준
 
 | 지표 | 조치 |
 | --- | --- |
-| OCI A1 생성 불가 3일 | Lightsail 2GB 생성 |
+| OCI A1 생성 불가 3일 | 과거 선택 기준. 현재 Lightsail 운영에 적용하지 않음 |
 | 월 infra 예상 `$15` 초과 | 비용 원인 검토 후 승인 없이는 신규 유료 자원 금지 |
 | R2 7GB | 저장 추세·원본 retention 점검 |
 | R2 9GB | 유료 전환 또는 orphan·복구 유예 만료 원본 삭제 검증 |
@@ -513,21 +452,21 @@ M0 기본은 다음과 같다.
 
 ## 10. 공급자 이전
 
-OCI와 Lightsail은 같은 Compose·환경 변수·multi-arch image를 사용한다.
+Compose·설정 경계는 이전 시 재사용하되 대상 CPU를 확인한다. 현재 배포 CI는 linux/amd64이며
+OCI A1용 arm64 image를 함께 게시한 상태가 아니다. ARM 이전에는 별도 build·동일 업무 검증이 필요하다.
 
 이전 절차:
 
 1. 새 VM 준비와 tunnel connector 추가
 2. 새 PostgreSQL 18에 최신 full backup 복원
 3. 기존 BFF·Core를 `MAINTENANCE_READ_ONLY`로 전환해 공개 GET만 허용하고 관리자 command, 정책 시행, 조회 수 증가를 포함한 모든 DB 쓰기를 `503`으로 차단
-4. 공개 VM의 scheduler·outbox를 중지하고, 운영자 로컬 Spring collector의 Quartz 신규 실행도 별도로
-   중지한 뒤 진행 중 서비스 DB transaction이 종료됐는지 확인
+4. 공개 VM scheduler·outbox와 모든 direct CLI/queue worker·진행 실행을 drain한다. legacy Spring이 활성이라면 Quartz도 중지하고 서비스 DB transaction 종료를 확인한다. API 쓰기 차단 flag만으로 direct writer가 멈췄다고 보지 않는다.
 5. 기존 서버에서 최종 full custom-format dump 생성·암호화·checksum 검증
 6. 새 PostgreSQL 18을 비우고 최종 full dump를 한 번 복원
 7. 새 서버도 쓰기 차단 상태에서 게시글 수·최신 글·정책·상태 이력과 ready·공개 GET smoke 확인
 8. Cloudflare tunnel route를 새 connector로 전환
 9. 새 서버의 쓰기 차단을 해제하고 쓰기 경로 readiness를 확인한 뒤 공개 VM scheduler·outbox를 재개하고,
-   운영자 로컬 Spring collector의 Quartz는 별도 프로세스에서 재개 상태 확인
+   direct writer와 활성 legacy Quartz는 각각 별도 프로세스에서 권한·상태를 확인하고 재개
 10. cache purge 후 기존 서버는 read-only로 보존
 11. 24시간 관찰 후 기존 VM 삭제
 
@@ -536,6 +475,10 @@ OCI와 Lightsail은 같은 Compose·환경 변수·multi-arch image를 사용한
 쓰기 차단 응답은 `503 MAINTENANCE_READ_ONLY`, `Retry-After: 60`, `Cache-Control: no-store`를 사용한다. 최종 dump 시작 후 기존 서버에는 조회 수 증가를 포함한 어떤 쓰기도 허용하지 않는다.
 
 ## 로컬 Spring 수집 서버 배치 경계
+
+이 절은 legacy Spring Batch/Quartz의 로컬 실행 저장소다. 현행 direct CLI/queue는 공유 database의
+collect.batch_*를 역할로 분리하고 API 검수는 SELECT와 API 소유 review 테이블만 사용한다.
+두 DB 배치 방식을 혼동하지 않는다. direct 원격 PC 접속·writer·object 권한 인수는 P1-03에 남아 있다.
 
 [Spring 수집 서버 상세 설계](07-spring-collector-design.md)에 따라 M0 구현 저장소의 `apps/collector`를
 독립 Gradle 애플리케이션으로 두고 운영자 PC에서 실행한다. 공개 VM의 Nuxt·Nest Core·서비스 PostgreSQL
@@ -561,4 +504,4 @@ Spring source·migration·OpenAPI·test·runtime과 실제 출처·Discord·운�
 
 확정 정책 v0.1을 실제 command로 발행한 뒤 Core·Web·Nginx를 기동했다. blariyo.com의 이전 Squarespace A를 proxied Tunnel CNAME으로 전환하고, www는 같은 Tunnel의 Nginx 308 대표 주소 전환 전용 경로로 연결했다. DB·Core·Web·Nginx의 host port는 없다. 기존 메일 MX/TXT와 R2 media 도메인은 유지했다. Always Use HTTPS와 최소 TLS 1.2를 적용한다.
 
-현재는 **단일 Lightsail + Docker Compose 교체 배포**다. 블루그린·다중 서버·무중단 전환을 구현했다고 하지 않는다. image는 맥에서 빌드한 amd64 digest를 사용한다. 현재 release에 대한 부팅 복구 service와 예약 발행/outbox/cleanup timer, 7일 진단 로그, 12시간 주기 암호화 R2 DB 백업을 설치했다. 상세 검증과 제한은 [운영 기록](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)을 따른다.
+당시 단일 Lightsail + Docker Compose에 맥에서 빌드한 amd64 image와 부팅 복구 service·예약/outbox/cleanup timer·7일 진단 로그·12시간 암호화 백업을 설치했다. [9월 20일 기록](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)은 보존하며, 이후 GHCR 기반 `5c581c2`와 V008/Collector V006 반영은 [9월 23일 마지막 관측](../operations/current-status.md)을 따른다. 블루그린·무중단 전환과 실제 재부팅/rollback 완료를 뜻하지 않는다.

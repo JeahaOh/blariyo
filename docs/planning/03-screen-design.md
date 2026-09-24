@@ -2,7 +2,7 @@
 
 - 문서 상태: 사용자 확정안 반영 정본
 - 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-03
+- 정합성 검토일: 2026-09-24 (기획·Web/API 소스 대조, 브라우저 재검증 아님)
 - 관련 문서: [01-service-plan.md](01-service-plan.md), [02-infra-plan.md](02-infra-plan.md), [04-analytics-ad-plan.md](04-analytics-ad-plan.md), [05-benchmark-spec.md](05-benchmark-spec.md)
 - 설계 대상: 데스크톱·모바일 반응형 웹
 - M1·M1.5 정책: [회원·익게 제품 계약](08-member-community-plan.md) (2026-09-08 설계 기본안)
@@ -47,8 +47,9 @@
 | 화면 | 경로 | 상태 |
 | --- | --- | --- |
 | 게시글 검색·작성·상태 관리 | `/admin` | M0 Core |
-| 수집 후보 검수 | `/admin/collect` | M0 수집 보조 이후 |
-| 수집 출처 관리 | `/admin/collect/sources` | M0 수집 보조 이후, 목록 수집 설정은 M0 자동 수집 |
+| 직접 수집 결과 검수 | `/admin/batch` | 현행 direct 검수·승인·초안 승격, 별도 기능 활성화 필요 |
+| 수집 후보 검수 | `/admin/collect` | legacy 후보 방식, direct URL 입력 전달과 구분 |
+| 수집 출처 관리 | `/admin/collect/sources` | legacy 출처 설정, direct batch 설정과 미연결 |
 
 - Cloudflare Access 인증을 통과한 운영자만 접근한다.
 - 데스크톱은 왼쪽 검색 목록과 오른쪽 편집 영역을 함께 표시하고, 모바일(767px 이하)은 목록에서 편집으로 전환하고 `목록으로`로 복귀한다. 복귀 시 검색 조건과 선택 항목을 유지하고 포커스를 돌려준다. 상태 변경으로 선택 글이 검색 결과에서 빠지면 `새 초안` 버튼으로 포커스를 돌린다.
@@ -62,10 +63,27 @@
 - 목록과 편집은 각각 로딩·실패·재시도를 제공한다. 검색 실패 시 기존 결과를 최신 결과처럼 표시하지 않는다. 권한 만료는 입력을 보존하고 인증 상태 재확인을 안내한다.
 - 저장 응답이 불확실하면 제출 내용과 요청 키를 보존하고 복구 전 편집·다른 글 선택을 막는다. `저장 결과 다시 확인`은 같은 요청을 재전송해 중복 생성을 방지한다.
 - 예약 입력·수정일 검색은 KST 기준이다. 예약·예약 취소·숨김·최종 삭제에는 대상과 영향을 알리는 확인창을 제공한다.
-- Core 관리 메뉴에는 게시글 관리와 공개 목록을 둔다. 비활성 수집 메뉴는 표시하지 않으며 수집 경로 통합은 P1 범위다.
+- Core 관리 메뉴에는 게시글 관리와 공개 목록을 둔다. `AdminNavigation.vue`는 관리자 feature 응답의
+  `batchReview`가 참일 때만 `수집 결과 검수`(`/admin/batch`)를 표시한다. 메뉴 표시와 실제 권한 검증은 별개다.
 - [관리자 화면 검토물·상태 체크리스트](../ui/publishing/admin-core-review.md)로 설계와 실행 증거를 비교한다.
 
-### 수집 후보 검수 화면
+### 직접 수집 결과 검수 화면 `/admin/batch`
+
+- 출처, 수집 상태, 검수 상태로 검색하고 페이지 단위로 조회한다. 수집 상태와 검수 상태를 섞지 않는다.
+- 수집 상태는 `DISCOVERED`, `FETCHING`, `FETCHED`, `FAILED`, `BLOCKED`, `SKIPPED_DUPLICATE`,
+  `SKIPPED_POLICY`이며, 검수 상태는 `UNREVIEWED`, `REVIEWING`, `APPROVED`, `REJECTED`다.
+  초안 연결 여부는 별도 게시글 ID로 표시한다.
+- 상세는 원문 링크, 수집·실패 상태, 순서가 있는 TEXT/IMAGE/외부 링크와 첨부 원문 링크를 표시한다.
+  이미지는 관리자 인증이 필요한 preview로 제공하고 raw HTML·collect 저장 경로·비밀은 표시하지 않는다.
+- `FETCHED`이며 아직 초안과 연결되지 않은 건만 검수를 시작한다. 검수 중 승인 또는 반려할 수 있고,
+  승인 뒤 제목을 확인해 `게시글 초안 만들기`를 실행한다. 발행은 `/admin`에서 별도로 수행한다.
+- 수집 내용 버전과 검수 버전을 함께 확인한다. 충돌 시 상세를 다시 읽도록 안내하며 중복 원문은 이미 같은 원문의 게시글이 있음을 알린다.
+- 응답이 불확실하면 같은 요청 키와 내용을 보존하고 편집·다른 항목 선택·화면 이탈을 막는다.
+  `처리 결과 다시 확인`으로 동일 요청을 확인한다. 저장 확정 후 목록 갱신 실패는 저장 실패로 표시하지 않는다.
+- Web의 direct URL 접수·설정 수정은 아직 연결되지 않았다. 실제 관리자 MFA를 거친 운영 흐름 검수와
+  마지막 활성화 관측은 [운영 현재 상태](../operations/current-status.md)에서 별도로 추적한다.
+
+### legacy 수집 후보 검수 화면 `/admin/collect`
 
 - 상단에 원문 URL 입력란과 `후보 만들기`를 두고, 처리 중에는 중복 요청을 막는다. Discord `/collect url`
   명령으로 생성된 후보도 같은 목록에 표시한다.
@@ -78,10 +96,13 @@
 - 단일 상세 페이지에서 이미지 후보를 가져올 수 없거나 원문이 사라진 후보는 실패 사유를 표시하고 재시도 또는 반려만 허용한다.
 - 후보 화면에는 요청 원문 HTML 전체, Python 임시 파일 내부 경로, 내부 오류 상세를 노출하지 않는다.
 
-### 수집 출처 관리 화면
+### legacy 수집 출처 관리 화면 `/admin/collect/sources`
 
 - 출처명, 기준 URL, 수집 방식, 목록 주소, 활성 여부, 요청 간격, 일일 상한, robots 확인 결과·확인일, 최근 수집 시각·최근 오류를 표시한다.
-- 목록 수집은 robots 확인 결과가 허용이고 목록 주소가 있을 때만 활성화할 수 있다.
+- 현행 API의 수정 가능 방식은 `URL_ONLY`·`MANUAL`이다. 목록 URL 지정·목록 활성화는
+  `SOURCE_STATE_CONFLICT`로 거부한다. 이 화면의 robots·간격 수정은 legacy 설정에만 적용된다.
+- direct 출처 설정은 검토된 파일로 관리한다. robots 허용·목록 주소 확인은 목록 활성화의 제품 요구사항이며,
+  이 legacy 화면에서 설정하거나 direct 통제 구현이 끝났다는 뜻은 아니다.
 - 자동 비활성된 출처는 사유와 최근 수정 시각을 표시하고 운영자가 확인한 뒤에만 다시 활성화한다. 최근 수정 시각을 정확한 차단 발생 시각으로 표시하지 않는다.
 
 ## 3. 반응형 레이아웃
@@ -92,6 +113,8 @@
 | Tablet | `768~1023px` | 최대 760px, 단일 열 |
 | Desktop | `1024px 이상` | 최대 760px, 단일 열과 외곽 여백 |
 
+- 위 폭은 공개 콘텐츠 기준이다. 관리자 편집은 최대 1000px(`.admin-shell`), 직접 수집 검수는 최대
+  960px(`.batch-admin`)의 별도 레이아웃이며 모바일 가로 넘침·키보드 동작은 각각 검수한다.
 - 모바일에서 가로 스크롤이 생기지 않게 한다.
 - 상세 본문은 데스크톱에서도 읽기 폭을 과도하게 늘리지 않는다.
 - 광고와 보조 정보는 본문보다 먼저 나오지 않는다.
@@ -184,6 +207,8 @@
 
 ### 구성 순서
 
+아래는 후속 광고까지 포함한 배치 계약이다. M0에서는 광고 항목 6·8·9를 렌더링하지 않는다.
+
 1. `← / 한 줄 제목 / 공유 아이콘` 고정 헤더. M1부터 로그인·계정 진입 추가
 2. 전체 제목
 3. 번호, 게시 시각, 조회 수
@@ -214,8 +239,8 @@
   안내를 따르며 프레임 로드만으로 원문 정상 여부를 판정하지 않는다. 실패 시 원문 링크와 재시도를 제공한다.
   단축 TikTok 공유 링크처럼 게시물 ID가 없는 주소는 외부 요청으로 자동 해제하지 않고 원문 링크로 남긴다.
   로컬 개발에서 먼저 확인하며 운영 활성화와 외부 서비스 고지 반영은 별도 배포 범위다.
-- M0 저장 사업자는 Cloudflare R2 Standard로 결정했다. 실제 production account, bucket 이름과
-  public media custom domain은 배포 전에 확정한다.
+- M0 저장 사업자는 Cloudflare R2 Standard다. 9월 23일 R2 이전·공개 이미지 관측 기록은
+  [운영 현재 상태](../operations/current-status.md)에 연결한다. 이 문서 검토에서 저장소나 도메인을 새로 조회한 것은 아니다.
 
 ### 출처
 
@@ -447,11 +472,11 @@
 
 ## 12. 와이어프레임과 퍼블리싱 기준
 
-- 반응형 시각 참고: [../wireframes/responsive/index.html](../ui/wireframes/responsive/index.html)
-- 광고 참고: [../wireframes/ads/index.html](../ui/wireframes/ads/index.html)
-- 정책 참고: [../wireframes/legal/index.html](../ui/wireframes/legal/index.html)
-- 추후 사용자 게시판 참고: [../wireframes/community/index.html](../ui/wireframes/community/index.html)
-- 퍼블리싱 프로토타입: [../publishing/responsive/index.html](../ui/publishing/responsive/index.html)
+- [반응형 와이어프레임](../ui/wireframes/responsive/index.html)
+- [광고 와이어프레임](../ui/wireframes/ads/index.html)
+- [정책 와이어프레임](../ui/wireframes/legal/index.html)
+- [추후 사용자 게시판 와이어프레임](../ui/wireframes/community/index.html)
+- [반응형 퍼블리싱 프로토타입](../ui/publishing/responsive/index.html)
 
 archive 디렉터리는 과거 비교용이며 현행 화면 계약으로 사용하지 않는다.
 이 절의 HTML은 시각 비교 자료이며 화면 계약과 단계 판정은 이 문서 본문이 우선한다.
@@ -478,13 +503,18 @@ archive 디렉터리는 과거 비교용이며 현행 화면 계약으로 사용
 
 ### M0 수집 보조
 
-- 운영자가 원문 URL로 후보를 만들고 검수해 초안으로 승격할 수 있으며, 후보 화면은 공개 경로에서 접근할 수 없다.
-- 허용하지 않은 대상이나 robots 금지 경로 요청은 후보를 만들지 않고 사유를 표시한다.
+- 운영자가 지정한 원문 URL의 수집 결과를 검수해 초안으로 승격할 수 있으며, 검수 화면은 공개 경로에서 접근할 수 없다.
+  direct Web URL 전달의 미연결 상태를 legacy 후보 생성 기능으로 대체해 통과 처리하지 않는다.
+- 허용하지 않은 대상이나 robots 금지 경로는 외부 본문 수집·승격을 막고 사유를 표시해야 한다.
+  실패 추적용 후보·queue 행이 존재하는 것과 본문 수집 성공을 구분한다. direct robots 검증은 아직 미충족이다.
 
 ### M0 자동 수집
 
-- source policy가 `HOT_LIST`인 출처만 목록 수집을 활성화할 수 있고 `DETAIL_ONLY`는 목록을 호출하지 않으며,
-  `BLOCKED`·`UNVERIFIED`와 연속 실패 출처는 자동 비활성된다.
+- source policy가 `HOT_LIST`·`GENERAL_LIST`이고 운영 사용 조건을 충족한 출처만 목록 수집을 활성화하며,
+  `DETAIL_ONLY`는 목록을 호출하지 않는다. `BLOCKED`·`UNVERIFIED`·연속 실패 출처의 차단을 검증한다.
+- 위 항목은 수용 조건이다. 개발 분류·예제 승인 플래그만으로 통과 판정하지 않는다. direct의 robots/
+  Crawl-delay·영속 일일 총량·redirect 상한 차이는 [수집 기술 설계](../system-design/07-spring-collector-design.md)와
+  [P1-06](../roadmap.md)을 따른다.
 
 ### M1
 

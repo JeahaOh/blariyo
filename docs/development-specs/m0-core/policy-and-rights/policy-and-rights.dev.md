@@ -2,11 +2,13 @@
 
 ## 1. 문서 정보와 입력 근거
 
-- 문서 상태: `차단`
+- 문서 상태: 주요 구현·M0 v0.1 발행 기록 있음. 후속 정책 변경·운영 수용 조건 유지.
 - milestone: `M0 Core` (`m0-core`)
 - 기능: `policy-and-rights` — 약관·개인정보 버전 조회와 권리 문의 진입
 - 기준일: 2026-09-07
-- 미검증: 법률 확정, 실제 정책 artifact, 접수 이메일, policy command/API/source/runtime
+- 검토일: 2026-09-24, 소스·정본·실행 기록 대조. 이번에 정책 발행·앱 테스트·운영 조회를 실행하지 않았다.
+- 증거: [9월 20일 M0 v0.1](../../../legal/m0-core/README.md), [발행 결과](../../../../worklog/2026-09-20/infrastructure-setup/TASK-19.md), [현재 운영 상태](../../../operations/current-status.md), [요구사항별 상태](../../requirements-status.md).
+- 잔여: 담당자/연락 수단 적정성·개별 법률 검토·실제 외부 메일 앱·새 정책의 purge/수용 확인. 구현/발행을 법무 전체 승인으로 확대하지 않는다.
 - 주요 근거:
   - [서비스 기획 §3·§11·§14](../../../planning/01-service-plan.md)
   - [화면 설계 §10·§13](../../../planning/03-screen-design.md)
@@ -50,7 +52,7 @@
 | 시행된 본문 불변·버전 보관 | 확정 | 데이터 모델 §4 | publish-policy, D08 command | 반영 |
 | modal·직접 route 동등 내용 | 확정 | 서비스 기획 §11 | policy-viewer | 반영 |
 | 현재 URL을 넣은 권리 mailto | 확정 | 화면 설계 §10 | submit-rights-inquiry, rights-entry | 반영 |
-| 법무·문의 실값의 properties/config 주입 | 확정 | OD-M0-006·legal README | policy D01·D08 | 실값 미입력으로 `[출시 차단]` 유지 |
+| 법무·문의 실값의 properties/config 주입 | 확정 | OD-M0-006·legal README | policy D01·D08 | 현행 M0 실값 주입·발행 기록 있음. 후속 변경의 필수값/고지 조건 유지 |
 | 사업자등록 전 사업자 정보 보류 | 확정 | OD-M0-006·legal README | policy D01·D08 | `(미정)` 유지 |
 | 단일 권리 문의 링크와 복사 대체 안내 | 확정 | 2026-09-20 사용자 결정·화면 설계 | rights D01·D08 | 이메일 주소·제목·본문 전체 복사 |
 | mail client 실행 결과 확정 판정 없음 | 확정 | 화면 설계 | rights D01·D08 | 1.6초 동안 blur·hidden 신호 없음은 대체 안내 조건일 뿐 |
@@ -62,7 +64,7 @@
 - 본문은 허용 목록으로 sanitize한 `bodyHtml`만 반환하고 초안·원문은 공개하지 않는다.
 - 현재 적용 기간은 `시행 중`, 과거는 시작~종료이며 행 선택 시 같은 modal 본문을 교체한다.
 - 권리 mailto에는 현재 URL과 요청 내용 입력란만 미리 넣고 개인정보 원문을 자동 수집하지 않는다.
-- 권리 문의는 `BLARIYO_RIGHTS_CONTACT_EMAIL` 실값을 사용한다. 메일 전환 신호가 없으면 주소·제목·양식을 복사하고 alert로 알린다. 실행 결과는 확정하지 않으며 form·API·접수 DB는 만들지 않는다.
+- 권리 문의는 `NUXT_PUBLIC_RIGHTS_EMAIL` 실값을 사용한다. 메일 전환 신호가 없으면 주소·제목·양식을 복사하고 alert로 알린다. 실행 결과는 확정하지 않으며 form·API·접수 DB는 만들지 않는다.
 
 ## 7. 데이터·권한·법무 영향
 
@@ -93,8 +95,8 @@
 - 출시 차단: legal README의 운영자 표시명·시행일·수탁자·일반 문의·권리·개인정보 접수 이메일과
   개인정보 보호책임자 또는 담당자 실값. 사업자 정보는 사업자등록 또는 거래 기능 확정 전까지 보류한다.
 - 확정: 별도 복사 버튼 없이 권리 문의에서 mailto를 연다. 1.6초 동안 전환 신호가 없으면 주소·제목·양식을 복사하고 alert로 알린다.
-- 미검증: 법률 자문, 실제 release artifact/checksum, SMTP/mail client, policy cache purge.
-- 문서 계약은 작성했지만 실값이 없으므로 production 공개 상태를 `차단`으로 유지한다. 로컬 조회·시행 command·UI는 별도 테스트 fixture로 개발한다.
+- 현행 M0 v0.1 release artifact/checksum·공개 API/화면은 발행 기록을 따른다. 실제 메일 앱·권리 사건 처리와 새 정책 전환의 cache purge는 별도 수용 대상이다. 이 앱은 SMTP 발송을 수행하지 않는다.
+- 위 조건은 새 환경/정책 변경의 공개 gate다. 현행 M0를 실값 전부 미입력으로 일괄 차단하지 않는다. 로컬 시험은 합성 fixture를 쓰며 후속 기능·direct 수집 고지 미정은 법무 정본에 유지한다.
 
 ## 12. 기능 계약 상세
 
@@ -106,15 +108,15 @@
 
 ### 정책 버전 조회 API
 
-- 계약 상태: `차단`
+- 계약 상태: 구현 계약. 현행 M0 발행 증거와 추가 변경/수용 gate를 구분한다.
 
 - 입력 근거: [API 설계 §3 정책](../../../system-design/03-api-design.md), [데이터 모델 §4](../../../system-design/02-data-model.md)
-- 미검증: 승인 본문·시행일, OpenAPI, source, contract test
+- 구현 근거: `PublicService.policy`·공유 OpenAPI·정책 통합 시험. 실제 본문/시행일은 M0 발행 기록, 이번 contract test 재실행 없음.
 
 #### 목적과 호출 경계
 
 공개 화면과 SSR이 현재 또는 지정 과거 정책 전문과 전체 공개 이력을 읽는다. 외부 제공자는 Nuxt
-BFF, 내부 제공자는 Core `PolicyQueryService`이며 초안·정제 전 원문은 어느 경계에서도 반환하지 않는다.
+BFF, 내부 제공자는 Core `PublicService.policy`이며 초안·정제 전 원문은 어느 경계에서도 반환하지 않는다.
 
 #### Method·path·인증·권한
 
@@ -151,20 +153,20 @@ body 없음.
 
 #### Pagination·cache·호환성
 
-history pagination 없음. body hash ETag와 `304`를 지원한다.
+history pagination 없음. 공개 BFF는 policy와 history를 포함한 응답 data·meta에서 requestId를 제외한 SHA-256 ETag와 `304`를 제공한다. Core 직결의 본문 단독 해시로 설명하지 않는다.
 
 #### Contract test와 미검증
 
-현재·과거·초안 비공개, sanitize, 반개방 기간 경계, cache purge를 검증한다. 승인 실값과 실행 증거가 없어 `차단`이다.
+현재·과거·초안 비공개, sanitize, 반개방 기간 경계, cache purge를 검증한다. 관련 소스·격리 시험과 9월 20일 발행 기록은 있으나 새 정책 변경마다 실제 적용 결과를 다시 확인한다.
 
 <a id="d01-publish-policy"></a>
 
 ### 승인 정책 시행
 
-- 계약 상태: `차단`
+- 계약 상태: 구현 계약. 현행 M0 발행 증거와 추가 변경/수용 gate를 구분한다.
 
 - 입력 근거: [데이터 모델 §4 정책 버전](../../../system-design/02-data-model.md), [보안·운영 §12](../../../system-design/05-security-operations.md)
-- 미검증: 승인 artifact, command source, DB·cache runtime
+- 구현 근거: `PoliciesService`·`policy-artifact.ts`·`commands/command.ts`와 정책 통합 시험. 운영 발행은 상단의 실행 기록을 따른다.
 
 #### 프로세스 목적과 범위
 
@@ -212,16 +214,16 @@ artifact 제거를 확인해야 한다. 사업자 정보 placeholder는 사업�
 
 #### 미정·차단·미검증
 
-승인된 production artifact와 법무 실값이 없어 차단이다.
+새 발행은 승인된 artifact·실값·시행 시각과 고지가 필요하다. 현재 v0.1 입력/발행 완료 기록을 전체 미입력으로 되돌리지 않는다.
 
 <a id="d01-submit-rights-inquiry"></a>
 
 ### 권리 문의 이메일 작성
 
-- 계약 상태: `차단`
+- 계약 상태: 구현 계약. 현행 M0 발행 증거와 추가 변경/수용 gate를 구분한다.
 
 - 입력 근거: [화면 설계 §10 권리 이메일](../../../planning/03-screen-design.md), [권리자 안내](../../../legal/rights-request.md)
-- 미검증: 실제 수령인·메일 client·법률 고지
+- 현재 접수 주소·고지는 M0 발행 기록에 있다. 실제 외부 메일 앱 실행·사건 처리는 별도 검증 대상이다.
 
 #### 프로세스 목적과 범위
 
@@ -229,7 +231,7 @@ artifact 제거를 확인해야 한다. 사업자 정보 placeholder는 사업�
 
 #### 행위자·시작·선행 조건
 
-공개 이용자. `BLARIYO_RIGHTS_CONTACT_EMAIL` 실값과 고지 문구가 확정돼야 한다.
+공개 이용자. `NUXT_PUBLIC_RIGHTS_EMAIL` 실값과 고지 문구가 확정돼야 한다.
 
 #### 정상 흐름
 
@@ -264,16 +266,16 @@ mailto 본문에는 현재 URL이 포함되고 footer에는 `권리 문의` 한 
 
 #### 미정·차단·미검증
 
-`[출시 차단: 권리 침해 신고·요청 이메일·시행일 입력 필요]`. 전환 신호에 따른 대체 안내 계약은 확정됐으나 실제 외부 메일 앱 실행은 별도 검증 대상이다.
+새 환경의 `[출시 차단: 권리 침해 신고·요청 이메일·시행일 입력 필요]` 조건은 유지한다. 현행 M0 입력은 발행 기록으로 확인하며 실제 외부 메일 앱 실행은 별도 검증 대상이다.
 
 <a id="d01-view-policy"></a>
 
 ### 정책 본문과 이력 열람
 
-- 계약 상태: `차단`
+- 계약 상태: 구현 계약. 현행 M0 발행 증거와 추가 변경/수용 gate를 구분한다.
 
 - 입력 근거: [화면 설계 §10](../../../planning/03-screen-design.md), [정책 API](#api-get-policy)
-- 미검증: 승인 본문, SSR/modal browser test
+- 구현 근거: `PolicyViewer.vue`·footer dialog·terms/privacy route와 기존 브라우저 시험. 현재 승인 본문은 발행 기록을 따른다.
 
 #### 프로세스 목적과 범위
 
@@ -316,18 +318,16 @@ mailto 본문에는 현재 URL이 포함되고 footer에는 `권리 문의` 한 
 
 #### 미정·차단·미검증
 
-운영자 표시명·시행일·일반 문의·권리·개인정보 접수 이메일, 개인정보 보호책임자 또는 담당자와
-승인 본문이 확정 전이라 production은 차단된다. 사업자 정보는 사업자등록 또는 거래 기능 확정
-전까지 `(미정)`으로 보류한다.
+필수 실값·승인 본문이 없는 새 환경은 공개를 차단한다. 현재 M0의 입력/발행 기록과 후속 정책 변경 조건을 분리한다. 사업자 정보는 사업자등록 또는 거래 기능 확정 전까지 `(미정)`으로 보류한다.
 
 <a id="d08-policy-publish-command"></a>
 
 ### 정책 시행 Command
 
-- 계약 상태: `차단`
+- 계약 상태: 구현 계약. 현행 M0 발행 증거와 추가 변경/수용 gate를 구분한다.
 
 - 입력 근거: [데이터 모델 §4](../../../system-design/02-data-model.md), [보안·운영 §12](../../../system-design/05-security-operations.md)
-- 미검증: CLI source·artifact·runtime
+- 구현 근거: `commands/command.ts`·`PoliciesService`·발행 도구와 M0 실행 기록. 신규 발행은 별도 검증한다.
 
 #### 프로그램 목적·route·milestone
 
@@ -339,7 +339,7 @@ mailto 본문에는 현재 URL이 포함되고 footer에는 `권리 문의` 한 
 
 #### UI 영역과 구성요소
 
-CLI 입력은 artifact path만 받는다. stdout/stderr에는 단계·일반 오류 code·최종 version만 표시하고 본문·secret·checksum 전체를 출력하지 않는다.
+CLI의 정책 입력은 artifact path이며 설정은 비공개 환경에서 읽는다. 현행 성공 출력은 `COMMAND_COMPLETE`, 실패는 일반 오류 code 또는 `COMMAND_FAILED`와 exit 1이다. 본문·secret·checksum 전체를 출력하지 않는다. 최종 version과 purge 결과는 API/DB/outbox readback으로 따로 확인한다.
 
 #### 필드·표시값·validation
 
@@ -354,8 +354,7 @@ validate→sanitize→lock/transaction→outbox→결과 확인 순서다. 성�
 
 #### 프로그램 상태
 
-schema·필수 실값·placeholder 검증 실패, 시행 window 오류, lock/DB 오류, purge pending, 성공을 exit
-code와 일반 메시지로 구분한다.
+schema·필수 실값·placeholder·시행 window 오류는 일반 오류 code와 실패 exit로 구분한다. CLI 성공은 DB 시행/outbox 등록 완료이며 실제 purge 완료가 아니다. outbox pending/실패는 별도 운영 확인으로 판단한다.
 
 #### 반응형과 접근성
 
@@ -376,16 +375,16 @@ outbox, artifact 제거를 검증해야 한다.
 
 #### 미정·차단·미검증
 
-승인 artifact와 실행 source가 없어 차단이다.
+CLI source와 M0 발행 증거가 있다. 새 정책은 artifact 승인·시행 window·실행 후 readback을 다시 충족해야 한다.
 
 <a id="d08-policy-viewer"></a>
 
 ### 정책 Viewer
 
-- 계약 상태: `차단`
+- 계약 상태: 구현 계약. 현행 M0 발행 증거와 추가 변경/수용 gate를 구분한다.
 
 - 입력 근거: [화면 설계 §10](../../../planning/03-screen-design.md), [퍼블리싱 기준](../../../ui/publishing/responsive/README.md)
-- 미검증: 승인 본문, actual browser·accessibility test
+- 현재 본문·기존 Chromium 검증 기록 있음. 전체 보조기기/브라우저 접근성 인증과 운영 재조회는 별개다.
 
 #### 목적·route·milestone
 
@@ -431,18 +430,16 @@ modal/direct route의 version·전문이 같고 focus·scroll·history 전환이
 
 #### 미정·차단·미검증
 
-법무 승인·시행일·운영자 표시명·일반 문의·권리·개인정보 접수 이메일과 개인정보 보호책임자 또는
-담당자 실값이 없어 production은 차단된다. 사업자 정보는 사업자등록 또는 거래 기능 확정 전까지
-`(미정)`으로 보류한다.
+M0 v0.1 입력/발행 기록은 상단을 따른다. 새 공개 변경의 필수 실값·법무 gate와 미확정 사업자 정보 `(미정)`는 유지한다. 이력 전환 뒤 본문 상단 이동은 현행 구현 대조에서 미충족으로 확인했으며 아래 잔여 조건을 따른다.
 
 <a id="d08-rights-inquiry-entry"></a>
 
 ### 권리 문의 진입
 
-- 계약 상태: `차단`
+- 계약 상태: 구현 계약. 현행 M0 발행 증거와 추가 변경/수용 gate를 구분한다.
 
 - 입력 근거: [화면 설계 §10 권리 이메일](../../../planning/03-screen-design.md), [권리자 안내](../../../legal/rights-request.md)
-- 미검증: 실제 이메일·mailto/browser test
+- 구현 근거: `SiteFooter.vue`·`tests/browser/footer.test.ts`의 합성 clipboard/전환 시험. 실제 메일 앱은 실행하지 않는 테스트이므로 외부 메일 수신·실행 증거와 구분한다.
 
 #### 목적·route·milestone
 
@@ -459,7 +456,7 @@ footer에는 짧은 `권리 문의` 링크만 노출한다. 자동 복사가 거
 #### 필드·표시값·validation
 
 mailto 제목은 서비스명·문의 유형, body는 현재 canonical URL·요청 입력란이다. 수령 주소는
-`BLARIYO_RIGHTS_CONTACT_EMAIL`의 확정 실값만 사용한다. 대체 복사는 같은 이메일 주소와 mailto 제목·본문 전체를 포함한다.
+`NUXT_PUBLIC_RIGHTS_EMAIL`의 확정 실값만 사용한다. 대체 복사는 같은 이메일 주소와 mailto 제목·본문 전체를 포함한다.
 
 #### 이벤트·이동·후처리
 
@@ -487,5 +484,8 @@ loading 해당 없음. 이메일 미정이면 production에서 깨진 link를 �
 
 #### 미정·차단·미검증
 
-권리 침해 신고·요청 이메일 실값과 시행일이 `[출시 차단]` 상태다. mail client 결과 미감지와 독립된
-주소 복사는 확정됐지만 실제 mailto·clipboard·browser 동작은 미검증이다.
+새 환경의 권리 이메일·시행일 미입력은 `[출시 차단]` 조건이다. 현행 M0 주입 기록과 단일 링크/복사 대체 구현은 있으나 실제 외부 mail client·사건 처리 수용은 별도로 남아 있다.
+
+## 13. 2026-09-24 소스 대조의 잔여 화면 조건
+
+`PolicyViewer.vue`의 이력 선택은 `selected` 값을 바꾸지만 본문 상단으로 스크롤하는 처리나 완료 후 포커스 이동은 없다. D01/D08의 상단 이동 계약은 유지하고 [로드맵 UI 인수](../../../roadmap.md)에서 보완·긴 본문 회귀 시험을 추적한다. 현재 스크롤이 모든 브라우저에서 어떻게 보이는지 이번에 재현한 것은 아니며, 소스에 명시 동작이 없다는 근거다.

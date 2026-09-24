@@ -1,8 +1,8 @@
 # 블라리요 시스템 설계
 
-- 문서 상태: M0 공통 기술 계약과 M1·M1.5 확장 계약 · 신규 개발 기준
-- 기준일: 2026-09-02
-- 정합성 검토일: 2026-09-02
+- 문서 상태: M0 현행 기술 계약과 M1·M1.5 확장 계약 · 구현·운영 수용 별도
+- 최초 기준일: 2026-09-02
+- 문서 대조일: 2026-09-24 (실행 증거는 각 관측일 기준)
 - 상위 기획: [서비스 기획서](../planning/01-service-plan.md)
 - 수집 상위 기획: [콘텐츠 수집 기획](../planning/content-collection/README.md)
 - 화면 상위 정본: [화면 설계](../planning/03-screen-design.md)
@@ -25,15 +25,17 @@
 
 2026-09-07 사용자 결정에 따라 기존 애플리케이션 프로토타입을 이어 개발하지 않고 새로 구현한다.
 기존 source·migration·생성 타입·테스트 결과는 새 구현의 완료 근거로 승계하지 않는다.
-이 전제 이후 현재 브랜치에 신규 Core 구현이 추가됐다. 2026-09-08 로컬 검증 범위와 실행 명령은
-[루트 README 검증](../../README.md#검증)을 따른다. 이 문서의 설계 계약과 실제 실행 증거는 구분한다.
+이 전제 이후 Core·Spring legacy·direct batch 구현이 추가됐다. 현행 구현과 남은 수용 조건은
+[요구사항 대조표](../development-specs/requirements-status.md), 9월 23일 API/Web·DB 배포 관측은
+[운영 상태](../operations/current-status.md), 검증 명령은 [루트 README](../../README.md#검증)를 따른다.
+과거 9월 8일 미구현 판정을 현행 상태로 사용하지 않는다.
 
 - 개발 입력: planning → system-design → 기능 명세와 docs OpenAPI.
 - 첫 구현 범위: M0 Core와 별도 실행 컴퓨터의 M0 수집 보조·자동 수집 확장. 수집은 독립 gate로 관리하고 M1 기능과 분리한다.
 - 구현 시작 순서와 완료 조건: [구현 Backlog](../development-specs/m0-core/implementation-backlog.md).
 - 현행 판정: [설계 준비 상태](design-readiness.md)에서 설계 기준선·구현 수용·production 공개 승인을
   각각 관리한다. 과거 검증 보고서의 미실행 상태를 현행 설계 기준선으로 사용하지 않는다.
-- 법무 실값·production 계정·복구 훈련은 공개 전 조건이다. 로컬 개발과 가짜 외부 adapter를 이용한 테스트는 시작할 수 있다.
+- M0 Core의 정책 발행·배포·격리 백업 복원 관측과, 미완료인 실제 MFA 관리자 인수·새 VM 복구·collector 운영 gate를 구분한다. 기능별 법무 실값·미정 조건은 해당 정책 정본을 따른다.
 - 문서 검증과 새 구현의 test·build·runtime·브라우저·배포 검증은 별도다.
 
 ## 설계 범위
@@ -68,7 +70,8 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 | [04-infrastructure-design.md](04-infrastructure-design.md) | 저비용 사업자 비교, 배포 토폴로지와 비용 상한 |
 | [05-security-operations.md](05-security-operations.md) | 접근통제, secret, 백업·복구·관측·장애 대응 |
 | [06-member-community-design.md](06-member-community-design.md) | M1·M1.5 아키텍처·데이터·API·보안·운영 확장; 문서 작성과 공개 gate 별도 |
-| [07-spring-collector-design.md](07-spring-collector-design.md) | M0 수집 보조 Spring 실행·복구·quota·보안·전환 상세 계약; 구현·활성화 별도 |
+| [07-spring-collector-design.md](07-spring-collector-design.md) | 현행 direct batch 저장·검수·Discord queue와 기존 Spring 호환 계약; 구현·활성화 별도 |
+| [08-code-structure.md](08-code-structure.md) | Nest API·Nuxt·Java 수집기의 내부 책임과 사이트별 모듈 의존성 |
 | [09-security-cost-protection-plan.md](09-security-cost-protection-plan.md) | Cloudflare·AWS 보안/비용 보강 적용 계획; 정적 JS 캐시·알림 1차 적용, 요청 제한·전체 정상 이용 검증은 별도 |
 | [design-readiness.md](design-readiness.md) | 단계별 설계 기준선·구현 수용·production 공개 승인 현행 판정 |
 
@@ -79,15 +82,15 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 | 공개 BE·FE 런타임 | Node.js `24.18.0` LTS |
 | 웹·BFF | Nuxt SSR + same-origin `/api/v1` 외부 계약 |
 | Core API | NestJS + TypeORM + TypeScript strict, Docker app network에서 Web만 HTTP 접근; cron은 단발성 command |
-| 서비스 데이터베이스 | PostgreSQL 18 단일 인스턴스. Spring collector는 운영자 PC의 별도 PostgreSQL 18에서 `batch`·`quartz`·`collector` schema 사용 |
+| 서비스 데이터베이스 | PostgreSQL 18. 현행 direct batch/API는 같은 database에서 소유 테이블과 role을 분리. 기존 Spring 서버의 전용 `batch`·`quartz`·`collector` DB는 legacy 호환 경로 |
 | DB schema | `M0 Core`: `content`, `legal`, `ops`; `M0 수집 보조`: `collect`; 이후 schema는 단계별 migration에서 추가 |
-| 이미지 | Cloudflare R2 Standard, 비공개 원본 bucket과 공개 media bucket 분리 |
+| 이미지·수집 object | Cloudflare R2 Standard. private/public/backup bucket과 collect/private/public prefix·reader/writer 자격증명 분리; 실제 연결은 운영 상태·인수 증거로 판정 |
 | 수집 | 별도 batch 컴퓨터의 `collector`가 source policy에 따라 목록·상세 fetch, parser, `collect.batch_*`, object store와 report를 소유. API는 결과 조회·검수·초안 승격·공개를 소유하며 외부 fetch를 하지 않음 |
 | 엣지 | Cloudflare Free DNS·CDN·Universal SSL |
 | 원본 연결 | Cloudflare Tunnel로 공개 inbound port 제거 |
 | 운영자 접근 | BFF의 교체 가능한 외부 인증 adapter, Core의 provider-neutral 서비스 토큰 검증 |
 | 배포 단위 | 단일 ARM64 또는 x86_64 VM의 Docker Compose |
-| 기본 비용안 | OCI 서울 Always Free를 우선 시험하고 실패 시 Lightsail 서울 2GB로 전환 |
+| 현재 컴퓨트 | 9월 23일 관측: Lightsail 서울 x86_64 2GB. OCI 우선안·가격 비교는 인프라 문서의 당시 검토안이며 현행 미배포 상태가 아님 |
 | 고가용성 | M0에서는 구성하지 않고 백업 복구로 대응 |
 
 ## 설계 원칙
@@ -100,6 +103,9 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 6. 구현 코드는 이 문서보다 임의로 범위를 넓히지 않는다. 계약 변경은 기획과 시스템 설계를 먼저 수정한다.
 
 ## Spring 수집 서버 준비 상태 (2026-09-08)
+
+아래는 당시 설계 인수 기록이다. 현재 Java source·migration·API·격리 테스트는 존재하며 direct 확장이 추가됐다.
+기술 구현과 별도 PC writer·Discord Gateway·7일 운영 관찰의 미완료 경계는 위 현행 대조표를 따른다.
 
 - 설계 기준선: **조건부 확정 가능(개발 입력), 주 검수 완료.** [Spring 상세 계약](07-spring-collector-design.md)에
   운영자 로컬 Boot 서버, Batch/Quartz/REST·Discord 공통 실행, 전용 PostgreSQL, 응답 유실·quota·lease,

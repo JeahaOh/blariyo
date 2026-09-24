@@ -2,7 +2,7 @@
 
 - 문서 상태: OD-M0-013 확정
 - 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-03
+- 정합성 검토일: 2026-09-24 (Nuxt 설정·metadata·푸터 소스 대조)
 - 관련 문서: [01-service-plan.md](./01-service-plan.md), [03-screen-design.md](./03-screen-design.md), [05-benchmark-spec.md](./05-benchmark-spec.md)
 - 서비스 명칭: `블라리요`
 
@@ -35,8 +35,9 @@
 | `NUXT_PUBLIC_HOME_OG_DESCRIPTION` | `블라리요에서 블라블라블라` | 홈 `og:description`, 상세 TEXT 없음 fallback |
 | `NUXT_PUBLIC_FOOTER_TAGLINE` | `블라블라블라` | 푸터 브랜드 한 줄 |
 
-위 값은 source에 흩어 넣지 않고 public runtime config로 주입한다. production은 빈 문자열을
-허용하지 않으며 누락 시 build 또는 startup 단계에서 실패하도록 검증한다.
+위 값은 public runtime config에서 관리한다. `apps/web/nuxt.config.ts`에 확정 기본값이 있으며
+배포 환경변수로 덮어쓸 수 있다. production startup 검증은 기본값을 적용한 최종 config의 빈 값·
+미정 placeholder를 거부한다. 환경변수를 생략해 확정 기본값을 사용하는 것 자체는 실패 조건이 아니다.
 
 ## 4. 상세 metadata 적용
 

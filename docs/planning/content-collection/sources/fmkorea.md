@@ -1,12 +1,28 @@
 # 에펨코리아 수집 명세
 
-- 명세 상태: 정책 확인 완료 · 비활성
+- 명세 상태: 현행 구현·과거 정책 검토 분리 · 운영 활성화 미완료
 - source key: `fmkorea`
 - 작성일: 2026-09-03
-- 최종 확인일: 2026-09-03
+- 최종 문서 대조일: 2026-09-24 (외부 접근 관측은 2026-09-23 기록)
 - 확인 담당자: Codex
-- 활성 단계: 비활성
-- parser version: `(미정)`
+- 활성 단계: 로컬 검증과 운영 활성화 분리; 아래 현행 요약 참조
+- parser version: 상세 parser의 `parserVersion` 출력과 Git revision으로 확인; 최초 검토의 `(미정)`과 구분
+
+## 현행 구현과 검증 경계
+
+| 항목 | 2026-09-24 저장소 대조 결과 |
+| --- | --- |
+| 현행 수집 분류 | `BLOCKED`; [출처 정책](../source-collection-policy.md) |
+| chart / 목록 URL | `hot` `https://www.fmkorea.com/best` |
+| 구현 | `FMKOREA` — [목록 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/fmkorea/FmkoreaListParser.java), [상세 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/fmkorea/FmkoreaDetailParser.java), [URL 식별·조합](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/fmkorea/FmkoreaAdapter.java) |
+| 검증 범위 | 목록 HTTP 430 접근 차단. 목록·상세 parser와 합성 fixture는 있으나 실제 본문 수집 성공은 확인되지 않았다. |
+| 실행 증거 | [실패 저장 readback](../../../../apps/collector/ops/reports/dev-blocked-readback-2026-09-23.md); [전체 검증표](../reference-site-validation.md)에서 임시 DB·지속 로컬 DB·운영 환경을 구분 |
+
+- 아래 §1~10은 9월 3일 초기 정책·metadata 검토 기록이다. 당시의 `사용하지 않음`, selector 미정, fixture 미검증을 현재 코드 부재로 해석하지 않는다. 이용약관·robots·연락처와 운영 위험의 미확정 항목은 운영 활성화 전에 재확인한다.
+- 9월 21~23일 절의 승인 플래그·parser 상태·실행 명령은 각 시점의 이력이다. 현행 [개발 예제 설정](../../../../apps/collector/ops/reference-sites.sources.example.json)의 `approved=true`, `batchApproved=true`는 운영 승인 증거가 아니다. 운영자의 별도 활성화 판정은 미완료다.
+- 과거 일반 목록 실행의 `--chart hot`은 인기 목록 검증이 아니다. 현재 chart는 위 표를 따르며, `BLOCKED`·상세 전용 출처는 목록 성공으로 보고하지 않는다.
+- 현재 보존·용량·검수는 [direct batch 계약](../README.md#12-현행-direct와-legacy의-적용-경계)을 따른다. 이후 이력의 원문 보관과 초기 metadata 임시 preview 규칙을 혼용하지 않는다.
+- 이번 대조에서 외부 페이지·DB/R2·Discord를 새로 호출하지 않았다. 원격 batch writer와 Discord Gateway 실연동, 출처별 운영 활성화는 별도 인수 대상이다.
 
 ## 1. 출처 식별
 

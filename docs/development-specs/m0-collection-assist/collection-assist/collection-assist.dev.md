@@ -5,8 +5,10 @@
 - 문서 상태: `조건부 설계 확정 가능(개발 입력) · 주 검수 완료`, 구현 수용·production 공개 승인 별도
 - milestone: `M0 수집 보조` (`m0-collection-assist`)
 - 기능: `collection-assist` — 로컬 collector 기반 Discord·운영자 URL 지정 후보 생성·검수·반려·초안 승격
-- 기준일: 2026-09-08, 현행/legacy 계약 정합성 갱신: 2026-09-23
+- 기준일: 2026-09-08, 현행/legacy 계약 정합성 갱신: 2026-09-24
 - 구현 판정: direct source·migration·OpenAPI와 격리 검증은 [요구사항 대조](../../requirements-status.md)의 현재 증거를 따른다. 실제 운영자·Access·원격 DB/object·Discord Gateway·출처 활성화·보존/고지는 별도 미검증이다.
+- 2026-09-24 추가 대조: direct 실행의 robots/Crawl-delay·영속 일일 budget 연결은 미구현이며 redirect 설계 3회와 구현 최대4회도 다르다. 본문의 통제 요구를 구현 완료로 읽지 않는다. [기술 근거와 보완 조건](../../../system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)을 운영 활성화 전에 충족해야 한다.
+- legacy 원문 result는 API/OpenAPI 1000블록과 V006 DB CHECK 40블록이 다르다. [데이터 모델](../../../system-design/02-data-model.md#원문-수집-후보-확장-2026-09-20)의 미해결 차이를 P1-01에서 추적하며 legacy 재활성화 전에 검증한다.
 - 기존 구현 증거: Node/Core·Python collector 구현과 전환 전 로컬 검증 범위는 [main 병합 구현 상태 인계](../../../../worklog/2026-09-08/handoff/main-merge-implementation-status.md)를 따른다. 이 증거를 Spring 구현 완료로 해석하지 않는다.
 - 주요 근거:
   - [콘텐츠 수집 기획](../../../planning/content-collection/README.md)
@@ -185,7 +187,7 @@ direct 경로의 상태·DB/object 소유권·검수 UI는 위 5.1·6.1과 문�
 #### 작업 목적과 호출 경계
 
 - 입력 근거: [API 설계 §5-1](../../../system-design/03-api-design.md), [아키텍처](../../../system-design/01-system-architecture.md), [데이터 모델](../../../system-design/02-data-model.md)
-- 미검증: source, OpenAPI, contract test, 실제 Discord Gateway·출처 fetch
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: OpenAPI, contract test, 실제 Discord Gateway·출처 fetch
 
 로컬 collector는 service origin의 `/api/collector/v1/*`를 HTTPS로 호출한다. Web은 허용 method·path를
 Core `/internal/collect/*`로 중계한다. 예를 들어 `/api/collector/v1/candidates/claim`은
@@ -232,7 +234,7 @@ heartbeat body는 `collectorId`, `collectorExecutionId`, `leaseSeconds`, `lockVe
 result body는 `collectorId`, `collectorExecutionId`, `lockVersion`, `status`, 성공 시 `title`, `canonicalUrl`, `sourcePublishedAt`, `parserVersion`, `warnings`, `imageCandidates`를 가진다. 실패는 `status=FETCH_FAILED`, 필수 `fetchErrorCode`, `warnings`를 가진다. 성공은 NEW, 실패는 FETCH_FAILED만 허용하며 원문 HTML·binary·local path는 받지 않는다.
 
 - `canonicalUrl`은 등록 출처의 정규화 HTTPS URL이어야 한다. 기존 후보와 중복이면 새 결과를 연결하지 않고 `409 CANDIDATE_DUPLICATE`다. 성공 시 `origin_url`과 hash를 같이 갱신한다. title은 trim 1~300자, parserVersion은 trim 1~100자, sourcePublishedAt은 UTC로 정규화하거나 null이고 warnings는 일반화 코드 0~20개(각 1~100자)다.
-- 성공 imageCandidates는 1~20개, position은 1부터 연속, remoteUrl은 HTTPS·최대 2048자다. 성공 시 기존 image metadata를 교체하고 이전 preview를 cleanup 대상으로 기록한다.
+- metadata-only 성공 imageCandidates는 1~20개다. contentBlocks가 있는 원문 모드는 이미지 0건도 허용하며 최대20개이며 position은 1부터 연속, remoteUrl은 HTTPS·최대 2048자다. 성공 시 기존 image metadata를 교체하고 이전 preview를 cleanup 대상으로 기록한다.
 - RUNNING의 current execution·lockVersion·유효 lease만 result를 처음 반영한다. 상태 변경·image metadata·result digest·멱등 결과는 한 transaction으로 commit하며 성공·실패 모두 fetchedAt을 기록하고 leaseUntil을 NULL로 비운다. 성공 응답은 candidateId, status, 새 lockVersion, `{position,candidateImageId}` 매핑을 반환하고 실패의 imageCandidates는 빈 배열이다.
 
 #### Preview Upload와 관리자 읽기
@@ -257,7 +259,7 @@ preview multipart는 `collectorId`, `collectorExecutionId`, `lockVersion`, `file
 | 429 / 503 | SOURCE_RATE_LIMITED / DEPENDENCY_UNAVAILABLE / MAINTENANCE_READ_ONLY | quota 또는 dependency·유지보수 |
 
 - result 성공 뒤 checkpoint가 유실되면 execution-state의 digest·version으로 preview부터 조정하며 fetch/result를 추측 재실행하지 않는다. `NETWORK_STARTED` 뒤 응답 유실은 같은 request를 자동 재송신하지 않고 새 quota reservation을 사용한다.
-- 반려·재시도·승격과 preview 경쟁에서 stale execution/version은 Core 상태·object·quota를 바꾸지 않고, 고아 object는 cleanup한다. 실제 source·OpenAPI·contract/integration/fault test는 아직 수행하지 않았다.
+- 반려·재시도·승격과 preview 경쟁에서 stale execution/version은 Core 상태·object·quota를 바꾸지 않고, 고아 object는 cleanup한다. source·OpenAPI·격리 계약/장애 시험 기록은 존재한다. 이번 문서 대조에서는 재실행하지 않았으며 실제 Gateway·원격 PC·출처별 운영 인수는 별도다.
 
 <a id="api-create-candidate-from-url"></a>
 
@@ -270,7 +272,7 @@ preview multipart는 `collectorId`, `collectorExecutionId`, `lockVersion`, `file
 - 호출 주체: Nuxt BFF 관리자 화면, 운영자 로컬 collector
 - 제공 주체: Nest Core API
 - 입력 근거: [API 설계 §5 관리자 URL 지정 수집 작업 접수](../../../system-design/03-api-design.md)
-- 미검증: source, OpenAPI, contract test, 실제 출처 fetch
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: OpenAPI, contract test, 실제 출처 fetch
 
 운영자가 관리자 화면에서 입력한 단일 상세 페이지 원문 URL은 BE가 `PENDING` 후보 작업으로 접수한다.
 운영자 로컬 collector는 관리자 접수 작업을 claim한다. Discord `/collect url`도 먼저 작업을 접수하고 claim한 뒤 등록·활성
@@ -370,7 +372,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 원문 HTML·내부 오류·secret 로그 미기록
 - 수집기 임시 이미지 파일의 내부 절대 경로·binary 로그 미기록
 - collector 내부 API claim/result/preview upload contract test
-- 실제 source·OpenAPI·runtime 미검증
+- source·OpenAPI·기존 격리 검증은 존재한다. 실제 운영 runtime·출처 인수는 별도다.
 
 <a id="api-promote-candidate-to-draft"></a>
 
@@ -383,7 +385,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 호출 주체: Nuxt BFF 관리자 화면
 - 제공 주체: Nest Core API
 - 입력 근거: [API 설계 §5 후보 초안 승격](../../../system-design/03-api-design.md)
-- 미검증: source, OpenAPI, R2 runtime, contract/integration test
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: OpenAPI, R2 runtime, contract/integration test
 
 운영자가 검수한 후보를 기존 관리자 초안 생성 흐름으로 넘긴다.
 
@@ -460,7 +462,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 수집기 임시 파일 만료 시 로컬 collector 재제출 또는 명시적 실패 처리
 - 초안 생성 성공 시 후보 `APPROVED`
 - transaction 실패와 orphan cleanup 분류
-- 실제 source·OpenAPI·R2 runtime 미검증
+- source·OpenAPI·기존 격리 검증은 존재한다. 실제 운영 R2 인수는 별도다.
 
 <a id="api-reject-candidate"></a>
 
@@ -473,14 +475,14 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 호출 주체: Nuxt BFF 관리자 화면
 - 제공 주체: Nest Core API
 - 입력 근거: [API 설계 §5 재수집과 반려](../../../system-design/03-api-design.md)
-- 미검증: source, OpenAPI, contract test
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: OpenAPI, contract test
 
 운영자가 후보를 공개 게시글로 쓰지 않기로 결정하고 반려 사유를 남긴다.
 
 #### Method·path·인증·권한
 
 - `POST /api/v1/admin/collect/candidates/{candidateId}/reject`
-- 관리자 인증 필수
+- 관리자 인증·`Idempotency-Key` 필수
 - cache: `private, no-store`
 
 #### Request
@@ -516,7 +518,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 허용 reason code만 통과
 - `APPROVED` 후보 반려 거부
 - lockVersion 충돌 거부
-- 실제 source·OpenAPI·runtime 미검증
+- source·OpenAPI·기존 격리 검증은 존재한다. 실제 운영 runtime·출처 인수는 별도다.
 
 <a id="api-retry-candidate"></a>
 
@@ -529,14 +531,14 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 호출 주체: Nuxt BFF 관리자 화면
 - 제공 주체: Nest Core API
 - 입력 근거: [API 설계 §5 재수집과 반려](../../../system-design/03-api-design.md)
-- 미검증: source, OpenAPI, contract test, 실제 출처 fetch
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: OpenAPI, contract test, 실제 출처 fetch
 
 `FETCH_FAILED` 후보를 같은 출처 규칙으로 다시 조회하도록 로컬 collector 작업으로 되돌린다.
 
 #### Method·path·인증·권한
 
 - `POST /api/v1/admin/collect/candidates/{candidateId}/retry`
-- 관리자 인증 필수
+- 관리자 인증·`Idempotency-Key` 필수
 - cache: `private, no-store`
 
 #### Request
@@ -581,7 +583,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 재시도 접수 시 `PENDING`
 - collector 재시도 성공 시 `NEW`
 - collector 재시도 실패 시 `FETCH_FAILED`
-- 실제 source·OpenAPI·runtime 미검증
+- source·OpenAPI·기존 격리 검증은 존재한다. 실제 운영 runtime·출처 인수는 별도다.
 
 <a id="d01-create-and-review-candidate"></a>
 
@@ -592,7 +594,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 #### 프로세스 목적과 범위
 
 - 입력 근거: 이 문서의 기능 범위·요구사항 (§2~§6)
-- 미검증: source, test, browser, 실제 출처 fetch
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: test, browser, 실제 출처 fetch
 
 운영자가 원문 URL을 입력해 후보를 만들고, 후보 목록·상세에서 결과를 확인한다.
 
@@ -666,7 +668,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 #### 미정·차단·미검증 항목
 
 - 차단: 출처별 약관·robots·parser spec 전 production 활성화 불가
-- 미검증: source, contract test, browser
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: contract test, browser
 
 <a id="d01-promote-candidate-to-draft"></a>
 
@@ -677,7 +679,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 #### 프로세스 목적과 범위
 
 - 입력 근거: 이 문서의 기능 범위·요구사항 (§2~§6)
-- 미검증: source, R2 runtime, transaction/orphan cleanup test, browser
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: R2 runtime, transaction/orphan cleanup test, browser
 
 운영자가 검수한 후보를 기존 게시글 초안으로 승격한다.
 
@@ -737,7 +739,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### 미정·차단·미검증 항목
 
-- 미검증: source, R2, transaction rollback, browser
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: R2, transaction rollback, browser
 
 <a id="d01-retry-or-reject-candidate"></a>
 
@@ -748,7 +750,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 #### 프로세스 목적과 범위
 
 - 입력 근거: 이 문서의 기능 범위·요구사항 (§2~§6)
-- 미검증: source, test, browser
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: test, browser
 
 운영자가 실패 또는 미사용 후보를 재시도하거나 반려한다.
 
@@ -803,7 +805,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### 미정·차단·미검증 항목
 
-- 미검증: source, contract test, browser
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: contract test, browser
 
 <a id="d08-collect-candidate-review"></a>
 
@@ -815,7 +817,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 - route: `/admin/collect`
 - 입력 근거: [화면 설계 §2 수집 후보 검수 화면](../../../planning/03-screen-design.md), 이 문서의 기능 범위·요구사항 (§2~§6)
-- 미검증: source, browser, 접근성, 실제 image preview
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: browser, 접근성, 실제 image preview
 
 운영자가 관리자 화면에서 후보를 만들거나 [로컬 Collector 프로그램](#d08-local-collector)이 Discord
 `/collect url`로 만든 후보를 관리자 화면에서 검수·반려·초안 승격한다.
@@ -901,7 +903,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 - 출처 설정은 [출처 조회·설정](#api-source-management)의 계약을 따른다.
 - 차단: 출처별 source spec의 운영 위험·기술 gate 확인 전 production 활성화 불가
-- 미검증: source, browser, 접근성, 실제 image preview
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: browser, 접근성, 실제 image preview
 
 <a id="d08-local-collector"></a>
 
@@ -910,7 +912,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 계약 상태: `초안`
 
 - 입력 근거: [콘텐츠 수집 기획 §3.2](../../../planning/content-collection/README.md), [시스템 아키텍처 §4·§5](../../../system-design/01-system-architecture.md), [인프라 설계 §6](../../../system-design/04-infrastructure-design.md), [보안·운영 §4 수집](../../../system-design/05-security-operations.md), [Collector 내부 API](#api-collector-internal-api)
-- 미검증: collector source, Discord Gateway·Slash Command, 실제 출처 fetch, local secret 저장, contract test, runtime
+- 검증 경계: collector source 존재; 이번 재실행 없음. 잔여 인수: Discord Gateway·Slash Command, 실제 출처 fetch, local secret 저장, contract test, runtime
 
 #### 프로그램 목적·route·milestone
 
@@ -932,7 +934,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 
 #### UI 영역과 구성요소
 
-현재 확정된 배치 관리 UI는 없다. 기존 FE 검수 화면은 유지하며 local REST는 loopback bearer scope와 state-changing 요청의 `Idempotency-Key`를 사용한다.
+이 legacy 실행기의 별도 로컬 관리 UI는 없다. 현행 direct 결과 검수는 `/admin/batch`이며 기존 legacy FE 검수 화면도 별도로 유지한다. local REST는 loopback bearer scope와 state-changing 요청의 `Idempotency-Key`를 사용한다.
 
 - stdout/stderr에는 실행 상태, 처리 후보 수, 일반화된 오류 code만 출력한다.
 - 원문 URL 전체, 후보 제목 전체, 원문 HTML, 이미지 binary, local temp path, token, stack trace는 출력하지 않는다.
@@ -974,7 +976,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 
 #### 반응형과 접근성
 
-배치 관리 UI는 미정이다. 운영 출력은 색 없이도 상태와 exit code를 구분할 수 있어야 하며, 비대화형 실행과 로그 수집이 가능해야 한다.
+이 legacy 로컬 실행기의 관리 UI는 미정이다. 운영 출력은 색 없이도 상태와 exit code를 구분할 수 있어야 하며, 비대화형 실행과 로그 수집이 가능해야 한다.
 
 #### 이벤트별 D01·API 매핑
 
@@ -1010,7 +1012,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
   21개 사이트의 독립 adapter·상세 parser와 19개 목록 parser를 분리했고 기존 fixture 경로를 보존했다.
   이는 구조 변경의 로컬 검증이며 아래 실연동 미검증 항목을 완료로 바꾸지 않는다.
 - 차단: 출처별 source spec의 운영 위험·robots 확인 전 production 활성화 불가.
-- 미검증: source, Discord Gateway·Slash Command, 실제 출처 fetch, Core/local migration, OpenAPI, contract·fault test, build, runtime.
+- 검증 경계: source 존재; 이번 재실행 없음. 잔여 인수: Discord Gateway·Slash Command, 실제 출처 fetch, Core/local migration, OpenAPI, contract·fault test, build, runtime.
 
 <a id="api-source-management"></a>
 
@@ -1024,7 +1026,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
   version 충돌이면 재조회 후 운영자가 다시 선택하며 자동 덮어쓰지 않는다.
 - loading·등록 출처 없음·조회 실패·저장 실패를 구분한다. 실패 시 입력을 유지하고 일반화한 사유를 표시한다.
 - 검증: 1000ms·상한 1/10000 경계, 미허용 필드·설정 조합, robots 재확인/null 해제,
-  경쟁 수정·응답 유실·유지보수 읽기/쓰기 분리를 확인한다. source·browser 검증은 새 구현에서 수행한다.
+  경쟁 수정·응답 유실·유지보수 읽기/쓰기 분리를 확인한다. source·브라우저의 기존 격리 결과와 별도로 실제 운영 인수를 수행한다.
 
 ## Spring 전환: Job 계약과 검증 경계
 
@@ -1032,7 +1034,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - legacy 수동 Spring 경로는 service DB·object storage credential을 갖지 않고 Core API로 후보·preview를 변경한다. direct
   batch 경로는 별도 batch DB role과 `collect/raw`, `collect/media`, `collect/report` object-store prefix만 사용한다.
   어느 경로도 title·origin URL·HTML·image binary·token·절대 경로를 일반 로그에 남기지 않는다.
-- 승인된 수집 결과를 `/meme` 공개 화면에 노출하는 것은 batch가 아니라 API 검수·승격 단계의 책임이다. 승격 단계는 `collect/media/*`를 public key로 직접 쓰지 않고, 이미지를 `content/published/posts/{postId}/{imageId}-{sha256}.{ext}`로 복사한 뒤 `content.board_post_image.public_storage_key`에 저장한다.
+- 승인된 수집 결과를 `/meme` 공개 화면에 노출하는 것은 batch가 아니라 API 검수·승격 단계의 책임이다. 초안 승격은 `collect/media/*`를 검증해 `content/private/staging/*`의 private 사본만 만든다. 이후 별도 Core 발행 명령이 `content/published/posts/{postId}/{imageId}-{sha256}.{ext}`로 복사하고 `content.board_post_image.public_storage_key`를 기록한다. 승격만으로 public object가 생기지 않는다.
 - 구현 수용은 여섯 Step checkpoint, same-key replay, stale execution fencing, Core quota/permit, spool TTL, stop·restart·reconcile, REST·Discord·Quartz 공통 경로와 legacy drain을 07의 수용 시험으로 검증한다.
 - source·migration·OpenAPI 구현과 격리 환경 test·build·runtime 결과는 [M0 검증 기록](../../../../worklog/2026-09-09/core-spring-verification/evidence.md)에 기록한다. 실제 출처·Discord·운영 배포·법무 승인·7일 관찰은 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정만으로 Spring 전체 완료를 판단하지 않는다.
 
@@ -1173,3 +1175,8 @@ Discord 확인은 batch 소유 confirmation/queue에 원자적으로 접수한�
 
 
 과거 완료 IMAGE의 MIME 정정은 [Batch V006 계약](../../../system-design/07-spring-collector-design.md#batch-v006-완료-이미지-mime-정정)을 따른다. runtime은 완료 media를 수정할 수 없으며, 소유자 전용 감사 함수가 파일 검증 manifest의 기대값과 일치하는 MIME만 정정한다. API 검수 digest가 달라진 미승격 결과는 재검수가 필요하다.
+
+## 2026-09-24 Legacy 결과 DTO의 후속 정합성
+
+- `SourcePolicy.extract`의 사이트 adapter 결과에는 `attachmentCandidates`가 포함된다. `CollectionPipeline.result`는 결과를 그대로 복사해 제출하지만 legacy OpenAPI의 result는 `additionalProperties:false`이며 해당 필드를 허용하지 않는다. fixture bridge에서 빈 배열을 분리한 검사는 실제 pipeline의 계약 적합성을 대신하지 않는다.
+- legacy 재활성화 전에 첨부 처리 범위와 result DTO 변환을 정하고 실제 제출의 계약 검사를 보완한다. direct 저장의 첨부 보존 동작과 구분하며 원문·첨부를 임의 삭제해 성공 처리하지 않는다. 1000/40블록 차이와 함께 P1-01에 남긴다. 실제 요청은 이번 문서 검토에서 보내지 않았다.

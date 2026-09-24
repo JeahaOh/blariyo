@@ -1,15 +1,16 @@
 # Cloudflare·AWS 보안 및 비용 보호 적용 계획
 
 - 작성일: 2026-09-20 KST
-- 상태: **일부 적용: 정적 JS 9개 캐시·Cloudflare 비용/DDoS 알림·게이트웨이 오류 no-store. 경로 캐시 확대·AWS 예산·요청 제한·앱 배포는 미실행.**
+- 검토일: 2026-09-24 KST, 저장소·실행 기록 정적 대조. 계정/서버 설정을 새로 조회하지 않았다.
+- 상태: **일부 적용: 정적 JS 9개 캐시·Cloudflare 비용/DDoS 알림·게이트웨이 오류 no-store. 앱 오류 no-store는 9월 23일 배포 기록이 있다. 경로 캐시 확대·AWS 예산·요청 제한과 전체 수용 시험은 미완료.**
 - 사용자 요구: DDoS·반복 조회·정적 파일 남용·계정 침해·비용 급증에 대비하되 정상 이용자를 막지 않는다.
 - 대상: 현재 M0 Core, Cloudflare Free·Tunnel·Access·R2, Lightsail 서울 2GB.
 - 문서 역할: 적용 후보, 선행 검증, 단계별 적용과 되돌리기 기준. 운영 적용 완료 증거가 아니다.
 - 상위 기준: [인프라 계획](../planning/02-infra-plan.md), [아키텍처](01-system-architecture.md), [인프라 설계](04-infrastructure-design.md), [보안·운영](05-security-operations.md).
 - 실행 상태: [현재 운영 상태](../operations/current-status.md). 이 문서의 계획을 현재 설정으로 간주하지 않는다.
 - 실행 증거: [2026-09-20 보안 보강 결과](../operations/security-protection-status.md). 아래 계획 중 실제 적용한 범위만 별도 판정한다.
-- 최신 작업 범위: 사용자 요청에 따라 코드·설정·문서, 기존 SSH 서버 점검, 공개 HTTP 검증까지만 수행했다.
-  Cloudflare/AWS 관리 설정과 인증 경로 마련은 이번 범위 밖이다. [수행한 일·남은 일](../operations/security-protection-status.md#7-이번-작업-마감과-남은-일)을 재개 기준으로 사용한다.
+- 9월 20일 작업 범위: 코드·설정·문서, 기존 SSH 서버 점검, 공개 HTTP 검증. 당시 보류한 관리 설정·인증 경로는 [수행한 일·남은 일](../operations/security-protection-status.md#7-이번-작업-마감과-남은-일)을 따른다.
+- 후속 관측: [9월 23일 앱 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)와 [DB·미디어 승격](../../worklog/2026-09-23/release/production-db-promotion.md)을 분리해 반영한다. 배포 성공이 요청 제한·공유 IP·이미지 purge 수용 시험 통과를 뜻하지 않는다.
 
 ## 1. 적용 방향과 완료 경계
 
@@ -53,11 +54,11 @@
 
 소스에서 확인한 보강 지점:
 
-- [Nginx](../../deploy/gateway/nginx.conf):30: timeout·요청 크기 제한은 있으나 `limit_req`·`limit_conn` 없음.
-- [공개 BFF](../../apps/web/server/api/v1/[...path].ts):54: 조회 수 증가에만 IP별 분당 60회 제한. 공개 목록·상세 전반의 제한은 아님.
-- [운영 설정 생성](../../deploy/application/prepare-runtime-config.cjs):114: `NUXT_TRUSTED_CLIENT_IP_HEADER`가 빈 값. 실제 배포값은 재조회 필요.
-- [수집 BFF](../../apps/web/server/api/collector/v1/[...path].ts): 인증 토큰 기반 별도 제한. 현재 수집 비활성 상태 유지.
-- [R2 adapter](../../apps/api/src/adapters/remote-adapters.ts):41: 업로드 시 Cache-Control을 명시하지 않고 공개 복사 시 원본 값을 계승. 이미지 헤더 계약과 실제 object metadata 확인 필요.
+- [Nginx](../../deploy/gateway/nginx.conf): timeout·요청 크기 제한은 있으나 `limit_req`·`limit_conn` 없음.
+- [공개 BFF](../../apps/web/server/api/v1/[...path].ts): 조회 수 증가에만 IP별 분당 60회 제한. 공개 목록·상세 전반의 제한은 아님.
+- [운영 설정 생성](../../deploy/application/prepare-runtime-config.cjs): 초기 `NUXT_TRUSTED_CLIENT_IP_HEADER`는 빈 값이며 9월 23일 배포 기록에서도 유지했다. 이 경우 소켓 상대 IP에 의존하므로 프록시를 통한 이용자의 계수 합산을 시험해야 한다.
+- [legacy 수집 BFF](../../apps/web/server/api/collector/v1/[...path].ts): 인증 토큰 기반 별도 제한. legacy 제출은 비활성이다. 별도 direct batch 저장·검수의 활성 상태와 혼동하지 않는다.
+- [R2 adapter](../../apps/api/src/adapters/remote-adapters.ts): 업로드 시 Cache-Control을 명시하지 않고 공개 복사 시 원본 값을 계승. 이미지 헤더 계약과 실제 object metadata 확인 필요.
 - [이미지 검증](../../apps/api/src/features/images/image-validation.ts): 파일 수·크기·픽셀·프레임 제한 존재. 동시 업로드의 메모리·CPU 상한은 별도 검증 대상.
 
 ## 3. 정상 이용 보호 원칙
@@ -83,10 +84,11 @@
 | `media.blariyo.com`의 발행 이미지 | R2 캐시·TLS, 필요한 메서드·경로 검증 | 다중 이미지·GIF·직접 열기·Range·HEAD·공유 OG 이미지 검증 |
 | `/admin*`, `/api/v1/admin/*` | Access와 앱 권한 유지, 작업별 상한 | 인증 전 IP 기준과 인증 후 operator 기준을 구분. 업로드·숨김은 별도 처리 |
 | `/api/collector/v1/*` | 현재 비활성 유지 | 향후 활성화 시 토큰 제한·재시도·비브라우저 요청 별도 수용 시험 |
+| `/api/v1/admin/collect/batch-items` 및 하위 경로, 외부 PC의 direct batch·queue | 관리자 검수 권한과 DB/R2 writer 권한·실행 예산을 각각 관리 | 9월 23일 batch review 플래그 활성 기록과 외부 PC writer 인수 미검증을 구분. 웹 요청 제한만으로 직접 DB/R2 작업을 제한할 수 없음 |
 | `/health/live`, `/health/ready`, 내부 health | 가벼운 공개 liveness와 인증된 readiness 경계 유지 | 모니터링에 챌린지 금지, 사용자 헤더 하나만으로 전역 예외 부여 금지 |
 | `/`, `www`, 정책·robots·favicon, `/cdn-cgi/*` | 리다이렉트·정상 플랫폼 경로 유지 | 포괄 경로 차단 규칙에 섞지 않음. 실제 배포 경로 목록으로 확인 |
 
-현재 경로·메서드는 [M0 OpenAPI](../../packages/contracts/openapi/m0-core.yaml)와 실제 라우터를 대조한다.
+현재 경로·메서드는 [M0 OpenAPI](../../packages/contracts/openapi/m0-core.yaml), [수집 OpenAPI](../../packages/contracts/openapi/m0-collection-assist.yaml)와 실제 라우터를 대조한다.
 미래 게시판·회원·수집 기능을 켤 때 이 표와 규칙을 같이 갱신한다.
 
 ## 5. 적용 단계
@@ -112,9 +114,7 @@ H03의 확인된 원본 노출·계정 침해 문제는 순서 2보다 앞서 �
 
 ### 6.1 측정부터 수행
 
-운영 공개 글·이미지가 없는 현재 트래픽만으로 정상 상한을 계산하지 않는다. 격리 환경에 기획·API 계약상
-최대 구성의 게시글·이미지를 준비하고 아래 시나리오를 실행한다. 실제 콘텐츠가 공개된 뒤 대표 운영
-트래픽도 관찰한다. 시험 데이터·부하를 production에 투입하는 작업은 별도 실행 범위로 정한다.
+9월 20일의 빈 사이트 트래픽만으로 정상 상한을 계산하지 않는다. 9월 23일에는 공개 글74개·이미지308개를 승격했지만 이는 처리 용량·대표 이용량의 증거가 아니다. 격리 환경에 기획·API 계약상 최대 구성의 게시글·이미지를 준비하고 아래 시나리오를 실행하며 대표 운영 트래픽도 관찰한다. 시험 데이터·부하를 production에 투입하는 작업은 별도 실행 범위로 정한다.
 
 수집할 값은 경로 그룹별 10초 요청 분포, 순간 최대 동시 요청, 첫 방문 자산 수, 응답 크기,
 응답 시간 p95, 429·5xx, Web/API 메모리·재시작, DB 연결 대기, R2 작업 수와 송신량이다.
@@ -152,7 +152,7 @@ Cloudflare 규칙은 별도로 재현·검증한다.
 
 ### 6.3 Cloudflare Free 범위
 
-2026-09-20 공식 문서 기준 Free는 요청 제한 **1개**, IP 기준 계수, 계수 기간·차단 기간 각각 10초다.
+2026-09-24 공식 문서 재확인 기준 Free는 요청 제한 **1개**, IP 기준 계수, 계수 기간·차단 기간 각각 10초다.
 규칙 조건은 Path·Verified Bot 범위이며 Host·Method·세션/토큰별 계수를 사용할 수 있다고 가정하지 않는다.
 캐시 HIT 제외와 NAT를 이해하는 계수도 Free에 있다고 가정하지 않는다.
 [요금제별 제공 범위](https://developers.cloudflare.com/waf/rate-limiting-rules/).
@@ -193,7 +193,7 @@ API에 HTML 챌린지를 넣지 않으며, 제한 응답의 상태·Content-Type
   정상 정적 파일·동적 API를 검증하고, 이미 저장된 오류 사본은 별도 범위 purge·만료와 구분한다.
   앱 원본도 같은 계약을 지킨다. 현재 Nitro 2에서는 Nuxt HTML 오류 처리 뒤에 JSON 오류 처리를 두어
   프레임워크가 만드는 상태·본문·보안 헤더를 유지하고 4xx·5xx의 Cache-Control만 `no-store`로 바꾼다.
-  정상 응답의 캐시 정책은 바꾸지 않으며, 로컬 build·실제 HTTP 회귀 검증과 운영 배포를 구분한다.
+  정상 응답의 캐시 정책은 바꾸지 않는다. 9월 23일 앱 배포 기록은 이 보완의 운영 반영 근거이며, 로컬 build·HTTP 회귀 검증과 경로 캐시 규칙의 후속 확대는 각각 별도로 판정한다.
 - 캐시 규칙을 GET만 매칭하도록 만들면 단일 URL purge 동작에 영향을 줄 수 있다. 캐시 매칭과 허용
   메서드 제한은 분리하고 GET·HEAD·단일 URL purge·쿼리 변형을 함께 검증한다.
 
@@ -204,7 +204,7 @@ API에 HTML 챌린지를 넣지 않으며, 제한 응답의 상태·Content-Type
 JS·CSS의 해시 파일 장기 캐시와 삭제·숨김 가능한 게시 이미지는 구분한다. 현행
 [아키텍처의 캐시 정책](01-system-architecture.md#6-캐시-정책)은 공개 이미지에
 `public, max-age=31536000, immutable`을 명시한다. 이는 설계값이며 현재 공개 이미지 응답에서
-검증한 값이 아니다. 브라우저 TTL은 사용자 단말에 사본을 유지하는 기간이고, 엣지 TTL은 Cloudflare
+검증한 값이 아니다. 9월 23일 미디어 다운로드 해시 대조도 Cache-Control·HIT·숨김 후 purge 검증을 대신하지 않는다. 브라우저 TTL은 사용자 단말에 사본을 유지하는 기간이고, 엣지 TTL은 Cloudflare
 사본의 유효기간이다. 브라우저 사본을 원격 purge로 회수할 수 있다고 설명하지 않는다.
 
 후속 결정은 현행 1년 설계값을 유지할지, 브라우저 TTL과 엣지 TTL을 분리·조정할지다. 실제 헤더·
@@ -241,7 +241,7 @@ private·backup은 공개 접근이 없어야 한다. custom domain만 막아도
 
 | 대상 | 제안 | 정상 이용 보호 |
 | --- | --- | --- |
-| Cloudflare 예산 | 기존 $10 유지, $1·$3·$5 조기 경고 후보. 계정 전체 종량제 합산임을 표시 | 알림만으로 트래픽 차단하지 않음. 실제 수신을 별도로 검증 |
+| Cloudflare 예산 | 9월 20일 $1 조기 알림 추가 기록과 기존 $10 유지. $3·$5는 후속 후보. 종량제 계정의 사용액 합산임을 표시 | 알림만으로 트래픽 차단하지 않음. 실제 수신을 별도로 검증 |
 | AWS 예산 | 전체 계정·서비스 비용, 크레딧 포함/제외, 만료 확인. 월 인프라 $15 검토 기준과 대조 | 예산 초과를 공격으로 단정하지 않음. AWS와 Cloudflare 비용을 따로 합산 |
 | 트래픽 | 동적 원본 요청, 캐시 MISS, 429·5xx, 송신량, R2 A/B 작업 증가율 | 시간대·정상 공유 유입과 비교. 데이터 지연·미수집 시각 표시 |
 | 가용성 | 외부 읽기 점검과 기존 5분 이내 감지 목표, OOM·디스크·DB 대기·백업 실패 | 저빈도 가벼운 점검. 전체 보안 우회 예외를 만들지 않음 |
@@ -288,6 +288,8 @@ R2는 전송료 무료와 저장·작업료를 구분한다. Lightsail 포함 �
 한도를 대조하고 전송 overhead를 포함한 최대 정상 업로드가 통과하는지 확인한다.
 재시도는 횟수·간격·동시 실행 상한을 가지며 실패한 작업을 무한 호출하지 않는다. 백업·숨김·예약 작업은
 일반 업로드 제한과 분리하여 기능별 자원 여유를 확보한다.
+
+direct 수집은 공개 전에도 private R2의 raw HTML·media, DB run/request/queue 기록을 만든다. 공개 이미지 비용만으로 수집 예산을 계산하지 않는다. 보존·삭제의 법무 결정과 writer별 일일 총량·재시도 비용을 함께 정한다. 현행 direct 경로의 robots/Crawl-delay·영속 일일 budget 미연결은 [수집 설계](07-spring-collector-design.md)와 [로드맵 P1-06](../roadmap.md)에 남은 활성화 조건이다. 요청 간격·회당 항목 수 제한만으로 이를 충족했다고 보지 않는다.
 
 암호화 백업과 복구키의 별도 보호 사본, 복원 검증을 준비한다. 같은 계정의 다른 bucket만으로 계정 탈취에
 대한 독립 복구가 완성됐다고 보지 않는다. 백업 잠금은 삭제 방지 장점과 보존기간·삭제 요청 반영·비용의

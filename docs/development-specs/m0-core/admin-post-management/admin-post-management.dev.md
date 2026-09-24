@@ -2,11 +2,11 @@
 
 ## 1. 문서 정보와 입력 근거
 
-- 문서 상태: `초안`
+- 문서 상태: `작성 완료` — 구현·운영 인수 상태는 아래 증거 경계 참조
 - milestone: `M0 Core` (`m0-core`)
 - 기능: `admin-post-management` — 검색·이미지·초안·발행·예약·숨김·삭제
-- 기준일: 2026-09-07
-- 검증 상태 갱신(2026-09-23): `/admin` source·계약·격리 DB·로컬 미디어·Chromium 검증은 [마감 결과](../../../../worklog/2026-09-23/admin-core/RESULTS.md)를 따른다. 아래 각 API/D01의 초기 `미검증` 표기는 작성 시점의 검증 과제이며 현재 통과 여부를 이 결과와 대조한다. 실제 Access·운영 R2/CDN·운영자 수동 인수는 미검증이다.
+- 최초 계약: 2026-09-07 / 소스·문서 대조: 2026-09-24
+- 검증 상태 갱신(2026-09-23): `/admin` source·계약·격리 DB·로컬 미디어·Chromium 검증은 [마감 결과](../../../../worklog/2026-09-23/admin-core/RESULTS.md)를 따른다. 각 API/D01의 시험 조건은 기존 결과와 대조하며 이번 문서 작업에서는 앱 시험을 재실행하지 않았다. 실제 Access·운영 R2/CDN·운영자 수동 인수는 미검증이다.
 - 주요 근거:
   - [서비스 기획 §3~§5, §10, §14](../../../planning/01-service-plan.md)
   - [화면 설계 §2 관리자 게시글 화면](../../../planning/03-screen-design.md)
@@ -102,7 +102,7 @@
 - 검색 초과 page는 [검색](#api-search-posts), 상세 오류는 [편집 상세](#api-get-post-editor),
   비동기 이미지 삭제 응답은 [폐기](#api-discard-image)를 따른다.
 - 기본 슬롯·임의 시각·scheduler 복구와 재시도는 [예약 발행 관리](#d01-schedule-post)를 따른다.
-- 실제 관리자 allowlist·provider 운영 설정과 R2 production 식별값은 `(미정)`이다.
+- 실제 관리자 allowlist·provider·R2 설정의 준비·배포 기록은 [운영 현황](../../../operations/current-status.md)을 따른다. 비공개 값을 이 문서에 복사하지 않는다. 실제 운영자 MFA와 전체 권리 처리 인수는 별도다.
 - 새 구현과 검증 범위는 [현재 준비 상태](../../../system-design/README.md#현재-준비-상태)를 따른다. 이 명세 전체의 구현·test·runtime 완료를 뜻하지 않는다.
 
 ## 12. 기능 계약 상세
@@ -120,7 +120,7 @@
 - 계약 상태: `작성 완료`
 
 - 입력 근거: [API 설계 §5 초안 생성](../../../system-design/03-api-design.md), [데이터 모델 §3·§5·§7](../../../system-design/02-data-model.md)
-- 미검증: OpenAPI, transaction·idempotency integration test
+- 검증 경계: OpenAPI·구현·격리 통합 시험 기록 존재. 운영 transaction·재전송 인수는 별도.
 
 #### 목적과 호출 경계
 
@@ -178,20 +178,20 @@ idempotency 완료 결과를 commit한다. 하나라도 실패하면 전체 roll
 
 #### Contract test와 미검증
 
-image 선점 경쟁, 전체 rollback, key 재전송·hash 충돌, plain text escape를 검증한다. 미실행이다.
+image 선점 경쟁, 전체 rollback, key 재전송·hash 충돌, plain text escape를 검증한다. 이번 문서 대조에서 재실행하지 않았다.
 
 <a id="api-discard-image"></a>
 
 ### 관리자 staging 이미지 폐기 API
 
-- 계약 상태: `초안`
+- 계약 상태: `작성 완료` (실행·운영 인수는 별도)
 
 - 입력 근거: [API 설계 §5 preview·폐기](../../../system-design/03-api-design.md), [데이터 모델 §5](../../../system-design/02-data-model.md)
 - 미검증: outbox·object delete integration test
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF를 거쳐 Core `ImageCommandService`에 요청해 게시글에 연결되지 않은 staging
+관리자 화면이 Nuxt BFF를 거쳐 Core `ImagesService`에 요청해 게시글에 연결되지 않은 staging
 image의 private 삭제를 예약한다.
 
 #### Method·path·인증·권한
@@ -234,20 +234,20 @@ Idempotency-Key 계약 없음. 상태 조건부 update로 경쟁을 막고 202 �
 #### Contract test와 미검증
 
 초안 선점과 동시 폐기, `202` 성공 envelope, outbox commit, worker 재시도·DEAD를 검증한다.
-실행은 미실행이다.
+이번 문서 대조에서 재실행하지 않았다. 기존 결과의 검증 범위를 확인한다.
 
 <a id="api-get-post-editor"></a>
 
 ### 관리자 게시글 편집 상세 API
 
-- 계약 상태: `초안`
+- 계약 상태: `작성 완료` (실행·운영 인수는 별도)
 
 - 입력 근거: [API 설계 §5 초안 편집 상세](../../../system-design/03-api-design.md)
-- 미검증: OpenAPI, source, contract test
+- 검증 경계: OpenAPI·source·기존 계약 시험 존재. 이번 재실행 없음.
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF의 인증 adapter를 거쳐 Core `PostQueryService`에서 공개 여부와 관계없이 한
+관리자 화면이 Nuxt BFF의 인증 adapter를 거쳐 Core `PostsService.detail`에서 공개 여부와 관계없이 한
 게시글의 편집 모델을 조회한다.
 
 #### Method·path·인증·권한
@@ -290,7 +290,7 @@ post·block·image 편집 projection을 읽는다. storage key와 외부 identit
 #### Contract test와 미검증
 
 모든 상태, TEXT/IMAGE mapping, previewPath, storage key 비노출과 path 형식 오류의 동일한 `404`를
-검증한다. 실행은 미실행이다.
+검증한다. 이번 문서 대조에서 재실행하지 않았다. 기존 결과의 검증 범위를 확인한다.
 
 <a id="api-hide-post"></a>
 
@@ -345,7 +345,7 @@ Idempotency-Key 24시간. object 삭제는 멱등이며 URL purge까지 모두 �
 
 #### Contract test와 미검증
 
-즉시 404, pin 해제, 모든 image outbox, purge 실패 재시도, raw mail 비저장을 검증한다. 미실행이다.
+즉시 404, pin 해제, 모든 image outbox, purge 실패 재시도, raw mail 비저장을 검증한다. 이번 문서 대조에서 재실행하지 않았다.
 
 <a id="api-preview-image"></a>
 
@@ -358,7 +358,7 @@ Idempotency-Key 24시간. object 삭제는 멱등이며 URL purge까지 모두 �
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF·Core `ImageQueryService` proxy를 통해 private staging 이미지를 확인한다.
+관리자 화면이 Nuxt BFF·Core `ImagesService.preview` proxy를 통해 private staging 이미지를 확인한다.
 BFF/Core proxy만 object를 읽고 storage provider URL은 client에 주지 않는다.
 
 #### Method·path·인증·권한
@@ -383,7 +383,7 @@ query·body 없음.
 
 #### 정상 처리와 데이터 전이
 
-private object를 stream한다. DB·object 상태 변화 없음.
+Core는 private object를 읽어 binary 응답으로 반환하고 BFF가 중계한다. DB·object 상태 변화 없음. 현재 Core `Storage.get`은 전체 Buffer를 읽으므로 end-to-end 무버퍼 stream이나 Range 지원으로 해석하지 않는다.
 
 #### 오류·권한·부분 실패
 
@@ -399,7 +399,7 @@ pagination 없음; browser/CDN cache 금지.
 
 #### Contract test와 미검증
 
-인증, 상태, key 비노출, cache header, 삭제 경쟁을 검증한다. 미실행이다.
+인증, 상태, key 비노출, cache header, 삭제 경쟁을 검증한다. 이번 문서 대조에서 재실행하지 않았다.
 
 <a id="api-publish-post"></a>
 
@@ -485,7 +485,7 @@ actor·scope·key 기준 24시간 보존하고 대상 경로 매개변수와 bod
 
 즉시·기본 슬롯·임의 예약·SCHEDULED 즉시 전환, 공지 경쟁, R2/DB 실패, idempotency, purge outbox,
 매분 due 조회, 장애 복구 후 지난 예약, 실패 알림 묶음, 일시 실패 무제한 재시도와 영구 업무 오류의
-자동 재시도 중단을 검증한다. 미실행이다.
+자동 재시도 중단을 검증한다. 이번 문서 대조에서 재실행하지 않았다.
 
 <a id="api-remove-post"></a>
 
@@ -541,7 +541,7 @@ key 재전송은 기존 결과. terminal 상태에서 다른 명령은 거부한
 
 #### Contract test와 미검증
 
-확인 UI 연계, terminal 상태, 30일 예약, raw 사유 비저장, outbox 재시도를 검증한다. 미실행이다.
+확인 UI 연계, terminal 상태, 30일 예약, raw 사유 비저장, outbox 재시도를 검증한다. 이번 문서 대조에서 재실행하지 않았다.
 
 <a id="api-republish-post"></a>
 
@@ -598,16 +598,16 @@ key 재전송과 결정적 object key를 사용한다. DB commit 전 R2 실패�
 
 #### Contract test와 미검증
 
-삭제 대기 거부, private 재승격, 최초 publishedAt 유지, pin 경쟁을 검증한다. 미실행이다.
+삭제 대기 거부, private 재승격, 최초 publishedAt 유지, pin 경쟁을 검증한다. 이번 문서 대조에서 재실행하지 않았다.
 
 <a id="api-search-posts"></a>
 
 ### 관리자 게시글 검색 API
 
-- 계약 상태: `초안`
+- 계약 상태: `작성 완료` (실행·운영 인수는 별도)
 
 - 입력 근거: [API 설계 §4·§5 게시글 검색](../../../system-design/03-api-design.md)
-- 미검증: OpenAPI, auth adapter, source, contract test
+- 검증 경계: OpenAPI·인증 adapter·source·기존 계약 시험 존재. 실제 Access 인수는 별도.
 
 #### 목적과 호출 경계
 
@@ -666,7 +666,7 @@ page size 50 고정, `private, no-store`. `page`가 `1~10000` 범위 안이지�
 #### Contract test와 미검증
 
 필터 조합·정렬·인증·응답 allowlist·storage key 비노출과 초과 page의 `200` 빈 결과를 검증한다.
-실행은 미실행이다.
+이번 문서 대조에서 재실행하지 않았다. 기존 결과의 검증 범위를 확인한다.
 
 <a id="api-unschedule-post"></a>
 
@@ -719,7 +719,7 @@ page size 50 고정, `private, no-store`. `page`가 `1~10000` 범위 안이지�
 
 #### Contract test와 미검증
 
-due scheduler와 취소 경쟁, key 재전송, 상태 이력을 검증한다. 미실행이다.
+due scheduler와 취소 경쟁, key 재전송, 상태 이력을 검증한다. 이번 문서 대조에서 재실행하지 않았다.
 
 <a id="api-update-post"></a>
 
@@ -728,7 +728,7 @@ due scheduler와 취소 경쟁, key 재전송, 상태 이력을 검증한다. �
 - 계약 상태: `작성 완료`
 
 - 입력 근거: [API 설계 §5 초안 수정](../../../system-design/03-api-design.md), [데이터 모델 §3·§7](../../../system-design/02-data-model.md)
-- 미검증: OpenAPI, image replacement·lock integration test
+- 검증 경계: OpenAPI·이미지 교체/잠금의 기존 격리 시험 존재. 실제 운영 인수는 별도.
 
 #### 목적과 호출 경계
 
@@ -785,20 +785,20 @@ lockVersion 조건부 update다. 충돌 후 최신 상세를 다시 읽고 운�
 
 #### Contract test와 미검증
 
-partial field, block 전체 교체, 숨김 image 대기, 동시 수정, transaction rollback을 검증한다. 미실행이다.
+partial field, block 전체 교체, 숨김 image 대기, 동시 수정, transaction rollback을 검증한다. 이번 문서 대조에서 재실행하지 않았다.
 
 <a id="api-upload-images"></a>
 
 ### 관리자 이미지 업로드 API
 
-- 계약 상태: `초안`
+- 계약 상태: `작성 완료` (실행·운영 인수는 별도)
 
 - 입력 근거: [API 설계 §5 이미지 업로드](../../../system-design/03-api-design.md), [보안·운영 §4 이미지](../../../system-design/05-security-operations.md)
 - 미검증: object storage, decoder, security test
 
 #### 목적과 호출 경계
 
-관리자 화면이 Nuxt BFF의 인증·multipart 제한을 거쳐 Core `ImageCommandService`에 파일을 전달한다.
+관리자 화면이 Nuxt BFF의 인증·multipart 제한을 거쳐 Core `ImagesService`에 파일을 전달한다.
 Core는 검증·재인코딩해 private 원본으로 저장하고 미연결 `STAGED` image를 만든다.
 
 #### Method·path·인증·권한
@@ -833,9 +833,9 @@ transaction에서 `OBJECT_DELETE_PRIVATE` outbox로 재시도한다. rollback된
 `aggregate_type=STORAGE_OBJECT`, `aggregate_id=NULL`을 사용하며 payload는 `privateStorageKey`,
 `objectCreatedAt`, `cleanupReason=UPLOAD_ROLLBACK`만 포함한다.
 
-private key는 `staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}` 형식이며 서버 생성
+private key는 `content/private/staging/YYYY/MM/DD/{uploadRequestId}/{fileIndex}-{sha256}.{ext}` 형식이며 서버 생성
 고유 `uploadRequestId`를 사용하고 원본 파일명과 관리자 identity를 넣지 않는다. outbox commit 전 process
-crash가 나면 매일 inventory가 생성 후 24시간이 지난 `staging/` object를 DB image private key와
+crash가 나면 매일 inventory가 생성 후 24시간이 지난 `content/private/staging/` 및 기존 `staging/` object를 DB image private key와
 미완료(`PENDING`,`RUNNING`,`FAILED`,`DEAD`) cleanup outbox key에 대조해 어느 쪽에도 없는 object만 삭제한다.
 
 #### 오류·권한·부분 실패
@@ -865,7 +865,7 @@ Idempotency-Key 계약 없음. 자동 재시도는 중복 staging을 만들 수 
 pixel bomb·GIF 자원·개별 크기/형식 혼합 `413` 우선·형식만 실패 `415`·모든 실패 index/reason·
 validation 실패 storage 0건·R2/DB `503` fields 미제공·
 성공 item 미반환·R2/DB rollback과 즉시 보상 삭제·별도 cleanup transaction·rollback image ID 비참조·
-24시간 orphan inventory를 검증한다. 현재 실행 증거는 없다.
+24시간 orphan inventory를 검증한다. 관련 구현·격리 시험 기록은 있으나 이 조건 전부의 실제 운영 인수는 별도다.
 
 후속 단계에서 일반 사용자 업로드를 추가할 때도 같은 all-or-nothing·보상 삭제 원칙을 적용한다. 이는
 M0 Core 범위에 일반 사용자 업로드 endpoint를 추가한다는 뜻이 아니다.
@@ -874,7 +874,7 @@ M0 Core 범위에 일반 사용자 업로드 endpoint를 추가한다는 뜻이 
 
 ### 초안 작성과 즉시 발행
 
-- 계약 상태: `초안`
+- 계약 상태: `작성 완료` (실행·운영 인수는 별도)
 
 - 입력 근거: [아키텍처 §5 이미지 등록과 발행](../../../system-design/01-system-architecture.md), [관리 API 목록](#8-api-작업-목록)
 - 미검증: UI·R2·DB·outbox runtime
@@ -927,14 +927,13 @@ M0 Core 범위에 일반 사용자 업로드 endpoint를 추가한다는 뜻이 
 #### 미정·차단·미검증
 
 upload all-or-nothing·storage 전 전체 validation·오류 우선순위·즉시 보상 삭제·별도 cleanup
-transaction·24시간 orphan inventory 계약은 확정됐다. 실제 공개·cache·object·보상 삭제·inventory
-실행 증거는 없다.
+transaction·24시간 orphan inventory 계약은 확정됐다. 로컬·운영 증거는 [현재 상태](../../../status.md)와 구분해 대조한다. 실제 운영의 전체 실패 주입·cache 회수·보상 삭제·inventory 인수는 완료로 보지 않는다.
 
 <a id="d01-handle-rights-request"></a>
 
 ### 권리 문의 게시글 처리
 
-- 계약 상태: `차단`
+- 계약 상태: `작성 완료` / 실제 권리 요청 처리 인수 별도
 
 - 입력 근거: [권리자 안내 §3~§5](../../../legal/rights-request.md), [보안·운영 §12](../../../system-design/05-security-operations.md)
 - 미검증: 실제 접수 이메일·수령인, 법률 검토, 운영·outbox runtime
@@ -945,7 +944,7 @@ transaction·24시간 orphan inventory 계약은 확정됐다. 실제 공개·ca
 
 #### 행위자·시작·선행 조건
 
-행위자는 확정 접수 채널을 관리하는 운영자다. 접수 이메일·수령인·회신 채널은 출시 전 확정이 필요하다.
+행위자는 확정 접수 채널을 관리하는 운영자다. M0 v0.1 정책·비공개 연락처 주입 기록은 [정책·권리 명세](../policy-and-rights/policy-and-rights.dev.md)를 따른다. 새 환경은 이메일·수령인·회신 채널을 확인해야 한다.
 
 #### 정상 흐름
 
@@ -982,7 +981,7 @@ transaction·24시간 orphan inventory 계약은 확정됐다. 실제 공개·ca
 
 #### 미정·차단·미검증
 
-`[출시 차단: 권리자 요청 수령인·이메일·시행일 입력 필요]`; 법률 검토와 실제 운영은 미검증이다.
+`[출시 차단: 권리자 요청 수령인·이메일·시행일 입력 필요]`는 값이 없는 새 환경의 gate다. 기존 M0 주입·발행 증거와 실제 메일 수신/법률 검토·운영 처리 인수를 구분한다.
 
 <a id="d01-schedule-post"></a>
 

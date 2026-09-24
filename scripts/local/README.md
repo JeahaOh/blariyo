@@ -6,8 +6,11 @@
 # nvm을 쓰는 macOS/Linux: 저장소 .nvmrc의 24.18.0 선택
 nvm use
 node --version # v24.18.0 확인
+npm ci
 docker compose up -d postgresql
 npm run build
+# 새 DB 또는 migration 갱신이 필요한 로컬 DB: 대상 확인·기존 데이터 백업 후 명시 적용
+DATABASE_URL=postgres://blariyo_local@127.0.0.1:5439/blariyo_local npm run db:migrate
 node scripts/local/seed-policies.mjs --apply
 node scripts/local/start-development.mjs
 ```
@@ -26,6 +29,7 @@ node scripts/local/start-development.mjs
 - 2026-09-20 사용자 지정으로 DB의 host 포트를 `55439`에서 `5439`로 변경했다.
   기존 `blariyo-m0-core-local_pgdata` volume과 데이터를 그대로 사용한다.
 - 정책은 `docs/legal/m0-core/terms.html`, `privacy.html`과 기존 비공개 연락처 설정으로 만든다.
+  `seed-policies.mjs`는 schema를 만들지 않으므로 앞선 migration이 선행돼야 한다.
   실제 PoliciesService로 로컬 `v0.1`을 EFFECTIVE 등록한다. 시행 시각은 로컬 등록 시각이다.
   같은 본문은 재실행 시 유지하며, 같은 버전의 다른 본문·상태는 덮어쓰지 않고 중단한다.
 - 문의 설정은 `~/.config/blariyo/public-contact.json`에서 읽는다. 실값을 source나 로그에 복사하지 않는다.

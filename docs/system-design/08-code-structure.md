@@ -17,7 +17,8 @@ collector → Web/BFF → Core 경로는 legacy 호환 경로이며 신규 사�
 ## 2. Core API
 
 2026-09-09 사용자 요청에 따라 NestJS + 엄격한 TypeScript + TypeORM으로 내부 구현을 전환한다.
-현재 실행 전환 상태와 검증 결과는 [진행 기록](../../worklog/2026-09-09/nest-transition/PROGRESS.md)을 따른다.
+당시 전환 결과는 [진행 기록](../../worklog/2026-09-09/nest-transition/PROGRESS.md), 현행 구현·남은 수용은
+[요구사항 대조표](../development-specs/requirements-status.md)를 따른다.
 
 ```text
 HTTP → 도메인 Controller → Service → Repository 계약 → TypeORM Repository → PostgreSQL
@@ -147,6 +148,8 @@ Nuxt 경로 규약을 유지한다. `app/pages`는 URL과 페이지 조립, `app
 
 `npm run test:architecture` 구조 검사는 API import 경계·Collector 패키지 순환과 금지 의존성·Web 앱 경계를 검사한다.
 Core/브라우저 회귀, Spring 단위·프로세스·복구 시험, Docker build/운영 명령으로 경로와 실행을 확인한다.
-현재 Nest의 종합 실행은 `npm run verify:migration`이며 결과는 [전환 검증 보고](../../worklog/2026-09-09/nest-transition/REPORT.md)에 기록한다.
+`npm run verify:migration`은 9월 9일 전환용 고정 환경 검사이며 일반적인 새 체크아웃의 검증 명령이 아니다.
+고정 container/branch/port 조건과 실행 경계는 [Docker 안내](../operations/docker.md), 현행 검증 명령은
+[루트 README](../../README.md#검증)를 따른다. 당시 결과는 [전환 검증 보고](../../worklog/2026-09-09/nest-transition/REPORT.md)에 있다.
 [이전 구현 검증 기록](../../worklog/2026-09-09/core-spring-verification/evidence.md)은 이전 M0/Spring 개별 검증 이력으로 구분한다.
 구조 정리가 실제 출처·Discord·Keychain·launchd·7일 관찰의 완료를 의미하지 않는다.

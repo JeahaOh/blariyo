@@ -1,6 +1,6 @@
 # 개발 harness 구현 계획
 
-> 2026-09-25 복구 상태: 이 checkout은 stash의 원래 local main을 기준으로 만든 `feature/HARN-08-stash-recovery`다. 기존 PR #1/#2와 원본 develop은 유지한다. 현재 복구 범위·검증·보존 항목은 [복구 결과](../../worklog/2026-09-25/git-governance/STASH-RECOVERY.md)를 따르며, 본문의 과거 통과 기록을 원격 병합·보호 설정·운영 완료로 해석하지 않는다.
+> 2026-09-25 전달 상태: 현재 checkout은 검토용 `feature/HARN-09-ci-diagnostics`다. 원본 stash와 복구 branch `5957492`, 기존 PR #1/#2를 보존하고 새 Draft PR #3~#8을 생성했다. 실제 분리 범위·검증·선행 관계는 [CI 복구·전달 기록](../../worklog/2026-09-25/git-governance/CI-RECOVERY.md)을 따른다. develop 통합·원격 보호·배포는 미완료다.
 
 - 작성: 2026-09-25. 설계 정본: [Git 브랜치 전략과 개발 harness](git-workflow.md).
 - 상태: **HARN-01~07 부분 구현, stash 복구 6단계 커밋 완료.** 복구 branch의 전체 lint(SQL 27개·finding 0), harness 52/52, quality 10/10, architecture 9/9와 앱·DB·브라우저 검증을 통과했다. 원격 develop 생성·tracking은 완료했지만 기존 작업 통합은 남았다. PR #1 verify 실패, PR #2 event-context/harness-gate 실패·8개 skip이며 원격 보호는 미활성이다. 상세 SHA·범위·로그는 [복구 결과](../../worklog/2026-09-25/git-governance/STASH-RECOVERY.md)를 따른다.
@@ -31,6 +31,8 @@
 실행 순서는 HARN-01 → HARN-02 → HARN-03 → HARN-04와 HARN-06 → HARN-05 → HARN-07이다. HARN-06의 lint·architecture와 HARN-03의 PR/push/manual changeBindings 문맥 및 개별 receipt는 workflow gate에 연결됐다. 작성 세션 자동 heartbeat, 원격 receipt readback과 보호 검증은 남았다. Windows lease 전용 CI job은 harness gate에 연결했으나 GitHub runner에서의 첫 실행은 미검증이다. 이 task 순서는 branch 생성/원격 ruleset 허가가 아니다. 별도 에이전트 자동 위임이나 동시 실행 승인이 아니다. 같은 정책·runner 파일을 동시에 수정하지 않도록 실제 구현자가 범위를 배정한다.
 
 ### 저장소 branch 전환 선행 조건
+
+후속 전달은 완료했다. 기존 8개는 Draft PR #4에 SHA 그대로 두었고, 브라우저 #3·정책 #5·cleanup #6·harness #7·진단 #8로 분리했다. 현재 feature base들은 차등 검토용이며 실제 통합은 선행 PR 검토 후 develop로 retarget해 재검증한다. commit·push·Draft 생성 승인을 merge·보호 설정 승인으로 확대하지 않는다.
 
 사용자 선택에 따라 기존 local main의 8개 commit을 별도 PR로 먼저 검토한다. 모두 Task-Id/Change-Id trailer가 없으므로 이력 재작성 없이 새 gate 활성화 전 도입 기준선으로 검증한다. 브라우저 선행 결함 수정 → 기존 8개 검토 → 정책/task 등록 → 앱·SQL cleanup → harness 활성화 순서와 각 수용 조건은 [CI 복구 계획](../../worklog/2026-09-25/git-governance/CI-RECOVERY.md)에 둔다. 정책 PR과 기존 main 사이의 설계 문서 2개 add/add 충돌은 계산으로 확인했으며 실제 해결·병합은 하지 않았다. 도입 후 policy/manifest 변경을 위한 전용 governance gate도 미구현이므로 원격 필수 검사 활성화 전에 경로를 검증해야 한다.
 

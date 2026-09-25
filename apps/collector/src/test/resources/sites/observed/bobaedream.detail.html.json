@@ -4,9 +4,7 @@
   "url": "https://www.bobaedream.co.kr/view?code=best&No=1034046",
   "rawSha256": "bff56cb2171c9d257e4617acef870739e79824add5a848c2c85f04868d07d1c1",
   "fixtureSha256": "3825a403a3c8f11646618cc40cd7634a4f229ab716fd65b85778f63d0feec8a1",
-  "shape": [
-    "IMAGE:1"
-  ],
+  "shape": ["IMAGE:1"],
   "images": 1,
   "attachments": 0,
   "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."

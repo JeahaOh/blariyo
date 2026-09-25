@@ -18,23 +18,25 @@ const homePosts = [
   [1032, '고양이가 모니터 앞에 앉는 정확한 타이밍', 173, '8월 11일'],
   [1031, '냉장고 문을 열고 뭘 찾는지 잊어버린 사람', 160, '8월 11일'],
   [1030, '출근길 이어폰 배터리 3퍼센트가 주는 긴장감', 142, '8월 11일'],
-  [1029, '알람을 끄고 눈을 감은 5분의 위험성', 128, '8월 11일']
+  [1029, '알람을 끄고 눈을 감은 5분의 위험성', 128, '8월 11일'],
 ].map(([no, title, views, time]) => ({ no, title, views, time }));
 
 const pinnedNotices = [
   { no: 12, title: '블라리요 운영 및 권리자 요청 안내', views: 1842, time: '8월 12일' },
-  { no: 11, title: '광고·제휴 콘텐츠 표시 기준 안내', views: 936, time: '8월 12일' }
+  { no: 11, title: '광고·제휴 콘텐츠 표시 기준 안내', views: 936, time: '8월 12일' },
 ].slice(0, 3);
 
 const detailPosts = Array.from({ length: 20 }, (_, index) => {
   const no = 1056 - index;
   const sample = homePosts.find((post) => post.no === no);
-  return sample || {
-    no,
-    title: `퇴근길에 발견한 오늘의 짤 ${no}`,
-    views: 760 - index * 21,
-    time: index < 10 ? `${String(14 - index).padStart(2, '0')}:20` : '8월 11일'
-  };
+  return (
+    sample || {
+      no,
+      title: `퇴근길에 발견한 오늘의 짤 ${no}`,
+      views: 760 - index * 21,
+      time: index < 10 ? `${String(14 - index).padStart(2, '0')}:20` : '8월 11일',
+    }
+  );
 });
 
 const currentPostNo = 1047;
@@ -66,7 +68,7 @@ const cookieConsentKey = 'blariyo_consent';
 const prototypeParams = new URLSearchParams(location.search);
 const prototypeFeatures = {
   analytics: prototypeParams.get('ga4') === '1',
-  ads: prototypeParams.get('ads') === '1'
+  ads: prototypeParams.get('ads') === '1',
 };
 const hasOptionalFeatures = prototypeFeatures.analytics || prototypeFeatures.ads;
 const activeConsentScope = Object.entries(prototypeFeatures)
@@ -78,7 +80,7 @@ const modalBackground = [
   document.querySelector('.site-header'),
   document.querySelector('.site-shell'),
   document.querySelector('.site-footer'),
-  cookieBanner
+  cookieBanner,
 ];
 let adblockDismissed = sessionStorage.getItem('blariyo.adblockNoticeDismissed') === '1';
 let modalReturnFocus = null;
@@ -101,7 +103,7 @@ function saveCookieConsent({ analytics, ads }) {
     scope: activeConsentScope,
     analytics: prototypeFeatures.analytics && Boolean(analytics),
     ads: prototypeFeatures.ads && Boolean(ads),
-    savedAt: new Date().toISOString()
+    savedAt: new Date().toISOString(),
   };
   try {
     localStorage.setItem(cookieConsentKey, JSON.stringify(cookieConsent));
@@ -117,21 +119,51 @@ const policyHistory = {
     description: '정책 이력 전환과 본문 밀도를 확인하는 시각 검수 예시입니다.',
     currentVersion: '현재 보기 예시',
     versions: [
-      { version: '현재 보기 예시', period: '발행 전 · 시각 검수', status: '시각 검수 예시', preview: 'current' },
-      { version: '이전 보기 예시 A', period: '가상 적용 기간', status: '이전 보기 예시', preview: 'past-a' },
-      { version: '이전 보기 예시 B', period: '가상 적용 기간', status: '이전 보기 예시', preview: 'past-b' }
-    ]
+      {
+        version: '현재 보기 예시',
+        period: '발행 전 · 시각 검수',
+        status: '시각 검수 예시',
+        preview: 'current',
+      },
+      {
+        version: '이전 보기 예시 A',
+        period: '가상 적용 기간',
+        status: '이전 보기 예시',
+        preview: 'past-a',
+      },
+      {
+        version: '이전 보기 예시 B',
+        period: '가상 적용 기간',
+        status: '이전 보기 예시',
+        preview: 'past-b',
+      },
+    ],
   },
   privacy: {
     title: '개인정보처리방침',
     description: '정책 이력 전환과 본문 밀도를 확인하는 시각 검수 예시입니다.',
     currentVersion: '현재 보기 예시',
     versions: [
-      { version: '현재 보기 예시', period: '발행 전 · 시각 검수', status: '시각 검수 예시', preview: 'current' },
-      { version: '이전 보기 예시 A', period: '가상 적용 기간', status: '이전 보기 예시', preview: 'past-a' },
-      { version: '이전 보기 예시 B', period: '가상 적용 기간', status: '이전 보기 예시', preview: 'past-b' }
-    ]
-  }
+      {
+        version: '현재 보기 예시',
+        period: '발행 전 · 시각 검수',
+        status: '시각 검수 예시',
+        preview: 'current',
+      },
+      {
+        version: '이전 보기 예시 A',
+        period: '가상 적용 기간',
+        status: '이전 보기 예시',
+        preview: 'past-a',
+      },
+      {
+        version: '이전 보기 예시 B',
+        period: '가상 적용 기간',
+        status: '이전 보기 예시',
+        preview: 'past-b',
+      },
+    ],
+  },
 };
 
 function createPostRow(post, { current = false } = {}) {
@@ -182,7 +214,9 @@ function renderRows(target, posts, { adAfterIndex, adLabel, markCurrent = false,
   container.replaceChildren();
   notices.slice(0, 3).forEach((notice) => container.appendChild(createNoticeRow(notice)));
   posts.forEach((post, index) => {
-    container.appendChild(createPostRow(post, { current: markCurrent && post.no === currentPostNo }));
+    container.appendChild(
+      createPostRow(post, { current: markCurrent && post.no === currentPostNo })
+    );
     if (index === adAfterIndex) container.appendChild(createAdRow(adLabel));
   });
 }
@@ -193,7 +227,7 @@ function updateHeader(name) {
     detail: '퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미',
     loading: '불러오는 중',
     error: '불러오기 오류',
-    hidden: '볼 수 없는 게시글입니다'
+    hidden: '볼 수 없는 게시글입니다',
   };
   const isPostState = Object.hasOwn(postStateTitles, name);
 
@@ -206,7 +240,9 @@ function updateHeader(name) {
   detailHeaderTitle.textContent = postStateTitles[name] || '';
   boardTabs.hidden = isPostState;
 
-  const targetUrl = isPostState ? 'https://blariyo.com/meme/posts/1047' : 'https://blariyo.com/meme';
+  const targetUrl = isPostState
+    ? 'https://blariyo.com/meme/posts/1047'
+    : 'https://blariyo.com/meme';
   const subject = encodeURIComponent('[블라리요] 권리 침해·게시 중단 문의');
   const body = encodeURIComponent(`대상 URL: ${targetUrl}\n요청 내용: `);
   rightsMailLink.href = `mailto:${rightsContactEmail}?subject=${subject}&body=${body}`;
@@ -275,7 +311,9 @@ function openAdblockModal() {
   closeShareMenu(false);
   adblockModal.hidden = false;
   document.body.classList.add('modal-open');
-  modalBackground.forEach((element) => { element.inert = true; });
+  modalBackground.forEach((element) => {
+    element.inert = true;
+  });
   adblockDialog.focus();
 }
 
@@ -283,7 +321,9 @@ function closeAdblockModal({ remember = true } = {}) {
   if (adblockModal.hidden) return;
   adblockModal.hidden = true;
   document.body.classList.remove('modal-open');
-  modalBackground.forEach((element) => { element.inert = false; });
+  modalBackground.forEach((element) => {
+    element.inert = false;
+  });
   if (remember) {
     adblockDismissed = true;
     sessionStorage.setItem('blariyo.adblockNoticeDismissed', '1');
@@ -292,7 +332,11 @@ function closeAdblockModal({ remember = true } = {}) {
 }
 
 function trapModalFocus(dialog, event) {
-  const focusable = Array.from(dialog.querySelectorAll('button:not([hidden]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])'));
+  const focusable = Array.from(
+    dialog.querySelectorAll(
+      'button:not([hidden]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+    )
+  );
   if (!focusable.length) return;
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
@@ -307,11 +351,15 @@ function trapModalFocus(dialog, event) {
 
 function policyHistoryMarkup(type, selectedVersion) {
   const policy = policyHistory[type];
-  const rows = policy.versions.map((entry) => `
+  const rows = policy.versions
+    .map(
+      (entry) => `
       <button type="button" class="policy-history-row" data-policy-type="${type}" data-policy-version="${entry.version}" aria-current="${entry.version === selectedVersion}">
         <span>${entry.version}</span><span>${entry.period}</span>
       </button>
-  `).join('');
+  `
+    )
+    .join('');
   return `
     <section class="policy-history-section" aria-labelledby="${type}HistoryTitle">
       <h3 id="${type}HistoryTitle">정책 이력 전환 시연</h3>
@@ -335,7 +383,8 @@ function policyPreviewBody(type, selected) {
     `;
   }
 
-  return type === 'terms' ? `
+  return type === 'terms'
+    ? `
     <h3>제1조 목적</h3><p>이 약관은 블라리요 서비스의 이용 조건과 운영자·이용자의 권리와 의무, 게시글 운영, 광고·제휴, 권리자 요청 기준을 정합니다.</p>
     <h3>제2조 정의</h3><p>회원은 네이버·카카오·Google·Apple 계정으로 가입을 완료한 이용자이며, 소셜 계정은 가입과 로그인에 사용하는 외부 인증 제공자 계정입니다.</p>
     <h3>제3조 약관 게시와 변경</h3><p>약관 전문과 시행일을 푸터와 고정 경로에 공개합니다. 중요한 변경은 적용 30일 전, 그 밖의 변경은 원칙적으로 7일 전에 알리고 시행된 이전 전문도 보관합니다.</p>
@@ -352,7 +401,8 @@ function policyPreviewBody(type, selected) {
     <h3>제13조 책임 제한</h3><p>통제하기 어려운 외부 제공자 장애와 외부 거래 결과에 관한 책임은 관련 법령 범위에서 정하며 운영자의 고의·중대한 과실 책임을 배제하지 않습니다.</p>
     <h3>제14조 통지와 분쟁 해결</h3><p>서비스 공지는 목록 상단 또는 화면에 표시하고 분쟁은 우선 성실히 협의한 뒤 대한민국 법과 관련 법령상 관할에 따릅니다.</p>
     <h3>제15조 부칙</h3><p>운영자 정보와 시행일이 확정된 v0.1부터 적용하며 과거 전문은 하단 개정 이력에서 확인할 수 있습니다.</p>
-  ` : `
+  `
+    : `
     <h3>1. 처리 목적</h3><p>소셜 가입·로그인·계정 관리, 콘텐츠 제공, 보안·오류 대응, 동의한 GA4·광고, 권리자 요청 처리를 위해 필요한 범위에서 처리합니다.</p>
     <h3>2. 처리 항목과 수집 방법</h3><p>네이버·카카오·Google·Apple의 provider 고유 식별자, 직접 입력한 서비스 표시명, Blariyo 회원 번호·동의 이력·로그인 기록을 처리합니다. 소셜 비밀번호는 수신·저장하지 않습니다.</p>
     <p>네이버는 애플리케이션별 id, 카카오는 서비스별 회원번호, Google은 OIDC sub, Apple은 sub를 계정 연결 키로 사용합니다. 이메일·닉네임·프로필 이미지·성별·생년월일은 추가 요청·저장하지 않으며, 불가피하게 전달된 선택 프로필도 보관하지 않습니다.</p>
@@ -375,7 +425,8 @@ function policyPreviewBody(type, selected) {
 
 function renderPolicyDocument(type, selectedVersion = policyHistory[type].currentVersion) {
   const policy = policyHistory[type];
-  const selected = policy.versions.find((entry) => entry.version === selectedVersion) || policy.versions[0];
+  const selected =
+    policy.versions.find((entry) => entry.version === selectedVersion) || policy.versions[0];
   const body = policyPreviewBody(type, selected);
   policyContent.innerHTML = `
     <p class="policy-status"><strong>시각 검수 전용</strong> · 이 modal은 정적 퍼블리싱의 본문·이력 전환 검토물이며 실제 발행 정책이나 법무 고지가 아닙니다.</p>
@@ -412,12 +463,15 @@ function openPolicyModal(type) {
   modalReturnFocus = document.activeElement;
   closeShareMenu(false);
   policyTitle.textContent = policyHistory[type]?.title || '쿠키 설정';
-  policyDescription.textContent = policyHistory[type]?.description || '선택 쿠키의 사용 여부를 직접 관리합니다.';
+  policyDescription.textContent =
+    policyHistory[type]?.description || '선택 쿠키의 사용 여부를 직접 관리합니다.';
   if (policyHistory[type]) renderPolicyDocument(type);
   if (type === 'cookies') renderCookiePolicy();
   policyModal.hidden = false;
   document.body.classList.add('modal-open');
-  modalBackground.forEach((element) => { element.inert = true; });
+  modalBackground.forEach((element) => {
+    element.inert = true;
+  });
   policyDialog.focus();
 }
 
@@ -425,7 +479,9 @@ function closePolicyModal() {
   if (policyModal.hidden) return;
   policyModal.hidden = true;
   document.body.classList.remove('modal-open');
-  modalBackground.forEach((element) => { element.inert = false; });
+  modalBackground.forEach((element) => {
+    element.inert = false;
+  });
   if (modalReturnFocus instanceof HTMLElement) modalReturnFocus.focus();
   currentPolicy = null;
 }
@@ -449,10 +505,23 @@ async function runShare(type) {
   const title = '퇴근 직전에 질문 하나만 하겠다는 사람의 진짜 의미';
 
   if (type === 'copy') await copyShareUrl();
-  if (type === 'x') window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
+  if (type === 'x')
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+      '_blank',
+      'noopener,noreferrer'
+    );
   if (type === 'kakao') {
     if (window.Kakao?.Share) {
-      window.Kakao.Share.sendDefault({ objectType: 'feed', content: { title, description: '블라리요 게시글', imageUrl: 'https://media.example.invalid/posts/1047/hash.webp', link: { mobileWebUrl: url, webUrl: url } } });
+      window.Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title,
+          description: '블라리요 게시글',
+          imageUrl: 'https://media.example.invalid/posts/1047/hash.webp',
+          link: { mobileWebUrl: url, webUrl: url },
+        },
+      });
     } else {
       announceShare('정적 프로토타입에서는 카카오 공유 실행 대신 배치만 확인합니다.');
     }
@@ -464,8 +533,16 @@ async function runShare(type) {
   if (type !== 'kakao') closeShareMenu();
 }
 
-renderRows('#homeRows', homePosts, { adAfterIndex: 5, adLabel: '목록 중간 광고', notices: pinnedNotices });
-renderRows('#detailRows', detailPosts, { adAfterIndex: 9, adLabel: '상세 하단 목록 중간 광고', markCurrent: true });
+renderRows('#homeRows', homePosts, {
+  adAfterIndex: 5,
+  adLabel: '목록 중간 광고',
+  notices: pinnedNotices,
+});
+renderRows('#detailRows', detailPosts, {
+  adAfterIndex: 9,
+  adLabel: '상세 하단 목록 중간 광고',
+  markCurrent: true,
+});
 
 document.addEventListener('click', (event) => {
   const policyLink = event.target.closest('[data-policy]');
@@ -484,7 +561,8 @@ document.addEventListener('click', (event) => {
   }
 
   const shareAction = event.target.closest('[data-share]');
-  if (shareAction) runShare(shareAction.dataset.share).catch(() => announceShare('공유를 완료하지 못했습니다.'));
+  if (shareAction)
+    runShare(shareAction.dataset.share).catch(() => announceShare('공유를 완료하지 못했습니다.'));
 
   if (event.target.closest('[data-open-adblock]')) openAdblockModal();
   if (event.target.closest('[data-close-adblock]')) closeAdblockModal();
@@ -492,7 +570,8 @@ document.addEventListener('click', (event) => {
   if (event.target.closest('[data-close-share]')) closeShareMenu();
 
   const versionButton = event.target.closest('[data-policy-version]');
-  if (versionButton) renderPolicyDocument(versionButton.dataset.policyType, versionButton.dataset.policyVersion);
+  if (versionButton)
+    renderPolicyDocument(versionButton.dataset.policyType, versionButton.dataset.policyVersion);
 
   const guideButton = event.target.closest('[data-toggle-adblock-guide]');
   if (guideButton) {
@@ -503,30 +582,39 @@ document.addEventListener('click', (event) => {
   if (event.target.closest('[data-save-cookies]')) {
     saveCookieConsent({
       analytics: policyContent.querySelector('[data-cookie="analytics"]')?.checked,
-      ads: policyContent.querySelector('[data-cookie="ads"]')?.checked
+      ads: policyContent.querySelector('[data-cookie="ads"]')?.checked,
     });
     closePolicyModal();
   }
 
-  if (event.target.closest('[data-cookie-essential]')) saveCookieConsent({ analytics: false, ads: false });
+  if (event.target.closest('[data-cookie-essential]'))
+    saveCookieConsent({ analytics: false, ads: false });
   if (event.target.closest('[data-cookie-all]')) saveCookieConsent(prototypeFeatures);
   if (event.target.closest('[data-cookie-settings]')) openPolicyModal('cookies');
 
-  if (shareMenu && !shareMenu.hidden && !shareMenu.contains(event.target) && !shareButton.contains(event.target)) closeShareMenu(false);
+  if (
+    shareMenu &&
+    !shareMenu.hidden &&
+    !shareMenu.contains(event.target) &&
+    !shareButton.contains(event.target)
+  )
+    closeShareMenu(false);
 });
 
-screenTabs.forEach((tab, index) => tab.addEventListener('keydown', (event) => {
-  const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
-  if (!keys.includes(event.key)) return;
-  event.preventDefault();
-  let nextIndex = index;
-  if (event.key === 'ArrowLeft') nextIndex = (index - 1 + screenTabs.length) % screenTabs.length;
-  if (event.key === 'ArrowRight') nextIndex = (index + 1) % screenTabs.length;
-  if (event.key === 'Home') nextIndex = 0;
-  if (event.key === 'End') nextIndex = screenTabs.length - 1;
-  screenTabs[nextIndex].focus();
-  showScreen(screenTabs[nextIndex].dataset.screen);
-}));
+screenTabs.forEach((tab, index) =>
+  tab.addEventListener('keydown', (event) => {
+    const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+    if (!keys.includes(event.key)) return;
+    event.preventDefault();
+    let nextIndex = index;
+    if (event.key === 'ArrowLeft') nextIndex = (index - 1 + screenTabs.length) % screenTabs.length;
+    if (event.key === 'ArrowRight') nextIndex = (index + 1) % screenTabs.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = screenTabs.length - 1;
+    screenTabs[nextIndex].focus();
+    showScreen(screenTabs[nextIndex].dataset.screen);
+  })
+);
 
 shareButton.addEventListener('click', () => {
   if (shareMenu.hidden) openShareMenu();
@@ -534,8 +622,16 @@ shareButton.addEventListener('click', () => {
 });
 rightsEmailCopyButton.addEventListener('click', copyRightsEmail);
 
-window.addEventListener('resize', () => { if (!shareMenu.hidden) positionShareMenu(); });
-window.addEventListener('scroll', () => { if (!shareMenu.hidden) positionShareMenu(); }, { passive: true });
+window.addEventListener('resize', () => {
+  if (!shareMenu.hidden) positionShareMenu();
+});
+window.addEventListener(
+  'scroll',
+  () => {
+    if (!shareMenu.hidden) positionShareMenu();
+  },
+  { passive: true }
+);
 
 policyModal.addEventListener('click', (event) => {
   if (event.target === policyModal) closePolicyModal();
@@ -560,5 +656,7 @@ document.addEventListener('keydown', (event) => {
 });
 
 const requestedScreen = location.hash.slice(1);
-showScreen(screens.some((screen) => screen.dataset.view === requestedScreen) ? requestedScreen : 'home');
+showScreen(
+  screens.some((screen) => screen.dataset.view === requestedScreen) ? requestedScreen : 'home'
+);
 cookieBanner.hidden = !hasOptionalFeatures || Boolean(cookieConsent);

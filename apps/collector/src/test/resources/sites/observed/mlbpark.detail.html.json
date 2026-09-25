@@ -4,9 +4,7 @@
   "url": "https://mlbpark.donga.com/mp/b.php?m=view&b=bullpen&id=202609230118886454",
   "rawSha256": "72a75321745a7e2ec52ad417c355a644c6239f0aa177e13602c70f1d0dad20cd",
   "fixtureSha256": "c5a2c195c036d41277af1a63c75cae16d7698ac1e37d2e0f69009ca14cb243a6",
-  "shape": [
-    "TEXT"
-  ],
+  "shape": ["TEXT"],
   "images": 0,
   "attachments": 0,
   "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."

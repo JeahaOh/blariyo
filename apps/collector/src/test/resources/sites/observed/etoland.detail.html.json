@@ -4,9 +4,7 @@
   "url": "https://etoland.co.kr/b/etohumor06/view/확씨-2812905",
   "rawSha256": "02826b8e721ca9213e66d62d28face5c8dd95d9576bb5d15687a127134dee741",
   "fixtureSha256": "f9f01ac6f6dd28e64829298cd2e07b97dfb5f74e712959d5f98a31fb05f25296",
-  "shape": [
-    "LINK"
-  ],
+  "shape": ["LINK"],
   "images": 0,
   "attachments": 0,
   "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."

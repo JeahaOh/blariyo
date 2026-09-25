@@ -4,10 +4,7 @@
   "url": "https://arca.live/b/browndust/183808317",
   "rawSha256": "4de84f63e7320bb4aeca6126e635d085cf22bce73c4cbc9409b1684e8c07ddaf",
   "fixtureSha256": "9a6a15b463d0555930f2ba4376156f8cf56676b42f9eb24e4d3f623fd6372277",
-  "shape": [
-    "IMAGE:1",
-    "TEXT"
-  ],
+  "shape": ["IMAGE:1", "TEXT"],
   "images": 1,
   "attachments": 0,
   "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."

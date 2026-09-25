@@ -1,5 +1,6 @@
 plugins {
     java
+    checkstyle
     id("org.cyclonedx.bom") version "3.4.1"
     id("org.springframework.boot") version "4.1.1"
 }
@@ -21,6 +22,15 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 dependencyLocking { lockAllConfigurations() }
+checkstyle {
+    toolVersion = "14.1.0"
+    configFile = file("config/checkstyle/checkstyle.xml")
+}
+tasks.withType<org.gradle.api.plugins.quality.Checkstyle>().configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 tasks.test { useJUnitPlatform() }
 tasks.register<JavaExec>("migrate") {
     classpath = sourceSets.main.get().runtimeClasspath
@@ -42,4 +52,12 @@ springBoot { mainClass = "com.blariyo.collector.CollectorApplication" }
 tasks.register("fixtureClasspath") {
     dependsOn(tasks.testClasses)
     doLast { layout.buildDirectory.file("fixture-classpath.txt").get().asFile.writeText(sourceSets.test.get().runtimeClasspath.asPath) }
+}
+tasks.register<org.gradle.api.plugins.quality.Checkstyle>("qualityStyle") {
+    description = "Runs the pinned Collector style checks without requiring the Java compilation toolchain."
+    group = "verification"
+    source = fileTree("src") { include("main/java/**/*.java", "test/java/**/*.java") }
+    classpath = files()
+    configFile = file("config/checkstyle/checkstyle.xml")
+    checkstyleClasspath = configurations.getByName("checkstyle")
 }

@@ -6,38 +6,42 @@ DO $$ BEGIN
 END $$;
 -- Durable Discord requests are distinct from collection attempts.
 CREATE TABLE collect.batch_queue (
-  id UUID PRIMARY KEY,
-  source_key VARCHAR(80) NOT NULL REFERENCES collect.batch_source(source_key),
-  source_post_key TEXT NOT NULL,
-  canonical_url TEXT NOT NULL,
-  canonical_url_hash BYTEA NOT NULL CHECK(octet_length(canonical_url_hash)=32),
-  state VARCHAR(20) NOT NULL DEFAULT 'QUEUED' CHECK(state IN ('QUEUED','RUNNING','COMPLETED','FAILED','BLOCKED')),
-  attempts INTEGER NOT NULL DEFAULT 0 CHECK(attempts BETWEEN 0 AND 3),
-  active_run_id UUID UNIQUE REFERENCES collect.batch_run(id),
-  owner_backend_pid INTEGER,
-  next_attempt_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  error_code VARCHAR(80),
-  version BIGINT NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    id UUID PRIMARY KEY,
+    source_key VARCHAR(80) NOT NULL REFERENCES collect.batch_source(source_key),
+    source_post_key TEXT NOT NULL,
+    canonical_url TEXT NOT NULL,
+    canonical_url_hash BYTEA NOT NULL CHECK(octet_length(canonical_url_hash)=32),
+    state VARCHAR(20) NOT NULL DEFAULT 'QUEUED' CHECK(state IN ('QUEUED','RUNNING','COMPLETED','FAILED','BLOCKED')),
+    attempts INTEGER NOT NULL DEFAULT 0 CHECK(attempts BETWEEN 0 AND 3),
+    active_run_id UUID UNIQUE REFERENCES collect.batch_run(id),
+    owner_backend_pid INTEGER,
+    next_attempt_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    error_code VARCHAR(80),
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-CREATE UNIQUE INDEX batch_queue_active_post ON collect.batch_queue(source_key,source_post_key) WHERE state IN ('QUEUED','RUNNING');
-CREATE UNIQUE INDEX batch_queue_active_url ON collect.batch_queue(source_key,canonical_url_hash) WHERE state IN ('QUEUED','RUNNING');
+CREATE UNIQUE INDEX batch_queue_active_post ON collect.batch_queue(source_key,source_post_key) WHERE state IN (
+    'QUEUED','RUNNING'
+);
+CREATE UNIQUE INDEX batch_queue_active_url ON collect.batch_queue(source_key,canonical_url_hash) WHERE state IN (
+    'QUEUED','RUNNING'
+);
 CREATE UNIQUE INDEX batch_queue_running_source ON collect.batch_queue(source_key) WHERE state='RUNNING';
 CREATE INDEX batch_queue_ready ON collect.batch_queue(next_attempt_at,created_at) WHERE state IN ('QUEUED','RUNNING');
 CREATE TABLE collect.batch_confirmation (
-  id UUID PRIMARY KEY,
-  trigger_hmac CHAR(64) NOT NULL UNIQUE CHECK(trigger_hmac ~ '^[a-f0-9]{64}$'),
-  actor_hmac CHAR(64) NOT NULL CHECK(actor_hmac ~ '^[a-f0-9]{64}$'),
-  channel_hmac CHAR(64) NOT NULL CHECK(channel_hmac ~ '^[a-f0-9]{64}$'),
-  source_key VARCHAR(80) NOT NULL,
-  source_post_key TEXT NOT NULL,
-  canonical_url TEXT NOT NULL,
-  expires_at TIMESTAMPTZ NOT NULL DEFAULT now()+interval '10 minutes',
-  request_id UUID REFERENCES collect.batch_queue(id),
-  version BIGINT NOT NULL DEFAULT 0
+    id UUID PRIMARY KEY,
+    trigger_hmac CHAR(64) NOT NULL UNIQUE CHECK(trigger_hmac ~ '^[a-f0-9]{64}$'),
+    actor_hmac CHAR(64) NOT NULL CHECK(actor_hmac ~ '^[a-f0-9]{64}$'),
+    channel_hmac CHAR(64) NOT NULL CHECK(channel_hmac ~ '^[a-f0-9]{64}$'),
+    source_key VARCHAR(80) NOT NULL,
+    source_post_key TEXT NOT NULL,
+    canonical_url TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT now()+INTERVAL '10 minutes',
+    request_id UUID REFERENCES collect.batch_queue(id),
+    version BIGINT NOT NULL DEFAULT 0
 );
-CREATE FUNCTION collect.guard_batch_confirmation() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION collect.guard_batch_confirmation() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
   IF TG_OP='INSERT' THEN
     IF NEW.request_id IS NOT NULL OR NEW.version<>0 THEN RAISE EXCEPTION 'CONFIRMATION_INITIAL_STATE'; END IF;
@@ -53,8 +57,8 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER batch_confirmation_guard BEFORE INSERT OR UPDATE OR DELETE ON collect.batch_confirmation
-  FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_confirmation();
-CREATE FUNCTION collect.guard_batch_queue() RETURNS trigger LANGUAGE plpgsql AS $$
+FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_confirmation();
+CREATE FUNCTION collect.guard_batch_queue() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE r collect.batch_run%ROWTYPE;
 BEGIN
   IF TG_OP='DELETE' THEN RAISE EXCEPTION 'BATCH_QUEUE_IMMUTABLE'; END IF;
@@ -105,7 +109,7 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER batch_queue_guard BEFORE INSERT OR UPDATE OR DELETE ON collect.batch_queue
-  FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_queue();
+FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_queue();
 
 -- Preserve any legacy direct-queue receipts and move their pending payload to the durable queue.
 DO $$ DECLARE entry RECORD; BEGIN
@@ -118,4 +122,4 @@ DO $$ DECLARE entry RECORD; BEGIN
   END LOOP;
 END $$;
 
-REVOKE ALL ON collect.batch_queue,collect.batch_confirmation FROM PUBLIC;
+REVOKE ALL ON collect.batch_queue,collect.batch_confirmation FROM public;

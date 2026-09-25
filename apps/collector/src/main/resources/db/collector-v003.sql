@@ -8,7 +8,7 @@ END $$;
 ALTER TABLE collect.batch_run ADD COLUMN owner_backend_pid INTEGER;
 CREATE UNIQUE INDEX batch_one_running_source ON collect.batch_run(source_key) WHERE state='RUNNING';
 
-CREATE FUNCTION collect.assert_source_owner(source TEXT) RETURNS void LANGUAGE plpgsql AS $$
+CREATE FUNCTION collect.assert_source_owner(source TEXT) RETURNS VOID LANGUAGE plpgsql AS $$
 DECLARE lock_key BIGINT := hashtextextended('collector-source:' || source,0);
 BEGIN
   IF NOT EXISTS (
@@ -19,7 +19,7 @@ BEGIN
   ) THEN RAISE EXCEPTION 'BATCH_SOURCE_LOCK_REQUIRED' USING ERRCODE='55000'; END IF;
 END $$;
 
-CREATE FUNCTION collect.assert_run_owner(run UUID) RETURNS void LANGUAGE plpgsql AS $$
+CREATE FUNCTION collect.assert_run_owner(run UUID) RETURNS VOID LANGUAGE plpgsql AS $$
 DECLARE r collect.batch_run%ROWTYPE;
 BEGIN
   SELECT * INTO r FROM collect.batch_run WHERE id=run;
@@ -29,7 +29,7 @@ BEGIN
   PERFORM collect.assert_source_owner(r.source_key);
 END $$;
 
-CREATE FUNCTION collect.guard_batch_run() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION collect.guard_batch_run() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
   IF TG_OP='DELETE' THEN RAISE EXCEPTION 'BATCH_RUN_IMMUTABLE' USING ERRCODE='55000'; END IF;
   IF TG_OP='INSERT' THEN
@@ -71,9 +71,9 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER batch_run_guard BEFORE INSERT OR UPDATE OR DELETE ON collect.batch_run
-  FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_run();
+FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_run();
 
-CREATE FUNCTION collect.guard_batch_item() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION collect.guard_batch_item() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE r collect.batch_run%ROWTYPE;
 BEGIN
   IF TG_OP='DELETE' THEN RAISE EXCEPTION 'BATCH_ITEM_IMMUTABLE' USING ERRCODE='55000'; END IF;
@@ -113,9 +113,9 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER batch_item_guard BEFORE INSERT OR UPDATE OR DELETE ON collect.batch_item
-  FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_item();
+FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_item();
 
-CREATE FUNCTION collect.guard_batch_media() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION collect.guard_batch_media() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE i collect.batch_item%ROWTYPE;
 BEGIN
   IF TG_OP='UPDATE' THEN RAISE EXCEPTION 'BATCH_MEDIA_IMMUTABLE' USING ERRCODE='55000'; END IF;
@@ -130,9 +130,9 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER batch_media_guard BEFORE INSERT OR UPDATE OR DELETE ON collect.batch_media
-  FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_media();
+FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_media();
 
-CREATE FUNCTION collect.guard_batch_failure() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION collect.guard_batch_failure() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
   IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'BATCH_FAILURE_IMMUTABLE' USING ERRCODE='55000'; END IF;
   PERFORM collect.assert_run_owner(NEW.run_id);
@@ -142,9 +142,9 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER batch_failure_guard BEFORE INSERT OR UPDATE OR DELETE ON collect.batch_failure
-  FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_failure();
+FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_failure();
 
-CREATE FUNCTION collect.guard_batch_report() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION collect.guard_batch_report() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
   IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'BATCH_REPORT_IMMUTABLE' USING ERRCODE='55000'; END IF;
   PERFORM collect.assert_run_owner(NEW.run_id);
@@ -154,9 +154,9 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER batch_report_guard BEFORE INSERT OR UPDATE OR DELETE ON collect.batch_report
-  FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_report();
+FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_report();
 
-CREATE FUNCTION collect.guard_batch_checkpoint() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION collect.guard_batch_checkpoint() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
   IF TG_OP='DELETE' THEN RAISE EXCEPTION 'BATCH_CHECKPOINT_IMMUTABLE' USING ERRCODE='55000'; END IF;
   PERFORM collect.assert_run_owner(NEW.run_id);
@@ -166,4 +166,4 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER batch_checkpoint_guard BEFORE INSERT OR UPDATE OR DELETE ON collect.batch_checkpoint
-  FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_checkpoint();
+FOR EACH ROW EXECUTE FUNCTION collect.guard_batch_checkpoint();

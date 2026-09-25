@@ -6,22 +6,24 @@ DO $$ BEGIN
   END IF;
 END $$;
 CREATE TABLE collect.batch_media_correction (
-  operation_id UUID PRIMARY KEY,
-  media_id UUID NOT NULL REFERENCES collect.batch_media(id),
-  revision BIGINT NOT NULL CHECK (revision>0),
-  item_version BIGINT NOT NULL CHECK (item_version>=0),
-  before_row JSONB NOT NULL CHECK (jsonb_typeof(before_row)='object'),
-  new_mime VARCHAR(160) NOT NULL CHECK (new_mime IN ('image/jpeg','image/png','image/gif','image/webp','image/avif')),
-  reason_code VARCHAR(80) NOT NULL CHECK (reason_code ~ '^[A-Z][A-Z0-9_]{1,79}$'),
-  actor NAME NOT NULL DEFAULT current_user,
-  transaction_id XID8 NOT NULL DEFAULT pg_current_xact_id(),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
-  UNIQUE(media_id,revision),
-  CHECK ((before_row->>'mime_type') IS DISTINCT FROM new_mime)
+    operation_id UUID PRIMARY KEY,
+    media_id UUID NOT NULL REFERENCES collect.batch_media(id),
+    revision BIGINT NOT NULL CHECK (revision>0),
+    item_version BIGINT NOT NULL CHECK (item_version>=0),
+    before_row JSONB NOT NULL CHECK (jsonb_typeof(before_row)='object'),
+    new_mime VARCHAR(160) NOT NULL CHECK (new_mime IN ('image/jpeg','image/png','image/gif','image/webp','image/avif')),
+    reason_code VARCHAR(80) NOT NULL CHECK (reason_code ~ '^[A-Z][A-Z0-9_]{1,79}$'),
+    actor NAME NOT NULL DEFAULT current_user,
+    transaction_id XID8 NOT NULL DEFAULT pg_current_xact_id(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+    UNIQUE(media_id,revision),
+    CHECK ((before_row->>'mime_type') IS DISTINCT FROM new_mime)
 );
-REVOKE ALL ON collect.batch_media_correction FROM PUBLIC;
+REVOKE ALL ON collect.batch_media_correction FROM public;
 
-CREATE FUNCTION collect.guard_media_correction() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,collect,pg_temp AS $$
+CREATE FUNCTION collect.guard_media_correction() RETURNS TRIGGER LANGUAGE plpgsql SET search_path=pg_catalog,
+collect,
+pg_temp AS $$
 BEGIN
   IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'BATCH_CORRECTION_IMMUTABLE' USING ERRCODE='55000'; END IF;
   IF current_user IS DISTINCT FROM pg_get_userbyid((SELECT relowner FROM pg_class WHERE oid='collect.batch_media'::regclass))
@@ -31,11 +33,13 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER media_correction_guard BEFORE INSERT OR UPDATE OR DELETE ON collect.batch_media_correction
-  FOR EACH ROW EXECUTE FUNCTION collect.guard_media_correction();
+FOR EACH ROW EXECUTE FUNCTION collect.guard_media_correction();
 CREATE TRIGGER media_correction_no_truncate BEFORE TRUNCATE ON collect.batch_media_correction
-  FOR EACH STATEMENT EXECUTE FUNCTION collect.guard_media_correction();
+FOR EACH STATEMENT EXECUTE FUNCTION collect.guard_media_correction();
 
-CREATE OR REPLACE FUNCTION collect.guard_batch_media() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,collect,pg_temp AS $$
+CREATE OR REPLACE FUNCTION collect.guard_batch_media() RETURNS TRIGGER LANGUAGE plpgsql SET search_path=pg_catalog,
+collect,
+pg_temp AS $$
 DECLARE i collect.batch_item%ROWTYPE;
 BEGIN
   IF TG_OP='UPDATE' THEN
@@ -61,7 +65,9 @@ BEGIN
   RETURN NEW;
 END $$;
 
-CREATE FUNCTION collect.apply_media_correction() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,collect,pg_temp AS $$
+CREATE FUNCTION collect.apply_media_correction() RETURNS TRIGGER LANGUAGE plpgsql SET search_path=pg_catalog,
+collect,
+pg_temp AS $$
 BEGIN
   UPDATE collect.batch_media m SET mime_type=NEW.new_mime
     WHERE m.id=NEW.media_id AND to_jsonb(m)=NEW.before_row;
@@ -69,11 +75,11 @@ BEGIN
   RETURN NEW;
 END $$;
 CREATE TRIGGER media_correction_apply AFTER INSERT ON collect.batch_media_correction
-  FOR EACH ROW EXECUTE FUNCTION collect.apply_media_correction();
+FOR EACH ROW EXECUTE FUNCTION collect.apply_media_correction();
 
 CREATE FUNCTION collect.correct_batch_media_mime(
-  operation UUID, media UUID, expected_mime TEXT, corrected_mime TEXT, expected_hash BYTEA,
-  expected_size BIGINT, expected_item_version BIGINT, expected_revision BIGINT, reason TEXT
+    operation UUID, media UUID, expected_mime TEXT, corrected_mime TEXT, expected_hash BYTEA,
+    expected_size BIGINT, expected_item_version BIGINT, expected_revision BIGINT, reason TEXT
 ) RETURNS BIGINT LANGUAGE plpgsql SET search_path=pg_catalog,collect,pg_temp AS $$
 DECLARE m collect.batch_media%ROWTYPE; i collect.batch_item%ROWTYPE;
   receipt collect.batch_media_correction%ROWTYPE; revision_now BIGINT;
@@ -115,5 +121,7 @@ BEGIN
     VALUES(operation,media,revision_now+1,i.version,to_jsonb(m),corrected_mime,reason);
   RETURN revision_now+1;
 END $$;
-REVOKE ALL ON FUNCTION collect.correct_batch_media_mime(UUID,UUID,TEXT,TEXT,BYTEA,BIGINT,BIGINT,BIGINT,TEXT) FROM PUBLIC;
-REVOKE ALL ON FUNCTION collect.guard_media_correction(),collect.apply_media_correction() FROM PUBLIC;
+REVOKE ALL ON FUNCTION collect.correct_batch_media_mime(
+    UUID,UUID,TEXT,TEXT,BYTEA,BIGINT,BIGINT,BIGINT,TEXT
+) FROM public;
+REVOKE ALL ON FUNCTION collect.guard_media_correction(),collect.apply_media_correction() FROM public;

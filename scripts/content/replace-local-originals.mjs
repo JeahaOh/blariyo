@@ -7,6 +7,7 @@ import { PostsService } from '../../apps/api/dist/features/posts/posts.service.j
 import { DatabaseContext } from '../../apps/api/dist/persistence/database.js';
 import { UnitOfWork } from '../../apps/api/dist/shared/unit-of-work.js';
 import { Storage } from '../../apps/api/dist/shared/storage.js';
+import { contentMigrationChecksumMatches } from './migration-checksum.mjs';
 import {
   ACTOR,
   digest,
@@ -90,9 +91,8 @@ try {
       const ledger = await db.manager.query(
         'SELECT checksum_sha256 FROM scrape_archive.schema_migration WHERE version=1'
       );
-      assert.equal(
-        ledger[0]?.checksum_sha256,
-        digest(migration),
+      assert.ok(
+        contentMigrationChecksumMatches(digest(migration), ledger[0]?.checksum_sha256),
         'Archive migration checksum mismatch'
       );
     } else {

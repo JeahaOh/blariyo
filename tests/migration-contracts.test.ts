@@ -3,14 +3,19 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { object } from './helpers/browser-values.ts';
+import { migrationChecksumMatches } from '../apps/api/src/commands/migration-checksum-compatibility.ts';
+import { contentMigrationChecksumMatches } from '../scripts/content/migration-checksum.mjs';
 await test('migration SQL stays immutable and explicit contract evolution matches canonical specs', async () => {
   const manifest = object(
     JSON.parse(await readFile('docs/migration/contract-baseline.json', 'utf8'))
   );
   const hashes = object(manifest.files);
-  const evolution = object(JSON.parse(await readFile('docs/migration/contract-evolution.json', 'utf8')));
+  const evolution = object(
+    JSON.parse(await readFile('docs/migration/contract-evolution.json', 'utf8'))
+  );
   const amendments = object(evolution.amendedContracts);
   const additions = object(evolution.addedMigrations);
+  const reformats = object(evolution.reformattedMigrations);
   const currentHashes = { ...hashes };
   for (const [path, value] of Object.entries(amendments)) {
     const change = object(value);
@@ -22,10 +27,57 @@ await test('migration SQL stays immutable and explicit contract evolution matche
   }
   for (const [path, hash] of Object.entries(additions)) {
     assert.ok(!Object.hasOwn(hashes, path));
-    assert.match(path, /^(apps\/api\/migrations\/V\d+__[^/]+|apps\/collector\/src\/main\/resources\/db\/collector-v\d+)\.sql$/);
+    assert.match(
+      path,
+      /^(apps\/api\/migrations\/V\d+__[^/]+|apps\/collector\/src\/main\/resources\/db\/collector-v\d+|scripts\/content\/migrations\/\d+_[^/]+)\.sql$/
+    );
     assert.equal(typeof hash, 'string');
     currentHashes[path] = hash;
   }
+  for (const [path, value] of Object.entries(reformats)) {
+    const change = object(value);
+    assert.ok(
+      /^(apps\/api\/migrations\/|apps\/collector\/src\/main\/resources\/db\/|scripts\/content\/migrations\/)/.test(
+        path
+      )
+    );
+    assert.equal(change.previousSha256, currentHashes[path]);
+    assert.ok(typeof change.reason === 'string' && change.reason.length > 20);
+    assert.ok(typeof change.sha256 === 'string');
+    assert.ok(typeof change.previousSha256 === 'string');
+    const apiVersion = path.endsWith('.down.sql')
+      ? undefined
+      : /^apps\/api\/migrations\/(V\d+)__.*\.sql$/.exec(path)?.[1];
+    if (apiVersion) {
+      assert.equal(
+        migrationChecksumMatches(
+          apiVersion,
+          Buffer.from(change.sha256, 'hex'),
+          Buffer.from(change.previousSha256, 'hex')
+        ),
+        true,
+        `${path} accepts its recorded pre-format checksum`
+      );
+      assert.equal(
+        migrationChecksumMatches(apiVersion, Buffer.from(change.sha256, 'hex'), Buffer.alloc(32)),
+        false,
+        `${path} still rejects an unknown checksum`
+      );
+    }
+    currentHashes[path] = change.sha256;
+  }
+  const sourceCapture = object(reformats['scripts/content/migrations/001_source_capture.sql']);
+  assert.ok(typeof sourceCapture.sha256 === 'string');
+  assert.equal(
+    contentMigrationChecksumMatches(sourceCapture.sha256, sourceCapture.previousSha256),
+    true,
+    'source-capture runner accepts its previously recorded checksum'
+  );
+  assert.equal(
+    contentMigrationChecksumMatches(sourceCapture.sha256, '0'.repeat(64)),
+    false,
+    'source-capture runner rejects unknown checksums'
+  );
   assert.ok(Object.keys(hashes).length >= 16);
   for (const [path, hash] of Object.entries(currentHashes)) {
     assert.equal(typeof hash, 'string');
@@ -48,9 +100,22 @@ await test('migration SQL stays immutable and explicit contract evolution matche
       .sort()
   );
   assert.deepEqual(
-    (await readdir('apps/collector/src/main/resources/db')).filter(name => /^collector-v\d+\.sql$/.test(name))
-      .map(name => 'apps/collector/src/main/resources/db/' + name).sort(),
-    Object.keys(currentHashes).filter(path => path.startsWith('apps/collector/src/main/resources/db/')).sort()
+    (await readdir('scripts/content/migrations'))
+      .filter((name) => name.endsWith('.sql'))
+      .map((name) => 'scripts/content/migrations/' + name)
+      .sort(),
+    Object.keys(currentHashes)
+      .filter((path) => path.startsWith('scripts/content/migrations/'))
+      .sort()
+  );
+  assert.deepEqual(
+    (await readdir('apps/collector/src/main/resources/db'))
+      .filter((name) => /^collector-v\d+\.sql$/.test(name))
+      .map((name) => 'apps/collector/src/main/resources/db/' + name)
+      .sort(),
+    Object.keys(currentHashes)
+      .filter((path) => path.startsWith('apps/collector/src/main/resources/db/'))
+      .sort()
   );
   for (const [canonical, packaged] of [
     [

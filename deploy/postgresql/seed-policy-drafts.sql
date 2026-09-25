@@ -10,7 +10,10 @@ DO $$ BEGIN
   END IF;
 END $$;
 -- Transaction-local input avoids granting TEMP privilege to the migrator.
-SELECT set_config('blariyo.policy_seed', convert_from(decode(:'policy_seed_hex', 'hex'), 'UTF8'), true) IS NOT NULL AS seed_loaded;
+SELECT
+    set_config(
+        'blariyo.policy_seed', convert_from(decode(:'policy_seed_hex', 'hex'), 'UTF8'), true
+    ) IS NOT null AS seed_loaded;
 DO $$ BEGIN
   IF (SELECT count(*) FROM jsonb_array_elements(current_setting('blariyo.policy_seed')::jsonb) AS s(item)) <> 2 OR
      (SELECT count(DISTINCT item->>'type') FROM jsonb_array_elements(current_setting('blariyo.policy_seed')::jsonb) AS s(item)) <> 2 OR
@@ -37,10 +40,20 @@ DO $$ BEGIN
   ) THEN RAISE EXCEPTION 'POLICY_DRAFT_VERSION_CONFLICT'; END IF;
 END $$;
 INSERT INTO legal.policy_version
-  (policy_type,version_label,title,body_html,status,effective_at,ended_at,created_by,created_at,updated_by,updated_at)
-SELECT item->>'type',item->>'version',item->>'title',item->>'body','DRAFT',NULL,NULL,
-  'system:policy-publisher',now(),'system:policy-publisher',now()
+(policy_type,version_label,title,body_html,status,effective_at,ended_at,created_by,created_at,updated_by,updated_at)
+SELECT
+    item->>'type' AS policy_type,
+    item->>'version' AS version_label,
+    item->>'title' AS title,
+    item->>'body' AS body_html,
+    'DRAFT' AS status,
+    null AS effective_at,
+    null AS ended_at,
+    'system:policy-publisher' AS created_by,
+    now() AS created_at,
+    'system:policy-publisher' AS updated_by,
+    now() AS updated_at
 FROM jsonb_array_elements(current_setting('blariyo.policy_seed')::jsonb) AS s(item) WHERE NOT EXISTS (
-  SELECT FROM legal.policy_version p WHERE p.policy_type=s.item->>'type' AND p.version_label=s.item->>'version'
+    SELECT FROM legal.policy_version p WHERE p.policy_type=s.item->>'type' AND p.version_label=s.item->>'version'
 );
 COMMIT;

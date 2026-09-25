@@ -8,12 +8,16 @@ END $$;
 ALTER TABLE collect.batch_item ADD COLUMN skip_reason VARCHAR(80);
 ALTER TABLE collect.batch_item DROP CONSTRAINT batch_item_state_check;
 ALTER TABLE collect.batch_item ADD CONSTRAINT batch_item_state_check
-  CHECK (state IN ('DISCOVERED','FETCHING','FETCHED','FAILED','BLOCKED','SKIPPED_DUPLICATE','SKIPPED_POLICY'));
+CHECK (state IN ('DISCOVERED','FETCHING','FETCHED','FAILED','BLOCKED','SKIPPED_DUPLICATE','SKIPPED_POLICY'));
 ALTER TABLE collect.batch_item ADD CONSTRAINT batch_item_skip_reason_check CHECK (
-  (state='SKIPPED_POLICY' AND skip_reason IN ('SOURCE_DATE_UNKNOWN','SOURCE_OUTSIDE_WINDOW') AND failure_code IS NULL) IS TRUE
-  OR (state<>'SKIPPED_POLICY' AND skip_reason IS NULL)
+    (
+        state='SKIPPED_POLICY'
+        AND skip_reason IN ('SOURCE_DATE_UNKNOWN','SOURCE_OUTSIDE_WINDOW')
+        AND failure_code IS NULL
+    ) IS TRUE
+    OR (state<>'SKIPPED_POLICY' AND skip_reason IS NULL)
 );
-CREATE OR REPLACE FUNCTION collect.guard_batch_item() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE OR REPLACE FUNCTION collect.guard_batch_item() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE r collect.batch_run%ROWTYPE;
 BEGIN
   IF TG_OP='DELETE' THEN RAISE EXCEPTION 'BATCH_ITEM_IMMUTABLE' USING ERRCODE='55000'; END IF;

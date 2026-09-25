@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-09-23",
+  "asOf": "2026-09-25",
   "specifications": [
     "docs/system-design/07-spring-collector-design.md",
     "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
@@ -44,6 +44,94 @@
     "apps/collector/src/main/resources/db/collector-v003.sql": "4c9ffece0d9a5d234aaaa637e6449d6de2d09228d06eb1a67aa72c1166a18e84",
     "apps/collector/src/main/resources/db/collector-v004.sql": "6a175550e3e978cfc305ce61ddfb6f78db44b53962d0b42d719a27118c51c79a",
     "apps/collector/src/main/resources/db/collector-v005.sql": "dc1eca00a275e9cfe2692acd53ce7334a37bd2d4e36ab5357d3fcc50e628fb3c",
-    "apps/collector/src/main/resources/db/collector-v006.sql": "667212ed76ebdc1adb4954676196ff0e48ebd412bdf6614f4ed0bdea084a3a9f"
+    "apps/collector/src/main/resources/db/collector-v006.sql": "667212ed76ebdc1adb4954676196ff0e48ebd412bdf6614f4ed0bdea084a3a9f",
+    "scripts/content/migrations/001_source_capture.sql": "acd6d387d5c1bc61e17bf804665d973dbf5cd7f0c61f776ee91a63181fc64dde"
+  },
+  "reformattedMigrations": {
+    "apps/api/migrations/V001__core.sql": {
+      "previousSha256": "af6e9efc9a6708e8b02946d4c7507808c61b37feb4004a98c19f98caa5657fe7",
+      "sha256": "9b57c7b5766a36e6e101ee9f8bfbc6e899346554ab7e41e10ca2f3ac49277e6a",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/api/migrations/V002__meme.sql": {
+      "previousSha256": "6e9871db8696ca8d351c3ca2e13e9836a5ab30e0538ce800f1b4aeb8d0eb1ca4",
+      "sha256": "382e4b187644162e4542592caa027b4dd682cb611eaa339cba3c53847482a66f",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/api/migrations/V003__schedule_alert.sql": {
+      "previousSha256": "8f5d4399c91e21a50d55795663bad96cd315cec8cc10453e2420f4eb4e7c28e5",
+      "sha256": "6801e366687670e81b8e57a6bdff1f2b40d8d226586d9432e167e777ca392ae6",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/api/migrations/V004__collection_assist.sql": {
+      "previousSha256": "0870c4e70f7fbebc0b91c62221c198590733fabee63134ba4f20428950a660d8",
+      "sha256": "f767172d10c7ce0696e4b2fd688aa98071bfbb410a7face4eade09bb8a9f65ce",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/api/migrations/V005__spring_collection.down.sql": {
+      "previousSha256": "d252a678271212f18b8877b313037116aec06720dea743b38abac78efbb066c2",
+      "sha256": "6d44aa7bae0ede9ce50c940af18ead0623cbf81b1174aedf3d14a1d9c4db9118",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/api/migrations/V005__spring_collection.sql": {
+      "previousSha256": "f2b1eec3d575bc27f58368eb1f1a6d5c902db2bd7052f6b70ff5a49ed96b8afb",
+      "sha256": "b4bad6c9016e3621b88d017a6ed222fd1767eef50c397f22ff6789691f8ddff9",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/api/migrations/V006__collection_content.sql": {
+      "previousSha256": "2e5e842bf6ac63947bb004afa3ca9e9b1cc3da628f6276ceff6b855edc866acc",
+      "sha256": "d8377b1a428b119e4fb338135be8bc174d43eb1be52a5862bf2ae60b73b3d1b6",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/api/migrations/V007__collection_discovery.down.sql": {
+      "previousSha256": "1b2b9dc21b23d07b13294f8ec598e347971308bda4123955572f7727c170c016",
+      "sha256": "cc536b17731a281392c7c4f1c8f805685640231c17f15af4f9bea9ef4e591062",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/api/migrations/V007__collection_discovery.sql": {
+      "previousSha256": "dda8a1ac947d62adfdf4bde41ba9f05262a13fb5dd89850bc438284513181378",
+      "sha256": "236eb16a398b633c5151af89ec6f7a577b3aa2ff0bc6d2a7b76993f19d40a598",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/api/migrations/V008__batch_review.sql": {
+      "previousSha256": "c92e98be23a0e0976ed75381f2da0d78227b1891a02c8c253257eade766e0251",
+      "sha256": "1bddc58cd37185599e21677cd3d580202e957ec510cdced4d8aa33f3c5d20ef5",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/collector/src/main/resources/db/collector-v001.sql": {
+      "previousSha256": "8e8b1d776ece931932b425b0993c15a08a744af5d58010db5f55d80341b81464",
+      "sha256": "9763cf7c9e0d13e4a5a480b71e3fce87fa23132c5bc104e5612bdbc05814bd2a",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/collector/src/main/resources/db/collector-v002.sql": {
+      "previousSha256": "91dbe732b97cf27e16fec72e5510d94811b17b7ab1c16f26733a8333a446393b",
+      "sha256": "b0a9f0d64fded44cbad9364e31bfe04462b445ce98650cdf0fe6151157117321",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/collector/src/main/resources/db/collector-v003.sql": {
+      "previousSha256": "4c9ffece0d9a5d234aaaa637e6449d6de2d09228d06eb1a67aa72c1166a18e84",
+      "sha256": "6ecbcea9239897b6a300396616972a164abca5ed3e78f9439c235b2b63d80b5e",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/collector/src/main/resources/db/collector-v004.sql": {
+      "previousSha256": "6a175550e3e978cfc305ce61ddfb6f78db44b53962d0b42d719a27118c51c79a",
+      "sha256": "51e25cb85db55fe960aca8b82531701910deca4a8d6bff64ac893ac52d369f17",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/collector/src/main/resources/db/collector-v005.sql": {
+      "previousSha256": "dc1eca00a275e9cfe2692acd53ce7334a37bd2d4e36ab5357d3fcc50e628fb3c",
+      "sha256": "cf12bc2dce010a029d65443267c75f81c936b551e6e04db9e443f42923ea0909",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "apps/collector/src/main/resources/db/collector-v006.sql": {
+      "previousSha256": "667212ed76ebdc1adb4954676196ff0e48ebd412bdf6614f4ed0bdea084a3a9f",
+      "sha256": "63cf2159bd2a04cb84d387fe620b4484169e933ad5ffc47b0f1ef7f3e86c66ac",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    },
+    "scripts/content/migrations/001_source_capture.sql": {
+      "previousSha256": "acd6d387d5c1bc61e17bf804665d973dbf5cd7f0c61f776ee91a63181fc64dde",
+      "sha256": "98631178cdb44dec312748ba70b15a1ed46b1b4f26a0922c60e88e7ba90e8d6b",
+      "reason": "SQLFluff 4.3.0 style-only cleanup; runtime accepts the previous checksum for databases that already recorded it."
+    }
   }
 }

@@ -3,6 +3,7 @@ package com.blariyo.collector.ops;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.DriverManager;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.jupiter.api.Assumptions;
@@ -18,6 +19,36 @@ class MigrationMainTests {
 
     MigrationMain.migrate(jdbc, user, password);
     MigrationMain.migrate(jdbc, user, password);
+    try (var connection = DriverManager.getConnection(jdbc, user, password);
+        var update = connection.prepareStatement(
+            "UPDATE collector.schema_migration SET checksum=? WHERE version=?")) {
+      for (var entry : Map.of(
+          "V001", "875f7f62e722cf53d18e398a2abd151442a1b56ecd5a21f956edbcf7565dccbd",
+          "V002", "91dbe732b97cf27e16fec72e5510d94811b17b7ab1c16f26733a8333a446393b",
+          "V003", "4c9ffece0d9a5d234aaaa637e6449d6de2d09228d06eb1a67aa72c1166a18e84",
+          "V004", "6a175550e3e978cfc305ce61ddfb6f78db44b53962d0b42d719a27118c51c79a",
+          "V005", "dc1eca00a275e9cfe2692acd53ce7334a37bd2d4e36ab5357d3fcc50e628fb3c",
+          "V006", "667212ed76ebdc1adb4954676196ff0e48ebd412bdf6614f4ed0bdea084a3a9f")
+          .entrySet()) {
+        update.setString(1, entry.getValue());
+        update.setString(2, entry.getKey());
+        assertEquals(1, update.executeUpdate());
+      }
+    }
+    MigrationMain.migrate(jdbc, user, password);
+    try (var connection = DriverManager.getConnection(jdbc, user, password);
+        var update = connection.prepareStatement(
+            "UPDATE collector.schema_migration SET checksum=? WHERE version='V002'")) {
+      update.setString(1, "0".repeat(64));
+      assertEquals(1, update.executeUpdate());
+    }
+    assertThrows(Exception.class, () -> MigrationMain.migrate(jdbc, user, password));
+    try (var connection = DriverManager.getConnection(jdbc, user, password);
+        var update = connection.prepareStatement(
+            "UPDATE collector.schema_migration SET checksum=? WHERE version='V002'")) {
+      update.setString(1, "91dbe732b97cf27e16fec72e5510d94811b17b7ab1c16f26733a8333a446393b");
+      assertEquals(1, update.executeUpdate());
+    }
 
     try (var connection = DriverManager.getConnection(jdbc, user, password);
         var versions = connection.createStatement()

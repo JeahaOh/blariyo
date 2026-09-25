@@ -76,15 +76,18 @@
 
 ## Git·개발 harness — 2026-09-25 복구 및 원격 확인
 
-- **stash 복구·6개 단계 커밋 완료, 원격 도입은 미완료.** 복구 branch는 `feature/HARN-08-stash-recovery`, 코드 검증 기준은 `49b84e4`, 문서 포함 복구 완료 commit은 `de28c0c`다. 후속 상태 갱신은 문서만 변경한다.
+- **stash 복구·6개 단계 커밋 완료, 원격 도입은 미완료.** 복구 branch는 `feature/HARN-08-stash-recovery`, 코드 검증 기준은 `49b84e4`, 문서 포함 복구 완료 commit은 `de28c0c`다. 원격 상태를 문서에 갱신한 commit은 `5957492`이며, 이후 CI·테스트 보완은 미커밋 상태다.
 - 원본 stash `c373dac`, 원본 `develop`의 미추적 파일 56개와 다른 세션 worktree를 보존했다. local main의 기존 8개 commit은 복구 branch의 선행 이력이며 develop에는 미반영이다.
 - `git ls-remote`로 `origin/main`, `origin/develop`, `origin/release`가 모두 `8af7244`임을 확인했다. 초기 develop 생성·tracking 단계는 끝났고, 기존 작업의 통합은 남았다. 단일 `release`는 설계의 `release/<version>`과 다르므로 처리 방침 확정 전 그대로 둔다.
 - 복구 worktree 로컬 검증: 전체 `lint:all` 통과(SQL 27개·finding 0), harness 52/52, quality 10/10, architecture 9/9, 루트 39/39, API 단위 34/34, Collector 273/273, 브라우저 26/26. API/Web build·타입 검사, API/Collector 복원 31/41개 table·sequence도 통과했다. 각 검사의 범위와 로그는 [복구 결과](../worklog/2026-09-25/git-governance/STASH-RECOVERY.md)에 기록했다.
 - Collector 원문 HTML 49개는 포맷으로 원문 hash·parser 결과가 바뀌어 기존 바이트로 되돌렸다. 기대 hash를 바꾸지 않았고 parser 입력 HTML만 formatter에서 제외했다. 모든 SQL lint와 migration checksum 계약·기존 ledger 호환 검증은 유지했다.
 - [PR #1](https://github.com/JeahaOh/blariyo/pull/1)은 Open·미병합: verify 실패, collector 성공, images skip. 브라우저 41개 중 39개 통과·2개 실패이며 이미지 재시도 버튼 timeout과 후속 완료 증거 assertion이 원인이다.
 - [PR #2](https://github.com/JeahaOh/blariyo/pull/2)는 Draft·미병합: event-context와 harness-gate 실패, 나머지 8개 skip. develop 기준 SHA에 `.harness/policy.json`이 없어 차단됐다. context 부재로 최종 receipt도 생성되지 않았다. 복구 branch의 로컬 PASS를 이 두 PR의 원격 PASS로 승계하지 않는다.
+- PR #1 브라우저 실패는 해당 source `ada2474`의 격리 사본에서 재현했다. 재조회 응답을 1초 지연하자 기존 테스트가 로딩 중 이미지 오류를 주입해 비활성 재시도 버튼이 사라지는 timeout이 발생했다. 재조회 완료를 기다리는 테스트 1줄을 추가한 뒤 동일 조건에서 4/4, 게시글 12개·3단계·최종 PUBLISHED 12개·브라우저 오류 0을 확인했다. 앱 코드는 변경하지 않았다. 수정은 로컬 미커밋이며 기존 PR의 원격 실패 상태는 아직 바뀌지 않았다.
+- 후속 로컬 보완: 최종 gate의 진단 artifact와 검증 receipt를 분리했다. context가 없거나 유효하지 않아도 실패·skip 결과를 기록하고 복원 분류 누락은 null로 남긴다. 기존 필수 gate·receipt 식별자 검사는 유지한다. harness 54/54·lint:harness·actionlint 통과. 이 변경은 미커밋·미push이며 원격 artifact 생성·readback은 아직 미검증이다.
 - GitHub 인증된 Settings에서 classic branch protection과 ruleset이 모두 없는 것을 확인했다. 원격 필수 검사 강제는 **미활성**이다. 조회만 했으며 설정은 변경하지 않았다.
-- HARN-01~07은 모두 부분 구현이다. schema·자동 lease heartbeat·다중 host 조정, CI 실패 시 증거 보존, trusted-ref 또는 code-owner 보호, 실제 Windows/restore/receipt 실행·readback, release provider·배포·merge-back 수용이 남았다. [구현 계획](ai/harness-implementation-plan.md)의 수용 기준을 충족하기 전 전체 완료로 표시하지 않는다.
+- 기존 8개 commit을 별도 PR로 검토하는 사용자 선택을 반영했다. 새 CI 수정의 HARN-09 등록안은 정확한 9개 경로를 선언하며 임시 저장소에서 등록 정상·등록 혼합·범위 초과·base 등록 누락의 기대 결과 4/4를 확인했다. 원격 task 등록과 새 commit은 아직 없고 HARN-08 manifest도 그대로다. 통합 순서와 설계 문서 2개 충돌은 [CI 복구 계획](../worklog/2026-09-25/git-governance/CI-RECOVERY.md)에 기록했다.
+- HARN-01~07은 모두 부분 구현이다. schema·자동 lease heartbeat·다중 host 조정, CI 실패 진단의 원격 업로드·readback, trusted-ref 또는 code-owner 보호, 실제 Windows/restore/receipt 실행·readback, release provider·배포·merge-back 수용이 남았다. [구현 계획](ai/harness-implementation-plan.md)의 수용 기준을 충족하기 전 전체 완료로 표시하지 않는다.
 - 다음 순서와 통합 판단은 [로드맵](roadmap.md#개발-도구--githarness-도입-계획)을 따른다. 기존 제품 17개 task의 완료 수량·운영 배포 상태는 변경하지 않는다.
 
 ## 검증 근거

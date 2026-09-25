@@ -302,17 +302,19 @@ legacy 전환 조건을 포함하며 Core 실제 운영 관찰과 구분해 사�
 - [설계](ai/git-workflow.md), [구현 계획](ai/harness-implementation-plan.md), [복구·원격 확인 근거](../worklog/2026-09-25/git-governance/STASH-RECOVERY.md)를 따른다. stash 복구 6단계는 완료했고 HARN-01~07 전체 도입은 부분 구현이다.
 - 완료된 선행 조건: 운영 SHA `8af7244`에서 local/remote develop 생성·tracking, 원본 변경 보존, 별도 복구 worktree, 전체 로컬 lint·SQL·핵심 회귀와 단계별 commit. 복구 branch의 push·develop 통합은 하지 않았다.
 
-| 우선순위 | 남은 작업                                                 | 완료 조건·의존성                                                                                                                           |
-| -------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| P0       | PR #1 브라우저 실패 원인 재현·최소 수정                   | 이미지 재시도 버튼 timeout과 후속 assertion을 실제 PR 기준 SHA에서 해결하고 원격 verify 성공 확인; 실패를 무시한 병합 금지                 |
-| P0       | 기존 local main 8개 commit·복구 6개 commit 통합 범위 확정 | analytics/admin 등 선행 기능을 함께 검토할지 분리할지 결정; 기존 PR #1/#2와 중복되는 정책·harness 변경 대조                                |
-| P0       | 정책 등록 후 구현·cleanup PR 통합                         | 정책·task metadata를 trusted base에 별도 검토해 먼저 등록; 이후 구현 PR의 정확한 head/base에서 전체 lint·앱·restore·Windows 검사 성공      |
-| P0       | context 생성 실패 때 CI 진단 증거 보존                    | 성공 receipt를 위조하지 않고 실패 원인·run/job/attempt 증거를 남기는 경로 검증; 현재 PR #2는 필수 context 값이 없어 receipt 생성까지 실패  |
-| P0       | 원격 보호와 검사기 변경 보호                              | 현재 classic protection/ruleset 모두 없음; 성공한 stable check와 신뢰 정책을 등록하고 direct push·실패 병합 거부를 실제 설정·실행으로 확인 |
-| P1       | HARN-01~04 남은 schema·lease·증거 계약                    | 자동 heartbeat·다중 host·지원 OS·보존기간 등 현재 미구현/미정 항목의 범위 확정 및 해당 회귀                                                |
-| P2       | HARN-07 실제 release/hotfix 수용                          | version/tag/image 규약, 단일 `release` ref 처리, provider artifact·배포 SHA·main/develop/active release 재반영 확인                        |
+| 우선순위 | 남은 작업                                 | 완료 조건·의존성                                                                                                                                                                    |
+| -------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P0       | PR #1 브라우저 최소 수정의 원격 검증      | PR 기준 ada2474에서 재현 후 테스트 1줄 수정·지연 조건 4/4 로컬 통과. HARN-09 등록안 준비. gate 활성화 전 별도 검토하고 실제 merge-result에서 기존 CI 성공 확인; 실패 무시 병합 금지 |
+| P0       | 기존 local main 8개 commit의 별도 PR 준비 | 사용자 선택: 기존 8개를 별도 PR로 검토한 뒤 harness·cleanup을 후속 연결. trailer 없는 기존 SHA 보존·새 gate 활성화 전 검증. 정책 PR과 설계 문서 2개 충돌 해결                       |
+| P0       | 정책 등록 후 구현·cleanup PR 통합         | 정책·task metadata를 trusted base에 별도 검토해 먼저 등록; 이후 구현 PR의 정확한 head/base에서 전체 lint·앱·restore·Windows 검사 성공                                               |
+| P0       | CI 실패 진단의 원격 artifact 수용         | 진단/receipt 분리·unknown 복원 값 null 유지와 로컬 harness 54/54 완료; 적용된 PR에서 context 실패를 재현해 진단 artifact를 내려받고 run/attempt·job 결과 대조                       |
+| P0       | 원격 보호와 검사기 변경 보호              | 현재 classic protection/ruleset 모두 없음; 성공한 stable check와 신뢰 정책을 등록하고 direct push·실패 병합 거부를 실제 설정·실행으로 확인                                          |
+| P0       | 도입 이후의 정책·task 등록 검토 경로      | 일반 task-range의 policy/manifest 자기확장 차단 유지. 전용 governance gate는 미구현이며 원격 필수 gate 활성화 전 등록 승인·검사기 보호·거부 회귀 검증                               |
+| P1       | HARN-01~04 남은 schema·lease·증거 계약    | 자동 heartbeat·다중 host·지원 OS·보존기간 등 현재 미구현/미정 항목의 범위 확정 및 해당 회귀                                                                                         |
+| P2       | HARN-07 실제 release/hotfix 수용          | version/tag/image 규약, 단일 `release` ref 처리, provider artifact·배포 SHA·main/develop/active release 재반영 확인                                                                 |
 
-- 현재 복구 branch는 local main의 8개 선행 commit과 HARN-08 task 변경을 포함한다. 그대로 develop에 병합하면 선행 기능까지 들어가므로 자동 merge/rebase·PR 대체는 하지 않는다. 추천 통합 방식은 기존 정책 등록 PR을 유지하고 선행 기능 검토 후 구현/cleanup을 그 위에 연결하는 방식이다. 기능 반영 결정과 push·merge는 각각 명시된 범위에서 실행한다.
+- 현재 복구 branch는 local main의 8개 선행 commit과 HARN-08 task 변경을 포함한다. 그대로 develop에 병합하면 선행 기능까지 들어가므로 자동 merge/rebase·PR 대체는 하지 않는다. 사용자는 기존 8개 commit을 별도 PR로 검토하고 harness·cleanup을 후속 연결하도록 선택했다. 기존 정책 등록 PR도 유지하며 의존 순서를 대조한다. 이 선택만으로 push·merge를 실행하지 않는다.
+- 구체적인 순서는 [CI 복구 계획](../worklog/2026-09-25/git-governance/CI-RECOVERY.md)의 선행 브라우저 수정 → 기존 8개 → 정책/task 등록 → cleanup → harness 활성화를 따른다. HARN-09 등록안의 로컬 계약 검증 4/4는 완료했지만 trusted base 등록이나 실제 PR 검증을 대신하지 않는다.
 - 이 목록은 도구 도입 작업이며 기존 Core·수집·운영 인수에 새로운 제품 출시 조건을 추가하지 않는다. 담당자·기한은 `(미정)`이다. 실제 원격 수용 전에는 전체 진척률을 임의의 백분율로 환산하지 않는다.
 
 ## 11. 갱신 규칙

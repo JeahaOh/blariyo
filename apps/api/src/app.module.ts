@@ -22,6 +22,7 @@ export interface ApplicationOptions extends CollectionOptions {
   collectDiscordCommandEnabled?: boolean;
   siteOrigin?: string;
   imageOrigin?: string;
+  analyticsContentKeySecret?: string;
   storage?: Storage;
   cache?: EdgeCache;
   serviceToken?: string;
@@ -48,6 +49,8 @@ export class AppModule {
         PublicModule.register(persistence, {
           siteOrigin: options.siteOrigin ?? 'http://localhost:3000',
           imageOrigin: options.imageOrigin ?? 'http://localhost:3000/media',
+          analyticsContentKeySecret:
+            options.analyticsContentKeySecret ?? 'local-development-analytics-secret-32b',
         }),
         images,
         posts,

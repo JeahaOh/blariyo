@@ -69,6 +69,8 @@ await test('original PostgreSQL public API boundaries with canonical response na
       assert.equal(block.type, 'TEXT');
       assert.equal(block.text, '<script>plain text</script>');
       assert.ok(!('status' in detail.data.post));
+      assert.match(detail.data.post.analyticsContentKey, /^p1_[a-f0-9]{64}$/);
+      assert.match(context.analyticsContentKey, /^p1_[a-f0-9]{64}$/);
       const endpoint = `/api/v1/boards/meme/posts/${id}/views`;
       const invalid = await get(endpoint, {
         method: 'POST',

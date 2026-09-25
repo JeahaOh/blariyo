@@ -16,7 +16,22 @@ await test('consent expiration, corrupted state, withdrawal, no external adapter
       setItem: (k: string, v: string) => map.set(k, v),
     };
   assert.equal(readConsent(storage, true), null);
+  map.set(
+    'blariyo_consent',
+    JSON.stringify({
+      version: 2,
+      scope: 'analytics',
+      analytics: true,
+      ads: false,
+      savedAt: new Date().toISOString(),
+    })
+  );
+  assert.equal(readConsent(storage, true), null);
   saveConsent(storage, true, true, new Date('2025-09-07T00:00:00Z'));
+  const saved: unknown = JSON.parse(map.get('blariyo_consent') || '{}');
+  assert.ok(saved && typeof saved === 'object' && 'version' in saved && 'scope' in saved);
+  assert.equal(saved.version, 3);
+  assert.equal(saved.scope, 'analytics_v1');
   assert.equal(readConsent(storage, true, new Date('2026-09-07T00:00:00Z')), null);
   map.set('blariyo_consent', 'broken');
   assert.equal(readConsent(storage, true), null);
@@ -93,6 +108,153 @@ await test('SSR summary preserves graphemes, normalizes whitespace and never pad
   const result = description([{ type: 'TEXT', text: emoji.repeat(121) }]);
   assert.equal(result, emoji.repeat(119) + '…');
   assert.equal(description([]), '블라리요에서 블라블라블라');
+});
+
+await test('analytics-v1 keeps only declared event fields and drops invalid values', () => {
+  const map = new Map<string, string>(),
+    storage = {
+      getItem: (k: string) => map.get(k) ?? null,
+      setItem: (k: string, v: string) => map.set(k, v),
+    },
+    scripts: AnalyticsScript[] = [],
+    win: AnalyticsWindow = { dataLayer: [] },
+    doc = {
+      cookie: '',
+      location: { hostname: 'localhost' },
+      head: { appendChild: (s: AnalyticsScript) => scripts.push(s) },
+      createElement: () => ({ remove() {} }),
+      getElementById: () => null,
+    };
+  const key = 'p1_' + 'a'.repeat(64);
+  const runtime = analyticsRuntime({
+    window: win,
+    document: doc,
+    storage,
+    enabled: true,
+    measurementId: 'G-TEST',
+    origin: 'http://localhost',
+    getPath: () => '/meme/posts/1',
+  });
+  saveConsent(storage, true, true);
+  runtime.sync();
+  fire(scripts, 0);
+  const viewToken = runtime.captureView();
+  const attemptKey = '33333333-3333-4333-8333-333333333333';
+  const fallbackKey = '44444444-4444-4444-8444-444444444444';
+  runtime.send('list_impression', {
+    board_slug: 'meme',
+    list_instance_key: '11111111-1111-4111-8111-111111111111',
+    list_area: 'main',
+    list_kind: 'regular',
+    list_page: 1,
+    list_position: 3,
+    content_key: key,
+    content_type: 'post',
+    impression_key: '22222222-2222-4222-8222-222222222222',
+    title: 'secret',
+    postId: 123,
+  });
+  runtime.send('scroll', { page_content_key: key, depth_percent: 75, scroll_depth_bucket: '75' });
+  runtime.send('select_content', {
+    board_slug: 'meme',
+    list_instance_key: '11111111-1111-4111-8111-111111111111',
+    list_area: 'detail_footer',
+    list_kind: 'regular',
+    list_page: 1,
+    list_position: 3,
+    content_key: key,
+    content_type: 'post',
+    exposure_state: 'qualified',
+    impression_key: '22222222-2222-4222-8222-222222222222',
+    open_mode: 'new_context',
+  });
+  runtime.send('list_page_change', {
+    list_area: 'detail_footer',
+    from_list_page: 1,
+    to_list_page: 2,
+    list_instance_key: '11111111-1111-4111-8111-111111111111',
+  });
+  runtime.send('share', {
+    page_content_key: key,
+    board_slug: 'meme',
+    share_method: 'native',
+    share_attempt_key: attemptKey,
+  });
+  runtime.send('share_result', {
+    page_content_key: key,
+    board_slug: 'meme',
+    share_method: 'native',
+    share_outcome: 'unavailable',
+    share_attempt_key: attemptKey,
+  });
+  runtime.send('share', {
+    page_content_key: key,
+    board_slug: 'meme',
+    share_method: 'copy',
+    share_attempt_key: fallbackKey,
+    parent_attempt_key: attemptKey,
+  });
+  runtime.send('share_result', {
+    page_content_key: key,
+    board_slug: 'meme',
+    share_method: 'copy',
+    share_outcome: 'copied',
+    share_attempt_key: fallbackKey,
+    parent_attempt_key: attemptKey,
+  });
+  const sent = recordedEvents(win).filter((args) => args[0] === 'event');
+  assert.deepEqual(
+    sent.map((args) => args[1]),
+    [
+      'list_impression',
+      'scroll',
+      'select_content',
+      'list_page_change',
+      'share',
+      'share_result',
+      'share',
+      'share_result',
+    ]
+  );
+  for (const args of sent) {
+    const params = object(args[2]);
+    assert.equal(params.schema_version, 1);
+    assert.match(String(params.event_key), /^[a-f0-9-]{36}$/);
+    assert.ok(!('title' in params));
+    assert.ok(!('postId' in params));
+    assert.ok(!('scroll_depth_bucket' in params));
+    assert.ok(Object.keys(params).length <= 25);
+  }
+  const qualifiedClick = sent.find((args) => args[1] === 'select_content');
+  assert.ok(qualifiedClick);
+  assert.equal(object(qualifiedClick[2]).exposure_state, 'qualified');
+  assert.equal(object(qualifiedClick[2]).open_mode, 'new_context');
+  assert.equal(object(qualifiedClick[2]).impression_key, '22222222-2222-4222-8222-222222222222');
+  const fallbackResult = sent.filter((args) => args[1] === 'share_result')[1];
+  assert.ok(fallbackResult);
+  assert.equal(object(fallbackResult[2]).share_attempt_key, fallbackKey);
+  assert.equal(object(fallbackResult[2]).parent_attempt_key, attemptKey);
+  runtime.send('share', {
+    page_content_key: key,
+    board_slug: 'meme',
+    share_method: 'copy',
+    share_attempt_key: 'not-a-uuid',
+  });
+  runtime.send('share_result', {
+    page_content_key: key,
+    board_slug: 'meme',
+    share_method: 'native',
+    share_outcome: 'copied',
+    share_attempt_key: attemptKey,
+  });
+  assert.equal(recordedEvents(win).filter((args) => args[0] === 'event').length, sent.length);
+  saveConsent(storage, false, true);
+  runtime.sync();
+  assert.equal(
+    viewToken?.isCurrent(),
+    false,
+    'withdrawal invalidates captured async share results'
+  );
 });
 
 await test('late analytics load and error callbacks cannot cancel a newer consent generation', () => {

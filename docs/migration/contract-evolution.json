@@ -14,8 +14,13 @@
     },
     "packages/contracts/openapi/m0-core.yaml": {
       "baselineSha256": "d3744e62c7a4ce714d7b34be2b9c22f864794ba445e72153423f75706877de60",
-      "sha256": "6fca891507082f908bb9b4f0ed2d17f6823ff97eafcdd84fe59bb2fd0f28a73a",
-      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source."
+      "sha256": "9f07638132c59c70192597cb8271846f9c6fa74b961c0beffa2c326f64180b4d",
+      "reason": "Direct batch review/draft contracts plus analytics-v1 public content key. Canonical specifications are the source. Adds analyticsContentKey to public list and detail responses for GA4 events without SQL migration changes."
+    },
+    "packages/contracts/src/api.d.ts": {
+      "baselineSha256": "3e34875319f128bc3c8a60735c4042e6c2fdf2566039ee051cc37c190bd1927e",
+      "sha256": "340389a1f9f4b3f9cb4d177581d29626353418b014100641be5788c25bc11ddf",
+      "reason": "Direct batch review/draft contracts plus analytics-v1 public content key. Canonical specifications are the source. Adds analyticsContentKey to public list and detail responses for GA4 events without SQL migration changes."
     },
     "packages/contracts/src/collection-api.d.ts": {
       "baselineSha256": "03dcac61af757e7d58f52fd02b79e80b5a0cd4cdf1eadcb134fc50eb4930b1f5",
@@ -24,8 +29,8 @@
     },
     "packages/contracts/src/schema.mjs": {
       "baselineSha256": "e43249c0dc4d11da8ef9c00b9c5f97a35b644f8bced633134493b9e15aedc8c4",
-      "sha256": "77286a83a2126e4247621f0d5729ee9b2c42d1a461cc7869516ca2144976487e",
-      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source. Adds optional state and reviewStatus filters for authenticated batch review pagination; no SQL migration changes."
+      "sha256": "63725c52ed490f275e1bbec5f1bbc1b85174c14be86827ba7f74e3375fc31289",
+      "reason": "Direct batch review/draft contracts plus analytics-v1 public content key. Canonical specifications are the source. Adds analyticsContentKey to public list and detail responses for GA4 events without SQL migration changes."
     }
   },
   "addedMigrations": {

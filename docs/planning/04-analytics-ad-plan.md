@@ -36,8 +36,8 @@
 2026-09-25 `analytics-v1`의 설계 범위를 확정했다. 아래 기존 네 이벤트는 현재 소스의 legacy 기준이고,
 확장 구현은 §4.1을 따른다. **앱 직접 GA4 전송을 단일 경로로 사용하며, 같은 GA4 목적지의 GTM
 태그는 운영 활성화 전에 중지한다.** 자체 수집 API·PostgreSQL 이벤트 테이블은 만들지 않는다.
-대신 동의 후 GA4에 수신된 이벤트의 BigQuery 일별 원시 내보내기를 1차 운영 활성화 조건에 포함한다.
-외부 저장 계약·보관 기간·비용 상한이 미확정이면 활성화하지 않는다. 설계 확정은 구현·콘솔 변경·배포 완료가 아니다.
+BigQuery 일별 원시 내보내기는 첫 구현에서 제외하고, 외부 저장 계약·보관 기간·비용 상한을 확정한
+뒤 후속으로 도입한다. 설계 확정은 구현·콘솔 변경·배포 완료가 아니다.
 
 2026-09-24 Google의 [Consent Mode 개요](https://developers.google.com/tag-platform/security/concepts/consent-mode)에서
 동의 전 tag 로드를 막는 기본 방식과 cookieless ping을 사용하는 고급 방식을 구분해 확인했다.
@@ -120,7 +120,7 @@ GA4는 기본적으로 문서 제목과 현재 URL을 page view에 넣으므로 
   sessionStorage를 추가하지 않는다. 전체 새로고침·새 탭·BFCache 복원은 새 측정 문맥으로 구분한다.
 - 첫 구현의 다음 글 지표는 동일 측정 문맥·GA4 세션의 **SPA 연속 열람률**이다. 다른 문서·탭까지
   연결한 전체 다음 글 열람률로 표시하지 않는다. 직접 방문·새로고침의 조회 자체는 별도로 측정한다.
-- BigQuery 일별 원시 저장과 핵심 지표 기본 집계를 먼저 제공한다. GTM 중심 전송 전환, Clarity,
+- BigQuery 일별 원시 저장과 핵심 지표 기본 집계는 후속으로 분리한다. GTM 중심 전송 전환, Clarity,
   미디어 조작, 성능·오류 이벤트, 광고·검색·회원 이벤트와 A/B 테스트는 후속 범위다.
 
 ## 5. 동의 UI
@@ -140,10 +140,11 @@ GA4는 기본적으로 문서 제목과 현재 URL을 page view에 넣으므로 
 - 분석 동의 전에는 Google tag를 로드하지 않고 consent mode의 cookieless ping을 포함한 Google
   Analytics 요청을 전송하지 않는다.
 
-현행 M0 구현의 선택 범위는 분석 하나다. `blariyo_consent`는 `version=2`, `scope=analytics`,
-`ads=false`와 선택 시각을 localStorage에 저장하고 1년 뒤 만료한다. 광고 독립 선택은 후속 계약이며
-현재 광고 checkbox를 제공하지 않는다. 저장 실패 시 동의 성공으로 처리하지 않고 분석을 끈다.
-위 version2는 현행 구현 기준이다. `analytics-v1`의 version3 전환·철회·구버전 처리 기준은
+M0의 선택 범위는 분석 하나다. `analytics-v1` 구현은 `blariyo_consent`를 `version=3`,
+`scope=analytics_v1`, `ads=false`와 선택 시각으로 localStorage에 저장하고 1년 뒤 만료한다.
+광고 독립 선택은 후속 계약이며 현재 광고 checkbox를 제공하지 않는다. 저장 실패 시 동의 성공으로
+처리하지 않고 분석을 끈다. 기존 version2 선택은 확장 수집 동의로 승계하지 않는다.
+version3 전환·철회·구버전 처리 기준은
 [개발 명세 §13](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)을 따른다.
 
 ## 6. 광고 위치

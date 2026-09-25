@@ -1,15 +1,32 @@
 import type { components } from '@blariyo/contracts/api';
+import { createHmac } from 'node:crypto';
 import type { Board, PublishedPost } from './public.repository.js';
 import type { PublicList, PublicDetail, PublicPolicy } from './public.service.js';
 export interface PublicOrigins {
   siteOrigin: string;
   imageOrigin: string;
+  analyticsContentKeySecret?: string;
 }
 export const PUBLIC_ORIGINS = Symbol('PUBLIC_ORIGINS');
 const boardDto = (board: Board) => ({ slug: board.slug, displayName: board.displayName });
-function itemDto(post: PublishedPost, board: Board): components['schemas']['PostListItem'] {
+function analyticsContentKey(post: PublishedPost, origins: PublicOrigins) {
+  const secret = origins.analyticsContentKeySecret ?? 'local-development-analytics-secret-32b';
+  const key = Buffer.from(secret, 'base64').length >= 32 ? Buffer.from(secret, 'base64') : secret;
+  return (
+    'p1_' +
+    createHmac('sha256', key)
+      .update(`blariyo:public-post:v1:${post.id}`)
+      .digest('hex')
+  );
+}
+function itemDto(
+  post: PublishedPost,
+  board: Board,
+  origins: PublicOrigins
+): components['schemas']['PostListItem'] {
   return {
     postId: Number(post.id),
+    analyticsContentKey: analyticsContentKey(post, origins),
     title: post.title,
     viewCount: Number(post.viewCount),
     authorLabel: '운영자',
@@ -26,11 +43,14 @@ export function boardsDto(boards: Board[]): components['schemas']['BoardListData
     }),
   };
 }
-export function listDto(list: PublicList): components['schemas']['PostListData'] {
+export function listDto(
+  list: PublicList,
+  origins: PublicOrigins
+): components['schemas']['PostListData'] {
   return {
     board: boardDto(list.board),
-    pinnedItems: list.pinnedItems.map((post) => itemDto(post, list.board)),
-    items: list.items.map((post) => itemDto(post, list.board)),
+    pinnedItems: list.pinnedItems.map((post) => itemDto(post, list.board, origins)),
+    items: list.items.map((post) => itemDto(post, list.board, origins)),
   };
 }
 export function detailDto(
@@ -38,9 +58,9 @@ export function detailDto(
   origins: PublicOrigins
 ): components['schemas']['PostDetailData'] {
   const { post, board, list } = value;
-  const { path: _path, ...summary } = itemDto(post, board);
+  const { path: _path, ...summary } = itemDto(post, board, origins);
   const contextItem = (item: PublishedPost) => ({
-    ...itemDto(item, board),
+    ...itemDto(item, board, origins),
     ...(item.id === post.id ? { current: true } : {}),
   });
   return {

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "taskId": "HARN-09",
+  "taskRef": "worklog/2026-09-25/git-governance/CI-RECOVERY.md",
+  "state": "in-progress",
+  "changeIds": ["45831498-8ae4-4f2e-9933-42ca6e1df655", "2bd49d94-8036-44c5-bc8a-4000d4792aa6"],
+  "allowedPaths": [
+    ".github/workflows/ci.yml",
+    "docs/ai/git-workflow.md",
+    "docs/ai/harness-implementation-plan.md",
+    "docs/roadmap.md",
+    "docs/status.md",
+    "tests/browser/admin-workflow.test.ts",
+    "tests/harness/ci-workflow.test.mjs",
+    "worklog/2026-09-25/git-governance/CI-RECOVERY.md",
+    "worklog/2026-09-25/git-governance/STASH-RECOVERY.md"
+  ],
+  "verification": ["test:harness", "lint:harness", "lint:all"],
+  "resources": ["port:3000", "port:55449"]
+}

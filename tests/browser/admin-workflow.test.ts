@@ -321,6 +321,7 @@ await test(
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.route('**/api/v1/admin/images/*/preview*', (route) => route.abort());
       await button('최신 내용 확인').click();
+      await expect(page.locator('section')).toHaveAttribute('aria-busy', 'false');
       // Reloading an identical src may stay cached: explicitly invalidate the DOM src to exercise onerror.
       await page
         .getByAltText('업로드 미리보기')

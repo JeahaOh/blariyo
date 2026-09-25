@@ -32,7 +32,7 @@ export class PublicController {
       stringField(input.params, 'boardSlug'),
       Number(stringField(input.query, 'page', '1'))
     );
-    return new HttpResult(listDto(result), result.meta);
+    return new HttpResult(listDto(result, this.origins), result.meta);
   }
   @Get('boards/:boardSlug/posts/:postId')
   async detail(@Input(ContractPipe) input: RequestInput) {

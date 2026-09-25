@@ -22,6 +22,7 @@
     "policies:publish": "node apps/api/dist/commands/command.js policies:publish",
     "test:integration": "npm run test:nest",
     "test:browser": "npm run build && node --test --test-concurrency=1 tests/browser/*.test.ts",
+    "test:browser:docker": "node scripts/local/playwright-tests.mjs",
     "test:web-cache": "npm run build -w @blariyo/web && node --test tests/http/web-cache.test.ts",
     "test:docker": "node scripts/test-docker.ts",
     "test:database-roles": "npm run build -w @blariyo/api && apps/collector/gradlew -p apps/collector testClasses fixtureClasspath && node scripts/test-database-roles.ts",

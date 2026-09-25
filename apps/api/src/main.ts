@@ -13,12 +13,25 @@ export async function start(env: Environment = process.env) {
   const collectorTokens = await loadCollectorTokens(collection, env);
   const production = env.NODE_ENV === 'production';
   if (production && (!/^https:\/\//.test(env.SITE_ORIGIN || '') || !/^https:\/\//.test(env.IMAGE_ORIGIN || ''))) throw new Error('PRODUCTION_ORIGIN_REQUIRED');
+  if (production) {
+    const secret = env.ANALYTICS_CONTENT_KEY_SECRET || '';
+    if (!secret) throw new Error('ANALYTICS_CONTENT_KEY_SECRET_REQUIRED');
+    try {
+      if (Buffer.from(secret, 'base64').length < 32)
+        throw new Error('ANALYTICS_CONTENT_KEY_SECRET_REQUIRED');
+    } catch {
+      throw new Error('ANALYTICS_CONTENT_KEY_SECRET_REQUIRED');
+    }
+  }
   const app = await createNestApplication({
     databaseUrl, ...adapters(env), ...collection, collectorTokens, collectReader: collectReader(env),
     localMedia: !production,
     ...(env.SERVICE_TOKEN === undefined ? {} : { serviceToken: env.SERVICE_TOKEN }),
     ...(env.SITE_ORIGIN === undefined ? {} : { siteOrigin: env.SITE_ORIGIN }),
     ...(env.IMAGE_ORIGIN === undefined ? {} : { imageOrigin: env.IMAGE_ORIGIN }),
+    ...(env.ANALYTICS_CONTENT_KEY_SECRET === undefined
+      ? {}
+      : { analyticsContentKeySecret: env.ANALYTICS_CONTENT_KEY_SECRET }),
     maintenance: env.MAINTENANCE_READ_ONLY === 'true',
   });
   try {

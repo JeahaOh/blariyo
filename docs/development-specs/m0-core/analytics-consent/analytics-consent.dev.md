@@ -76,9 +76,9 @@ GA4를 대체하는 자체 방문 분석은 만들지 않는다. 기존 참고�
 | event별 custom parameter allowlist·금지값 | 확정 | 분석 계획 §4 | send-events | 반영 |
 | Measurement ID·보관·국외이전·Google 법인·CSP | 실값 필요 | legal 활성화 차단 | loader | 활성화 차단 |
 | 광고 consent/runtime | 범위 밖 | M0 Core 제외 | 전체 | 미노출 |
-| 첫 확장 9개 수동 이벤트·직접 GA4 단일 전송 | 확정 설계 | 분석 계획 §4.1 | §13.1~§13.5 | 명세 반영·미구현 |
-| 공개 콘텐츠 키·진입 분류·원시 연결·정확한 집계 | 확정 설계 | API 설계·분석 확장안 | §13.3~§13.7 | 명세 반영·미구현 |
-| version3 재동의·BigQuery 일별 저장·운영 수신 | 구현·운영값 필요 | 보안·legal·분석 계획 | §13.2·§13.8 | 활성화 차단 |
+| 첫 확장 9개 수동 이벤트·직접 GA4 단일 전송 | 확정 설계 | 분석 계획 §4.1 | §13.1~§13.5 | 소스 구현·운영 미검증 |
+| 공개 콘텐츠 키·진입 분류·GA4 보고 | 확정 설계 | API 설계·분석 확장안 | §13.3~§13.7 | 소스 구현·운영 미검증 |
+| version3 재동의·GA4 운영 수신 | 구현·운영값 필요 | 보안·legal·분석 계획 | §13.2·§13.8 | 활성화 차단 |
 
 ## 6. 업무 규칙과 수용 조건
 
@@ -451,11 +451,12 @@ GA4 실제 cookie 만료·property 보관·국외이전 고지·Google 계약 �
 ## 13. 첫 확장 구현 — analytics-v1
 
 - 계약 상태: `작성 완료`. milestone은 M0 Core의 선택 분석 확장이며 M1·광고 기능을 포함하지 않는다.
-- 구현 상태: 아래 계약의 코드·OpenAPI·테스트·GA4/GTM/BigQuery 설정은 미반영·미검증.
+- 구현 상태: 아래 계약의 코드·OpenAPI·테스트는 진행 중이며 GA4/GTM 운영 설정은 미반영·미검증.
 - 제품 정본: [분석 계획 §4.1](../../../planning/04-analytics-ad-plan.md#41-첫-확장-구현-확정--analytics-v1).
 - 첫 범위: 공개 목록·상세·정책의 화면 조회, 목록 노출·선택·페이지 이동, 본문 도달·활성 체류,
   공유창·시도·관측 결과, 제한된 진입 분류, 원시 이력 기반 재방문·SPA 연속 열람 분석.
-- 후속: 미디어 조작, 오류·성능 이벤트, Clarity, 검색·회원·광고 이벤트, A/B 배정과 자동 보고.
+- 후속: BigQuery 원시 내보내기·집계, 미디어 조작, 오류·성능 이벤트, Clarity, 검색·회원·광고 이벤트,
+  A/B 배정과 자동 보고.
 - 새 이벤트 endpoint·PostgreSQL 이벤트 테이블·자체 방문자 쿠키·sessionStorage를 만들지 않는다.
 
 ### 13.1 전송 담당 결정과 책임
@@ -524,7 +525,7 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
   1차 운영 활성화 전에 모든 공개 응답의 키 제공을 확인한다.
 - 공개 응답을 받은 시점의 공개 콘텐츠만 관측한다. 숨김/404를 감지하면 키·관측기를 폐기한다.
   이미 열린 화면에서 서버의 숨김을 즉시 알 수 있다고 보장하지 않는다. 이전 전송 자료의 보관·삭제는
-  고지와 BigQuery 정책에서 확정하며 활성화 조건에 포함한다.
+  GA4 보관 정책과 후속 BigQuery 도입 시 별도 정책에서 확정한다.
 - key 생성은 통계 API가 아니며 DB 쓰기·별도 조회를 추가하지 않는 DTO 변환이다. 목록 항목별
   추가 SQL 조회나 HMAC 값의 로그 출력을 만들지 않는다.
 
@@ -556,7 +557,7 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
   검증하며, 설정만으로 비전송을 보장했다고 처리하지 않는다. [Google 설정 필드](https://developers.google.com/analytics/devguides/collection/ga4/reference/config)
 - `user_id`, `user_properties`, 실제 제목·URL·query·hash·본문·댓글·이미지 URL·내부 `postId`, IP 원문,
   회원·소셜·수집 후보 식별자는 보내지 않는다. SDK 자동 필드도 실제 전송을 검증한다.
-- SDK의 사용자·세션 구분은 BigQuery의 `user_pseudo_id`와 `ga_session_id`를 사용한다. 클라이언트가
+- SDK의 사용자·세션 구분은 GA4가 제공하는 관측 구분을 사용한다. 클라이언트가
   GA 쿠키를 파싱해 별도 사용자 ID를 만들거나 수동 매개변수로 중복 전송하지 않는다.
 - 앱이 지정하는 이벤트 매개변수는 고정 기본 필드를 포함해 25개 이내로 검증한다. custom 문자열은
   최대 100자이며 아래 UUID·enum·콘텐츠 키의 더 좁은 제한을 우선한다. [GA4 수집 제한](https://support.google.com/analytics/answer/9267744?hl=en)
@@ -572,7 +573,7 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
 | `page_view` | 동의·ready 후 정상 화면 확정 때 view당 1회. `/` redirect 중간 화면은 제외 | `previous_view_key?`, `list_page?`, `entry_source`, `entry_campaign`, `entry_share_method` |
 | `list_impression` | 항목의 50% 이상이 visible document에서 연속 1초 보이면 목록 표시·항목별 1회 | `content_key`, `list_instance_key`, `list_area`, `list_kind`, `list_page`, `list_position`, `impression_key` |
 | `select_content` | 현재 글이 아닌 목록 항목을 실제 활성화할 때. 키보드·일반 click·중간 click을 동일 handler 경계로 처리 | `content_type`, `content_key`, `list_instance_key`, `list_area`, `list_kind`, `list_page`, `list_position`, `exposure_state`, `impression_key?`, `open_mode` |
-| `list_page_change` | 이용자가 요청한 다른 목록 page가 성공적으로 표시될 때 1회. 최초 목록·실패·취소·같은 page는 제외 | `list_area`, `from_page`, `to_page`, `list_instance_key` |
+| `list_page_change` | 이용자가 요청한 다른 목록 page가 성공적으로 표시될 때 1회. 최초 목록·실패·취소·같은 page는 제외 | `list_area`, `from_list_page`, `to_list_page`, `list_instance_key` |
 | `scroll` | 본문 25·50·75% 지점 또는 본문 끝 marker가 1초 이상 보이면 view·구간별 1회 | `depth_percent` |
 | `content_engagement` | 본문이 viewport와 겹치고 document가 visible·focus인 시간을 누적. 15초마다 또는 관측 종료 직전에 증분 전송 | `active_ms`, `flush_reason` |
 | `share_open` | 닫힌 공유 메뉴가 이용자 조작으로 실제 열릴 때 1회 | 추가 필드 없음 |
@@ -586,7 +587,7 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
 | `content_key` | 공개 응답의 분석용 키. impression/select의 대상 글이며 현재 상세의 `page_content_key`와 구분 |
 | `list_area` | `main`, `detail_footer` |
 | `list_kind` | `regular`, `pinned` |
-| `list_page`, `from_page`, `to_page` | integer 1~10000. 실제 공개 API page 값. `page_view.list_page`는 list에서만 필수 |
+| `list_page`, `from_list_page`, `to_list_page` | integer 1~10000. 실제 공개 API page 값. `page_view.list_page`는 list에서만 필수 |
 | `list_position` | regular는 1~20, pinned는 1~3. 각 묶음 안의 화면 순서 |
 | `impression_key` | UUID v4. 노출 전송 전에 생성하고 adapter 수락 후에만 보유·select에 연결. 거절하면 폐기 |
 | `content_type` | `post` |
@@ -650,21 +651,22 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
 - 들어온 query가 위 네 값의 허용 조합과 일치할 때만 source=share와 해당 method를 설정한다.
   임의 UTM·광고 ID·검색어는 무시하며 SDK의 campaign 설정으로 넘기지 않는다. 재공유의 채널 왜곡은 남는다.
 - 이 세 값은 **동의 후 관측한 document 진입 분류**다. GA4 표준 source/medium·세션 획득 보고서를
-  복원하는 계약이 아니다. 표준 유입 보고서로 대체하지 않고 맞춤 보고서와 BigQuery에서 사용한다.
+  복원하는 계약이 아니다. 표준 유입 보고서로 대체하지 않고 GA4 맞춤 보고서에서 사용한다.
 
-### 13.7 GA4 보고서·BigQuery 집계 계약
+### 13.7 GA4 보고서와 후속 집계 계약
 
-- 1차는 GA4 기본 보고·사용자 퍼널과 **BigQuery 일별 원시 내보내기·기본 집계**를 함께 준비한다.
-  streaming export, 자체 분석 DB, 예약 AI 보고서는 범위 밖이다. 최초 수신일을 기록하고 연결 전 원시
-  데이터가 소급 복원되지 않는다는 제한을 유지한다.
+- 1차는 GA4 기본 보고·사용자 퍼널과 맞춤 정의까지만 준비한다. BigQuery 일별 원시 내보내기·기본 집계,
+  streaming export, 자체 분석 DB, 예약 AI 보고서는 후속 범위다. 최초 GA4 수신일을 기록하고,
+  BigQuery를 나중에 연결해도 연결 전 원시 데이터가 소급 복원되지 않는다는 제한을 유지한다.
 - GA4 이벤트 범위 맞춤 측정기준은 `schema_version`, `page_type`, `route_template`, `board_slug`,
   `list_area`, `list_kind`, `exposure_state`, `open_mode`, `depth_percent`, `flush_reason`,
   `share_method`, `share_outcome`, `entry_source`, `entry_campaign`, `entry_share_method`의 15개다.
-  `active_ms`는 합계용 맞춤 측정항목 1개로 등록한다. 중복 제외를 적용한 체류 정본은 BigQuery 집계다.
+  `active_ms`는 합계용 맞춤 측정항목 1개로 등록한다. 중복 제외를 적용한 체류 정본은 후속 집계에서 확정한다.
 - UUID·콘텐츠 키·page/position 숫자는 GA4 맞춤 측정기준에 등록하지 않고 원시 이벤트에서 사용한다.
   per-post 경로·클릭률을 GA4의 고정 page_location만으로 볼 수 있다고 안내하지 않는다.
-- BQ는 `schema_version=1`의 9개 수동 이벤트를 선택하고 동일 event_key의 완전 중복을 1건으로 처리한다.
-  같은 키에 다른 payload가 있으면 수집 오류로 분리한다. 구분키가 없으면 임의로 다른 이벤트와 결합하지 않는다.
+- 후속 BigQuery를 도입하면 `schema_version=1`의 9개 수동 이벤트를 선택하고 동일 event_key의 완전 중복을
+  1건으로 처리한다. 같은 키에 다른 payload가 있으면 수집 오류로 분리한다. 구분키가 없으면 임의로
+  다른 이벤트와 결합하지 않는다.
 - 노출 클릭률: 같은 impression_key·view·목록·콘텐츠의 적격 노출과 select를 연결한다. 정상 노출이
   실제 수신된 경우에만 분모·분자를 만든다. 노출과 연결되지 않는 qualified 클릭이나 상위 page_view가
   수신되지 않은 노출은 품질 지표로 따로 보고한다. 클릭되지 않은 정상 노출은 분모에 포함한다.
@@ -680,11 +682,12 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
 - D1·D7·D30은 user_pseudo_id와 GA4의 최초 관측 시각을 사용하고 기간 내 earliest event를 무조건
   첫 방문으로 바꾸지 않는다. 첫 콘텐츠는 최초 관측일의 첫 유효 콘텐츠 page_view로 고정한다.
   그 시점의 원시 이력이 없으면 미상이며 이후 콘텐츠로 덮어쓰지 않는다. 보고서·속성 시간대는 Asia/Seoul로 맞춘다.
-- 일별 확정 보고는 대상일 종료 후 72시간 수신 대기 뒤 계산하고, 나중에 재처리된 자료는 집계 버전과
-  재계산 시각을 남긴다. 당일·미완료 코호트는 잠정이다. BQ 보관·삭제 기간, 프로젝트·region·비용 상한의
-  실제 값은 `(미정)`이며 운영 활성화 전에 확정한다.
-- 노출 건수와 15초 체류 이벤트를 포함한 일별 예상 이벤트량을 산정하고, 속성의 현재 일별 export 상한·
-  수신 누락·실제 저장/조회 비용을 확인한다. 상한 초과분이 자동 복원된다고 가정하지 않는다. [원시 내보내기 조건](https://support.google.com/analytics/answer/9358801?hl=en)
+- 후속 일별 확정 보고를 만들 때는 대상일 종료 후 72시간 수신 대기 뒤 계산하고, 나중에 재처리된 자료는
+  집계 버전과 재계산 시각을 남긴다. BigQuery 보관·삭제 기간, 프로젝트·region·비용 상한의 실제 값은
+  `(미정)`이며 후속 도입 전에 확정한다.
+- 노출 건수와 15초 체류 이벤트를 포함한 일별 예상 이벤트량을 산정한다. 후속 BigQuery 연결 시에는
+  속성의 현재 일별 export 상한·수신 누락·실제 저장/조회 비용을 확인한다. 상한 초과분이 자동 복원된다고
+  가정하지 않는다. [원시 내보내기 조건](https://support.google.com/analytics/answer/9358801?hl=en)
 - 표본 수·미연결/미확인 수·동의 후 관측 범위·집계 버전을 보고서에 표시한다. 분모가 0이면 자료 없음이다.
   지표를 재현하는 검증 예제는 [확장안 §4.7](../../../planning/04-analytics-expansion-proposal.md#47-계산-검증-예제)를 함께 따른다.
 
@@ -698,8 +701,8 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
 | 2 | `consent.mjs`, `useConsent.ts`, loader·선택 UI | version2 재선택, version3 저장·만료·철회·storage 실패, 직접 GA4 동의 전 0요청, GTM 컨테이너 요청 구분 |
 | 3 | PostList·목록/상세·공유 handler, 단일 adapter | 9개 이벤트의 필드·시점·guard·send_to, 기본 필드 고정, 이벤트당 매개변수 제한, 모르는 필드 제거 |
 | 4 | 단위·브라우저 격리 검증 | SSR hydration·SPA·뒤로 가기·하단 page 변경·짧은 글·이미지 지연·새 탭·BFCache·fallback·철회 경합 검증 |
-| 5 | GA4/GTM/BQ 운영 설정·고지 — 별도 실행 | 단일 GA4 전송 담당, 향상된 측정 OFF, 맞춤 정의, version3 고지, 계약·보관·비용·원시 수신 확인 |
-| 6 | 실제 공개 브라우저·DebugView·BQ·집계 대조 | 동의 전후·철회 요청, URL/개인정보 누출 없음, 수신 중복 없음, 같은 입력의 정의된 지표값 일치 |
+| 5 | GA4/GTM 운영 설정·고지 — 별도 실행 | 단일 GA4 전송 담당, 향상된 측정 OFF, 맞춤 정의, version3 고지, 실제 수신 확인 |
+| 6 | 실제 공개 브라우저·DebugView 대조 | 동의 전후·철회 요청, URL/개인정보 누출 없음, 수신 중복 없음, 9개 이벤트 수신 확인 |
 
 추가 실패 수용 조건:
 
@@ -709,10 +712,10 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
 - GA4가 비활성이거나 v1 조건이 충족되지 않아도 일반 M0 공개 기능은 유지한다. 확장 완료를 위해
   관리자·수집·기존 공개 정책을 임의 배포하거나 외부 태그를 켜지 않는다.
 - 계측 rollback은 두 flag OFF로 먼저 수집을 중단하고 공개 기능을 유지한다. v3 선택을 v2 동의로
-  자동 변환하지 않는다. 원시 export 중단 여부와 기존 데이터의 접근·보관·삭제는 운영 정책에 따라 별도로 처리한다.
+  자동 변환하지 않는다. GA4 보관과 후속 BigQuery 도입 시 기존 데이터의 접근·보관·삭제는 운영 정책에 따라 별도로 처리한다.
 
 ### 13.9 문서와 구현 증거의 구분
 
 이 절은 첫 구현 계약을 확정한 결과다. 기존 네 이벤트 소스나 과거 consent 테스트 통과를 9개 이벤트·
-콘텐츠 키·v3·GTM 단일 전송·BigQuery 수신의 성공으로 승계하지 않는다. 운영 식별값·secret·계약 법인·
+콘텐츠 키·v3·GTM 단일 전송·GA4 수신의 성공으로 승계하지 않는다. 운영 식별값·secret·계약 법인·
 보관 기간의 `(미정)`은 의도적으로 남아 있으며, 실제 값이 필요해지는 활성화 단계에서 확정한다.

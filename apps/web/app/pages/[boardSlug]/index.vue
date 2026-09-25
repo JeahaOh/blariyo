@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ApiResponse } from '~~/shared/api-types';
 const route = useRoute();
+const { $analytics } = useNuxtApp();
 const { data, error, status, refresh } = await useFetch<ApiResponse<'listPosts'>>(
   () => `/api/v1/boards/${String(route.params.boardSlug)}/posts`,
   { query: computed(() => ({ page: route.query.page || 1 })) }
@@ -30,6 +31,16 @@ useSeoMeta({
 });
 useHead({ link: [{ rel: 'canonical', href: canonical }] });
 if (import.meta.server) useResponseHeader('Cache-Control').value = 'no-store';
+function changePage(page: number) {
+  const current = data.value?.meta.page || Number(route.query.page || 1);
+  $analytics?.send('list_page_change', {
+    board_slug: String(route.params.boardSlug),
+    from_list_page: current,
+    to_list_page: page,
+    list_kind: 'regular',
+  });
+  return navigateTo({ query: { page } });
+}
 </script>
 <template>
   <main class="board-page">
@@ -45,11 +56,11 @@ if (import.meta.server) useResponseHeader('Cache-Control').value = 'no-store';
       <p>목록을 불러오지 못했습니다.</p>
       <button @click="refresh()">다시 시도</button>
     </section>
-    <PostList v-else-if="data" v-bind="data.data" /><PageNumbers
+    <PostList v-else-if="data" v-bind="data.data" :list-page="data.meta.page" /><PageNumbers
       v-if="data && !error && status !== 'pending'"
       :page="data.meta.page"
       :total="data.meta.totalPages"
-      @change="(n) => navigateTo({ query: { page: n } })"
+      @change="changePage"
     />
   </main>
 </template>

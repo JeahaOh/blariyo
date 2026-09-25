@@ -155,6 +155,7 @@ async function main() {
       NUXT_PUBLIC_X_EMBEDS_ENABLED: 'true',
       NUXT_PUBLIC_SOCIAL_EMBEDS_ENABLED: 'true',
       NUXT_ADMIN_AUTH_MODE: 'local',
+      NUXT_LOCAL_ADMIN_LOGIN_ENABLED: 'true',
       NUXT_LOCAL_ADMIN_TOKEN: adminToken,
       NUXT_SERVICE_TOKEN: serviceToken,
       NUXT_ACTOR_SECRET: actorSecret,

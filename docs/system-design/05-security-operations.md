@@ -72,6 +72,13 @@ GTM 컨테이너 로드 자체와 GA4 수집은 구분하며, 기존 `dataLayer`
 
 외부 provider의 activity log 보존 기간과 무관하게 게시 상태 변경은 `content.board_post_status_history`에 별도로 남는다.
 
+### 로컬 개발 관리자 진입
+
+- 로컬 실행기만 `NUXT_LOCAL_ADMIN_LOGIN_ENABLED=true`를 설정한다. 기본값은 false이며 `adminAuthMode=local`, 비운영 NODE_ENV, 유효한 로컬 token, loopback 소켓·Host·siteOrigin이 모두 일치할 때만 세션 시작을 허용한다. forwarded header가 있는 요청은 허용하지 않는다.
+- `/admin/login`은 로그인 안내다. 같은 Origin의 명시적인 JSON POST `/api/admin/local-session`만 기존 로컬 token을 HttpOnly·SameSite=Strict·Path=/·8시간 cookie로 설정한다. GET·교차 Origin·운영/비활성 환경은 세션을 발급하지 않는다. token은 HTML·JSON·URL·로그에 반환하지 않는다.
+- 인증 없는 로컬 관리자 페이지 접근은 로그인 안내로 이동한다. 관리자 API는 기존 401/403 계약을 유지하며 자동 로그인하지 않는다. 복귀 경로는 명시된 관리자 경로와 검증한 게시글/item 식별자만 허용한다.
+- 개발 로그아웃은 같은 Origin의 DELETE로 현재 브라우저 cookie만 제거한다. 운영 Access·MFA·권한 검증·서비스 token 경계는 변경하지 않는다. 이 진입은 운영 인증 검증의 대체 증거가 아니다.
+
 ### 서버 관리
 
 - 평상시 SSH 22는 닫는다.

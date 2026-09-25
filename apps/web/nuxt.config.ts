@@ -10,7 +10,7 @@ const strictCompilerOptions = {
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-07',
   devtools: { enabled: false },
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/admin.css'],
   typescript: {
     tsConfig: { compilerOptions: strictCompilerOptions },
     nodeTsConfig: { compilerOptions: strictCompilerOptions },
@@ -35,6 +35,7 @@ export default defineNuxtConfig({
     trustedClientIpHeader: '',
     adminAuthMode: 'access',
     localAdminToken: '',
+    localAdminLoginEnabled: false,
     serviceToken: '',
     actorSecret: '',
     accessIssuer: '',

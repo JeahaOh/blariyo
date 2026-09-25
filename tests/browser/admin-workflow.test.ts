@@ -268,9 +268,10 @@ await test(
         assert.equal(denied.status(), 401);
         assert.ok(!(await denied.text()).includes('반복 검증'));
         const deniedPage = await anonymous.newPage();
-        assert.equal((await deniedPage.goto(fixture.origin + '/admin'))?.status(), 401);
+        assert.equal((await deniedPage.goto(fixture.origin + '/admin'))?.status(), 200);
+        assert.match(deniedPage.url(), /\/admin\/login\?returnTo=/);
         await expect(
-          deniedPage.getByRole('heading', { name: '관리자 인증이 필요합니다.' })
+          deniedPage.getByRole('heading', { name: '콘텐츠 관리 시작하기' })
         ).toBeVisible();
         await anonymous.close();
         completedStages++;

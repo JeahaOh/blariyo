@@ -86,9 +86,10 @@ node scripts/local/open-admin.mjs
 node scripts/local/open-admin.mjs --verify
 ```
 
-기존 로컬 세션 파일을 메모리에서 읽어 별도 Chromium 창에 인증한다. 토큰을 출력하거나 URL에 넣지
-않고 브라우저를 닫으면 종료한다. 일반 Chrome에서 `/admin`을 바로 열면 세션이 없어 인증 안내가
-나오는 것이 정상이다. 이 도구는 localhost:3000 전용 테스트 인증이며 실제 운영 Access 인수와 구분한다.
+별도 Chromium 창을 `/admin/login`으로 열고 `개발 관리자 로그인`을 눌러 같은 브라우저에
+HttpOnly 세션을 설정한다. 세션 비밀은 도구가 읽거나 출력하지 않는다. 일반 브라우저에서도
+`http://localhost:3000/admin/login`에 접속해 같은 절차로 로그인할 수 있다. 이 도구는 loopback
+개발 환경 전용 테스트 인증이며 실제 운영 Access 인수와 구분한다.
 `--verify`는 기존 글을 조회하고 빈 편집기만 열며 저장·발행하지 않는다. 결과는 Git 제외
 `.local-data/verification/admin-core-3000.json` 및 같은 이름의 PNG에 남긴다.
 

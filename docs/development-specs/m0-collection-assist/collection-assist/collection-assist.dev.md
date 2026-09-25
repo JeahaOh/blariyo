@@ -1117,6 +1117,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 
 ### Direct 검수 화면과 실패 복구
 
+- 관리자 공통 작업 공간·목록/상세 분리·모바일 복귀·단계별 작업 표시는 [화면 설계](../../../planning/03-screen-design.md#직접-수집-결과-검수-화면-adminbatch)를 따른다. 선택 item은 검증한 `itemId` query로 다시 열 수 있다.
 - `/admin`과 `/admin/batch`의 관리 메뉴는 기존 Web batch 검수 flag가 켜졌을 때만 수집 결과 검수를 표시한다.
   인증된 `/api/admin/features`는 메뉴 표시용 boolean만 제공한다. Core/BFF의 실제 인증·feature gate는 독립 적용한다.
 - 목록 GET은 `source`, `state`, `reviewStatus`, `page`를 조합한다. 검수 행이 없는 item은 `UNREVIEWED`다.
@@ -1127,7 +1128,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - 검수·초안 생성은 중복 클릭을 막는다. 응답 유실 또는 저장 후 상세 조회 실패 시 요청 본문·키를 보존하고,
   401/403을 만나도 같은 요청으로 결과를 확인한다. 확인 전 입력·다른 글 선택·화면 이동을 잠근다.
   확정 충돌/중복 거부는 편집·재조회로 돌아갈 수 있으며 목록 갱신 실패가 확인된 저장 성공을 취소하지 않는다.
-- 초안 링크는 `/admin?postId=<id>`로 선택한 글을 바로 연다. 검수·승격으로 공개 상태나 public object를 만들지 않는다.
+- 초안 링크는 `/admin?postId=<id>&batchItemId=<uuid>`로 선택한 글을 바로 열고 원래 검수 상세로 돌아갈 수 있게 한다. 검수·승격으로 공개 상태나 public object를 만들지 않는다.
 - 이 화면은 batch가 이미 저장한 결과의 검수 경로다. legacy URL 접수와 source 수정 화면을 direct 메뉴에 연결하지 않는다.
   URL 전달·source 소유권 계약, 실제 Access·운영자 인수·원격 object 수용은 별도다.
 

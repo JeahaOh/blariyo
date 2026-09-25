@@ -19,13 +19,14 @@
 
 ## 2. 요구사항 추적
 
-| 제품 요구 | API | 처리 | 화면 |
-| --- | --- | --- | --- |
-| 제공자 인증·취소·오류 | context/start/callback | [인증](#d01-login) | [로그인](#d08-login) |
-| 신규 별도 필수 동의 | signup GET/POST/DELETE | [가입](#d01-signup) | [가입 동의](#d08-signup) |
-| 최신 필수 동의 | me/consent GET/POST | [재동의](#d01-consent) | [재동의](#d08-consent) |
+| 제품 요구             | API                    | 처리                   | 화면                     |
+| --------------------- | ---------------------- | ---------------------- | ------------------------ |
+| 제공자 인증·취소·오류 | context/start/callback | [인증](#d01-login)     | [로그인](#d08-login)     |
+| 신규 별도 필수 동의   | signup GET/POST/DELETE | [가입](#d01-signup)    | [가입 동의](#d08-signup) |
+| 최신 필수 동의        | me/consent GET/POST    | [재동의](#d01-consent) | [재동의](#d08-consent)   |
 
 <a id="api-auth"></a>
+
 ## 3. API 업무 계약
 
 Consumer는 browser·provider callback, 외부 provider는 Nuxt BFF, 저장 provider는 Core다.
@@ -46,6 +47,7 @@ Consumer는 browser·provider callback, 외부 provider는 Nuxt BFF, 저장 prov
 - 세션을 응답 body·receipt에 저장하지 않고 BFF가 Set-Cookie 한다. 응답 유실 후 callback code를 재사용하지 않는다.
 
 <a id="d01-login"></a>
+
 ## 4. 인증 처리 흐름
 
 1. context로 활성 제공자와 CSRF를 받고 선택한 제공자의 start를 POST한다.
@@ -59,6 +61,7 @@ Consumer는 browser·provider callback, 외부 provider는 Nuxt BFF, 저장 prov
 사용자에게 provider 원문을 표시하지 않는다. 다른 탭의 인증 callback을 현재 탭 계정에 연결하지 않는다.
 
 <a id="d01-signup"></a>
+
 ## 5. 가입 처리 흐름
 
 1. 가입 GET으로 임시 인증과 현재 두 동의 전문을 조회한다. 10분 만료면 재인증으로 돌아간다.
@@ -69,6 +72,7 @@ Consumer는 browser·provider callback, 외부 provider는 Nuxt BFF, 저장 prov
 5. 취소는 DELETE로 임시 payload를 지운다. 브라우저 이탈만으로 즉시 삭제 호출을 보장하지 않으므로 TTL 정리를 병행한다.
 
 <a id="d01-consent"></a>
+
 ## 6. 재동의 처리 흐름
 
 회원 참여 API가 CONSENT_REQUIRED이면 `/account/consent`로 이동한다. GET으로 최신 전문을 보여주고
@@ -76,6 +80,7 @@ POST에서 같은 시행 버전인지 재확인한다. 독립 화면에서는 �
 글·댓글을 자동 제출하지 않는다. 거부 시 읽기 또는 탈퇴로 이동한다.
 
 <a id="d08-login"></a>
+
 ## 7. 로그인 화면
 
 - route `/login`; 활성 provider 버튼은 같은 중요도, 설정 미완료 provider는 비활성 안내다.
@@ -84,6 +89,7 @@ POST에서 같은 시행 버전인지 재확인한다. 독립 화면에서는 �
 - `짤은 로그인 없이 볼 수 있어요`와 정책 링크를 유지한다. callback 화면은 로그·개인정보를 렌더링하지 않는다.
 
 <a id="d08-signup"></a>
+
 ## 8. 가입 동의 화면
 
 - route `/signup/consent`; 표시명, 생년월일 입력, 약관·수집이용 각각 checkbox·전문·version.
@@ -94,6 +100,7 @@ POST에서 같은 시행 버전인지 재확인한다. 독립 화면에서는 �
 - 화면 360px부터 단일 열, 768px 이상도 최대 760px. 키보드로 모든 checkbox·전문·취소에 접근한다.
 
 <a id="d08-consent"></a>
+
 ## 9. 재동의 화면
 
 - route `/account/consent`; 최신 두 전문과 변경 안내, 동의·공개 읽기·탈퇴 진입.

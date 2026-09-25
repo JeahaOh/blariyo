@@ -28,15 +28,15 @@ M1, GA4와 광고 저장소 및 선택 동의 UI는 각 기능을 운영에서 �
 두고 철회·문서 종료에 폐기하며 자체 방문자 쿠키·sessionStorage를 추가하지 않는다. 이는 미발행
 개정 대상이다. [개발 명세 §13.2](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1-consent)를 따른다.
 
-| 저장소 | 이름 후보 | 구분 | 목적 | 생성 조건 | 만료·삭제 |
-| --- | --- | --- | --- | --- | --- |
-| Cookie | `[출시 차단: 실제 회원 인증 쿠키명 확정 필요]` | 필수 | 소셜 로그인 후 블라리요 회원 세션 유지 | 로그인 성공 시 | 로그아웃, 탈퇴 또는 서버 설정 만료 |
-| Cookie 또는 server session | `[출시 차단: OAuth transaction 저장명 확정 필요]` | 필수 | 소셜 로그인 `state`·`nonce`·PKCE 검증과 callback 연결 | 소셜 로그인 시작 시 | callback 완료 또는 10분 이내 |
-| Cookie | `_ga`, `_ga_*` | 선택 분석 | GA4 이용자·세션 구분 | 분석 동의 후 | 동의 철회 시 삭제, `[출시 차단: 실제 만료 확정 필요]` |
-| Cookie | `[출시 차단: 광고 쿠키명 확정 필요]` | 선택 광고 | 광고 노출·측정 | 광고 동의 후 | 동의 철회 시 삭제, 사업자 설정 기간 |
-| `localStorage` | `blariyo_consent` | 필수 설정 | 활성화된 분석·광고 선택과 선택 시각 저장 | 선택 기능 활성화 후 이용자가 저장할 때 | 마지막 선택 후 12개월 또는 설정 초기화 시 |
-| `localStorage` | `blariyo_ad_frequency` | 선택 광고 | 광고 노출 빈도 관리 | 광고 동의 후 | 해당 현지 날짜 종료 또는 광고 동의 철회 시 |
-| `sessionStorage` | `blariyo_adblock_notice_dismissed` | 광고 UI | 확정 차단 안내 반복 방지 | 광고 기능 활성화 후 안내 닫기 시 | 탭 종료 시 |
+| 저장소                     | 이름 후보                                         | 구분      | 목적                                                  | 생성 조건                              | 만료·삭제                                             |
+| -------------------------- | ------------------------------------------------- | --------- | ----------------------------------------------------- | -------------------------------------- | ----------------------------------------------------- |
+| Cookie                     | `[출시 차단: 실제 회원 인증 쿠키명 확정 필요]`    | 필수      | 소셜 로그인 후 블라리요 회원 세션 유지                | 로그인 성공 시                         | 로그아웃, 탈퇴 또는 서버 설정 만료                    |
+| Cookie 또는 server session | `[출시 차단: OAuth transaction 저장명 확정 필요]` | 필수      | 소셜 로그인 `state`·`nonce`·PKCE 검증과 callback 연결 | 소셜 로그인 시작 시                    | callback 완료 또는 10분 이내                          |
+| Cookie                     | `_ga`, `_ga_*`                                    | 선택 분석 | GA4 이용자·세션 구분                                  | 분석 동의 후                           | 동의 철회 시 삭제, `[출시 차단: 실제 만료 확정 필요]` |
+| Cookie                     | `[출시 차단: 광고 쿠키명 확정 필요]`              | 선택 광고 | 광고 노출·측정                                        | 광고 동의 후                           | 동의 철회 시 삭제, 사업자 설정 기간                   |
+| `localStorage`             | `blariyo_consent`                                 | 필수 설정 | 활성화된 분석·광고 선택과 선택 시각 저장              | 선택 기능 활성화 후 이용자가 저장할 때 | 마지막 선택 후 12개월 또는 설정 초기화 시             |
+| `localStorage`             | `blariyo_ad_frequency`                            | 선택 광고 | 광고 노출 빈도 관리                                   | 광고 동의 후                           | 해당 현지 날짜 종료 또는 광고 동의 철회 시            |
+| `sessionStorage`           | `blariyo_adblock_notice_dismissed`                | 광고 UI   | 확정 차단 안내 반복 방지                              | 광고 기능 활성화 후 안내 닫기 시       | 탭 종료 시                                            |
 
 실제 이름과 기간이 표와 다르면 이 문서를 먼저 갱신한다. 출시 차단값이 남은 도구나 기능은
 production에서 로드하지 않는다.
@@ -111,10 +111,10 @@ timeout, no-fill, 네트워크·스크립트 오류는 광고 실패다. 광고 
 `[출시 차단: OAuth transaction 저장명 확정 필요]`는 실제 구현·브라우저 확인 전까지 유지한다.
 설계 이름은 다음과 같으며 구현이 확인되면 공개본의 후보 표를 이 값으로 갱신한다.
 
-| 설계 이름 | 범위·수명 | 확인할 조건 |
-| --- | --- | --- |
-| `__Host-blariyo-session` | 회원 session, 절대 7일·유휴 24시간 중 빠른 만료 | Secure·HttpOnly·Path=/·Domain 없음·SameSite=Lax, 종료 즉시 폐기 |
-| `__Host-blariyo-auth` | 로그인 시도·가입 임시 binding, 최대 10분 | Secure·HttpOnly·Path=/·Domain 없음·SameSite=None; Apple POST callback 확인 |
+| 설계 이름                | 범위·수명                                       | 확인할 조건                                                                |
+| ------------------------ | ----------------------------------------------- | -------------------------------------------------------------------------- |
+| `__Host-blariyo-session` | 회원 session, 절대 7일·유휴 24시간 중 빠른 만료 | Secure·HttpOnly·Path=/·Domain 없음·SameSite=Lax, 종료 즉시 폐기            |
+| `__Host-blariyo-auth`    | 로그인 시도·가입 임시 binding, 최대 10분        | Secure·HttpOnly·Path=/·Domain 없음·SameSite=None; Apple POST callback 확인 |
 
 OAuth state·nonce·PKCE 원문은 server 임시 저장소에서 처리하고 localStorage에 넣지 않는다.
 필수 인증 저장소 추가를 이유로 분석 동의 배너를 켜지 않는다. 분석 거부 상태에서도 로그인은 가능하다.

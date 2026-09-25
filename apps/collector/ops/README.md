@@ -101,7 +101,6 @@ node apps/api/dist/commands/collection-transition.js apply
 
 명령은 Core migration 계정의 `DATABASE_URL`을 사용한다. `apply`는 DB 쓰기 잠금 아래 잔여 legacy 데이터를 검사하고 CHECK를 추가·검증한다. 데이터 삭제·가짜 hash backfill을 하지 않는다. strict 검증 뒤에만 Core `COLLECT_CONTRACT_MODE=SPRING_V2`와 Spring 자격을 켠다. rollback은 Spring 신규 실행을 끄고 Core 수동 게시를 유지하며 legacy 자동 재활성화는 하지 않는다.
 
-
 ## 실패 작업 조회·재개와 복원 차단 해제
 
 먼저 launchd 서버를 중지한다. 운영 CLI는 background 처리·Quartz·Discord·알림 전달을 켜지 않으며, 같은 DB worker 잠금을 얻지 못하면 실패한다. 출력에는 일반화된 작업 상태만 포함한다.
@@ -122,30 +121,28 @@ java -Dloader.main=com.blariyo.collector.ops.JobControlMain \
 
 QUEUED/RUNNING/STOP_REQUESTED/RECONCILE_REQUIRED가 남으면 해제를 거부한다. 실제 출처·계정·Core 상태 확인 후 운영자가 명시적으로 실행한다. DB 상태를 직접 성공으로 바꾸거나 spool 없이 재개하지 않는다.
 
-
 ## 상태와 운영 지표
 
 read token으로 `/local/v1/status?windowHours=24`를 조회한다. 범위는 1~168시간이다. Core가 끊겨도 local DB가 정상이면 HTTP 200과 `partial=true`, Core UNAVAILABLE를 반환한다. local DB 장애는 503이며 복원 차단 여부는 `reconcileRequired`로 확인한다. Core 관측에는 마지막 성공 시각을 포함한다.
 
 `/actuator/metrics`와 `/actuator/metrics/<이름>`도 read token이 필요하다.
 
-| 지표 | 용도 |
-| --- | --- |
-| `collector.jobs`, `collector.jobs.restartable` | 상태별 대기·실행·중단·재개·수동 확인 필요 수 |
-| `collector.jobs.submitted`, `collector.jobs.rejected` | 진입점별 접수·중복·거부 |
-| `collector.step.duration`, `collector.job.duration` | Step 성공/실패와 작업 실행 시간 |
-| `collector.operations`, `collector.heartbeats` | claim·heartbeat·result·preview·lease/fencing·복구·정리 결과 |
-| `collector.quota.remaining`, `collector.quota.rate.limited`, `collector.reservations` | numeric source별 잔여/제한과 요청 종류별 예약 |
-| `collector.spool.files`, `collector.spool.bytes`, `collector.spool.ready` | 암호화 임시 파일 상태 |
-| `collector.core.ready`, `collector.core.last.success.epoch`, `collector.database.ready`, `collector.discord.connected` | 의존성 연결 상태 |
-| `collector.notifications` | 전달·재시도·최종 실패 |
+| 지표                                                                                                                   | 용도                                                        |
+| ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `collector.jobs`, `collector.jobs.restartable`                                                                         | 상태별 대기·실행·중단·재개·수동 확인 필요 수                |
+| `collector.jobs.submitted`, `collector.jobs.rejected`                                                                  | 진입점별 접수·중복·거부                                     |
+| `collector.step.duration`, `collector.job.duration`                                                                    | Step 성공/실패와 작업 실행 시간                             |
+| `collector.operations`, `collector.heartbeats`                                                                         | claim·heartbeat·result·preview·lease/fencing·복구·정리 결과 |
+| `collector.quota.remaining`, `collector.quota.rate.limited`, `collector.reservations`                                  | numeric source별 잔여/제한과 요청 종류별 예약               |
+| `collector.spool.files`, `collector.spool.bytes`, `collector.spool.ready`                                              | 암호화 임시 파일 상태                                       |
+| `collector.core.ready`, `collector.core.last.success.epoch`, `collector.database.ready`, `collector.discord.connected` | 의존성 연결 상태                                            |
+| `collector.notifications`                                                                                              | 전달·재시도·최종 실패                                       |
 
 JSON 로그는 Spring Boot ECS 형식을 사용하고 exception message·전체 stack 필드는 제외한다. 작업 완료 로그에는 작업 ID·상태·일반화된 outcome을 넣는다. URL·제목·token·Discord 원본 ID는 로그나 metric label에 넣지 않는다. JDA 내부 로그는 비활성으로 두고 연결·전달 상태를 위 지표와 일반화 이벤트로 확인한다. [Spring Boot 구조화 로그 설정](https://docs.spring.io/spring-boot/reference/features/logging.html)을 따른다.
 
 알림 4회 실패 후 암호화된 전달 대상은 즉시 제거한다. 최종 실패 이벤트 자체는 Core가 복구될 때까지 일반화된 outbox로 보존한다. 소유권 상실·lease 종료는 재개 불가능한 STOPPED, 버전 불일치는 RECONCILE_REQUIRED로 표시하며 원문을 재전송하지 않는다.
 
 운영 PC에서 backup agent의 마지막 종료 코드(`launchctl print gui/<uid>/com.blariyo.collector.backup`)와 최신 암호화 파일의 생성 시각을 함께 확인해야 한다. 실제 계정에 설치하지 않은 현재 상태에서는 자동 백업 성공·실패 관측을 운영 검증 완료로 간주하지 않는다.
-
 
 ## 웹/API와 다른 컴퓨터에서 실행
 

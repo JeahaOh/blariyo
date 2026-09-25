@@ -12,6 +12,7 @@
 
 ## 날짜별 기록
 
+- [2026-09-25](2026-09-25/): [관리자 화면 개선 작업 요청](2026-09-25/admin-ux-rework/REQUEST.md), [Git 브랜치·코드 품질 게이트 설계 프롬프트](2026-09-25/git-governance/REQUEST.md), [Git governance 구현·검증 결과](2026-09-25/git-governance/RESULT.md), [analytics-v1 구현·로컬 검증](2026-09-25/analytics-v1/RESULTS.md), google-tag-manager, hot-collection
 - [2026-09-24](2026-09-24/README.md): 문서 최신화 TASK-01~07·재검토 보완 및 전체 문서 전수 검토 진행
 - [2026-09-23](2026-09-23/): admin-core, batch-review-ui, batch-고도화, collection-contract-alignment, collector-ci, collector-site-modules, directory-reorganization, m0-audit, m0-planning, release
 - [2026-09-22](2026-09-22/): 진행현황-전수점검

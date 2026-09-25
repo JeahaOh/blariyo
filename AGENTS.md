@@ -15,21 +15,25 @@
 현재 진행은 [docs/status.md](docs/status.md), 남은 작업은 [docs/roadmap.md](docs/roadmap.md),
 문서 전체 위치는 [docs/README.md](docs/README.md)를 먼저 확인한다.
 
+Git·개발 harness의 도입 설계는 [Git 작업 설계](docs/ai/git-workflow.md), 단계별 작업은
+[구현 계획](docs/ai/harness-implementation-plan.md)을 따른다. 일부 local harness·lint·architecture와
+branch·task/change CI gate가 구현된 상태다. hook은 worktree별로 설치·검증한다. 현재 checkout의 복구 범위와 Git 상태는 [stash 복구 결과](worklog/2026-09-25/git-governance/STASH-RECOVERY.md)를 따른다. develop·release 원격 생성과 tracking은 연결됐지만 원격 보호·PR 병합은 별도 미완료이며, 문서나 코드의 존재만으로 완료 처리하지 않는다.
+
 ## 정본과 증거의 역할
 
 사용자 요청은 이번 작업의 범위와 변경 권한을 정한다. 제품·법무·기술 사실은 아래 정본에서
 확인하고, 변경 요청이면 해당 정본을 실제로 갱신한 뒤 새 기준으로 사용한다.
 
-| 영역 | 정본 또는 증거 | 역할 |
-| --- | --- | --- |
-| 제품 범위·운영 정책 | `docs/planning/` | 무엇을 만들지 결정 |
-| 약관·개인정보·권리 정책 | `docs/legal/` | 법무 초안과 출시 차단 조건 |
-| 아키텍처·DB·API·인프라 | `docs/system-design/` | 어떻게 구현할지 정한 기술 계약 |
-| 기능별 개발 명세 | `docs/development-specs/` | planning·system-design을 기능별 API·D01·D08 구현 계약으로 구체화 |
-| 정적 화면 검토물 | `docs/ui/publishing/`, `docs/ui/wireframes/` | planning 화면 계약의 시각 비교 자료, 제품 정본 아님 |
-| AI 절차 | `docs/ai/` | 정본 탐색, 작업 순서와 증거 계약 |
-| 작업 이력 | `worklog/` | 과거 작업·검증 기록, 현행 정본 아님 |
-| 구현 여부 | 실제 source·migration·test·build·runtime과 Git | 설계와 별도로 확인할 실행 증거 |
+| 영역                    | 정본 또는 증거                                 | 역할                                                             |
+| ----------------------- | ---------------------------------------------- | ---------------------------------------------------------------- |
+| 제품 범위·운영 정책     | `docs/planning/`                               | 무엇을 만들지 결정                                               |
+| 약관·개인정보·권리 정책 | `docs/legal/`                                  | 법무 초안과 출시 차단 조건                                       |
+| 아키텍처·DB·API·인프라  | `docs/system-design/`                          | 어떻게 구현할지 정한 기술 계약                                   |
+| 기능별 개발 명세        | `docs/development-specs/`                      | planning·system-design을 기능별 API·D01·D08 구현 계약으로 구체화 |
+| 정적 화면 검토물        | `docs/ui/publishing/`, `docs/ui/wireframes/`   | planning 화면 계약의 시각 비교 자료, 제품 정본 아님              |
+| AI 절차                 | `docs/ai/`                                     | 정본 탐색, 작업 순서와 증거 계약                                 |
+| 작업 이력               | `worklog/`                                     | 과거 작업·검증 기록, 현행 정본 아님                              |
+| 구현 여부               | 실제 source·migration·test·build·runtime과 Git | 설계와 별도로 확인할 실행 증거                                   |
 
 제품 범위가 충돌하면 `docs/planning/`을 먼저 고치고 `docs/system-design/`을 맞춘다.
 법무 placeholder와 출시 차단 항목은 근거 없이 제거하지 않는다. `worklog/`는 맥락 탐색에만
@@ -45,10 +49,10 @@
 
 ## 프로젝트 스킬
 
-| 요청 | 원본 스킬 | 현재 Codex 전역 배치 경로 |
-| --- | --- | --- |
-| 비단순 기획·설계 작업 착수, 범위와 정본 선정 | `docs/ai/skills/blariyo-task-start/SKILL.md` | `~/.agents/skills/blariyo-task-start/SKILL.md` |
-| 기획·설계·법무·화면 문서 감사와 정합성 검토 | `docs/ai/skills/blariyo-docs-audit/SKILL.md` | `~/.agents/skills/blariyo-docs-audit/SKILL.md` |
+| 요청                                                   | 원본 스킬                                                  | 현재 Codex 전역 배치 경로                                                  |
+| ------------------------------------------------------ | ---------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 비단순 기획·설계 작업 착수, 범위와 정본 선정           | `docs/ai/skills/blariyo-task-start/SKILL.md`               | `~/.agents/skills/blariyo-task-start/SKILL.md`                             |
+| 기획·설계·법무·화면 문서 감사와 정합성 검토            | `docs/ai/skills/blariyo-docs-audit/SKILL.md`               | `~/.agents/skills/blariyo-docs-audit/SKILL.md`                             |
 | 기획·기술 정본에서 기능별 Markdown 개발 Spec 번들 작성 | `docs/ai/skills/blariyo-plan-to-development-spec/SKILL.md` | 미배치 (`~/.agents/skills/blariyo-plan-to-development-spec/SKILL.md` 예정) |
 
 해당 요청이면 스킬 파일을 처음부터 끝까지 읽고 따른다. `docs/ai/skills/`가 편집 정본이고

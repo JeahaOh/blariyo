@@ -19,14 +19,15 @@
 
 ## 2. 요구사항 추적
 
-| 요구 | API | 흐름 | 화면 |
-| --- | --- | --- | --- |
-| 공개 목록·상세 | boards/community/posts GET | [읽기](#d01-read) | [목록·상세](#d08-browse) |
-| 본인 글 작성/수정/삭제 | posts POST/PATCH/DELETE | [글](#d01-post) | [편집](#d08-editor) |
-| 댓글·랜덤 이름 | comments GET/POST/PATCH/DELETE | [댓글](#d01-comment) | [댓글](#d08-comments) |
-| 내 활동·탈퇴 처리 | me/activity, withdrawal worker | [활동·삭제](#d01-activity) | [내 활동](#d08-activity) |
+| 요구                   | API                            | 흐름                       | 화면                     |
+| ---------------------- | ------------------------------ | -------------------------- | ------------------------ |
+| 공개 목록·상세         | boards/community/posts GET     | [읽기](#d01-read)          | [목록·상세](#d08-browse) |
+| 본인 글 작성/수정/삭제 | posts POST/PATCH/DELETE        | [글](#d01-post)            | [편집](#d08-editor)      |
+| 댓글·랜덤 이름         | comments GET/POST/PATCH/DELETE | [댓글](#d01-comment)       | [댓글](#d08-comments)    |
+| 내 활동·탈퇴 처리      | me/activity, withdrawal worker | [활동·삭제](#d01-activity) | [내 활동](#d08-activity) |
 
 <a id="api-community"></a>
+
 ## 3. API 업무 계약
 
 기술 정본 익게 표의 endpoint를 그대로 사용한다. 외부 browser는 BFF만 호출하고 Core가
@@ -43,6 +44,7 @@ board·계정·제재·동의·소유권을 검증한다. 공개 DTO에는 회�
 - 변경 command는 Idempotency-Key와 version을 사용하고 사용자 ID를 body로 받지 않는다.
 
 <a id="d01-read"></a>
+
 ## 4. 공개 읽기 흐름
 
 1. board 활성과 slug를 검증하고 PUBLISHED/publishedAt<=now 조건을 적용한다.
@@ -52,6 +54,7 @@ board·계정·제재·동의·소유권을 검증한다. 공개 DTO에는 회�
 5. 로그인 사용자만 permissions를 추가 조회해 수정·삭제 버튼을 렌더링한다. SSR 공용 자료와 섞지 않는다.
 
 <a id="d01-post"></a>
+
 ## 5. 글 command 흐름
 
 1. 회원 session 확인, Core account lock으로 탈퇴 여부 확인, 동의와
@@ -62,6 +65,7 @@ board·계정·제재·동의·소유권을 검증한다. 공개 DTO에는 회�
 5. 실패 시 전체 rollback하며 성공 카운터와 원문 없는 receipt를 어긋나게 남기지 않는다.
 
 <a id="d01-comment"></a>
+
 ## 6. 댓글과 랜덤 이름 흐름
 
 1. 부모 공개 여부를 확인한다. 단 본인 댓글 삭제는 부모 숨김/삭제 상태에서도 허용한다.
@@ -71,6 +75,7 @@ board·계정·제재·동의·소유권을 검증한다. 공개 DTO에는 회�
 5. 댓글 목록은 id ASC의 페이지 방식, 사용자 수정이 순서를 바꾸지 않는다.
 
 <a id="d01-activity"></a>
+
 ## 7. 내 활동·탈퇴 연결
 
 - me/activity는 session account 기준으로만 조회한다. 숨김 본문 대신 일반 상태·ID·version을 제공한다.
@@ -79,6 +84,7 @@ board·계정·제재·동의·소유권을 검증한다. 공개 DTO에는 회�
 - 삭제 후 신규 가입은 새 계정이다. 과거 랜덤 이름이나 콘텐츠 소유권을 자동 연결하지 않는다.
 
 <a id="d08-browse"></a>
+
 ## 8. 목록·상세 화면
 
 - route `/community`, `/community/posts/:postId`. 제목·시각·댓글 수·조회 수, 글쓰기 버튼과 페이지네이션.
@@ -87,6 +93,7 @@ board·계정·제재·동의·소유권을 검증한다. 공개 DTO에는 회�
 - 신고 버튼은 [신고 명세](../community-moderation/community-moderation.dev.md#d01-report)로 연결한다.
 
 <a id="d08-editor"></a>
+
 ## 9. 편집 화면
 
 - `/community/new`, `/community/posts/:postId/edit`; title·body와 NFC 정규화·trim 후 Unicode code point
@@ -96,6 +103,7 @@ board·계정·제재·동의·소유권을 검증한다. 공개 DTO에는 회�
 - [편집 인증 계약](../../../system-design/06-member-community-design.md#auth-continuation)에 따라 부모 탭을 이동하지 않는다. 팝업 완료 뒤 서버에서 새 CSRF·세션·소유권을 확인하고 자동 제출하지 않는다. 팝업 차단은 입력 유지·재시도·복사를 제공한다. 부모 새로고침·종료 뒤 복구를 보장하지 않으며 영구 저장소에 저장하지 않는다.
 
 <a id="d08-comments"></a>
+
 ## 10. 댓글 화면
 
 - 상세 안의 댓글 목록·입력·수정·삭제·신고, 20개 댓글 페이지와 본문 하단 목록 페이지를 독립 유지한다.
@@ -105,6 +113,7 @@ board·계정·제재·동의·소유권을 검증한다. 공개 DTO에는 회�
 - 동일 글의 랜덤 이름과 원글 작성자의 글쓴이 배지만 표시한다. 랜덤 이름에 다른 글 활동 링크를 달지 않는다.
 
 <a id="d08-activity"></a>
+
 ## 11. 내 활동 화면
 
 - `/account/activity`; 글·댓글 탭 GET me/activity, 신고 탭 GET me/reports.

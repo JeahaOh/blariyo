@@ -5,16 +5,16 @@
 
 ## 입력 라우팅
 
-| 입력 기능·질문 | 우선 정본 | 함께 확인할 문서·증거 |
-| --- | --- | --- |
-| 서비스 범위, 게시 규칙, milestone | `docs/planning/01-service-plan.md` | 화면·인프라 기획, 관련 system-design |
-| 운영 형태, 비용 경계, provider 전제 | `docs/planning/02-infra-plan.md` | system-design `01`, `04`, `05` |
-| 화면, route, 상태, 반응형 동작 | `docs/planning/03-screen-design.md` | publishing·wireframes, system-design `01`, `03` |
-| 분석, 동의, 광고 활성화 | `docs/planning/04-analytics-ad-plan.md` | legal 쿠키·개인정보, system-design `01`, `03`, `05` |
-| 비교 기준과 수용 조건 | `docs/planning/05-benchmark-spec.md` | 서비스·화면 기획 |
-| 문구와 색상 | planning `06`, `07` | 화면 기획과 publishing; 기능 계약에 필요한 항목만 |
-| 콘텐츠 수집 | `docs/planning/content-collection/README.md` | 서비스 기획 §8, system-design `01`, `02`, `03`, `05`, `07`, 수집 OpenAPI, legal |
-| 개인정보·권리·쿠키 | `docs/legal/`의 관련 문서 | planning의 출시 단계, system-design `02`, `03`, `05` |
+| 입력 기능·질문                      | 우선 정본                                    | 함께 확인할 문서·증거                                                           |
+| ----------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------- |
+| 서비스 범위, 게시 규칙, milestone   | `docs/planning/01-service-plan.md`           | 화면·인프라 기획, 관련 system-design                                            |
+| 운영 형태, 비용 경계, provider 전제 | `docs/planning/02-infra-plan.md`             | system-design `01`, `04`, `05`                                                  |
+| 화면, route, 상태, 반응형 동작      | `docs/planning/03-screen-design.md`          | publishing·wireframes, system-design `01`, `03`                                 |
+| 분석, 동의, 광고 활성화             | `docs/planning/04-analytics-ad-plan.md`      | legal 쿠키·개인정보, system-design `01`, `03`, `05`                             |
+| 비교 기준과 수용 조건               | `docs/planning/05-benchmark-spec.md`         | 서비스·화면 기획                                                                |
+| 문구와 색상                         | planning `06`, `07`                          | 화면 기획과 publishing; 기능 계약에 필요한 항목만                               |
+| 콘텐츠 수집                         | `docs/planning/content-collection/README.md` | 서비스 기획 §8, system-design `01`, `02`, `03`, `05`, `07`, 수집 OpenAPI, legal |
+| 개인정보·권리·쿠키                  | `docs/legal/`의 관련 문서                    | planning의 출시 단계, system-design `02`, `03`, `05`                            |
 
 후속 단계의 문구나 화면이 존재한다는 사실만으로 그 기능을 현재 개발 범위에 포함하지 않는다.
 각 planning의 milestone과 활성화 gate를 우선한다. publishing과 wireframe은 planning과 비교하는
@@ -22,13 +22,13 @@
 
 ## 공통 기술 계약 라우팅
 
-| 확인할 계약 | 공통 정본 | 개발 Spec에 적을 내용 |
-| --- | --- | --- |
-| 시스템 경계와 주요 흐름 | `docs/system-design/01-system-architecture.md` | 대상 기능의 consumer·provider와 호출 순서 |
-| 데이터와 migration | `docs/system-design/02-data-model.md` | 기능이 읽고 쓰는 entity·상태·제약 매핑 |
-| 외부 BFF와 내부 Core API | `docs/system-design/03-api-design.md` | 작업별 request·response·validation·오류와 공통 계약 링크 |
-| 인프라와 배포 | `docs/system-design/04-infrastructure-design.md` | 기능에 직접 영향을 주는 환경·자원 제약 링크 |
-| 보안과 운영 | `docs/system-design/05-security-operations.md` | 권한, secret 경계, logging·monitoring·복구 요구 링크 |
+| 확인할 계약              | 공통 정본                                        | 개발 Spec에 적을 내용                                    |
+| ------------------------ | ------------------------------------------------ | -------------------------------------------------------- |
+| 시스템 경계와 주요 흐름  | `docs/system-design/01-system-architecture.md`   | 대상 기능의 consumer·provider와 호출 순서                |
+| 데이터와 migration       | `docs/system-design/02-data-model.md`            | 기능이 읽고 쓰는 entity·상태·제약 매핑                   |
+| 외부 BFF와 내부 Core API | `docs/system-design/03-api-design.md`            | 작업별 request·response·validation·오류와 공통 계약 링크 |
+| 인프라와 배포            | `docs/system-design/04-infrastructure-design.md` | 기능에 직접 영향을 주는 환경·자원 제약 링크              |
+| 보안과 운영              | `docs/system-design/05-security-operations.md`   | 권한, secret 경계, logging·monitoring·복구 요구 링크     |
 
 공통 envelope, 인증 방식, 전역 오류 원칙, 공통 상태 정의와 운영 기준은 기능 Spec마다 반복하지 않는다.
 기능이 공통 계약과 다른 동작을 요구하면 예외를 임의 확정하지 말고 해당 system-design 정정과 승인을

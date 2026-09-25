@@ -44,7 +44,7 @@ node scripts/local/start-development.mjs
 자동 브라우저 검사의 `browserFixture()`는 별도 임시 DB와 가짜 정책을 사용하는 검사 도구다.
 지속적인 개발 서버나 실제 정책 확인 용도로 안내하지 않는다.
 
-### 관리자 격리 인수 환경과 예약·이미지 회수 worker
+## 관리자 격리 인수 환경과 예약·이미지 회수 worker
 
 기본 실행은 worker가 꺼져 있다. 기존 개발 DB의 대기 작업을 처리하지 않도록 `--workers`는
 새로 만든 `blariyo_sandbox_<random>` DB에서만 허용한다. 아래 명령은 기존 55449 시험용
@@ -116,7 +116,6 @@ node scripts/local/verify-collected-content.mjs
 기존 애니메이션 복구 검사는 원본 프레임을 자르지 않는다. 오프라인에서 프레임당 40M pixel,
 최대 1000프레임 및 전체 RGBA 256MiB 안에서 디코딩한다. 신규 이미지 업로드 검증과는 구분한다.
 이 복구는 정식 batch 검수·승격·발행 검증을 대신하지 않는다.
-
 
 2026-09-23 이전 로컬 승격에서 빠진 링크 설명 5건은 별도 고정 대상 복구로 처리한다.
 `--apply` 전에 `.local-data/repairs/collected-labels-v1.json`에 원래 블록과 원문 digest를 저장하며,
@@ -252,7 +251,6 @@ node scripts/local/run-batch.mjs queue --once --write-db
 
 Node 20에서는 `node build.ts`를 실행할 수 없다. Node 24.18.0을 설치한 뒤 현재 셸의 `node --version`을 확인한다. Homebrew 디렉터리 이름만으로 버전을 판단하지 않는다. PowerShell에서는 사용 중인 버전 관리자로 24.18.0을 선택한 뒤 같은 npm/node 명령을 실행한다.
 
-
 ### 고정된 공지 2건 숨김과 복구
 
 `repair-notice-posts.mjs`는 이 로컬 DB의 이토랜드 공지 게시글 80·81번만 대상으로 한다.
@@ -294,7 +292,6 @@ node scripts/local/verify-collected-content.mjs
 2026-09-23 더쿠 표본 108번은 이 순서 및 같은 KEY의 초안 재전송을 실제 검증했다.
 같은 source URL의 게시글은 1개이며 기존 수집 원본은 유지됐다.
 이 로컬 표본은 운영 게시 허가나 R2/Gateway 실연동 검증을 대신하지 않는다.
-
 
 ### 과거 수집 이미지 MIME 정정 (V006)
 

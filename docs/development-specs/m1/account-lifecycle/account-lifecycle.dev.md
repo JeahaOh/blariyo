@@ -19,14 +19,15 @@
 
 ## 2. 요구사항 추적
 
-| 요구 | API | 흐름 | 화면 |
-| --- | --- | --- | --- |
-| 표시명·연동 상태 | GET/PATCH me | [관리](#d01-account) | [계정](#d08-account) |
-| 재인증·연결·해제 | auth start LINK/REAUTH, DELETE identities | [연동](#d01-link) | [계정](#d08-account) |
-| 현재/모든 기기 종료 | logout/logout-all | [관리](#d01-account) | [계정](#d08-account) |
-| 탈퇴와 외부 실패 분리 | preview/withdrawals/status | [탈퇴](#d01-withdraw) | [탈퇴](#d08-withdraw) |
+| 요구                  | API                                       | 흐름                  | 화면                  |
+| --------------------- | ----------------------------------------- | --------------------- | --------------------- |
+| 표시명·연동 상태      | GET/PATCH me                              | [관리](#d01-account)  | [계정](#d08-account)  |
+| 재인증·연결·해제      | auth start LINK/REAUTH, DELETE identities | [연동](#d01-link)     | [계정](#d08-account)  |
+| 현재/모든 기기 종료   | logout/logout-all                         | [관리](#d01-account)  | [계정](#d08-account)  |
+| 탈퇴와 외부 실패 분리 | preview/withdrawals/status                | [탈퇴](#d01-withdraw) | [탈퇴](#d08-withdraw) |
 
 <a id="api-account"></a>
+
 ## 3. API 업무 계약
 
 필드·상태는 기술 정본 회원 표의 `/me`, `/me/identities/:provider`, `/auth/logout`,
@@ -43,6 +44,7 @@
 - 콘텐츠 유무와 무관하게 서버가 KEEP 정책을 적용한다. 요청의 contentAction은 허용하지 않는다.
 
 <a id="d01-account"></a>
+
 ## 4. 계정 관리 흐름
 
 1. GET me로 상태·version을 읽는다. 제한 사유는 공개 가능한 문구만 표시한다.
@@ -52,6 +54,7 @@
 4. cookie 삭제와 별개로 DB token 무효화를 확인한다. 서버 실패면 로그아웃 완료라고 안내하지 않는다.
 
 <a id="d01-link"></a>
+
 ## 5. 연결·해제 흐름
 
 1. REAUTH로 기존 회원을 확인하고 LINK transaction에 현재 account·session을 묶는다.
@@ -65,6 +68,7 @@
 또는 신규 회원 생성 없이 REAUTH_REQUIRED로 두고 동일 주체 재인증 또는 본인 확인 문의를 안내한다.
 
 <a id="d01-withdraw"></a>
+
 ## 6. 탈퇴 처리 흐름
 
 1. 최근 재인증 후 preview로 본인 콘텐츠 수와 연결 제공자를 읽는다.
@@ -78,6 +82,7 @@ worker는 phase/cursor로 재개한다. 실패 재시도는 회원을 ACTIVE로 
 재적용 후에만 공개한다. 탈퇴 완료 증거에는 account·identity·session·consent·FK·감사값 readback을 포함한다.
 
 <a id="d08-account"></a>
+
 ## 7. 계정 화면
 
 - route `/account`; 표시명, 연결 제공자·인증 시각, 연결·해제, 현재/모든 로그아웃, 탈퇴.
@@ -87,6 +92,7 @@ worker는 phase/cursor로 재개한다. 실패 재시도는 회원을 ACTIVE로 
 - 클릭 결과와 focus 이동을 aria-live로 알린다. 360/768/1280px에서 버튼·긴 사유가 넘치지 않게 한다.
 
 <a id="d08-withdraw"></a>
+
 ## 8. 탈퇴 화면
 
 - route `/account/withdraw`; 재인증→preview→콘텐츠 유지 안내→최종 확인→접수 결과 순서다.

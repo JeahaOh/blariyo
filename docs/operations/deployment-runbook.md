@@ -9,16 +9,16 @@ API V008·Collector V006 ledger를 유지했고, 새 백업 다운로드·격리
 
 ## 1. 대상과 보관물
 
-| 항목 | 현재 확인된 값·위치 |
-| --- | --- |
-| SSH | `ubuntu@13.124.55.99`, `ip-172-26-1-91`, 서울 Lightsail 2GB x86_64 |
-| DB | `/opt/blariyo/postgresql`, Compose project `blariyo-db`, volume `blariyo-db_pgdata` |
-| 앱 | 마지막 확인 `/opt/blariyo/application/release-8af7244-gtm-20260925`, project `blariyo-app`; 다음 작업 전 서버 경로 재조회 |
-| gateway | `/opt/blariyo/gateway`, project `blariyo-gateway` |
-| 운영·백업 | `/opt/blariyo/operations`, `/opt/blariyo/backup` |
-| 최초 설치 image archive | `~/task_list/blariyo-app-images-20260920T005324Z-rhn14v8g`, manifest와 SHA-256 포함; 현재 운영 image 식별자 아님 |
-| 최초 설치 runtime 입력 | `~/.config/blariyo/application-config-W8Wwp5`, env 2개·읽기 전용 secret 2개; 다음 배포 설정으로 자동 선택하지 않음 |
-| 초기 상태 증거 | TASK-19: 정책 v0.1, HTTPS·Access 경계·백업 복원 확인 |
+| 항목                    | 현재 확인된 값·위치                                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| SSH                     | `ubuntu@13.124.55.99`, `ip-172-26-1-91`, 서울 Lightsail 2GB x86_64                                                        |
+| DB                      | `/opt/blariyo/postgresql`, Compose project `blariyo-db`, volume `blariyo-db_pgdata`                                       |
+| 앱                      | 마지막 확인 `/opt/blariyo/application/release-8af7244-gtm-20260925`, project `blariyo-app`; 다음 작업 전 서버 경로 재조회 |
+| gateway                 | `/opt/blariyo/gateway`, project `blariyo-gateway`                                                                         |
+| 운영·백업               | `/opt/blariyo/operations`, `/opt/blariyo/backup`                                                                          |
+| 최초 설치 image archive | `~/task_list/blariyo-app-images-20260920T005324Z-rhn14v8g`, manifest와 SHA-256 포함; 현재 운영 image 식별자 아님          |
+| 최초 설치 runtime 입력  | `~/.config/blariyo/application-config-W8Wwp5`, env 2개·읽기 전용 secret 2개; 다음 배포 설정으로 자동 선택하지 않음        |
+| 초기 상태 증거          | TASK-19: 정책 v0.1, HTTPS·Access 경계·백업 복원 확인                                                                      |
 
 공인 IP는 고정하지 않았다. 중지/시작이나 서버 교체 후 Lightsail 콘솔에서 주소를 확인하고
 SSH host key·도구의 대상 hostname을 대조한다. `remote.py`와 일부 초기 도구의 IP/release는
@@ -174,6 +174,7 @@ API V008·Collector V006이 적용됐다. V008에서 9월 20일 구 API의 readi
 
    각 명령이 실패하면 다음 단계로 진행하지 않는다. project 이름은 `blariyo-app`을 유지한다.
    `down -v`는 실행하지 않는다. DB·Tunnel·DNS를 일반 코드 배포마다 다시 만들지 않는다.
+
 6. [앱 교체 직후 기본 동작 검사](#앱-교체-직후-기본-동작-검사)를 통과한 후
    `/opt/blariyo/operations/start-application.py`의 release 참조를 새 경로로 갱신하고
    이전 파일을 보관한다. repo의 부팅 helper와 운영 기록도 같은 경로로 갱신한다.

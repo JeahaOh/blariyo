@@ -10,13 +10,13 @@
 
 ## 현행 구현과 검증 경계
 
-| 항목 | 2026-09-24 저장소 대조 결과 |
-| --- | --- |
-| 현행 수집 분류 | `HOT_LIST`; [출처 정책](../source-collection-policy.md) |
-| chart / 목록 URL | `hot` `https://www.inven.co.kr/best/issue` |
-| 구현 | `INVEN` — [목록 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/inven/InvenListParser.java), [상세 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/inven/InvenDetailParser.java), [URL 식별·조합](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/inven/InvenAdapter.java) |
-| 검증 범위 | 목록·상세 parser 구현. 9월 23일 실제 공개 URL의 개발 DB/object readback과 정제한 관측 fixture가 있다. 모든 글·모든 첨부 유형의 성공을 뜻하지 않는다. |
-| 실행 증거 | [관측 fixture](../../../../apps/collector/src/test/resources/sites/observed/README.md); [전체 검증표](../reference-site-validation.md)에서 임시 DB·지속 로컬 DB·운영 환경을 구분 |
+| 항목             | 2026-09-24 저장소 대조 결과                                                                                                                                                                                                                                                                                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 현행 수집 분류   | `HOT_LIST`; [출처 정책](../source-collection-policy.md)                                                                                                                                                                                                                                                                                                                        |
+| chart / 목록 URL | `hot` `https://www.inven.co.kr/best/issue`                                                                                                                                                                                                                                                                                                                                     |
+| 구현             | `INVEN` — [목록 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/inven/InvenListParser.java), [상세 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/inven/InvenDetailParser.java), [URL 식별·조합](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/inven/InvenAdapter.java) |
+| 검증 범위        | 목록·상세 parser 구현. 9월 23일 실제 공개 URL의 개발 DB/object readback과 정제한 관측 fixture가 있다. 모든 글·모든 첨부 유형의 성공을 뜻하지 않는다.                                                                                                                                                                                                                           |
+| 실행 증거        | [관측 fixture](../../../../apps/collector/src/test/resources/sites/observed/README.md); [전체 검증표](../reference-site-validation.md)에서 임시 DB·지속 로컬 DB·운영 환경을 구분                                                                                                                                                                                               |
 
 - 아래 §1~10은 9월 3일 초기 정책·metadata 검토 기록이다. 당시의 `사용하지 않음`, selector 미정, fixture 미검증을 현재 코드 부재로 해석하지 않는다. 이용약관·robots·연락처와 운영 위험의 미확정 항목은 운영 활성화 전에 재확인한다.
 - 9월 21~23일 절의 승인 플래그·parser 상태·실행 명령은 각 시점의 이력이다. 현행 [개발 예제 설정](../../../../apps/collector/ops/reference-sites.sources.example.json)의 `approved=true`, `batchApproved=true`는 운영 승인 증거가 아니다. 운영자의 별도 활성화 판정은 미완료다.
@@ -26,54 +26,54 @@
 
 ## 1. 출처 식별
 
-| 항목 | 확인값 |
-| --- | --- |
-| 출처 표시명 | 인벤 |
-| 운영 주체 | 주식회사 인벤 |
-| 기준 URL | `https://www.inven.co.kr/` |
-| 허용 host | `(미정: 사용 결정 전 비활성)` |
-| 허용 path | `(미정: 사용 결정 전 비활성)` |
-| 제외 path | `robots.txt` 차단 경로와 검색·관리·테스트 경로 |
-| 수집 목적 | 운영자 검수용 짤 후보 metadata 생성 |
+| 항목        | 확인값                                         |
+| ----------- | ---------------------------------------------- |
+| 출처 표시명 | 인벤                                           |
+| 운영 주체   | 주식회사 인벤                                  |
+| 기준 URL    | `https://www.inven.co.kr/`                     |
+| 허용 host   | `(미정: 사용 결정 전 비활성)`                  |
+| 허용 path   | `(미정: 사용 결정 전 비활성)`                  |
+| 제외 path   | `robots.txt` 차단 경로와 검색·관리·테스트 경로 |
+| 수집 목적   | 운영자 검수용 짤 후보 metadata 생성            |
 
 ## 2. 정책·권리 확인
 
-| 항목 | 확인값 |
-| --- | --- |
-| 이용약관 URL | `https://www.inven.co.kr/doc/agreement.html` |
-| 이용약관 확인일 | 2026-09-03 |
-| 수집 관련 조항 판단 | 약관상 서비스 정보를 사전 승낙 없이 회원 이용 외 목적으로 복제하거나 제3자에게 제공하는 행위가 금지된다. 인벤 하단 안내도 콘텐츠·기사의 무단 전재·복사·배포 금지를 표시한다. |
-| `robots.txt` URL | `https://www.inven.co.kr/robots.txt` |
-| `robots.txt` 확인일 | 2026-09-03 |
-| User-Agent 적용 결과 | `User-agent: *`에서 특정 게시판, admin, env, staff, test, search, prevnext 경로가 차단된다. |
-| 공개 API·RSS 제공 여부 | `(미정)` |
-| 문의·중단 요청 채널 | `help@inven.co.kr` 후보, 수집 문의 채널로는 미확정 |
-| 운영 위험 판정자 | `(미정)` |
-| 운영 위험도 | 중간 |
+| 항목                   | 확인값                                                                                                                                                                       |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 이용약관 URL           | `https://www.inven.co.kr/doc/agreement.html`                                                                                                                                 |
+| 이용약관 확인일        | 2026-09-03                                                                                                                                                                   |
+| 수집 관련 조항 판단    | 약관상 서비스 정보를 사전 승낙 없이 회원 이용 외 목적으로 복제하거나 제3자에게 제공하는 행위가 금지된다. 인벤 하단 안내도 콘텐츠·기사의 무단 전재·복사·배포 금지를 표시한다. |
+| `robots.txt` URL       | `https://www.inven.co.kr/robots.txt`                                                                                                                                         |
+| `robots.txt` 확인일    | 2026-09-03                                                                                                                                                                   |
+| User-Agent 적용 결과   | `User-agent: *`에서 특정 게시판, admin, env, staff, test, search, prevnext 경로가 차단된다.                                                                                  |
+| 공개 API·RSS 제공 여부 | `(미정)`                                                                                                                                                                     |
+| 문의·중단 요청 채널    | `help@inven.co.kr` 후보, 수집 문의 채널로는 미확정                                                                                                                           |
+| 운영 위험 판정자       | `(미정)`                                                                                                                                                                     |
+| 운영 위험도            | 중간                                                                                                                                                                         |
 
 ## 3. 수집 방법 결정
 
-| 단계 | 사용 여부 | 방식·이유 |
-| --- | --- | --- |
-| Discord·운영자 URL 수집 보조 | 보류 | 사전 승낙 없는 정보 복제·제공 제한과 권리 리스크 |
-| 공식 공개 API·feed | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| RSS·Atom | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| server-rendered HTML 목록 | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외 |
+| 단계                           | 사용 여부     | 방식·이유                                        |
+| ------------------------------ | ------------- | ------------------------------------------------ |
+| Discord·운영자 URL 수집 보조   | 보류          | 사전 승낙 없는 정보 복제·제공 제한과 권리 리스크 |
+| 공식 공개 API·feed             | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용      |
+| RSS·Atom                       | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용      |
+| server-rendered HTML 목록      | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용      |
+| headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외                                   |
 
 선택 parser type: `(미정: MANUAL / HTML_LIST)`
 
 ## 4. URL 규칙
 
-| 항목 | 확인값 |
-| --- | --- |
-| 목록·feed URL | 사용하지 않음 |
-| 상세 URL pattern | `https://www.inven.co.kr/board/{game}/{board}/{id}` 후보이나 사용 결정 전 |
-| canonical URL 위치 | `(미정)` |
-| 허용 redirect | 동일 host만 후보, 사용 결정 전 비활성 |
-| 제거할 query parameter | `p`, `category`, tracking query 후보 |
-| 유지할 query parameter | `(미정)` |
-| pagination 방식·최대 범위 | 사용하지 않음 |
+| 항목                      | 확인값                                                                    |
+| ------------------------- | ------------------------------------------------------------------------- |
+| 목록·feed URL             | 사용하지 않음                                                             |
+| 상세 URL pattern          | `https://www.inven.co.kr/board/{game}/{board}/{id}` 후보이나 사용 결정 전 |
+| canonical URL 위치        | `(미정)`                                                                  |
+| 허용 redirect             | 동일 host만 후보, 사용 결정 전 비활성                                     |
+| 제거할 query parameter    | `p`, `category`, tracking query 후보                                      |
+| 유지할 query parameter    | `(미정)`                                                                  |
+| pagination 방식·최대 범위 | 사용하지 않음                                                             |
 
 ## 5. 목록·feed 추출 규칙
 
@@ -83,13 +83,13 @@
 
 ## 6. 상세 추출 규칙
 
-| 대상 | 추출 규칙 | 우선순위 | 실패 처리 |
-| --- | --- | --- | --- |
-| canonical URL | `(미정)` | `(미정)` | 후보 실패 |
-| 제목 | `(미정)` | `(미정)` | 후보 실패 |
-| 본문 이미지 | `(미정)` | `(미정)` | 후보 실패 또는 운영자 보정 |
-| 이미지 순서 | `(미정)` | `(미정)` | DOM 순서 |
-| 게시 시각 | `(미정)` | `(미정)` | `null` |
+| 대상          | 추출 규칙 | 우선순위 | 실패 처리                  |
+| ------------- | --------- | -------- | -------------------------- |
+| canonical URL | `(미정)`  | `(미정)` | 후보 실패                  |
+| 제목          | `(미정)`  | `(미정)` | 후보 실패                  |
+| 본문 이미지   | `(미정)`  | `(미정)` | 후보 실패 또는 운영자 보정 |
+| 이미지 순서   | `(미정)`  | `(미정)` | DOM 순서                   |
+| 게시 시각     | `(미정)`  | `(미정)` | `null`                     |
 
 이미지 제외 규칙:
 
@@ -99,35 +99,34 @@
 - 최소 크기·허용 MIME: `(미정)`
 - 외부 CDN host 허용 범위: `(미정)`
 
-
 ## 6-1. 이미지 임시 저장·승격 규칙
 
 [공통 추출·임시 파일 규칙](../README.md#source-common-rules)을 따른다.
 
 ## 7. 요청·운영 제한
 
-| 항목 | 확인값 |
-| --- | --- |
-| 식별 User-Agent | `(미정)` |
-| 연락 수단 | `(미정)` |
-| 요청 간격 | `(미정)` |
-| 일일 요청 상한 | 0, 사용 결정 전 비활성 |
-| 자동 수집 실행 시간 | 사용하지 않음 |
-| redirect 상한 | `(미정)` |
-| timeout·응답 크기 상한 | `(미정)` |
-| 연속 실패 자동 비활성 기준 | 항상 기본 비활성 |
+| 항목                       | 확인값                 |
+| -------------------------- | ---------------------- |
+| 식별 User-Agent            | `(미정)`               |
+| 연락 수단                  | `(미정)`               |
+| 요청 간격                  | `(미정)`               |
+| 일일 요청 상한             | 0, 사용 결정 전 비활성 |
+| 자동 수집 실행 시간        | 사용하지 않음          |
+| redirect 상한              | `(미정)`               |
+| timeout·응답 크기 상한     | `(미정)`               |
+| 연속 실패 자동 비활성 기준 | 항상 기본 비활성       |
 
 ## 8. 검증 fixture와 결과
 
-| 유형 | 샘플 식별값 | 기대 결과 | 확인 결과 |
-| --- | --- | --- | --- |
-| 정상 목록 | 실제 공개 fixture | HOT_LIST 목록 parser | 승인 전 보류 |
-| 빈 목록 | 실제 공개 fixture | 0건 또는 구조 변경 | 승인 전 보류 |
-| 정상 상세 | `(미정)` | 제목·이미지 후보 추출 | 미검증 |
-| 이미지 없는 상세 | `(미정)` | 명시적 실패 또는 운영자 보정 | 미검증 |
-| 삭제·차단 | `(미정)` | 실패 기록·재시도 제한 | 미검증 |
-| 구조 변경 | synthetic fixture | parser 실패 감지 | 미검증 |
-| 중복 URL | `(미정)` | 새 후보 생성 안 함 | 미검증 |
+| 유형             | 샘플 식별값       | 기대 결과                    | 확인 결과    |
+| ---------------- | ----------------- | ---------------------------- | ------------ |
+| 정상 목록        | 실제 공개 fixture | HOT_LIST 목록 parser         | 승인 전 보류 |
+| 빈 목록          | 실제 공개 fixture | 0건 또는 구조 변경           | 승인 전 보류 |
+| 정상 상세        | `(미정)`          | 제목·이미지 후보 추출        | 미검증       |
+| 이미지 없는 상세 | `(미정)`          | 명시적 실패 또는 운영자 보정 | 미검증       |
+| 삭제·차단        | `(미정)`          | 실패 기록·재시도 제한        | 미검증       |
+| 구조 변경        | synthetic fixture | parser 실패 감지             | 미검증       |
+| 중복 URL         | `(미정)`          | 새 후보 생성 안 함           | 미검증       |
 
 ## 9. 활성화 판정
 
@@ -150,10 +149,9 @@
 
 ## 10. 변경 이력
 
-| 날짜 | parser version | 변경 내용 | 재검증 결과 |
-| --- | --- | --- | --- |
-| 2026-09-03 | `(미정)` | 최초 검토 | 정책·기술 gate 미통과 |
-
+| 날짜       | parser version | 변경 내용 | 재검증 결과           |
+| ---------- | -------------- | --------- | --------------------- |
+| 2026-09-03 | `(미정)`       | 최초 검토 | 정책·기술 gate 미통과 |
 
 ## 2026-09-21 출처별 자동 수집 정책
 
@@ -174,6 +172,7 @@
 - SNS 추출: 본문 DOM 순서의 `a[href]`, `blockquote.twitter-tweet`, `data-instgrm-permalink`, `iframe[src]`를 `LINK` 블록으로 보존한다. X/Twitter, Instagram, YouTube, TikTok은 원문 URL로 저장한다.
 - 목록 parser: 구현됨. HOT_LIST batch는 목록→상세→DB/S3까지 같은 pipeline을 사용한다.
 - 검증 상태: 실제 공개 URL 로컬 개발 DB/object readback 확인. 운영 DB/S3와 Discord Gateway는 미검증.
+
 ## 2026-09-23 hot-list live readback
 
 - 실행: `bin/blariyo-collector batch --source inven --chart hot --max-pages 1 --max-items 1 --since 24h --interval-ms 10000 --write-db`

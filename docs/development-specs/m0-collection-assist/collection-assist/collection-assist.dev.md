@@ -39,13 +39,13 @@ Web URL 입력의 direct 전달·source 변경 권한은 `(미정)`이다. 기�
 
 ## 4. 범위와 범위 밖
 
-| 경로 | 이번 계약 범위 | 구현·검증 경계 |
-| --- | --- | --- |
-| direct 수집 보조 | 상세 URL 확인·공통 queue·원문/이미지/첨부/SNS의 비공개 저장 | CLI/Discord 코드와 실제 Gateway·다른 PC 실행을 구분 |
-| direct 검수 | `/admin/batch` 목록/상세·필터·인증 preview·검수 시작/승인/반려·선택 초안 편집 이동 | 로컬 브라우저·API 증거와 실제 운영자/Access/원격 object 인수 분리 |
-| Web URL 전달·source 변경 | API 외부 fetch·batch queue 무제한 쓰기 없이 입력 전달 | 소유권·전달 계약 미정, 구현 완료 아님 |
-| legacy 후보 | 기존 `/admin/collect`·candidate·임시 preview·선택 이미지 승격 API 호환 | 아래 legacy 절에만 적용. direct source 설정이나 queue를 수정하지 않음 |
-| 자동 목록 수집 | 2026-09-21 확장의 허용 HOT/GENERAL 목록·pagination | source별 실제 검증·기능 활성화는 별도 |
+| 경로                     | 이번 계약 범위                                                                     | 구현·검증 경계                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| direct 수집 보조         | 상세 URL 확인·공통 queue·원문/이미지/첨부/SNS의 비공개 저장                        | CLI/Discord 코드와 실제 Gateway·다른 PC 실행을 구분                   |
+| direct 검수              | `/admin/batch` 목록/상세·필터·인증 preview·검수 시작/승인/반려·선택 초안 편집 이동 | 로컬 브라우저·API 증거와 실제 운영자/Access/원격 object 인수 분리     |
+| Web URL 전달·source 변경 | API 외부 fetch·batch queue 무제한 쓰기 없이 입력 전달                              | 소유권·전달 계약 미정, 구현 완료 아님                                 |
+| legacy 후보              | 기존 `/admin/collect`·candidate·임시 preview·선택 이미지 승격 API 호환             | 아래 legacy 절에만 적용. direct source 설정이나 queue를 수정하지 않음 |
+| 자동 목록 수집           | 2026-09-21 확장의 허용 HOT/GENERAL 목록·pagination                                 | source별 실제 검증·기능 활성화는 별도                                 |
 
 자동 발행, Discord 일반 메시지 감시·검수/발행 명령, 로그인·CAPTCHA·유료 장벽·차단 우회,
 비공개 collect 원본의 익명 다운로드·raw HTML 렌더링은 범위 밖이다.
@@ -56,33 +56,33 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 
 ### 5.1 현행 direct 요구사항
 
-| 요구사항 | 계약·구현 근거 | 남은 수용 조건 |
-| --- | --- | --- |
-| API 외부 fetch 없이 batch가 직접 저장 | [direct 기술 설계](../../../system-design/07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약) | 실제 다른 PC·원격 제한 계정 |
-| Web URL 입력 전달·source 변경 권한 | [미정 경계](../../../roadmap.md#관리자-url-입력의-미정-경계) | QD-03 확정·구현, 기존 source UI와 direct 설정 분리 |
-| 목록·출처/수집/검수 필터·private preview | OpenAPI `listBatchItems`, `getBatchItem`, `previewBatchImage` | 실제 운영자·Access·원격 object 인수 |
-| 검수·승인/반려와 snapshot/버전·멱등 | OpenAPI `reviewBatchItem`, 아래 Batch 검수 snapshot 계약 | 내용 변경·경합·인증 실패 수용 |
-| 승인→전체 본문과 검증된 이미지의 DRAFT | OpenAPI `promoteBatchItem`, 별도 Core 발행 명령 | 누락·중복·부분 실패·원격 private/public 경계 |
-| 본문·이미지·첨부/SNS 원문 보존 | 아래 2026-09-21/23 확장 계약 | 실제 표본과 fixture 분리, 차단 출처 유지 |
-| direct 원본·report·queue 보존 | [수집 기획의 적용 경계](../../../planning/content-collection/README.md#12-현행-direct와-legacy의-적용-경계) | 기간/승격 후 원본 미정, 자동 파기·고지 검증 |
-| 기능별 OFF·운영 활성화 분리 | Core·수집 보조·자동 수집 gate | 로컬 통과만으로 활성화하지 않음 |
+| 요구사항                                 | 계약·구현 근거                                                                                                      | 남은 수용 조건                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| API 외부 fetch 없이 batch가 직접 저장    | [direct 기술 설계](../../../system-design/07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약) | 실제 다른 PC·원격 제한 계정                        |
+| Web URL 입력 전달·source 변경 권한       | [미정 경계](../../../roadmap.md#관리자-url-입력의-미정-경계)                                                        | QD-03 확정·구현, 기존 source UI와 direct 설정 분리 |
+| 목록·출처/수집/검수 필터·private preview | OpenAPI `listBatchItems`, `getBatchItem`, `previewBatchImage`                                                       | 실제 운영자·Access·원격 object 인수                |
+| 검수·승인/반려와 snapshot/버전·멱등      | OpenAPI `reviewBatchItem`, 아래 Batch 검수 snapshot 계약                                                            | 내용 변경·경합·인증 실패 수용                      |
+| 승인→전체 본문과 검증된 이미지의 DRAFT   | OpenAPI `promoteBatchItem`, 별도 Core 발행 명령                                                                     | 누락·중복·부분 실패·원격 private/public 경계       |
+| 본문·이미지·첨부/SNS 원문 보존           | 아래 2026-09-21/23 확장 계약                                                                                        | 실제 표본과 fixture 분리, 차단 출처 유지           |
+| direct 원본·report·queue 보존            | [수집 기획의 적용 경계](../../../planning/content-collection/README.md#12-현행-direct와-legacy의-적용-경계)         | 기간/승격 후 원본 미정, 자동 파기·고지 검증        |
+| 기능별 OFF·운영 활성화 분리              | Core·수집 보조·자동 수집 gate                                                                                       | 로컬 통과만으로 활성화하지 않음                    |
 
 ### 5.2 Legacy 후보 요구사항 — 기존 호환 경로
 
 다음 표의 metadata/임시 preview·API 결과 제출은 legacy 후보에만 적용한다.
 
-| 요구사항 | 분류 | 출처 | 반영 산출물 | 상태 |
-| --- | --- | --- | --- | --- |
-| 수집 기능은 M0 Core 뒤 별도 활성화 | 확정 | 콘텐츠 수집 기획 §2 | 전체 | 반영 |
-| 로컬 collector가 관리자 화면 또는 Discord `/collect url`의 URL 한 건 후보 생성 | 확정 | 콘텐츠 수집 기획 §3.2·§8 | `create-candidate-from-url`, D01, D08 | 반영 |
-| 등록·활성되지 않은 host·robots 금지 거부 | 확정 | 보안·운영 §4 | API·D01 | 반영 |
-| 후보 단계는 metadata와 임시 preview만 저장 | 확정 | 콘텐츠 수집 기획 §4, 데이터 모델 §6 | API·D01·D08 | 반영 |
-| 이미지는 Spring 수집 서버의 작업 경로에 임시 저장 후 게시 결정 시 영구 저장 | 확정 | 콘텐츠 수집 기획 §4, API 설계 §5 | API·D01·D08 | 반영 |
-| 실패 후보 재시도·반려 | 확정 | API 설계 §5 | `retry-candidate`, `reject-candidate` | 반영 |
-| 초안 승격은 기존 게시글 command 재사용 | 확정 | 아키텍처 §5 | `promote-candidate-to-draft`, D01 | 반영 |
-| 후보 화면에 원문 HTML·내부 오류 노출 금지 | 확정 | 화면 설계 §2, 보안·운영 §7 | D08 | 반영 |
-| 자동 목록 수집 CLI / Discord URL 명령 | M0 확장 범위 | 콘텐츠 수집 기획 2026-09-21 확장 | 아래 확장 계약 | 사이트별 증거와 활성화는 별도 |
-| 출처별 실제 selector·요청 간격 | 결정 필요 | 출처 명세 템플릿 | 전체 | 출처별 spec 필요 |
+| 요구사항                                                                       | 분류         | 출처                                | 반영 산출물                           | 상태                          |
+| ------------------------------------------------------------------------------ | ------------ | ----------------------------------- | ------------------------------------- | ----------------------------- |
+| 수집 기능은 M0 Core 뒤 별도 활성화                                             | 확정         | 콘텐츠 수집 기획 §2                 | 전체                                  | 반영                          |
+| 로컬 collector가 관리자 화면 또는 Discord `/collect url`의 URL 한 건 후보 생성 | 확정         | 콘텐츠 수집 기획 §3.2·§8            | `create-candidate-from-url`, D01, D08 | 반영                          |
+| 등록·활성되지 않은 host·robots 금지 거부                                       | 확정         | 보안·운영 §4                        | API·D01                               | 반영                          |
+| 후보 단계는 metadata와 임시 preview만 저장                                     | 확정         | 콘텐츠 수집 기획 §4, 데이터 모델 §6 | API·D01·D08                           | 반영                          |
+| 이미지는 Spring 수집 서버의 작업 경로에 임시 저장 후 게시 결정 시 영구 저장    | 확정         | 콘텐츠 수집 기획 §4, API 설계 §5    | API·D01·D08                           | 반영                          |
+| 실패 후보 재시도·반려                                                          | 확정         | API 설계 §5                         | `retry-candidate`, `reject-candidate` | 반영                          |
+| 초안 승격은 기존 게시글 command 재사용                                         | 확정         | 아키텍처 §5                         | `promote-candidate-to-draft`, D01     | 반영                          |
+| 후보 화면에 원문 HTML·내부 오류 노출 금지                                      | 확정         | 화면 설계 §2, 보안·운영 §7          | D08                                   | 반영                          |
+| 자동 목록 수집 CLI / Discord URL 명령                                          | M0 확장 범위 | 콘텐츠 수집 기획 2026-09-21 확장    | 아래 확장 계약                        | 사이트별 증거와 활성화는 별도 |
+| 출처별 실제 selector·요청 간격                                                 | 결정 필요    | 출처 명세 템플릿                    | 전체                                  | 출처별 spec 필요              |
 
 ## 6. 업무 규칙과 수용 조건
 
@@ -196,17 +196,17 @@ Core `/internal/collect/*`로 중계한다. 예를 들어 `/api/collector/v1/can
 
 #### Endpoint 목록
 
-| Method | Core path | 역할 |
-| --- | --- | --- |
-| `POST` | `/internal/collect/candidates` | Discord URL 작업 접수 |
-| `POST` | `/internal/collect/candidates/claim` | `COLLECT` 또는 `PREVIEW_REFRESH` 선점 |
-| `POST` | `/internal/collect/candidates/{candidateId}/heartbeat` | 처리 중 lease 연장 |
-| `POST` | `/internal/collect/candidates/{candidateId}/result` | 추출 성공·실패 결과 제출 |
-| `POST` | `/internal/collect/candidates/{candidateId}/images/{candidateImageId}/preview` | 관리자 preview 파일 업로드 |
-| `GET` | `/internal/collect/status` | 읽기 전용 후보·출처 집계 |
-| `GET` | `/internal/collect/candidates/{candidateId}/execution-state` | 응답 유실·restart 조정 |
-| `POST` | `/internal/collect/sources/{sourceId}/request-reservations` | 외부 HTTP quota 원자 예약 |
-| `POST` | `/internal/collect/operational-events` | 일반화 운영 event 멱등 기록 |
+| Method | Core path                                                                      | 역할                                  |
+| ------ | ------------------------------------------------------------------------------ | ------------------------------------- |
+| `POST` | `/internal/collect/candidates`                                                 | Discord URL 작업 접수                 |
+| `POST` | `/internal/collect/candidates/claim`                                           | `COLLECT` 또는 `PREVIEW_REFRESH` 선점 |
+| `POST` | `/internal/collect/candidates/{candidateId}/heartbeat`                         | 처리 중 lease 연장                    |
+| `POST` | `/internal/collect/candidates/{candidateId}/result`                            | 추출 성공·실패 결과 제출              |
+| `POST` | `/internal/collect/candidates/{candidateId}/images/{candidateImageId}/preview` | 관리자 preview 파일 업로드            |
+| `GET`  | `/internal/collect/status`                                                     | 읽기 전용 후보·출처 집계              |
+| `GET`  | `/internal/collect/candidates/{candidateId}/execution-state`                   | 응답 유실·restart 조정                |
+| `POST` | `/internal/collect/sources/{sourceId}/request-reservations`                    | 외부 HTTP quota 원자 예약             |
+| `POST` | `/internal/collect/operational-events`                                         | 일반화 운영 event 멱등 기록           |
 
 #### 공통 인증·응답·권한
 
@@ -221,7 +221,7 @@ Core `/internal/collect/*`로 중계한다. 예를 들어 `/api/collector/v1/can
 
 #### 후보 Claim
 
-`POST /internal/collect/candidates/claim` body는 `collectorId`, `jobRequestId`, `collectorExecutionId`, `mode=COLLECT|PREVIEW_REFRESH`, `leaseSeconds`와 선택 `candidateId`, `maxItems`를 가진다. `maxItems`는 1~5이나 기본 single-active Spring Job은 항상 1을 보낸다. `leaseSeconds`는 60~900초다. `candidateId`가 있으면 해당 후보만 대상으로 하고 `maxItems=1`이다.
+`POST /internal/collect/candidates/claim` body는 `collectorId`, `jobRequestId`, `collectorExecutionId`, `mode=COLLECT|PREVIEW_REFRESH`, `leaseSeconds`와 선택 `candidateId`, `maxItems`를 가진다. `maxItems`는 1~~5이나 기본 single-active Spring Job은 항상 1을 보낸다. `leaseSeconds`는 60~~900초다. `candidateId`가 있으면 해당 후보만 대상으로 하고 `maxItems=1`이다.
 
 - `COLLECT`는 선택 candidateId 또는 PENDING·만료 RUNNING을 `FOR UPDATE SKIP LOCKED`로 선점하고 `status=RUNNING`, collector/execution, claimedAt, leaseUntil, attemptCount, lockVersion을 갱신한다. 성공 item은 candidateId, sourceId/host, originUrl, discoveryMode, attemptCount, lockVersion, leaseUntil, requestIntervalMs, dailyFetchLimit, robotsAllowed, robotsCheckedAt을 가진다. 대상이 없거나 이미 선점됐으면 빈 items다.
 - `PREVIEW_REFRESH`는 candidateId와 현재 `lockVersion`이 필수이고 NEW 후보의 만료·누락 preview만 대상으로 한다. `(status, lockVersion)` compare-and-set으로 새 execution·version을 만들되 status·attemptCount·`lease_until=NULL`은 바꾸지 않는다. 새 execution owner에게만 position·candidateImageId·remoteUrl을 준다.
@@ -233,7 +233,7 @@ heartbeat body는 `collectorId`, `collectorExecutionId`, `leaseSeconds`, `lockVe
 
 result body는 `collectorId`, `collectorExecutionId`, `lockVersion`, `status`, 성공 시 `title`, `canonicalUrl`, `sourcePublishedAt`, `parserVersion`, `warnings`, `imageCandidates`를 가진다. 실패는 `status=FETCH_FAILED`, 필수 `fetchErrorCode`, `warnings`를 가진다. 성공은 NEW, 실패는 FETCH_FAILED만 허용하며 원문 HTML·binary·local path는 받지 않는다.
 
-- `canonicalUrl`은 등록 출처의 정규화 HTTPS URL이어야 한다. 기존 후보와 중복이면 새 결과를 연결하지 않고 `409 CANDIDATE_DUPLICATE`다. 성공 시 `origin_url`과 hash를 같이 갱신한다. title은 trim 1~300자, parserVersion은 trim 1~100자, sourcePublishedAt은 UTC로 정규화하거나 null이고 warnings는 일반화 코드 0~20개(각 1~100자)다.
+- `canonicalUrl`은 등록 출처의 정규화 HTTPS URL이어야 한다. 기존 후보와 중복이면 새 결과를 연결하지 않고 `409 CANDIDATE_DUPLICATE`다. 성공 시 `origin_url`과 hash를 같이 갱신한다. title은 trim 1~~300자, parserVersion은 trim 1~~100자, sourcePublishedAt은 UTC로 정규화하거나 null이고 warnings는 일반화 코드 0~~20개(각 1~~100자)다.
 - metadata-only 성공 imageCandidates는 1~20개다. contentBlocks가 있는 원문 모드는 이미지 0건도 허용하며 최대20개이며 position은 1부터 연속, remoteUrl은 HTTPS·최대 2048자다. 성공 시 기존 image metadata를 교체하고 이전 preview를 cleanup 대상으로 기록한다.
 - RUNNING의 current execution·lockVersion·유효 lease만 result를 처음 반영한다. 상태 변경·image metadata·result digest·멱등 결과는 한 transaction으로 commit하며 성공·실패 모두 fetchedAt을 기록하고 leaseUntil을 NULL로 비운다. 성공 응답은 candidateId, status, 새 lockVersion, `{position,candidateImageId}` 매핑을 반환하고 실패의 imageCandidates는 빈 배열이다.
 
@@ -247,16 +247,16 @@ preview multipart는 `collectorId`, `collectorExecutionId`, `lockVersion`, `file
 
 #### 오류·수용 기준
 
-| HTTP | code | 조건 |
-| --- | --- | --- |
-| 400 | VALIDATION_FAILED | schema·필수 execution·형식 오류 |
-| 401 / 403 | COLLECTOR_AUTH_REQUIRED / COLLECTOR_FORBIDDEN | token·scope·collectorId 불일치 |
-| 403 | SOURCE_NOT_ALLOWED | 출처 미등록·비활성·host gate |
-| 404 | CANDIDATE_NOT_FOUND / IMAGE_NOT_FOUND | 대상 없음 |
-| 409 | CANDIDATE_LEASE_CONFLICT / CANDIDATE_EXECUTION_CONFLICT / CANDIDATE_VERSION_CONFLICT | stale lease·execution·version |
-| 409 | CANDIDATE_STATE_CONFLICT / CANDIDATE_DUPLICATE / IDEMPOTENCY_CONFLICT / IDEMPOTENCY_IN_PROGRESS | 상태·중복·재전송 충돌·진행 중 |
-| 413 / 415 | UPLOAD_TOO_LARGE / UNSUPPORTED_MEDIA_TYPE | preview 크기·decode·형식 제한 |
-| 429 / 503 | SOURCE_RATE_LIMITED / DEPENDENCY_UNAVAILABLE / MAINTENANCE_READ_ONLY | quota 또는 dependency·유지보수 |
+| HTTP      | code                                                                                            | 조건                            |
+| --------- | ----------------------------------------------------------------------------------------------- | ------------------------------- |
+| 400       | VALIDATION_FAILED                                                                               | schema·필수 execution·형식 오류 |
+| 401 / 403 | COLLECTOR_AUTH_REQUIRED / COLLECTOR_FORBIDDEN                                                   | token·scope·collectorId 불일치  |
+| 403       | SOURCE_NOT_ALLOWED                                                                              | 출처 미등록·비활성·host gate    |
+| 404       | CANDIDATE_NOT_FOUND / IMAGE_NOT_FOUND                                                           | 대상 없음                       |
+| 409       | CANDIDATE_LEASE_CONFLICT / CANDIDATE_EXECUTION_CONFLICT / CANDIDATE_VERSION_CONFLICT            | stale lease·execution·version   |
+| 409       | CANDIDATE_STATE_CONFLICT / CANDIDATE_DUPLICATE / IDEMPOTENCY_CONFLICT / IDEMPOTENCY_IN_PROGRESS | 상태·중복·재전송 충돌·진행 중   |
+| 413 / 415 | UPLOAD_TOO_LARGE / UNSUPPORTED_MEDIA_TYPE                                                       | preview 크기·decode·형식 제한   |
+| 429 / 503 | SOURCE_RATE_LIMITED / DEPENDENCY_UNAVAILABLE / MAINTENANCE_READ_ONLY                            | quota 또는 dependency·유지보수  |
 
 - result 성공 뒤 checkpoint가 유실되면 execution-state의 digest·version으로 preview부터 조정하며 fetch/result를 추측 재실행하지 않는다. `NETWORK_STARTED` 뒤 응답 유실은 같은 request를 자동 재송신하지 않고 새 quota reservation을 사용한다.
 - 반려·재시도·승격과 preview 경쟁에서 stale execution/version은 Core 상태·object·quota를 바꾸지 않고, 고아 object는 cleanup한다. source·OpenAPI·격리 계약/장애 시험 기록은 존재한다. 이번 문서 대조에서는 재실행하지 않았으며 실제 Gateway·원격 PC·출처별 운영 인수는 별도다.
@@ -292,9 +292,9 @@ incoming webhook은 처리 결과 알림용으로만 사용한다.
 
 #### Request
 
-| 필드 | 타입 | 필수 | 제약 | 출처·소유권 | 설명 |
-| --- | --- | --- | --- | --- | --- |
-| `originUrl` | string | Y | `https`, 최대 2048자 | 입력값 | 운영자가 지정한 원문 URL |
+| 필드        | 타입   | 필수 | 제약                 | 출처·소유권 | 설명                     |
+| ----------- | ------ | ---- | -------------------- | ----------- | ------------------------ |
+| `originUrl` | string | Y    | `https`, 최대 2048자 | 입력값      | 운영자가 지정한 원문 URL |
 
 ```json
 { "originUrl": "https://example.com/board/12345" }
@@ -304,13 +304,12 @@ incoming webhook은 처리 결과 알림용으로만 사용한다.
 
 공통 성공 envelope를 사용한다.
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `candidateId` | number | 접수된 후보 ID |
-| `status` | string | 접수 성공 시 `PENDING` |
-| `lockVersion` | number | 최초 `1` |
+| 필드              | 타입             | 설명                        |
+| ----------------- | ---------------- | --------------------------- |
+| `candidateId`     | number           | 접수된 후보 ID              |
+| `status`          | string           | 접수 성공 시 `PENDING`      |
+| `lockVersion`     | number           | 최초 `1`                    |
 | `duplicatePostId` | number 또는 null | 같은 원문 URL의 기존 게시글 |
-
 
 #### Validation과 정규화
 
@@ -340,14 +339,14 @@ incoming webhook은 처리 결과 알림용으로만 사용한다.
 
 #### 오류·권한·충돌·timeout·부분 실패
 
-| HTTP | code | 조건 |
-| --- | --- | --- |
-| `400` | `VALIDATION_FAILED` | URL 형식·길이 오류 |
-| `401` | `ADMIN_AUTH_REQUIRED` | 관리자 인증 없음 |
-| `403` | `ADMIN_FORBIDDEN` | allowlist 불일치 |
-| `403` | `SOURCE_NOT_ALLOWED` | 등록·활성 출처가 아님 |
-| `409` | `CANDIDATE_DUPLICATE` | 같은 정규화 URL 후보 존재 |
-| `503` | `DEPENDENCY_UNAVAILABLE` | DB 등 내부 의존성 장애 |
+| HTTP  | code                     | 조건                      |
+| ----- | ------------------------ | ------------------------- |
+| `400` | `VALIDATION_FAILED`      | URL 형식·길이 오류        |
+| `401` | `ADMIN_AUTH_REQUIRED`    | 관리자 인증 없음          |
+| `403` | `ADMIN_FORBIDDEN`        | allowlist 불일치          |
+| `403` | `SOURCE_NOT_ALLOWED`     | 등록·활성 출처가 아님     |
+| `409` | `CANDIDATE_DUPLICATE`    | 같은 정규화 URL 후보 존재 |
+| `503` | `DEPENDENCY_UNAVAILABLE` | DB 등 내부 의존성 장애    |
 
 후보 상세에서 추출 후 이미지 후보 수와 상태를 확인한다. 접수 응답에 추출 결과를 섞지 않는다.
 robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `ROBOTS_DISALLOWED`·`SOURCE_RATE_LIMITED` 실패 결과로 제출한다.
@@ -398,17 +397,17 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### Request
 
-| 필드 | 타입 | 필수 | 제약 | 설명 |
-| --- | --- | --- | --- | --- |
-| `lockVersion` | number | Y | 현재 후보 값과 일치 | 낙관적 잠금 |
-| `boardSlug` | string | Y | 활성 관리자 작성 대상 | 초안 게시판 |
-| `title` | string | N | 생략 시 후보 제목 사용, 최종 trim 후 1~200자 | 게시글 제목 |
-| `source.name` | string | N | 생략 시 출처 표시명 | 출처명 |
-| `source.url` | string | N | 생략 시 후보 원문 URL | 출처 링크 |
-| `candidateImageIds` | array | Y | 서로 다른 1~20개 | 영구 저장할 선택 이미지 후보, 본문 순서 |
-| `imageOptions` | array | Y | 선택 ID마다 정확히 1건 | `candidateImageId`, trim 후 1~300자 `alt`, 선택 `uploadedImageId` |
-| `leadText` | string | N | trim 후 1~20,000자 | 첫 문단 |
-| `acknowledgeDuplicate` | boolean | Y | 중복 후보면 true 필요 | 중복 확인 |
+| 필드                   | 타입    | 필수 | 제약                                         | 설명                                                              |
+| ---------------------- | ------- | ---- | -------------------------------------------- | ----------------------------------------------------------------- |
+| `lockVersion`          | number  | Y    | 현재 후보 값과 일치                          | 낙관적 잠금                                                       |
+| `boardSlug`            | string  | Y    | 활성 관리자 작성 대상                        | 초안 게시판                                                       |
+| `title`                | string  | N    | 생략 시 후보 제목 사용, 최종 trim 후 1~200자 | 게시글 제목                                                       |
+| `source.name`          | string  | N    | 생략 시 출처 표시명                          | 출처명                                                            |
+| `source.url`           | string  | N    | 생략 시 후보 원문 URL                        | 출처 링크                                                         |
+| `candidateImageIds`    | array   | Y    | 서로 다른 1~20개                             | 영구 저장할 선택 이미지 후보, 본문 순서                           |
+| `imageOptions`         | array   | Y    | 선택 ID마다 정확히 1건                       | `candidateImageId`, trim 후 1~300자 `alt`, 선택 `uploadedImageId` |
+| `leadText`             | string  | N    | trim 후 1~20,000자                           | 첫 문단                                                           |
+| `acknowledgeDuplicate` | boolean | Y    | 중복 후보면 true 필요                        | 중복 확인                                                         |
 
 #### Response
 
@@ -430,18 +429,18 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### 오류·부분 실패
 
-| HTTP | code | 조건 |
-| --- | --- | --- |
-| `400` | `VALIDATION_FAILED` | 제목 없음, 이미지 후보 배열 오류 |
-| `404` | `CANDIDATE_NOT_FOUND` | 후보 없음 |
-| `404` | `BOARD_NOT_FOUND` | 작성 대상 게시판 없음·비활성 |
-| `409` | `CANDIDATE_STATE_CONFLICT` | `NEW`가 아님 |
-| `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치 |
-| `409` | `CANDIDATE_DUPLICATE` | 중복 후보 확인 누락 |
-| `409` | `IMAGE_STATE_CONFLICT` | preview 만료·누락, 업로드 이미지 미연결 STAGED 조건 불충족 |
-| `413` | `UPLOAD_TOO_LARGE` | 파일 크기 초과 |
-| `415` | `UNSUPPORTED_MEDIA_TYPE` | 파일 형식 검증 실패 |
-| `503` | `DEPENDENCY_UNAVAILABLE` | DB·R2 장애 |
+| HTTP  | code                         | 조건                                                       |
+| ----- | ---------------------------- | ---------------------------------------------------------- |
+| `400` | `VALIDATION_FAILED`          | 제목 없음, 이미지 후보 배열 오류                           |
+| `404` | `CANDIDATE_NOT_FOUND`        | 후보 없음                                                  |
+| `404` | `BOARD_NOT_FOUND`            | 작성 대상 게시판 없음·비활성                               |
+| `409` | `CANDIDATE_STATE_CONFLICT`   | `NEW`가 아님                                               |
+| `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치                                         |
+| `409` | `CANDIDATE_DUPLICATE`        | 중복 후보 확인 누락                                        |
+| `409` | `IMAGE_STATE_CONFLICT`       | preview 만료·누락, 업로드 이미지 미연결 STAGED 조건 불충족 |
+| `413` | `UPLOAD_TOO_LARGE`           | 파일 크기 초과                                             |
+| `415` | `UNSUPPORTED_MEDIA_TYPE`     | 파일 형식 검증 실패                                        |
+| `503` | `DEPENDENCY_UNAVAILABLE`     | DB·R2 장애                                                 |
 
 선택 이미지 중 하나라도 준비·저장에 실패하면 후보를 `NEW`로 유지하고 위 오류를 반환한다. 일부 이미지로 초안을 만들지 않는다. TEXT만 있는 글은 기존 수동 초안 작성 API를 사용한다. DB transaction
 실패 시 후보 상태는 바꾸지 않고 저장된 이미지는 staging orphan 정리 대상으로 둔다. 로컬 수집기 임시
@@ -487,10 +486,10 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### Request
 
-| 필드 | 타입 | 필수 | 제약 | 설명 |
-| --- | --- | --- | --- | --- |
-| `lockVersion` | number | Y | 현재 후보 값과 일치 | 낙관적 잠금 |
-| `reasonCode` | string | Y | 허용 코드 | 반려 사유 |
+| 필드          | 타입   | 필수 | 제약                | 설명        |
+| ------------- | ------ | ---- | ------------------- | ----------- |
+| `lockVersion` | number | Y    | 현재 후보 값과 일치 | 낙관적 잠금 |
+| `reasonCode`  | string | Y    | 허용 코드           | 반려 사유   |
 
 허용 reason code: `DUPLICATE`, `LOW_QUALITY`, `RIGHTS_RISK`, `NOT_FUNNY`, `SOURCE_GONE`, `OTHER`.
 
@@ -506,12 +505,12 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### 오류·동시성
 
-| HTTP | code | 조건 |
-| --- | --- | --- |
-| `400` | `VALIDATION_FAILED` | reasonCode 누락·허용값 아님 |
-| `404` | `CANDIDATE_NOT_FOUND` | 후보 없음 |
-| `409` | `CANDIDATE_STATE_CONFLICT` | 반려 불가 상태 |
-| `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치 |
+| HTTP  | code                         | 조건                        |
+| ----- | ---------------------------- | --------------------------- |
+| `400` | `VALIDATION_FAILED`          | reasonCode 누락·허용값 아님 |
+| `404` | `CANDIDATE_NOT_FOUND`        | 후보 없음                   |
+| `409` | `CANDIDATE_STATE_CONFLICT`   | 반려 불가 상태              |
+| `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치          |
 
 #### Contract test와 미검증 항목
 
@@ -543,9 +542,9 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### Request
 
-| 필드 | 타입 | 필수 | 제약 | 설명 |
-| --- | --- | --- | --- | --- |
-| `lockVersion` | number | Y | 현재 후보 값과 일치 | 낙관적 잠금 |
+| 필드          | 타입   | 필수 | 제약                | 설명        |
+| ------------- | ------ | ---- | ------------------- | ----------- |
+| `lockVersion` | number | Y    | 현재 후보 값과 일치 | 낙관적 잠금 |
 
 #### Response
 
@@ -566,11 +565,11 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### 오류·동시성
 
-| HTTP | code | 조건 |
-| --- | --- | --- |
-| `404` | `CANDIDATE_NOT_FOUND` | 후보 없음 |
-| `409` | `CANDIDATE_STATE_CONFLICT` | `FETCH_FAILED`가 아님 |
-| `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치 |
+| HTTP  | code                         | 조건                  |
+| ----- | ---------------------------- | --------------------- |
+| `404` | `CANDIDATE_NOT_FOUND`        | 후보 없음             |
+| `409` | `CANDIDATE_STATE_CONFLICT`   | `FETCH_FAILED`가 아님 |
+| `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치    |
 
 출처·robots·상한 검사는 접수 후 collector 실행 단계다. 실패 코드는
 [API 설계의 재수집 계약](../../../system-design/03-api-design.md#재수집과-반려)에 따라
@@ -634,10 +633,10 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### 단계별 호출 API 매핑
 
-| 단계 | API |
-| --- | --- |
-| 3 | [수집 작업 접수와 후보 결과 생성](#api-create-candidate-from-url) |
-| 6~11 | [Collector 내부 API](#api-collector-internal-api) |
+| 단계 | API                                                               |
+| ---- | ----------------------------------------------------------------- |
+| 3    | [수집 작업 접수와 후보 결과 생성](#api-create-candidate-from-url) |
+| 6~11 | [Collector 내부 API](#api-collector-internal-api)                 |
 
 #### 데이터·상태 전이
 
@@ -712,9 +711,9 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### 단계별 호출 API 매핑
 
-| 단계 | API |
-| --- | --- |
-| 3~8 | [후보 초안 승격](#api-promote-candidate-to-draft) |
+| 단계 | API                                               |
+| ---- | ------------------------------------------------- |
+| 3~8  | [후보 초안 승격](#api-promote-candidate-to-draft) |
 
 #### 데이터·상태 전이
 
@@ -777,10 +776,10 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### 단계별 호출 API 매핑
 
-| 단계 | API |
-| --- | --- |
-| 2~3 | [후보 재시도](#api-retry-candidate) |
-| 4~6 | [후보 반려](#api-reject-candidate) |
+| 단계 | API                                 |
+| ---- | ----------------------------------- |
+| 2~3  | [후보 재시도](#api-retry-candidate) |
+| 4~6  | [후보 반려](#api-reject-candidate)  |
 
 #### 데이터·상태 전이
 
@@ -842,19 +841,19 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 - URL은 `https` 형식만 client 1차 검증한다. 최종 검증은 서버가 한다.
 - 반려 사유는 허용 code 중 하나를 선택한다.
-- 이미지 선택은 1~20개이며 각 이미지 alt를 trim 후 1~300자로 입력한다. 수동 파일을 관리자 업로드 API로 올린 뒤 응답 imageId를 해당 candidateImageId의 uploadedImageId로 연결한다. 승격 요청은 선택 ID와 imageOptions를 함께 보낸다.
+- 이미지 선택은 1~~20개이며 각 이미지 alt를 trim 후 1~~300자로 입력한다. 수동 파일을 관리자 업로드 API로 올린 뒤 응답 imageId를 해당 candidateImageId의 uploadedImageId로 연결한다. 승격 요청은 선택 ID와 imageOptions를 함께 보낸다.
 - 후보 제목이 없으면 승격 전 제목 입력을 요구한다.
 - 내부 stack, 원문 HTML 전체, 수집기 임시 파일 내부 경로, storage key는 표시하지 않는다.
 
 #### 이벤트·버튼·이동·후처리
 
-| 이벤트 | 처리 |
-| --- | --- |
-| 후보 만들기 | 관리자 화면은 후보 작업 접수, 로컬 collector는 Discord 명령 처리와 결과 제출 |
-| 재시도 | `retry-candidate` 호출 |
-| 반려 | 사유 선택 후 `reject-candidate` 호출 |
-| 초안으로 승격 | 중복 확인·선택 이미지 검증 후 `promote-candidate-to-draft` 호출 |
-| 원문 열기 | 새 창, `rel="noopener noreferrer"` |
+| 이벤트        | 처리                                                                         |
+| ------------- | ---------------------------------------------------------------------------- |
+| 후보 만들기   | 관리자 화면은 후보 작업 접수, 로컬 collector는 Discord 명령 처리와 결과 제출 |
+| 재시도        | `retry-candidate` 호출                                                       |
+| 반려          | 사유 선택 후 `reject-candidate` 호출                                         |
+| 초안으로 승격 | 중복 확인·선택 이미지 검증 후 `promote-candidate-to-draft` 호출              |
+| 원문 열기     | 새 창, `rel="noopener noreferrer"`                                           |
 
 #### loading·empty·error·권한 없음·부분 실패 상태
 
@@ -874,13 +873,13 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 #### 이벤트별 D01·API 매핑
 
-| UI 이벤트 | D01 | API |
-| --- | --- | --- |
-| 후보 만들기 | [URL 후보 생성과 검수](#d01-create-and-review-candidate) | [create-candidate-from-url](#api-create-candidate-from-url) |
+| UI 이벤트                        | D01                                                      | API                                                                                                    |
+| -------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 후보 만들기                      | [URL 후보 생성과 검수](#d01-create-and-review-candidate) | [create-candidate-from-url](#api-create-candidate-from-url)                                            |
 | Discord `/collect url` 결과 검수 | [URL 후보 생성과 검수](#d01-create-and-review-candidate) | [collector-internal-api](#api-collector-internal-api), [로컬 Collector 프로그램](#d08-local-collector) |
-| 재시도 | [후보 재시도와 반려](#d01-retry-or-reject-candidate) | [retry-candidate](#api-retry-candidate) |
-| 반려 | [후보 재시도와 반려](#d01-retry-or-reject-candidate) | [reject-candidate](#api-reject-candidate) |
-| 초안으로 승격 | [후보 초안 승격](#d01-promote-candidate-to-draft) | [promote-candidate-to-draft](#api-promote-candidate-to-draft) |
+| 재시도                           | [후보 재시도와 반려](#d01-retry-or-reject-candidate)     | [retry-candidate](#api-retry-candidate)                                                                |
+| 반려                             | [후보 재시도와 반려](#d01-retry-or-reject-candidate)     | [reject-candidate](#api-reject-candidate)                                                              |
+| 초안으로 승격                    | [후보 초안 승격](#d01-promote-candidate-to-draft)        | [promote-candidate-to-draft](#api-promote-candidate-to-draft)                                          |
 
 #### 메시지와 사용자 피드백
 
@@ -952,15 +951,15 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 
 #### 이벤트·후처리
 
-| 이벤트 | 처리 |
-| --- | --- |
-| process start | local PostgreSQL·spool·Core BFF readiness를 점검한다. Discord 연결은 별도 component 상태다. |
-| Discord `/collect url` | 허용 guild·channel·user·role과 확인 interaction 뒤 공통 실행 요청을 만든다. |
-| Discord `/collect status` | local Job과 Core 집계를 분리해 읽기 전용 요약을 낸다. 새 Job을 만들지 않는다. |
-| Quartz / REST 실행 | `CollectorRunService.submit()`으로 공통 실행 요청을 만들며, Quartz는 15분 주기·기본 비활성이고 신규 목록 URL을 찾지 않는다. |
-| Batch 후보 처리 | 후보 1건의 `resolveCandidate` → `claimCandidate` → `fetchAndExtract` → `submitResult` → `uploadPreviews` → `notifyAndFinalize` 여섯 Tasklet Step을 순서대로 실행한다. 기본 active Job은 1개다. |
-| heartbeat · quota | RUNNING fetch 중 heartbeat를 연장하고, robots·상세·redirect·image 각 실제 HTTP 전에 Core reservation을 받는다. |
-| shutdown | 새 Step·reservation을 막고, 이미 시작한 network 요청은 제한 timeout까지 기다린다. 90초 유예 뒤 미완료 Job은 restartable STOPPED로 남기며 lease 회수에 맡긴다. |
+| 이벤트                    | 처리                                                                                                                                                                                           |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| process start             | local PostgreSQL·spool·Core BFF readiness를 점검한다. Discord 연결은 별도 component 상태다.                                                                                                    |
+| Discord `/collect url`    | 허용 guild·channel·user·role과 확인 interaction 뒤 공통 실행 요청을 만든다.                                                                                                                    |
+| Discord `/collect status` | local Job과 Core 집계를 분리해 읽기 전용 요약을 낸다. 새 Job을 만들지 않는다.                                                                                                                  |
+| Quartz / REST 실행        | `CollectorRunService.submit()`으로 공통 실행 요청을 만들며, Quartz는 15분 주기·기본 비활성이고 신규 목록 URL을 찾지 않는다.                                                                    |
+| Batch 후보 처리           | 후보 1건의 `resolveCandidate` → `claimCandidate` → `fetchAndExtract` → `submitResult` → `uploadPreviews` → `notifyAndFinalize` 여섯 Tasklet Step을 순서대로 실행한다. 기본 active Job은 1개다. |
+| heartbeat · quota         | RUNNING fetch 중 heartbeat를 연장하고, robots·상세·redirect·image 각 실제 HTTP 전에 Core reservation을 받는다.                                                                                 |
+| shutdown                  | 새 Step·reservation을 막고, 이미 시작한 network 요청은 제한 timeout까지 기다린다. 90초 유예 뒤 미완료 Job은 restartable STOPPED로 남기며 lease 회수에 맡긴다.                                  |
 
 #### 프로그램 상태
 
@@ -980,11 +979,11 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 
 #### 이벤트별 D01·API 매핑
 
-| 이벤트 | D01 | API |
-| --- | --- | --- |
+| 이벤트                                        | D01                                                      | API                                                                                                                |
+| --------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | Discord `/collect url` 또는 관리자 후보 claim | [URL 후보 생성과 검수](#d01-create-and-review-candidate) | [collector-internal-api](#api-collector-internal-api), [create-candidate-from-url](#api-create-candidate-from-url) |
-| 실패 후보 재처리 | [후보 재시도와 반려](#d01-retry-or-reject-candidate) | [retry-candidate](#api-retry-candidate), [collector-internal-api](#api-collector-internal-api) |
-| preview 재업로드 | [로컬 Collector 프로그램](#d08-local-collector) | [collector-internal-api](#api-collector-internal-api)의 `PREVIEW_REFRESH` |
+| 실패 후보 재처리                              | [후보 재시도와 반려](#d01-retry-or-reject-candidate)     | [retry-candidate](#api-retry-candidate), [collector-internal-api](#api-collector-internal-api)                     |
+| preview 재업로드                              | [로컬 Collector 프로그램](#d08-local-collector)          | [collector-internal-api](#api-collector-internal-api)의 `PREVIEW_REFRESH`                                          |
 
 #### 메시지와 사용자 피드백
 
@@ -1037,7 +1036,6 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - 승인된 수집 결과를 `/meme` 공개 화면에 노출하는 것은 batch가 아니라 API 검수·승격 단계의 책임이다. 초안 승격은 `collect/media/*`를 검증해 `content/private/staging/*`의 private 사본만 만든다. 이후 별도 Core 발행 명령이 `content/published/posts/{postId}/{imageId}-{sha256}.{ext}`로 복사하고 `content.board_post_image.public_storage_key`를 기록한다. 승격만으로 public object가 생기지 않는다.
 - 구현 수용은 여섯 Step checkpoint, same-key replay, stale execution fencing, Core quota/permit, spool TTL, stop·restart·reconcile, REST·Discord·Quartz 공통 경로와 legacy drain을 07의 수용 시험으로 검증한다.
 - source·migration·OpenAPI 구현과 격리 환경 test·build·runtime 결과는 [M0 검증 기록](../../../../worklog/2026-09-09/core-spring-verification/evidence.md)에 기록한다. 실제 출처·Discord·운영 배포·법무 승인·7일 관찰은 미검증이다. 이전 Python/Core 테스트나 이 문서의 설계 확정만으로 Spring 전체 완료를 판단하지 않는다.
-
 
 ## 원문 수집 확장 (2026-09-20)
 
@@ -1107,7 +1105,6 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
   캡처한 원본 HTML의 격리 DB readback은 live 목록→상세→이미지 다운로드 E2E를 대체하지 않는다.
 - 이 명세의 이전 MANUAL_URL 전용 설명은 URL 접수 기준이다. 목록 CLI 확장에는 이 절과 최신 OpenAPI를 적용한다.
 
-
 ## 2026-09-23 batch 고도화 계약
 
 - 원문/초안/편집/공개 응답은 최대 1000블록을 보존한다. TEXT 블록 20,000자, 이미지 200개, HTTP 요청 크기 제한은 별도로 검증한다. 한도 초과를 잘라 성공시키지 않는다.
@@ -1160,12 +1157,11 @@ API 목록·상세의 failureCode/skipReason은 검수 화면에 표시하며 FE
 
 Discord 확인은 batch 소유 confirmation/queue에 원자적으로 접수한다. request와 실행 attempt를 분리하여 중복 확인·중단 후 재개를 처리하며, 수집은 API 호출 없이 공통 상세 parser와 DB/object pipeline을 사용한다. source lock·version·최대 3회 재시도·30초 지수 backoff를 적용하고 차단/삭제/parser/크기 제한/rate-limit은 자동 재시도하지 않는다. 실제 Gateway 검증은 독립 완료 조건으로 유지한다. 상세 계약은 Spring 수집 설계의 Direct batch Discord 대기열 계약을 따른다.
 
-
 ## 2026-09-23 다중 이미지와 수집 용량 계약
 
 - 처리 시간과 응답 유실 재시도는 [다중 이미지 시간 계약](../../../system-design/07-spring-collector-design.md#2026-09-23-다중-이미지와-수집-용량-계약)을 따른다. Web은 초안 180초·preview 60초를 기다리고, API는 이미지 준비 단계의 120초 예산 초과를 검사해 사본을 회수한다. 같은 멱등 키와 본문을 사용해야 확정된 기존 초안을 안전하게 돌려받는다.
 - direct batch는 원문 이미지 최대 200개, 첨부 최대 20개, 본문 최대 1000블록을 보존한다. 초과한 원문을 잘라 성공 처리하지 않는다.
-- source 설정 `mediaLimits`의 `maxImages`(1~200), `maxFileBytes`(1~31457280), `maxTotalBytes`(1~157286400)는 생략하면 각 상한을 기본값으로 사용한다. 사이트별로 낮출 수 있고 전역 상한을 높일 수 없다.
+- source 설정 `mediaLimits`의 `maxImages`(1~~200), `maxFileBytes`(1~~31457280), `maxTotalBytes`(1~157286400)는 생략하면 각 상한을 기본값으로 사용한다. 사이트별로 낮출 수 있고 전역 상한을 높일 수 없다.
 - 파일당 30MiB, 이미지와 첨부를 합친 글당 150MiB를 순차 다운로드 중 검증한다. 남은 용량을 넘는 파일은 object 저장 전에 실패한다. HTML 원문 30MiB 제한은 별도다.
 - API 수집 이미지 preview/초안 승격은 동일한 30MiB 입력 한도를 사용한다. 승격 전에 모든 media의 크기 합계 150MiB를 확인하며, 재인코딩한 이미지도 개별 30MiB·합계 150MiB를 넘으면 쓰기 전에 거부한다. 이미 준비한 사본은 기존 실패 복구 경로로 회수한다.
 - 일반 관리자 업로드 요청의 파일당 10MiB·요청당 10개/100MiB와 이미지 픽셀·애니메이션 디코딩 한도는 유지한다. 게시글 편집 계약은 200장까지 허용해 수집 초안을 내용 손실 없이 편집할 수 있다.
@@ -1173,7 +1169,6 @@ Discord 확인은 batch 소유 confirmation/queue에 원자적으로 접수한�
 - 인벤의 본문 바깥 첨부 영역과 일반 텍스트 파일 URL은 [인벤 첨부 계약](../../../system-design/07-spring-collector-design.md#인벤-첨부-영역과-파일-참조)을 따른다. 다운로드 아이콘은 본문 이미지에 넣지 않으며 반복된 파일 URL은 LINK를 보존하면서 파일 저장만 한 번 수행한다.
 - `SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED`는 해당 글 실패이며 다음 글 수집을 중단시키는 사이트 오류로 누적하지 않는다.
 - 검증은 20장 초과 성공, 200장 경계와 201장 실패, 설정 상한 거부, 전체 용량 초과 무쓰기, 승격 실패 복구, 실제 실패 글 재수집·DB/object readback을 각각 증거로 남긴다.
-
 
 과거 완료 IMAGE의 MIME 정정은 [Batch V006 계약](../../../system-design/07-spring-collector-design.md#batch-v006-완료-이미지-mime-정정)을 따른다. runtime은 완료 media를 수정할 수 없으며, 소유자 전용 감사 함수가 파일 검증 manifest의 기대값과 일치하는 MIME만 정정한다. API 검수 digest가 달라진 미승격 결과는 재검수가 필요하다.
 

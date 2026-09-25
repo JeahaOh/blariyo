@@ -22,29 +22,29 @@
 
 아래는 초기 의존 순서이며 12개 모두 미착수라는 뜻이 아니다. 구현·운영 검증의 현재 판정은 상단의 요구사항별 상태/로드맵에서 관리한다.
 
-| 순서 | 작업 | 주요 산출물 | 선행 조건 | 완료 증거 |
-| --- | --- | --- | --- | --- |
-| 1 | repository scaffold | Nuxt Web/BFF, Nest Core, PostgreSQL compose skeleton | Node.js 24.18.0 기준 확정 | `npm ci`, 기본 build/test |
-| 2 | 공통 API 계약 | request id, envelope, error mapper, validation, cache header | [API 설계 §1~§7](../../system-design/03-api-design.md) | 공통 unit/contract test |
-| 3 | DB migration | `content`, `legal`, `ops` schema와 초기 `meme` board seed | [데이터 모델](../../system-design/02-data-model.md) | migration up/down, schema smoke test |
-| 4 | 공개 게시판/목록 | boards, `/meme` list, page 404, pinned/general 분리 | [public-post-browsing](./public-post-browsing/public-post-browsing.dev.md) | API contract, SSR list test |
-| 5 | 게시글 상세/조회 수 | detail, context list, SSR metadata, view count endpoint | 공개 목록 구현 | API·SSR·view count test |
-| 6 | 정책 조회 | policy current/history 조회, route/modal viewer | 법무 artifact placeholder 유지 | policy API/D08 test |
-| 7 | 관리자 인증 경계 | BFF external identity adapter, Core service token/actor | Cloudflare Access 또는 fake adapter | auth contract test |
-| 8 | 관리자 이미지/초안 | upload all-or-nothing, preview, discard, draft create/update | R2 adapter fake/real 경계 | image/storage rollback test |
-| 9 | 발행/예약/숨김 | publish, schedule, unschedule, hide, republish, remove, outbox | 게시글 편집 구현 | 상태 전이·outbox test |
-| 10 | 정책 시행 command | sanitized policy artifact publish, version switch, cache purge | 로컬 fixture로 구현, 실제 시행은 법무 실값·artifact 승인 후 | command/integration test |
-| 11 | analytics consent | 기본 비활성, 동의 UI, GA4 loader gate | [analytics-consent](./analytics-consent/analytics-consent.dev.md) | browser network test |
-| 12 | 운영 smoke | health, backup, restore, scheduler, browser QA | production-like preview compose | smoke checklist |
+| 순서 | 작업                | 주요 산출물                                                    | 선행 조건                                                                  | 완료 증거                            |
+| ---- | ------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------ |
+| 1    | repository scaffold | Nuxt Web/BFF, Nest Core, PostgreSQL compose skeleton           | Node.js 24.18.0 기준 확정                                                  | `npm ci`, 기본 build/test            |
+| 2    | 공통 API 계약       | request id, envelope, error mapper, validation, cache header   | [API 설계 §1~§7](../../system-design/03-api-design.md)                     | 공통 unit/contract test              |
+| 3    | DB migration        | `content`, `legal`, `ops` schema와 초기 `meme` board seed      | [데이터 모델](../../system-design/02-data-model.md)                        | migration up/down, schema smoke test |
+| 4    | 공개 게시판/목록    | boards, `/meme` list, page 404, pinned/general 분리            | [public-post-browsing](./public-post-browsing/public-post-browsing.dev.md) | API contract, SSR list test          |
+| 5    | 게시글 상세/조회 수 | detail, context list, SSR metadata, view count endpoint        | 공개 목록 구현                                                             | API·SSR·view count test              |
+| 6    | 정책 조회           | policy current/history 조회, route/modal viewer                | 법무 artifact placeholder 유지                                             | policy API/D08 test                  |
+| 7    | 관리자 인증 경계    | BFF external identity adapter, Core service token/actor        | Cloudflare Access 또는 fake adapter                                        | auth contract test                   |
+| 8    | 관리자 이미지/초안  | upload all-or-nothing, preview, discard, draft create/update   | R2 adapter fake/real 경계                                                  | image/storage rollback test          |
+| 9    | 발행/예약/숨김      | publish, schedule, unschedule, hide, republish, remove, outbox | 게시글 편집 구현                                                           | 상태 전이·outbox test                |
+| 10   | 정책 시행 command   | sanitized policy artifact publish, version switch, cache purge | 로컬 fixture로 구현, 실제 시행은 법무 실값·artifact 승인 후                | command/integration test             |
+| 11   | analytics consent   | 기본 비활성, 동의 UI, GA4 loader gate                          | [analytics-consent](./analytics-consent/analytics-consent.dev.md)          | browser network test                 |
+| 12   | 운영 smoke          | health, backup, restore, scheduler, browser QA                 | production-like preview compose                                            | smoke checklist                      |
 
 ## 3. 구현 단위별 Spec 연결
 
-| 기능 | 개발 보강서 | API | D01 | D08 |
-| --- | --- | --- | --- | --- |
-| 공개 탐색 | [public-post-browsing](./public-post-browsing/public-post-browsing.dev.md) | `list-boards`, `list-posts`, `get-post`, `increment-post-view` | `browse-posts`, `view-post`, `share-post` | `meme-list`, `post-detail` |
-| 관리자 게시글 | [admin-post-management](./admin-post-management/admin-post-management.dev.md) | 검색, 편집, 이미지, 발행, 숨김, 삭제 | 초안·발행, 예약, 권리 처리 | `admin-post-editor` |
-| 정책·권리 | [policy-and-rights](./policy-and-rights/policy-and-rights.dev.md) | `get-policy` | 정책 열람, 정책 시행, 권리 문의 | policy viewer, policy command, rights entry |
-| 분석 동의 | [analytics-consent](./analytics-consent/analytics-consent.dev.md) | API 해당 없음 | 동의 저장·철회, event 전송 | banner, settings, loader |
+| 기능          | 개발 보강서                                                                   | API                                                            | D01                                       | D08                                         |
+| ------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------- |
+| 공개 탐색     | [public-post-browsing](./public-post-browsing/public-post-browsing.dev.md)    | `list-boards`, `list-posts`, `get-post`, `increment-post-view` | `browse-posts`, `view-post`, `share-post` | `meme-list`, `post-detail`                  |
+| 관리자 게시글 | [admin-post-management](./admin-post-management/admin-post-management.dev.md) | 검색, 편집, 이미지, 발행, 숨김, 삭제                           | 초안·발행, 예약, 권리 처리                | `admin-post-editor`                         |
+| 정책·권리     | [policy-and-rights](./policy-and-rights/policy-and-rights.dev.md)             | `get-policy`                                                   | 정책 열람, 정책 시행, 권리 문의           | policy viewer, policy command, rights entry |
+| 분석 동의     | [analytics-consent](./analytics-consent/analytics-consent.dev.md)             | API 해당 없음                                                  | 동의 저장·철회, event 전송                | banner, settings, loader                    |
 
 ## 4. OpenAPI 작성 범위
 

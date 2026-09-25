@@ -1,5 +1,7 @@
 # Blariyo AI 작업 안내
 
+> 2026-09-25 복구 상태: 이 checkout은 stash의 원래 local main을 기준으로 만든 `feature/HARN-08-stash-recovery`다. 기존 PR #1/#2와 원본 develop은 유지한다. 현재 복구 범위·검증·보존 항목은 [복구 결과](../../worklog/2026-09-25/git-governance/STASH-RECOVERY.md)를 따르며, 본문의 과거 통과 기록을 원격 병합·보호 설정·운영 완료로 해석하지 않는다.
+
 이 문서는 AI가 필요한 정본을 빠르게 찾고 검증 결과를 같은 기준으로 보고하기 위한 안내다.
 제품 요구사항, 법무 문구와 기술 계약을 복제하지 않고 원문 링크만 제공한다.
 
@@ -21,24 +23,25 @@
 
 ## 정본 지도
 
-| 작업 질문 | 먼저 읽을 문서 |
-| --- | --- |
-| 서비스 범위와 단계 | [서비스 기획](../planning/01-service-plan.md) |
-| 인프라 방향과 비용 전제 | [인프라 계획](../planning/02-infra-plan.md) |
-| AWS Lightsail·Cloudflare·GA4 계정과 운영 설정 준비 | [운영자 준비 체크리스트](../operations/owner-setup-checklist.md) — 사용자 준비 순서·완료 기준·개발자 연결 작업; OCI는 이전 대안 |
-| 화면 흐름과 상태 | [화면 설계](../planning/03-screen-design.md) |
-| M1 회원·M1.5 익게 | [제품 계약](../planning/08-member-community-plan.md), [확장 기술 계약](../system-design/06-member-community-design.md), [랜덤 이름 사전](../planning/09-random-name-catalog.md), [가입 동의 전문](../legal/signup-privacy-consent.md) |
-| 분석·광고 적용 시점 | [분석·광고 계획](../planning/04-analytics-ad-plan.md) |
-| 콘텐츠 수집 범위와 규칙 | [콘텐츠 수집 기획](../planning/content-collection/README.md), [서비스 기획 §8](../planning/01-service-plan.md), [시스템 아키텍처](../system-design/01-system-architecture.md), [보안·운영](../system-design/05-security-operations.md) |
-| 비교 기준과 수용 조건 | [벤치마크 명세](../planning/05-benchmark-spec.md) |
-| 카피 계약과 색상 기준 | [카피 계약](../planning/06-copy-contract.md), [색상표](../planning/07-color-palette.md) |
-| 시스템 경계·DB·API·운영 | [시스템 설계](../system-design/README.md) |
-| 단계별 설계 범위·선행 관계의 과거 참고본 | [설계 기준선 manifest](../../worklog/2026-09-08/design-baselines/README.md) — 삭제된 design tag를 현행 Git 기준선으로 사용하지 않음 |
-| 기능별 API 보충·처리 흐름·화면 명세 | `docs/development-specs/<milestone>/<feature-slug>/<feature-slug>.dev.md` — 기능당 1개 |
-| 테스트 케이스 작성·보강 | [테스트 구현 안내](../testing/README.md) — M0·수집·운영 케이스와 후속 게시판/익게 케이스, 코드 예제 |
-| 약관·개인정보·권리·쿠키 | [법무 문서](../legal/README.md) |
-| 정적 화면의 현재 표현 | [퍼블리싱 프로토타입](../ui/publishing/responsive/README.md), [와이어프레임](../ui/wireframes) — 단계는 화면 설계와 재대조 |
-| 과거 작업과 다음 시작점 | [작업 기록](../../worklog/README.md) — 비정본 |
+| 작업 질문                                          | 먼저 읽을 문서                                                                                                                                                                                                                         |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Git 브랜치·worktree·hook·CI gate·개발 harness 도입 | [설계](git-workflow.md), [구현 계획](harness-implementation-plan.md) — 복구 worktree의 local lint·회귀와 6개 commit 완료; develop 원격 생성 완료, PR #1/#2 실패·미병합, 원격 보호 미활성; 현재 근거는 복구 결과 참조                   |
+| 서비스 범위와 단계                                 | [서비스 기획](../planning/01-service-plan.md)                                                                                                                                                                                          |
+| 인프라 방향과 비용 전제                            | [인프라 계획](../planning/02-infra-plan.md)                                                                                                                                                                                            |
+| AWS Lightsail·Cloudflare·GA4 계정과 운영 설정 준비 | [운영자 준비 체크리스트](../operations/owner-setup-checklist.md) — 사용자 준비 순서·완료 기준·개발자 연결 작업; OCI는 이전 대안                                                                                                        |
+| 화면 흐름과 상태                                   | [화면 설계](../planning/03-screen-design.md)                                                                                                                                                                                           |
+| M1 회원·M1.5 익게                                  | [제품 계약](../planning/08-member-community-plan.md), [확장 기술 계약](../system-design/06-member-community-design.md), [랜덤 이름 사전](../planning/09-random-name-catalog.md), [가입 동의 전문](../legal/signup-privacy-consent.md)  |
+| 분석·광고 적용 시점                                | [분석·광고 계획](../planning/04-analytics-ad-plan.md)                                                                                                                                                                                  |
+| 콘텐츠 수집 범위와 규칙                            | [콘텐츠 수집 기획](../planning/content-collection/README.md), [서비스 기획 §8](../planning/01-service-plan.md), [시스템 아키텍처](../system-design/01-system-architecture.md), [보안·운영](../system-design/05-security-operations.md) |
+| 비교 기준과 수용 조건                              | [벤치마크 명세](../planning/05-benchmark-spec.md)                                                                                                                                                                                      |
+| 카피 계약과 색상 기준                              | [카피 계약](../planning/06-copy-contract.md), [색상표](../planning/07-color-palette.md)                                                                                                                                                |
+| 시스템 경계·DB·API·운영                            | [시스템 설계](../system-design/README.md)                                                                                                                                                                                              |
+| 단계별 설계 범위·선행 관계의 과거 참고본           | [설계 기준선 manifest](../../worklog/2026-09-08/design-baselines/README.md) — 삭제된 design tag를 현행 Git 기준선으로 사용하지 않음                                                                                                    |
+| 기능별 API 보충·처리 흐름·화면 명세                | `docs/development-specs/<milestone>/<feature-slug>/<feature-slug>.dev.md` — 기능당 1개                                                                                                                                                 |
+| 테스트 케이스 작성·보강                            | [테스트 구현 안내](../testing/README.md) — M0·수집·운영 케이스와 후속 게시판/익게 케이스, 코드 예제                                                                                                                                    |
+| 약관·개인정보·권리·쿠키                            | [법무 문서](../legal/README.md)                                                                                                                                                                                                        |
+| 정적 화면의 현재 표현                              | [퍼블리싱 프로토타입](../ui/publishing/responsive/README.md), [와이어프레임](../ui/wireframes) — 단계는 화면 설계와 재대조                                                                                                             |
+| 과거 작업과 다음 시작점                            | [작업 기록](../../worklog/README.md) — 비정본                                                                                                                                                                                          |
 
 ## 작업 유형별 흐름
 
@@ -71,12 +74,12 @@ planning의 화면 규칙과 publishing·wireframe을 함께 비교한다. HTML�
 
 결과는 가능한 범위에서 다음을 분리한다.
 
-| 상태 | 의미 |
-| --- | --- |
-| 완료 | 요청 산출물과 필요한 검증이 모두 끝남 |
-| 진행 | 일부 산출물 또는 검증이 남음 |
+| 상태   | 의미                                                     |
+| ------ | -------------------------------------------------------- |
+| 완료   | 요청 산출물과 필요한 검증이 모두 끝남                    |
+| 진행   | 일부 산출물 또는 검증이 남음                             |
 | 미검증 | 문서나 파일은 있으나 실행·화면·외부 상태를 확인하지 않음 |
-| 차단 | 사용자 결정, 권한, 실제 값 또는 외부 상태가 필요함 |
+| 차단   | 사용자 결정, 권한, 실제 값 또는 외부 상태가 필요함       |
 
 - 문서 근거는 `파일:행`으로 제시한다.
 - 설계, source, test, build, runtime, 브라우저와 배포 증거를 서로 대신 사용하지 않는다.
@@ -93,10 +96,10 @@ planning의 화면 규칙과 publishing·wireframe을 함께 비교한다. HTML�
 다른 저장소에서 잘못 적용하지 않도록 각 스킬의 Blariyo 범위를 유지한다. 미배치 스킬은 프로젝트
 `AGENTS.md`의 요청 매핑으로 직접 읽을 수 있지만 `$스킬명` 자동 발견에는 나타나지 않는다.
 
-| 원본 | Codex 전역 배치 경로 | 상태 |
-| --- | --- | --- |
-| `docs/ai/skills/blariyo-task-start/SKILL.md` | `~/.agents/skills/blariyo-task-start/SKILL.md` | 배치 |
-| `docs/ai/skills/blariyo-docs-audit/SKILL.md` | `~/.agents/skills/blariyo-docs-audit/SKILL.md` | 배치 |
+| 원본                                                       | Codex 전역 배치 경로                                         | 상태   |
+| ---------------------------------------------------------- | ------------------------------------------------------------ | ------ |
+| `docs/ai/skills/blariyo-task-start/SKILL.md`               | `~/.agents/skills/blariyo-task-start/SKILL.md`               | 배치   |
+| `docs/ai/skills/blariyo-docs-audit/SKILL.md`               | `~/.agents/skills/blariyo-docs-audit/SKILL.md`               | 배치   |
 | `docs/ai/skills/blariyo-plan-to-development-spec/SKILL.md` | `~/.agents/skills/blariyo-plan-to-development-spec/SKILL.md` | 미배치 |
 
 스킬은 `docs/ai/skills/`에서만 수정하고 전역 배치 폴더를 다시 복사한다. `references/`와 `agents/`가

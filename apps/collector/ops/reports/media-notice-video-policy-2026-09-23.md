@@ -24,37 +24,37 @@ Environment:
 
 Before:
 
-| metric | value |
-| --- | ---: |
-| `collect.batch_media` rows | 41 |
-| bytes | 2,664,402 |
+| metric                     |     value |
+| -------------------------- | --------: |
+| `collect.batch_media` rows |        41 |
+| bytes                      | 2,664,402 |
 
 After four hot-list write-db runs:
 
-| metric | value |
-| --- | ---: |
-| `collect.batch_media` rows | 56 |
-| bytes | 10,716,756 |
-| delta rows | +15 |
-| delta bytes | +8,052,354 |
+| metric                     |      value |
+| -------------------------- | ---------: |
+| `collect.batch_media` rows |         56 |
+| bytes                      | 10,716,756 |
+| delta rows                 |        +15 |
+| delta bytes                | +8,052,354 |
 
 Run results:
 
-| source | run ID | state | discovered | fetched | failures |
-| --- | --- | --- | ---: | ---: | ---: |
-| arcalive | `74956ebf-c994-4275-9306-223fa206693d` | COMPLETED | 2 | 2 | 0 |
-| bobaedream | `a4f51c16-c8e9-4dc7-b402-23fb76c2c603` | COMPLETED | 2 | 2 | 0 |
-| dogdrip | `3430989c-fd3b-4ffe-a33c-b79a984c8db0` | COMPLETED | 2 | 2 | 0 |
-| inven | `52e81bc7-6f87-4651-89a5-f7cb8fcf1d1c` | PARTIAL | 2 | 1 | 1 (`PARSE_FAILED`) |
+| source     | run ID                                 | state     | discovered | fetched |           failures |
+| ---------- | -------------------------------------- | --------- | ---------: | ------: | -----------------: |
+| arcalive   | `74956ebf-c994-4275-9306-223fa206693d` | COMPLETED |          2 |       2 |                  0 |
+| bobaedream | `a4f51c16-c8e9-4dc7-b402-23fb76c2c603` | COMPLETED |          2 |       2 |                  0 |
+| dogdrip    | `3430989c-fd3b-4ffe-a33c-b79a984c8db0` | COMPLETED |          2 |       2 |                  0 |
+| inven      | `52e81bc7-6f87-4651-89a5-f7cb8fcf1d1c` | PARTIAL   |          2 |       1 | 1 (`PARSE_FAILED`) |
 
 Fetched item/media readback:
 
-| source | fetched items in run | media rows in run | MIME examples |
-| --- | ---: | ---: | --- |
-| arcalive | 2 | 5 | image/webp |
-| bobaedream | 2 | 4 | image/jpeg |
-| dogdrip | 2 | 5 | image/webp |
-| inven | 1 | 1 | image/png |
+| source     | fetched items in run | media rows in run | MIME examples |
+| ---------- | -------------------: | ----------------: | ------------- |
+| arcalive   |                    2 |                 5 | image/webp    |
+| bobaedream |                    2 |                 4 | image/jpeg    |
+| dogdrip    |                    2 |                 5 | image/webp    |
+| inven      |                    1 |                 1 | image/png     |
 
 Object readback directory contained 26 files for the sampled runs:
 

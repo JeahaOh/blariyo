@@ -28,7 +28,7 @@
    - OD-M0-008~009, OD-M0-013
    - canonical URL, SSR metadata fallback, Kakao 활성화 차단, public copy config
 3. 법무·권리·분석 계약 검수
-   - OD-M0-006~007, OD-M0-010~011
+   - OD-M0-006~~007, OD-M0-010~~011
    - placeholder·출시 차단, mailto 범위, 동의 전 요청 0건, GA4 비활성 조건
 
 ## 공통 판정 기준

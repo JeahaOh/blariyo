@@ -19,13 +19,14 @@
 
 ## 2. 요구사항 추적
 
-| 요구 | API | 흐름 | 화면 |
-| --- | --- | --- | --- |
-| 중복 없는 신고 | POST reports, GET me/reports | [신고](#d01-report) | [신고 modal](#d08-report) |
-| 검토·숨김·삭제 | admin moderation reports/resolve/actions | [검토](#d01-review) | [검토](#d08-review) |
-| 참여 제한·해제 | admin members restriction | [제재](#d01-restrict) | [제재](#d08-restrict) |
+| 요구           | API                                      | 흐름                  | 화면                      |
+| -------------- | ---------------------------------------- | --------------------- | ------------------------- |
+| 중복 없는 신고 | POST reports, GET me/reports             | [신고](#d01-report)   | [신고 modal](#d08-report) |
+| 검토·숨김·삭제 | admin moderation reports/resolve/actions | [검토](#d01-review)   | [검토](#d08-review)       |
+| 참여 제한·해제 | admin members restriction                | [제재](#d01-restrict) | [제재](#d08-restrict)     |
 
 <a id="api-moderation"></a>
+
 ## 3. API 업무 계약
 
 기술 정본 신고·운영 표를 사용한다. 신고 입력은 postId·선택 commentId·reasonCode·detail이며
@@ -44,6 +45,7 @@ Core가 실제 대상 소속·공개·신고자와 작성자의 차이를 확인
   publicReason의 CR·LF·U+2028·U+2029는 거부한다.
 
 <a id="d01-report"></a>
+
 ## 4. 신고 접수
 
 1. 사용자 session·동의·제재 확인 후 공개 글 또는 해당 글의 공개 댓글인지 검증한다.
@@ -53,6 +55,7 @@ Core가 실제 대상 소속·공개·신고자와 작성자의 차이를 확인
 5. 신고자에게 접수 상태만 반환한다. 운영 조치 없이 콘텐츠를 숨기지 않는다.
 
 <a id="d01-review"></a>
+
 ## 5. 운영자 검토
 
 1. 외부 관리자 인증 후 OPEN 목록과 사건 상세를 읽는다. 신고가 없으면 관리자 글 상세·댓글 목록/상세 조회를 사용한다. 대상 현재 version과 targetMemberRef를 함께 확인한다.
@@ -66,6 +69,7 @@ Core가 실제 대상 소속·공개·신고자와 작성자의 차이를 확인
 기존 권리 안내를 따른다. 숨김·삭제 전후 본문 사본을 메일·log·신고 detail로 자동 복사하지 않는다.
 
 <a id="d01-restrict"></a>
+
 ## 6. 참여 제한
 
 1. 신고 상세 또는 관리자 글/댓글 상세의 targetMemberRef로 현 제한 상태를 조회한다. 탈퇴한 회원은 제재 대상이 없다.
@@ -77,6 +81,7 @@ Core가 실제 대상 소속·공개·신고자와 작성자의 차이를 확인
 6. 수동 해제는 REVOKED와 action을 저장하고 즉시 참여를 허용한다. 기간 변경도 version을 올리며 이전 이력을 덮어쓰지 않는다.
 
 <a id="d08-report"></a>
+
 ## 7. 신고 modal
 
 - 상세 글·댓글의 신고→사유 선택·설명. label과 NFC 정규화·trim 후 Unicode code point 기준 최대 글자 수,
@@ -86,6 +91,7 @@ Core가 실제 대상 소속·공개·신고자와 작성자의 차이를 확인
 - 내 신고는 `/account/activity` 신고 탭에서 접수/종결만 보여준다. 내부 메모·신고자·제재 대상 식별자는 없다.
 
 <a id="d08-review"></a>
+
 ## 8. 운영 검토 화면
 
 - route `/admin/moderation`, `/admin/moderation/reports/:reportId`, `/admin/moderation/posts/:postId`, `/admin/moderation/posts/:postId/comments/:commentId`.
@@ -95,6 +101,7 @@ Core가 실제 대상 소속·공개·신고자와 작성자의 차이를 확인
 - 숨김 복원은 독립 버튼이며 최종 삭제에는 표시하지 않는다.
 
 <a id="d08-restrict"></a>
+
 ## 9. 제재 화면
 
 - 검토 상세에서 회원 제한 panel로 진입, 현재 사유·기간·이력·기간 선택·해제.

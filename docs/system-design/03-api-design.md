@@ -1,6 +1,7 @@
 # M0 Web BFF API 설계
 
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
+
 - 문서 상태: M0 API 계약 · 현행 Core/BFF 및 legacy/direct 경계
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-24 (소스·OpenAPI 정적 대조; 운영 호출 재실행 아님)
@@ -30,35 +31,35 @@ Core API의 내부 route는 외부 호환 계약으로
 
 ### M0 endpoint 목록
 
-| 구분 | Method | Path | 역할 |
-| --- | --- | --- | --- |
-| health | `GET` | `/health/live` | Nuxt BFF process 생존 확인 |
-| health | `GET` | `/health/ready` | Core API·PostgreSQL·migration version 준비 확인 |
-| 공개 | `GET` | `/api/v1/boards` | 활성 게시판 |
-| 공개 | `GET` | `/api/v1/boards/:boardSlug/posts` | 해당 게시판 목록 |
-| 공개 | `GET` | `/api/v1/boards/:boardSlug/posts/:postId` | 게시판 소속을 검증한 상세와 하단 목록 context |
-| 공개 | `POST` | `/api/v1/boards/:boardSlug/posts/:postId/views` | 참고용 조회 수 1 증가 |
-| 공개 | `GET` | `/api/v1/policies/:type` | 현재·과거 정책 |
-| 관리자 | `GET` | `/api/v1/admin/posts` | 게시글 검색 |
-| 관리자 | `GET` | `/api/v1/admin/posts/:postId` | 초안 편집용 상세 |
-| 관리자 | `POST` | `/api/v1/admin/images` | staging 이미지 업로드 |
-| 관리자 | `GET` | `/api/v1/admin/images/:imageId/preview` | 인증된 staging preview |
-| 관리자 | `DELETE` | `/api/v1/admin/images/:imageId` | 미연결 staging 이미지 폐기 예약 |
-| 관리자 | `POST` | `/api/v1/admin/posts` | 초안 생성과 이미지 선점 |
-| 관리자 | `PATCH` | `/api/v1/admin/posts/:postId` | 초안·예약·숨김 글 수정 |
-| 관리자 | `POST` | `/api/v1/admin/posts/:postId/publish` | 즉시 발행·예약 |
-| 관리자 | `POST` | `/api/v1/admin/posts/:postId/unschedule` | 예약 취소 후 초안 복귀 |
-| 관리자 | `POST` | `/api/v1/admin/posts/:postId/hide` | 공개 글 우선 숨김 |
-| 관리자 | `POST` | `/api/v1/admin/posts/:postId/republish` | 숨김 글 재공개 |
-| 관리자 | `DELETE` | `/api/v1/admin/posts/:postId` | 숨김 글 최종 제거 |
-| 관리자 | `GET` | `/api/v1/admin/collect/sources` | 수집 출처 목록 |
-| 관리자 | `PATCH` | `/api/v1/admin/collect/sources/:sourceId` | 출처 활성·수집 방식·상한·robots 확인 결과 수정 |
-| 관리자 | `GET` | `/api/v1/admin/collect/candidates` | 수집 후보 검색 |
-| 관리자 | `GET` | `/api/v1/admin/collect/candidates/:candidateId` | 후보 상세와 이미지 후보 |
-| 관리자 | `POST` | `/api/v1/admin/collect/candidates` | 관리자 URL 지정 수집 작업 접수 |
-| 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/retry` | 실패 후보 재수집 |
-| 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/reject` | 후보 반려 |
-| 관리자 | `POST` | `/api/v1/admin/collect/candidates/:candidateId/draft` | 후보를 초안으로 승격 |
+| 구분   | Method   | Path                                                   | 역할                                            |
+| ------ | -------- | ------------------------------------------------------ | ----------------------------------------------- |
+| health | `GET`    | `/health/live`                                         | Nuxt BFF process 생존 확인                      |
+| health | `GET`    | `/health/ready`                                        | Core API·PostgreSQL·migration version 준비 확인 |
+| 공개   | `GET`    | `/api/v1/boards`                                       | 활성 게시판                                     |
+| 공개   | `GET`    | `/api/v1/boards/:boardSlug/posts`                      | 해당 게시판 목록                                |
+| 공개   | `GET`    | `/api/v1/boards/:boardSlug/posts/:postId`              | 게시판 소속을 검증한 상세와 하단 목록 context   |
+| 공개   | `POST`   | `/api/v1/boards/:boardSlug/posts/:postId/views`        | 참고용 조회 수 1 증가                           |
+| 공개   | `GET`    | `/api/v1/policies/:type`                               | 현재·과거 정책                                  |
+| 관리자 | `GET`    | `/api/v1/admin/posts`                                  | 게시글 검색                                     |
+| 관리자 | `GET`    | `/api/v1/admin/posts/:postId`                          | 초안 편집용 상세                                |
+| 관리자 | `POST`   | `/api/v1/admin/images`                                 | staging 이미지 업로드                           |
+| 관리자 | `GET`    | `/api/v1/admin/images/:imageId/preview`                | 인증된 staging preview                          |
+| 관리자 | `DELETE` | `/api/v1/admin/images/:imageId`                        | 미연결 staging 이미지 폐기 예약                 |
+| 관리자 | `POST`   | `/api/v1/admin/posts`                                  | 초안 생성과 이미지 선점                         |
+| 관리자 | `PATCH`  | `/api/v1/admin/posts/:postId`                          | 초안·예약·숨김 글 수정                          |
+| 관리자 | `POST`   | `/api/v1/admin/posts/:postId/publish`                  | 즉시 발행·예약                                  |
+| 관리자 | `POST`   | `/api/v1/admin/posts/:postId/unschedule`               | 예약 취소 후 초안 복귀                          |
+| 관리자 | `POST`   | `/api/v1/admin/posts/:postId/hide`                     | 공개 글 우선 숨김                               |
+| 관리자 | `POST`   | `/api/v1/admin/posts/:postId/republish`                | 숨김 글 재공개                                  |
+| 관리자 | `DELETE` | `/api/v1/admin/posts/:postId`                          | 숨김 글 최종 제거                               |
+| 관리자 | `GET`    | `/api/v1/admin/collect/sources`                        | 수집 출처 목록                                  |
+| 관리자 | `PATCH`  | `/api/v1/admin/collect/sources/:sourceId`              | 출처 활성·수집 방식·상한·robots 확인 결과 수정  |
+| 관리자 | `GET`    | `/api/v1/admin/collect/candidates`                     | 수집 후보 검색                                  |
+| 관리자 | `GET`    | `/api/v1/admin/collect/candidates/:candidateId`        | 후보 상세와 이미지 후보                         |
+| 관리자 | `POST`   | `/api/v1/admin/collect/candidates`                     | 관리자 URL 지정 수집 작업 접수                  |
+| 관리자 | `POST`   | `/api/v1/admin/collect/candidates/:candidateId/retry`  | 실패 후보 재수집                                |
+| 관리자 | `POST`   | `/api/v1/admin/collect/candidates/:candidateId/reject` | 후보 반려                                       |
+| 관리자 | `POST`   | `/api/v1/admin/collect/candidates/:candidateId/draft`  | 후보를 초안으로 승격                            |
 
 M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
 수집 endpoint는 별도 `M0 수집 보조` OpenAPI에 정의되어 있다. 위 `sources`/`candidates`는 legacy 경로이고,
@@ -141,9 +142,7 @@ Core는 PostgreSQL·허용 schema version을 확인하고 legacy/direct flag에 
 {
   "code": "VALIDATION_FAILED",
   "message": "입력값을 확인해 주세요.",
-  "fields": [
-    { "field": "title", "reason": "maxLength" }
-  ]
+  "fields": [{ "field": "title", "reason": "maxLength" }]
 }
 ```
 
@@ -151,10 +150,10 @@ Core는 PostgreSQL·허용 schema version을 확인하고 legacy/direct flag에 
 
 공개 게시글 route의 path 변수:
 
-| path 변수 | 규칙 |
-| --- | --- |
+| path 변수   | 규칙                                                                        |
+| ----------- | --------------------------------------------------------------------------- |
 | `boardSlug` | 활성 게시판의 소문자 영문·숫자·하이픈 slug, 내부 `board.id`는 노출하지 않음 |
-| `postId` | `content.board_post.id`의 양의 정수 문자열 |
+| `postId`    | `content.board_post.id`의 양의 정수 문자열                                  |
 
 형식이 맞지 않는 `boardSlug`는 목록에서 `404 BOARD_NOT_FOUND`, 상세에서 `404 POST_NOT_FOUND`로 처리한다. `postId`가 10진수 양의 정수가 아니거나 범위를 벗어나도 `404 POST_NOT_FOUND`로 처리해 내부 식별자 규칙을 추가로 노출하지 않는다.
 
@@ -172,9 +171,9 @@ Core는 PostgreSQL·허용 schema version을 확인하고 legacy/direct flag에 
 
 예: `GET /api/v1/boards/meme/posts?page=1`
 
-| query | 타입 | 기본값 | 규칙 |
-| --- | --- | --- | --- |
-| `page` | integer | `1` | `1~10000` |
+| query  | 타입    | 기본값 | 규칙      |
+| ------ | ------- | ------ | --------- |
+| `page` | integer | `1`    | `1~10000` |
 
 응답 필드·형식은 [M0 Core OpenAPI](../development-specs/m0-core/openapi/m0-core.yaml)를 따른다.
 
@@ -282,14 +281,14 @@ Nuxt BFF의 `AdminIdentityProvider` adapter가 외부 운영자 identity를 검�
 
 `GET /api/v1/admin/posts?status=DRAFT&page=1`
 
-| query | 타입 | 기본값 | 규칙 |
-| --- | --- | --- | --- |
-| `status` | string | 없음 | 생략 또는 단일 게시 상태 |
-| `board` | string | 없음 | 생략 또는 게시판 slug |
-| `titlePrefix` | string | 없음 | trim 후 1~100자, prefix 검색 |
-| `from` | ISO 8601 | 없음 | `updatedAt` 시작, UTC 변환 |
-| `to` | ISO 8601 | 없음 | `updatedAt` 종료, `from <= to` |
-| `page` | integer | `1` | `1~10000` |
+| query         | 타입     | 기본값 | 규칙                           |
+| ------------- | -------- | ------ | ------------------------------ |
+| `status`      | string   | 없음   | 생략 또는 단일 게시 상태       |
+| `board`       | string   | 없음   | 생략 또는 게시판 slug          |
+| `titlePrefix` | string   | 없음   | trim 후 1~100자, prefix 검색   |
+| `from`        | ISO 8601 | 없음   | `updatedAt` 시작, UTC 변환     |
+| `to`          | ISO 8601 | 없음   | `updatedAt` 종료, `from <= to` |
+| `page`        | integer  | `1`    | `1~10000`                      |
 
 page size는 50으로 고정하고 `updatedAt DESC, postId DESC`로 정렬한다.
 query 형식·상태·날짜·범위 오류는 `400 VALIDATION_FAILED`다. `page`가 `1~10000` 범위 안이지만
@@ -365,6 +364,7 @@ DELETE /api/v1/admin/images/:imageId
   object 삭제는 응답 전에 직접 수행하지 않고 outbox worker가 처리한다.
 
 응답 필드·형식은 [M0 Core OpenAPI](../development-specs/m0-core/openapi/m0-core.yaml)를 따른다.
+
 - 연결된 image, `PUBLIC`·`PUBLIC_DELETE_PENDING`·`PRIVATE_REVIEW` image 또는 이미 private 삭제 중인 image는 `409 IMAGE_STATE_CONFLICT`다.
 
 ### 초안 생성
@@ -408,9 +408,7 @@ DELETE /api/v1/admin/images/:imageId
 {
   "lockVersion": 3,
   "title": "수정 제목",
-  "blocks": [
-    { "type": "TEXT", "text": "수정 본문" }
-  ],
+  "blocks": [{ "type": "TEXT", "text": "수정 본문" }],
   "source": null,
   "pinnedPosition": null
 }
@@ -519,17 +517,17 @@ collector는 Core에 직접 연결하지 않고 `/api/collector/v1/*` Web 전용
 `/internal/collect/*`로 매핑한다. 관리자 session·공개 브라우저 API와 분리하며 Core만 bearer token의
 scope·collectorId를 검증한다. M0 Core에서는 이 중계와 수집 내부 route를 등록하지 않는다.
 
-| Method | Core path (중계 path는 `/api/collector/v1` + `/internal/collect` 뒤의 경로) | 역할 |
-| --- | --- | --- |
-| `POST` | `/internal/collect/candidates` | Discord URL 작업 접수, `202 PENDING` |
-| `POST` | `/internal/collect/candidates/claim` | PENDING 또는 lease 만료 RUNNING 선점 |
-| `POST` | `/internal/collect/candidates/:candidateId/heartbeat` | lease 연장, 새 lockVersion 반환 |
-| `POST` | `/internal/collect/candidates/:candidateId/result` | NEW/FETCH_FAILED, 새 lockVersion과 이미지 ID 매핑 반환 |
-| `POST` | `/internal/collect/candidates/:candidateId/images/:candidateImageId/preview` | 검증·재인코딩한 24시간 private preview 업로드 |
-| `GET` | `/internal/collect/status` | `/collect status`용 1~168시간 후보·출처 집계 |
-| `GET` | `/internal/collect/candidates/:candidateId/execution-state` | execution 소유자 전용 응답 유실·restart 조정 |
-| `POST` | `/internal/collect/sources/:sourceId/request-reservations` | 외부 HTTP quota 원자 예약·즉시 차감 |
-| `POST` | `/internal/collect/operational-events` | 알림 최종 실패·조정 필요 운영 event 멱등 기록 |
+| Method | Core path (중계 path는 `/api/collector/v1` + `/internal/collect` 뒤의 경로)  | 역할                                                   |
+| ------ | ---------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `POST` | `/internal/collect/candidates`                                               | Discord URL 작업 접수, `202 PENDING`                   |
+| `POST` | `/internal/collect/candidates/claim`                                         | PENDING 또는 lease 만료 RUNNING 선점                   |
+| `POST` | `/internal/collect/candidates/:candidateId/heartbeat`                        | lease 연장, 새 lockVersion 반환                        |
+| `POST` | `/internal/collect/candidates/:candidateId/result`                           | NEW/FETCH_FAILED, 새 lockVersion과 이미지 ID 매핑 반환 |
+| `POST` | `/internal/collect/candidates/:candidateId/images/:candidateImageId/preview` | 검증·재인코딩한 24시간 private preview 업로드          |
+| `GET`  | `/internal/collect/status`                                                   | `/collect status`용 1~168시간 후보·출처 집계           |
+| `GET`  | `/internal/collect/candidates/:candidateId/execution-state`                  | execution 소유자 전용 응답 유실·restart 조정           |
+| `POST` | `/internal/collect/sources/:sourceId/request-reservations`                   | 외부 HTTP quota 원자 예약·즉시 차감                    |
+| `POST` | `/internal/collect/operational-events`                                       | 알림 최종 실패·조정 필요 운영 event 멱등 기록          |
 
 `SPRING_V2` collector는 모든 변경 endpoint에 `Idempotency-Key`를 사용하고 2xx receipt를 7일 보존한다.
 claim은 민감 payload snapshot을 저장하지 않아 current execution이 유효할 때만 같은 응답을 재구성하고,
@@ -552,18 +550,18 @@ cutover, quota·execution fencing과 멱등 만료 뒤 digest 조정의 단일 �
 `GET /api/v1/admin/collect/sources`는 query·body 없이 등록 출처 전체를 `sourceId ASC`로 반환한다.
 페이지네이션은 없고 빈 목록도 `200`이다. 공통 성공 envelope의 `data.items[]`는 아래 필드를 모두 가진다.
 
-| 필드 | 형식·값 |
-| --- | --- |
-| `sourceId`, `lockVersion` | 양의 정수 |
-| `name`, `baseUrl`, `host` | 출처 표시명, 등록 HTTPS 기준 URL, 소문자 host |
-| `fetchMode`, `parserType` | 현행 legacy 값은 `URL_ONLY`, `MANUAL` |
-| `listUrl` | 현행 legacy는 null |
-| `isActive`, `isListCrawlEnabled` | boolean; `isListCrawlEnabled=false` 고정 |
-| `robotsAllowed` | boolean 또는 null(미확인) |
-| `robotsCheckedAt`, `lastFetchedAt` | UTC ISO 8601 또는 null |
-| `requestIntervalMs`, `dailyFetchLimit` | 정수, 각각 1000 이상·1~10000 |
-| `lastErrorCode`, `disabledReasonCode` | 일반화 코드 또는 null, 비활성 사유는 데이터 모델 enum |
-| `updatedAt` | 최근 수정의 UTC ISO 8601 시각 |
+| 필드                                   | 형식·값                                               |
+| -------------------------------------- | ----------------------------------------------------- |
+| `sourceId`, `lockVersion`              | 양의 정수                                             |
+| `name`, `baseUrl`, `host`              | 출처 표시명, 등록 HTTPS 기준 URL, 소문자 host         |
+| `fetchMode`, `parserType`              | 현행 legacy 값은 `URL_ONLY`, `MANUAL`                 |
+| `listUrl`                              | 현행 legacy는 null                                    |
+| `isActive`, `isListCrawlEnabled`       | boolean; `isListCrawlEnabled=false` 고정              |
+| `robotsAllowed`                        | boolean 또는 null(미확인)                             |
+| `robotsCheckedAt`, `lastFetchedAt`     | UTC ISO 8601 또는 null                                |
+| `requestIntervalMs`, `dailyFetchLimit` | 정수, 각각 1000 이상·1~10000                          |
+| `lastErrorCode`, `disabledReasonCode`  | 일반화 코드 또는 null, 비활성 사유는 데이터 모델 enum |
+| `updatedAt`                            | 최근 수정의 UTC ISO 8601 시각                         |
 
 `PATCH /api/v1/admin/collect/sources/:sourceId`는 현재 양의 정수 `lockVersion`과 수정할 필드 한 개 이상을
 받는다. 수정 가능 필드는 `isActive`, `fetchMode`, `listUrl`, `parserType`, `isListCrawlEnabled`,
@@ -592,13 +590,13 @@ cutover, quota·execution fencing과 멱등 만료 뒤 digest 조정의 단일 �
 
 `GET /api/v1/admin/collect/candidates?status=NEW&page=1`
 
-| query | 타입 | 기본값 | 규칙 |
-| --- | --- | --- | --- |
-| `status` | string | 없음 | 생략 또는 단일 후보 상태 |
-| `sourceId` | integer | 없음 | 생략 또는 출처 식별자 |
-| `discoveryMode` | string | 없음 | 수동 URL 호환은 `MANUAL_URL`; direct batch는 API 후보 endpoint 대신 자체 ledger에 `LIST_CRAWL` 저장 |
-| `duplicateOnly` | boolean | `false` | 중복 표시된 후보만 |
-| `page` | integer | `1` | `1~10000` |
+| query           | 타입    | 기본값  | 규칙                                                                                                |
+| --------------- | ------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `status`        | string  | 없음    | 생략 또는 단일 후보 상태                                                                            |
+| `sourceId`      | integer | 없음    | 생략 또는 출처 식별자                                                                               |
+| `discoveryMode` | string  | 없음    | 수동 URL 호환은 `MANUAL_URL`; direct batch는 API 후보 endpoint 대신 자체 ledger에 `LIST_CRAWL` 저장 |
+| `duplicateOnly` | boolean | `false` | 중복 표시된 후보만                                                                                  |
+| `page`          | integer | `1`     | `1~10000`                                                                                           |
 
 page size는 50으로 고정하고 `COALESCE(fetchedAt, requestedAt) DESC, candidateId DESC`로 정렬한다.
 유효한 초과 page는 `200` 빈 items이며 관리자 게시글 검색과 같은 meta 규칙을 따른다. 잘못된 query는
@@ -675,7 +673,7 @@ POST /api/v1/admin/collect/candidates/:candidateId/reject
 - `NEW` 상태에서만 허용한다. 그 외에는 `409 CANDIDATE_STATE_CONFLICT`다.
 - `candidateImageIds`는 해당 후보의 이미지 후보여야 하고 1~20건이다. 순서가 본문 IMAGE block 순서가 된다.
 - `imageOptions`는 선택 ID마다 정확히 1건이며 중복·누락·미선택 ID를 허용하지 않는다. 각 `alt`는 trim 후 1~300자다. `uploadedImageId`를 지정하면 기존 관리자 업로드 API로 만든 미연결 `STAGED` 이미지와 1:1로 연결하고, 생략하면 만료되지 않은 해당 후보의 private preview를 사용한다. 같은 업로드 이미지를 중복 지정하지 않는다.
-- `leadText`는 trim 후 1~20,000자이며 첫 TEXT block으로 넣는다. 생략하면 IMAGE block만으로 초안을 만든다. 이 승격 API는 IMAGE 1~20건이 필수이며 TEXT만 있는 글은 기존 수동 초안 작성 API를 사용한다.
+- `leadText`는 trim 후 1~~20,000자이며 첫 TEXT block으로 넣는다. 생략하면 IMAGE block만으로 초안을 만든다. 이 승격 API는 IMAGE 1~~20건이 필수이며 TEXT만 있는 글은 기존 수동 초안 작성 API를 사용한다.
 - `title`을 생략하면 후보 제목을 사용한다. 최종 제목이 trim 후 1~200자가 아니면 `400 VALIDATION_FAILED`다.
 - `source`를 생략하면 출처명은 출처 표시명, URL은 후보 `originUrl`을 사용한다.
 - `duplicatePostId`가 있는 후보는 `acknowledgeDuplicate: true` 없이는 `409 CANDIDATE_DUPLICATE`다.
@@ -699,13 +697,13 @@ URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하�
 `COLLECT_BATCH_REVIEW_ENABLED` 및 관리자 인증이 필요하며 `private, no-store`다. flag가 꺼지면
 `404 BATCH_ITEM_NOT_FOUND`다. 유지보수 모드에서는 조회를 유지하고 변경을 차단한다.
 
-| Method | Path | 역할 |
-| --- | --- | --- |
-| GET | `/api/v1/admin/collect/batch-items` | `page`·`source`·`state`·`reviewStatus` 필터, 20건 목록 |
-| GET | `/api/v1/admin/collect/batch-items/:itemId` | 원문 블록·SNS·첨부·미디어 metadata·검수 상세 |
-| GET | `/api/v1/admin/collect/batch-items/:itemId/media/:position/preview` | IMAGE만 private stream, 크기/hash 확인·검증 후 제공 |
-| POST | `/api/v1/admin/collect/batch-items/:itemId/review` | 검수 시작·승인·반려 |
-| POST | `/api/v1/admin/collect/batch-items/:itemId/draft` | 승인한 원문을 수동 편집용 DRAFT로 이동 |
+| Method | Path                                                                | 역할                                                   |
+| ------ | ------------------------------------------------------------------- | ------------------------------------------------------ |
+| GET    | `/api/v1/admin/collect/batch-items`                                 | `page`·`source`·`state`·`reviewStatus` 필터, 20건 목록 |
+| GET    | `/api/v1/admin/collect/batch-items/:itemId`                         | 원문 블록·SNS·첨부·미디어 metadata·검수 상세           |
+| GET    | `/api/v1/admin/collect/batch-items/:itemId/media/:position/preview` | IMAGE만 private stream, 크기/hash 확인·검증 후 제공    |
+| POST   | `/api/v1/admin/collect/batch-items/:itemId/review`                  | 검수 시작·승인·반려                                    |
+| POST   | `/api/v1/admin/collect/batch-items/:itemId/draft`                   | 승인한 원문을 수동 편집용 DRAFT로 이동                 |
 
 - `itemId`는 UUID다. 목록은 공통 `meta.requestId` 외 `data.items/page/totalItems/totalPages`를 반환한다.
 - review 요청은 `itemVersion`, `lockVersion`, `decision=REVIEWING|APPROVED|REJECTED`다.
@@ -721,58 +719,58 @@ URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하�
 
 ## 6. 상태 코드와 오류 코드
 
-| HTTP | code | 의미 |
-| --- | --- | --- |
-| `400` | `VALIDATION_FAILED` | 요청 형식·값 오류 |
-| `401` | `ADMIN_AUTH_REQUIRED` | BFF 외부 관리자 identity 없음·만료·검증 실패 |
-| `401` | `COLLECTOR_AUTH_REQUIRED` | collector service token 없음·만료·불일치 |
-| `403` | `ADMIN_FORBIDDEN` | 운영자 allowlist 불일치 |
-| `403` | `COLLECTOR_FORBIDDEN` | collector token scope 불일치 |
-| `404` | `BOARD_NOT_FOUND` | 목록 요청 또는 관리자 초안 생성의 비활성·미존재 게시판 |
-| `404` | `POST_NOT_FOUND` | 상세 요청의 게시판 불일치·미존재·비공개 게시글 |
-| `404` | `PAGE_NOT_FOUND` | 존재하지 않는 페이지 |
-| `404` | `POLICY_NOT_FOUND` | 정책 유형·version 미존재 |
-| `404` | `IMAGE_NOT_FOUND` | 관리자 image 미존재 |
-| `409` | `POST_STATE_CONFLICT` | 현재 상태에서 command 불가 |
-| `409` | `POST_VERSION_CONFLICT` | 낙관적 잠금 충돌 |
-| `409` | `PINNED_ORDER_CONFLICT` | 공지 순서 중복 |
-| `409` | `IDEMPOTENCY_CONFLICT` | 같은 key의 다른 요청 |
-| `409` | `IDEMPOTENCY_IN_PROGRESS` | 같은 key의 첫 요청 처리 중 |
-| `409` | `IMAGE_ALREADY_ATTACHED` | 다른 게시글이 staging image를 선점 |
-| `409` | `IMAGE_STATE_CONFLICT` | 현재 image 상태와 요청 command 충돌 |
-| `403` | `SOURCE_NOT_ALLOWED` | 등록·활성된 수집 출처가 아닌 대상 |
-| `403` | `ROBOTS_DISALLOWED` | 출처 `robots.txt`가 금지한 경로 |
-| `404` | `SOURCE_NOT_FOUND` | 출처 식별자 형식 오류·미존재 |
-| `409` | `SOURCE_VERSION_CONFLICT` | 출처 수정 version 불일치 |
-| `404` | `CANDIDATE_NOT_FOUND` | 수집 후보 미존재 |
-| `409` | `SOURCE_STATE_CONFLICT` | 목록 수집 활성 조건 미충족 등 출처 상태 충돌 |
-| `409` | `CANDIDATE_STATE_CONFLICT` | 현재 후보 상태에서 command 불가 |
-| `409` | `CANDIDATE_LEASE_CONFLICT` | collector lease 만료·다른 collector 선점·lockVersion 불일치 |
-| `409` | `CANDIDATE_VERSION_CONFLICT` | 후보 낙관적 잠금 충돌 |
-| `409` | `CANDIDATE_DUPLICATE` | 같은 원문 URL의 후보·게시글 존재 |
-| `429` | `SOURCE_RATE_LIMITED` | 출처 요청 간격·일일 상한 초과 |
-| `502` | `SOURCE_FETCH_FAILED` | 대상 사이트 응답·파싱 실패 |
-| `413` | `UPLOAD_TOO_LARGE` | 이미지 파일·요청 개수·전체 크기·decode 자원 제한 초과 |
-| `413` | `REQUEST_TOO_LARGE` | JSON 요청 본문 크기 제한 초과 |
-| `415` | `UNSUPPORTED_MEDIA_TYPE` | 이미지 형식·decode validation 실패 |
-| `429` | `RATE_LIMITED` | 요청 제한 초과 |
-| `500` | `INTERNAL_ERROR` | 분류되지 않은 서버 오류 |
-| `503` | `DEPENDENCY_UNAVAILABLE` | DB·R2 등 필수 의존성 장애 |
-| `503` | `MAINTENANCE_READ_ONLY` | 이전·복구를 위한 전체 DB 쓰기 차단, `Retry-After` 제공 |
+| HTTP  | code                         | 의미                                                        |
+| ----- | ---------------------------- | ----------------------------------------------------------- |
+| `400` | `VALIDATION_FAILED`          | 요청 형식·값 오류                                           |
+| `401` | `ADMIN_AUTH_REQUIRED`        | BFF 외부 관리자 identity 없음·만료·검증 실패                |
+| `401` | `COLLECTOR_AUTH_REQUIRED`    | collector service token 없음·만료·불일치                    |
+| `403` | `ADMIN_FORBIDDEN`            | 운영자 allowlist 불일치                                     |
+| `403` | `COLLECTOR_FORBIDDEN`        | collector token scope 불일치                                |
+| `404` | `BOARD_NOT_FOUND`            | 목록 요청 또는 관리자 초안 생성의 비활성·미존재 게시판      |
+| `404` | `POST_NOT_FOUND`             | 상세 요청의 게시판 불일치·미존재·비공개 게시글              |
+| `404` | `PAGE_NOT_FOUND`             | 존재하지 않는 페이지                                        |
+| `404` | `POLICY_NOT_FOUND`           | 정책 유형·version 미존재                                    |
+| `404` | `IMAGE_NOT_FOUND`            | 관리자 image 미존재                                         |
+| `409` | `POST_STATE_CONFLICT`        | 현재 상태에서 command 불가                                  |
+| `409` | `POST_VERSION_CONFLICT`      | 낙관적 잠금 충돌                                            |
+| `409` | `PINNED_ORDER_CONFLICT`      | 공지 순서 중복                                              |
+| `409` | `IDEMPOTENCY_CONFLICT`       | 같은 key의 다른 요청                                        |
+| `409` | `IDEMPOTENCY_IN_PROGRESS`    | 같은 key의 첫 요청 처리 중                                  |
+| `409` | `IMAGE_ALREADY_ATTACHED`     | 다른 게시글이 staging image를 선점                          |
+| `409` | `IMAGE_STATE_CONFLICT`       | 현재 image 상태와 요청 command 충돌                         |
+| `403` | `SOURCE_NOT_ALLOWED`         | 등록·활성된 수집 출처가 아닌 대상                           |
+| `403` | `ROBOTS_DISALLOWED`          | 출처 `robots.txt`가 금지한 경로                             |
+| `404` | `SOURCE_NOT_FOUND`           | 출처 식별자 형식 오류·미존재                                |
+| `409` | `SOURCE_VERSION_CONFLICT`    | 출처 수정 version 불일치                                    |
+| `404` | `CANDIDATE_NOT_FOUND`        | 수집 후보 미존재                                            |
+| `409` | `SOURCE_STATE_CONFLICT`      | 목록 수집 활성 조건 미충족 등 출처 상태 충돌                |
+| `409` | `CANDIDATE_STATE_CONFLICT`   | 현재 후보 상태에서 command 불가                             |
+| `409` | `CANDIDATE_LEASE_CONFLICT`   | collector lease 만료·다른 collector 선점·lockVersion 불일치 |
+| `409` | `CANDIDATE_VERSION_CONFLICT` | 후보 낙관적 잠금 충돌                                       |
+| `409` | `CANDIDATE_DUPLICATE`        | 같은 원문 URL의 후보·게시글 존재                            |
+| `429` | `SOURCE_RATE_LIMITED`        | 출처 요청 간격·일일 상한 초과                               |
+| `502` | `SOURCE_FETCH_FAILED`        | 대상 사이트 응답·파싱 실패                                  |
+| `413` | `UPLOAD_TOO_LARGE`           | 이미지 파일·요청 개수·전체 크기·decode 자원 제한 초과       |
+| `413` | `REQUEST_TOO_LARGE`          | JSON 요청 본문 크기 제한 초과                               |
+| `415` | `UNSUPPORTED_MEDIA_TYPE`     | 이미지 형식·decode validation 실패                          |
+| `429` | `RATE_LIMITED`               | 요청 제한 초과                                              |
+| `500` | `INTERNAL_ERROR`             | 분류되지 않은 서버 오류                                     |
+| `503` | `DEPENDENCY_UNAVAILABLE`     | DB·R2 등 필수 의존성 장애                                   |
+| `503` | `MAINTENANCE_READ_ONLY`      | 이전·복구를 위한 전체 DB 쓰기 차단, `Retry-After` 제공      |
 
 ## 7. Cache header
 
-| API | header |
-| --- | --- |
-| boards | `public, max-age=60, s-maxage=300` |
-| posts list | `no-store` |
-| post detail | `no-store` |
-| policies | `public, max-age=60, s-maxage=300` |
-| post views | `no-store` |
-| admin | `private, no-store` |
-| admin collect | `private, no-store` |
-| health | `no-store` |
-| error·404 | `no-store` |
+| API           | header                             |
+| ------------- | ---------------------------------- |
+| boards        | `public, max-age=60, s-maxage=300` |
+| posts list    | `no-store`                         |
+| post detail   | `no-store`                         |
+| policies      | `public, max-age=60, s-maxage=300` |
+| post views    | `no-store`                         |
+| admin         | `private, no-store`                |
+| admin collect | `private, no-store`                |
+| health        | `no-store`                         |
+| error·404     | `no-store`                         |
 
 성공한 GET JSON 응답의 ETag는 data와 requestId를 제외한 meta의 SHA-256이다. 요청마다 바뀌는 requestId를
 제외하므로 동일 콘텐츠를 비교할 수 있다. 일치하는 `If-None-Match`에 304를 반환하며 Cache-Control은 유지한다.
@@ -807,7 +805,7 @@ Core API·BFF·관리자 화면·outbox와 공유 계약이 현재 저장소에 
 - [ ] 정책 현재·과거 버전 조회와 초안 비공개 Core/BFF contract test
 - [ ] 정책 시행 command의 미래·5분 초과 과거 시각 거부, 반개방 기간 경계·유형별 잠금·cache purge outbox transaction test
 - [ ] 조회 수 endpoint의 empty payload·payload 존재 시 `400 VALIDATION_FAILED`·공개 상태·게시판 소속
-  검증과 원자 증가 contract test
+      검증과 원자 증가 contract test
 - [ ] `MAINTENANCE_READ_ONLY`에서 공개 GET 허용·모든 mutation `503`·`Retry-After`·`Cache-Control: no-store` contract test
 - [ ] 조회 수 endpoint IP `60회/분` BFF rate-limit과 실패 시 상세 화면 유지 test
 - [ ] 목록의 미존재·비활성·잘못된 형식 `boardSlug`가 동일한 `404 BOARD_NOT_FOUND`인지 Core contract test
@@ -816,14 +814,14 @@ Core API·BFF·관리자 화면·outbox와 공유 계약이 현재 저장소에 
 - [ ] SSR `/:boardSlug/posts/:postId`의 게시판 불일치가 콘텐츠 없는 `404` HTML인지 integration test
 - [ ] SSR 상세의 canonical·OG·공유 URL이 `/:boardSlug/posts/:postId`로 일치하는지 integration test
 - [ ] SSR 상세의 앞뒤·내부 연속 Unicode whitespace, 80자 미만·120자·120자 초과 TEXT와 결합 문자·
-  emoji 사례에서 whitespace를 정규화한 뒤 padding 없이 Unicode grapheme cluster 기준으로만 최대
-  120자를 만들고 `description`·`og:description`·`twitter:description`이 일치하는지 integration test
+      emoji 사례에서 whitespace를 정규화한 뒤 padding 없이 Unicode grapheme cluster 기준으로만 최대
+      120자를 만들고 `description`·`og:description`·`twitter:description`이 일치하는지 integration test
 - [ ] 숨김·삭제·예약 글의 동일한 Core `404` contract test
 - [ ] 다중 image upload의 요청 개수·전체 크기 gate `413`과 `fields` 미제공, gate 통과 뒤 storage 전
-  전체 파일 validation, 개별 크기·형식 혼합 시 `413` 우선, 형식만 실패 시 `415`, 모든 실패
-  index·일반화 reason, validation 실패 시 storage 0건, R2·DB `503`의 `fields` 미제공 test
+      전체 파일 validation, 개별 크기·형식 혼합 시 `413` 우선, 형식만 실패 시 `415`, 모든 실패
+      index·일반화 reason, validation 실패 시 storage 0건, R2·DB `503`의 `fields` 미제공 test
 - [ ] storage 중간 실패 시 image row rollback·즉시 object 보상 삭제·별도 cleanup transaction과
-  24시간 orphan inventory integration test
+      24시간 orphan inventory integration test
 - [ ] image 선점·preview·폐기 상태 경쟁과 폐기 `202` 성공 envelope·outbox 삭제 integration test
 - [ ] 숨김 글 block 교체 중 public 삭제 대기·private image 제거 contract test
 - [ ] `lockVersion`와 `Idempotency-Key` 동시 요청 integration test
@@ -835,9 +833,9 @@ Core API·BFF·관리자 화면·outbox와 공유 계약이 현재 저장소에 
 - [ ] Core 내부 서비스 토큰 없음·불일치와 provider-neutral actor 누락·형식 오류 test
 - [ ] BFF 외부 관리자 adapter의 identity 없음·만료·잘못된 issuer·audience test
 - [ ] 관리자 게시글 상태·게시판·제목 prefix·수정일·page 검색과 형식 오류 `400`·유효한 초과 page
-  `200` 빈 결과 Core contract test
+      `200` 빈 결과 Core contract test
 - [ ] 관리자 게시글 상세의 `postId` 형식 오류·미존재·접근 불가 동일 `404`, 비공개 상태·TEXT/IMAGE
-  block·storage key 비노출 contract test
+      block·storage key 비노출 contract test
 - [ ] BFF 관리자 query validation·응답 allowlist mapping·Core 내부 인증 header 전달 test
 - [ ] `/internal/health/ready` migration version 불일치 test
 - [ ] 수집 endpoint가 관리자 인증 없이 호출될 때 `401`·`403`인지, 공개 route에 노출되지 않는지 test
@@ -882,7 +880,6 @@ BFF `/api/collector/v1/*`는 유지한다. 추가 endpoint도 같은 prefix로�
   만료 permit·`NETWORK_STARTED` 뒤 불명 응답을 같은 reservation으로 재송신하지 않는다.
 - Batch 성공을 후보 발행 성공으로 번역하지 않는다. 전체 DTO·오류·Job/Step·복구표는
   [Spring 상세 설계](./07-spring-collector-design.md)를 따른다.
-
 
 ## 원문 수집 API 확장 (2026-09-20)
 

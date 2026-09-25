@@ -124,14 +124,14 @@ COL-01~05와 OPS-03은 legacy Core 제출 프로토콜을 다룬다. 현행 dire
 - 실행 A: claim, heartbeat, reservation, result, preview, 보존 만료 후 result 조정의 응답 유실을 각각 재현한다.
 - 실행 B: 아래 6개 Step의 checkpoint 직전/직후에서 프로세스를 SIGKILL하고 같은 실행을 재기동한다.
 
-| Step | 확인할 결과 |
-| --- | --- |
-| resolveCandidate | 동일 접수에서 후보·Job 중복 없음 |
-| claimCandidate | 소유권·version을 Core와 재대조 |
-| fetchAndExtract | network 시작 여부·예약 유효성에 따라 재송신 여부 결정 |
-| submitResult | 같은 payload digest·결과를 한 번만 반영 |
-| uploadPreviews | 이미 저장한 preview 보존, 빠진 것만 계약대로 복구 |
-| notifyAndFinalize | 완료 상태·알림 delivery 중복 방지 |
+| Step              | 확인할 결과                                           |
+| ----------------- | ----------------------------------------------------- |
+| resolveCandidate  | 동일 접수에서 후보·Job 중복 없음                      |
+| claimCandidate    | 소유권·version을 Core와 재대조                        |
+| fetchAndExtract   | network 시작 여부·예약 유효성에 따라 재송신 여부 결정 |
+| submitResult      | 같은 payload digest·결과를 한 번만 반영               |
+| uploadPreviews    | 이미 저장한 preview 보존, 빠진 것만 계약대로 복구     |
+| notifyAndFinalize | 완료 상태·알림 delivery 중복 방지                     |
 
 - 추가 검증: 매 변형마다 실제 exit와 새 PID, DB checkpoint·Core 권위 상태, 외부 수신 횟수를 남긴다.
   stale 소유권이면 다음 외부 요청이나 새 result를 보내지 않는다. private preview bytes/hash도 비교한다.
@@ -221,13 +221,13 @@ COL-01~05와 OPS-03은 legacy Core 제출 프로토콜을 다룬다. 현행 dire
 아래는 이 문서의16개 케이스만으로 완료 처리할 수 없다. 실제 환경 검증을 계획할 때 별도 케이스 ID와
 실값·관측 방법·합격 기준을 정한다.
 
-| 항목 | 필요한 추가 증거 |
-| --- | --- |
-| 실제 R2/CDN/Access | 운영 설정의 인증·이미지 접근·숨김 후 cache/object 처리 관측 |
-| 실제 출처·Discord | 승인 범위의 수집/발송·재연결 결과. 외부 전송은 별도 승인 범위에서 수행 |
-| 성능·장기 실행 | 동시 사용자 수·데이터 규모·응답 시간·에러율·관찰 기간의 합격 기준 `(미정)` |
-| 원격 백업/OS 자동 실행 | 원격 readback·복원, cron/Keychain/launchd 및 재부팅 후 실행 증거 |
-| 법무·공개 운영 | 실값과 승인 정책, 출시 차단 조건 확인 |
+| 항목                   | 필요한 추가 증거                                                           |
+| ---------------------- | -------------------------------------------------------------------------- |
+| 실제 R2/CDN/Access     | 운영 설정의 인증·이미지 접근·숨김 후 cache/object 처리 관측                |
+| 실제 출처·Discord      | 승인 범위의 수집/발송·재연결 결과. 외부 전송은 별도 승인 범위에서 수행     |
+| 성능·장기 실행         | 동시 사용자 수·데이터 규모·응답 시간·에러율·관찰 기간의 합격 기준 `(미정)` |
+| 원격 백업/OS 자동 실행 | 원격 readback·복원, cron/Keychain/launchd 및 재부팅 후 실행 증거           |
+| 법무·공개 운영         | 실값과 승인 정책, 출시 차단 조건 확인                                      |
 
 합격 기준을 임의로 정해 부하 시험을 PASS 처리하지 않는다. 실패 복구 사례의 통과도 모든 장애 조합을
 검증했다는 뜻은 아니다.

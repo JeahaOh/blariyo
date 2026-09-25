@@ -10,15 +10,15 @@
 
 **마지막 운영 확인에서 서버는 AWS Lightsail 서울 2GB다. Cloudflare는 도메인·관리자 보호·이미지·백업에 사용한다. GA4·카카오·URL/Discord 접수·자동 수집은 비활성이고 관리자 batch 검수만 활성이다.** 검수 활성은 실제 운영자 인수나 direct 보존·고지 조건 완료를 뜻하지 않는다.
 
-| 구분 | 현재 프로젝트의 결정 | 지금 필요한 계정 |
-| --- | --- | --- |
-| 서버 | AWS Lightsail 서울 2GB, Docker Compose, 고정 IP 미사용 | 기존 AWS 계정 |
-| 과거 대안 | OCI 서울 A1 | 현재 추가 준비 불필요 |
-| DNS·HTTPS·서버 연결 | Cloudflare DNS·Tunnel | Cloudflare 계정 |
-| 관리자 접근 | Cloudflare Access | 같은 Cloudflare 계정의 Zero Trust 설정 |
-| 이미지·DB 백업 | Cloudflare R2 Standard, 용도별 bucket·자격증명 분리 | 같은 Cloudflare 계정에서 R2 활성화 |
-| 방문 분석 | GA4, 준비 완료 및 이용자 동의 후에만 수집 | 후속 활성화를 선택할 때 Google 계정과 Analytics 계정/속성 |
-| 수집기 | 운영자 PC의 Spring Collector | 이번 서버 준비와 분리 |
+| 구분                | 현재 프로젝트의 결정                                   | 지금 필요한 계정                                          |
+| ------------------- | ------------------------------------------------------ | --------------------------------------------------------- |
+| 서버                | AWS Lightsail 서울 2GB, Docker Compose, 고정 IP 미사용 | 기존 AWS 계정                                             |
+| 과거 대안           | OCI 서울 A1                                            | 현재 추가 준비 불필요                                     |
+| DNS·HTTPS·서버 연결 | Cloudflare DNS·Tunnel                                  | Cloudflare 계정                                           |
+| 관리자 접근         | Cloudflare Access                                      | 같은 Cloudflare 계정의 Zero Trust 설정                    |
+| 이미지·DB 백업      | Cloudflare R2 Standard, 용도별 bucket·자격증명 분리    | 같은 Cloudflare 계정에서 R2 활성화                        |
+| 방문 분석           | GA4, 준비 완료 및 이용자 동의 후에만 수집              | 후속 활성화를 선택할 때 Google 계정과 Analytics 계정/속성 |
+| 수집기              | 운영자 PC의 Spring Collector                           | 이번 서버 준비와 분리                                     |
 
 이 구성의 정본은 [인프라 계획](../planning/02-infra-plan.md)과
 [인프라 설계](../system-design/04-infrastructure-design.md)다. GCP 서버나 별도 managed DB는 현재 계획에 없다.
@@ -29,15 +29,15 @@
 현재 기준은 Lightsail이다. 기존 계정·버킷·Tunnel을 단순 상태 확인 때문에 다시 만들지 않는다.
 OCI 준비는 §4의 과거 대안이며 새 서버의 필수 선행 단계가 아니다.
 
-| 순서 | 내가 할 일 | 다음 단계로 넘어갈 기준 |
-| --- | --- | --- |
-| 1 | 기존 계정·도메인 관리 권한 확인 | AWS·Cloudflare 로그인과 도메인 DNS 수정 권한 확보 |
-| 2 | 기존 Lightsail 서버·관리 접속 확인 | 승인된 대상 identity·x86_64·자원·SSH 경계 확인. 신규 서버가 필요할 때만 별도 준비 |
-| 3 | Cloudflare 도메인 연결과 R2 준비 | 도메인 활성, 세 bucket 생성, 공개/비공개 범위 확인 |
-| 4 | Access 운영자 허용 범위와 Tunnel 준비 | 개발자가 배포 설정에 연결할 자료 확보 |
-| 5 | 개발자와 실제 배포·운영 검증 | 이미지·예약·관리자 인증·백업/복원 정상 |
-| 6 | GA4 계정·속성·웹 스트림 준비 | ID와 측정·보관 설정 확보. 아직 운영 수집은 끈 상태 |
-| 7 | GA4 고지·설정·실제 네트워크 검증 | 동의 전 0건, 동의 후 허용 이벤트, 철회 후 중단 확인 |
+| 순서 | 내가 할 일                            | 다음 단계로 넘어갈 기준                                                           |
+| ---- | ------------------------------------- | --------------------------------------------------------------------------------- |
+| 1    | 기존 계정·도메인 관리 권한 확인       | AWS·Cloudflare 로그인과 도메인 DNS 수정 권한 확보                                 |
+| 2    | 기존 Lightsail 서버·관리 접속 확인    | 승인된 대상 identity·x86_64·자원·SSH 경계 확인. 신규 서버가 필요할 때만 별도 준비 |
+| 3    | Cloudflare 도메인 연결과 R2 준비      | 도메인 활성, 세 bucket 생성, 공개/비공개 범위 확인                                |
+| 4    | Access 운영자 허용 범위와 Tunnel 준비 | 개발자가 배포 설정에 연결할 자료 확보                                             |
+| 5    | 개발자와 실제 배포·운영 검증          | 이미지·예약·관리자 인증·백업/복원 정상                                            |
+| 6    | GA4 계정·속성·웹 스트림 준비          | ID와 측정·보관 설정 확보. 아직 운영 수집은 끈 상태                                |
+| 7    | GA4 고지·설정·실제 네트워크 검증      | 동의 전 0건, 동의 후 허용 이벤트, 철회 후 중단 확인                               |
 
 GA4 준비는 2~5번과 병행할 수 있다. GA4를 끈 채 M0를 공개할 수 있으므로 GA4 때문에 서버 준비를 미루지 않는다.
 계정이 이미 있다면 기존 계정의 권한과 복구 방법부터 확인한다.
@@ -45,14 +45,14 @@ GA4 준비는 2~5번과 병행할 수 있다. GA4를 끈 채 M0를 공개할 수
 ## 3. 계정·도메인 공통 준비
 
 - [ ] **COMMON-01 — 서비스 관리 계정의 소유권을 확보한다.**
-  AWS·Cloudflare에 사용할 계정을 확인한다. Google·OCI는 해당 후속 기능·대안을 선택할 때 준비한다. 관리 권한이 다른 사람에게만 있는 상태는 완료가 아니다.
+      AWS·Cloudflare에 사용할 계정을 확인한다. Google·OCI는 해당 후속 기능·대안을 선택할 때 준비한다. 관리 권한이 다른 사람에게만 있는 상태는 완료가 아니다.
 - [ ] **COMMON-02 — 2단계 인증과 복구 수단을 준비한다.**
-  인증 수단을 등록하고 복구 코드를 비밀번호 관리자 등 저장소 밖에 보관한다. 로그인 가능한지 확인한다.
+      인증 수단을 등록하고 복구 코드를 비밀번호 관리자 등 저장소 밖에 보관한다. 로그인 가능한지 확인한다.
 - [ ] **COMMON-03 — `blariyo.com` 관리 상태를 확인한다.**
-  이미 보유했다면 등록 업체·만료일·네임서버 수정 권한을 확인한다. 미보유라면 구매 가능 여부부터 확인한다.
-  코드에 도메인이 적혀 있다는 사실은 실제 소유권을 의미하지 않는다.
+      이미 보유했다면 등록 업체·만료일·네임서버 수정 권한을 확인한다. 미보유라면 구매 가능 여부부터 확인한다.
+      코드에 도메인이 적혀 있다는 사실은 실제 소유권을 의미하지 않는다.
 - [ ] **COMMON-04 — 비용 알림을 받을 연락 수단을 정한다.**
-  결제 정보를 확인하고 각 서비스에서 지원하는 예산·사용량 알림을 설정한다. 알림 설정을 자동 과금 차단으로 간주하지 않는다.
+      결제 정보를 확인하고 각 서비스에서 지원하는 예산·사용량 알림을 설정한다. 알림 설정을 자동 과금 차단으로 간주하지 않는다.
 
 비밀번호, 카드 정보, 복구 코드, SSH 개인키, R2 Secret Access Key, Tunnel token, API token은 이 문서나 Git에 적지 않는다.
 이 문서에는 완료 여부·확인 날짜만 남기고, 실제 값은 provider console·비밀번호 관리자·배포 secret 저장소에서 관리한다.
@@ -124,11 +124,11 @@ Oracle은 가입 시 카드로 본인 확인을 하며 임시 승인 금액이 �
 - [ ] Dashboard의 **Storage & databases → R2 → Overview**에서 구독·결제 절차를 확인한다.
 - [ ] R2를 활성화하고 아래 세 bucket을 생성한다.
 
-| Bucket 이름 | 보관할 것 | 공개 설정 |
-| --- | --- | --- |
-| `blariyo-media-private` | 초안·비공개 원본 이미지 | 비공개, public URL·custom domain 연결 안 함 |
-| `blariyo-media-public` | 발행한 글의 공개 이미지 | 승인된 이미지 custom domain만 연결 |
-| `blariyo-backup` | 암호화한 DB 백업과 manifest | 비공개, public URL·custom domain 연결 안 함 |
+| Bucket 이름             | 보관할 것                   | 공개 설정                                   |
+| ----------------------- | --------------------------- | ------------------------------------------- |
+| `blariyo-media-private` | 초안·비공개 원본 이미지     | 비공개, public URL·custom domain 연결 안 함 |
+| `blariyo-media-public`  | 발행한 글의 공개 이미지     | 승인된 이미지 custom domain만 연결          |
+| `blariyo-backup`        | 암호화한 DB 백업과 manifest | 비공개, public URL·custom domain 연결 안 함 |
 
 - [ ] bucket의 저장 위치 관련 설정·실제 처리 사업자를 확인해 운영 정보로 관리한다.
 - 완료 기준: 세 bucket이 구분되고 private/backup에 공개 접근이 활성화되어 있지 않다.
@@ -168,9 +168,9 @@ Cloudflare는 R2 object 권한을 특정 bucket으로 제한할 수 있다. 전�
 - [ ] Zero Trust 설정에서 사용할 조직/team을 준비하고 team domain을 확인한다.
 - [ ] 관리자 로그인 방법과 허용할 운영자 계정을 정한다.
 - [ ] self-hosted Access application으로 `/admin*`와 `/api/v1/admin/*`를 보호한다.
-  실제 path matching은 `/admin`, `/admin/collect`, `/admin/collect/sources`, `/admin/batch`까지 빠짐없이 시험한다.
-  `admin-collect.vue`·`admin-collect-sources.vue`·`admin-batch.vue`의 실제 경로는 각 `definePageMeta`가 지정한다.
-  파일명에서 경로를 추정하지 않으며 `/api/admin/features`와 운영 `/health/ready`의 앱 인증도 별도 확인한다.
+      실제 path matching은 `/admin`, `/admin/collect`, `/admin/collect/sources`, `/admin/batch`까지 빠짐없이 시험한다.
+      `admin-collect.vue`·`admin-collect-sources.vue`·`admin-batch.vue`의 실제 경로는 각 `definePageMeta`가 지정한다.
+      파일명에서 경로를 추정하지 않으며 `/api/admin/features`와 운영 `/health/ready`의 앱 인증도 별도 확인한다.
 - [ ] 일반 이용자의 `/meme`·공개 API에는 관리자 로그인을 요구하지 않도록 범위를 확인한다.
 - [ ] application의 issuer/team domain과 audience(AUD), 허용 정책을 개발자와 확인한다.
 - 완료 기준: 승인된 운영자는 접근 가능, 다른 계정은 거부. **앱 내부 운영자 등록까지 마쳐야 전체 로그인 완료다.**
@@ -224,12 +224,12 @@ GA4는 Google Analytics 4다. **계정·속성을 미리 만들어도 서비스�
 - [ ] Google Ads 연결·User-ID 등 현재 정본 범위 밖 기능을 활성화하지 않는다.
 - [ ] 아래 네 이벤트를 앱이 직접 보내는 구성을 유지한다.
 
-| 이벤트 | 의미 |
-| --- | --- |
-| `page_view` | 페이지 탐색 |
-| `select_content` | 목록에서 게시글 선택 |
-| `share` | 공유 방식 선택 |
-| `scroll` | 상세의 스크롤 구간 도달 |
+| 이벤트           | 의미                    |
+| ---------------- | ----------------------- |
+| `page_view`      | 페이지 탐색             |
+| `select_content` | 목록에서 게시글 선택    |
+| `share`          | 공유 방식 선택          |
+| `scroll`         | 상세의 스크롤 구간 도달 |
 
 - 완료 기준: 자동 이벤트 설정을 껐으며 중복 삽입한 Google tag가 없다. 실제 전송 검증은 GA-05에서 수행한다.
 
@@ -269,16 +269,16 @@ Google SDK가 자동 생성하는 기술 이벤트·필드까지 네 가지로 �
 아래 최초 설치·정책·Access 확인은 2026-09-20 배포 기록을 기준으로 한다. 9월 23일 후속
 API/Web 배포·DB 반영과 기능별 활성화는 [운영 상태](current-status.md)의 관측 시각을 따른다.
 
-| 항목 | 확인한 상태 | 남은 확인 |
-| --- | --- | --- |
-| production 구성 | `deploy/` 구성으로 DB·Core·Web·Nginx healthy, Tunnel/DNS 공개 연결 | 실제 VM 재부팅·장기 부하 |
-| DB 역할·권한 | 9/20 app/migrator/backup 분리·V001–V005 적용. 9/23 API V008·Collector V006와 업무 데이터 반영, ledger·API 검수/읽기 제한·backup 새 테이블 읽기 권한 확인 | 현재 ledger·권한은 재조회 필요. 이후 migration마다 재검증 |
-| R2 | 버킷별 키 분리, 실제 앱 어댑터 private GET→public PUT·공개 HTTPS 확인 | 관리자 로그인 후 업로드·발행 전체 흐름 |
-| Access | 이메일 Allow·6시간 MFA, 익명/위조 JWT 차단, 별도 운영자 파일 주입 | 실제 TOTP 완료 후 sub 매핑·관리자 작업 |
-| 정책·연락처 | 기존 설정 주입, TERMS/PRIVACY v0.1 발행·SQL/공개 화면 확인 | 정보·처리 변경 시 새 정책 버전 |
-| 백업 | 하루 두 번 암호화 R2 전송, 실제 별도 DB 복원·해시 대조 | 복구키 별도 사본, 7일 삭제 관찰·월간 복원 |
-| 정기 작업·로그 | timer 설치, 수동 실행·로그 수신·합성 만료 파일 정리 확인 | 실패 자동 알림·장기 관찰 |
-| GA4·카카오·수집 접수/자동 실행 | GA4·카카오·URL/Discord 접수·자동 수집은 비활성. 9/23 관리자 batch 검수 API/Web flag만 활성, 내부 service 조회·미리보기 확인 | 실제 MFA 검수 조작, direct 보존·고지(QD-04)와 수집 기능별 gate는 별도 |
+| 항목                           | 확인한 상태                                                                                                                                              | 남은 확인                                                             |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| production 구성                | `deploy/` 구성으로 DB·Core·Web·Nginx healthy, Tunnel/DNS 공개 연결                                                                                       | 실제 VM 재부팅·장기 부하                                              |
+| DB 역할·권한                   | 9/20 app/migrator/backup 분리·V001–V005 적용. 9/23 API V008·Collector V006와 업무 데이터 반영, ledger·API 검수/읽기 제한·backup 새 테이블 읽기 권한 확인 | 현재 ledger·권한은 재조회 필요. 이후 migration마다 재검증             |
+| R2                             | 버킷별 키 분리, 실제 앱 어댑터 private GET→public PUT·공개 HTTPS 확인                                                                                    | 관리자 로그인 후 업로드·발행 전체 흐름                                |
+| Access                         | 이메일 Allow·6시간 MFA, 익명/위조 JWT 차단, 별도 운영자 파일 주입                                                                                        | 실제 TOTP 완료 후 sub 매핑·관리자 작업                                |
+| 정책·연락처                    | 기존 설정 주입, TERMS/PRIVACY v0.1 발행·SQL/공개 화면 확인                                                                                               | 정보·처리 변경 시 새 정책 버전                                        |
+| 백업                           | 하루 두 번 암호화 R2 전송, 실제 별도 DB 복원·해시 대조                                                                                                   | 복구키 별도 사본, 7일 삭제 관찰·월간 복원                             |
+| 정기 작업·로그                 | timer 설치, 수동 실행·로그 수신·합성 만료 파일 정리 확인                                                                                                 | 실패 자동 알림·장기 관찰                                              |
+| GA4·카카오·수집 접수/자동 실행 | GA4·카카오·URL/Discord 접수·자동 수집은 비활성. 9/23 관리자 batch 검수 API/Web flag만 활성, 내부 service 조회·미리보기 확인                              | 실제 MFA 검수 조작, direct 보존·고지(QD-04)와 수집 기능별 gate는 별도 |
 
 확인 근거: [Core 설정](../../apps/api/src/bootstrap/config.ts),
 [DB 설정](../../apps/api/src/bootstrap/database-config.ts),
@@ -289,11 +289,11 @@ API/Web 배포·DB 반영과 기능별 활성화는 [운영 상태](current-stat
 현재 GA4 관련 Nuxt 환경 변수 대응은 다음과 같다. **배포 담당자용 이름 설명이며 지금 값을 켜라는 명령이 아니다.**
 이름 대응과 public 설정의 브라우저 노출은 [Nuxt runtime config 안내](https://nuxt.com/docs/4.x/guide/going-further/runtime-config)를 따른다.
 
-| runtimeConfig.public | 대응 환경 변수 | 활성화 전 상태 |
-| --- | --- | --- |
-| `ga4Enabled` | `NUXT_PUBLIC_GA4_ENABLED` | false |
-| `analyticsApproved` | `NUXT_PUBLIC_ANALYTICS_APPROVED` | false |
-| `ga4MeasurementId` | `NUXT_PUBLIC_GA4_MEASUREMENT_ID` | 미주입/빈 값 |
+| runtimeConfig.public      | 대응 환경 변수                          | 활성화 전 상태                |
+| ------------------------- | --------------------------------------- | ----------------------------- |
+| `ga4Enabled`              | `NUXT_PUBLIC_GA4_ENABLED`               | false                         |
+| `analyticsApproved`       | `NUXT_PUBLIC_ANALYTICS_APPROVED`        | false                         |
+| `ga4MeasurementId`        | `NUXT_PUBLIC_GA4_MEASUREMENT_ID`        | 미주입/빈 값                  |
 | `analyticsConnectOrigins` | `NUXT_PUBLIC_ANALYTICS_CONNECT_ORIGINS` | 실제 수집 domain 확인 후 설정 |
 
 ## 8. 운영자가 이어서 확인할 일

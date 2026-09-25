@@ -3,12 +3,12 @@
 2026-09-23 KST, 로컬 DB와 local object store. 운영/S3/Discord Gateway 증거가 아니다.
 상세 결과는 [JSON](local-role-followup-2026-09-23.json)에 있다.
 
-| source | 실제 목록 추출 | 이번 후보 | 신규 FETCHED | 기존 중복 skip | 실패 | 신규 이미지 | DB/object/report readback |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| dmitory | 20 | 5 | 5 | 0 | 0 | 5 | 통과 |
-| yuldo | 15 | 5 | 4 | 1 | 0 | 6 | 통과 |
-| todayhumor | 30 | 5 | 1 | 3 | 1 | 4 | 성공·실패 기록 모두 일치 |
-| dcinside | 47 | 5 | 0 | 1 | 4 | 0 | 실패 원본·사유·report 일치; 수집 성공 아님 |
+| source     | 실제 목록 추출 | 이번 후보 | 신규 FETCHED | 기존 중복 skip | 실패 | 신규 이미지 | DB/object/report readback                  |
+| ---------- | -------------: | --------: | -----------: | -------------: | ---: | ----------: | ------------------------------------------ |
+| dmitory    |             20 |         5 |            5 |              0 |    0 |           5 | 통과                                       |
+| yuldo      |             15 |         5 |            4 |              1 |    0 |           6 | 통과                                       |
+| todayhumor |             30 |         5 |            1 |              3 |    1 |           4 | 성공·실패 기록 모두 일치                   |
+| dcinside   |             47 |         5 |            0 |              1 |    4 |           0 | 실패 원본·사유·report 일치; 수집 성공 아님 |
 
 모두 `--max-pages 1 --max-items 5 --since 24h --write-db`로 실행했다.
 실제 목록 HTML은 JSON의 gitignored rawPath에, 상세 HTML은 collect/raw에 보존했다.

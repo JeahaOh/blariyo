@@ -10,13 +10,13 @@
 
 ## 현행 구현과 검증 경계
 
-| 항목 | 2026-09-24 저장소 대조 결과 |
-| --- | --- |
-| 현행 수집 분류 | `GENERAL_LIST`; [출처 정책](../source-collection-policy.md) |
-| chart / 목록 URL | `latest` `https://www.dmitory.com/issue` |
-| 구현 | `DMITORY` — [목록 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/dmitory/DmitoryListParser.java), [상세 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/dmitory/DmitoryDetailParser.java), [URL 식별·조합](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/dmitory/DmitoryAdapter.java) |
-| 검증 범위 | 목록·상세 parser 구현. 9월 23일 실제 공개 URL의 개발 DB/object readback과 정제한 관측 fixture가 있다. 모든 글·모든 첨부 유형의 성공을 뜻하지 않는다. |
-| 실행 증거 | [관측 fixture](../../../../apps/collector/src/test/resources/sites/observed/README.md); [전체 검증표](../reference-site-validation.md)에서 임시 DB·지속 로컬 DB·운영 환경을 구분 |
+| 항목             | 2026-09-24 저장소 대조 결과                                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 현행 수집 분류   | `GENERAL_LIST`; [출처 정책](../source-collection-policy.md)                                                                                                                                                                                                                                                                                                                                  |
+| chart / 목록 URL | `latest` `https://www.dmitory.com/issue`                                                                                                                                                                                                                                                                                                                                                     |
+| 구현             | `DMITORY` — [목록 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/dmitory/DmitoryListParser.java), [상세 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/dmitory/DmitoryDetailParser.java), [URL 식별·조합](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/dmitory/DmitoryAdapter.java) |
+| 검증 범위        | 목록·상세 parser 구현. 9월 23일 실제 공개 URL의 개발 DB/object readback과 정제한 관측 fixture가 있다. 모든 글·모든 첨부 유형의 성공을 뜻하지 않는다.                                                                                                                                                                                                                                         |
+| 실행 증거        | [관측 fixture](../../../../apps/collector/src/test/resources/sites/observed/README.md); [전체 검증표](../reference-site-validation.md)에서 임시 DB·지속 로컬 DB·운영 환경을 구분                                                                                                                                                                                                             |
 
 - 아래 §1~10은 9월 3일 초기 정책·metadata 검토 기록이다. 당시의 `사용하지 않음`, selector 미정, fixture 미검증을 현재 코드 부재로 해석하지 않는다. 이용약관·robots·연락처와 운영 위험의 미확정 항목은 운영 활성화 전에 재확인한다.
 - 9월 21~23일 절의 승인 플래그·parser 상태·실행 명령은 각 시점의 이력이다. 현행 [개발 예제 설정](../../../../apps/collector/ops/reference-sites.sources.example.json)의 `approved=true`, `batchApproved=true`는 운영 승인 증거가 아니다. 운영자의 별도 활성화 판정은 미완료다.
@@ -26,40 +26,40 @@
 
 ## 1. 출처 식별
 
-| 항목 | 확인값 |
-| --- | --- |
-| 출처 표시명 | 디미토리 |
-| 운영 주체 | 디미토리 |
-| 기준 URL | `https://www.dmitory.com` |
-| 허용 host | `www.dmitory.com`, `dmitory.com` |
-| 허용 path | 없음 |
-| 제외 path | 전체. 특히 `act`, `search`, `category`, `member_srl`, pagination query |
-| 수집 목적 | 공개 유머·이슈 게시글 후보 검토 |
+| 항목        | 확인값                                                                 |
+| ----------- | ---------------------------------------------------------------------- |
+| 출처 표시명 | 디미토리                                                               |
+| 운영 주체   | 디미토리                                                               |
+| 기준 URL    | `https://www.dmitory.com`                                              |
+| 허용 host   | `www.dmitory.com`, `dmitory.com`                                       |
+| 허용 path   | 없음                                                                   |
+| 제외 path   | 전체. 특히 `act`, `search`, `category`, `member_srl`, pagination query |
+| 수집 목적   | 공개 유머·이슈 게시글 후보 검토                                        |
 
 ## 2. 정책·권리 확인
 
-| 항목 | 확인값 |
-| --- | --- |
-| 이용약관 URL | `https://www.dmitory.com/policy` |
-| 이용약관 확인일 | 2026-09-03 |
-| 수집 관련 조항 판단 | 약관 제10조에서 서비스를 통해 얻은 정보를 권리자 동의 없이 수집·복제·배포할 수 없다고 명시한다. |
-| `robots.txt` URL | `https://www.dmitory.com/robots.txt` |
-| `robots.txt` 확인일 | 2026-09-03 |
-| User-Agent 적용 결과 | `User-agent: *`는 `/` 허용과 함께 검색·정렬·member 관련 query를 차단한다. Content-Signal은 `search=yes`, `ai-train=no`, `use=reference`이고 GPTBot/ClaudeBot 등은 차단한다. |
-| 공개 API·RSS 제공 여부 | `(미정)` |
-| 문의·중단 요청 채널 | `https://www.dmitory.com/help` |
-| 운영 위험 판정자 | `(미정)` |
-| 운영 위험도 | 높음 |
+| 항목                   | 확인값                                                                                                                                                                      |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 이용약관 URL           | `https://www.dmitory.com/policy`                                                                                                                                            |
+| 이용약관 확인일        | 2026-09-03                                                                                                                                                                  |
+| 수집 관련 조항 판단    | 약관 제10조에서 서비스를 통해 얻은 정보를 권리자 동의 없이 수집·복제·배포할 수 없다고 명시한다.                                                                             |
+| `robots.txt` URL       | `https://www.dmitory.com/robots.txt`                                                                                                                                        |
+| `robots.txt` 확인일    | 2026-09-03                                                                                                                                                                  |
+| User-Agent 적용 결과   | `User-agent: *`는 `/` 허용과 함께 검색·정렬·member 관련 query를 차단한다. Content-Signal은 `search=yes`, `ai-train=no`, `use=reference`이고 GPTBot/ClaudeBot 등은 차단한다. |
+| 공개 API·RSS 제공 여부 | `(미정)`                                                                                                                                                                    |
+| 문의·중단 요청 채널    | `https://www.dmitory.com/help`                                                                                                                                              |
+| 운영 위험 판정자       | `(미정)`                                                                                                                                                                    |
+| 운영 위험도            | 높음                                                                                                                                                                        |
 
 ## 3. 수집 방법 결정
 
-| 단계 | 사용 여부 | 방식·이유 |
-| --- | --- | --- |
-| Discord·운영자 URL 수집 보조 | 보류 | 약관상 권리자 동의 없는 수집·복제·배포 금지. |
-| 공식 공개 API·feed | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| RSS·Atom | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| server-rendered HTML 목록 | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외. |
+| 단계                           | 사용 여부     | 방식·이유                                    |
+| ------------------------------ | ------------- | -------------------------------------------- |
+| Discord·운영자 URL 수집 보조   | 보류          | 약관상 권리자 동의 없는 수집·복제·배포 금지. |
+| 공식 공개 API·feed             | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용  |
+| RSS·Atom                       | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용  |
+| server-rendered HTML 목록      | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용  |
+| headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외.                              |
 
 선택 parser type: `MANUAL`
 
@@ -77,23 +77,22 @@ URL 규칙은 확정하지 않는다. query 기반 검색·정렬·회원 경로
 
 상세 수집은 production 사용 결정 전이다. live 검증 기준 상세 본문 selector는 `.read_body .xe_content, #rd_body_content .xe_content`이고, `hot` 목록 parser는 `/issue` 목록에서 상세 URL을 추출한다.
 
-
 ## 6-1. 이미지 임시 저장·승격 규칙
 
 [공통 추출·임시 파일 규칙](../README.md#source-common-rules)을 따른다.
 
 ## 7. 요청·운영 제한
 
-| 항목 | 확인값 |
-| --- | --- |
-| 식별 User-Agent | `(미정)` |
-| 연락 수단 | `(미정)` |
-| 요청 간격 | `(미정)` |
-| 일일 요청 상한 | 0 |
-| 자동 수집 실행 시간 | 사용하지 않음 |
-| redirect 상한 | `(미정)` |
-| timeout·응답 크기 상한 | `(미정)` |
-| 연속 실패 자동 비활성 기준 | 기본 비활성 |
+| 항목                       | 확인값        |
+| -------------------------- | ------------- |
+| 식별 User-Agent            | `(미정)`      |
+| 연락 수단                  | `(미정)`      |
+| 요청 간격                  | `(미정)`      |
+| 일일 요청 상한             | 0             |
+| 자동 수집 실행 시간        | 사용하지 않음 |
+| redirect 상한              | `(미정)`      |
+| timeout·응답 크기 상한     | `(미정)`      |
+| 연속 실패 자동 비활성 기준 | 기본 비활성   |
 
 ## 8. 검증 fixture와 결과
 
@@ -120,11 +119,10 @@ URL 규칙은 확정하지 않는다. query 기반 검색·정렬·회원 경로
 
 ## 10. 변경 이력
 
-| 날짜 | parser version | 변경 내용 | 재검증 결과 |
-| --- | --- | --- | --- |
+| 날짜       | parser version       | 변경 내용                                                     | 재검증 결과                                         |
+| ---------- | -------------------- | ------------------------------------------------------------- | --------------------------------------------------- |
 | 2026-09-23 | `dmitory-ordered-v1` | 목록 parser + 상세 parser + live 개발 DB/object readback 검증 | `ManualSiteAdapterTests`와 live batch write-db 통과 |
-| 2026-09-03 | `(미정)` | 최초 검토 | 정책 확인 완료, parser 미검증 |
-
+| 2026-09-03 | `(미정)`             | 최초 검토                                                     | 정책 확인 완료, parser 미검증                       |
 
 ## 2026-09-21 출처별 자동 수집 정책
 

@@ -8,14 +8,14 @@
 
 ## 반영 결정
 
-| 항목 | 결정 |
-| --- | --- |
-| 파일 위치 | `docs/development-specs/m0-core/openapi/m0-core.yaml` |
-| 성격 | 구현 완료 증거가 아니라 구현 입력 계약 |
-| 포함 범위 | health, 공개 boards/posts/views/policies, 관리자 posts/images |
-| 제외 범위 | 수집 출처·수집 후보 API, Discord `/collect url` API |
-| method 정정 | 게시글 수정은 `PATCH /api/v1/admin/posts/{postId}` |
-| method 정정 | 게시글 최종 제거는 `DELETE /api/v1/admin/posts/{postId}` |
+| 항목        | 결정                                                          |
+| ----------- | ------------------------------------------------------------- |
+| 파일 위치   | `docs/development-specs/m0-core/openapi/m0-core.yaml`         |
+| 성격        | 구현 완료 증거가 아니라 구현 입력 계약                        |
+| 포함 범위   | health, 공개 boards/posts/views/policies, 관리자 posts/images |
+| 제외 범위   | 수집 출처·수집 후보 API, Discord `/collect url` API           |
+| method 정정 | 게시글 수정은 `PATCH /api/v1/admin/posts/{postId}`            |
+| method 정정 | 게시글 최종 제거는 `DELETE /api/v1/admin/posts/{postId}`      |
 
 ## 작성 내용
 

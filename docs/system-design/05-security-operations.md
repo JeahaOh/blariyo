@@ -1,6 +1,7 @@
 # M0 보안·운영 설계
 
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
+
 - 문서 상태: M0 보안·운영 설계 계약 · 공개 경계·정기 작업·암호화 백업 복원 검증, 관리자 쓰기·장기 관찰 잔여
 - 기준일: 2026-09-04
 - 문서 대조일: 2026-09-24 (운영 관측은 9월 23일 기록, 이번 실환경 재검증 아님)
@@ -14,37 +15,37 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 
 ## 1. 운영 목표
 
-| 항목 | M0 목표 |
-| --- | --- |
-| RPO | 최대 24시간 데이터 손실 |
-| RTO | 장애 확인 후 4시간 이내 공개 읽기 복구 |
-| 관리자 접근 | 등록 운영자만, BFF 외부 인증 adapter 필수 |
-| 공개 장애 감지 | 5분 이내 |
-| 권리 요청 숨김 | 운영자가 메일 확인 후 30분 이내 목표 |
-| 보안 로그 보존 | 현재 M0 앱·Web·Nginx 진단 로그 최대 7일. 제공자 보안 기록과 법정 개인정보 접근 기록은 §7에서 구분 |
-| 수집 후보 보존 | legacy 미승격 metadata 후보 30일; direct raw/media/report/queue는 기간·파기 계약 미정 |
-| 수집 출처 robots 재확인 | 90일마다 또는 차단 발생 시 |
+| 항목                    | M0 목표                                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------- |
+| RPO                     | 최대 24시간 데이터 손실                                                                           |
+| RTO                     | 장애 확인 후 4시간 이내 공개 읽기 복구                                                            |
+| 관리자 접근             | 등록 운영자만, BFF 외부 인증 adapter 필수                                                         |
+| 공개 장애 감지          | 5분 이내                                                                                          |
+| 권리 요청 숨김          | 운영자가 메일 확인 후 30분 이내 목표                                                              |
+| 보안 로그 보존          | 현재 M0 앱·Web·Nginx 진단 로그 최대 7일. 제공자 보안 기록과 법정 개인정보 접근 기록은 §7에서 구분 |
+| 수집 후보 보존          | legacy 미승격 metadata 후보 30일; direct raw/media/report/queue는 기간·파기 계약 미정             |
+| 수집 출처 robots 재확인 | 90일마다 또는 차단 발생 시                                                                        |
 
 RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 검증에서 24시간 RPO를 받아들일 수 없게 되면 WAL archive와 point-in-time recovery 또는 관리형 DB 비용을 추가한다.
 
 ## 2. 주요 위협과 통제
 
-| 위협 | 통제 |
-| --- | --- |
-| origin 직접 공격 | Cloudflare Tunnel, inbound deny all |
-| 관리자 route 탈취 | BFF 외부 identity 검증·allowlist, Core 서비스 토큰, 짧은 session |
-| SQL injection | parameterized query, validation, DB 최소 권한 |
-| 저장형 XSS | 게시글 TEXT는 plain text escape, 정책 HTML은 허용 목록 sanitize, CSP |
-| 악성 이미지 | MIME·magic byte·decode 검사, SVG 금지, 크기 제한 |
-| SSRF | BE·FE는 외부 수집 URL을 직접 fetch하지 않는다. 외부 fetch는 운영자 로컬 collector만 수행하고, collector는 등록·활성 출처 host 매칭, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 문서·이미지·첨부 종류별 형식 검증을 강제한다 |
-| 수집 대상 사이트 과부하·차단 | 출처별 요청 간격·일일 상한, 식별 가능한 User-Agent, `robots.txt` 준수, `403`·`429` 누적 시 자동 비활성 |
-| 수집 콘텐츠를 통한 저장형 공격 | 제목·본문 TEXT escape, raw HTML은 비공개 collect object로 격리하고 화면에서 렌더하지 않음. 이미지 승격 시 magic byte·decode·metadata 제거·재인코딩, 익명 collect/private 접근 거부 |
-| secret 유출 | 저장소·image·log 제외, provider별 최소 권한 key |
-| 숨김 콘텐츠 cache 잔존 | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store |
-| VM·disk 소실 | R2 암호화 DB backup, image 원본 R2 저장 |
-| 무료 계정 정지·capacity 부족 | provider-neutral Compose, Lightsail 전환 runbook |
-| 분석 데이터 재식별 | GA4 User-ID 미사용, 회원·소셜 식별자·본문·수집 후보 정보 전송 금지 |
-| dependency 변조 | lockfile 추적, `npm ci`, image digest 고정, 주기 audit |
+| 위협                           | 통제                                                                                                                                                                                                                                                                          |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| origin 직접 공격               | Cloudflare Tunnel, inbound deny all                                                                                                                                                                                                                                           |
+| 관리자 route 탈취              | BFF 외부 identity 검증·allowlist, Core 서비스 토큰, 짧은 session                                                                                                                                                                                                              |
+| SQL injection                  | parameterized query, validation, DB 최소 권한                                                                                                                                                                                                                                 |
+| 저장형 XSS                     | 게시글 TEXT는 plain text escape, 정책 HTML은 허용 목록 sanitize, CSP                                                                                                                                                                                                          |
+| 악성 이미지                    | MIME·magic byte·decode 검사, SVG 금지, 크기 제한                                                                                                                                                                                                                              |
+| SSRF                           | BE·FE는 외부 수집 URL을 직접 fetch하지 않는다. 외부 fetch는 운영자 로컬 collector만 수행하고, collector는 등록·활성 출처 host 매칭, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 문서·이미지·첨부 종류별 형식 검증을 강제한다 |
+| 수집 대상 사이트 과부하·차단   | 출처별 요청 간격·일일 상한, 식별 가능한 User-Agent, `robots.txt` 준수, `403`·`429` 누적 시 자동 비활성                                                                                                                                                                        |
+| 수집 콘텐츠를 통한 저장형 공격 | 제목·본문 TEXT escape, raw HTML은 비공개 collect object로 격리하고 화면에서 렌더하지 않음. 이미지 승격 시 magic byte·decode·metadata 제거·재인코딩, 익명 collect/private 접근 거부                                                                                            |
+| secret 유출                    | 저장소·image·log 제외, provider별 최소 권한 key                                                                                                                                                                                                                               |
+| 숨김 콘텐츠 cache 잔존         | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store                                                                                                                                                                                                            |
+| VM·disk 소실                   | R2 암호화 DB backup, image 원본 R2 저장                                                                                                                                                                                                                                       |
+| 무료 계정 정지·capacity 부족   | provider-neutral Compose, Lightsail 전환 runbook                                                                                                                                                                                                                              |
+| 분석 데이터 재식별             | GA4 User-ID 미사용, 회원·소셜 식별자·본문·수집 후보 정보 전송 금지                                                                                                                                                                                                            |
+| dependency 변조                | lockfile 추적, `npm ci`, image digest 고정, 주기 audit                                                                                                                                                                                                                        |
 
 GA4 기본 `page_title`, `page_location`, `page_referrer`도 [분석 계획 §4](../planning/04-analytics-ad-plan.md)의 고정값 규칙을 따른다. 자동 page view와 향상된 측정을 끄고, 실제 제목·URL·postId가 기본 필드로 전송되지 않는지 network 검증을 운영 활성화 조건에 포함한다.
 
@@ -53,7 +54,7 @@ GA4 이벤트·custom HTML 전송을 중지하고 콘솔 버전·대상 ID·실�
 GTM 컨테이너 로드 자체와 GA4 수집은 구분하며, 기존 `dataLayer` 객체와 GTM 항목을 지우거나 교체하지 않는다.
 이벤트별 `send_to`는 승인된 Measurement ID로 고정한다. 공개 키·메모리 구분값·정제된 유입 분류만
 허용하며 회원 식별자·실제 URL·본문은 금지한다. 구현 계약은 [분석 명세 §13](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)이다.
-동의 version3 재선택, BigQuery 일별 저장의 계약·권한·보관·삭제·비용 상한, 공개 고지 개정은 별도 활성화 조건이다.
+동의 version3 재선택과 공개 고지 개정은 GA4 활성화 조건이다. BigQuery 일별 저장의 계약·권한·보관·삭제·비용 상한은 후속 활성화 조건이다.
 
 ## 3. 관리자 접근
 
@@ -120,7 +121,7 @@ GTM 컨테이너 로드 자체와 GA4 수집은 구분하며, 기존 `dataLayer`
 - Web은 Core `/internal/sitemaps/{index.xml|pages.xml|posts-{shard}.xml}`만 조회한다.
   SQL·공개 상태 판정·XML 생성·캐시는 Core가 담당한다. 내부 route는 기존 Docker network 경계와
   Nginx `/internal` 거부를 유지하며 공개 `/api/v1` JSON 계약을 확장하지 않는다.
-- 게시글 ID의 고정 1만 구간으로 분할한다: shard 0은 ID 1~10000, shard 1은 10001~20000이다.
+- 게시글 ID의 고정 1만 구간으로 분할한다: shard 0은 ID 1~~10000, shard 1은 10001~~20000이다.
   삭제·숨김으로 뒤 파일의 소속이 밀리지 않으며 본문·이미지·조회 수를 읽지 않는다.
   활성 게시판의 `PUBLISHED`이면서 `published_at <= now()`인 글만 ID 범위 조회한다.
 - index는 공개 글이 존재하는 구간만 조회한다. 이 구간 집계는 전체 공개 ID에 비례하는 작업이며
@@ -251,13 +252,13 @@ M0에는 일반 사용자 업로드 endpoint를 추가하지 않는다.
 
 일반 관리자 이미지 업로드 제한(수집 이미지 입력과 구분):
 
-| 항목 | 제한 |
-| --- | ---: |
-| 파일 | 10MiB |
-| 한 요청 | 10개·100MiB |
+| 항목      |                                                 제한 |
+| --------- | ---------------------------------------------------: |
+| 파일      |                                                10MiB |
+| 한 요청   |                                          10개·100MiB |
 | 한 게시글 | 현행 편집·direct 초안 200개, legacy 후보 선택은 20개 |
-| pixel | 40 megapixel |
-| 형식 | JPEG, PNG, WebP, GIF |
+| pixel     |                                         40 megapixel |
+| 형식      |                                 JPEG, PNG, WebP, GIF |
 
 GIF는 animation frame·총 decode 메모리를 제한한다. SVG는 script·외부 참조 위험 때문에 M0에서 받지 않는다.
 direct 수집·API 수집 preview/초안 승격의 입력은 파일당 30MiB·글당 150MiB이며 이미지 200개·첨부 20개
@@ -294,23 +295,23 @@ direct 수집·API 수집 preview/초안 승격의 입력은 파일당 30MiB·�
 
 ## 5. Secret 관리
 
-| secret | 권한 |
-| --- | --- |
-| PostgreSQL app password | content/legal·허용 ops 및 API 소유 collect만 DML, batch 결과 7개 테이블 SELECT only, queue/confirmation 접근 없음. migration 권한 없음 |
-| PostgreSQL migration password | schema 변경, 배포 시에만 주입 |
-| PostgreSQL batch password | 명시된 batch 소유 테이블·framework 상태만 처리. API 검수/content/정책/운영 ledger 접근 없음 |
-| Collect object credential | batch는 collect 전용 쓰기, API는 collect 전용 읽기. content/public 권한과 분리 |
-| R2 private media key | private 원본 bucket object read/write/delete, bucket 관리 금지 |
-| R2 public media key | public media bucket object write/delete, bucket 관리 금지 |
-| R2 backup key | backup bucket write/read, media·staging 접근 금지 |
-| cache purge token | 해당 zone cache purge only |
-| admin actor HMAC secret | BFF only, 내부 `operatorId` 가명화 |
-| `ANALYTICS_CONTENT_KEY_SECRET` — analytics-v1 설계·미구현 | Core only, 공개 콘텐츠 분석용 HMAC 키. 관리자 키·서비스 token과 분리, 공개 config·로그·GA4로 전송 금지 |
-| Core service token | BFF·Core만 공유, 외부 노출 금지 |
-| Collector service token | 로컬 collector 보유, 전용 Web 중계에서만 Core로 전달. 후보 접수·claim·heartbeat·결과·preview 전용, 관리자 권한 없음 |
-| 외부 provider audience/team | BFF adapter 설정, 비밀값과 분리 |
-| 운영자 identity·`operatorId` 매핑 파일 | BFF only, 읽기 전용 mount, 비밀값 아님이나 접근 제한 |
-| 카카오 공유 JavaScript key | 공개 config, 허용 도메인 등록으로 오용 제한 |
+| secret                                                    | 권한                                                                                                                                   |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| PostgreSQL app password                                   | content/legal·허용 ops 및 API 소유 collect만 DML, batch 결과 7개 테이블 SELECT only, queue/confirmation 접근 없음. migration 권한 없음 |
+| PostgreSQL migration password                             | schema 변경, 배포 시에만 주입                                                                                                          |
+| PostgreSQL batch password                                 | 명시된 batch 소유 테이블·framework 상태만 처리. API 검수/content/정책/운영 ledger 접근 없음                                            |
+| Collect object credential                                 | batch는 collect 전용 쓰기, API는 collect 전용 읽기. content/public 권한과 분리                                                         |
+| R2 private media key                                      | private 원본 bucket object read/write/delete, bucket 관리 금지                                                                         |
+| R2 public media key                                       | public media bucket object write/delete, bucket 관리 금지                                                                              |
+| R2 backup key                                             | backup bucket write/read, media·staging 접근 금지                                                                                      |
+| cache purge token                                         | 해당 zone cache purge only                                                                                                             |
+| admin actor HMAC secret                                   | BFF only, 내부 `operatorId` 가명화                                                                                                     |
+| `ANALYTICS_CONTENT_KEY_SECRET` — analytics-v1 설계·미구현 | Core only, 공개 콘텐츠 분석용 HMAC 키. 관리자 키·서비스 token과 분리, 공개 config·로그·GA4로 전송 금지                                 |
+| Core service token                                        | BFF·Core만 공유, 외부 노출 금지                                                                                                        |
+| Collector service token                                   | 로컬 collector 보유, 전용 Web 중계에서만 Core로 전달. 후보 접수·claim·heartbeat·결과·preview 전용, 관리자 권한 없음                    |
+| 외부 provider audience/team                               | BFF adapter 설정, 비밀값과 분리                                                                                                        |
+| 운영자 identity·`operatorId` 매핑 파일                    | BFF only, 읽기 전용 mount, 비밀값 아님이나 접근 제한                                                                                   |
+| 카카오 공유 JavaScript key                                | 공개 config, 허용 도메인 등록으로 오용 제한                                                                                            |
 
 - `.env.template`에는 이름과 설명만 넣고 값은 넣지 않는다.
 - production secret 파일은 root 소유 `0600`으로 둔다.
@@ -393,14 +394,14 @@ IP는 보안 목적의 필요성이 있는 log에서만 사용하고, 일반 보
 
 ### 보존
 
-| 로그 | 보존 |
-| --- | --- |
-| application JSON log | 최대 7일. 운영 전용 rsyslog·일별 만료 timer 적용 및 합성 파일 삭제 검증 |
-| Nginx access·error | 최대 7일. 운영 전용 rsyslog·일별 만료 timer 적용 및 합성 파일 삭제 검증 |
-| 관리자 상태 변경 | DB에 운영 기간 유지 |
-| 일반 로그인·접근 보안 기록 | 별도 저장소의 90일은 후속 설계값. 현재 M0는 Cloudflare Free Access 24시간·계정 관리자 감사 18개월의 제공자 보존을 구분해 고지 |
-| 개인정보처리시스템의 개인정보 접근 기록 | 안전성 확보조치 기준 제8조 적용 시 최소 1년, 2년 대상 요건이면 최소 2년 |
-| backup 실행 결과 | 현재 M0는 secret 없는 systemd journal 결과와 latest.json 상태. 별도 90일 외부 이력 저장은 미구현 |
+| 로그                                    | 보존                                                                                                                          |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| application JSON log                    | 최대 7일. 운영 전용 rsyslog·일별 만료 timer 적용 및 합성 파일 삭제 검증                                                       |
+| Nginx access·error                      | 최대 7일. 운영 전용 rsyslog·일별 만료 timer 적용 및 합성 파일 삭제 검증                                                       |
+| 관리자 상태 변경                        | DB에 운영 기간 유지                                                                                                           |
+| 일반 로그인·접근 보안 기록              | 별도 저장소의 90일은 후속 설계값. 현재 M0는 Cloudflare Free Access 24시간·계정 관리자 감사 18개월의 제공자 보존을 구분해 고지 |
+| 개인정보처리시스템의 개인정보 접근 기록 | 안전성 확보조치 기준 제8조 적용 시 최소 1년, 2년 대상 요건이면 최소 2년                                                       |
+| backup 실행 결과                        | 현재 M0는 secret 없는 systemd journal 결과와 latest.json 상태. 별도 90일 외부 이력 저장은 미구현                              |
 
 2026-09-20 사용자가 위임한 최소 보관 원칙에 따라 일반 진단 로그의 목표 상한을 14일에서 7일로 줄였다.
 기본 Compose의 `json-file` 용량 제한만으로는 기간이 보장되지 않는다. 운영에서는 `production-logging.yaml`로 전용 syslog로 교체하고 Docker 이중 cache를 껐다. `/var/log/blariyo/application`의 당일·이전 5일 파일만 유지하며 매일 UTC 00:05에 만료시킨다. 10일 된 합성 로그 삭제·소유자·symlink 방어와 실제 수신을 검증했다. DB 이력·Cloudflare 제공자 감사 로그·호스트 로그는 이 삭제 작업 대상이 아니다.
@@ -430,28 +431,28 @@ GET https://blariyo.com/meme
 
 cron이 5분마다 다음을 수집하고 임계 초과 시 이메일 또는 webhook을 보낸다.
 
-| 지표 | 경고 | 심각 |
-| --- | ---: | ---: |
-| disk 사용률 | 70% | 85% |
-| memory 사용률 15분 | 80% | 90% |
-| swap 지속 | 5분 | 15분 |
-| container restart | 1회/시간 | 3회/시간 |
-| API 5xx | 1%/5분 | 5%/5분 |
-| p95 응답 | 1초 | 3초 |
-| DB backup 나이 | 18시간 | 24시간 |
-| 수집 출처 연속 실패 | 3회 | 5회 |
-| 수집 차단 응답(`403`·`429`) | 1회 | 3회 |
-| 목록 수집 미실행 시간 | 1시간 | 3시간 |
-| outbox DEAD | 1건 | 5건 |
-| R2 사용량 | 7GB | 9GB |
+| 지표                        |     경고 |     심각 |
+| --------------------------- | -------: | -------: |
+| disk 사용률                 |      70% |      85% |
+| memory 사용률 15분          |      80% |      90% |
+| swap 지속                   |      5분 |     15분 |
+| container restart           | 1회/시간 | 3회/시간 |
+| API 5xx                     |   1%/5분 |   5%/5분 |
+| p95 응답                    |      1초 |      3초 |
+| DB backup 나이              |   18시간 |   24시간 |
+| 수집 출처 연속 실패         |      3회 |      5회 |
+| 수집 차단 응답(`403`·`429`) |      1회 |      3회 |
+| 목록 수집 미실행 시간       |    1시간 |    3시간 |
+| outbox DEAD                 |      1건 |      5건 |
+| R2 사용량                   |      7GB |      9GB |
 
 ### Health endpoint
 
-| endpoint | 검사 | 공개 |
-| --- | --- | --- |
-| `/health/live` | Nuxt BFF process event loop 응답 | 예, 상세 없음 |
-| `/health/ready` | BFF가 Core `/internal/health/ready`를 호출하고 결과만 일반화해 전달 | 외부 관리자 인증 또는 내부만 |
-| Core `/internal/health/ready` | Core process·PostgreSQL·migration version | Docker app network only |
+| endpoint                      | 검사                                                                | 공개                         |
+| ----------------------------- | ------------------------------------------------------------------- | ---------------------------- |
+| `/health/live`                | Nuxt BFF process event loop 응답                                    | 예, 상세 없음                |
+| `/health/ready`               | BFF가 Core `/internal/health/ready`를 호출하고 결과만 일반화해 전달 | 외부 관리자 인증 또는 내부만 |
+| Core `/internal/health/ready` | Core process·PostgreSQL·migration version                           | Docker app network only      |
 
 R2 장애는 공개 읽기의 ready 실패 조건으로 두지 않는다. 업로드·발행 command만 `503`으로 막는다.
 
@@ -459,14 +460,14 @@ R2 장애는 공개 읽기의 ready 실패 조건으로 두지 않는다. 업로
 
 ### 일정
 
-| 작업 | 일정 | 보존 |
-| --- | --- | --- |
-| PostgreSQL custom-format logical dump | 매일 03:30·15:30 KST | 최근 7일 |
-| 주간 보존 복사 | M0에서는 만들지 않음 | 최소 보관 원칙에 따라 별도 8주 복사 없음 |
-| backup manifest 검증 | 매일 dump 후 | backup과 동일 |
-| 실제 복원 시험 | 매월 첫째 주 | 결과 1년 |
-| R2 media inventory | 매주 | 8주 |
-| R2 private staging orphan inventory | 매일 1회 | 실행 결과 90일 |
+| 작업                                  | 일정                 | 보존                                     |
+| ------------------------------------- | -------------------- | ---------------------------------------- |
+| PostgreSQL custom-format logical dump | 매일 03:30·15:30 KST | 최근 7일                                 |
+| 주간 보존 복사                        | M0에서는 만들지 않음 | 최소 보관 원칙에 따라 별도 8주 복사 없음 |
+| backup manifest 검증                  | 매일 dump 후         | backup과 동일                            |
+| 실제 복원 시험                        | 매월 첫째 주         | 결과 1년                                 |
+| R2 media inventory                    | 매주                 | 8주                                      |
+| R2 private staging orphan inventory   | 매일 1회             | 실행 결과 90일                           |
 
 ### 형식
 
@@ -563,7 +564,6 @@ package manager로 유지한다면 API·Web의 `package-lock.json`을 추적하�
   구 API는 readiness 503이므로 앱만 복귀할 때는 V008 호환성이 확인된 직전 `5c581c2` Core release를
   기준으로 한다. 실제 운영 rollback은 미실행이다.
 
-
 ## 12. 운영 runbook
 
 ### 권리 문의
@@ -639,11 +639,11 @@ raw HTML은 비공개 진단 object에만 두고 후보 화면·일반 로그에
 
 ## 13. 정기 점검
 
-| 주기 | 점검 |
-| --- | --- |
-| 매일 | backup, 외부 health, disk, outbox DEAD, private staging orphan inventory 결과 |
-| 매주 | container update 후보, R2 orphan 추세, 예약 발행 결과 |
-| 매월 | 실제 restore, 비용, secret·외부 관리자 사용자, dependency audit, 수집 출처 오류·차단 추세 |
+| 주기 | 점검                                                                                              |
+| ---- | ------------------------------------------------------------------------------------------------- |
+| 매일 | backup, 외부 health, disk, outbox DEAD, private staging orphan inventory 결과                     |
+| 매주 | container update 후보, R2 orphan 추세, 예약 발행 결과                                             |
+| 매월 | 실제 restore, 비용, secret·외부 관리자 사용자, dependency audit, 수집 출처 오류·차단 추세         |
 | 분기 | 런타임 LTS patch, 보존 데이터 삭제, 공급자 가격·무료 정책, 수집 출처 `robots.txt`·이용약관 재확인 |
 
 Node patch는 검증 후 같은 LTS major 안에서 올린다. major 전환은 별도 호환성 테스트와 설계 변경으로 처리한다.

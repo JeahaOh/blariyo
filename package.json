@@ -26,7 +26,7 @@
     "test:web-cache": "npm run build -w @blariyo/web && node --test tests/http/web-cache.test.ts",
     "test:docker": "node scripts/test-docker.ts",
     "test:database-roles": "npm run build -w @blariyo/api && apps/collector/gradlew -p apps/collector testClasses fixtureClasspath && node scripts/test-database-roles.ts",
-    "test:architecture": "npm run build:test -w @blariyo/api && node --test tests/architecture.test.ts",
+    "test:architecture": "npm run build -w @blariyo/api && npm run build:test -w @blariyo/api && node --test tests/architecture.test.ts",
     "collection:transition": "node apps/api/dist/commands/collection-transition.js",
     "test:fixtures": "node scripts/prepare-collector-fixtures.mjs",
     "test:collector": "node scripts/test-collector-readback.mjs",
@@ -35,14 +35,30 @@
     "lint:scripts": "eslint --config scripts/eslint.config.mjs scripts/**/*.ts",
     "typecheck:tests": "tsc -p tests/tsconfig.json",
     "lint:tests": "eslint --config tests/eslint.config.mjs tests/**/*.ts",
+    "lint:all": "node scripts/quality/lint-all.mjs",
+    "format:check": "prettier --check .",
+    "quality:tools": "node scripts/quality/setup-native-tools.mjs",
+    "lint:harness": "eslint --config scripts/quality/eslint.config.mjs scripts/harness/*.mjs tests/harness/*.mjs",
+    "test:quality": "node --test tests/quality/lint-debt.test.mjs",
+    "test:quality:tools": "node --test tests/quality/lint-tools.test.mjs",
+    "harness": "node scripts/harness/cli.mjs",
+    "test:harness": "node scripts/harness/run-tests.mjs",
+    "test:collector:restore": "node scripts/test-collector-restore.mjs",
     "typecheck:web": "npm run typecheck -w @blariyo/web",
     "test:spring": "npm run build && apps/collector/gradlew -p apps/collector test bootJar fixtureClasspath && node --test --test-concurrency=1 tests/spring/*.test.ts",
     "verify:migration": "node scripts/verify-migration.ts"
   },
   "devDependencies": {
+    "@eslint/js": "9.39.5",
     "@playwright/test": "^1.55.0",
+    "globals": "14.0.0",
+    "markdownlint": "0.41.1",
+    "markdownlint-cli2": "0.23.3",
     "openapi-typescript": "^7.10.1",
     "prettier": "^3.9.6",
-    "typescript": "^5.9.3"
+    "stylelint": "17.15.0",
+    "stylelint-config-standard": "40.0.0",
+    "typescript": "^5.9.3",
+    "yaml": "2.9.0"
   }
 }

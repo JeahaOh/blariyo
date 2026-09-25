@@ -18,7 +18,12 @@ export class ImagesModule {
     return {
       module: ImagesModule,
       imports: [persistence],
-      controllers: [ImagesController, ...(options.localMedia && process.env.NODE_ENV !== 'production' ? [LocalMediaController] : [])],
+      controllers: [
+        ImagesController,
+        ...(options.localMedia && process.env.NODE_ENV !== 'production'
+          ? [LocalMediaController]
+          : []),
+      ],
       providers: [
         ImagesService,
         AdminGuard,

@@ -4,8 +4,5 @@
     "rootDir": ".",
     "noEmit": true
   },
-  "include": [
-    "dev.ts",
-    "build.ts"
-  ]
+  "include": ["dev.ts", "build.ts"]
 }

@@ -13,10 +13,7 @@ function analyticsContentKey(post: PublishedPost, origins: PublicOrigins) {
   const secret = origins.analyticsContentKeySecret ?? 'local-development-analytics-secret-32b';
   const key = Buffer.from(secret, 'base64').length >= 32 ? Buffer.from(secret, 'base64') : secret;
   return (
-    'p1_' +
-    createHmac('sha256', key)
-      .update(`blariyo:public-post:v1:${post.id}`)
-      .digest('hex')
+    'p1_' + createHmac('sha256', key).update(`blariyo:public-post:v1:${post.id}`).digest('hex')
   );
 }
 function itemDto(
@@ -80,7 +77,9 @@ export function detailDto(
               },
             }
       ),
-      source: post.sourceUrl ? { name: post.sourceName ?? '', url: new URL(post.sourceUrl).href } : null,
+      source: post.sourceUrl
+        ? { name: post.sourceName ?? '', url: new URL(post.sourceUrl).href }
+        : null,
       shareUrl: `${origins.siteOrigin}/${board.slug}/posts/${post.id}`,
     },
     context: {

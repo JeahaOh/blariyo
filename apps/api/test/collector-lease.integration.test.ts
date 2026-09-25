@@ -345,24 +345,22 @@ await test('collector leases retain SKIP LOCKED claiming, expiration and executi
         { candidateId: Number(row.id), maxItems: 1, collectorId: 'spring', leaseSeconds: 60 },
         execution
       );
-      const result = await first
-        .get(CollectorResultService)
-        .submit(
-          row.id,
-          {
-            collectorId: 'spring',
-            collectorExecutionId: execution,
-            lockVersion: 2,
-            status: 'NEW',
-            title: 'Preview fixture',
-            canonicalUrl: row.origin_url,
-            sourcePublishedAt: null,
-            parserVersion: 'fixture-v1',
-            warnings: [],
-            imageCandidates: [{ position: 1, remoteUrl: 'https://lease.invalid/preview.png' }],
-          },
-          execution
-        );
+      const result = await first.get(CollectorResultService).submit(
+        row.id,
+        {
+          collectorId: 'spring',
+          collectorExecutionId: execution,
+          lockVersion: 2,
+          status: 'NEW',
+          title: 'Preview fixture',
+          canonicalUrl: row.origin_url,
+          sourcePublishedAt: null,
+          parserVersion: 'fixture-v1',
+          warnings: [],
+          imageCandidates: [{ position: 1, remoteUrl: 'https://lease.invalid/preview.png' }],
+        },
+        execution
+      );
       const imageId = result.images[0]?.id;
       assert.ok(imageId);
       const bytes = await sharp({

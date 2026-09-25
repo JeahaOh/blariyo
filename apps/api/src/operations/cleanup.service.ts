@@ -18,14 +18,16 @@ export class CleanupService {
   async run() {
     let collectionAvailable = false;
     let collectionFailure: string | undefined;
-    try { collectionAvailable = await this.repository.collectionAvailable(); }
-    catch {
+    try {
+      collectionAvailable = await this.repository.collectionAvailable();
+    } catch {
       collectionFailure = 'COLLECTION_SCHEMA_CHECK_FAILED';
       console.error(JSON.stringify({ event: collectionFailure }));
     }
     if (collectionAvailable) {
-      try { await this.collection.run(); }
-      catch {
+      try {
+        await this.collection.run();
+      } catch {
         collectionAvailable = false;
         collectionFailure = 'COLLECTION_CLEANUP_FAILED';
         console.error(JSON.stringify({ event: collectionFailure }));
@@ -35,20 +37,33 @@ export class CleanupService {
     await this.work.transaction(async () => {
       for (const image of await this.repository.lockExpiredStaged()) {
         await this.images.markPrivateDelete(image.id, actor);
-        await this.outbox.enqueue({ type: 'OBJECT_DELETE_PRIVATE', aggregateType: 'IMAGE', aggregateId: image.id, payload: { privateStorageKey: image.privateKey }, actor });
+        await this.outbox.enqueue({
+          type: 'OBJECT_DELETE_PRIVATE',
+          aggregateType: 'IMAGE',
+          aggregateId: image.id,
+          payload: { privateStorageKey: image.privateKey },
+          actor,
+        });
       }
       await this.repository.expireReceipts();
     });
     for (const bucket of ['private', 'public'] as const) {
       for (const object of await this.storage.inventory(bucket)) {
         if (Date.now() - object.createdAt.getTime() < 86400000) continue;
-        if (bucket === 'private' && !object.key.startsWith('staging/') && !object.key.startsWith('content/private/staging/') && !object.key.startsWith('collect-preview/')) continue;
+        if (
+          bucket === 'private' &&
+          !object.key.startsWith('staging/') &&
+          !object.key.startsWith('content/private/staging/') &&
+          !object.key.startsWith('collect-preview/')
+        )
+          continue;
         const collectionPreview = bucket === 'private' && object.key.startsWith('collect-preview/');
         if (collectionPreview && !collectionAvailable) continue;
         const removeOrphan = async () => {
           let referenced: boolean;
-          try { referenced = await this.repository.referenced(bucket, object.key, collectionPreview); }
-          catch (error) {
+          try {
+            referenced = await this.repository.referenced(bucket, object.key, collectionPreview);
+          } catch (error) {
             if (!collectionPreview) throw error;
             collectionAvailable = false;
             collectionFailure ??= 'COLLECTION_REFERENCE_CHECK_FAILED';
@@ -57,7 +72,9 @@ export class CleanupService {
           }
           if (!referenced) await this.storage.delete(bucket, object.key);
         };
-        const postId = bucket === 'public' && /^(?:posts|content\/published\/posts)\/(\d+)\//.exec(object.key)?.[1];
+        const postId =
+          bucket === 'public' &&
+          /^(?:posts|content\/published\/posts)\/(\d+)\//.exec(object.key)?.[1];
         if (postId) await this.work.lock(`post-storage:${postId}`, removeOrphan);
         else await removeOrphan();
       }

@@ -95,7 +95,7 @@ def inspect_images(payload):
     for role, item in payload['images'].items():
         info = json.loads(run(['docker', 'image', 'inspect', item['tag']]))[0]
         # fingerprint is injected from the existing, regression-tested DB installer helper.
-        if info['Os'] != 'linux' or info['Architecture'] != 'amd64' or fingerprint(info) != item['fingerprint']:
+        if info['Os'] != 'linux' or info['Architecture'] != 'amd64' or fingerprint(info) != item['fingerprint']:  # noqa: F821 -- injected by stage-from-mac remote wrapper
             raise ValueError('LOADED_IMAGE_MISMATCH')
         if not re.fullmatch(r'sha256:[a-f0-9]{64}', info['Id']):
             raise ValueError('INVALID_LOADED_IMAGE_ID')
@@ -157,7 +157,7 @@ def stage(base, payload, source):
         # Refuse to overwrite an existing tag with a different image.
         for item in payload['images'].values():
             existing = subprocess.run(['docker', 'image', 'inspect', item['tag']], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
-            if existing.returncode == 0 and fingerprint(json.loads(existing.stdout)[0]) != item['fingerprint']:
+            if existing.returncode == 0 and fingerprint(json.loads(existing.stdout)[0]) != item['fingerprint']:  # noqa: F821 -- injected by stage-from-mac remote wrapper
                 raise ValueError('EXISTING_IMAGE_TAG_CONFLICT')
         with (candidate / 'images.tar').open('rb') as archive:
             result = subprocess.run(['docker', 'image', 'load', '--quiet'], stdin=archive, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=900)

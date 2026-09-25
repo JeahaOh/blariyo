@@ -97,7 +97,11 @@ export class CollectionService {
       false
     );
   }
-  async createCandidateInTransaction(originUrl: string, actor: string, discoveryMode: 'MANUAL_URL' | 'LIST_CRAWL' = 'MANUAL_URL') {
+  async createCandidateInTransaction(
+    originUrl: string,
+    actor: string,
+    discoveryMode: 'MANUAL_URL' | 'LIST_CRAWL' = 'MANUAL_URL'
+  ) {
     const url = normalizeCollectionUrl(originUrl);
     const source = await this.repository.activeSourceByHost(new URL(url).hostname);
     if (!source) fail(403, 'SOURCE_NOT_ALLOWED');

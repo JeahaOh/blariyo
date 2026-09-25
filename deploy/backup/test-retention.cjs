@@ -1,12 +1,20 @@
-const assert=require('node:assert/strict');
-const {eligibleForPrune:p}=require('./r2-transfer.cjs');
-const current='db/daily/20260920T000000Z-123456abcdef.dump.age';
-const old='db/daily/20260901T000000Z-abcdef123456.dump.age';
-const cutoff=Date.parse('2026-09-13T00:00:00Z');
-assert(p(old,new Date(cutoff-1),cutoff,current));
-assert(p(old+'.json',new Date(cutoff-1),cutoff,current));
-for(const key of [current,current+'.json','db/daily/unknown.txt','db/weekly/'+old.split('/').pop(),'other/'+old,'db/daily/../important.dump.age'])assert(!p(key,new Date(cutoff-1),cutoff,current));
-assert(!p(old,new Date(cutoff),cutoff,current));
-assert(!p(old,new Date(cutoff+1),cutoff,current));
-assert(!p(old,new Date(NaN),cutoff,current));
+const assert = require('node:assert/strict');
+const { eligibleForPrune: p } = require('./r2-transfer.cjs');
+const current = 'db/daily/20260920T000000Z-123456abcdef.dump.age';
+const old = 'db/daily/20260901T000000Z-abcdef123456.dump.age';
+const cutoff = Date.parse('2026-09-13T00:00:00Z');
+assert(p(old, new Date(cutoff - 1), cutoff, current));
+assert(p(old + '.json', new Date(cutoff - 1), cutoff, current));
+for (const key of [
+  current,
+  current + '.json',
+  'db/daily/unknown.txt',
+  'db/weekly/' + old.split('/').pop(),
+  'other/' + old,
+  'db/daily/../important.dump.age',
+])
+  assert(!p(key, new Date(cutoff - 1), cutoff, current));
+assert(!p(old, new Date(cutoff), cutoff, current));
+assert(!p(old, new Date(cutoff + 1), cutoff, current));
+assert(!p(old, new Date(NaN), cutoff, current));
 console.log('PASS R2 보관 경계·현재 백업·다른 prefix·알 수 없는 파일 보호');

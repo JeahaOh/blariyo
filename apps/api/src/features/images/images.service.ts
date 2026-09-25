@@ -4,7 +4,13 @@ import { Storage } from '../../shared/storage.js';
 import { UnitOfWork } from '../../shared/unit-of-work.js';
 import { OutboxRepository } from '../../operations/outbox.repository.js';
 import { ImagesRepository } from './images.repository.js';
-import { validateImages, validateCollectedImage, COLLECTED_TOTAL_BYTES, type ImageFile, type ValidatedImage } from './image-validation.js';
+import {
+  validateImages,
+  validateCollectedImage,
+  COLLECTED_TOTAL_BYTES,
+  type ImageFile,
+  type ValidatedImage,
+} from './image-validation.js';
 import { fail, validId } from '../../shared/errors.js';
 @Injectable()
 export class ImagesService {
@@ -19,7 +25,8 @@ export class ImagesService {
   }
   async uploadCollected(bytes: Buffer, actor: string, remainingBytes = COLLECTED_TOTAL_BYTES) {
     const validated = await validateCollectedImage(bytes);
-    if (validated.reduce((sum, image) => sum + image.bytes.length, 0) > remainingBytes) fail(413, 'UPLOAD_TOO_LARGE');
+    if (validated.reduce((sum, image) => sum + image.bytes.length, 0) > remainingBytes)
+      fail(413, 'UPLOAD_TOO_LARGE');
     return this.store(validated, actor);
   }
   private async store(validated: ValidatedImage[], actor: string) {
@@ -81,8 +88,18 @@ export class ImagesService {
     }
   }
   async localMedia(key: string) {
-    if (!/^(?:posts|content\/published\/posts)\/[1-9][0-9]*\/[1-9][0-9]*-[a-f0-9]{64}\.(jpg|png|webp|gif)$/.test(key)) fail(404, 'IMAGE_NOT_FOUND');
-    const mime = new Map([['jpg','image/jpeg'], ['png','image/png'], ['webp','image/webp'], ['gif','image/gif']]).get(key.split('.').at(-1) ?? '');
+    if (
+      !/^(?:posts|content\/published\/posts)\/[1-9][0-9]*\/[1-9][0-9]*-[a-f0-9]{64}\.(jpg|png|webp|gif)$/.test(
+        key
+      )
+    )
+      fail(404, 'IMAGE_NOT_FOUND');
+    const mime = new Map([
+      ['jpg', 'image/jpeg'],
+      ['png', 'image/png'],
+      ['webp', 'image/webp'],
+      ['gif', 'image/gif'],
+    ]).get(key.split('.').at(-1) ?? '');
     if (!mime) fail(404, 'IMAGE_NOT_FOUND');
     return { bytes: await this.storage.get('public', key), mime };
   }

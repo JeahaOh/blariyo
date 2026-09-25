@@ -3,7 +3,6 @@
 import argparse
 import fcntl
 from contextlib import closing
-import hashlib
 import http.client
 import ipaddress
 import json

@@ -164,8 +164,12 @@ export class TypeOrmCollectionRepository extends CollectionRepository {
     return post?.id ?? null;
   }
   async discoveryAllowed(sourceId: string) {
-    const result = rows(await this.db.manager.query(
-      'SELECT enabled FROM collect.source_discovery_policy WHERE source_id=$1', [sourceId]));
+    const result = rows(
+      await this.db.manager.query(
+        'SELECT enabled FROM collect.source_discovery_policy WHERE source_id=$1',
+        [sourceId]
+      )
+    );
     return result[0]?.enabled === true;
   }
   async createCandidate(

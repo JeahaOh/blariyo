@@ -81,7 +81,9 @@ export function editorDto(value: {
   const post = value.post;
   return {
     ...summaryDto(post),
-    source: post.sourceUrl ? { name: post.sourceName ?? '', url: new URL(post.sourceUrl).href } : null,
+    source: post.sourceUrl
+      ? { name: post.sourceName ?? '', url: new URL(post.sourceUrl).href }
+      : null,
     pinnedPosition: post.pinnedPosition,
     createdAt: post.createdAt.toISOString(),
     blocks: value.blocks.map(blockDto),

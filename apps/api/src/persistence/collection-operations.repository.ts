@@ -32,8 +32,11 @@ export class TypeOrmCollectionOperationsRepository extends CollectionOperationsR
   }
   async schemaReady() {
     return (
-      requiredRow(await this.db.manager.query("SELECT ops.is_schema_ready('V008') OR ops.is_schema_ready('V007') AS ready"))
-        .ready === true
+      requiredRow(
+        await this.db.manager.query(
+          "SELECT ops.is_schema_ready('V008') OR ops.is_schema_ready('V007') AS ready"
+        )
+      ).ready === true
     );
   }
   async hasLegacyMutationData() {

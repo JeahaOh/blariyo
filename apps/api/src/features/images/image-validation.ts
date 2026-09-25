@@ -24,10 +24,15 @@ const formats: Readonly<Record<string, string>> = {
 export async function collectedImage(bytes: Buffer): Promise<ImageFile> {
   if (bytes.length > COLLECTED_FILE_BYTES) fail(413, 'UPLOAD_TOO_LARGE');
   try {
-    const metadata = await sharp(bytes, { limitInputPixels: 40000000, failOn: 'warning' }).metadata();
+    const metadata = await sharp(bytes, {
+      limitInputPixels: 40000000,
+      failOn: 'warning',
+    }).metadata();
     const mime = formats[metadata.format];
     if (mime) return { bytes, mime };
-  } catch { /* Validation below returns a generalized format error. */ }
+  } catch {
+    /* Validation below returns a generalized format error. */
+  }
   fail(415, 'UNSUPPORTED_MEDIA_TYPE');
 }
 export async function validateImages(files: ImageFile[]): Promise<ValidatedImage[]> {
@@ -55,13 +60,23 @@ async function validate(files: ImageFile[], collected: boolean): Promise<Validat
     }
     try {
       if (collected) {
-        const first = await sharp(file.bytes, { limitInputPixels: 40000000, failOn: 'warning' }).metadata();
+        const first = await sharp(file.bytes, {
+          limitInputPixels: 40000000,
+          failOn: 'warning',
+        }).metadata();
         const pixels = first.width * (first.pageHeight || first.height) * (first.pages || 1);
         if (pixels > 64 * 1024 * 1024) {
-          if (!['gif', 'webp'].includes(first.format) || formats[first.format] !== file.mime) throw Error('ANIMATION_DECODE_LIMIT');
+          if (!['gif', 'webp'].includes(first.format) || formats[first.format] !== file.mime)
+            throw Error('ANIMATION_DECODE_LIMIT');
           const data = await sanitizeLargeAnimation(file.bytes, first);
-          validated.push({ bytes: data, mime: file.mime, ext: first.format, width: first.width,
-            height: first.pageHeight || first.height, hash: createHash('sha256').update(data).digest() });
+          validated.push({
+            bytes: data,
+            mime: file.mime,
+            ext: first.format,
+            width: first.width,
+            height: first.pageHeight || first.height,
+            hash: createHash('sha256').update(data).digest(),
+          });
           continue;
         }
       }
@@ -92,7 +107,9 @@ async function validate(files: ImageFile[], collected: boolean): Promise<Validat
       else output.toFormat(metadata.format);
       const { data, info } = await output.toBuffer({ resolveWithObject: true });
       if (collected && data.length > COLLECTED_FILE_BYTES) {
-        tooLarge = true; errors.push({ field: `files[${index}]`, reason: 'fileSize' }); continue;
+        tooLarge = true;
+        errors.push({ field: `files[${index}]`, reason: 'fileSize' });
+        continue;
       }
       validated.push({
         bytes: data,
@@ -103,7 +120,10 @@ async function validate(files: ImageFile[], collected: boolean): Promise<Validat
         hash: createHash('sha256').update(data).digest(),
       });
     } catch (error) {
-      if (error instanceof Error && /pixel limit|ANIMATION_DECODE_LIMIT|timeout/i.test(error.message)) {
+      if (
+        error instanceof Error &&
+        /pixel limit|ANIMATION_DECODE_LIMIT|timeout/i.test(error.message)
+      ) {
         tooLarge = true;
         errors.push({ field: `files[${index}]`, reason: 'decodeLimit' });
       } else errors.push({ field: `files[${index}]`, reason: 'decode' });

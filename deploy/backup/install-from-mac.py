@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Installs encrypted backup; keeps the recovery identity on the Mac, never logs it."""
-import os,json,subprocess,sys,re,stat
+import os,json,subprocess,re,stat
 from pathlib import Path
 REPO=Path('/Volumes/MicroVault/iCloudDrive/git/private/blariyo')
 NODE='/Users/zeaha/.nvm/versions/node/v24.18.0/bin/node'

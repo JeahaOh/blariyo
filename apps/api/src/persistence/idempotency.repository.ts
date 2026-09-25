@@ -40,10 +40,25 @@ export class TypeOrmIdempotencyRepository extends IdempotencyRepository {
           value
         )
         .execute();
-    await this.db.manager.createQueryBuilder().insert().into(OpsIdempotencyRequestEntity)
-      .values({ operation_scope: value.scope, idempotency_key: value.key, request_hash: value.hash,
-        response_status: value.status, response_body: () => ':response::jsonb', resource_type: value.resourceType, resource_id: value.resourceId,
-        expires_at: () => "now()+interval '24 hours'", created_by: value.actor, created_at: () => 'now()', updated_by: value.actor, updated_at: () => 'now()' })
-      .setParameter('response', JSON.stringify(value.data)).execute();
+    await this.db.manager
+      .createQueryBuilder()
+      .insert()
+      .into(OpsIdempotencyRequestEntity)
+      .values({
+        operation_scope: value.scope,
+        idempotency_key: value.key,
+        request_hash: value.hash,
+        response_status: value.status,
+        response_body: () => ':response::jsonb',
+        resource_type: value.resourceType,
+        resource_id: value.resourceId,
+        expires_at: () => "now()+interval '24 hours'",
+        created_by: value.actor,
+        created_at: () => 'now()',
+        updated_by: value.actor,
+        updated_at: () => 'now()',
+      })
+      .setParameter('response', JSON.stringify(value.data))
+      .execute();
   }
 }

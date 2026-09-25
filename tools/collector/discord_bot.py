@@ -1,15 +1,10 @@
 """Gateway slash commands only. No public inbound endpoint or message-content intent."""
-import argparse
 import hashlib
 import asyncio
-import json
-import logging
-import os
-from pathlib import Path
 import time
 import discord
 from discord import app_commands
-from collector import API, CollectError, Quota, checked_url, process_job
+from collector import CollectError, checked_url
 
 
 def permitted(interaction, settings):

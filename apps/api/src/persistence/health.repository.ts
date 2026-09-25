@@ -1,32 +1,39 @@
-import { Inject,Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { HealthRepository } from '../features/health/health.repository.js';
 import { DatabaseContext } from './database.js';
 import { apiCollectTables } from './collect-ownership.js';
 import { requiredRow } from './rows.js';
 @Injectable()
 export class TypeOrmHealthRepository extends HealthRepository {
- constructor(@Inject(DatabaseContext) private readonly database:DatabaseContext){super();}
- async ready(collectionEnabled:boolean,batchEnabled=false):Promise<boolean> {
-  const version:unknown = await this.database.manager.query(
-    "SELECT ops.is_schema_ready('V008') OR ops.is_schema_ready('V007') OR (NOT $1::boolean AND (ops.is_schema_ready('V006') OR ops.is_schema_ready('V005') OR ops.is_schema_ready('V004') OR ops.is_schema_ready('V003'))) AS ready",
-    [collectionEnabled]
-  );
-  if (!requiredRow(version).ready) return false;
-  if (batchEnabled) {
-    const batch=requiredRow(await this.database.manager.query(`SELECT ops.is_schema_ready('V008')
-      AND to_regclass('collect.batch_item') IS NOT NULL AND to_regclass('collect.batch_media') IS NOT NULL AS ready`));
-    if (!batch.ready) return false;
-    const roles=requiredRow(await this.database.manager.query(`SELECT
+  constructor(@Inject(DatabaseContext) private readonly database: DatabaseContext) {
+    super();
+  }
+  async ready(collectionEnabled: boolean, batchEnabled = false): Promise<boolean> {
+    const version: unknown = await this.database.manager.query(
+      "SELECT ops.is_schema_ready('V008') OR ops.is_schema_ready('V007') OR (NOT $1::boolean AND (ops.is_schema_ready('V006') OR ops.is_schema_ready('V005') OR ops.is_schema_ready('V004') OR ops.is_schema_ready('V003'))) AS ready",
+      [collectionEnabled]
+    );
+    if (!requiredRow(version).ready) return false;
+    if (batchEnabled) {
+      const batch = requiredRow(
+        await this.database.manager.query(`SELECT ops.is_schema_ready('V008')
+      AND to_regclass('collect.batch_item') IS NOT NULL AND to_regclass('collect.batch_media') IS NOT NULL AS ready`)
+      );
+      if (!batch.ready) return false;
+      const roles = requiredRow(
+        await this.database.manager.query(`SELECT
       has_table_privilege(current_user,'collect.batch_item','SELECT') AND has_table_privilege(current_user,'collect.batch_media','SELECT')
       AND has_table_privilege(current_user,'collect.batch_review','SELECT')
       AND has_table_privilege(current_user,'collect.batch_review','INSERT')
       AND has_table_privilege(current_user,'collect.batch_review','UPDATE')
       AND has_table_privilege(current_user,'collect.batch_review_request','SELECT')
-      AND has_table_privilege(current_user,'collect.batch_review_request','INSERT') AS ready`));
-    if (!roles.ready) return false;
-  }
-  if (!collectionEnabled) return true;
-  const access:unknown = await this.database.manager.query(`SELECT
+      AND has_table_privilege(current_user,'collect.batch_review_request','INSERT') AS ready`)
+      );
+      if (!roles.ready) return false;
+    }
+    if (!collectionEnabled) return true;
+    const access: unknown = await this.database.manager.query(
+      `SELECT
     has_schema_privilege(current_user,'collect','USAGE')
     AND NOT EXISTS (
       SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
@@ -54,7 +61,9 @@ export class TypeOrmHealthRepository extends HealthRepository {
     AND has_sequence_privilege(current_user,'collect.candidate_id_seq','USAGE')
     AND has_sequence_privilege(current_user,'collect.candidate_id_seq','SELECT')
     AND has_sequence_privilege(current_user,'collect.candidate_image_id_seq','USAGE')
-    AND has_sequence_privilege(current_user,'collect.candidate_image_id_seq','SELECT') AS accessible`,[apiCollectTables]);
-  return Boolean(requiredRow(access).accessible);
-}
+    AND has_sequence_privilege(current_user,'collect.candidate_image_id_seq','SELECT') AS accessible`,
+      [apiCollectTables]
+    );
+    return Boolean(requiredRow(access).accessible);
+  }
 }

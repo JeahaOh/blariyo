@@ -38,7 +38,8 @@ export class OutboxService {
             : null;
         const key =
           typeof task.payload.publicStorageKey === 'string' ? task.payload.publicStorageKey : '';
-        const postId = image?.postId || /^(?:posts|content\/published\/posts)\/(\d+)\//.exec(key)?.[1];
+        const postId =
+          image?.postId || /^(?:posts|content\/published\/posts)\/(\d+)\//.exec(key)?.[1];
         if (postId) await this.work.lock(`post-storage:${postId}`, () => this.execute(task));
         else await this.execute(task);
       } catch {

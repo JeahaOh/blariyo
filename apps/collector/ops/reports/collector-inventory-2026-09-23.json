@@ -234,9 +234,7 @@
     {
       "id": "e908741c-359e-4c3a-a118-835b05fe5798",
       "source": "dcinside",
-      "codes": [
-        "IMAGE_DECODE_POLICY_EXCEEDED:39"
-      ]
+      "codes": ["IMAGE_DECODE_POLICY_EXCEEDED:39"]
     },
     {
       "id": "f28a41b9-1244-4615-b497-56daa7f4a093",
@@ -251,56 +249,37 @@
     {
       "id": "1f3e0262-6517-4bf9-974c-a2c26dd56ef7",
       "source": "todayhumor",
-      "codes": [
-        "IMAGE_MIME:2",
-        "IMAGE_MIME:4"
-      ]
+      "codes": ["IMAGE_MIME:2", "IMAGE_MIME:4"]
     },
     {
       "id": "7895126e-93c4-45d1-9618-0302db53a736",
       "source": "todayhumor",
-      "codes": [
-        "IMAGE_MIME:2"
-      ]
+      "codes": ["IMAGE_MIME:2"]
     },
     {
       "id": "0f32bbbe-a3ec-4e77-90a7-99d6a726f982",
       "source": "todayhumor",
-      "codes": [
-        "IMAGE_MIME:3"
-      ]
+      "codes": ["IMAGE_MIME:3"]
     },
     {
       "id": "6d7930e1-4f2c-4b04-8b3f-4ee173dc58db",
       "source": "todayhumor",
-      "codes": [
-        "IMAGE_MIME:2"
-      ]
+      "codes": ["IMAGE_MIME:2"]
     },
     {
       "id": "6de5fece-13c3-4504-baab-5ff0e0f0de49",
       "source": "todayhumor",
-      "codes": [
-        "IMAGE_MIME:1"
-      ]
+      "codes": ["IMAGE_MIME:1"]
     },
     {
       "id": "3fbaf696-a882-429e-a737-c183fc18ecab",
       "source": "todayhumor",
-      "codes": [
-        "IMAGE_MIME:20",
-        "IMAGE_MIME:21"
-      ]
+      "codes": ["IMAGE_MIME:20", "IMAGE_MIME:21"]
     },
     {
       "id": "da6279bb-00f2-4564-af5c-8c6cdd066806",
       "source": "todayhumor",
-      "codes": [
-        "IMAGE_MIME:1",
-        "IMAGE_MIME:2",
-        "IMAGE_MIME:3",
-        "IMAGE_MIME:4"
-      ]
+      "codes": ["IMAGE_MIME:1", "IMAGE_MIME:2", "IMAGE_MIME:3", "IMAGE_MIME:4"]
     }
   ],
   "items": 103,

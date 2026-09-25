@@ -143,16 +143,14 @@ for (const config of configs) {
             previous.capture.sourceBlocks,
             'Source article changed; review the capture before replacement'
           );
-          await app
-            .get(PostsService)
-            .command(
-              {
-                action: 'update',
-                params: { postId: target.id },
-                body: { lockVersion: target.lock_version, blocks: staged.blocks },
-              },
-              ACTOR
-            );
+          await app.get(PostsService).command(
+            {
+              action: 'update',
+              params: { postId: target.id },
+              body: { lockVersion: target.lock_version, blocks: staged.blocks },
+            },
+            ACTOR
+          );
           const capture = {
             ...source,
             rights: snapshot.rights,

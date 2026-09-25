@@ -70,19 +70,30 @@ export class TypeOrmUnitOfWork extends UnitOfWork {
   }
   async transactionLock(key: string, wait = false): Promise<void> {
     const result: unknown = await this.database.manager.query(
-      wait ? 'SELECT pg_advisory_xact_lock(hashtextextended($1,0))'
-        : 'SELECT pg_try_advisory_xact_lock(hashtextextended($1,0)) AS acquired', [key]);
+      wait
+        ? 'SELECT pg_advisory_xact_lock(hashtextextended($1,0))'
+        : 'SELECT pg_try_advisory_xact_lock(hashtextextended($1,0)) AS acquired',
+      [key]
+    );
     if (wait) return;
-    const acquired = Array.isArray(result) && result.some((row: unknown) =>
-      typeof row === 'object' && row !== null && 'acquired' in row && row.acquired === true);
+    const acquired =
+      Array.isArray(result) &&
+      result.some(
+        (row: unknown) =>
+          typeof row === 'object' && row !== null && 'acquired' in row && row.acquired === true
+      );
     if (!acquired) throw new ApiError(409, 'IDEMPOTENCY_IN_PROGRESS');
   }
   lock<T>(key: string | number, work: () => Promise<T>, wait = true): Promise<T> {
     return this.database.connection(async (runner) => {
       const result: unknown = await runner.query(
         wait
-          ? (typeof key === 'number' ? 'SELECT pg_advisory_lock($1::bigint)' : 'SELECT pg_advisory_lock(hashtextextended($1,0))')
-          : (typeof key === 'number' ? 'SELECT pg_try_advisory_lock($1::bigint) AS acquired' : 'SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS acquired'),
+          ? typeof key === 'number'
+            ? 'SELECT pg_advisory_lock($1::bigint)'
+            : 'SELECT pg_advisory_lock(hashtextextended($1,0))'
+          : typeof key === 'number'
+            ? 'SELECT pg_try_advisory_lock($1::bigint) AS acquired'
+            : 'SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS acquired',
         [key]
       );
       if (
@@ -97,7 +108,12 @@ export class TypeOrmUnitOfWork extends UnitOfWork {
       try {
         return await work();
       } finally {
-        await runner.query(typeof key === 'number' ? 'SELECT pg_advisory_unlock($1::bigint)' : 'SELECT pg_advisory_unlock(hashtextextended($1,0))', [key]);
+        await runner.query(
+          typeof key === 'number'
+            ? 'SELECT pg_advisory_unlock($1::bigint)'
+            : 'SELECT pg_advisory_unlock(hashtextextended($1,0))',
+          [key]
+        );
       }
     });
   }

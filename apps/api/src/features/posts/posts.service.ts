@@ -89,7 +89,8 @@ export class PostsService {
     });
   }
   private async createDraft(body: CreatePost, actor: string) {
-    if (!schemaValidator({ $ref: '#/components/schemas/CreatePostRequest' })(body)) fail(400, 'VALIDATION_FAILED');
+    if (!schemaValidator({ $ref: '#/components/schemas/CreatePostRequest' })(body))
+      fail(400, 'VALIDATION_FAILED');
     if (!validSlug(body.boardSlug)) fail(404, 'BOARD_NOT_FOUND');
     const board = await this.repository.postingBoard(body.boardSlug);
     if (!board) fail(404, 'BOARD_NOT_FOUND');

@@ -32,22 +32,26 @@ services:
         source: ./pg_hba.conf
         target: /etc/blariyo/pg_hba.conf
         read_only: true
-        bind: {create_host_path: false}
+        bind: { create_host_path: false }
       - type: bind
         source: ./secrets/bootstrap-password
         target: /run/secrets/bootstrap-password
         read_only: true
-        bind: {create_host_path: false}
+        bind: { create_host_path: false }
     networks: [data]
     healthcheck:
-      test: [CMD-SHELL, "gosu postgres psql -X -U postgres -d blariyo -Atqc \"SELECT current_setting('listen_addresses')='*'\" | grep -qx t"]
+      test:
+        [
+          CMD-SHELL,
+          'gosu postgres psql -X -U postgres -d blariyo -Atqc "SELECT current_setting(''listen_addresses'')=''*''" | grep -qx t',
+        ]
       interval: 10s
       timeout: 5s
       retries: 6
       start_period: 10s
     logging:
       driver: json-file
-      options: {max-size: 10m, max-file: '3'}
+      options: { max-size: 10m, max-file: '3' }
 networks:
   data:
     internal: true

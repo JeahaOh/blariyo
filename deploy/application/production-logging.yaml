@@ -6,7 +6,7 @@ services:
         syslog-address: unixgram:///run/blariyo-logs/log.sock
         syslog-format: rfc3164
         tag: blariyo-api
-        cache-disabled: "true"
+        cache-disabled: 'true'
   web:
     logging: !override
       driver: syslog
@@ -14,4 +14,4 @@ services:
         syslog-address: unixgram:///run/blariyo-logs/log.sock
         syslog-format: rfc3164
         tag: blariyo-web
-        cache-disabled: "true"
+        cache-disabled: 'true'

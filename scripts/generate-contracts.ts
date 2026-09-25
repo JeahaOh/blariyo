@@ -15,7 +15,9 @@ function specification(input: unknown): Specification {
   return {
     ...value,
     paths: record(value.paths),
-    components: Object.fromEntries(Object.entries(record(value.components)).map(([kind, entries]) => [kind, record(entries)])),
+    components: Object.fromEntries(
+      Object.entries(record(value.components)).map(([kind, entries]) => [kind, record(entries)])
+    ),
   };
 }
 let combined: Specification | undefined;

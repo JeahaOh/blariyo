@@ -256,16 +256,14 @@ await test('Nest collection sources, filtered pagination, candidate details and 
         request('/candidates', { originUrl: 'https://fixture.invalid/race' }, 'POST'),
       ]);
       assert.deepEqual(races.map((result) => result.response.status).sort(), [202, 409]);
-      await fixture
-        .getRepository(OpsIdempotencyRequestEntity)
-        .update(
-          { idempotency_key: key },
-          {
-            created_at: new Date(Date.now() - 25 * 3600000),
-            updated_at: new Date(Date.now() - 25 * 3600000),
-            expires_at: new Date(Date.now() - 3600000),
-          }
-        );
+      await fixture.getRepository(OpsIdempotencyRequestEntity).update(
+        { idempotency_key: key },
+        {
+          created_at: new Date(Date.now() - 25 * 3600000),
+          updated_at: new Date(Date.now() - 25 * 3600000),
+          expires_at: new Date(Date.now() - 3600000),
+        }
+      );
       const refreshed = await request(
         '/candidates',
         { originUrl: 'https://fixture.invalid/after-expiry' },

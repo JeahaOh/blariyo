@@ -748,9 +748,15 @@ export class CollectSourceDiscoveryPolicyEntity {
   @Column({ type: 'timestamptz', precision: 3 }) reviewed_at!: Date;
   @Column({ type: 'varchar', length: 100 }) policy_version!: string;
   @ManyToOne(() => CollectSourceEntity, {
-    nullable: false, onDelete: 'NO ACTION', onUpdate: 'NO ACTION',
-    cascade: false, eager: false, lazy: false, persistence: false,
-    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+    nullable: false,
+    onDelete: 'NO ACTION',
+    onUpdate: 'NO ACTION',
+    cascade: false,
+    eager: false,
+    lazy: false,
+    persistence: false,
+    createForeignKeyConstraints: false,
+    orphanedRowAction: 'disable',
   })
   @JoinColumn([{ name: 'source_id', referencedColumnName: 'id' }])
   source?: Relation<CollectSourceEntity>;
@@ -769,9 +775,15 @@ export class CollectBatchReviewEntity {
   @Column({ type: 'varchar', length: 100 }) updated_by!: string;
   @Column({ type: 'timestamptz', precision: 3, default: () => 'now()' }) updated_at!: Date;
   @ManyToOne(() => ContentBoardPostEntity, {
-    nullable: true, onDelete: 'NO ACTION', onUpdate: 'NO ACTION',
-    cascade: false, eager: false, lazy: false, persistence: false,
-    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+    nullable: true,
+    onDelete: 'NO ACTION',
+    onUpdate: 'NO ACTION',
+    cascade: false,
+    eager: false,
+    lazy: false,
+    persistence: false,
+    createForeignKeyConstraints: false,
+    orphanedRowAction: 'disable',
   })
   @JoinColumn([{ name: 'post_id', referencedColumnName: 'id' }])
   post?: Relation<ContentBoardPostEntity>;

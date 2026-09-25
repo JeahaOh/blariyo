@@ -2,20 +2,14 @@
   "arcalive": {
     "approved": true,
     "host": "arca.live",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "ARCALIVE",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://ac.arca.live": [
-        "/"
-      ],
-      "https://arca.live": [
-        "/"
-      ]
+      "https://ac.arca.live": ["/"],
+      "https://arca.live": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -48,26 +42,16 @@
   "bobaedream": {
     "approved": true,
     "host": "www.bobaedream.co.kr",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "BOBAEDREAM",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://file1.bobaedream.co.kr": [
-        "/"
-      ],
-      "https://file2.bobaedream.co.kr": [
-        "/"
-      ],
-      "https://file3.bobaedream.co.kr": [
-        "/"
-      ],
-      "https://file4.bobaedream.co.kr": [
-        "/"
-      ]
+      "https://file1.bobaedream.co.kr": ["/"],
+      "https://file2.bobaedream.co.kr": ["/"],
+      "https://file3.bobaedream.co.kr": ["/"],
+      "https://file4.bobaedream.co.kr": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -100,17 +84,13 @@
   "clien": {
     "approved": true,
     "host": "www.clien.net",
-    "pathPrefixes": [
-      "/service/board/"
-    ],
+    "pathPrefixes": ["/service/board/"],
     "parser": "CLIEN",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://www.clien.net": [
-        "/"
-      ]
+      "https://www.clien.net": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -142,30 +122,17 @@
   "dcinside": {
     "approved": true,
     "host": "gall.dcinside.com",
-    "pathPrefixes": [
-      "/board/view/",
-      "/board/lists"
-    ],
+    "pathPrefixes": ["/board/view/", "/board/lists"],
     "parser": "DCINSIDE",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://gall.dcinside.com": [
-        "/"
-      ],
-      "https://dcimg1.dcinside.com": [
-        "/"
-      ],
-      "https://image.dcinside.com": [
-        "/"
-      ],
-      "https://nstatic.dcinside.com": [
-        "/"
-      ],
-      "https://dcimg5.dcinside.com": [
-        "/dccon.php"
-      ]
+      "https://gall.dcinside.com": ["/"],
+      "https://dcimg1.dcinside.com": ["/"],
+      "https://image.dcinside.com": ["/"],
+      "https://nstatic.dcinside.com": ["/"],
+      "https://dcimg5.dcinside.com": ["/dccon.php"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -197,20 +164,14 @@
   "dmitory": {
     "approved": true,
     "host": "www.dmitory.com",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "DMITORY",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://www.dmitory.com": [
-        "/"
-      ],
-      "https://img.dmitory.com": [
-        "/"
-      ]
+      "https://www.dmitory.com": ["/"],
+      "https://img.dmitory.com": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -242,9 +203,7 @@
   "dogdrip": {
     "approved": true,
     "host": "www.dogdrip.net",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "DOGDRIP",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
@@ -281,21 +240,14 @@
   "etoland": {
     "approved": true,
     "host": "etoland.co.kr",
-    "pathPrefixes": [
-      "/bbs/board.php",
-      "/b/"
-    ],
+    "pathPrefixes": ["/bbs/board.php", "/b/"],
     "parser": "ETOLAND",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://etoland.co.kr": [
-        "/"
-      ],
-      "https://btcdn.etoland.co.kr": [
-        "/"
-      ]
+      "https://etoland.co.kr": ["/"],
+      "https://btcdn.etoland.co.kr": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -327,17 +279,13 @@
   "fmkorea": {
     "approved": true,
     "host": "www.fmkorea.com",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "FMKOREA",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://www.fmkorea.com": [
-        "/"
-      ]
+      "https://www.fmkorea.com": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -369,20 +317,14 @@
   "goodgag": {
     "approved": true,
     "host": "www.goodgag.net",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "GOODGAG",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://www.goodgag.net": [
-        "/"
-      ],
-      "https://cdn.goodgag.net": [
-        "/_data/up/"
-      ]
+      "https://www.goodgag.net": ["/"],
+      "https://cdn.goodgag.net": ["/_data/up/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -427,33 +369,15 @@
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://m.humoruniv.com": [
-        "/"
-      ],
-      "https://web.humoruniv.com": [
-        "/"
-      ],
-      "https://humoruniv.com": [
-        "/"
-      ],
-      "https://cimg.humoruniv.com": [
-        "/"
-      ],
-      "https://cimg.huv.kr": [
-        "/"
-      ],
-      "https://down.humoruniv.com": [
-        "/"
-      ],
-      "https://icon-neo.humoruniv.com": [
-        "/"
-      ],
-      "https://timg.humoruniv.com": [
-        "/"
-      ],
-      "https://down-webp.humoruniv.com": [
-        "/"
-      ]
+      "https://m.humoruniv.com": ["/"],
+      "https://web.humoruniv.com": ["/"],
+      "https://humoruniv.com": ["/"],
+      "https://cimg.humoruniv.com": ["/"],
+      "https://cimg.huv.kr": ["/"],
+      "https://down.humoruniv.com": ["/"],
+      "https://icon-neo.humoruniv.com": ["/"],
+      "https://timg.humoruniv.com": ["/"],
+      "https://down-webp.humoruniv.com": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -479,36 +403,22 @@
       "statusNote": "Historical observations; current per-site fixture/live/readback evidence is recorded separately."
     },
     "collectionPolicy": "GENERAL_LIST",
-    "hostAliases": [
-      "web.humoruniv.com",
-      "humoruniv.com"
-    ],
+    "hostAliases": ["web.humoruniv.com", "humoruniv.com"],
     "defaultChart": "latest",
     "datePolicy": "INCLUDE_UNKNOWN"
   },
   "instiz": {
     "approved": true,
     "host": "www.instiz.net",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "INSTIZ",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://www.instiz.net": [
-        "/"
-      ],
-      "https://cdn.instiz.net": [
-        "/data/",
-        "/file/",
-        "/file2/",
-        "/file3/"
-      ],
-      "https://static.klipy.com": [
-        "/"
-      ]
+      "https://www.instiz.net": ["/"],
+      "https://cdn.instiz.net": ["/data/", "/file/", "/file2/", "/file3/"],
+      "https://static.klipy.com": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -540,17 +450,13 @@
   "inven": {
     "approved": true,
     "host": "www.inven.co.kr",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "INVEN",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://upload3.inven.co.kr": [
-        "/"
-      ]
+      "https://upload3.inven.co.kr": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -583,23 +489,15 @@
   "mlbpark": {
     "approved": true,
     "host": "mlbpark.donga.com",
-    "pathPrefixes": [
-      "/mp/b.php"
-    ],
+    "pathPrefixes": ["/mp/b.php"],
     "parser": "MLBPARK",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://mlbpark.donga.com": [
-        "/"
-      ],
-      "https://simg.donga.com": [
-        "/ugc/MLBPARK/"
-      ],
-      "https://dimg.donga.com": [
-        "/ugc/WWW/Profile/"
-      ]
+      "https://mlbpark.donga.com": ["/"],
+      "https://simg.donga.com": ["/ugc/MLBPARK/"],
+      "https://dimg.donga.com": ["/ugc/WWW/Profile/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -631,23 +529,15 @@
   "natepann": {
     "approved": true,
     "host": "pann.nate.com",
-    "pathPrefixes": [
-      "/talk/"
-    ],
+    "pathPrefixes": ["/talk/"],
     "parser": "NATEPANN",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://pann.nate.com": [
-        "/"
-      ],
-      "https://fimg6.pann.com": [
-        "/new/download.jsp"
-      ],
-      "https://thumb.pann.com": [
-        "/"
-      ]
+      "https://pann.nate.com": ["/"],
+      "https://fimg6.pann.com": ["/new/download.jsp"],
+      "https://thumb.pann.com": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -679,17 +569,13 @@
   "pgr21": {
     "approved": true,
     "host": "pgr21.com",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "PGR21",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://pgr21.com": [
-        "/"
-      ]
+      "https://pgr21.com": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -719,18 +605,13 @@
   "ppomppu": {
     "approved": true,
     "host": "www.ppomppu.co.kr",
-    "pathPrefixes": [
-      "/zboard/view.php",
-      "/hot.php"
-    ],
+    "pathPrefixes": ["/zboard/view.php", "/hot.php"],
     "parser": "PPOMPPU",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://www.ppomppu.co.kr": [
-        "/"
-      ]
+      "https://www.ppomppu.co.kr": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -762,26 +643,16 @@
   "ruliweb": {
     "approved": true,
     "host": "bbs.ruliweb.com",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "RULIWEB",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://bbs.ruliweb.com": [
-        "/"
-      ],
-      "https://i1.ruliweb.com": [
-        "/"
-      ],
-      "https://i2.ruliweb.com": [
-        "/"
-      ],
-      "https://i3.ruliweb.com": [
-        "/"
-      ]
+      "https://bbs.ruliweb.com": ["/"],
+      "https://i1.ruliweb.com": ["/"],
+      "https://i2.ruliweb.com": ["/"],
+      "https://i3.ruliweb.com": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -813,29 +684,17 @@
   "theqoo": {
     "approved": true,
     "host": "theqoo.net",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "THEQOO",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://theqoo.net": [
-        "/"
-      ],
-      "https://img.theqoo.net": [
-        "/"
-      ],
-      "https://img-static.theqoo.net": [
-        "/"
-      ],
-      "https://t1.daumcdn.net": [
-        "/"
-      ],
-      "https://img-cdn.theqoo.net": [
-        "/"
-      ]
+      "https://theqoo.net": ["/"],
+      "https://img.theqoo.net": ["/"],
+      "https://img-static.theqoo.net": ["/"],
+      "https://t1.daumcdn.net": ["/"],
+      "https://img-cdn.theqoo.net": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -867,20 +726,14 @@
   "todayhumor": {
     "approved": true,
     "host": "www.todayhumor.co.kr",
-    "pathPrefixes": [
-      "/board/"
-    ],
+    "pathPrefixes": ["/board/"],
     "parser": "TODAYHUMOR",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://www.todayhumor.co.kr": [
-        "/"
-      ],
-      "https://thimg.todayhumor.co.kr": [
-        "/"
-      ]
+      "https://www.todayhumor.co.kr": ["/"],
+      "https://thimg.todayhumor.co.kr": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -912,23 +765,15 @@
   "yuldo": {
     "approved": true,
     "host": "yul-do.com",
-    "pathPrefixes": [
-      "/"
-    ],
+    "pathPrefixes": ["/"],
     "parser": "YULDO",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://yul-do.com": [
-        "/"
-      ],
-      "https://img.yul-do.com": [
-        "/files/"
-      ],
-      "https://cdn.yul-do.com": [
-        "/"
-      ]
+      "https://yul-do.com": ["/"],
+      "https://img.yul-do.com": ["/files/"],
+      "https://cdn.yul-do.com": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,
@@ -960,24 +805,15 @@
   "youtube-community": {
     "approved": true,
     "host": "www.youtube.com",
-    "pathPrefixes": [
-      "/post/",
-      "/@"
-    ],
+    "pathPrefixes": ["/post/", "/@"],
     "parser": "YOUTUBE_COMMUNITY",
     "titleSelector": "meta[property=og:title],title",
     "imageSelector": "img[data-original],img[data-src],img[data-lazy-src],img[src]",
     "userAgent": "blariyo-collector contact-test@example.invalid",
     "imageOrigins": {
-      "https://www.youtube.com": [
-        "/"
-      ],
-      "https://i.ytimg.com": [
-        "/"
-      ],
-      "https://yt3.ggpht.com": [
-        "/"
-      ]
+      "https://www.youtube.com": ["/"],
+      "https://i.ytimg.com": ["/"],
+      "https://yt3.ggpht.com": ["/"]
     },
     "batchApproved": true,
     "coreSourceId": null,

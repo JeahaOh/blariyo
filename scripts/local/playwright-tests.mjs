@@ -19,7 +19,11 @@ function fail(message) {
 }
 
 function docker(args, options = {}) {
-  return execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options }).trim();
+  return execFileSync('docker', args, {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    ...options,
+  }).trim();
 }
 
 function localDatabaseUrl() {
@@ -28,12 +32,16 @@ function localDatabaseUrl() {
   try {
     inspected = JSON.parse(docker(['inspect', name]))[0];
   } catch {
-    fail(`실행 중인 PostgreSQL 컨테이너 ${name}을 찾을 수 없습니다. Docker Compose의 로컬 PostgreSQL을 먼저 실행하세요.`);
+    fail(
+      `실행 중인 PostgreSQL 컨테이너 ${name}을 찾을 수 없습니다. Docker Compose의 로컬 PostgreSQL을 먼저 실행하세요.`
+    );
   }
   if (!inspected?.State?.Running) fail(`PostgreSQL 컨테이너 ${name}이 실행 중이 아닙니다.`);
   const published = inspected.NetworkSettings?.Ports?.['5432/tcp'] ?? [];
   if (!published.some((binding) => binding.HostIp === host && binding.HostPort === '5439')) {
-    fail(`${name}의 PostgreSQL 포트가 ${host}:5439에 공개되어 있지 않습니다. 임의의 DB 포트로 접속하지 않습니다.`);
+    fail(
+      `${name}의 PostgreSQL 포트가 ${host}:5439에 공개되어 있지 않습니다. 임의의 DB 포트로 접속하지 않습니다.`
+    );
   }
   const env = Object.fromEntries(
     (inspected.Config?.Env ?? []).map((item) => {
@@ -67,14 +75,22 @@ function assertTestTargets() {
 function assertImageInstalled() {
   const result = spawnSync('docker', ['image', 'inspect', image], { stdio: 'ignore' });
   if (result.status !== 0) {
-    fail(`Playwright 이미지가 설치되지 않았습니다. 먼저 아래 명령으로 받으세요:\n  docker pull ${image}\n그 뒤 이 테스트 명령을 다시 실행하세요.`);
+    fail(
+      `Playwright 이미지가 설치되지 않았습니다. 먼저 아래 명령으로 받으세요:\n  docker pull ${image}\n그 뒤 이 테스트 명령을 다시 실행하세요.`
+    );
   }
 }
 
 function assertPortFree() {
   return new Promise((resolve, reject) => {
     const server = createServer();
-    server.once('error', () => reject(new Error(`${host}:${port} 포트를 사용할 수 없습니다. 기존 프로세스를 확인하고 다시 실행하세요.`)));
+    server.once('error', () =>
+      reject(
+        new Error(
+          `${host}:${port} 포트를 사용할 수 없습니다. 기존 프로세스를 확인하고 다시 실행하세요.`
+        )
+      )
+    );
     server.listen(port, host, () => server.close(resolve));
   });
 }
@@ -104,7 +120,9 @@ try {
   // A fixed name makes concurrent runs and stale containers fail closed.
   try {
     docker(['inspect', containerName]);
-    fail(`컨테이너 이름 ${containerName}이 이미 사용 중입니다. 기존 컨테이너를 건드리지 않고 중단합니다.`);
+    fail(
+      `컨테이너 이름 ${containerName}이 이미 사용 중입니다. 기존 컨테이너를 건드리지 않고 중단합니다.`
+    );
   } catch (error) {
     if (error instanceof Error && error.message.includes('이미 사용 중입니다')) throw error;
   }
@@ -112,9 +130,21 @@ try {
   assertImageInstalled();
   const databaseUrl = localDatabaseUrl();
   ownedContainerId = docker([
-    'run', '-d', '--rm', '--name', containerName,
-    '-p', `${host}:${port}:55450`,
-    image, 'npx', 'playwright', 'run-server', '--host', '0.0.0.0', '--port', String(port),
+    'run',
+    '-d',
+    '--rm',
+    '--name',
+    containerName,
+    '-p',
+    `${host}:${port}:55450`,
+    image,
+    'npx',
+    'playwright',
+    'run-server',
+    '--host',
+    '0.0.0.0',
+    '--port',
+    String(port),
   ]);
   await waitForPort();
   const testProcess = spawn(process.execPath, ['--test', '--test-concurrency=1', ...testTargets], {
@@ -147,7 +177,9 @@ try {
       // Remove only the container created by this invocation, by immutable ID.
       docker(['rm', '-f', ownedContainerId]);
     } catch {
-      console.error('이번 실행에서 만든 Playwright 컨테이너를 자동 종료하지 못했습니다. Docker 상태를 확인하세요.');
+      console.error(
+        '이번 실행에서 만든 Playwright 컨테이너를 자동 종료하지 못했습니다. Docker 상태를 확인하세요.'
+      );
       process.exitCode = 1;
     }
   }

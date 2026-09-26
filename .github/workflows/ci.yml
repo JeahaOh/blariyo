@@ -578,17 +578,15 @@ jobs:
           else
             test "$COLLECTOR_RESTORE" = skipped
           fi
-      - name: Record final harness gate receipt
+      - name: Record final harness gate diagnostic
         if: always()
         env:
-          JOB_NAME: harness-gate
           JOB_STATUS: ${{ job.status }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
-          SUBJECT_SHA: ${{ needs.event-context.outputs.subject_sha }}
-          CONTEXT_SHA256: ${{ needs.event-context.outputs.context_sha256 }}
-          BINDINGS_SHA256: ${{ needs.event-context.outputs.bindings_sha256 }}
+          GITHUB_SHA: ${{ github.sha }}
+          EVENT_CONTEXT: ${{ needs.event-context.result }}
           RESTORE_REQUIRED: ${{ needs.restore-scope.outputs.required }}
           RESTORE_CORE: ${{ needs.restore-scope.outputs.core }}
           RESTORE_COLLECTOR: ${{ needs.restore-scope.outputs.collector }}
@@ -600,20 +598,45 @@ jobs:
           RESTORE: ${{ needs.schema-restore.result }}
           COLLECTOR_RESTORE: ${{ needs.collector-schema-restore.result }}
         run: |
-          node scripts/harness/cli.mjs job-receipt "$RUNNER_TEMP/harness-gate-receipt.json"
           jq -n \
-            --arg quality "$QUALITY" --arg windowsLeases "$WINDOWS_LEASES" --arg verify "$VERIFY" --arg collector "$COLLECTOR" \
-            --arg restoreScope "$RESTORE_SCOPE" --arg restore "$RESTORE" --arg collectorRestore "$COLLECTOR_RESTORE" \
+            --arg run "$GITHUB_RUN_ID" --arg attempt "$GITHUB_RUN_ATTEMPT" \
+            --arg event "$GITHUB_EVENT_NAME" --arg eventSha "$GITHUB_SHA" --arg status "$JOB_STATUS" \
+            --arg context "$EVENT_CONTEXT" --arg quality "$QUALITY" --arg windowsLeases "$WINDOWS_LEASES" \
+            --arg verify "$VERIFY" --arg collector "$COLLECTOR" --arg restoreScope "$RESTORE_SCOPE" \
+            --arg restore "$RESTORE" --arg collectorRestore "$COLLECTOR_RESTORE" \
             --arg required "$RESTORE_REQUIRED" --arg core "$RESTORE_CORE" --arg collectorDb "$RESTORE_COLLECTOR" \
-            '{quality:$quality,windowsLeases:$windowsLeases,verify:$verify,collector:$collector,restoreScope:$restoreScope,restore:$restore,collectorRestore:$collectorRestore,restoreRequired:($required == "true"),restoreCore:($core == "true"),restoreCollector:($collectorDb == "true")}' \
-            > "$RUNNER_TEMP/harness-gate-jobs.json"
+            'def optionalBoolean: if . == "true" then true elif . == "false" then false else null end;
+             {schemaVersion:1,recordType:"ci-gate-diagnostic",verificationEvidence:false,
+              run:{id:$run,attempt:$attempt,event:$event},eventSha:$eventSha,job:"harness-gate",result:$status,
+              jobs:{eventContext:$context,quality:$quality,windowsLeases:$windowsLeases,verify:$verify,
+                    collector:$collector,restoreScope:$restoreScope,restore:$restore,collectorRestore:$collectorRestore},
+              restore:{required:($required|optionalBoolean),core:($core|optionalBoolean),collector:($collectorDb|optionalBoolean)}}' \
+            > "$RUNNER_TEMP/harness-gate-diagnostic.json"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (Node 24)
         if: always()
         with:
+          name: ci-diagnostic-harness-gate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/harness-gate-diagnostic.json
+          retention-days: 14
+          if-no-files-found: error
+      - name: Record final harness gate receipt
+        if: always() && needs.event-context.result == 'success'
+        env:
+          JOB_NAME: harness-gate
+          JOB_STATUS: ${{ job.status }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          SUBJECT_SHA: ${{ needs.event-context.outputs.subject_sha }}
+          CONTEXT_SHA256: ${{ needs.event-context.outputs.context_sha256 }}
+          BINDINGS_SHA256: ${{ needs.event-context.outputs.bindings_sha256 }}
+          RESTORE_REQUIRED: ${{ needs.restore-scope.outputs.required }}
+        run: node scripts/harness/cli.mjs job-receipt "$RUNNER_TEMP/harness-gate-receipt.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (Node 24)
+        if: always() && needs.event-context.result == 'success'
+        with:
           name: ci-receipt-harness-gate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            ${{ runner.temp }}/harness-gate-receipt.json
-            ${{ runner.temp }}/harness-gate-jobs.json
+          path: ${{ runner.temp }}/harness-gate-receipt.json
           retention-days: 14
           if-no-files-found: error
   images:

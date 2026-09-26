@@ -145,3 +145,7 @@
 - 기존 main의 8개 commit 모두 Task-Id/Change-Id trailer가 없음을 확인했다. 새 gate 활성화 전 별도 PR에서 검토하는 순서를 문서화했고 기존 SHA·작성자는 유지했다.
 - 읽기 전용 `git merge-tree --write-tree e51f1b5 ada2474` 계산에서 `docs/ai/git-workflow.md`, `docs/ai/harness-implementation-plan.md` 두 파일의 add/add 충돌을 확인했다. 실제 branch·index·작업 사본 병합은 수행하지 않았다.
 - 초기 정책 PR의 순서만으로 도입 후 task 등록 경로까지 해결되지는 않는다. 전용 governance gate는 미구현으로 정본·로드맵에 남겼으며 자기확장 차단을 해제하지 않았다.
+
+## 분리 commit·push·Draft PR 전달 — 2026-09-25
+
+사용자가 로컬 commit·push·Draft PR 생성까지 승인했다. 원본 복구 7개 commit과 기존 local main 8개 SHA를 보존하고 새 검토 branch 6개를 생성·push했다. 브라우저 #3, 기존 8개 #4, 정책 #5, cleanup #6, harness #7, CI 진단 #8의 Draft 상태와 base/head를 확인했다. 실제 경로·commit·검증·원격 수용 경계는 [CI 복구·전달 결과](CI-RECOVERY.md#실제-분리전달-결과--2026-09-25)에 기록했다. 본문의 과거 미커밋 상태는 당시 이력이며 현재 전달 여부는 이 후속 기록을 따른다. 병합·배포·원격 보호 설정은 실행하지 않았다.

@@ -63,6 +63,33 @@ await test('migration SQL stays immutable and explicit contract evolution matche
         false,
         `${path} still rejects an unknown checksum`
       );
+      assert.equal(
+        migrationChecksumMatches(
+          apiVersion,
+          Buffer.alloc(32, 0x11),
+          Buffer.from(change.previousSha256, 'hex')
+        ),
+        false,
+        `${path} rejects changed SQL even when the recorded legacy checksum is trusted`
+      );
+      assert.equal(
+        migrationChecksumMatches(
+          'V999',
+          Buffer.from(change.sha256, 'hex'),
+          Buffer.from(change.previousSha256, 'hex')
+        ),
+        false,
+        `${path} cannot lend its compatibility exception to another version`
+      );
+      assert.equal(
+        migrationChecksumMatches(
+          apiVersion,
+          Buffer.from(change.sha256, 'hex'),
+          Buffer.from(change.sha256, 'hex')
+        ),
+        true,
+        `${path} accepts an exact current checksum`
+      );
     }
     currentHashes[path] = change.sha256;
   }
@@ -78,6 +105,13 @@ await test('migration SQL stays immutable and explicit contract evolution matche
     false,
     'source-capture runner rejects unknown checksums'
   );
+  assert.equal(
+    contentMigrationChecksumMatches('11'.repeat(64), sourceCapture.previousSha256),
+    false,
+    'source-capture runner rejects altered SQL against a known legacy ledger'
+  );
+  assert.equal(contentMigrationChecksumMatches(sourceCapture.sha256, sourceCapture.sha256), true);
+
   assert.ok(Object.keys(hashes).length >= 16);
   for (const [path, hash] of Object.entries(currentHashes)) {
     assert.equal(typeof hash, 'string');

@@ -1,8 +1,8 @@
 # M0 현재 진행 상황
 
-- **전체 판정: 부분 완료. 9월 25일 SHA `8af7244`의 CI·API/Web 운영 배포·GTM 실제 로딩을 확인했다. DB는 API V008·Collector V006을 유지하며, 실제 운영자 인수와 수집 실연동·계약은 남아 있다.**
-- 기본 현황: [9월 25일 운영 배포·검증](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)을 반영했다. 9월 23일 DB·콘텐츠 전수 대조와 9월 25일 앱 교체·공개 응답 검증은 [운영 상태](operations/current-status.md)에서 날짜별로 구분한다.
-- Git·배포 식별자를 구분한다. 운영 앱은 `8af7244`이며 후속 문서 커밋·다른 세션의 미커밋 변경은 해당 이미지에 포함되지 않는다. [9월 24일 Git 관측](../worklog/2026-09-24/documentation-refresh/EVIDENCE.md)은 당시 기록이다.
+- **전체 판정: 부분 완료. 9월 25일 `8af7244` 앱 배포·GTM 실제 로딩과 9월 26일 공개 HTTP에서 robots·사이트맵·일부 noindex와 GTM HTML 삽입을 확인했다. 실제 운영자 인수와 수집 실연동·계약은 남아 있다.**
+- 최신 점검: 2026-09-26 소스·정본 대조 및 16:39 KST 이후 공개 GET. 현재 서버 image digest·DB·백업·원격 CI는 재조회하지 않았다. DB·콘텐츠 전수 검증은 9월 23일, 최근 앱 배포·GTM 로딩은 [9월 25일 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)으로 구분한다. [운영 상태](operations/current-status.md)와 [오늘 점검 근거](../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md)를 따른다.
+- Git 확인: 2026-09-26 점검 종료·후속 문서 갱신 기준 `release@02c041a`, 로컬 `origin/release` 추적 참조보다 1커밋 앞섰다. 기존 worklog 미커밋 변경을 보존했으며 원격 상태를 새로 조회한 결과는 아니다. [동기화 기록](../worklog/2026-09-26/m0-progress-audit/STATUS-SYNC.md).
 - 과거 전체 goal의 `blocked` 기록은 당시 선행 조건 판단이다. 현재 도구 상태나 기능 폐기를 뜻하지 않는다.
 - 상세 실행 순서는 [잔여 과정](roadmap.md), 실제 커밋 식별자는 [진행 보관·커밋 기록](../worklog/2026-09-23/progress-checkpoint.md)을 따른다.
 
@@ -17,6 +17,7 @@
 | 사이트 모듈 P1-06 | 21 adapter·21 상세·19 목록 parser 분리, 기존 결과 보존 | direct robots/Crawl-delay·영속 일일 budget·redirect 상한 보완, 누락 실제 표본·차단 4개 재개 조건 |
 | 문서 정합성 P1-01 | D01~D03의 direct/legacy 저장·권한·검수 규칙 정렬 | Web 입력/source 변경 권한 QD-03, 보존·고지 계약 QD-04, legacy API/DB 본문 상한 1000/40 불일치 |
 | 배포·DB 반영 P0-05 | 9/25 `8af7244` API/Web 교체·GTM 로딩·새 백업 복원·timer 재개 확인. API V008·Collector V006 유지. 9/23 게시글 74·이미지 308 공개·전수 readback | 실제 MFA 작성/업로드/발행/숨김·예약/알림 인수, 다음 후보별 호환성·백업·복귀 확인. 실제 rollback·재부팅 미검증 |
+| 검색엔진 설정·GTM 공개 반영 | 9/26 robots 앱 규칙·사이트맵 XML·API/health noindex·공개 HTML의 GTM 삽입 확인 | 현재 배포 SHA/digest, 비공개 글 제외 전수 대조·검색 색인, GTM 실제 태그·동의·공개 정책·GA4 수신 검증 |
 | 수집 실연동 P1-03~05/07 | 로컬 코드·격리 증거와 실행서 준비 | 다른 PC/Windows·비운영 DB/object·Discord·보존 회수 구현/검증 |
 | 운영 관찰 P2 | 관찰 조건 정의 | 실제 운영 개시 후 7일 기록 |
 
@@ -36,6 +37,9 @@
 - `8af7244`의 CI #15 성공 후 01:47:24 KST API/Web을 교체했다. 운영 HTML의 삽입 위치·nonce, 실제 Chrome의 GTM script HTTP 200·1회 요청·컨테이너 초기화·시작 이벤트를 확인했다.
 - 로컬 검사의 Google 응답은 대체 응답이고, 위 운영 검사는 실제 요청이다. Tag Assistant 태그별 실행·GA4 이벤트 수신·GTM 콘솔 동의 조건·공개 정책 대조는 미검증이다.
   [운영 배포 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md), [초기 구현 기록](../worklog/2026-09-25/google-tag-manager/RESULTS.md)을 구분한다.
+- 9월 26일 후속 공개 GET에서 `/meme` HTML의 `GTM-5BRTQ5T3` 삽입과 `ga4Enabled:false`를 확인했다.
+  HTML 반영 증거이며 실제 script 로드·태그 실행·동의/철회 network·GA4 수신·법무 검토 완료는 아니다.
+  GTM 내부 태그가 GA4 feature flag에 따라 비활성이라고 가정하지 않는다. [공개 관측과 한계](operations/current-status.md#공개-http-후속-확인--2026-09-26).
 
 <a id="검색엔진-설정--2026-09-24-로컬-변경"></a>
 
@@ -57,11 +61,21 @@
   [CI #13](https://github.com/JeahaOh/blariyo/actions/runs/36015059290)이 8분 30초에 성공했다.
   `verify`·`collector`·API/Web `images`와 artifact 5개, 사이트맵 단위 4건·DB→Web 통합 실행을 확인했다.
   이미지 게시 완료이며 운영 서버 교체 증거는 아니다.
-- 배포 전 9/24 23:59~9/25 00:01 KST에는 앱 robots 규칙·사이트맵의 운영 반영이 없었다.
-- 9/25 `8af7244` 배포 후 공개 `/robots.txt`의 Sitemap 안내, `/sitemap.xml`·하위 XML의 200,
-  일반 페이지 3개·공개 게시글 74개 및 대표 상세 200을 확인했다([배포 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)).
-- Web `noindex`의 경로별 운영 대조, 사이트맵의 비공개 URL 제외 전수 대조, 실제 검색 색인은 남아 있다.
-  Access·Nginx 직접 응답은 Web middleware와 별도 계층이므로 동일 검사 결과로 간주하지 않는다.
+- 2026-09-24 23:59~09-25 00:01 KST 운영 읽기 전용 확인: `/meme`와 CSS·JS 표본은 200,
+  공개 목록의 canonical은 `https://blariyo.com/meme`이고 noindex는 없었다. 실제 브라우저 목록도 정상 표시됐다.
+- 같은 확인에서 `/robots.txt` GET·HEAD는 200이지만 Cloudflare 관리 규칙만 있고 앱의 경로 제외·Sitemap 안내는 없었다.
+  `/sitemap.xml` GET·HEAD와 `/sitemap-pages.xml`·`/sitemap-posts-0.xml` GET은 404 HTML이었다.
+  당시에는 사이트맵 XML·앱 robots 규칙의 운영 반영을 확인하지 못했고, 공개·비공개 URL의 사이트맵 포함 여부도 확인할 수 없었다.
+- `/api/v1/boards`·`/health/live` GET은 200이지만 `X-Robots-Tag`가 없었다. `/admin`은 Access 로그인으로 302,
+  `/internal`은 Nginx 404, `/__gateway_health`는 Nginx 200이며 이 응답들에도 해당 header가 없었다.
+  Access·Nginx가 직접 반환하는 응답은 Web middleware를 거치지 않으므로 앱 배포 후에도 계층별 재확인이 필요하다.
+  해당 점검에서 서버 image digest·DB 상태·검색엔진 실제 색인 상태는 조회하지 않았다.
+- 9/25 `8af7244` 배포 후 공개 robots·사이트맵 XML, 일반 페이지 3개·공개 게시글 74개 및 대표 상세 200을 확인했다([배포 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)).
+- **2026-09-26 후속 확인:** `/robots.txt`에 앱 경로 제외·Sitemap 안내가 있고, 사이트맵 인덱스와 하위 XML 2개가 모두 200이었다.
+  페이지 XML의 URL은 3개, 게시글 XML은 74개이며 `/api/v1/boards`·`/health/live` 응답에는 `X-Robots-Tag: noindex`가 있었다.
+  공개 응답 반영을 확인했으므로 위 9/24~25 미반영 관측을 현재 상태로 재사용하지 않는다.
+  현재 DB와 공개/비공개 글 전수 대조, 실제 색인·부하, `/admin`·`/internal`·`/__gateway_health`의 최신 응답은 미검증이다.
+  [운영 관측](operations/current-status.md#공개-http-후속-확인--2026-09-26)에서 배포 식별자·내부 상태의 한계를 구분한다.
 
 ## CI 액션 런타임 정비 — 2026-09-25 CI 실행 확인
 
@@ -74,7 +88,7 @@
 
 ## 검증 근거
 
-아래 실행들은 서로 다른 시점·환경의 증거다. 중복 합산하거나 9월 24일 문서 갱신에서 다시 수행했다고 표시하지 않는다.
+아래 실행들은 서로 다른 시점·환경의 증거다. 중복 합산하거나 후속 문서 갱신에서 다시 수행했다고 표시하지 않는다.
 
 | 범위 | 확인된 결과 | 원본 |
 | --- | --- | --- |
@@ -86,8 +100,9 @@
 | 원격 CI·배포 | SHA `8af7244` CI #15 성공·API/Web digest 교체·실제 GTM 로딩·새 백업 복원·공개 smoke | [9/25 앱 배포 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md) |
 | DB·공개 | API V008·Collector V006, 74 게시글·308 이미지·108 수집 항목 반영. 목록/상세·이미지 전수 대조, 전후 백업 복원 | [DB·콘텐츠 반영 기록](../worklog/2026-09-23/release/production-db-promotion.md) |
 | 9/23 커밋 준비 당시 | Node24 루트 검사29/29, 실패·생략0 | [진행 보관 기록](../worklog/2026-09-23/progress-checkpoint.md) |
+| 9/26 공개 HTTP | 인증 없는 GET 7개 200, robots·사이트맵·일부 noindex·GTM HTML 반영. 내부 운영·브라우저 실인수 제외 | [점검 근거](../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md) |
 
-요구사항 집계는 [40개 대조표](development-specs/requirements-status.md)의 **I30/P9/U1**이다. 40개 묶음 중 주요 구현 확인 30개(75%)이며 개발 공수·제품 완성도·출시 준비율이 아니다. C16 운영자 사용성, O07 실제 인수·복귀를 포함한 부분 항목은 유지한다.
+요구사항 집계는 9월 26일 재계산한 [40개 대조표](development-specs/requirements-status.md)의 **I30/P9/U1**이다. 전체 주요 구현 확인은 30/40(75%), Core는 15/16(93.8%)이다. 개발 공수·세부 요구 충족률·제품 완성도·출시 준비율이 아니며 C16 운영자 사용성, O07 실제 인수·복귀를 포함한 부분 항목은 유지한다. 화면 마감·수집 통제·보존 회수와 실연동 잔여는 [오늘 점검 보고서](../worklog/2026-09-26/m0-progress-audit/REPORT.md), 실행 단위는 [구현 task 목록](implementation-tasks/README.md)을 따른다.
 
 ## 재개 순서와 입력
 

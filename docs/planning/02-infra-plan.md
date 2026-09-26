@@ -3,6 +3,7 @@
 - 문서 상태: M0 인프라 의사결정 정본
 - 기준일: 2026-09-03
 - 정합성 검토일: 2026-09-24 (현행 direct/legacy·9월 23일 운영 기록 대조)
+- 저장소 선택 갱신: 2026-09-26 (공개 전·공개 이미지/첨부는 기존 R2 구조 유지, Google Drive는 운영 DB 백업만; 백업 전환 구현·운영 적용 미완료)
 - 역할: 배포 방향·비용 경계·공급자 선택을 정의한다. 스키마, API payload, container 자원값과 운영 명령은 정의하지 않는다.
 - 관련 문서: [서비스 기획서](01-service-plan.md), [콘텐츠 수집 기획](content-collection/README.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
 
@@ -43,10 +44,10 @@
 | Core API | NestJS + TypeORM + TypeScript strict | Docker 내부 조회와 운영자 transaction |
 | 런타임 | Node.js `24.18.0` LTS | Nuxt·Nest Core 통일 |
 | 데이터베이스 | PostgreSQL 18 | 단일 영구 관계형 DB, MySQL·MariaDB 병행 없음 |
-| 이미지 | Cloudflare R2 Standard | private 원본, public media 분리 |
+| 이미지·첨부 | Cloudflare R2 Standard | 공개 전 private/collect와 public media 분리 유지. Google Drive에 게시물 파일을 저장하지 않음 |
 | 엣지 | Cloudflare Free | DNS·CDN·TLS·Tunnel·Access |
 | 배포 단위 | Docker Compose | 단일 VM |
-| 원격 백업 | private R2 bucket | media와 credential·bucket 분리 |
+| 운영 DB 원격 백업 | Google Drive | 암호화 dump·검증 manifest 저장. 기존 R2 백업 도구의 전환·복원 검증 필요 |
 
 Redis, MongoDB, 별도 managed DB, Kubernetes, 다중 API instance와 다중 region은 M0에 포함하지 않는다.
 
@@ -57,7 +58,7 @@ Redis, MongoDB, 별도 managed DB, Kubernetes, 다중 API instance와 다중 reg
 3. 2GB 환경에서 실제 메모리 임계치를 반복 초과할 때만 4GB를 검토한다. 트래픽 실측 없이 사전 증설하지 않는다.
 4. 배포 방식은 단일 VM Docker Compose 교체다. 블루그린·무중단 배포는 현재 범위에 없다.
 
-무료 자원은 비용 절감 수단이며 영속성 보장이 아니다. OCI 사용 여부와 관계없이 이미지와 DB backup은 VM 외부 R2에 둔다. 월별 비용 상한, 자원 배분과 전환 측정값은 [상세 인프라 설계](../system-design/04-infrastructure-design.md)를 따른다.
+무료 자원은 비용 절감 수단이며 영속성 보장이 아니다. 공개 이미지는 VM 외부 R2에, 운영 DB backup은 Google Drive에 두는 것으로 결정했다. 현재 백업 도구는 R2 경로이므로 검증된 Drive 전환 전까지 기존 백업을 유지한다. 월별 비용 상한, 자원 배분과 전환 측정값은 [상세 인프라 설계](../system-design/04-infrastructure-design.md)를 따른다.
 
 ## 5. 공개 경로와 구성 경계
 
@@ -84,13 +85,23 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 - PostgreSQL 18을 M0의 단일 영구 관계형 데이터베이스로 사용한다.
 - 운영 스키마는 순번 migration으로만 적용한다. 개발 연결 확인용 `init.sql`은 운영 스키마가 아니다.
 - 외부 이미지는 hotlink하지 않고 R2에 저장하며 DB에는 공개 URL 대신 storage key를 저장한다.
-- private 원본은 upload 후 유지하고 발행된 이미지는 public media에 별도 copy한다.
-- DB backup은 media와 분리된 private bucket에 암호화해 저장한다.
+- 공개 전 이미지·첨부는 기존 R2 private/collect 구조를 유지한다. private 원본은 upload 후 유지하고 발행된 이미지는 public media에 별도 copy한다. 수집 원본의 보존·회수는 [수집 기획](content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다.
+- 본문·검수/발행 상태는 PostgreSQL에 유지한다. Google Drive를 게시물·이미지·첨부 원본 또는 파일 백업 저장소로 사용하지 않는다.
+- Google Drive에는 **운영 DB backup만** 저장한다. 암호화한 DB dump와 검증 manifest를 비공개 영역에 저장하고 R2 media 권한과 백업 권한을 분리한다. DB dump에 포함된 게시글 본문·metadata는 DB 백업의 일부이며 이미지·첨부 binary의 별도 복사와 구분한다.
 - 게시글을 숨겨도 즉시 물리 삭제하지 않고 운영 복구 유예를 둔다.
 
 테이블·상태·보존기간의 단일 정본은 [데이터 모델](../system-design/02-data-model.md)이다.
 
 ## 7. 기능 단계와 인프라 영향
+
+### 2026-09-26 운영 담당·저장소 결정
+
+- 운영은 사용자와 친구 2명이 함께 수행하되 **서버·백업 관리는 사용자만**, **공동 운영자는 게시물 권한만** 갖는다. 공동 운영자에게 서버 접근·DB 관리·백업 다운로드/복구 권한을 부여하지 않는다. 실제 계정·접근 통제와 인수는 별도 검증한다.
+- 장애 알림은 **Discord**로 받는다. 사용자 보고로 **채널 생성 완료·현재 사용자만 참여**를 확인했다. 친구 초대를 필수 조건으로 두지 않는다. 실제 채널 연결·발신 인증·수신·재시도는 미검증이다.
+- 수집 실행 장비는 미정이며 Raspberry Pi 4가 후보이다. 상세 검증은 [수집 기획](content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다.
+- 후속 정정으로 **Google Drive는 운영 DB 백업만 사용**한다. 공개 전 게시물 파일과 공개 이미지는 기존 R2 구조를 유지한다. ‘공개 전 게시물도 Drive’라는 앞선 선택은 철회됐다.
+- Drive 계정 종류·용량·연결 정보는 실연동 전에 확인한다. 백업 관리·복구 권한은 사용자만 갖도록 확정했다. 백업 구현은 인증·업로드 재개·독립 다운로드 검증·격리 복원·보존/삭제·실패 알림과 공급자 고지를 포함한다.
+- 기존 R2 DB 백업 도구는 아직 전환하지 않았다. Drive 업로드·다운로드/해시·실제 복원·인증 복구 검증 후 전환하며 기존 백업의 중단·삭제를 이번 결정만으로 실행하지 않는다. 결정 이력은 [M0 계획 §11](../../worklog/2026-09-26/m0-completion-plan/README.md#storage-and-reanalysis-20260926)을 따른다.
 
 | 단계 | 기능 | 인프라 영향 |
 | --- | --- | --- |

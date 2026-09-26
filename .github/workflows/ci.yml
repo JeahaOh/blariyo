@@ -79,11 +79,12 @@ jobs:
       - run: npm run test:harness
       - run: npm run test:quality
       - run: npm run lint:harness
+      # API test lint imports generated dist modules; architecture builds them first.
+      - run: npm run test:architecture
       - name: Lint using the target branch's trusted debt baseline
         env:
           LINT_BASELINE_SHA: ${{ needs.event-context.outputs.base_sha }}
         run: npm run lint:all
-      - run: npm run test:architecture
       - name: Validate pull request branch direction
         if: github.event_name == 'pull_request'
         env:
@@ -140,7 +141,7 @@ jobs:
           node-version: 24.18.0
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v6
         with:
-          python-version: '3.12.11'
+          python-version: '3.13.15'
       - name: Confirm shared event subject
         env:
           SUBJECT_SHA: ${{ needs.event-context.outputs.subject_sha }}

@@ -9,6 +9,8 @@
 - 브랜치 역할·일반 병합·긴급 수정·GitHub와 hook의 적용 범위는 [Git workflow](git-workflow.md)를 따른다.
 - 자동 검사 대상으로 삼을 위반·검토 필요 항목·실패 시 행동은 [harness 설계](harness.md)를 따른다.
 - harness 문서가 있다는 사실은 실행 코드·hook·CI·원격 보호 적용을 뜻하지 않는다.
+- 현재 운영 선택은 **GitHub Free + 로컬 Git hook**이다. 새 clone의 설치·갱신은 `npm run hooks:install`,
+  상태 확인은 `npm run hooks:check`를 사용한다. [설치와 한계](git-workflow.md#로컬-hook-설치와-검증)를 함께 확인한다.
 - 작업 기록은 크기와 관계없이 `worklog/YYYY-MM-DD/<주제영역>/`에 남긴다. 상세 기준은 루트 G05를 따른다.
 - 검토·변경 요청 구분, 작업 폴더 담당·인계, 브랜치 직접 반영 예외는 루트 지침을 따른다.
   프로젝트 스킬은 이 기준을 달리 정하지 않는다. 실제 원격 강제 적용 상태와 구분한다.

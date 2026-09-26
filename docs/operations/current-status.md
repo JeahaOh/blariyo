@@ -1,11 +1,15 @@
 # M0 운영 상태와 남은 작업
 
-- 마지막 운영 확인: **2026-09-23 22:54:49 KST** ([앱 배포 기록](../../worklog/2026-09-23/release/production-deployment-5c581c2.md), [DB·콘텐츠 반영 기록](../../worklog/2026-09-23/release/production-db-promotion.md)). 2026-09-24 문서 갱신에서는 서버·DB·CI를 다시 조회하지 않았다.
-- 판정: **API/Web 배포와 DB·콘텐츠 공개는 당시 검증 완료. 실제 MFA 관리자 업무 인수·장기 운영·복구 훈련은 남아 있다.**
+- 마지막 공개 HTTP 확인: **2026-09-26 16:39 KST 이후**, 인증 없는 GET 7개. robots·사이트맵·일부 noindex와 GTM HTML 삽입을 확인했다([점검 근거](../../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md)).
+- 마지막 서버·DB·배포 전수 확인 기록: **2026-09-23 22:54:49 KST** ([앱 배포 기록](../../worklog/2026-09-23/release/production-deployment-5c581c2.md), [DB·콘텐츠 반영 기록](../../worklog/2026-09-23/release/production-db-promotion.md)). 9월 26일 점검·동기화에서는 내부 서버·DB·백업·원격 CI를 다시 조회하지 않았다.
+- 판정: **공개 응답의 후속 반영 확인. 현재 배포 식별자·내부 운영 상태 재조회와 실제 MFA 관리자 업무 인수·장기 운영·복구 훈련은 남아 있다.**
 - 최초 2026-09-20 구성 근거: [TASK-01~20 목록](../../worklog/2026-09-23/directory-reorganization/previous-task-list-index.md), [TASK-19 배포 증거](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)
 - 역할: 현재 실행 결과를 찾아가는 안내. 제품·법무·인프라 정본을 대신하지 않는다.
 
 ## 현재 구성
+
+아래 표는 **9월 23일 마지막 내부 구성 확인 기록**이다. 9월 26일 공개 응답에서 관측한 후속 반영은 다음 절에 분리한다.
+현재 서버의 release·image digest·기능 flag 전체가 아래 값과 같다고 보증하지 않는다.
 
 | 항목 | 배포 결과 |
 | --- | --- |
@@ -15,12 +19,35 @@
 | 연결 | Cloudflare → Tunnel → Nginx → Nuxt Web/BFF → Nest Core → PostgreSQL 18 |
 | 포트 | DB·Core·Web·Nginx host port 미공개. SSH 관리 경계와 별도 |
 | 방식 | 단일 VM Docker Compose 교체. 블루그린·무중단 배포 아님 |
-| 운영 이미지 | Git SHA `5c581c2ad82a9f1565ac53349fbaae7afed9c9cd`의 GHCR API/Web digest를 검증해 배포. 서버 build 없음 |
+| 마지막 내부 확인 이미지 | 9/23 Git SHA `5c581c2ad82a9f1565ac53349fbaae7afed9c9cd`의 GHCR API/Web digest를 검증해 배포. 서버 build 없음. 현재 실행 digest는 재조회 필요 |
 | 마지막 확인 release | `/opt/blariyo/application/release-5c581c2-db-v008-20260923`; 부팅 helper의 로컬 source도 이 경로를 참조. 현재 서버 값은 재조회 필요 |
-| 기능 | M0 Core 공개. 회원·광고·GA4·카카오는 비활성. 관리자 batch 검수는 활성, URL·Discord 접수와 자동 수집 실행은 비활성 |
+| 당시 기능 | M0 Core 공개. 회원·광고·GA4·카카오는 비활성. 관리자 batch 검수는 활성, URL·Discord 접수와 자동 수집 실행은 비활성. 현재 flag 전체는 재조회 필요 |
 | 연락처 | 기존 비공개 입력 재사용. Cloudflare Email Routing → 일반 Gmail |
 
+## 공개 HTTP 후속 확인 — 2026-09-26
+
+16:39:15 KST 시작 묶음과 이어진 후속 묶음에서 공개 GET만 수행했다. 현재 관측의 원본 범위·실패·한계는
+[오늘 점검 근거](../../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md#3-공개-http-관측)를 따른다.
+
+| 대상 | 확인 결과 | 남은 검증 |
+| --- | --- | --- |
+| `/meme` | 200, canonical `https://blariyo.com/meme` | 실제 브라우저·관리자 업무·전체 콘텐츠/이미지 대조 |
+| `/robots.txt` | 200, `/admin`·`/api/`·`/internal`·`/health/`·`/__gateway_health` 제외와 Sitemap 안내 존재 | 실제 검색엔진 수집·색인 결과 |
+| `/sitemap.xml` | 200 XML, 아래 두 하위 XML 연결 | 현재 배포 SHA/digest 식별 |
+| `/sitemap-pages.xml` | 200 XML, URL 3개 | 정책 현행 버전·전체 경로 계약 재대조 |
+| `/sitemap-posts-0.xml` | 200 XML, URL 74개 | 현재 DB와 공개·비공개 글 전수 대조. 9/23 공개 글과 동일 ID 집합 확인은 미실행 |
+| `/api/v1/boards`, `/health/live` | 모두 200, `X-Robots-Tag: noindex` | Access·Nginx가 직접 응답하는 `/admin`·`/internal`·`/__gateway_health`의 최신 header |
+| 공개 HTML의 GTM·GA4 설정 | `GTM-5BRTQ5T3` 삽입과 `ga4Enabled:false` 확인 | 실제 GTM script 로드·태그·동의/철회 network·GA4 수신·공개 정책 정합성 |
+
+- 사이트맵 두 파일에서 `/admin`·`/internal` 포함 URL은 0개였다. 모든 비공개 상태의 제외를 DB와 대조한 증거는 아니다.
+- GTM 컨테이너는 기존 GA4 feature flag와 독립적이다. `ga4Enabled:false`를 사이트 전체 Google 요청·분석 태그 0건으로 해석하지 않는다.
+- GTM의 공개 HTML 반영으로 실제 태그·쿠키·정책 대조나 법무 gate가 충족되는 것은 아니다. [분석 계획](../planning/04-analytics-ad-plan.md)과 [법무 안내](../legal/README.md)의 잔여 조건을 유지한다.
+- 이 관측은 이전 robots·사이트맵 미반영 기록 이후의 공개 응답 변화다. 서버 교체 시각·release·image digest·DB ledger·batch flag·timer·백업을 특정하지 않는다.
+- 9/23 공개 게시글 74건·이미지 308개 전수 검증과 9/26 사이트맵 URL 74개를 합쳐 현재 DB/object 전수 검증으로 보고하지 않는다.
+
 ## 확인된 결과와 한계
+
+아래 표와 수량은 9월 23일까지의 내부 운영·배포 검증 기록이다. 9월 26일의 확인 범위는 위 공개 HTTP 절에 한정한다.
 
 | 범위 | 확인한 증거 | 완료로 확대하지 않는 범위 |
 | --- | --- | --- |
@@ -38,24 +65,25 @@
 
 위 공개·DB 수량은 **9월 23일 관측값**이며, 새 발행·수정에 따라 달라질 수 있다. 수집 항목은 당시 108건(FETCHED 104·FAILED 2·BLOCKED 1·SKIPPED_POLICY 1)이다. 관리자 batch 검수 API/Web flag는 당시 `true`였고, 내부 service의 108건 조회·16개 출처 이미지 미리보기를 확인했다. 실제 MFA 세션의 관리자 조작은 별도 인수 대상이다. URL 접수·Discord 접수·자동 수집은 활성화하지 않았다. direct raw/media/report/queue 보존·고지 계약(QD-04)은 미정이며, batch 검수 활성화만으로 계약이나 운영 인수가 완료된 것은 아니다.
 
-9월 23일 DB 반영 뒤 **9월 20일 구 API는 V008에서 readiness 503**이다. 앱만 되돌릴 때는 V008 호환성이 확인된 직전 `5c581c2` Core release를 기준으로 한다. 실제 rollback은 시험하지 않았으며 DB 전체 복구는 별도 결정이다. 다음 배포 전 [배포 실행서](deployment-runbook.md)에서 ledger·설정·이미지·백업·호환성을 다시 대조한다.
+9월 23일 DB 반영 뒤 **9월 20일 구 API는 V008에서 readiness 503**이었다. 당시 확인한 V008 호환 Core release는 `5c581c2`다. 이후 공개 응답 반영이 확인됐으므로 이를 현재의 직전 release로 단정하지 않는다. 실제 rollback은 시험하지 않았으며 DB 전체 복구는 별도 결정이다. 다음 배포·복귀 전 [배포 실행서](deployment-runbook.md)에서 현재 release·ledger·설정·이미지·최신 백업과 복귀 후보의 호환성을 다시 대조한다.
 
 과거 TASK의 “배포 대기”는 당시 단계의 결과다. 현재 상태를 이유로 과거 기록을 소급 변경하지 않는다.
 정책 v0.1 본문을 덮어쓰지 않으며 변경이 필요하면 새 버전으로 검토·발행한다.
 
 ## 다음 작업
 
-1. 운영자가 Access MFA를 직접 완료한 뒤 관리자 권한과 업로드·발행·숨김 흐름을 검증한다. 인증 코드·쿠키를 채팅에 보내지 않는다.
+1. 운영 담당이 현재 release·실행 digest·DB ledger·flag·timer·최신 백업을 먼저 읽기 전용으로 재조회한다. 운영자가 Access MFA를 직접 완료한 뒤 승인된 콘텐츠 범위에서 관리자 권한과 업로드·발행·숨김 흐름을 검증한다. 인증 코드·쿠키를 채팅에 보내지 않는다.
 2. 맥에 보관된 DB 복구키를 별도 안전한 장소에도 보관한다. 서버에는 암호화 public recipient만 지속 보관한다.
 3. 최신 백업 시각·timer 실패·자원을 관찰하고 외부 가용성/실패 알림을 구성한다.
 4. 7일 보관 관찰, 월간 DB 복원, 별도 일정의 VM 재부팅·새 VM 복구를 수행한다.
 5. AWS 비용 알림을 확인한다. 9월 20일 1차 보강 조회에서는 무료 플랜·잔여 크레딧 $120·2027-03-15 종료 표시를 확인했다. 이는 현재 잔액 조회가 아니다. 결제/요금제는 변경하지 않았다.
 6. [보안·비용 보호 적용 계획](../system-design/09-security-cost-protection-plan.md)의 정적 JS 9개 캐시·Cloudflare 비용/DDoS 알림과 게이트웨이 오류 `no-store`를 유지한다. 9월 23일 앱 배포 후 공개·Web 직접 JSON 404도 `no-store`였다. 새 JS/CSS 파일명의 쿼리 무관 캐시는 기존 9개 규칙에 자동 포함되지 않으므로 별도 관리 작업이다. 정상 이용·공유 IP·관리자 흐름 검증 후 요청 제한을 판단한다.
 7. 다음 후보의 SHA별 원격 CI·GHCR digest와 운영 배포를 다시 대조한다. `5c581c2`의 CI 성공·수동 서버 배포는 9월 23일 기록으로 확인했고, 현재 workflow의 자동 CD는 미구현이다. [CI/CD 후속 기록](../../worklog/2026-09-20/local-ui-cicd/TODO-CICD-DEPLOY.md)은 당시 TODO로 보존한다.
+8. 공개 GET 이후의 잔여를 확인한다. 검색엔진 실제 색인, 사이트맵과 DB 공개 상태 전수 대조, 경계 계층별 noindex, GTM 실제 태그·동의 조건·공개 정책 대조는 별도다. GA4 활성화 완료로 처리하지 않는다.
 
 9월 20일 보안 후속 작업은 당시 요청의 코드·설정·문서, SSH 서버 점검, 공개 HTTP 검증 범위에서 마감했다.
 당시 남긴 관리 콘솔/API 설정과 재개 조건은 [보안 작업 기록](security-protection-status.md#7-이번-작업-마감과-남은-일)을 따른다.
-이번 9월 24일 문서 검토에서 해당 작업을 새로 실행한 것은 아니다.
+9월 24일 문서 검토나 이번 9월 26일 공개 GET·문서 동기화에서 해당 내부 운영 작업을 새로 실행한 것은 아니다.
 
 ## 과거 로컬 후속 작업 — 9월 20일 기록
 
@@ -66,7 +94,7 @@
 
 2026-09-20 로컬에서 M0 공개 화면을 시각 기준에 맞춰 수정하고 GitHub CI workflow를 작성했다.
 실제 HOT 25건은 당시 로컬 DB의 DRAFT로 저장했다. 그 작업 자체에서는 운영 앱 배포·운영 콘텐츠 발행을 하지 않았다.
-9월 23일 별도 DB 반영·발행의 수량은 위 최신 운영 기록을 따른다.
+9월 23일 별도 DB 반영·발행의 수량은 위 당시 운영 기록을 따른다.
 [화면 검증](../testing/ui-wireframe-review-20260920.md), [콘텐츠 저장](../../scripts/content/README.md),
 [배포 실행서](deployment-runbook.md), [배포 정책](deployment-policy.md)을 따른다.
 

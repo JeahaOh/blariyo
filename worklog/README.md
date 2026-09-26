@@ -12,6 +12,7 @@
 
 ## 날짜별 기록
 
+- [2026-09-26](2026-09-26/README.md): M0 구현 진척·잔여 작업 점검, 공개 HTTP 관측과 문서 시점 차이 기록
 - [2026-09-24](2026-09-24/README.md): 문서 최신화 TASK-01~07·재검토 보완 및 전체 문서 전수 검토 진행
 - [2026-09-23](2026-09-23/): admin-core, batch-review-ui, batch-고도화, collection-contract-alignment, collector-ci, collector-site-modules, directory-reorganization, m0-audit, m0-planning, release
 - [2026-09-22](2026-09-22/): 진행현황-전수점검

@@ -33,6 +33,11 @@ yarn.lock
 !.env.stage.example
 !.env.prod.example
 
+# Discord: keep environment settings local; version only the empty template.
+/.env.discord.local
+/.env.discord.prod
+!/.env.discord.example
+
 # Build output
 dist/
 build/

@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-09-26T05:51:10.160765+00:00",
+  "status": "passed",
+  "scope": "Only new session-tasks documents; no implementation or rollback execution.",
+  "checks": {
+    "taskCount": 11,
+    "issueCountUnique": 32,
+    "eachIssueHasOnePrimaryOwner": true,
+    "historicalIssueCardsCopied": 32,
+    "indexedPathCount": 495,
+    "phaseCount": 14,
+    "phaseGraphAcyclic": true,
+    "relativeLinksChecked": 110,
+    "preexistingWorktrees": 6,
+    "preexistingDirtyOrUntrackedFileHashesChecked": 173,
+    "archiveFileHashesChecked": 24,
+    "onlyNewSessionDocuments": true,
+    "newFiles": 15,
+    "gitRefsStashWorktreesUnchanged": true,
+    "historicalTextPreservedExceptMarkdownRangeEscapes": true,
+    "gitDiffCheckPassed": true,
+    "prettierCheckPassed": true,
+    "prettierIgnoreFileExplicitlyDisabled": true
+  },
+  "notRun": [
+    "new remote/CI query",
+    "product/runtime tests",
+    "rollback",
+    "code or hook/config changes",
+    "commit/push/merge",
+    "PR/branch/worktree mutation",
+    "CI trigger or rerun",
+    "DB changes"
+  ],
+  "artifactSha256": {
+    "README.md": "c75bfc5c4e01a82d99f9189edf140f16a799e89fe2e06e39d4ef71f843646b7e",
+    "RESULT-TEMPLATE.md": "ab1063c24314f8615be236f8c7d05253bcd8e857e8b95e9bd4187da516d7ce2d",
+    "S01-git-assets.md": "aed63e04677bc47b8fb3a7ba813e1fd7a205829e398125ffdb82299bcf7ea3d0",
+    "S02-product-preservation.md": "a363d3a7011b9d1756340acf5e80bf78ab69b8e615a8ed9473439571391688f3",
+    "S03-hooks-secrets.md": "7097decbd9fea79039885513dba092d9818f87287bbbb5bf18af09643aeb8bc1",
+    "S04-lint-tooling.md": "64b149fc9341c776e381d96e6d09734c9a02891fe7520951039e290a8096151b",
+    "S05-architecture.md": "04099322ff994eadd253242bae845f08c0c71bc5e022ef8e4cc61dca3ecd4fe7",
+    "S06-mixed-cleanup.md": "fc594184a381d2022979eacc7c92e05e6ab666025e550ceb71b44bd03bd189f7",
+    "S07-migration-checksum.md": "65d7658f0510129c0ed16c901f860659582b385b50015d118cf236ca11f097cf",
+    "S08-database-restore.md": "28c0b19401439544addb87cc4ea433a462e95b2d3789504368d7bf2d5157c1c0",
+    "S09-harness-policy-release.md": "97130730cb8e72f23e555781b30062998dec5360c29a18607adf5d108c6d8952",
+    "S10-ci-integration.md": "bfcdfd7c34a438c019a7ad76e3991af8fdeff75a99e1250fe38cae55ca6ac7b7",
+    "S11-docs-closeout.md": "b90534e5087efa2dbe77aa4ac5e0294e17b2164e00a45973e43508e0571a9d75",
+    "tasks.json": "edf5393932856b763a4cef519bc755a8c4a7993bfaa69ce727e5c07fb2acf3f1"
+  },
+  "errors": []
+}

@@ -1,0 +1,81 @@
+{
+  "observedAt": "2026-09-26T06:27:15.045650+00:00",
+  "phase": "after restoration, before primary repository commit",
+  "worktrees": [
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "head": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "preservedExistingFiles": 133,
+      "existingStatusAndDiffsUnchanged": true,
+      "newPaths": [
+        "scripts/git-checks/README.md",
+        "scripts/git-checks/check.mjs",
+        "tests/git-checks.test.mjs",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S03-RESULT.md",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S03-assets/.gitignore",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S03-assets/README.md",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S03-assets/before.json",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S03-assets/checks.json",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S03-assets/manual-checks.patch",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S03-assets/restoration.json",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S03-assets/s02-commit.json",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S03-assets/source-manifest.json"
+      ]
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review",
+      "head": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "preservedExistingFiles": 0,
+      "existingStatusAndDiffsUnchanged": true,
+      "newPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+      "head": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+      "preservedExistingFiles": 0,
+      "existingStatusAndDiffsUnchanged": true,
+      "newPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+      "head": "6a431358db73b9c59be4125fa0749beb014e7acd",
+      "preservedExistingFiles": 0,
+      "existingStatusAndDiffsUnchanged": true,
+      "newPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+      "head": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+      "preservedExistingFiles": 88,
+      "existingStatusAndDiffsUnchanged": true,
+      "newPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "head": "5957492429b668377bede866c90f878b43225785",
+      "preservedExistingFiles": 10,
+      "existingStatusAndDiffsUnchanged": true,
+      "newPaths": []
+    }
+  ],
+  "preservedExistingFiles": 231,
+  "refsUnchanged": 43,
+  "metadataHashAndModesUnchanged": 40,
+  "archives": [
+    {
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815",
+      "filesChecked": 500,
+      "passed": true
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets",
+      "filesChecked": 37,
+      "passed": true
+    }
+  ],
+  "newSourceManifestMatches": true,
+  "newDocumentLinksChecked": 19,
+  "manualCheckerImportsTaskPolicy": false,
+  "hookOverridesRemoved": 4,
+  "activeWrappers": 0
+}

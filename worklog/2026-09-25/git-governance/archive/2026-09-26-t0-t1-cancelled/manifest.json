@@ -1,0 +1,125 @@
+{
+  "createdAt": "2026-09-26T04:19:47.593242+00:00",
+  "status": "cancelled; rollback complete",
+  "files": [
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/worklog/2026-09-26/git-governance/PLAN.md",
+      "archive": "PLAN.md",
+      "sourceSha256": "780aaaf2fd07665a522d33dee488daed48dfc4ff8dd47b348bc9d5e9d7f551aa",
+      "archiveSha256": "780aaaf2fd07665a522d33dee488daed48dfc4ff8dd47b348bc9d5e9d7f551aa",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/worklog/2026-09-26/git-governance/REQUEST.md",
+      "archive": "REQUEST.md",
+      "sourceSha256": "68e88212faece4825fe5da0c3eae442d8506c91c4bef41675bd445c1171fe196",
+      "archiveSha256": "56cb553d312debf11471b28161306ccfc02fcef1678e54e21c60d78e38c1d347",
+      "transformation": "relative Markdown links only"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/worklog/2026-09-26/git-governance/T1.md",
+      "archive": "T1.md",
+      "sourceSha256": "2eb80cb36ce8fac092f52f544ca5b839a6c0bc151ea7e47d3a45ab0fe2a2fa7a",
+      "archiveSha256": "2eb80cb36ce8fac092f52f544ca5b839a6c0bc151ea7e47d3a45ab0fe2a2fa7a",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/api-test-build.log",
+      "archive": "evidence/api-test-build.log",
+      "sourceSha256": "5b35c34251861e0a2d2c04df1caa172e76df07407a679f70066daae0ce191dbe",
+      "archiveSha256": "5b35c34251861e0a2d2c04df1caa172e76df07407a679f70066daae0ce191dbe",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/baseline.json",
+      "archive": "evidence/baseline.json",
+      "sourceSha256": "0d7f5f0bb0e400bb18209918fb92b67b47c9dee47ed713508254c8f749cf5acf",
+      "archiveSha256": "0d7f5f0bb0e400bb18209918fb92b67b47c9dee47ed713508254c8f749cf5acf",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/browser-admin-recovery.log",
+      "archive": "evidence/browser-admin-recovery.log",
+      "sourceSha256": "4d766127fdc4002c5f0b28b220ca0942772a40dcda2cdb3dd35e561a45ca4129",
+      "archiveSha256": "4d766127fdc4002c5f0b28b220ca0942772a40dcda2cdb3dd35e561a45ca4129",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/build.log",
+      "archive": "evidence/build.log",
+      "sourceSha256": "beef81e4a31e434f1655322bddc6f4de1bd09343ab90cb25a5d9396821efe06a",
+      "archiveSha256": "beef81e4a31e434f1655322bddc6f4de1bd09343ab90cb25a5d9396821efe06a",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/input-ancestry.json",
+      "archive": "evidence/input-ancestry.json",
+      "sourceSha256": "4a98ea756927fc602573ccb148b944a101c2ff29cca24149e7e9ed82414d4cc3",
+      "archiveSha256": "4a98ea756927fc602573ccb148b944a101c2ff29cca24149e7e9ed82414d4cc3",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/input-history-scan.json",
+      "archive": "evidence/input-history-scan.json",
+      "sourceSha256": "a868f57d71f6e2a5527459c8c767b2ec80d3ccc23e37c64752bc7d81a832e46c",
+      "archiveSha256": "a868f57d71f6e2a5527459c8c767b2ec80d3ccc23e37c64752bc7d81a832e46c",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/lint-tests.log",
+      "archive": "evidence/lint-tests.log",
+      "sourceSha256": "414a29dc2932826b74260f024d26d25fff2410fc6c2f8a7c3438037737857901",
+      "archiveSha256": "414a29dc2932826b74260f024d26d25fff2410fc6c2f8a7c3438037737857901",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/npm-ci.log",
+      "archive": "evidence/npm-ci.log",
+      "sourceSha256": "3df83dfb51701374b32b96a2aa1988b75919d5bd445399e1df07236b77b0be52",
+      "archiveSha256": "3df83dfb51701374b32b96a2aa1988b75919d5bd445399e1df07236b77b0be52",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/pre-commit-boundary.json",
+      "archive": "evidence/pre-commit-boundary.json",
+      "sourceSha256": "196f9d4c65c7b066b121270df0a2c3422ef1d8e5ec9237e4feac3a31c0fd0928",
+      "archiveSha256": "196f9d4c65c7b066b121270df0a2c3422ef1d8e5ec9237e4feac3a31c0fd0928",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/refs-difference.txt",
+      "archive": "evidence/refs-difference.txt",
+      "sourceSha256": "5f3f9166511b51bd364c1990d58d8550b642d303043510faaa7883688cca2376",
+      "archiveSha256": "5f3f9166511b51bd364c1990d58d8550b642d303043510faaa7883688cca2376",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/selector.patch",
+      "archive": "evidence/selector.patch",
+      "sourceSha256": "e7d2c84997e5bde1dd142157f0301f3998eb7c151bbb338122362fe1ec120495",
+      "archiveSha256": "e7d2c84997e5bde1dd142157f0301f3998eb7c151bbb338122362fe1ec120495",
+      "transformation": "byte-identical"
+    },
+    {
+      "source": "/private/tmp/blariyo-t1-evidence-20260926/typecheck-tests.log",
+      "archive": "evidence/typecheck-tests.log",
+      "sourceSha256": "16273adf69b8252e403d8ae590b38d82fe2e7128ae303602e11a04aaf8e701da",
+      "archiveSha256": "16273adf69b8252e403d8ae590b38d82fe2e7128ae303602e11a04aaf8e701da",
+      "transformation": "byte-identical"
+    }
+  ],
+  "secretScan": {
+    "files": 15,
+    "findings": 0
+  },
+  "expectedHead": "df7482704c7867712c12028d1a69e59bfd662acc",
+  "rollbackTarget": "tests/browser/admin-recovery.test.ts",
+  "removedWorktreePlanned": "/private/tmp/blariyo-governance-t1-20260926",
+  "preserved": [
+    "pre-existing branches and stash",
+    "existing worktrees",
+    "shared hooks and Git configuration",
+    "remote PRs and commits"
+  ],
+  "completedAt": "2026-09-26T13:21:07.184744+09:00"
+}

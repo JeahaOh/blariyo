@@ -1,0 +1,15 @@
+diff --git a/tests/browser/admin-recovery.test.ts b/tests/browser/admin-recovery.test.ts
+index c20b33f8015e27bc82f5437ce983295e3e38396c..6617886a27c3617ed757997c03b4886ac9caa388 100644
+--- a/tests/browser/admin-recovery.test.ts
++++ b/tests/browser/admin-recovery.test.ts
+@@ -179,8 +179,8 @@ await test(
+           await dialog.dismiss();
+         });
+         await page
+-          .getByRole('navigation', { name: '관리 메뉴' })
+-          .getByRole('link', { name: '공개 목록' })
++          .locator('.admin-sidebar-bottom')
++          .getByRole('link', { name: '공개 사이트 보기' })
+           .click();
+         await expect(page).toHaveURL(fixture.origin + '/admin');
+         await expect(title).toHaveValue('내가 편집한 제목');

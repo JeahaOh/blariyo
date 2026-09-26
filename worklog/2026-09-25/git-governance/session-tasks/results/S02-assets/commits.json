@@ -1,0 +1,153 @@
+[
+  {
+    "sha": "46053992f93a4fc83fe769787d1aad818e8e9d33",
+    "subject": "docs(analytics): define GA4 v1 events and delivery contract",
+    "paths": [
+      "docs/README.md",
+      "docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md",
+      "docs/legal/cookie-settings.md",
+      "docs/legal/privacy-policy.md",
+      "docs/planning/04-analytics-ad-plan.md",
+      "docs/planning/04-analytics-expansion-proposal.md",
+      "docs/roadmap.md",
+      "docs/status.md",
+      "docs/system-design/01-system-architecture.md",
+      "docs/system-design/03-api-design.md",
+      "docs/system-design/05-security-operations.md"
+    ],
+    "classification": "product-or-product-evidence",
+    "archiveReadback": true
+  },
+  {
+    "sha": "f920954862fb4fbf8bf15608d996670030fd1f7b",
+    "subject": "ops: record verified GTM production deployment",
+    "paths": [
+      "deploy/operations/start-application.py",
+      "docs/operations/current-status.md",
+      "docs/operations/deployment-runbook.md",
+      "worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md"
+    ],
+    "classification": "product-or-product-evidence",
+    "archiveReadback": true
+  },
+  {
+    "sha": "945b7462eaf2c7effdb810718f77cd3149c07911",
+    "subject": "docs: sync GTM production deployment status",
+    "paths": [
+      "deploy/application/README.md",
+      "docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md",
+      "docs/development-specs/requirements-status.md",
+      "docs/legal/README.md",
+      "docs/operations/current-status.md",
+      "docs/operations/deployment-policy.md",
+      "docs/operations/deployment-runbook.md",
+      "docs/operations/security-protection-status.md",
+      "docs/planning/04-analytics-ad-plan.md",
+      "docs/roadmap.md",
+      "docs/status.md",
+      "docs/system-design/05-security-operations.md"
+    ],
+    "classification": "product-or-product-evidence",
+    "archiveReadback": true
+  },
+  {
+    "sha": "21b8828d07e059fc93b23caf81d0ecf97957cb15",
+    "subject": "docs: add git workflow harness design and plan",
+    "paths": [
+      "docs/ai/git-workflow.md",
+      "docs/ai/harness-implementation-plan.md"
+    ],
+    "classification": "governance-design-only",
+    "archiveReadback": true
+  },
+  {
+    "sha": "8389eeee11a2f01af36843b2d94a350b10363b5b",
+    "subject": "feat(analytics): implement GA4 event collection v1",
+    "paths": [
+      "apps/api/src/app.module.ts",
+      "apps/api/src/features/public/public.controller.ts",
+      "apps/api/src/features/public/public.dto.ts",
+      "apps/api/src/main.ts",
+      "apps/api/test/public-http.integration.test.ts",
+      "apps/api/test/public.service.test.ts",
+      "apps/web/app/assets/css/main.css",
+      "apps/web/app/components/PostList.vue",
+      "apps/web/app/pages/[boardSlug]/index.vue",
+      "apps/web/app/pages/[boardSlug]/posts/[postId].vue",
+      "apps/web/app/plugins/analytics.client.ts",
+      "apps/web/app/utils/consent.mjs",
+      "docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md",
+      "docs/development-specs/m0-core/openapi/m0-core.yaml",
+      "docs/legal/cookie-settings.md",
+      "docs/legal/privacy-policy.md",
+      "docs/migration/contract-evolution.json",
+      "docs/planning/04-analytics-ad-plan.md",
+      "docs/planning/04-analytics-expansion-proposal.md",
+      "docs/system-design/01-system-architecture.md",
+      "docs/system-design/03-api-design.md",
+      "docs/testing/local-playwright-docker.md",
+      "package.json",
+      "packages/contracts/openapi/m0-core.yaml",
+      "packages/contracts/src/api.d.ts",
+      "packages/contracts/src/schema.mjs",
+      "scripts/local/playwright-tests.mjs",
+      "tests/browser/analytics-events.test.ts",
+      "tests/browser/consent.test.ts",
+      "tests/consent.test.ts"
+    ],
+    "classification": "product-or-product-evidence",
+    "archiveReadback": true
+  },
+  {
+    "sha": "62f6fe5d7727e1c040c87537b5a7ba9a570de4e2",
+    "subject": "docs(worklog): record GA4 analytics v1 verification",
+    "paths": [
+      "worklog/2026-09-25/analytics-v1/RESULTS.md"
+    ],
+    "classification": "product-or-product-evidence",
+    "archiveReadback": true
+  },
+  {
+    "sha": "6e053140b5367ebabb61e5c476dcb128304ef1cb",
+    "subject": "feat(admin): improve local access and collection review UX",
+    "paths": [
+      "apps/web/app/app.vue",
+      "apps/web/app/assets/css/admin.css",
+      "apps/web/app/components/AdminWorkspace.vue",
+      "apps/web/app/pages/admin-batch.vue",
+      "apps/web/app/pages/admin-login.vue",
+      "apps/web/app/pages/admin.vue",
+      "apps/web/nuxt.config.ts",
+      "apps/web/server/api/admin/local-session.delete.ts",
+      "apps/web/server/api/admin/local-session.post.ts",
+      "apps/web/server/api/admin/session.get.ts",
+      "apps/web/server/middleware/admin.ts",
+      "apps/web/server/plugins/production.ts",
+      "apps/web/server/utils/local-admin.ts",
+      "apps/web/shared/admin-return.ts",
+      "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+      "docs/development-specs/m0-core/admin-post-management/admin-post-management.dev.md",
+      "docs/planning/03-screen-design.md",
+      "docs/system-design/05-security-operations.md",
+      "scripts/local/README.md",
+      "scripts/local/open-admin.mjs",
+      "scripts/local/start-development.mjs",
+      "tests/browser/admin-workflow.test.ts",
+      "tests/browser/batch-review.test.ts",
+      "tests/helpers/browser-fixture.ts",
+      "worklog/2026-09-25/admin-ux-rework/REQUEST.md",
+      "worklog/2026-09-25/admin-ux-rework/TASKS.md"
+    ],
+    "classification": "product-or-product-evidence",
+    "archiveReadback": true
+  },
+  {
+    "sha": "e51f1b501f7cc327da279102dd69eac2f4c554db",
+    "subject": "docs(worklog): record hot collection results",
+    "paths": [
+      "worklog/2026-09-25/hot-collection/RESULTS.md"
+    ],
+    "classification": "product-or-product-evidence",
+    "archiveReadback": true
+  }
+]

@@ -1,0 +1,2 @@
+# Preserve the archived patch bytes, including context/deleted-line whitespace.
+S02-assets/product-preservation.patch -whitespace

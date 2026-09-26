@@ -1,0 +1,38 @@
+{
+  "observedAt": "2026-09-26T15:00:50.661634+09:00",
+  "results": [
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "restoredPath": "/private/tmp/blariyo-s01-restore-blariyo-x6vicifs",
+      "head": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "dirtyEntries": 90,
+      "statusMatches": true,
+      "unstagedDiffMatches": true,
+      "stagedDiffMatches": true,
+      "indexEntriesMatch": true,
+      "independentObjectStore": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+      "restoredPath": "/private/tmp/blariyo-s01-restore-blariyo-m0-core-7hbijunr",
+      "head": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+      "dirtyEntries": 88,
+      "statusMatches": true,
+      "unstagedDiffMatches": true,
+      "stagedDiffMatches": true,
+      "indexEntriesMatch": true,
+      "independentObjectStore": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "restoredPath": "/private/tmp/blariyo-s01-restore-blariyo-stash-recovery-0zyr3f49",
+      "head": "5957492429b668377bede866c90f878b43225785",
+      "dirtyEntries": 10,
+      "statusMatches": true,
+      "unstagedDiffMatches": true,
+      "stagedDiffMatches": true,
+      "indexEntriesMatch": true,
+      "independentObjectStore": true
+    }
+  ]
+}

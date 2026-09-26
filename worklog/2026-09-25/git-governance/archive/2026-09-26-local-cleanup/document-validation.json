@@ -1,0 +1,43 @@
+{
+  "verifiedAt": "2026-09-26T15:59:00.146073+09:00",
+  "checkedMarkdownFiles": [
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/README.md",
+    "worklog/2026-09-25/git-governance/session-tasks/results/LOCAL-CLEANUP.md",
+    "worklog/2026-09-25/git-governance/session-tasks/README.md"
+  ],
+  "localLinksChecked": 72,
+  "missingLinks": [],
+  "publicFilesWhitespaceChecked": 13,
+  "whitespaceErrors": [],
+  "trackedChanges": [],
+  "stagedChanges": [],
+  "untrackedOutsideGovernanceRecords": [],
+  "additionalPrivateBackupIgnored": true,
+  "privateDirectoryMode": "0o700",
+  "preservedWorklogReadmeUpdateOnly": true,
+  "manualChecks": {
+    "command": "node --test tests/git-checks.test.mjs",
+    "nodeVersion": "v24.18.0",
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0,
+    "log": "manual-git-checks.txt"
+  },
+  "newLocalRecordFiles": [
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/.gitignore",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/README.md",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/before.json",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/design-archive-readback.json",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/document-validation.json",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/manifest.json",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/manual-git-checks.txt",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/metadata-deleted.json",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/refs-deleted.json",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/root-files-deleted.json",
+    "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/verification.json",
+    "worklog/2026-09-25/git-governance/session-tasks/results/LOCAL-CLEANUP.md"
+  ],
+  "passed": true,
+  "whitespaceCheckAttempts": 2,
+  "whitespaceCheckNote": "The first validator treated no-index exit code 1 (files differ, no diagnostics) as whitespace failure. The corrected check accepts 0 or 1 only when diagnostics are empty; all 13 files passed."
+}

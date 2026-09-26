@@ -1,0 +1,22 @@
+--- baseline
+
++++ current
+
+@@ -9,7 +9,6 @@
+
+ refs/heads/feature/HARN-08-stash-recovery 5957492429b668377bede866c90f878b43225785
+ refs/heads/feature/HARN-09-browser-retry 2b61c4ca038adea80069f0d020019199b4c1e53c
+ refs/heads/feature/HARN-09-ci-diagnostics 299ea62ab8eb3e00d4471fc82930137fc5026dc0
+-refs/heads/feature/discord-env-setup 7bede4485321bc2adc9b68b2c25cefb17eb44808
+ refs/heads/feature/m0-core a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727
+ refs/heads/main e51f1b501f7cc327da279102dd69eac2f4c554db
+ refs/heads/office 0dde53881c85629f62bbceade5408ec6177a0e8c
+@@ -28,6 +27,7 @@
+
+ refs/remotes/origin/feature/HARN-08-policy-review 8a72c9ae3e09460718de61065810a95594cd891c
+ refs/remotes/origin/feature/HARN-09-browser-retry 2b61c4ca038adea80069f0d020019199b4c1e53c
+ refs/remotes/origin/feature/HARN-09-ci-diagnostics 299ea62ab8eb3e00d4471fc82930137fc5026dc0
++refs/remotes/origin/feature/discord-env-setup 7bede4485321bc2adc9b68b2c25cefb17eb44808
+ refs/remotes/origin/feature/m0-core a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727
+ refs/remotes/origin/feature/m0-core-web c48f0845133cafea1c046eb26bec7e040d781ca6
+ refs/remotes/origin/main 8af72449a7d56c9701efd0d73dc7d430a66f9610

@@ -1,0 +1,2668 @@
+{
+  "createdAt": "2026-09-26T05:48:52.643010+00:00",
+  "purpose": "Session handoff documents only. Recommendations are not user decisions.",
+  "source": "../archive/2026-09-26-full-inventory/inventory.json",
+  "sourceUniquePaths": 495,
+  "tasks": [
+    {
+      "id": "S01",
+      "file": "S01-git-assets.md",
+      "title": "Git 자산 백업과 최종 정리",
+      "primaryIssues": ["GOV-28"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S02",
+      "file": "S02-product-preservation.md",
+      "title": "제품 변경·브라우저 회귀·원문 fixture 보존",
+      "primaryIssues": ["GOV-27", "GOV-30", "GOV-32"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S03",
+      "file": "S03-hooks-secrets.md",
+      "title": "Git hook·설정 복원과 비밀 탐지 분리",
+      "primaryIssues": ["GOV-07", "GOV-08", "GOV-09", "GOV-10", "GOV-11", "GOV-12"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S04",
+      "file": "S04-lint-tooling.md",
+      "title": "언어별 lint·format·예외·도구 구성",
+      "primaryIssues": ["GOV-13", "GOV-14", "GOV-15"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S05",
+      "file": "S05-architecture.md",
+      "title": "아키텍처 의존·계층·순환 검사",
+      "primaryIssues": ["GOV-16"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S06",
+      "file": "S06-mixed-cleanup.md",
+      "title": "333개 혼합 cleanup의 변경 단위 선별",
+      "primaryIssues": ["GOV-17"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S07",
+      "file": "S07-migration-checksum.md",
+      "title": "기존 migration SQL·checksum 호환 조합",
+      "primaryIssues": ["GOV-18"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S08",
+      "file": "S08-database-restore.md",
+      "title": "Core·Collector 격리 복원 검증",
+      "primaryIssues": ["GOV-22", "GOV-23"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S09",
+      "file": "S09-harness-policy-release.md",
+      "title": "하네스·브랜치 정책·릴리스 절차 정리",
+      "primaryIssues": ["GOV-01", "GOV-02", "GOV-03", "GOV-04", "GOV-05", "GOV-06", "GOV-24"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S10",
+      "file": "S10-ci-integration.md",
+      "title": "CI·공유 패키지 설정·최종 조합 검증",
+      "primaryIssues": ["GOV-19", "GOV-20", "GOV-21", "GOV-25", "GOV-26"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    },
+    {
+      "id": "S11",
+      "file": "S11-docs-closeout.md",
+      "title": "활성 문서 정리와 취소 상태 마감",
+      "primaryIssues": ["GOV-29", "GOV-31"],
+      "directionStatus": "undecided",
+      "executionStatus": "not_started"
+    }
+  ],
+  "issuePrimaryOwner": {
+    "GOV-28": "S01",
+    "GOV-27": "S02",
+    "GOV-30": "S02",
+    "GOV-32": "S02",
+    "GOV-07": "S03",
+    "GOV-08": "S03",
+    "GOV-09": "S03",
+    "GOV-10": "S03",
+    "GOV-11": "S03",
+    "GOV-12": "S03",
+    "GOV-13": "S04",
+    "GOV-14": "S04",
+    "GOV-15": "S04",
+    "GOV-16": "S05",
+    "GOV-17": "S06",
+    "GOV-18": "S07",
+    "GOV-22": "S08",
+    "GOV-23": "S08",
+    "GOV-01": "S09",
+    "GOV-02": "S09",
+    "GOV-03": "S09",
+    "GOV-04": "S09",
+    "GOV-05": "S09",
+    "GOV-06": "S09",
+    "GOV-24": "S09",
+    "GOV-19": "S10",
+    "GOV-20": "S10",
+    "GOV-21": "S10",
+    "GOV-25": "S10",
+    "GOV-26": "S10",
+    "GOV-29": "S11",
+    "GOV-31": "S11"
+  },
+  "phases": [
+    {
+      "id": "S01-A",
+      "after": [],
+      "mode": "backup"
+    },
+    {
+      "id": "S02",
+      "after": ["S01-A"]
+    },
+    {
+      "id": "S03",
+      "after": ["S01-A"]
+    },
+    {
+      "id": "S04",
+      "after": ["S01-A"]
+    },
+    {
+      "id": "S05",
+      "after": ["S01-A"]
+    },
+    {
+      "id": "S07",
+      "after": ["S01-A"]
+    },
+    {
+      "id": "S08-final",
+      "after": ["S01-A", "S07"]
+    },
+    {
+      "id": "S06-apply",
+      "after": ["S02", "S04"]
+    },
+    {
+      "id": "S09-candidate",
+      "after": ["S03", "S04", "S08-final"]
+    },
+    {
+      "id": "S10-integrate",
+      "after": ["S02", "S05", "S06-apply", "S07", "S08-final", "S09-candidate"]
+    },
+    {
+      "id": "S11-docs",
+      "after": ["S10-integrate"]
+    },
+    {
+      "id": "S10-doc-check",
+      "after": ["S11-docs"]
+    },
+    {
+      "id": "S01-B",
+      "after": ["S10-doc-check"]
+    },
+    {
+      "id": "S11-status",
+      "after": ["S01-B"]
+    }
+  ],
+  "phaseCondition": "Read-only analysis may run immediately. Only selected implementation lanes apply; omitted lanes transfer a preserve/retire decision and do not require implementation or tests.",
+  "fileCrossReferences": [
+    {
+      "path": ".commitlintrc.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": ".githooks/commit-msg",
+      "issues": ["GOV-07", "GOV-09"],
+      "sessions": ["S03"]
+    },
+    {
+      "path": ".githooks/post-commit",
+      "issues": ["GOV-07", "GOV-10"],
+      "sessions": ["S03"]
+    },
+    {
+      "path": ".githooks/pre-commit",
+      "issues": ["GOV-07", "GOV-08"],
+      "sessions": ["S03"]
+    },
+    {
+      "path": ".githooks/pre-push",
+      "issues": ["GOV-07", "GOV-11"],
+      "sessions": ["S03"]
+    },
+    {
+      "path": ".github/workflows/backup-restore.yml",
+      "issues": ["GOV-19", "GOV-20", "GOV-21", "GOV-22", "GOV-23", "GOV-25", "GOV-26"],
+      "sessions": ["S08", "S10"]
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "issues": ["GOV-19", "GOV-20", "GOV-21", "GOV-22", "GOV-23", "GOV-25", "GOV-26"],
+      "sessions": ["S08", "S10"]
+    },
+    {
+      "path": ".harness/policy.json",
+      "issues": ["GOV-01", "GOV-02", "GOV-03"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": ".harness/tasks/HARN-06.json",
+      "issues": ["GOV-01", "GOV-02", "GOV-03"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": ".harness/tasks/HARN-07.json",
+      "issues": ["GOV-01", "GOV-02", "GOV-03"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": ".harness/tasks/HARN-08.json",
+      "issues": ["GOV-01", "GOV-02", "GOV-03"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": ".harness/tasks/HARN-09.json",
+      "issues": ["GOV-01", "GOV-02", "GOV-03"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": ".lintstagedrc",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": ".markdownlint-cli2.jsonc",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": ".prettierignore",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": ".prettierrc",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": ".quality/baseline.candidate.json",
+      "issues": ["GOV-14"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": ".quality/requirements.txt",
+      "issues": ["GOV-15"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": ".ruff.toml",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": ".sqlfluff",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": ".stylelintrc.json",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "AGENTS.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "README.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "apps/api/eslint.config.mjs",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "apps/api/migrations/V001__core.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/migrations/V002__meme.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/migrations/V003__schedule_alert.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/migrations/V004__collection_assist.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/migrations/V005__spring_collection.down.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/migrations/V005__spring_collection.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/migrations/V006__collection_content.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/migrations/V007__collection_discovery.down.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/migrations/V007__collection_discovery.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/migrations/V008__batch_review.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/api/src/adapters/collect-reader.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/adapters/remote-adapters.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/adapters/schedule-webhook.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/app.module.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/api/src/bootstrap/collection-settings.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/bootstrap/config.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/bootstrap/database-config.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/bootstrap/startup.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/commands/command.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/commands/migrate.ts",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "apps/api/src/commands/migration-checksum-compatibility.ts",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "apps/api/src/commands/migrations.module.ts",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "apps/api/src/commands/migrations.repository.ts",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "apps/api/src/commands/migrations.service.ts",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "apps/api/src/features/collection/batch-result.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/collection/batch-review.controller.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/collection/batch-review.module.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/collection/batch-review.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/collection/batch-review.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/collection/collection-url.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/collection/collection.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/collection/collector-quota.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/health/health.controller.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/health/health.module.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/health/health.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/health/health.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/images/collected-animation.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/images/image-validation.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/images/images.module.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/images/images.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/images/local-media.controller.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/policies/policies.module.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/policies/policies.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/policies/policies.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/policies/policy-artifact.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/posts/posts.dto.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/posts/posts.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/features/public/public.controller.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/api/src/features/public/public.dto.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/api/src/main.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/api/src/operations/cleanup.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/operations/operations.module.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/operations/outbox.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/operations/schedule-alerts.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/operations/schedule-alerts.service.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/batch-result.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/batch-review.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/cleanup.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/collect-ownership.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/collection-operations.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/collection.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/collector-lease.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/database.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/entities.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/health.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/idempotency.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/images.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/migrations.repository.ts",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "apps/api/src/persistence/outbox.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/policies.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/posts.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/src/persistence/schedule-alerts.repository.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/architecture.service.test.ts",
+      "issues": ["GOV-16"],
+      "sessions": ["S05"]
+    },
+    {
+      "path": "apps/api/test/batch-review.integration.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/collect-reader.service.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/collected-animation.service.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/collected-image.service.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/collection-admin.integration.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/collection-discovery.integration.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/collector-lease.integration.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/database-config.service.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/doubles.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/failures.integration.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/images.service.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/migrations.integration.test.ts",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "apps/api/test/public-http.integration.test.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/api/test/public.service.test.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/api/test/r2-storage.service.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/review-regressions.integration.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/runtime-operations.integration.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/api/test/schema-restore.integration.test.ts",
+      "issues": ["GOV-22"],
+      "sessions": ["S08"]
+    },
+    {
+      "path": "apps/api/tsconfig.dev.json",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "apps/api/tsconfig.json",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "apps/collector/build.gradle.kts",
+      "issues": ["GOV-13", "GOV-15", "GOV-16", "GOV-19"],
+      "sessions": ["S04", "S05", "S10"]
+    },
+    {
+      "path": "apps/collector/config/checkstyle/checkstyle.xml",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "apps/collector/gradle.lockfile",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/README.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/compose.yaml",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/discord-e2e-checklist.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reference-sites.collection-policy.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reference-sites.sources.example.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/collector-inventory-2026-09-23.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/dev-21-site-review-2026-09-23.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/dev-blocked-readback-2026-09-23.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/dev-readback-review-2026-09-23.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/local-3000-review-2026-09-23.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/local-attachment-and-browser-2026-09-23.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/local-gallery-limits-2026-09-23.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/local-role-followup-2026-09-23.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/local-role-followup-2026-09-23.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/media-notice-video-policy-2026-09-23.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/reports/observed-fixtures-2026-09-23.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/sources.schema.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/ops/verify-write-db-readback.sh",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/main/java/com/blariyo/collector/ops/MigrationMain.java",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "apps/collector/src/main/resources/db/collector-v001.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/collector/src/main/resources/db/collector-v002.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/collector/src/main/resources/db/collector-v003.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/collector/src/main/resources/db/collector-v004.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/collector/src/main/resources/db/collector-v005.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/collector/src/main/resources/db/collector-v006.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "apps/collector/src/test/java/com/blariyo/collector/ops/MigrationMainTests.java",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/arcalive.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/arcalive.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/bobaedream.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/bobaedream.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/dcinside.dccon.observed.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/dcinside.detail.observed.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/dogdrip.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/dogdrip.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/etoland.list.observed.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/fixture-provenance.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/inven.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/inven.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/module-baseline.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/arcalive.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/arcalive.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/arcalive.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/bobaedream.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/bobaedream.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/bobaedream.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/clien.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/clien.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/clien.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/dcinside.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/dcinside.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/dmitory.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/dmitory.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/dmitory.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/dogdrip.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/dogdrip.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/dogdrip.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/etoland.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/etoland.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/etoland.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/goodgag.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/goodgag.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/goodgag.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/humoruniv.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/humoruniv.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/humoruniv.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/instiz.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/instiz.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/inven.attachments-external.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/inven.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/inven.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/inven.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/mlbpark.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/mlbpark.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/mlbpark.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/natepann.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/natepann.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/natepann.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/ruliweb.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/ruliweb.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/ruliweb.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/theqoo.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/theqoo.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/theqoo.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/todayhumor.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/todayhumor.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/yuldo.detail.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/yuldo.detail.html.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/observed/yuldo.list.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/theqoo.detail.observed.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/collector/src/test/resources/sites/todayhumor.gallery.observed.html",
+      "issues": ["GOV-17", "GOV-28", "GOV-32"],
+      "sessions": ["S01", "S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/app.vue",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/assets/css/admin.css",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/assets/css/main.css",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/components/AdminWorkspace.vue",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/components/CollectImagePreview.vue",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/web/app/components/LinkedText.vue",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/web/app/components/PostList.vue",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/pages/[boardSlug]/index.vue",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/pages/[boardSlug]/posts/[postId].vue",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/pages/admin-batch.vue",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/pages/admin-login.vue",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/pages/admin.vue",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/plugins/analytics.client.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/utils/consent.mjs",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/app/utils/text-links.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/web/nuxt.config.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/server/api/admin/local-session.delete.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/server/api/admin/local-session.post.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/server/api/admin/session.get.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/server/api/v1/[...path].ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/web/server/middleware/admin.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/server/plugins/production.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/server/routes/media/[...path].get.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/web/server/utils/local-admin.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/shared/admin-return.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "apps/web/test/collected-gallery.test.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "apps/web/test/text-links.test.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/README.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "deploy/application/compose.yaml",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/fixtures/release-compatibility.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/policy-release-review.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/prepare-policy-review.cjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/prepare-public-config.cjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/prepare-runtime-config.cjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/production-logging.yaml",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/publish-policies-input.cjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/stage-server.py",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/start-server.py",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/test-policy-review.cjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/application/test-runtime-config.cjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/backup/install-from-mac.py",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/backup/r2-transfer.cjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/backup/test-retention.cjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/gateway/compose.yaml",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/gateway/production-logging.yaml",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/operations/start-application.py",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "deploy/postgresql/README.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/postgresql/apply-privileges.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "deploy/postgresql/compose.yaml",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/postgresql/create-batch-role.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "deploy/postgresql/create-roles.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "deploy/postgresql/policy-seed-input.cjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "deploy/postgresql/seed-policy-drafts.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "docs/README.md",
+      "issues": ["GOV-29", "GOV-30"],
+      "sessions": ["S02", "S11"]
+    },
+    {
+      "path": "docs/ai/README.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "docs/ai/git-workflow.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "docs/ai/governance-bootstrap.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ai/harness-implementation-plan.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "docs/ai/skills/blariyo-plan-to-development-spec/agents/openai.yaml",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ai/skills/blariyo-plan-to-development-spec/references/canonical-routing.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ai/skills/blariyo-plan-to-development-spec/references/spec-quality-gates.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/admin-post-management/admin-post-management.dev.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/decisions/legal-contact-benchmark-research.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/decisions/open-decisions.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/decisions/operational-values-checklist.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/decisions/reference-site-copy-research.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/decisions/검수/task-07-source-specs-all-sites.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/decisions/검수/task-09-discord-page-only-collection.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/decisions/검수/task-10-m0-core-openapi-source.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/decisions/검수/task.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/implementation-backlog.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/openapi/m0-core.yaml",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/policy-and-rights/policy-and-rights.dev.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m0-core/public-post-browsing/public-post-browsing.dev.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m1-5/community-moderation/community-moderation.dev.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m1-5/community-participation/community-participation.dev.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m1/account-lifecycle/account-lifecycle.dev.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/m1/member-identity/member-identity.dev.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/development-specs/requirements-status.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/implementation-tasks/README.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/README.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/legal/cookie-settings.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/legal/m0-core/README.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/m0-core/cookies.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/m0-core/draft-2/privacy.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/m0-core/draft-2/terms.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/m0-core/privacy.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/m0-core/rights.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/m0-core/terms.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/privacy-policy.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/legal/rights-request.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/signup-privacy-consent.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/legal/terms-of-service.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/migration/contract-evolution.json",
+      "issues": ["GOV-18", "GOV-30"],
+      "sessions": ["S02", "S07"]
+    },
+    {
+      "path": "docs/operations/collector-transition-observation.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/operations/current-status.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/operations/deployment-policy.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/operations/deployment-runbook.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/operations/environment-configuration.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/operations/infrastructure-review-brief.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/operations/owner-setup-checklist.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-deploy-precheck.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/operations/security-evidence/2026-09-20-server-final.json",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/operations/security-protection-status.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/planning/01-service-plan.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/02-infra-plan.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/03-screen-design.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/planning/04-analytics-ad-plan.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/planning/04-analytics-expansion-proposal.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/planning/05-benchmark-spec.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/06-copy-contract.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/07-color-palette.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/08-member-community-plan.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/09-random-name-catalog.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/README.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/reference-site-validation.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/source-collection-policy.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/source-spec-template.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/arcalive.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/bobaedream.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/clien.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/dcinside.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/dmitory.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/dogdrip.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/etoland.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/fmkorea.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/goodgag.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/humoruniv.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/instiz.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/inven.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/mlbpark.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/natepann.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/pgr21.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/ppomppu.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/ruliweb.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/theqoo.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/todayhumor.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/youtube-community.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/planning/content-collection/sources/yuldo.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/roadmap.md",
+      "issues": ["GOV-29", "GOV-30"],
+      "sessions": ["S02", "S11"]
+    },
+    {
+      "path": "docs/status.md",
+      "issues": ["GOV-29", "GOV-30"],
+      "sessions": ["S02", "S11"]
+    },
+    {
+      "path": "docs/system-design/01-system-architecture.md",
+      "issues": ["GOV-16", "GOV-30"],
+      "sessions": ["S02", "S05"]
+    },
+    {
+      "path": "docs/system-design/02-data-model.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/system-design/03-api-design.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/system-design/04-infrastructure-design.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/system-design/05-security-operations.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/system-design/06-member-community-design.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/system-design/07-spring-collector-design.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/system-design/08-code-structure.md",
+      "issues": ["GOV-16"],
+      "sessions": ["S05"]
+    },
+    {
+      "path": "docs/system-design/09-security-cost-protection-plan.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/system-design/README.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/system-design/design-readiness.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/system-design/nest-implementation-decisions.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/system-design/validation/member-readiness-review.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/testing/README.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/testing/collection-operations-cases.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/testing/local-playwright-docker.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "docs/testing/operator-acceptance.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/testing/ui-wireframe-review-20260920.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/publishing/admin-core-review.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/publishing/responsive/README.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/publishing/responsive/app.js",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/publishing/responsive/index.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/publishing/responsive/styles.css",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/wireframes/ads/index.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/wireframes/archive/app/index.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/wireframes/archive/desktop/index.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/wireframes/archive/mobile/index.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/wireframes/community/index.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/wireframes/legal/index.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "docs/ui/wireframes/responsive/index.html",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "package-lock.json",
+      "issues": ["GOV-13", "GOV-15", "GOV-16", "GOV-19"],
+      "sessions": ["S04", "S05", "S10"]
+    },
+    {
+      "path": "package.json",
+      "issues": ["GOV-13", "GOV-15", "GOV-16", "GOV-19", "GOV-30"],
+      "sessions": ["S02", "S04", "S05", "S10"]
+    },
+    {
+      "path": "packages/contracts/eslint.config.mjs",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "packages/contracts/openapi/m0-core.yaml",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "packages/contracts/src/api.d.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "packages/contracts/src/index.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "packages/contracts/src/schema.mjs",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "packages/contracts/tsconfig.json",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "scripts/collector-test-support.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/content/complete-originals.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/content/metadata-batch.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/content/migration-checksum.mjs",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "scripts/content/migrations/001_source_capture.sql",
+      "issues": ["GOV-17", "GOV-18"],
+      "sessions": ["S06", "S07"]
+    },
+    {
+      "path": "scripts/content/record-reference-failure.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/content/reference-site-audit.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/content/reference-sites-config.test.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/content/replace-local-originals.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/content/scrape-originals.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/generate-contracts.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/harness/branches.mjs",
+      "issues": ["GOV-01", "GOV-04"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/harness/check.mjs",
+      "issues": ["GOV-02", "GOV-08", "GOV-11", "GOV-12"],
+      "sessions": ["S03", "S09"]
+    },
+    {
+      "path": "scripts/harness/ci-context.mjs",
+      "issues": ["GOV-20"],
+      "sessions": ["S10"]
+    },
+    {
+      "path": "scripts/harness/cli.mjs",
+      "issues": ["GOV-04", "GOV-06"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/harness/git.mjs",
+      "issues": ["GOV-04"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/harness/hooks.mjs",
+      "issues": ["GOV-07", "GOV-08", "GOV-09", "GOV-10", "GOV-11"],
+      "sessions": ["S03"]
+    },
+    {
+      "path": "scripts/harness/job-receipt.mjs",
+      "issues": ["GOV-20"],
+      "sessions": ["S10"]
+    },
+    {
+      "path": "scripts/harness/lease_lock.py",
+      "issues": ["GOV-05"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/harness/leases.mjs",
+      "issues": ["GOV-05"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/harness/merge-back.mjs",
+      "issues": ["GOV-24"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/harness/release.mjs",
+      "issues": ["GOV-05", "GOV-24"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/harness/restore-scope.mjs",
+      "issues": ["GOV-22", "GOV-23"],
+      "sessions": ["S08"]
+    },
+    {
+      "path": "scripts/harness/run-tests.mjs",
+      "issues": ["GOV-06"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/harness/secrets.mjs",
+      "issues": ["GOV-12"],
+      "sessions": ["S03"]
+    },
+    {
+      "path": "scripts/harness/tap.mjs",
+      "issues": ["GOV-06"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/harness/verify.mjs",
+      "issues": ["GOV-06"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "scripts/local/README.md",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "scripts/local/batch-review.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/collector-mime-repair.test.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/environment-config.test.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/local-identity.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/local-identity.test.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/open-admin.mjs",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "scripts/local/playwright-tests.mjs",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "scripts/local/prepare-batch-review.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/probe-sites.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/repair-collected-labels.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/repair-collected-media.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/repair-collected-media.test.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/repair-collector-mime.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/repair-notice-posts.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/run-batch.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/start-development.mjs",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "scripts/local/verify-batch-run.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/verify-collected-animations.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/verify-collected-content.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/verify-collector-inventory.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/verify-dry-run.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/local/verify-queue-intake.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/prepare-collector-fixtures.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/quality/eslint.config.mjs",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "scripts/quality/lint-all.mjs",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "scripts/quality/lint-contracts.mjs",
+      "issues": ["GOV-14"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "scripts/quality/lint-debt.mjs",
+      "issues": ["GOV-14"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "scripts/quality/setup-native-tools.mjs",
+      "issues": ["GOV-15"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "scripts/test-collector-readback.mjs",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/test-collector-restore.mjs",
+      "issues": ["GOV-23"],
+      "sessions": ["S08"]
+    },
+    {
+      "path": "scripts/test-database-roles.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "scripts/tsconfig.json",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "tests/architecture.test.ts",
+      "issues": ["GOV-16"],
+      "sessions": ["S05"]
+    },
+    {
+      "path": "tests/browser/admin-recovery.test.ts",
+      "issues": ["GOV-27"],
+      "sessions": ["S02"]
+    },
+    {
+      "path": "tests/browser/admin-workflow.test.ts",
+      "issues": ["GOV-27", "GOV-30"],
+      "sessions": ["S02"]
+    },
+    {
+      "path": "tests/browser/analytics-events.test.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "tests/browser/batch-review.test.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "tests/browser/consent.test.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "tests/collector-verification.test.ts",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "tests/consent.test.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "tests/harness/branches.test.mjs",
+      "issues": ["GOV-01", "GOV-04"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "tests/harness/ci-context.test.mjs",
+      "issues": ["GOV-20"],
+      "sessions": ["S10"]
+    },
+    {
+      "path": "tests/harness/ci-workflow.test.mjs",
+      "issues": ["GOV-19", "GOV-21", "GOV-25"],
+      "sessions": ["S10"]
+    },
+    {
+      "path": "tests/harness/hooks.test.mjs",
+      "issues": ["GOV-07", "GOV-08", "GOV-09", "GOV-10", "GOV-11"],
+      "sessions": ["S03"]
+    },
+    {
+      "path": "tests/harness/job-receipt.test.mjs",
+      "issues": ["GOV-20"],
+      "sessions": ["S10"]
+    },
+    {
+      "path": "tests/harness/leases.test.mjs",
+      "issues": ["GOV-05"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "tests/harness/merge-back.test.mjs",
+      "issues": ["GOV-24"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "tests/harness/release.test.mjs",
+      "issues": ["GOV-05", "GOV-24"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "tests/harness/restore-scope.test.mjs",
+      "issues": ["GOV-22", "GOV-23"],
+      "sessions": ["S08"]
+    },
+    {
+      "path": "tests/harness/verify.test.mjs",
+      "issues": ["GOV-06"],
+      "sessions": ["S09"]
+    },
+    {
+      "path": "tests/helpers/browser-fixture.ts",
+      "issues": ["GOV-17", "GOV-30"],
+      "sessions": ["S02", "S06"]
+    },
+    {
+      "path": "tests/migration-contracts.test.ts",
+      "issues": ["GOV-18"],
+      "sessions": ["S07"]
+    },
+    {
+      "path": "tests/quality/lint-debt.test.mjs",
+      "issues": ["GOV-14"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "tests/quality/lint-tools.test.mjs",
+      "issues": ["GOV-15"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "tests/tsconfig.json",
+      "issues": ["GOV-13"],
+      "sessions": ["S04"]
+    },
+    {
+      "path": "tools/collector/README.md",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "tools/collector/collector.py",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "tools/collector/discord_bot.py",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "tools/collector/test_collector.py",
+      "issues": ["GOV-17"],
+      "sessions": ["S06"]
+    },
+    {
+      "path": "worklog/2026-09-25/admin-ux-rework/REQUEST.md",
+      "issues": ["GOV-29", "GOV-30"],
+      "sessions": ["S02", "S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/admin-ux-rework/TASKS.md",
+      "issues": ["GOV-29", "GOV-30"],
+      "sessions": ["S02", "S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/analytics-v1/RESULTS.md",
+      "issues": ["GOV-29", "GOV-30"],
+      "sessions": ["S02", "S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/BRANCH-TRANSITION-INVENTORY.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/CI-RECOVERY.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/DEVELOP-BOOTSTRAP-DECISION.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/LINT-CANDIDATE-REVIEW.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/PR-RECOVERY.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/README.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/REQUEST.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/RESULT.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/STASH-RECOVERY.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md",
+      "issues": ["GOV-29", "GOV-30"],
+      "sessions": ["S02", "S11"]
+    },
+    {
+      "path": "worklog/2026-09-25/hot-collection/RESULTS.md",
+      "issues": ["GOV-29", "GOV-30"],
+      "sessions": ["S02", "S11"]
+    },
+    {
+      "path": "worklog/README.md",
+      "issues": ["GOV-29"],
+      "sessions": ["S11"]
+    }
+  ],
+  "fileCrossReferenceLimit": "Cross references only, not exclusive write ownership or a deletion allowlist. Shared-file ownership is in README.md."
+}

@@ -1,0 +1,519 @@
+diff --git a/scripts/git-checks/check.mjs b/scripts/git-checks/check.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..c30107729b98914eee47998d371653eb0a988fce
+--- /dev/null
++++ b/scripts/git-checks/check.mjs
+@@ -0,0 +1,213 @@
++import { spawnSync } from 'node:child_process';
++import { readFileSync } from 'node:fs';
++import { resolve } from 'node:path';
++import { pathToFileURL } from 'node:url';
++
++// Retains the four existing patterns; this is not a general credential/DLP scanner.
++const patterns = [
++  ['private-key', /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/],
++  ['aws-access-key', /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/],
++  ['github-token', /\bgh[pousr]_[A-Za-z0-9_]{20,}\b/],
++  ['slack-token', /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/],
++];
++
++export function secretKinds(text) {
++  return patterns.filter(([, pattern]) => pattern.test(text)).map(([kind]) => kind);
++}
++
++function execute(cwd, args) {
++  const result = spawnSync('git', args, {
++    cwd,
++    encoding: null,
++    maxBuffer: 64 * 1024 * 1024,
++    shell: false,
++    env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', GIT_NO_REPLACE_OBJECTS: '1' },
++  });
++  if (result.error) throw new Error('Git execution failed; output suppressed');
++  return result;
++}
++
++function git(cwd, ...args) {
++  const result = execute(cwd, args);
++  if (result.status !== 0) throw new Error(`git ${args[0]} failed; output suppressed`);
++  return result.stdout;
++}
++
++function validateOid(oid) {
++  if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/i.test(oid ?? '')) {
++    throw new Error('Use a full Git object ID');
++  }
++}
++
++function isZero(oid) {
++  return /^0+$/.test(oid);
++}
++
++function inspectText(text, location) {
++  const kinds = secretKinds(text);
++  if (kinds.length) {
++    const safeLocation = secretKinds(location).length ? '<location suppressed>' : location;
++    throw new Error(
++      `secret candidate (${kinds.join(', ')}) in ${safeLocation}; contents suppressed`
++    );
++  }
++}
++
++function counters() {
++  return { scannedCommits: 0, scannedBlobs: 0, skippedBinaryBlobs: 0, skippedGitlinks: 0 };
++}
++
++function rawChanges(bytes) {
++  const fields = bytes.toString('utf8').split('\0');
++  const changes = [];
++  for (let i = 0; i < fields.length && fields[i]; i += 2) {
++    const match = /^:(\d{6}) (\d{6}) ([a-f0-9]+) ([a-f0-9]+) ([A-Z])$/.exec(fields[i]);
++    if (!match || !fields[i + 1]) throw new Error('Cannot parse Git raw changes');
++    if (match[5] === 'U') throw new Error('Resolve unmerged index entries before checking');
++    changes.push({ mode: match[2], oid: match[4], status: match[5] });
++  }
++  return changes;
++}
++
++function inspectChanges(cwd, changes, result) {
++  for (const change of changes) {
++    if (change.status === 'D') continue;
++    if (change.mode === '160000') {
++      result.skippedGitlinks++;
++      continue;
++    }
++    const bytes = git(cwd, 'cat-file', 'blob', change.oid);
++    if (bytes.includes(0)) {
++      result.skippedBinaryBlobs++;
++      continue;
++    }
++    // Indexed symlinks are blobs containing link text; never follow filesystem targets.
++    inspectText(bytes.toString('utf8'), `blob ${change.oid.slice(0, 12)}`);
++    result.scannedBlobs++;
++  }
++}
++
++export function checkStaged(cwd = process.cwd()) {
++  if (execute(cwd, ['diff', '--cached', '--check']).status !== 0) {
++    throw new Error('Staged whitespace/unmerged check failed; output suppressed');
++  }
++  const changes = rawChanges(
++    git(cwd, 'diff', '--cached', '--raw', '-z', '--no-abbrev', '--no-renames')
++  );
++  const result = { ...counters(), stagedPaths: changes.length };
++  inspectChanges(cwd, changes, result);
++  return result;
++}
++
++export function checkMessage(file, cwd = process.cwd()) {
++  inspectText(readFileSync(resolve(cwd, file), 'utf8'), 'commit message file');
++  return { checkedMessages: 1 };
++}
++
++function commitObject(cwd, oid, inspectTags) {
++  validateOid(oid);
++  let current = oid;
++  const seen = new Set();
++  while (!seen.has(current)) {
++    seen.add(current);
++    const type = git(cwd, 'cat-file', '-t', current).toString('utf8').trim();
++    if (type === 'commit') return current;
++    if (type !== 'tag') throw new Error('Only commit and commit-tag histories can be checked');
++    const tag = git(cwd, 'cat-file', 'tag', current).toString('utf8');
++    if (inspectTags) inspectText(tag, `tag ${current.slice(0, 12)}`);
++    current = /^object ([a-f0-9]+)$/m.exec(tag)?.[1];
++    validateOid(current);
++  }
++  throw new Error('Cyclic tag objects cannot be checked');
++}
++
++function scanRange(cwd, base, head, seen, result) {
++  if (git(cwd, 'rev-parse', '--is-shallow-repository').toString('utf8').trim() === 'true') {
++    throw new Error('Complete history is required; shallow checkout cannot be verified');
++  }
++  const tip = commitObject(cwd, head, true);
++  const start = isZero(base) ? null : commitObject(cwd, base, false);
++  const range = start ? `${start}..${tip}` : tip;
++  const commits = git(cwd, 'rev-list', range).toString('utf8').split('\n').filter(Boolean);
++  for (const commit of commits) {
++    if (seen.has(commit)) continue;
++    seen.add(commit);
++    inspectText(
++      git(cwd, 'show', '-s', '--format=%B', commit).toString('utf8'),
++      `commit ${commit.slice(0, 12)}`
++    );
++    const changes = rawChanges(
++      git(
++        cwd,
++        'diff-tree',
++        '--root',
++        '--no-commit-id',
++        '-m',
++        '-r',
++        '--raw',
++        '-z',
++        '--no-abbrev',
++        '--no-renames',
++        commit
++      )
++    );
++    inspectChanges(cwd, changes, result);
++    result.scannedCommits++;
++  }
++}
++
++export function checkCommitRange(base, head, cwd = process.cwd()) {
++  validateOid(base);
++  validateOid(head);
++  const result = counters();
++  scanRange(cwd, base, head, new Set(), result);
++  return { ...result, base: isZero(base) ? null : base, head };
++}
++
++export function checkOutgoingRefs(input, cwd = process.cwd()) {
++  const lines = input.split(/\r?\n/).filter((line) => line.trim());
++  const result = { ...counters(), scannedRefs: 0, deletedRefs: 0, unchangedRefs: 0 };
++  const seen = new Set();
++  for (const line of lines) {
++    const fields = line.trim().split(/\s+/);
++    if (fields.length !== 4) throw new Error('Expected four pre-push input fields');
++    const [, local, , remote] = fields;
++    validateOid(local);
++    validateOid(remote);
++    if (isZero(local)) {
++      result.deletedRefs++;
++      continue;
++    }
++    if (local === remote) {
++      result.unchangedRefs++;
++      continue;
++    }
++    scanRange(cwd, remote, local, seen, result);
++    result.scannedRefs++;
++  }
++  return result;
++}
++
++export async function main(args = process.argv.slice(2), cwd = process.cwd()) {
++  const [command, ...rest] = args;
++  if (command === 'staged' && !rest.length) return checkStaged(cwd);
++  if (command === 'message' && rest.length === 1) return checkMessage(rest[0], cwd);
++  if (command === 'range' && rest.length === 2) return checkCommitRange(rest[0], rest[1], cwd);
++  if (command === 'outgoing' && !rest.length) {
++    let input = '';
++    for await (const chunk of process.stdin) input += chunk;
++    return checkOutgoingRefs(input, cwd);
++  }
++  throw new Error(
++    'usage: node scripts/git-checks/check.mjs staged | message <file> | range <base-oid> <head-oid> | outgoing < pre-push-input'
++  );
++}
++
++if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
++  main()
++    .then((result) => console.log(JSON.stringify(result)))
++    .catch((error) => {
++      console.error(error.message);
++      process.exitCode = 1;
++    });
++}
+diff --git a/scripts/git-checks/README.md b/scripts/git-checks/README.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..dc840fd49176970ea521d50b518b043973424a65
+--- /dev/null
++++ b/scripts/git-checks/README.md
+@@ -0,0 +1,47 @@
++# 수동 Git 검사
++
++공백과 비밀 후보 검사를 task·branch 정책 없이 실행한다. 자동 hook을 설치하지 않으며
++commit·push·Git 설정 변경을 수행하지 않는다. Node.js 24에서 검증했다.
++
++```sh
++# stage된 내용의 공백 오류와 비밀 후보 검사
++node scripts/git-checks/check.mjs staged
++
++# 메시지 파일의 비밀 후보 검사 (제목 형식과 task trailer는 제한하지 않음)
++node scripts/git-checks/check.mjs message /path/to/commit-message.txt
++
++# 두 전체 commit SHA 사이에서 새로 도달하는 모든 commit 검사
++node scripts/git-checks/check.mjs range <base-oid> <head-oid>
++
++# 준비한 pre-push 형식의 ref 목록 검사. 실제 push는 실행하지 않음.
++node scripts/git-checks/check.mjs outgoing < /path/to/outgoing-refs.txt
++
++# 독립 회귀 검사. Git 변경은 임시 저장소에만 생성.
++node --test tests/git-checks.test.mjs
++```
++
++- 성공은 JSON과 종료 코드 `0`, 거부는 원문을 숨긴 오류와 종료 코드 `1`로 표시한다.
++- `staged`는 작업 파일 대신 index를 읽는다. 삭제는 허용하고 symlink의 외부 대상을 따라가지 않는다.
++- `range`는 `base..head`의 모든 commit 메시지와 변경 blob을 읽는다. merge의 모든 부모와 비교하고,
++  마지막 상태에서 지워진 비밀 후보도 탐지한다. base가 전체 길이의 `0`이면 head의 전체 이력을 읽는다.
++- OID는 축약하지 않은 Git 객체 ID다. ref 이름이나 `HEAD`는 받지 않는다. SHA-1과 SHA-256 길이를 허용한다.
++- `outgoing` 입력은 행마다 `<local-ref> <local-oid> <remote-ref> <remote-oid>`다.
++  ref 삭제와 동일 SHA는 새 전송 내용이 없어 제외한다. 새 ref의 remote OID는 전체 길이의 `0`이다.
++  branch 이름·직접 push·force update를 제한하지 않는다. ref 간 중복 commit은 한 번만 검사한다.
++- commit을 가리키는 annotated tag의 메시지도 검사한다. tree/blob을 직접 가리키는 tag는 거부한다.
++- shallow 저장소, 없는 base/head 객체, Git 실행·형식 오류는 검증 성공으로 처리하지 않는다.
++  전체 이력이 있는 작업본에서 실제 전송할 SHA 범위를 다시 확인해야 한다.
++
++## 범위와 한계
++
++탐지 패턴은 기존 4종(private key header, AWS access key ID, 일부 GitHub token, Slack token)이다.
++일반 비밀번호, 모든 token 형식, 임의 `.env` 값까지 찾는 범용 비밀 검사가 아니다.
++NUL 바이트가 있는 binary blob과 submodule 내용은 검사하지 않고 JSON에 제외 수를 표시한다.
++비밀 값 원문과 Git 오류 원문은 출력하지 않는다. 수동 검사를 실행하지 않으면 자동 차단도 없다.
++
++## S09·S10 인계
++
++이 디렉터리와 `tests/git-checks.test.mjs`는 독립 유지 대상이다. `scripts/harness/`, `.harness/`,
++`.githooks/`를 import하거나 task allowlist·Task-Id·Change-Id를 요구하지 않는다.
++기존 CLI·wrapper·기록은 S03에서 삭제하지 않았다. S09는 기존 소비자를 확인한 뒤 삭제 후보를 정하고,
++S10은 필요하면 package/CI에 위 명령을 연결한다. 이 문서 자체는 CI 연결이나 새 hook 설치 승인이 아니다.
+diff --git a/tests/git-checks.test.mjs b/tests/git-checks.test.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..56ed6353c060f0580c26b6ff2f8f0d0b7355c072
+--- /dev/null
++++ b/tests/git-checks.test.mjs
+@@ -0,0 +1,241 @@
++import assert from 'node:assert/strict';
++import { spawnSync } from 'node:child_process';
++import { chmodSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import { dirname, join, resolve } from 'node:path';
++import test from 'node:test';
++import {
++  checkCommitRange,
++  checkMessage,
++  checkOutgoingRefs,
++  checkStaged,
++  secretKinds,
++} from '../scripts/git-checks/check.mjs';
++
++const zero = '0'.repeat(40);
++const token = 'ghp_' + 'abcdefghijklmnopqrstuvwxyz0123456789';
++const checker = resolve(import.meta.dirname, '../scripts/git-checks/check.mjs');
++
++function git(root, ...args) {
++  const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
++  assert.equal(result.status, 0, `git ${args[0]} failed (output suppressed)`);
++  return result.stdout.trim();
++}
++
++function repository(t) {
++  const root = mkdtempSync(join(tmpdir(), 'blariyo-manual-check-'));
++  t.after(() => rmSync(root, { recursive: true, force: true }));
++  git(root, 'init', '--initial-branch=main');
++  git(root, 'config', 'user.name', 'Manual Check Test');
++  git(root, 'config', 'user.email', 'manual-check@example.invalid');
++  git(root, 'config', 'commit.gpgsign', 'false');
++  git(root, 'config', 'core.hooksPath', join(root, '.git/hooks'));
++  return root;
++}
++
++function stage(root, path, contents) {
++  mkdirSync(dirname(join(root, path)), { recursive: true });
++  writeFileSync(join(root, path), contents);
++  git(root, 'add', '--', path);
++}
++
++function commit(root, path, contents, message = 'ordinary message without task trailers') {
++  stage(root, path, contents);
++  git(root, 'commit', '-m', message);
++  return git(root, 'rev-parse', 'HEAD');
++}
++
++function rejectsSecret(fn) {
++  assert.throws(fn, (error) => {
++    assert.match(error.message, /secret candidate/);
++    assert.equal(error.message.includes(token), false, 'secret must not appear in errors');
++    return true;
++  });
++}
++
++test('retains four existing secret pattern families', () => {
++  const examples = [
++    ['private-key', '-----BEGIN ' + 'PRIVATE KEY-----'],
++    ['aws-access-key', 'AKIA' + 'A'.repeat(16)],
++    ['github-token', token],
++    ['slack-token', 'xoxb-' + 'a'.repeat(24)],
++  ];
++  for (const [kind, value] of examples) assert.deepEqual(secretKinds(value), [kind]);
++  assert.deepEqual(secretKinds('ordinary text'), []);
++});
++
++test('staged scan reads the index even when the working file is safe, and suppresses CLI values', (t) => {
++  const root = repository(t);
++  stage(root, 'outside-any-task.txt', `${token}\n`);
++  writeFileSync(join(root, 'outside-any-task.txt'), 'safe working copy\n');
++  rejectsSecret(() => checkStaged(root));
++  const run = spawnSync(process.execPath, [checker, 'staged'], { cwd: root, encoding: 'utf8' });
++  assert.equal(run.status, 1);
++  assert.equal((run.stdout + run.stderr).includes(token), false);
++  assert.match(run.stderr, /contents suppressed/);
++});
++
++test('staged whitespace is rejected without printing the affected content', (t) => {
++  const root = repository(t);
++  stage(root, 'space.txt', 'sensitive-marker  \n');
++  assert.throws(
++    () => checkStaged(root),
++    (error) => {
++      assert.match(error.message, /whitespace/);
++      assert.equal(error.message.includes('sensitive-marker'), false);
++      return true;
++    }
++  );
++});
++
++test('ordinary deletion and arbitrary staged paths have no task policy', (t) => {
++  const root = repository(t);
++  commit(root, 'delete.txt', 'safe\n');
++  git(root, 'rm', 'delete.txt');
++  stage(root, '새 경로/file.txt', 'safe\n');
++  const result = checkStaged(root);
++  assert.equal(result.stagedPaths, 2);
++  assert.equal(result.scannedBlobs, 1);
++});
++
++test('symlink target is not read, and binary/gitlink omissions are counted', (t) => {
++  const root = repository(t);
++  const head = commit(root, 'base.txt', 'safe\n');
++  writeFileSync(join(root, 'outside-secret.txt'), `${token}\n`);
++  const blob = spawnSync('git', ['hash-object', '-w', '--stdin'], {
++    cwd: root,
++    input: 'outside-secret.txt',
++    encoding: 'utf8',
++  });
++  assert.equal(blob.status, 0);
++  git(root, 'update-index', '--add', '--cacheinfo', `120000,${blob.stdout.trim()},link`);
++  git(root, 'update-index', '--add', '--cacheinfo', `160000,${head},submodule`);
++  stage(root, 'binary.bin', Buffer.from(`\0${token}`));
++  const result = checkStaged(root);
++  assert.equal(result.scannedBlobs, 1);
++  assert.equal(result.skippedBinaryBlobs, 1);
++  assert.equal(result.skippedGitlinks, 1);
++});
++
++test('message check accepts ordinary titles without trailers and rejects secrets', (t) => {
++  const root = repository(t);
++  writeFileSync(join(root, 'message'), '평범한 변경 설명\n');
++  assert.equal(checkMessage('message', root).checkedMessages, 1);
++  writeFileSync(join(root, 'message'), `${token}\n`);
++  rejectsSecret(() => checkMessage('message', root));
++});
++
++test('history scans earlier commits even when the secret file was deleted', (t) => {
++  const root = repository(t);
++  const base = commit(root, 'base.txt', 'safe\n');
++  commit(root, 'leak.txt', `${token}\n`);
++  git(root, 'rm', 'leak.txt');
++  git(root, 'commit', '-m', 'remove synthetic fixture');
++  const head = git(root, 'rev-parse', 'HEAD');
++  rejectsSecret(() => checkCommitRange(base, head, root));
++  rejectsSecret(() => checkOutgoingRefs(`refs/heads/main ${head} refs/heads/main ${base}\n`, root));
++});
++
++test('root commits, spaced Unicode paths, renames and deletions are checked', (t) => {
++  const root = repository(t);
++  commit(root, '기준 파일.txt', 'safe\n');
++  git(root, 'mv', '기준 파일.txt', '이름 변경.txt');
++  git(root, 'commit', '-m', 'rename');
++  git(root, 'rm', '이름 변경.txt');
++  git(root, 'commit', '-m', 'delete');
++  const result = checkCommitRange(zero, git(root, 'rev-parse', 'HEAD'), root);
++  assert.equal(result.scannedCommits, 3);
++  assert.equal(result.scannedBlobs, 2);
++});
++
++test('merge resolution content is scanned against every parent', (t) => {
++  const root = repository(t);
++  const base = commit(root, 'conflict.txt', 'base\n');
++  git(root, 'checkout', '-b', 'side');
++  commit(root, 'conflict.txt', 'side\n');
++  git(root, 'checkout', 'main');
++  commit(root, 'conflict.txt', 'main\n');
++  const merge = spawnSync('git', ['merge', 'side'], { cwd: root, encoding: 'utf8' });
++  assert.equal(merge.status, 1);
++  const head = commit(root, 'conflict.txt', `${token}\n`, 'merge resolution fixture');
++  rejectsSecret(() => checkCommitRange(base, head, root));
++});
++
++test('commit messages and annotated tag messages are scanned', (t) => {
++  const root = repository(t);
++  const base = commit(root, 'base.txt', 'safe\n');
++  git(root, 'tag', '-a', 'annotated', '-m', token);
++  const tag = git(root, 'rev-parse', 'refs/tags/annotated');
++  rejectsSecret(() => checkCommitRange(zero, tag, root));
++  const head = commit(root, 'next.txt', 'safe\n', token);
++  rejectsSecret(() => checkCommitRange(base, head, root));
++});
++
++test('outgoing has no branch, deletion or force-update restrictions and deduplicates commits', (t) => {
++  const root = repository(t);
++  const base = commit(root, 'base.txt', 'safe\n');
++  const head = commit(root, 'next.txt', 'safe\n');
++  const result = checkOutgoingRefs(
++    [
++      `refs/heads/main ${head} refs/heads/main ${zero}`,
++      `refs/heads/another ${head} refs/heads/another ${zero}`,
++      `(delete) ${zero} refs/heads/old ${head}`,
++      `refs/heads/same ${base} refs/heads/same ${base}`,
++      `refs/heads/rewind ${base} refs/heads/rewind ${head}`,
++    ].join('\n'),
++    root
++  );
++  assert.equal(result.scannedCommits, 2);
++  assert.equal(result.scannedRefs, 3);
++  assert.equal(result.deletedRefs, 1);
++  assert.equal(result.unchangedRefs, 1);
++});
++
++test('missing objects, malformed IDs, unsupported tags and shallow history fail closed', (t) => {
++  const root = repository(t);
++  const base = commit(root, 'base.txt', 'safe\n');
++  const head = commit(root, 'next.txt', 'safe\n');
++  assert.throws(() => checkCommitRange('1'.repeat(40), head, root), /git cat-file failed/);
++  assert.throws(() => checkCommitRange('HEAD~1', head, root), /full Git object ID/);
++  assert.throws(() => checkOutgoingRefs('malformed', root), /four pre-push input fields/);
++  assert.throws(
++    () => checkCommitRange(zero, git(root, 'rev-parse', 'HEAD:next.txt'), root),
++    /Only commit/
++  );
++  writeFileSync(join(root, '.git/shallow'), `${base}\n`);
++  assert.throws(() => checkCommitRange(base, head, root), /shallow checkout/);
++});
++
++test('restoring a worktree hook setting preserves wrappers, original hooks and neighboring config', (t) => {
++  const root = repository(t);
++  commit(root, 'base.txt', 'safe\n');
++  git(root, 'config', '--local', '--unset', 'core.hooksPath');
++  git(root, 'config', 'extensions.worktreeConfig', 'true');
++  const neighbor = join(root, 'neighbor');
++  git(root, 'worktree', 'add', '-b', 'neighbor', neighbor);
++  git(neighbor, 'config', '--worktree', 'test.marker', 'preserved');
++  const hook = join(root, '.git/hooks/pre-commit');
++  writeFileSync(
++    hook,
++    '#!/bin/sh\nprintf called >> "$(git rev-parse --git-common-dir)/original-called"\n'
++  );
++  chmodSync(hook, 0o755);
++  const wrappers = join(root, '.git/harness-hooks');
++  mkdirSync(wrappers);
++  const wrapper = join(wrappers, 'pre-commit');
++  writeFileSync(wrapper, '#!/bin/sh\nexit 1\n');
++  chmodSync(wrapper, 0o755);
++  git(root, 'config', '--worktree', 'core.hooksPath', wrappers);
++  stage(root, 'new.txt', 'safe\n');
++  const denied = spawnSync('git', ['commit', '-m', 'ordinary message'], {
++    cwd: root,
++    encoding: 'utf8',
++  });
++  assert.equal(denied.status, 1);
++  git(root, 'config', '--worktree', '--unset', 'core.hooksPath');
++  git(root, 'commit', '-m', 'ordinary message without task trailers');
++  assert.equal(readFileSync(join(root, '.git/original-called'), 'utf8'), 'called');
++  assert.equal(readFileSync(wrapper, 'utf8'), '#!/bin/sh\nexit 1\n');
++  assert.equal(git(root, 'config', 'extensions.worktreeConfig'), 'true');
++  assert.equal(git(neighbor, 'config', '--worktree', 'test.marker'), 'preserved');
++});

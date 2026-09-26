@@ -1,0 +1,32 @@
+{
+  "verifiedAt": "2026-09-26T06:48:28.506772+00:00",
+  "branch": "docs/git-governance-design-archive",
+  "commit": "20c7863150bd071e32d20507d5a48c004430c0e6",
+  "remoteFiles": [
+    {
+      "path": "worklog/2026-09-25/git-governance/design-archive/README.md",
+      "gitBlob": "6b67c85ee628191047ebd8b5372613f546315e1b",
+      "sha256": "175ee3e5175c72fab97e493df856239292378d5a44b327f1816b298fc5a6c1ad",
+      "bytes": 2973,
+      "matchesLocal": true,
+      "url": "https://github.com/JeahaOh/blariyo/blob/20c7863150bd071e32d20507d5a48c004430c0e6/worklog/2026-09-25/git-governance/design-archive/README.md"
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/design-archive/git-workflow.md",
+      "gitBlob": "d248a1a24a22effc86e546e12a4cdbd424b23729",
+      "sha256": "7ffa57077a532cbe4261368375c64a5f1e478df276c1643c595656b2f3b1ad35",
+      "bytes": 83843,
+      "matchesLocal": true,
+      "url": "https://github.com/JeahaOh/blariyo/blob/20c7863150bd071e32d20507d5a48c004430c0e6/worklog/2026-09-25/git-governance/design-archive/git-workflow.md"
+    },
+    {
+      "path": "worklog/2026-09-25/git-governance/design-archive/harness-implementation-plan.md",
+      "gitBlob": "32eea542539be6c75fbaa1035a76a232999a5091",
+      "sha256": "196088d578acfe9d7e16eec1e18c6044b64aa242b7a3f87820d865f7fb945b06",
+      "bytes": 65589,
+      "matchesLocal": true,
+      "url": "https://github.com/JeahaOh/blariyo/blob/20c7863150bd071e32d20507d5a48c004430c0e6/worklog/2026-09-25/git-governance/design-archive/harness-implementation-plan.md"
+    }
+  ],
+  "passed": true
+}

@@ -5,6 +5,7 @@
 - Git 확인: 2026-09-26 점검 종료·후속 문서 갱신 기준 `release@02c041a`, 로컬 `origin/release` 추적 참조보다 1커밋 앞섰다. 기존 worklog 미커밋 변경을 보존했으며 원격 상태를 새로 조회한 결과는 아니다. [동기화 기록](../worklog/2026-09-26/m0-progress-audit/STATUS-SYNC.md).
 - 과거 전체 goal의 `blocked` 기록은 당시 선행 조건 판단이다. 현재 도구 상태나 기능 폐기를 뜻하지 않는다.
 - 상세 실행 순서는 [잔여 과정](roadmap.md), 실제 커밋 식별자는 [진행 보관·커밋 기록](../worklog/2026-09-23/progress-checkpoint.md)을 따른다.
+- 9/26 최종 결정: 운영 DB 백업만 Google Drive로 전환하고 공개 전·공개 이미지/첨부는 기존 R2를 유지한다. [백업 전환 조건](planning/02-infra-plan.md#6-데이터와-저장소-원칙)은 잔여이며 구현·운영 전환은 미완료다. 에펨코리아·뽐뿌·유튜브 커뮤니티 [재분석 task](../worklog/2026-09-26/collection-source-reanalysis/README.md)는 생성 완료·분석 대기다.
 
 ## 완료 범위와 남은 조건
 
@@ -14,7 +15,7 @@
 | 로컬 실행 P0-04 | 격리 실행기의 예약·이미지 회수 worker, 중복 소유 방지·재시작·실패 복구와 실제 시각 검증 | 운영자가 직접 수행하는 인수 12건 |
 | CI A-1/P1-07 | Java fixture 준비·Collector job·로컬 macOS/Linux 재현. SHA `5c581c2`의 원격 verify/collector/API·Web images 성공·digest 확인 | 다음 후보 SHA의 원격 CI·digest 확인, Windows·별도 PC 검증 |
 | Direct 검수 P1-02 | 정식 메뉴·필터·검수/반려·초안 이동·불확실 응답 복구. 9/23 운영 검수 flag ON, 내부 service 108건 조회·16개 출처 미리보기 | 실제 MFA 운영자 화면 조작·Access·원격 object 인수. QD-04 보존·고지 별도 |
-| 사이트 모듈 P1-06 | 21 adapter·21 상세·19 목록 parser 분리, 기존 결과 보존 | direct robots/Crawl-delay·영속 일일 budget·redirect 상한 보완, 누락 실제 표본·차단 4개 재개 조건 |
+| 사이트 모듈 P1-06 | 21 adapter·21 상세·19 목록 parser 분리, 기존 결과 보존 | 요청 통제 보완과 검증된 M0 적용 목록의 수용 증거. 차단·미검증은 후속 후보이며 전체 21개 통과 조건 아님 |
 | 문서 정합성 P1-01 | D01~D03의 direct/legacy 저장·권한·검수 규칙 정렬 | Web 입력/source 변경 권한 QD-03, 보존·고지 계약 QD-04, legacy API/DB 본문 상한 1000/40 불일치 |
 | 배포·DB 반영 P0-05 | 9/23 `5c581c2` CI·GHCR digest→API/Web 배포, API V008·Collector V006, 게시글 74·이미지 308 공개·전수 readback, 전후 백업 다운로드·격리 복원 | 현재 상태 재조회, 실제 MFA 작성/업로드/발행/숨김·예약/알림 인수, 다음 배포 후보별 호환성·백업·복귀 확인. 실제 rollback·재부팅 미검증 |
 | 검색엔진 설정·GTM 공개 반영 | 9/26 robots 앱 규칙·사이트맵 XML·API/health noindex·공개 HTML의 GTM 삽입 확인 | 현재 배포 SHA/digest, 비공개 글 제외 전수 대조·검색 색인, GTM 실제 태그·동의·공개 정책·GA4 수신 검증 |
@@ -99,7 +100,7 @@
 1. 운영자가 준비된 [격리 인수 환경](testing/operator-acceptance.md)에서 반복 업무 12건을 수행하고 혼동·재작업·실패를 기록한다. 별도로 승인된 운영 콘텐츠 범위에서 실제 Access MFA 세션의 작성·업로드·발행·예약·취소·숨김을 인수한다. 인증 비밀은 전달하지 않는다.
 2. 운영 담당이 현재 release·flag·DB ledger·백업/timer·공개 API를 먼저 읽기 전용으로 재조회한다. 그 결과에 따라 별도 운영 시나리오에서 예약 실행·알림 실수신·복귀 가능성을 검증한다. 다음 배포에는 최근 18시간 이내 백업·복원 증거가 필요하며, 9월 23일 백업과 공개 수량을 현재값으로 재사용하지 않는다.
 3. 다음 코드 배포가 필요하면 [배포 실행서](operations/deployment-runbook.md)에 따라 그 후보 SHA의 원격 CI·digest, V008/Collector V006 호환성, 최신 백업·복원 및 복귀 경로를 새로 대조한다. V008에서 9월 20일 구 API는 readiness 503이다.
-4. 수집은 QD-03 입력/source 소유권과 QD-04 direct 보관/회수·법무 고지 계약을 결정한다. 운영 검수 flag ON을 URL·Discord·자동 수집 활성화나 QD-04 충족으로 해석하지 않는다.
+4. 9/26 최종 결정: 이미지·첨부·원문 HTML·본문은 검수 완료·반려 후 7일 삭제, 미검수는 수집일부터 28일, 중복 방지용 최소 식별자는 무기한 보관한다. 검증된 출처만 M0 범위다. QD-03 초기 출처 설정은 개발자 설계 위임을 유지하고 QD-04의 기술 계약·고지·회수 구현은 잔여다. 사용자가 서버·백업을 관리하고 친구는 게시물 권한만 갖는다. Discord 채널은 사용자 보고로 생성 완료·현재 사용자만 참여하며 실연동·수신은 미검증이다. 수집 장비는 Raspberry Pi 4 후보로 실연동 전 선택한다. [최신 결정](../worklog/2026-09-26/m0-completion-plan/README.md#retention-scope-roles-20260926)을 따르며, 문서 반영을 운영 적용 완료로 해석하지 않는다.
 5. direct의 robots/Crawl-delay·영속 일일 budget 연결과 redirect 상한 차이를 먼저 보완한다([코드 대조 근거](system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)). 비운영 DB/object·Discord 시험 대상과 실행 PC/OS가 정해지면 다른 PC batch·원격 권한·Gateway를 실연동한다. 출처별 활성화와 실제 7일 관찰은 별도다.
 
 ## 보존된 로컬 자원

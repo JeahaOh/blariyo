@@ -66,9 +66,16 @@ Cloudflare 장애가 공개 origin 전체 장애로 이어질 수 있는 의존�
 
 ### 이미지·백업 저장소
 
+2026-09-26 최종 공급자 선택은 **운영 DB 백업만 Google Drive**, 공개 전·공개 이미지/첨부는 기존 R2 유지다.
+[인프라 계획](../planning/02-infra-plan.md#6-데이터와-저장소-원칙)을 따른다. 아래 R2 backup bucket·구성도·backup credential은
+전환 전 현행 구현 계약이며 새 백업 공급자 선택을 대체하지 않는다. R2 private/collect·public media 계약은 유지한다.
+Drive 계정·용량·연결 정보는 실연동 전 확인하며 서버·백업 관리 권한은 사용자만 갖는다. DB 백업 전환 조건과 현행 일정·최근 7일 보존은
+[보안·운영 §9](05-security-operations.md#9-백업)를 따르며 Drive 구현·실제 복원 검증은 남아 있다.
+
 | 후보 | 가격·무료 구간 | 판단 |
 | --- | --- | --- |
-| Cloudflare R2 Standard | 10GB-month, Class A 100만, Class B 1,000만/월 무료; egress 무료 | 기본 선택 |
+| Cloudflare R2 Standard | 10GB-month, Class A 100만, Class B 1,000만/월 무료; egress 무료 | 공개 전·공개 이미지/첨부 유지. DB backup은 전환 전 구현 |
+| Google Drive | 사용할 계정·용량·비용 미정 | 운영 DB 백업만 선택. 전환 구현·검증 잔여 |
 | Backblaze B2 | 첫 10GB 무료, 이후 약 `$6.95/TB-month`; egress 정책 별도 | R2 정책 변경 시 대안 |
 | VM local disk | VM 요금 포함 | 임시 staging만 허용, 유일 원본 금지 |
 | AWS S3 | 안정적이지만 storage·request·egress 분리 과금 | M0 비용상 제외 |
@@ -433,7 +440,7 @@ preview 저장량과 PUT/GET/DELETE 비용은 위 영구 원본 예산에 포함
 - `REMOVED` 게시글의 private canonical 원본은 30일 복구 유예 뒤 삭제한다.
 - 수동 업로드는 파일당 10MiB·요청당10개, 게시글은 IMAGE 최대200개다. direct는 파일당30MiB 등 별도 [수집 한도](07-spring-collector-design.md)를 따른다.
 - R2 저장량 7GB 알림·9GB 비용 검토는 운영 목표다. 자동 업로드 차단 구현으로 표시하지 않으며 정상 사용 실패를 피하도록 승인·유료 전환·정리 대상을 검토한다.
-- DB backup은 12시간 간격 최근 28개(14일), weekly 8개를 유지하고 총 4GB 예산을 잡는다.
+- DB backup은 [보안·운영 §9](05-security-operations.md#9-백업)에 따라 매일 03:30·15:30 KST, 최근 7일을 유지하며 M0 주간 보존 사본은 만들지 않는다. 2026-09-26 결정으로 목적지는 Google Drive이며 전환 전 현행 도구는 R2를 사용한다. Drive 제공 용량·비용은 계정 확인 후 산정한다.
 
 ## 9. 비용 전환 기준
 

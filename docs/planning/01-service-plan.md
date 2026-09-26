@@ -291,7 +291,7 @@ legacy 출처 수정 화면은 기존 후보 테이블을 변경한다. 그 화�
 - 로그인·CAPTCHA·유료 장벽·접근 차단을 우회하지 않는다. 허용 host·공인 주소·robots·요청 간격·상한·연락 수단을 확인한다.
 - 위 통제는 요구사항이다. 현재 direct 경로에는 robots/Crawl-delay·영속 일일 총량 연결과 redirect 상한 차이가 남아 있다.
   [수집 기술 설계](../system-design/07-spring-collector-design.md)와 [P1-06](../roadmap.md)에서 추적하며, 목록·단건·queue 활성화 전에 검증한다.
-- direct raw/media/report/queue의 보존 기간과 승격 후 원본 유지 여부는 `(미정)`이다. legacy metadata의 30일·preview 24시간을 자동 적용하지 않는다.
+- direct 이미지·첨부·원문 HTML·본문은 검수 완료·반려 후 7일 삭제, 미검수 자료는 수집일부터 4주(28일), 중복 방지용 최소 식별자는 무기한 보관한다. **M0에는 검증된 출처만 포함**하며 세부 계약은 [수집 기획의 9/26 결정](content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다. legacy metadata의 30일·preview 24시간을 자동 적용하지 않는다.
   현재 개인정보처리방침의 수집 설명과 실제 저장 범위·자동 파기를 맞추는 작업도 해당 수집 기능 활성화 전에 완료한다.
 - 출처 표시는 권리 확보를 뜻하지 않으며 권리자 요청 처리 절차는 §3을 따른다.
 

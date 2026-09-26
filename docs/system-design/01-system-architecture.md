@@ -6,6 +6,10 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 - 문서 대조일: 2026-09-24 (새 runtime 검증 아님)
 - 관련 문서: [데이터 모델](02-data-model.md), [API 설계](03-api-design.md), [인프라 설계](04-infrastructure-design.md), [보안·운영](05-security-operations.md)
 
+> 2026-09-26 최종 저장소 결정: **운영 DB 백업만 Google Drive**를 사용한다.
+> [인프라 계획](../planning/02-infra-plan.md#6-데이터와-저장소-원칙)이 공급자 선택 정본이다. 본문의 R2 backup 경로는 전환 전 현행 구현이며 Drive 전환·운영 검증은 미완료다.
+> 운영 DB는 PostgreSQL, 공개 전 자료·이미지/첨부는 기존 R2 private/collect, 공개 이미지는 R2 public media를 유지한다. 미리보기·발행 저장소를 Drive로 바꾸지 않는다.
+
 ## 1. 목표와 제약
 
 ### 목표

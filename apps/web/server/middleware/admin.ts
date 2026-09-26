@@ -1,3 +1,5 @@
+import { adminReturnPath } from '../../shared/admin-return';
+
 export default defineEventHandler(async (event) => {
   const path = getRequestURL(event).pathname;
   setHeader(event, 'X-Content-Type-Options', 'nosniff');
@@ -12,9 +14,18 @@ export default defineEventHandler(async (event) => {
     setHeader(event, 'X-Robots-Tag', 'noindex');
   if (path === '/admin' || path.startsWith('/admin/')) {
     setHeader(event, 'Cache-Control', 'private, no-store');
+    if (path === '/admin/login') return;
     try {
       await adminIdentity(event);
     } catch (e: unknown) {
+      if (errorStatus(e) !== 403 && localAdminLoginAvailable(event)) {
+        const url = getRequestURL(event);
+        return sendRedirect(
+          event,
+          '/admin/login?returnTo=' + encodeURIComponent(adminReturnPath(url.pathname + url.search)),
+          302
+        );
+      }
       throw createError({
         statusCode: errorStatus(e) || 401,
         message: '관리자 인증이 필요합니다.',

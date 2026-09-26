@@ -343,9 +343,18 @@ a.post-row:hover {
   margin: 0;
 }
 .article-body {
+  position: relative;
   padding: 30px 20px 24px;
   font-size: 17px;
   line-height: 1.8;
+}
+.analytics-depth-marker {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  opacity: 0;
+  pointer-events: none;
 }
 .article-body > p {
   margin: 0 0 18px;

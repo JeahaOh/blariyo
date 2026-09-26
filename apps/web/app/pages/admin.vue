@@ -7,6 +7,10 @@ const route = useRoute();
 const uploadErrors = ref<ReturnType<typeof uploadError>['details']>([]);
 const validation = ref<Record<string, string>>({});
 const requestFetch = useRequestFetch();
+const batchItemId = computed(() => {
+  const value = String(route.query.batchItemId || '');
+  return /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value) ? value : '';
+});
 const { data: search, error } = await useAsyncData('admin-search', () =>
   requestFetch<ApiResponse<'searchAdminPosts'>>('/api/v1/admin/posts')
 );
@@ -458,7 +462,11 @@ onBeforeRouteLeave(
 <template>
   <main class="admin-page">
     <h1>게시글 관리</h1>
-    <AdminNavigation />
+    <p v-if="batchItemId">
+      <NuxtLink :to="{ path: '/admin/batch', query: { itemId: batchItemId } }"
+        >← 수집 검수로 돌아가기</NuxtLink
+      >
+    </p>
     <p role="status">{{ message }}</p>
     <p v-if="busy" role="status">{{ taskLabel }}</p>
     <div v-if="recovery" role="alert" class="notice">

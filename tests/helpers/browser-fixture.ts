@@ -30,6 +30,7 @@ export async function browserFixture(
     collection = false,
     spring = false,
     batchReview = false,
+    localAdminLogin = true,
     rightsEmail = '',
     contactEmail = '',
   }: {
@@ -37,6 +38,7 @@ export async function browserFixture(
     collection?: boolean;
     spring?: boolean;
     batchReview?: boolean;
+    localAdminLogin?: boolean;
     rightsEmail?: string;
     contactEmail?: string;
   } = {}
@@ -186,6 +188,7 @@ export async function browserFixture(
       NUXT_PUBLIC_SITE_ORIGIN: origin,
       NUXT_CORE_ORIGIN: await app.getUrl(),
       NUXT_ADMIN_AUTH_MODE: 'local',
+      NUXT_LOCAL_ADMIN_LOGIN_ENABLED: String(localAdminLogin),
       NUXT_LOCAL_ADMIN_TOKEN: adminToken,
       NUXT_SERVICE_TOKEN: serviceToken,
       NUXT_ACTOR_SECRET: randomBytes(32).toString('hex'),

@@ -9,15 +9,108 @@ import { launchBrowser } from '../helpers/launch-browser.ts';
 import { firstRow, object } from '../helpers/browser-values.ts';
 
 await test(
+  'local administrator login is loopback-only, same-origin and returns to an allowlisted page',
+  { timeout: 60000 },
+  async (t) => {
+    const f = await browserFixture(t, { localAdminLogin: true }),
+      browser = await launchBrowser();
+    t.after(() => browser.close());
+    const context = await browser.newContext(),
+      page = await context.newPage();
+    const endpoint = f.origin + '/api/admin/local-session';
+    const sessionResponse = await context.request.get(f.origin + '/api/admin/session');
+    assert.equal(sessionResponse.status(), 200, await sessionResponse.text());
+    assert.deepEqual(await sessionResponse.json(), {
+      authenticated: false,
+      localLoginAvailable: true,
+    });
+    assert.equal((await context.request.post(endpoint, { data: {} })).status(), 403);
+    assert.equal(
+      (
+        await context.request.post(endpoint, {
+          data: {},
+          headers: { Origin: 'http://evil.invalid' },
+        })
+      ).status(),
+      403
+    );
+    assert.equal(
+      (
+        await context.request.post(endpoint, {
+          data: {},
+          headers: { Origin: f.origin, 'X-Forwarded-For': '127.0.0.1' },
+        })
+      ).status(),
+      404
+    );
+    await page.goto(f.origin + '/admin?status=DRAFT');
+    await expect(page).toHaveURL(/\/admin\/login\?returnTo=/);
+    await expect(page.getByRole('button', { name: '개발 관리자 로그인' })).toBeVisible();
+    await page.goto(
+      f.origin + '/admin/login?returnTo=' + encodeURIComponent('https://evil.invalid/out')
+    );
+    await expect(page.getByRole('button', { name: '개발 관리자 로그인' })).toBeVisible();
+    await mkdir('.local-data/admin-ux-rework/screenshots', { recursive: true });
+    for (const width of [1280, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      await page.screenshot({
+        path: `.local-data/admin-ux-rework/screenshots/admin-login-${width}.png`,
+        fullPage: true,
+      });
+    }
+    await page.getByRole('button', { name: '개발 관리자 로그인' }).click();
+    await expect(page).toHaveURL(f.origin + '/admin');
+    await expect(page.getByRole('heading', { name: '게시글 관리', exact: true })).toBeVisible();
+    for (const width of [1440, 1280, 768, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      await page.screenshot({
+        path: `.local-data/admin-ux-rework/screenshots/admin-posts-${width}.png`,
+        fullPage: true,
+      });
+    }
+    const cookie = (await context.cookies()).find(
+      (entry) => entry.name === 'BLARIYO_ADMIN_SESSION'
+    );
+    assert.ok(cookie?.httpOnly);
+    assert.equal(cookie.sameSite, 'Strict');
+    await page.getByRole('link', { name: '세션 관리' }).click();
+    await expect(page).toHaveURL(/\/admin\/login\?returnTo=/);
+    const logoutResponse = page.waitForResponse(
+      (response) =>
+        response.url().endsWith('/api/admin/local-session') &&
+        response.request().method() === 'DELETE'
+    );
+    await page.getByRole('button', { name: '로그아웃' }).click();
+    assert.equal((await logoutResponse).status(), 200);
+    assert.deepEqual(await (await context.request.get(f.origin + '/api/admin/session')).json(), {
+      authenticated: false,
+      localLoginAvailable: true,
+    });
+    await expect(page).toHaveURL(/\/admin\/login\?returnTo=/);
+    await expect(page.getByRole('button', { name: '개발 관리자 로그인' })).toBeVisible();
+  }
+);
+
+await test(
   'batch review menu is authenticated and hidden when disabled',
   { timeout: 60000 },
   async (t) => {
-    const f = await browserFixture(t),
+    const f = await browserFixture(t, { localAdminLogin: false }),
       browser = await launchBrowser();
     t.after(() => browser.close());
     const context = await browser.newContext(),
       page = await context.newPage();
     assert.equal((await context.request.get(f.origin + '/api/admin/features')).status(), 401);
+    assert.deepEqual(await (await context.request.get(f.origin + '/api/admin/session')).json(), {
+      authenticated: false,
+      localLoginAvailable: false,
+    });
+    assert.equal(
+      (await context.request.post(f.origin + '/api/admin/local-session', { data: {} })).status(),
+      404
+    );
     await context.addCookies([
       { name: 'BLARIYO_ADMIN_SESSION', value: f.adminToken, url: f.origin },
     ]);
@@ -221,8 +314,8 @@ await test(
         const before = await sharp(bytes).raw().toBuffer(),
           after = await sharp(privateBytes).raw().toBuffer();
         assert.deepEqual(after, before);
-        await mkdir('test-results/m0-browser', { recursive: true });
-        for (const width of [320, 1280]) {
+        await mkdir('.local-data/admin-ux-rework/screenshots', { recursive: true });
+        for (const width of [1440, 1280, 768, 390, 320]) {
           await page.setViewportSize({ width, height: 900 });
           await page.evaluate(() => window.scrollTo(0, 0));
           assert.equal(
@@ -230,12 +323,15 @@ await test(
             true
           );
           await page.screenshot({
-            path: `test-results/m0-browser/batch-review-${width}.png`,
+            path: `.local-data/admin-ux-rework/screenshots/batch-review-${width}.png`,
             fullPage: true,
           });
         }
         const link = detail.getByRole('link', { name: '게시글 관리에서 열기' });
-        await expect(link).toHaveAttribute('href', '/admin?postId=' + String(row.post_id));
+        await expect(link).toHaveAttribute(
+          'href',
+          '/admin?postId=' + String(row.post_id) + '&batchItemId=' + item.id
+        );
         await link.click();
         await expect(page.getByLabel('제목', { exact: true })).toHaveValue('검수 후 선택 초안');
         await expect(page.getByLabel('본문 1', { exact: true })).toHaveValue('검수용 원문 첫 문단');
@@ -245,6 +341,24 @@ await test(
           ).status(),
           404
         );
+        await page.getByRole('button', { name: '즉시 발행', exact: true }).click();
+        await expect(page.getByRole('link', { name: '공개 게시글 보기' })).toBeVisible();
+        assert.equal(
+          (
+            await context.request.get(f.origin + '/api/v1/boards/meme/posts/' + String(row.post_id))
+          ).status(),
+          200
+        );
+        assert.equal(
+          firstRow(
+            await f.pool.query('SELECT status FROM content.board_post WHERE id=$1', [row.post_id])
+          ).status,
+          'PUBLISHED'
+        );
+        assert.equal((await f.storage.inventory('public')).length, 1);
+        await page.getByRole('link', { name: '수집 검수로 돌아가기' }).click();
+        await expect(page).toHaveURL(new RegExp('/admin/batch\\?itemId=' + item.id));
+        await expect(detail).toContainText('이미지·첨부 검수');
       }
     );
     await t.test(
@@ -391,7 +505,15 @@ await test(
               .click();
             await expect(page).toHaveURL(f.origin + '/admin/batch');
             stage = 'recovered';
-            await authenticate();
+            if (denial === 401) {
+              const authTabPromise = context.waitForEvent('page');
+              await page.getByRole('link', { name: '새 탭에서 다시 인증' }).click();
+              const authTab = await authTabPromise;
+              await expect(authTab.getByRole('button', { name: '개발 관리자 로그인' })).toBeVisible();
+              await authTab.getByRole('button', { name: '개발 관리자 로그인' }).click();
+              await expect(authTab).toHaveURL(`${f.origin}/admin/batch?itemId=${item.id}`);
+              await authTab.close();
+            } else await authenticate();
             await button('처리 결과 다시 확인').click();
             await expect(feedback).toContainText('초안');
             await expect(button('처리 결과 다시 확인')).toHaveCount(0);
@@ -519,14 +641,14 @@ await test(
         assert.equal(features.batchReview, true);
       }
     );
-    assert.equal((await f.storage.inventory('public')).length, 0);
+    assert.equal((await f.storage.inventory('public')).length, 1);
     assert.equal(
       Number(
         firstRow(
           await f.pool.query("SELECT count(*) FROM content.board_post WHERE status<>'DRAFT'")
         ).count
       ),
-      0
+      1
     );
   }
 );

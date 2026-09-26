@@ -4,19 +4,20 @@
 - 최신 상태·재개 입력·로컬 자원: [현재 진행 상황](status.md).
 - 실행 가능한 task 단위와 의존성: [구현 task 목록](implementation-tasks/README.md).
 
-- 기준: [9/23 마지막 운영 관측](operations/current-status.md), [요구사항 40개](development-specs/requirements-status.md). 2026-09-24 문서 갱신에서는 서버·DB·CI를 재조회하지 않았다. 단계·요구사항 ID와 미완료 조건을 유지하고 과거 실행 결과는 worklog에 보존한다.
+- 기준: [9/25 앱 배포·운영 상태](operations/current-status.md), [요구사항 40개](development-specs/requirements-status.md). DB·콘텐츠 반영은 9/23 기록과 구분한다. 단계·요구사항 ID와 미완료 조건을 유지하고 과거 실행 결과는 worklog에 보존한다.
 - 목표: **Core 관리자와 운영 흐름을 먼저 마감해 콘텐츠 운영을 시작하고, 수집 기능은 운영과 병행해 검증 후 활성화한다.**
 - 전제: 기존 Core/API·DB 모델을 재사용한다. 신규 관리자 프레임워크, 통계 대시보드, 회원·광고, 자동 발행을 추가하지 않는다.
-- 순서: P0-01~04의 개발자 로컬 작업과 P0-05의 9/23 배포·DB 반영 이후 **운영자 인수→운영 예약/알림·복귀 확인**이 다음 단계다. P1은 입력 계약·시험 자원이 준비된 범위부터 병행하고 P2는 실제 운영 기간으로 관찰한다.
+- 순서: P0-01~04의 개발자 로컬 작업, 9/23 DB·콘텐츠 반영과 9/25 API/Web·GTM 배포 이후 **운영자 인수→운영 예약/알림·복귀 확인**이 다음 단계다. P1은 입력 계약·시험 자원이 준비된 범위부터 병행하고 P2는 실제 운영 기간으로 관찰한다.
 - 과거 일정: P0 4–6 작업일, P1 추가 3–5 작업일은 최초 계획 당시 추정이다. 현재 잔여 공수나 납기로 재사용하지 않는다.
 
 ## 1. 다음 시작점
 
-검색엔진 설정의 로컬 구현·검증은 [현재 상태](status.md#검색엔진-설정--2026-09-24-로컬-변경)를 따른다.
-다음 승인된 API/Web 배포에서 `/robots.txt`의 Cloudflare+앱 규칙 병합, `/sitemap.xml`과 하위 XML,
-공개 글 포함·비공개 제외와 Web `noindex`를 확인한다. 검색엔진의 실제 수집·노출 반영은 별도로 확인한다.
+검색엔진 설정의 [운영 반영 결과](status.md#검색엔진-설정--2026-09-25-운영-반영)를 따른다.
+9/25 배포 후 robots의 Sitemap 안내·사이트맵 XML 200·공개 게시글 74개를 확인했다.
+남은 검사는 robots 전체 병합 규칙·비공개 URL 제외·Web 및 Access/Nginx 계층별 `noindex`, 실제 검색엔진 색인·노출이다.
+GTM 컨테이너 로딩은 완료됐으며 태그·동의 조건·공개 정책 대조·GA4 실제 수신은 별도 검증한다.
 
-현재 구현·검증은 [진행 상태](status.md)를 확인한다. SHA `5c581c2`의 CI·API/Web 배포와 운영 DB V008·Collector V006 반영은 [9/23 실행 기록](operations/current-status.md)으로 확인됐다. 다음 실행은 운영자 MFA 수동 인수, 현재 서버·백업/timer 재조회, 실제 예약/알림·복귀 확인이다. 수집은 QD-03/04/05/06 입력이 준비된 단계부터 병행한다. 이후 새 배포가 필요하면 후보 SHA별 CI·digest·호환성·백업을 다시 확인한다.
+현재 구현·검증은 [진행 상태](status.md)를 확인한다. `8af7244`의 CI·API/Web 배포·GTM 로딩과 API V008·Collector V006 유지, 새 백업 복원을 [9/25 실행 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)에서 확인했다. 다음 실행은 운영자 MFA 인수, 예약/알림·복귀 확인이다. 수집은 QD-03/04/05/06 입력이 준비된 단계부터 병행하고 다음 배포는 새 후보별로 검증한다.
 
 - 화면: 게시글 목록/검색, 기존 편집기, 상태별 저장·발행·예약·숨김, 이미지 preview, 권한·빈 결과·오류 상태.
 - desktop: 공통 관리 메뉴 + 목록/편집 2영역. mobile: 목록→편집 전환과 목록 복귀, 작은 화면에서도 저장 상태 확인.
@@ -33,7 +34,7 @@
 | P0-02 | 관리 메뉴·검색 목록·한국어 상태·날짜·loading/empty/error/retry | 상태/제목/게시판 검색, 게시판·수정일 표시, 빈 결과·오류 후 복구; 숨긴 수집 기능 메뉴 미노출 | P0-01 / 개발자 | 1–1.5일 |
 | P0-03 | 편집·이미지·저장 상태·상태별 액션 UI 마감 | 미저장 이탈 경고, 실패 파일 안내, 순서/alt/출처 편집, 예약·숨김·제거 확인, 중복 클릭 방지 | P0-02 / 개발자 | 0.5–1일 |
 | P0-04 | 격리 로컬 Core 회귀 완료; 운영자 반복 업무 인수 잔여 | 운영자가 10~20건 작성/편집, 즉시·예약·취소·숨김·재공개 완주; 시간·혼동·재작업·내용 유실·중복 발행 기록 | [인수 절차](testing/operator-acceptance.md) / 운영자+개발자 | 최초 계획 1–1.5일 |
-| P0-05 | 9/23 `5c581c2` CI·GHCR·API/Web 배포 및 V008/Collector V006·74건 공개·백업 복원 완료; 운영 인수 잔여 | 실제 Access MFA·업로드·발행·예약·숨김·알림, 현재 ledger/timer·최근 18시간 이내 백업/복원·V008 호환 복귀 경로 확인. 다음 배포는 새 후보별 검증 | 운영자 인수·운영 접근 / 운영 담당+개발자 | 최초 계획 0.5–1일 |
+| P0-05 | 9/25 `8af7244` CI·API/Web·GTM 운영 반영, 새 백업 복원·V008/Collector V006 유지 확인; 운영 인수 잔여 | 실제 Access MFA·업로드·발행·예약·숨김·알림, 다음 배포의 ledger/timer·최근 18시간 이내 백업/복원·호환 복귀 경로 확인 | 운영자 인수·운영 접근 / 운영 담당+개발자 | 최초 계획 0.5–1일 |
 
 ### P0-04 검증 묶음
 
@@ -58,6 +59,11 @@
 GA4 활성화 전에는 [분석 동의 명세](development-specs/m0-core/analytics-consent/analytics-consent.dev.md)의
 읽기·cookie 삭제 실패 안내 차이와 실제 Google 속성/자동 측정/network를 확인한다.
 GA4 OFF 상태의 Core 공개와 별개이며, 로컬 대체 tag 테스트를 실제 Google 검증으로 승계하지 않는다.
+
+분석 확장의 첫 구현 계약은 [analytics-v1 명세 §13](development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)로
+확정했다. Core 공개 키·OpenAPI/타입 → 동의 v3·단일 adapter·9개 이벤트 → 격리 검증 → 실제 고지·GTM/GA4/BQ
+설정·일별 수신 → 핵심 집계 대조 순으로 진행한다. 직접 GA4가 유일한 전송 담당이며 같은 목적지의 GTM 태그는
+중지·검증해야 한다. 이는 별도 확장 개발 순서이며 현재 P0 완료·운영 활성화를 뜻하지 않는다.
 
 정책 viewer는 이력 선택 뒤 본문 상단 이동 계약에 대한 명시 처리가 없다(`PolicyViewer.vue`). 긴 본문에서 버전 전환·스크롤/포커스 회귀를 보완한다. [정책·권리 명세](development-specs/m0-core/policy-and-rights/policy-and-rights.dev.md)의 잔여 화면 조건이며 실제 브라우저 장애를 이번 문서 검토에서 재현한 것은 아니다.
 
@@ -215,9 +221,9 @@ Java fixture·migration 회귀를 보완했고 SHA `5c581c2`의 원격 verify·c
 
 ### F. P0-05 배포 준비와 승인 후 운영 검증
 
-상태: **9월 23일 SHA `5c581c2` 원격 CI·API/Web 배포, API V008·Collector V006 DB 반영·74건 공개·백업 복원 확인 / 실제 MFA 관리자 인수·rollback·재부팅 미실행**. 당시 결과는 [앱 배포](../worklog/2026-09-23/release/production-deployment-5c581c2.md)와 [DB·콘텐츠 반영](../worklog/2026-09-23/release/production-db-promotion.md)에 있다. [V005 로컬 후보](../worklog/2026-09-23/release/candidate.md)의 유지 권고는 DB 반영 전 판단이다.
+상태: **9월 25일 `8af7244` CI·API/Web·GTM 운영 반영, API V008·Collector V006 유지·새 백업 복원 확인 / 실제 MFA 관리자 인수·rollback·재부팅 미실행**. [9/25 앱 배포](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)와 [9/23 DB·콘텐츠 반영](../worklog/2026-09-23/release/production-db-promotion.md)을 구분한다. [V005 로컬 후보](../worklog/2026-09-23/release/candidate.md)는 DB 반영 전 판단이다.
 
-- 운영 담당: 현재 release·부팅 helper·실행 digest·DB ledger/checksum·flag·timer·최신 백업을 읽기 전용으로 재조회한다. 이 조회는 9월 23일 결과를 현재값으로 고정하지 않기 위한 선행 작업이다.
+- 운영 담당: 현재 release·부팅 helper·실행 digest·DB ledger/checksum·flag·timer·최신 백업을 읽기 전용으로 재조회한다. 이 조회는 9월 25일 배포 결과를 다음 작업의 현재값으로 고정하지 않기 위한 선행 작업이다.
 - 운영자+개발자: 별도 승인된 운영 콘텐츠 범위에서 실제 Access MFA 허용/거부, 작성·업로드·발행·예약·취소·숨김·R2/CDN 회수·알림 실수신을 확인한다. 격리 인수 환경의 12건 측정은 E에서 별도로 진행한다.
 - 다음 배포가 필요하면 [정책](operations/deployment-policy.md)과 [실행서](operations/deployment-runbook.md)에 따라 그 후보 SHA의 CI·digest·설정·V008/Collector V006 호환성·최근 18시간 이내 새 백업/복원·복귀 경로를 대조한다. V008에서 9월 20일 구 API는 readiness 503이고, 실제 운영 rollback·VM 재부팅은 아직 시험하지 않았다.
 

@@ -162,8 +162,8 @@ await test(
       localStorage.setItem(
         'blariyo_consent',
         JSON.stringify({
-          version: 2,
-          scope: 'analytics',
+          version: 3,
+          scope: 'analytics_v1',
           analytics: true,
           ads: false,
           savedAt: new Date().toISOString(),

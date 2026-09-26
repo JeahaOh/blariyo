@@ -1120,11 +1120,14 @@ components:
             $ref: "#/components/schemas/PostListItem"
     PostListItem:
       type: object
-      required: [postId, title, viewCount, authorLabel, publishedAt, path]
+      required: [postId, analyticsContentKey, title, viewCount, authorLabel, publishedAt, path]
       properties:
         postId:
           type: integer
           minimum: 1
+        analyticsContentKey:
+          type: string
+          pattern: "^p1_[a-f0-9]{64}$"
         title:
           type: string
           minLength: 1
@@ -1151,11 +1154,14 @@ components:
           $ref: "#/components/schemas/PostContext"
     PublicPost:
       type: object
-      required: [postId, board, title, authorLabel, publishedAt, viewCount, blocks, source, shareUrl]
+      required: [postId, analyticsContentKey, board, title, authorLabel, publishedAt, viewCount, blocks, source, shareUrl]
       properties:
         postId:
           type: integer
           minimum: 1
+        analyticsContentKey:
+          type: string
+          pattern: "^p1_[a-f0-9]{64}$"
         board:
           $ref: "#/components/schemas/BoardSummary"
         title:

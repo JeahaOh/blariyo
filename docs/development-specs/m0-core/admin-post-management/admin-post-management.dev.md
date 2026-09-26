@@ -26,6 +26,7 @@
 - 진입: `/admin`
 - 선행: BFF `AdminIdentityProvider`, Core service token·actor, 활성 게시판, R2 private/public 분리
 - 외부 인증 장애는 관리자 작업만 중지하며 공개 목록·상세는 유지한다.
+- 개발 환경의 화면 로그인은 [로컬 개발 관리자 진입](../../../system-design/05-security-operations.md#로컬-개발-관리자-진입)을 따른다. 관리자 공통 레이아웃과 원문 검수↔초안 편집 연결은 [화면 설계](../../../planning/03-screen-design.md#관리자-게시글-화면)를 따른다.
 
 ## 4. 범위와 범위 밖
 

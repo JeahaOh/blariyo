@@ -3,7 +3,10 @@ export default defineNuxtPlugin((nuxt) => {
   const config = useRuntimeConfig().public,
     route = useRoute(),
     consent = useConsent();
-  const pageView = () => runtime.pageView(route.fullPath, route.path);
+  const pageView = () =>
+    runtime.pageView(route.fullPath, route.path, {
+      list_page: /^\/[^/]+$/.test(route.path) ? Number(route.query.page || 1) : undefined,
+    });
   consent.refresh();
   const runtime = analyticsRuntime<HTMLScriptElement>({
     window,

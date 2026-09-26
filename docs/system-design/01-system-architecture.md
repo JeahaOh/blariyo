@@ -186,6 +186,12 @@ collector 파일 중계 부하를 받으므로 preview를 파일당 10MiB로 제
 
 GA4 기본 `page_title`, `page_location`, `page_referrer`도 [분석 계획 §4](../planning/04-analytics-ad-plan.md)의 고정값 규칙을 따른다. 자동 page view와 향상된 측정을 끄고, 실제 제목·URL·postId가 기본 필드로 전송되지 않는지 network 검증을 운영 활성화 조건에 포함한다.
 
+`analytics-v1`은 [분석 계획 §4.1](../planning/04-analytics-ad-plan.md#41-첫-확장-구현-확정--analytics-v1)의
+9개 수동 이벤트를 Web의 단일 adapter가 직접 GA4로 전송하는 확정 설계다. 동일 GA4 목적지의 GTM
+전송은 사용하지 않는다. Core는 공개 응답의 분석용 콘텐츠 키만 생성하고 BFF는 계약 검증·중계만 한다.
+자체 이용 이벤트 API·DB는 추가하지 않는다. GA4→BigQuery 일별 내보내기와 기본 집계는 첫 구현에서 제외하고 후속 조건으로 둔다.
+실제 연결·보관·비용·운영 수신은 미검증이다. 세부 필드·동의 전환은 [기능 명세 §13](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)을 따른다.
+
 ## 5. 주요 흐름
 
 ### 목록 조회

@@ -1,0 +1,23 @@
+node_modules
+.git
+.local-data
+**/build
+**/dist
+**/.nuxt
+**/.output
+test-results
+worklog
+codex-session-*.md
+.quality/baseline.candidate.json
+
+# Hash-locked migration and contract artifacts; edits require explicit contract evolution.
+apps/api/migrations/**/*.sql
+apps/collector/src/main/resources/db/**/*.sql
+scripts/content/migrations/**/*.sql
+packages/contracts/openapi/m0-collection-assist.yaml
+packages/contracts/openapi/m0-core.yaml
+packages/contracts/src/api.d.ts
+packages/contracts/src/collection-api.d.ts
+packages/contracts/src/schema.mjs
+docs/development-specs/m0-core/openapi/m0-core.yaml
+docs/development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml

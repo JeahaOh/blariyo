@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "branchRoles": {
+    "main": { "purpose": "production-release", "directPush": false },
+    "develop": { "purpose": "integration", "directPush": false },
+    "feature": { "pattern": "feature/<task-id>-<slug>", "base": "develop", "targets": ["develop"] },
+    "release": {
+      "pattern": "release/<version>",
+      "base": "develop",
+      "targets": ["main", "develop"],
+      "directPush": false
+    },
+    "hotfix": {
+      "pattern": "hotfix/<task-id>-<slug>",
+      "base": "production-sha",
+      "targets": ["main", "develop", "active-release"],
+      "directPush": false
+    }
+  },
+  "activeRelease": null,
+  "developBootstrapSha": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+  "taskManifestDirectory": ".harness/tasks",
+  "commitMessage": {
+    "conventionalTypes": [
+      "feat",
+      "fix",
+      "docs",
+      "style",
+      "refactor",
+      "test",
+      "build",
+      "ci",
+      "perf",
+      "chore"
+    ],
+    "requireTrailers": ["Task-Id", "Change-Id"],
+    "changeIdFormat": "uuid"
+  }
+}

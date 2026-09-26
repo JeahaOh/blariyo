@@ -299,24 +299,25 @@ legacy 전환 조건을 포함하며 Core 실제 운영 관찰과 구분해 사�
 
 ## 개발 도구 — Git·harness 도입 계획
 
-- [설계](ai/git-workflow.md), [구현 계획](ai/harness-implementation-plan.md), [복구·원격 확인 근거](../worklog/2026-09-25/git-governance/STASH-RECOVERY.md)를 따른다. stash 복구 6단계는 완료했고 HARN-01~07 전체 도입은 부분 구현이다.
-- 완료된 선행 조건: 운영 SHA `8af7244`에서 local/remote develop 생성·tracking, 원본 변경 보존, 별도 복구 worktree, 전체 로컬 lint·SQL·핵심 회귀와 단계별 commit. 원본 복구 branch는 보존하고 분리한 6개 검토 branch를 push해 Draft PR #3~#8을 생성했다. develop 통합은 하지 않았다.
+- [설계](ai/git-workflow.md), [구현 계획](ai/harness-implementation-plan.md), [현재 CI 근거](../worklog/2026-09-25/git-governance/CI-RECOVERY.md)를 따른다. HARN-01~07 전체 도입은 부분 구현이다.
+- 완료한 전달: develop 생성·tracking, stash 복구와 기존 8개 SHA 보존, 단계별 commit·push, Draft PR #3~#9 생성. 후속 HARN-09 `8c1b5c1`·HARN-07 `0fe6255`는 원격에 반영됐다.
+- 해소한 CI 결함: API build 전 lint 실행, Windows Python 배포본 부재, 고정 날짜 release CLI fixture 만료. PR #9에서 Linux 전체 lint·harness·architecture와 Windows lease가 실제 통과했다. 최종 quality·verify·gate는 아직 실패다.
 
-| 우선순위 | 남은 작업                                 | 완료 조건·의존성                                                                                                                                                                                                                     |
-| -------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| P0       | PR #1 브라우저 최소 수정의 원격 검증      | PR 기준 ada2474에서 재현 후 테스트 1줄 수정·지연 조건 4/4 로컬 통과. 브라우저 수정은 Draft PR #3, HARN-09 등록안은 Draft PR #5에 전달했다. gate 활성화 전 별도 검토하고 실제 merge-result에서 기존 CI 성공 확인; 실패 무시 병합 금지 |
-| P0       | 기존 local main 8개 commit의 별도 PR 검토 | Draft PR #4에 기존 8개를 SHA 그대로 전달했고 정책 #5·cleanup #6·harness #7·진단 #8을 후속 연결했다. trailer 없는 기존 SHA 보존·새 gate 활성화 전 검증. 정책 PR과 설계 문서 2개 충돌 해결                                             |
-| P0       | 정책 등록 후 구현·cleanup PR 통합         | 정책·task metadata를 trusted base에 별도 검토해 먼저 등록; 이후 구현 PR의 정확한 head/base에서 전체 lint·앱·restore·Windows 검사 성공                                                                                                |
-| P0       | CI 실패 진단의 원격 artifact 수용         | 진단/receipt 분리·unknown 복원 값 null 유지와 로컬 harness 54/54 완료; 적용된 PR에서 context 실패를 재현해 진단 artifact를 내려받고 run/attempt·job 결과 대조                                                                        |
-| P0       | 원격 보호와 검사기 변경 보호              | 현재 classic protection/ruleset 모두 없음; 성공한 stable check와 신뢰 정책을 등록하고 direct push·실패 병합 거부를 실제 설정·실행으로 확인                                                                                           |
-| P0       | Windows lease 실행 환경 수정              | PR #8 첫 실행에서 Windows 2025 x64용 Python 3.12.11 부재로 setup-python 실패. 지원되는 고정 버전/runner 조합 확인 후 실제 lease 회귀·receipt 검증                                                                                    |
-| P0       | 도입 이후의 정책·task 등록 검토 경로      | 일반 task-range의 policy/manifest 자기확장 차단 유지. 전용 governance gate는 미구현이며 원격 필수 gate 활성화 전 등록 승인·검사기 보호·거부 회귀 검증                                                                                |
-| P1       | HARN-01~04 남은 schema·lease·증거 계약    | 자동 heartbeat·다중 host·지원 OS·보존기간 등 현재 미구현/미정 항목의 범위 확정 및 해당 회귀                                                                                                                                          |
-| P2       | HARN-07 실제 release/hotfix 수용          | version/tag/image 규약, 단일 `release` ref 처리, provider artifact·배포 SHA·main/develop/active release 재반영 확인                                                                                                                  |
+| 우선순위 | 남은 작업                             | 완료 조건·의존성                                                                                                                                             |
+| -------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| P0       | 브라우저 수정 PR #3 선행 검토·통합    | PR #3 자체 verify·Collector 성공. PR #9에는 미포함이며 이미지 재시도 timeout 재발. 검토 후 승인된 통합 결과에서 동일 browser 검증 통과                       |
+| P0       | 기존 local main 8개 commit 검토       | PR #4의 SHA 보존, trailer 없는 기존 commit을 새 gate 활성화 전에 검토·검증. 정책 PR과 설계 문서 충돌 해결                                                    |
+| P0       | 정책·cleanup·harness와 후속 수정 통합 | #5 → #6 → #7 → #8 → #9 검토. 선행 통합 뒤 각 PR을 develop 기준으로 retarget하고 정확한 head/base의 전체 CI 통과. 현재 feature → feature 차단을 우회하지 않음 |
+| P0       | CI artifact 내용 수용                 | 진단·receipt 생성/업로드와 내용 검증을 구분. 실제 JSON의 subject SHA·run/attempt·binding·job 결과·hash를 대조                                                |
+| P0       | 원격 보호와 검사기 변경 보호          | 마지막 관측에서 classic protection/ruleset 없음. 별도 승인 후 stable required check와 trusted-ref 또는 code-owner 보호 설정·readback 및 실패 병합 거부 확인  |
+| P0       | 도입 이후 정책·task 등록 검토 경로    | manifest 자기확장 차단 유지. 미구현 governance 전용 gate의 등록 승인·검사기 보호·거부 회귀를 원격 강제 전 수용                                               |
+| P1       | HARN-01~04 잔여 계약                  | 증거 schema·보존기간, 자동 heartbeat·다중 host·지원 OS의 미구현/미정 범위 확정 및 회귀                                                                       |
+| P2       | HARN-07 실제 release/hotfix 수용      | version/tag/image 규약, 단일 release ref 처리, provider artifact·배포 SHA·main/develop/active release 재반영 확인                                            |
 
-- 현재 복구 branch는 local main의 8개 선행 commit과 HARN-08 task 변경을 포함한다. 그대로 develop에 병합하면 선행 기능까지 들어가므로 자동 merge/rebase·PR 대체는 하지 않는다. 사용자는 기존 8개 commit을 별도 PR로 검토하고 harness·cleanup을 후속 연결하도록 선택했다. 기존 정책 등록 PR도 유지하며 의존 순서를 대조한다. 후속 명시 승인으로 분리 commit·push·Draft PR #3~#8 생성까지 완료했다. merge·배포·원격 보호 설정은 승인 범위에서 제외됐다.
-- 구체적인 순서는 [CI 복구 계획](../worklog/2026-09-25/git-governance/CI-RECOVERY.md)의 선행 브라우저 수정 → 기존 8개 → 정책/task 등록 → cleanup → harness 활성화를 따른다. HARN-09 등록안의 로컬 계약 검증 4/4는 완료했지만 trusted base 등록이나 실제 PR 검증을 대신하지 않는다.
-- 이 목록은 도구 도입 작업이며 기존 Core·수집·운영 인수에 새로운 제품 출시 조건을 추가하지 않는다. 담당자·기한은 `(미정)`이다. 실제 원격 수용 전에는 전체 진척률을 임의의 백분율로 환산하지 않는다.
+- Windows lease 통과는 Windows 전체 lint나 모든 GUI Git 지원을 증명하지 않는다. PR #9의 Core/Collector restore skip은 복원 성공으로 계산하지 않는다. 최종 develop 통합 SHA에서 분류와 필요한 restore job을 다시 확인한다.
+- 실제 통합 순서는 [CI 복구 계획](../worklog/2026-09-25/git-governance/CI-RECOVERY.md)을 따른다. PR #1/#2와 복구 branch는 보존한다. 같은 변경의 중복 병합·자동 rebase·기존 SHA 재작성은 하지 않는다.
+- 현재 worktree·Git metadata 쓰기 권한은 확보됐다. 문서 후속 갱신을 기존 task 허용 경로에서 별도 commit·push한다. 병합·배포·원격 보호 설정은 승인 범위 밖이다.
+- 기존 제품 출시 조건을 추가하지 않는다. 담당자·기한은 `(미정)`이며 원격 수용 전 전체 진척률을 임의의 백분율로 표시하지 않는다.
 
 ## 11. 갱신 규칙
 

@@ -172,6 +172,8 @@ apps/data/mongodb/*
 
 .output/
 .local-data/
+# Linked worktrees are separate checkouts, not source of this checkout.
+/.worktree/
 test-results/
 playwright-report/
 

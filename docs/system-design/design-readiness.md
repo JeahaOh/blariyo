@@ -17,7 +17,7 @@ branch·commit·source·migration·test·build·runtime을 다시 조회해 판�
 | 범위 | 설계 기준선 | 구현 수용 | production 공개 승인 |
 | --- | --- | --- | --- |
 | M0 Core | 조건부 확정 가능. 공개 짤·수동 운영·정책·복구 계약을 개발 입력으로 사용 가능 | 주요 구현과 로컬 검증·API/Web 배포·DB 반영 증거는 [요구사항 C01~C16](../development-specs/requirements-status.md)을 따른다. 실제 운영자 사용성·업무 인수는 남아 있다 | 공개 배포는 9월 23일 관측됐다. [법무 색인](../legal/README.md#출시-차단-항목)의 9월 20일 입력·발행·백업 복원 기록과 잔여 운영 조건을 구분한다. 실제 MFA 업무·알림·복귀/재부팅 확인은 남아 있으며 배포 기록만으로 전체 운영 수용을 승인하지 않는다 |
-| M0 수집 보조 | [수집 설계](07-spring-collector-design.md)의 legacy/direct 계약을 구분한다. 검수 후 원문·본문·이미지·첨부 7일, 미검수 28일, 중복 방지 최소 식별자 무기한·검증된 출처만 M0 결정은 [수집 기획](../planning/content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다. 입력/source 기술 계약·회수 구현·고지는 잔여 | [요구사항 A01~A08](../development-specs/requirements-status.md) 기준 부분 완료. direct 검수 구현·로컬 검증과 관리자 URL/Discord의 새 경로 연결·실연동을 구분한다 | 9월 23일 관리자 batch 검수 활성 관측. 실제 MFA 검수 인수와 보존·고지 조건 충족을 뜻하지 않는다. URL·Discord 접수는 비활성이고 출처별 허용 범위·법무·운영 수용이 필요하다 |
+| M0 수집 보조 | [수집 설계](07-spring-collector-design.md)의 legacy/direct 계약을 구분한다. 검수 후 원문·본문·이미지·첨부 7일, 미검수 28일, 중복 방지 최소 식별자 무기한·검증된 출처만 M0 결정은 [수집 기획](../planning/content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다. [M0-D01/D02](../implementation-tasks/README.md#m0-design-handoff) 기술 계약은 확정, 회수/입력 구현·고지는 잔여 | [요구사항 A01~A08](../development-specs/requirements-status.md) 기준 부분 완료. direct 검수 구현·로컬 검증과 관리자 URL/Discord의 새 경로 연결·실연동을 구분한다 | 9월 23일 관리자 batch 검수 활성 관측. 실제 MFA 검수 인수와 보존·고지 조건 충족을 뜻하지 않는다. URL·Discord 접수는 비활성이고 출처별 허용 범위·법무·운영 수용이 필요하다 |
 | M0 자동 수집 | [수집 기획](../planning/content-collection/README.md)·[수집 설계](07-spring-collector-design.md)에 목록/상세 분리·상한·재시도 계약이 있다. 출처별 활성화와 direct 보존·고지는 별도 조건이다 | [요구사항 B01~B08](../development-specs/requirements-status.md) 기준 I 6 / P 1 / U 1(주요 구현 확인 / 부분 구현 / 대응 구현 미확인). 목록 탐색·상세 처리·저장 구현이 있으며, 17출처 로컬 검증 기록과 4출처 차단·보존/회수 미구현을 구분한다. 전체 수용 완료는 아니다 | 자동 수집 실행은 비활성. 출처별 사용 결정·direct 보존/고지·실연동·운영 수용 조건을 충족하기 전 활성화하지 않는다 |
 | M1 회원 | 조건부 확정 가능. 직접 입력 생년월일 원문 미보관, TERMS·SIGNUP_PRIVACY, 계정·연동·탈퇴 계약을 개발 입력으로 사용 가능 | 미검증. provider·DB 경쟁·cookie·탈퇴 worker·복원 시험 필요 | 차단. 실제 provider 앱·callback·secret, 동의 전문 운영값, 연령·보존·국외이전 법무 검토 필요 |
 | M1.5 익게 | 조건부 확정 가능. 글 단위 이름, 탈퇴 KEEP, ACTIVE 제재 predicate, Unicode code point 계약을 개발 입력으로 사용 가능 | 미검증. API·DB 제약·동시성·worker·UI·관리자 수용 시험 필요 | 차단. M1 gate, 약관 시행, 신고·ledger 보존 근거, 이의제기 실값·운영 수용 필요 |
@@ -37,7 +37,7 @@ DB·인증·보존 모델을 바꾸면 정본과 영향 범위를 다시 검토�
 
 | 책임 | 현재 남은 일 | 해제하는 상태 |
 | --- | --- | --- |
-| 설계 문서 | 과거 R01~R10 보완 기록과 현행 수집 미정 계약을 구분한다. 입력/source 소유권·direct 보존/고지를 확정하고 영향 범위를 재검수한다 | 해당 기능 설계 기준선 |
+| 설계 문서 | 과거 R01~R10과 M0-D01~D06 설계 보완을 구분한다. 이번 확정 계약은 인계표를 따르며 법무 고지의 실제 검토·발행은 별도다 | 해당 기능 설계 기준선 |
 | 구현 | [요구사항 대조표](../development-specs/requirements-status.md)의 부분/미구현과 실제 흐름 미검증 항목을 마감한다. 과거 통과를 새 코드·환경에 승계하지 않는다 | 구현 수용 |
 | 사용자·운영자 | M0 입력·발행 완료 기록은 [법무 색인](../legal/README.md#출시-차단-항목)을 따른다. 실제 MFA 업무·알림·복귀 검증과 후속 기능의 provider 앱·실수탁자 등 미정 입력은 남아 있다 | 해당 기능 production 공개 승인 |
 | 외부 검증 | 처리 근거·연령·보존·국외이전·약관·출처별 허용 범위와 실제 provider 계약 | 해당 기능 production 공개 승인 |
@@ -55,3 +55,7 @@ DB·인증·보존 모델을 바꾸면 정본과 영향 범위를 다시 검토�
 3. production 공개 승인은 법무 색인의 해당 단계 모든 항목, 운영 실값, 복구·운영 수용을 확인한
    사람이 별도로 기록한다.
 4. 기능을 비활성으로 두는 선택은 그 기능의 미정값을 M0 Core 전체 차단으로 확대하지 않는다.
+
+## M0-D01~D06 설계 보완 — 2026-09-26
+
+[설계·구현 인계표](../implementation-tasks/README.md#m0-design-handoff)에 최소 중복 키/만료·삭제, API mailbox pull, Drive 선택 백업, OWNER/EDITOR, 출처 S1~S5 gate와 검증 시나리오를 연결했다. 문서 검사는 [실행 기록](../../worklog/2026-09-26/m0-design-completion/README.md)을 따른다. 실계정·장비 입력은 조건부 적용과 확인 시점으로 분리했으며 정책/기술 선택의 미정으로 숨기지 않는다. 원문 보존의 법무 적정성·고지 시행, 실제 삭제·복원·권한·출처/알림 인수는 여전히 미검증이다.

@@ -30,11 +30,11 @@
 
 ## 2. M0 수집 보조 — 8개
 
-정본: [수집 기획](../planning/content-collection/README.md), [수집 설계의 direct 계약](../system-design/07-spring-collector-design.md), [수집 기능 명세](m0-collection-assist/collection-assist/collection-assist.dev.md). 최초 보고서 D01~D03의 앞부분 legacy 충돌은 [후속 정합성 결과](../../worklog/2026-09-23/collection-contract-alignment/RESULTS.md)로 보완했다. 입력/source 소유권·보존/고지는 별도 미정이다.
+정본: [수집 기획](../planning/content-collection/README.md), [수집 설계의 direct 계약](../system-design/07-spring-collector-design.md), [수집 기능 명세](m0-collection-assist/collection-assist/collection-assist.dev.md). 최초 보고서 D01~D03의 앞부분 legacy 충돌은 [후속 정합성 결과](../../worklog/2026-09-23/collection-contract-alignment/RESULTS.md)로 보완했다. 입력/source 소유권·보존은 M0-D01/D02 설계 확정, 구현·고지는 잔여다.
 
 | ID | 점검 단위 | 구현 | 검증·현재 근거 | 남은 수용 조건 / 다음 작업 |
 | --- | --- | --- | --- | --- |
-| A01 | 관리자 URL 입력→source 식별→batch 접수 | P | N: [admin-collect](../../apps/web/app/pages/admin-collect.vue)는 legacy candidate POST, [BatchMain](../../apps/collector/src/main/java/com/blariyo/collector/ops/BatchMain.java)은 direct CLI | 입력 요청의 소유권·전달 방식 확정 후 direct 경로 연결 / P1-01 |
+| A01 | 관리자 URL 입력→source 식별→batch 접수 | P | N: [admin-collect](../../apps/web/app/pages/admin-collect.vue)는 legacy candidate POST, [BatchMain](../../apps/collector/src/main/java/com/blariyo/collector/ops/BatchMain.java)은 direct CLI | M0-D02의 API mailbox pull·source runtime 조회 구현 및 direct 경로 연결 / P1-01 |
 | A02 | Discord slash→사용자 확인→큐 등록 | I | L/N: [BatchDiscordIntake](../../apps/collector/src/main/java/com/blariyo/collector/discord/BatchDiscordIntake.java), [Gateway](../../apps/collector/src/main/java/com/blariyo/collector/discord/DiscordGateway.java); 실제 Gateway 없음 | 허용 대상·취소/만료·다른 사용자·재전송·결과 조회 실연동 / P1-04 |
 | A03 | 공통 큐·claim·owner fence·재시작·중복 | I | L: [BatchQueueStore](../../apps/collector/src/main/java/com/blariyo/collector/run/BatchQueueStore.java), [queue readback](../../apps/collector/src/test/java/com/blariyo/collector/run/BatchQueueReadbackTests.java) | 다른 PC 실행·worker 중단 후 회복 / P1-03 |
 | A04 | 수집 결과 조회·비공개 preview·실패 이유 | I | L: [검수 UI 후속](../../worklog/2026-09-23/batch-review-ui/RESULTS.md), 필터·이미지 실패 재시도·익명 거부; R: 9/23 운영 내부 service 108건 조회·16개 출처 미리보기, 검수 flag ON [DB 반영](../../worklog/2026-09-23/release/production-db-promotion.md) | 실제 MFA 관리자 화면 조회·원격 collect 읽기 역할/권한 인수. direct 보존·고지 QD-04 별도 / P1-03 |
@@ -54,7 +54,7 @@
 | B05 | retry/backoff·site stop·실패 상태·checkpoint | I | L: [SourceRequests](../../apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java), [lifecycle 검사](../../apps/collector/src/test/java/com/blariyo/collector/run/BatchLifecycleReadbackTests.java) | 실제 장기 실행 실패율·재시작·중단 알림 / P1-03·P2-01 |
 | B06 | dry-run 무쓰기·write-db 직접 저장·JSON 보고서 | I | L:12테이블/527object 불변 기록; [CLI](../../bin/blariyo-collector), [ops 안내](../../apps/collector/ops/README.md) | 원격 DB/S3 무쓰기·쓰기 후 독립 readback / P1-03 |
 | B07 | 21개 출처 모두 실제 수집·readback | P | L/N:17개 verified-local, 4개 차단; [21출처 표](../../worklog/2026-09-23/m0-audit/report.md#6-21개-사이트-상태) | 차단 해제/허용 경로 확보 후 실제 검증; 불가능한 것을 generic 성공 처리하지 않음 / P1-06 |
-| B08 | direct 원본·media·report·queue 보존/회수 | U | N:기존 [cleanup](../../apps/api/src/features/collection/collection-cleanup.service.ts)과 Java maintenance는 legacy 테이블 중심; direct 삭제 구현 미확인 | 보존 기간·참조 보호·batch 소유 삭제·orphan manifest·멱등 readback / P1-05 |
+| B08 | direct 원본·media·report·queue 보존/회수 | U | N:기존 [cleanup](../../apps/api/src/features/collection/collection-cleanup.service.ts)과 Java maintenance는 legacy 테이블 중심; direct 삭제 구현 미확인 | M0-D01 확정 계약의 migration·참조 보호·batch 소유 삭제·orphan manifest·멱등 readback / P1-05 |
 
 **2026-09-24 추가 코드 대조:** 위 B01~B06의 주요 구현 판정이 모든 운영 통제의 완료를 뜻하지 않는다.
 direct `DirectBatchRunner`/`DirectUrlRunner` → `SourceRequests`에는 robots·Crawl-delay·영속 일일 요청 상한
@@ -83,3 +83,7 @@ legacy 원문 API/OpenAPI 1000블록과 V006 DB CHECK 40블록의 차이는 [P1-
 - 총 40개: **I 30 / P 9 / U 1**. 주요 구현 확인 비율은 30/40 = **75%**이며, 이 묶음 단위의 구현 확인 비율일 뿐 개발 공수·제품 완성도·출시 준비율이 아니다. 부분 항목을 절반 인정한 약 86%를 공식 완료율로 사용하지 않는다.
 - 전체 M0 완료는 Core·수집 보조·자동 수집의 수용 조건과 필요한 운영 검증까지 충족해야 한다. 접근 차단 출처를 제외한다면 별도 제품 범위 결정이 필요하며 본 보고서에서 제외 승인하지 않는다.
 - 회원·익게·사용자 작성·광고·제휴는 M0 분모에서 제외한다. GA4/Kakao는 구현 경계와 실제 활성화를 분리하고 기본 OFF일 때 Core 운영을 막지 않는다.
+
+## 2026-09-26 설계 보완과 구현 판정
+
+[M0-D01~D06 인계](../implementation-tasks/README.md#m0-design-handoff)에 보존·mailbox·Drive·운영 role·출처 gate를 확정했다. 문서 작성으로 I/P/U 집계를 올리지 않는다. A01/A08은 P, B08은 U이며 D04 역할 구분과 Drive 전환 source·운영 증거도 미구현/미검증이다. docs OpenAPI의 planned operation은 packages/contracts 실행 사본과 의도적으로 미동기화 상태이며 구현 task에서 함께 갱신·검증한다.

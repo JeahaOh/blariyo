@@ -512,3 +512,18 @@ Spring source·migration·OpenAPI·test·runtime과 실제 출처·Discord·운�
 확정 정책 v0.1을 실제 command로 발행한 뒤 Core·Web·Nginx를 기동했다. blariyo.com의 이전 Squarespace A를 proxied Tunnel CNAME으로 전환하고, www는 같은 Tunnel의 Nginx 308 대표 주소 전환 전용 경로로 연결했다. DB·Core·Web·Nginx의 host port는 없다. 기존 메일 MX/TXT와 R2 media 도메인은 유지했다. Always Use HTTPS와 최소 TLS 1.2를 적용한다.
 
 당시 단일 Lightsail + Docker Compose에 맥에서 빌드한 amd64 image와 부팅 복구 service·예약/outbox/cleanup timer·7일 진단 로그·12시간 암호화 백업을 설치했다. [9월 20일 기록](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)은 보존하며, 이후 GHCR 기반 `5c581c2`와 V008/Collector V006 반영은 [9월 23일 마지막 관측](../operations/current-status.md)을 따른다. 블루그린·무중단 전환과 실제 재부팅/rollback 완료를 뜻하지 않는다.
+
+
+## M0-D01~D04 인프라 인계 — 2026-09-26
+
+현행 R2 백업·operator 파일은 앞 절의 현재 구현 설명이다. 목표는 [D03](05-security-operations.md#m0-d03-drive)의 **선택 logical dump→age→manifest→Drive**, [D04](05-security-operations.md#m0-d04-roles)의 OWNER/EDITOR·서비스 계정 분리다. source/실행 설정은 이번 문서 작업에서 수정하지 않았다.
+
+| 후속 설정 | 책임·운영 영향·되돌리기 |
+| --- | --- |
+| 기존 operator registry에 OWNER/EDITOR role | 사용자만 계정 등록/회수, BFF 내부 header·Core allowlist 추가. 미지정 role 거부. 설치 순서: Core role 지원→BFF 등록값 전환→두 계정 인수; gate 확인 전 기존 앱으로 되돌리기 가능 |
+| 서버의 collect retention timer·전용 DB/object credential | 수집 장비가 꺼져도 매분 만료 회수, source 외부 fetch 없음. API/batch 일반 DELETE 거부 유지. 삭제 후 이전 앱으로 원문 복원하지 않음 |
+| batch outbound mailbox poll·runtime heartbeat | 기존 private DB 경로로 연결, 장비의 공개 HTTP endpoint 불필요. Web 입력 flag OFF로 새 요청 중단 |
+| Drive auth mode·folder/drive ID·secret path·recipient·dump profile | 실값은 사용자만 준비. 첫 R2 선택 백업 검증→Drive 병행→독립 복원 후 전환. Drive 실패 시 같은 profile의 R2 전송으로 복귀 |
+| Discord 장애 credential | 기존 사용자 전용 채널, secret 별도 mount. 친구 초대 필수 아님. 전송 실패와 백업/삭제 실패를 각각 관측 |
+
+장비·OS·가동 시간, 계정 종류·용량은 `(미정)`이며 [준비 체크리스트](../operations/owner-setup-checklist.md#m0-design-inputs)의 확인 시점을 따른다. RPi4를 확정 장비로 가정하지 않는다. Drive 공개 공유·앱에 backup secret mount·PostgreSQL 인터넷 공개를 추가하지 않는다.

@@ -16,7 +16,7 @@
 | CI A-1/P1-07 | Java fixture 준비·Collector job·로컬 macOS/Linux 재현. SHA `5c581c2`의 원격 verify/collector/API·Web images 성공·digest 확인 | 다음 후보 SHA의 원격 CI·digest 확인, Windows·별도 PC 검증 |
 | Direct 검수 P1-02 | 정식 메뉴·필터·검수/반려·초안 이동·불확실 응답 복구. 9/23 운영 검수 flag ON, 내부 service 108건 조회·16개 출처 미리보기 | 실제 MFA 운영자 화면 조작·Access·원격 object 인수. QD-04 보존·고지 별도 |
 | 사이트 모듈 P1-06 | 21 adapter·21 상세·19 목록 parser 분리, 기존 결과 보존 | 요청 통제 보완과 검증된 M0 적용 목록의 수용 증거. 차단·미검증은 후속 후보이며 전체 21개 통과 조건 아님 |
-| 문서 정합성 P1-01 | D01~D03의 direct/legacy 저장·권한·검수 규칙 정렬 | Web 입력/source 변경 권한 QD-03, 보존·고지 계약 QD-04, legacy API/DB 본문 상한 1000/40 불일치 |
+| 문서 정합성 P1-01 | D01~D03의 direct/legacy 저장·권한·검수 규칙 정렬 | M0-D01/D02 설계의 구현·고지 QD-03/04,  legacy API/DB 본문 상한 1000/40 불일치 |
 | 배포·DB 반영 P0-05 | 9/23 `5c581c2` CI·GHCR digest→API/Web 배포, API V008·Collector V006, 게시글 74·이미지 308 공개·전수 readback, 전후 백업 다운로드·격리 복원 | 현재 상태 재조회, 실제 MFA 작성/업로드/발행/숨김·예약/알림 인수, 다음 배포 후보별 호환성·백업·복귀 확인. 실제 rollback·재부팅 미검증 |
 | 검색엔진 설정·GTM 공개 반영 | 9/26 robots 앱 규칙·사이트맵 XML·API/health noindex·공개 HTML의 GTM 삽입 확인 | 현재 배포 SHA/digest, 비공개 글 제외 전수 대조·검색 색인, GTM 실제 태그·동의·공개 정책·GA4 수신 검증 |
 | 수집 실연동 P1-03~05/07 | 로컬 코드·격리 증거와 실행서 준비 | 다른 PC/Windows·비운영 DB/object·Discord·보존 회수 구현/검증 |
@@ -100,7 +100,7 @@
 1. 운영자가 준비된 [격리 인수 환경](testing/operator-acceptance.md)에서 반복 업무 12건을 수행하고 혼동·재작업·실패를 기록한다. 별도로 승인된 운영 콘텐츠 범위에서 실제 Access MFA 세션의 작성·업로드·발행·예약·취소·숨김을 인수한다. 인증 비밀은 전달하지 않는다.
 2. 운영 담당이 현재 release·flag·DB ledger·백업/timer·공개 API를 먼저 읽기 전용으로 재조회한다. 그 결과에 따라 별도 운영 시나리오에서 예약 실행·알림 실수신·복귀 가능성을 검증한다. 다음 배포에는 최근 18시간 이내 백업·복원 증거가 필요하며, 9월 23일 백업과 공개 수량을 현재값으로 재사용하지 않는다.
 3. 다음 코드 배포가 필요하면 [배포 실행서](operations/deployment-runbook.md)에 따라 그 후보 SHA의 원격 CI·digest, V008/Collector V006 호환성, 최신 백업·복원 및 복귀 경로를 새로 대조한다. V008에서 9월 20일 구 API는 readiness 503이다.
-4. 9/26 최종 결정: 이미지·첨부·원문 HTML·본문은 검수 완료·반려 후 7일 삭제, 미검수는 수집일부터 28일, 중복 방지용 최소 식별자는 무기한 보관한다. 검증된 출처만 M0 범위다. QD-03 초기 출처 설정은 개발자 설계 위임을 유지하고 QD-04의 기술 계약·고지·회수 구현은 잔여다. 사용자가 서버·백업을 관리하고 친구는 게시물 권한만 갖는다. Discord 채널은 사용자 보고로 생성 완료·현재 사용자만 참여하며 실연동·수신은 미검증이다. 수집 장비는 Raspberry Pi 4 후보로 실연동 전 선택한다. [최신 결정](../worklog/2026-09-26/m0-completion-plan/README.md#retention-scope-roles-20260926)을 따르며, 문서 반영을 운영 적용 완료로 해석하지 않는다.
+4. 9/26 최종 결정: 이미지·첨부·원문 HTML·본문은 검수 완료·반려 후 7일 삭제, 미검수는 수집일부터 28일, 중복 방지용 최소 식별자는 무기한 보관한다. 검증된 출처만 M0 범위다. QD-03 초기 출처 설정은 개발자 설계 위임을 유지하고 QD-03/04의 기술 계약은 [설계 인계](implementation-tasks/README.md#m0-design-handoff)로 확정했으며 고지·회수 구현은 잔여다. 사용자가 서버·백업을 관리하고 친구는 게시물 권한만 갖는다. Discord 채널은 사용자 보고로 생성 완료·현재 사용자만 참여하며 실연동·수신은 미검증이다. 수집 장비는 Raspberry Pi 4 후보로 실연동 전 선택한다. [최신 결정](../worklog/2026-09-26/m0-completion-plan/README.md#retention-scope-roles-20260926)을 따르며, 문서 반영을 운영 적용 완료로 해석하지 않는다.
 5. direct의 robots/Crawl-delay·영속 일일 budget 연결과 redirect 상한 차이를 먼저 보완한다([코드 대조 근거](system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)). 비운영 DB/object·Discord 시험 대상과 실행 PC/OS가 정해지면 다른 PC batch·원격 권한·Gateway를 실연동한다. 출처별 활성화와 실제 7일 관찰은 별도다.
 
 ## 보존된 로컬 자원
@@ -110,3 +110,7 @@
 - 비공개 runtime 설정 사본: `~/.config/blariyo/application-config-ZzkcSI/` (실값은 커밋하지 않음).
 - 9월 23일 커밋 준비 당시 검사 원본은 Git 제외 `test-results/`에, 당시 원본·diff 백업은 `.local-data/commit-preparation/`에 보존했다. 이번 문서 갱신의 테스트 실행 기록은 아니다.
 - 위 로컬 파일 경로는 다른 PC에서 자동 복원되지 않는다. Git 문서·코드와 비공개 실행 자원을 구분한다.
+
+## M0 기존 설계 보완 — 2026-09-26
+
+M0-D01~D06의 보존/삭제·Web mailbox·Drive 백업·역할·출처 편입 계약을 [인계표](implementation-tasks/README.md#m0-design-handoff)로 연결했다. [문서 검증](../worklog/2026-09-26/m0-design-completion/README.md)과 구현/운영 증거를 구분한다. 애플리케이션 source·migration·실행 설정·실행 계약 사본은 수정하지 않았으며 구현 집계 I30/P9/U1은 유지한다. 출처 편입 확정을 입증하는 증거는 현재 없고, 17개 로컬 성공 이력도 운영 통과가 아니다. 독립적인 UX 작업은 병행할 수 있다.

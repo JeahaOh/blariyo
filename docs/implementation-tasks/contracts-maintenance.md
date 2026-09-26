@@ -17,3 +17,8 @@ legacy 수집 계약 항목은 재활성화 결정 전까지 조건부다. direc
 - **선행:** 실제 변경 대상의 소유권·트랜잭션·권한 경계 확인.
 - **범위:** 허용 SQL 경로 문서화, 일괄 조회 또는 합리적 근거, 목록 크기별 쿼리 수 관찰.
 - **완료 증거:** 코드와 예외 목록이 일치하고 기존 권한/결과를 보존하는 테스트, 1건·다건 조회 쿼리 수 비교. 성능 문제 재현 전 장애로 보고하지 않음.
+
+
+### CON-02의 M0-D02/P1-01 후속 구현 범위
+
+기존 raw SQL/조회 개선 ID에 direct 입력 연결을 추적한다. [D02 API](../system-design/03-api-design.md#m0-d02-api)·[모델](../system-design/02-data-model.md#m0-d02-input-model)의 API mailbox pull, batch receipt/runtime projection, 새4개 endpoint·화면과 migration을 구현한다. 현재 legacy 폼·source PATCH로 대체하지 않는다. D01 중복/만료·D04 역할 계약을 먼저 적용하고 COL-01/02 요청 통제를 연결한다. OpenAPI 문서와 packages/contracts 사본·생성 타입을 구현 변경에서 함께 갱신한다. 완료 증거는 D02-T1~T6, DB 역할 거부·API 외부 무요청·소스 설정 version 대조와 실제 화면 인수다. CON-01 legacy 재활성화 작업은 계속 조건부다.

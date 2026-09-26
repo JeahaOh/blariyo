@@ -30,10 +30,17 @@
 
 - **우선순위:** P1, 상시 수집 활성화 차단 조건.
 - **목표:** raw/media/report/queue 보존과 orphan 정리를 안전하게 재실행 가능하게 한다.
-- **선행:** QD-04의 검수 원본 7일·미검수 28일·중복 방지 최소 식별자 무기한 정책에 맞춘 기술 계약, migration 및 삭제 권한 검토.
+- **선행:** QD-04의 검수 원본 7일·미검수 28일·중복 방지 최소 식별자 무기한 정책에 맞춘 [M0-D01 확정 기술 계약](../system-design/02-data-model.md#m0-d01-retention), 새 migration 및 삭제 권한 검토.
 - **범위:** dry-run manifest, 보호 대상, batch 소유 삭제, 부분 실패 복구와 멱등성.
 - **완료 증거:** 비운영 대상 dry-run→승인된 제한 삭제→DB/object readback, 참조·진행·검수 자료 보호 음성 시험.
 
 2026-09-26 최종 결정: 이미지·첨부·원문 HTML·본문은 검수 완료·반려 후 7일 삭제, 미검수 자료는 수집일부터 28일 보관,
 중복 방지용 최소 식별자는 무기한 보관한다. 기술 계약은 [수집 기획](../planning/content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다.
 검수 완료·반려 시각 전달, 7일/28일 경계, 승격/재검수 경쟁, 원격 파일 삭제·백업 복원 후 삭제 재적용과 원본 삭제 후 중복 판정 유지를 검사한다.
+
+
+### M0-D01/D05 구현·수용 연결
+
+COL-04는 D01-T1~T7을 전부 수행한다. 검수 중 만료도 접근을 차단하며 진행 중이라는 이유로 기간을 연장하지 않는다. 참조 보호는 API의 독립 content 사본을 지킨다는 뜻이며 batch 원본을 무기한 남기지 않는다. 부수 report·correction snapshot·receipt·로컬 파일·복원 경로까지 canary와 DB/object readback을 남긴다. 삭제 전에 OPS-03의 선택 백업 검증·기존 full snapshot 대체를 선행한다.
+
+COL-03은 [S1~S5](../planning/content-collection/source-collection-policy.md#m0-admission)·[현재 증거표](../planning/content-collection/reference-site-validation.md#m0-evidence-20260926)를 사용한다. 17개 로컬 저장과4개 실패 상태 증거는 현재 운영 통과가 아니다. 운영 가동 목록의 읽기 전용 관측과 편입 후보 판정을 나누고, 통과한 source/방식/config/SHA만 활성화 인수 대상으로 전달한다. 세 출처 재분석은 대기, PGR21 추가 금지다.

@@ -1,0 +1,49 @@
+{
+  "branch": "feature/m0-design-completion",
+  "head": "bb19c486f3cafa847bd34828a699382c6d5bd0b6",
+  "taskChangedTrackedFiles": [
+    "docs/system-design/05-security-operations.md",
+    "docs/system-design/04-infrastructure-design.md",
+    "docs/implementation-tasks/operations-acceptance.md",
+    "docs/operations/owner-setup-checklist.md",
+    "docs/planning/01-service-plan.md",
+    "docs/status.md",
+    "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+    "docs/development-specs/m0-core/admin-post-management/admin-post-management.dev.md",
+    "docs/development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml",
+    "docs/system-design/02-data-model.md",
+    "docs/development-specs/requirements-status.md",
+    "docs/planning/content-collection/README.md",
+    "docs/implementation-tasks/README.md",
+    "docs/planning/content-collection/source-collection-policy.md",
+    "docs/planning/content-collection/reference-site-validation.md",
+    "docs/system-design/03-api-design.md",
+    "docs/planning/02-infra-plan.md",
+    "docs/system-design/design-readiness.md",
+    "docs/legal/README.md",
+    "docs/system-design/01-system-architecture.md",
+    "docs/legal/privacy-policy.md",
+    "docs/implementation-tasks/contracts-maintenance.md",
+    "docs/system-design/07-spring-collector-design.md",
+    "docs/implementation-tasks/collection-controls.md",
+    "docs/roadmap.md"
+  ],
+  "missingBaselineFiles": [],
+  "outOfScopeBaselineChanges": [],
+  "preservedInitialFiles": {
+    "worklog/2026-09-26/m0-completion-plan/README.md": true,
+    "worklog/2026-09-26/m0-completion-plan/DESIGN-TASKS.md": true,
+    "worklog/2026-09-26/m0-completion-plan/DESIGN-GOAL-PROMPT.md": true
+  },
+  "taskNewFiles": [
+    "worklog/2026-09-26/m0-design-completion/LINK-CHECK.json",
+    "worklog/2026-09-26/m0-design-completion/OPENAPI-CHECK.json",
+    "worklog/2026-09-26/m0-design-completion/README.md",
+    "worklog/2026-09-26/m0-design-completion/SCOPE-CHECK.json"
+  ],
+  "otherSessionNewFiles": [
+    "worklog/2026-09-26/batch-structure-research/README.md"
+  ],
+  "stagedPaths": [],
+  "finalVerifiedAt": "2026-09-26T23:40:31.534672+09:00"
+}

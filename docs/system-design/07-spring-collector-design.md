@@ -965,3 +965,7 @@ REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 s
 - 정제 출력의 프레임수·크기·지연·반복을 원본과 대조한다. 컨테이너 구조 검사는 전체 프레임 디코딩을 대체하지 않는다. 테스트에서 각 프레임 픽셀 해시도 원본과 대조한다.
 - 원본 readback과 공개 이미지 readback도 같은 분할 디코딩 한도를 사용한다. 실제 원본을 모두 읽지 않고 검사 기대값만 바꿔 성공시키지 않는다. 일반 정적 이미지와 작은 애니메이션의 기존 처리 경로는 유지한다.
 - 근거: [sharp의 page/pages와 animated 처리](https://sharp.pixelplumbing.com/api-constructor/), [GIF89a 구조](https://www.w3.org/Graphics/GIF/spec-gif89a.txt), [WebP RIFF 구조](https://developers.google.com/speed/webp/docs/riff_container).
+
+## 2026-09-26 M0 보완 계약의 적용 순서
+
+[보존 D01](02-data-model.md#m0-d01-retention)은 기존 완료 불변/DELETE 거부를 유지하면서 전용 만료 함수·회수 역할을 추가하는 목표 설계다. [입력 D02](01-system-architecture.md#m0-d02-delivery)는 API mailbox를 batch가 pull하며 기존 Discord queue를 재사용한다. collector가 글마다 Core API에 결과를 제출하는 legacy 방식으로 되돌리지 않는다. source runtime snapshot/heartbeat·receipt는 batch 소유이며 API는 안전 view만 조회한다. 기존 V001~V006 적용 SQL은 변경하지 않고 후속 migration·호환성 시험으로 전달한다. 구현·활성화 상태는 [인계표](../implementation-tasks/README.md#m0-design-handoff)를 따른다.

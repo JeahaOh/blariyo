@@ -106,7 +106,7 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 | 단계 | 기능 | 인프라 영향 |
 | --- | --- | --- |
 | M0 Core | 공개 짤 목록·상세, 운영자 발행·숨김, 정책, 참고용 조회 수, 기본 비활성 GA4 연동 | 현재 단일 VM·PostgreSQL·R2와 조건부 Google tag CSP·동의 설정 |
-| M0 수집 보조 | 별도 PC 단건·확인 queue·저장 결과 검수, Web URL 전달 계약은 미정 | direct DB/object 제한 역할·private collect 저장·API 검수; 기존 service token 중계는 legacy |
+| M0 수집 보조 | 별도 PC 단건·확인 queue·저장 결과 검수, Web URL mailbox 전달 설계 확정·구현 잔여 | direct DB/object 제한 역할·private collect 저장·API 검수; 기존 service token 중계는 legacy |
 | M0 자동 수집 | 허용 출처 목록/상세 저장 구현, 운영 실행 비활성 | 출처별 parser·공통 요청 통제·보존 회수·실행 담당/주기 인수 |
 | M1 | 소셜 가입·로그인·탈퇴 | provider secret, callback, session store 계약 추가 |
 | M1.5 | 익게 작성·댓글·신고·moderation | 사용자 쓰기 부하와 abuse 방어 재산정 |
@@ -159,3 +159,7 @@ URL·Discord 접수와 자동 수집은 별도 gate이며 검수 flag ON으로 �
 - 암호화 DB backup을 새 PostgreSQL 18에 실제 복원한다.
 - VM 전체를 잃어도 문서화된 절차로 DB와 media를 재연결할 수 있다.
 - 월 비용과 자원 사용량이 정한 전환 기준 안에 있다.
+
+## 2026-09-26 백업·권한 상세 계약 연결
+
+[D03](../system-design/05-security-operations.md#m0-d03-drive)의 선택 DB 백업은 direct 임시 원문을 제외해 7일/28일 삭제를 지키고 API 게시글과 최소 중복 키를 복구한다. 미검수 원문/접수 대기는 장애 후 자동 복구·재수집하지 않는 운영 영향을 OPS-03에서 인수한다. 기존 R2의 검증된 대체본→Drive 병행·독립 복원→전환 순서로 정상 백업을 유지한다. 실제 사용자/친구 권한은 [D04](../system-design/05-security-operations.md#m0-d04-roles), 입력·시점은 [준비 목록](../operations/owner-setup-checklist.md#m0-design-inputs)을 따른다.

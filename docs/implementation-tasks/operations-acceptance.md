@@ -41,3 +41,11 @@ Discord 채널은 사용자 보고로 생성 완료·현재 사용자만 참여�
 - **목표:** 실제 Core 운영 뒤 예약 실패·알림·백업·용량·오류·권리 요청 처리 기록을 남긴다.
 - **선행:** Core 운영 개시 및 담당자 지정.
 - **완료 증거:** 실제 7일 관찰표와 후속 개선 task. fixture 시간 전진은 대체 근거가 아님.
+
+
+### M0-D03/D04 인수 보완
+
+- OPS-01/02: [D04](../system-design/05-security-operations.md#m0-d04-roles)의 OWNER/EDITOR 정상 게시물/이미지·검수 및 직접 설정/API/관리 자원 거부를 D04-T1~T6으로 기록한다. 친구의 게시물 업무를 위해 서버·R2·Drive credential을 공유하지 않는다.
+- OPS-03: [D03](../system-design/05-security-operations.md#m0-d03-drive) 구현과 T1~T6. 선택 dump의 content/dedup 복구·direct 원문/queue 비복구와 재수집 금지, R2 대체본·Drive 병행/실다운로드·독립 격리 복원·7일 삭제·인증 실패·Discord 실수신·R2 복귀를 각각 증거로 남긴다. 기존 R2 성공을 Drive 완료로 표시하지 않는다.
+- OPS-04: D02 실제 runtime snapshot/heartbeat·장비 중단과 늦은 요청 만료·전용 역할, D04 서비스 간 거부 및 출처 S1~S5 운영 조건을 인수한다. Discord 채널 생성은 사용자 보고, 실수신은 후속 실제 시험이며 친구 초대는 필수가 아니다.
+- 위 설계만 완료됐으며 신규 구현·실제 서비스 연결·DB/object 삭제·전송은 미실행이다.

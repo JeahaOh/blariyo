@@ -94,3 +94,11 @@ D01~D06 설계 보완·문서 검증·구현 인계 완료. source·migration·�
 - Git 확인: feature와 release 기준 HEAD 일치, 시작 index 비어 있음. 설치된 Git hook 검사 통과. push·merge·배포는 요청 범위가 아니다.
 - 다음 산출물: 기존 UX/COL/OPS/CON 17개를 연결한 구현 task list와 goal 요청문. 작성만으로 구현 goal을 시작하지 않는다.
 - 이번 검증: 커밋 대상33개 중 Markdown29개 상대 링크847개·anchor314개 누락0. 문서 OpenAPI29 operations·기존 실행25개 보존·신규 planned4개·내부 ref309개와 메모리 타입 생성 통과. 실행 계약 사본 동기화는 구현 시 수행한다.
+
+## 후속 — 설계 문서 커밋과 구현 실행 문서
+
+- 담당: Codex / 같은 작업 폴더·브랜치. 상태: 종료 — 설계 문서 커밋·구현 실행 문서 작성 및 검증. 갱신: 2026-09-26 23:57 KST.
+- 설계 완료 문서33개를 `5ab6dc198b9616bfd270dab2c49c2ec2bde165a7` (`docs: complete M0 design contracts and handoff`)로 커밋했다. stage 경로와 commit 경로를 대조했으며 source·다른 담당 기록은 포함하지 않았다.
+- 기존 계획 파일의 대기 표시는 작성 당시 기록임을 명확히 하고 최신 완료 결과를 연결했다.
+- 다음 실행 문서는 [구현 준비 기록](../m0-implementation-plan/README.md), [task list](../m0-implementation-plan/IMPLEMENTATION-TASKS.md), [goal 요청문](../m0-implementation-plan/IMPLEMENTATION-GOAL-PROMPT.md)이다. 기존17개 ID를 유지하고 로컬 구현과 실제 운영 인수의 완료 조건을 구분한다.
+- 실제 구현 goal·제품 시험·외부 연동·push·merge·배포는 이번 문서 요청에서 실행하지 않는다. 후속 문서 검증·커밋 결과는 구현 준비 기록을 따른다.

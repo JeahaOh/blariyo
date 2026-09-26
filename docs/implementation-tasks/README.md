@@ -2,6 +2,8 @@
 
 2026-09-24 기준 [로드맵](../roadmap.md)과 현행 코드·검증 문서에서 확인된 미완료 구현/인수 항목 17개를 실행 단위로 분리한다. 각 task는 완료 증거가 남아야 닫을 수 있다. 이 문서는 계획이며 구현 완료를 뜻하지 않는다.
 
+2026-09-26 실행 준비: [구현 task list](../../worklog/2026-09-26/m0-implementation-plan/IMPLEMENTATION-TASKS.md)와 [구현 goal 요청문](../../worklog/2026-09-26/m0-implementation-plan/IMPLEMENTATION-GOAL-PROMPT.md)에 아래 ID의 실행 순서·로컬 완료 조건·실제 운영 잔여를 연결했다. 작성만으로 구현을 시작하거나 이 목록의 상태를 완료로 바꾸지 않는다. 제품·기술 계약은 아래 정본 링크가 우선한다.
+
 ## 시작 순서
 
 | 순서 | task 묶음 | task | 우선순위 | 선행 조건 |

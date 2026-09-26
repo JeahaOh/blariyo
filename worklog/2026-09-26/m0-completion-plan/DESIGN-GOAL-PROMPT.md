@@ -6,6 +6,8 @@
 2026-09-26 후속 결과: 이 설계 goal은 [실행 기록](../m0-design-completion/README.md)의 조건으로 완료됐다.
 아래 요청문은 실행 당시 범위를 보존한다. 다음 구현에 이 설계 전용 요청문을 그대로 사용하지 않는다.
 
+다음 단계는 [구현 task list](../m0-implementation-plan/IMPLEMENTATION-TASKS.md)와 [구현 goal 요청문](../m0-implementation-plan/IMPLEMENTATION-GOAL-PROMPT.md)을 사용한다.
+
 ```text
 목표: Blariyo M0 기존 설계의 변경 사항을 반영하고 미결 기술 계약을 마감한다.
 

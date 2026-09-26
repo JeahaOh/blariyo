@@ -17,6 +17,11 @@ test('CI runs full lint and architecture checks in the quality job', () => {
   assert.ok(commands.some((command) => command.includes('npm run lint:all')));
   assert.ok(commands.some((command) => command.includes('npm run test:architecture')));
   assert.ok(commands.some((command) => command.includes('npm run test:harness')));
+  assert.ok(
+    commands.findIndex((command) => command.includes('npm run test:architecture')) <
+      commands.findIndex((command) => command.includes('npm run lint:all')),
+    'type-aware lint requires the API dist modules produced by the architecture prerequisite'
+  );
 });
 
 test('same-SHA restore scope and applicable restore result are required by the final gate', () => {

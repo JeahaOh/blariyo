@@ -139,6 +139,18 @@ test('release evidence freezes the exact registered Change-Id set and rejects pr
   );
 });
 
+// CLI subprocesses use the real clock; fixed-date fixtures expire after a day.
+// Pure validator tests above keep their explicit clock for stale/future boundary checks.
+function currentCliManifest(overrides) {
+  const value = manifest(overrides);
+  const current = Date.now();
+  const hoursAgo = (hours) => new Date(current - hours * 60 * 60 * 1000).toISOString();
+  value.scopeFrozenAt = hoursAgo(4);
+  for (const item of Object.values(value.evidence)) item.observedAt = hoursAgo(2);
+  value.evidence.backupRestore.backupCreatedAt = hoursAgo(3);
+  return value;
+}
+
 test('release manifest command confirms Change-Ids in task manifests at the candidate commit', async (t) => {
   const root = await mkdtemp(resolve(tmpdir(), 'blariyo-release-check-'));
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -175,7 +187,7 @@ test('release manifest command confirms Change-Ids in task manifests at the cand
   const sha = spawnSync('git', ['-C', root, 'rev-parse', 'HEAD'], {
     encoding: 'utf8',
   }).stdout.trim();
-  const input = manifest({
+  const input = currentCliManifest({
     candidateSha: sha,
     rollback: { targetSha: rollbackTarget, imageDigest },
   });
@@ -248,7 +260,7 @@ test('release freeze excludes a later develop feature and rejects adding it to t
     'the post-freeze feature must remain outside the release branch'
   );
 
-  const input = manifest({
+  const input = currentCliManifest({
     candidateSha,
     changeIds: [changeId],
     taskBindings: [{ taskId: 'HARN-07', changeId }],

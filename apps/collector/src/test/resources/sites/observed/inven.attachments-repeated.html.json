@@ -4,17 +4,7 @@
   "url": "https://www.inven.co.kr/board/lostark/4821/104384",
   "rawSha256": "00c85cd5b09e71a6963ee090bfb7e9b5eadeaa728a48410f16ac3e0755620180",
   "fixtureSha256": "db2f80fc5ba8c6e32ed2c77bf6f8abb1c75799072c421fdcfcc402203d3538cf",
-  "shape": [
-    "LINK",
-    "TEXT",
-    "TEXT",
-    "IMAGE:1",
-    "LINK",
-    "TEXT",
-    "LINK",
-    "TEXT",
-    "IMAGE:2"
-  ],
+  "shape": ["LINK", "TEXT", "TEXT", "IMAGE:1", "LINK", "TEXT", "LINK", "TEXT", "IMAGE:2"],
   "images": 2,
   "attachments": 1,
   "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."

@@ -67,18 +67,18 @@ GA4를 대체하는 자체 방문 분석은 만들지 않는다. 기존 참고�
 
 ## 5. 요구사항 추적표
 
-| 요구사항 | 분류 | 출처 | 반영 산출물 | 상태 |
-| --- | --- | --- | --- | --- |
-| 기본 flag false·banner/Google 요청 없음 | 확정 | 분석 계획 §2·§11 | D01 consent, D08 loader/banner | 반영 |
-| 동의 뒤 tag·page_view/select_content/share/scroll | 확정 | 분석 계획 §4 | D01 send-events, loader | 반영 |
-| 철회 뒤 전송 중단·`_ga*` 삭제 | 확정 | cookie 안내 §4·§5 | D01 consent, cookie-settings | 반영 |
-| 선택 범위 변경 시 재선택 | 확정 | 분석 계획 §5 | D01·D08 | 반영 |
-| event별 custom parameter allowlist·금지값 | 확정 | 분석 계획 §4 | send-events | 반영 |
-| Measurement ID·보관·국외이전·Google 법인·CSP | 실값 필요 | legal 활성화 차단 | loader | 활성화 차단 |
-| 광고 consent/runtime | 범위 밖 | M0 Core 제외 | 전체 | 미노출 |
-| 첫 확장 9개 수동 이벤트·직접 GA4 단일 전송 | 확정 설계 | 분석 계획 §4.1 | §13.1~§13.5 | 소스 구현·운영 미검증 |
-| 공개 콘텐츠 키·진입 분류·GA4 보고 | 확정 설계 | API 설계·분석 확장안 | §13.3~§13.7 | 소스 구현·운영 미검증 |
-| version3 재동의·GA4 운영 수신 | 구현·운영값 필요 | 보안·legal·분석 계획 | §13.2·§13.8 | 활성화 차단 |
+| 요구사항                                          | 분류             | 출처                 | 반영 산출물                    | 상태                  |
+| ------------------------------------------------- | ---------------- | -------------------- | ------------------------------ | --------------------- |
+| 기본 flag false·banner/Google 요청 없음           | 확정             | 분석 계획 §2·§11     | D01 consent, D08 loader/banner | 반영                  |
+| 동의 뒤 tag·page_view/select_content/share/scroll | 확정             | 분석 계획 §4         | D01 send-events, loader        | 반영                  |
+| 철회 뒤 전송 중단·`_ga*` 삭제                     | 확정             | cookie 안내 §4·§5    | D01 consent, cookie-settings   | 반영                  |
+| 선택 범위 변경 시 재선택                          | 확정             | 분석 계획 §5         | D01·D08                        | 반영                  |
+| event별 custom parameter allowlist·금지값         | 확정             | 분석 계획 §4         | send-events                    | 반영                  |
+| Measurement ID·보관·국외이전·Google 법인·CSP      | 실값 필요        | legal 활성화 차단    | loader                         | 활성화 차단           |
+| 광고 consent/runtime                              | 범위 밖          | M0 Core 제외         | 전체                           | 미노출                |
+| 첫 확장 9개 수동 이벤트·직접 GA4 단일 전송        | 확정 설계        | 분석 계획 §4.1       | §13.1~§13.5                    | 소스 구현·운영 미검증 |
+| 공개 콘텐츠 키·진입 분류·GA4 보고                 | 확정 설계        | API 설계·분석 확장안 | §13.3~§13.7                    | 소스 구현·운영 미검증 |
+| version3 재동의·GA4 운영 수신                     | 구현·운영값 필요 | 보안·legal·분석 계획 | §13.2·§13.8                    | 활성화 차단           |
 
 ## 6. 업무 규칙과 수용 조건
 
@@ -461,10 +461,10 @@ GA4 실제 cookie 만료·property 보관·국외이전 고지·Google 계약 �
 
 ### 13.1 전송 담당 결정과 책임
 
-| 선택 | 장점 | 이번 범위의 부담 | 결정 |
-| --- | --- | --- | --- |
-| 앱 직접 GA4 | 동의·허용 필드·발생 시점을 코드와 CI에서 함께 검증. 현재 adapter 확장 가능 | 변경 시 앱 배포 필요 | 첫 구현 채택 |
-| 앱 이벤트→GTM→GA4 | 태그 연결·운영 변경을 콘솔에서 관리 가능 | 앱과 콘솔의 계약·버전·동의·중복 전송을 별도 관리해야 함 | 첫 구현 미채택 |
+| 선택              | 장점                                                                       | 이번 범위의 부담                                        | 결정           |
+| ----------------- | -------------------------------------------------------------------------- | ------------------------------------------------------- | -------------- |
+| 앱 직접 GA4       | 동의·허용 필드·발생 시점을 코드와 CI에서 함께 검증. 현재 adapter 확장 가능 | 변경 시 앱 배포 필요                                    | 첫 구현 채택   |
+| 앱 이벤트→GTM→GA4 | 태그 연결·운영 변경을 콘솔에서 관리 가능                                   | 앱과 콘솔의 계약·버전·동의·중복 전송을 별도 관리해야 함 | 첫 구현 미채택 |
 
 1. 공개 컴포넌트는 공통 분석 adapter만 호출한다. 컴포넌트별 `gtag`, GA4 HTTP 요청,
    `dataLayer.push({event: ...})`를 통한 별도 GTM 전송은 만들지 않는다.
@@ -537,16 +537,16 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
 해당 이벤트를 drop하고, 정의하지 않은 필드는 제거한다. 문자열로 강제 변환하거나 객체를 직렬화해
 보내지 않는다. 암호학적 난수 생성이 불가능하면 식별값을 약한 난수로 대체하지 않고 수동 분석을 중단한다.
 
-| 필드 | 타입·허용값 | 필수·역할 |
-| --- | --- | --- |
-| `schema_version` | integer `1` | 모든 수동 이벤트. legacy의 필드 없음과 구분 |
-| `event_key` | 소문자 UUID v4 문자열 36자 | 모든 이벤트의 개별 전송 시도. GA4 자체 중복 제거 기능으로 가정하지 않음 |
-| `context_key` | 소문자 UUID v4 문자열 36자 | §13.2의 메모리 측정 문맥 |
-| `view_key` | 소문자 UUID v4 문자열 36자 | 이벤트가 발생한 현재 화면 표시 |
-| `page_type` | `list`, `detail`, `policy` | 모든 이벤트 |
-| `route_template` | `/:boardSlug`, `/:boardSlug/posts/:postId`, `/policy` | `page_type`과 일치. 실제 route 문자열 금지 |
-| `board_slug` | `meme` | list·detail 필수, policy 생략. 새 게시판은 계약 확장 후 허용 |
-| `page_content_key` | `^p1_[0-9a-f]{64}$` | detail 필수. 현재 상세 게시물. list·policy에서는 생략 |
+| 필드               | 타입·허용값                                           | 필수·역할                                                               |
+| ------------------ | ----------------------------------------------------- | ----------------------------------------------------------------------- |
+| `schema_version`   | integer `1`                                           | 모든 수동 이벤트. legacy의 필드 없음과 구분                             |
+| `event_key`        | 소문자 UUID v4 문자열 36자                            | 모든 이벤트의 개별 전송 시도. GA4 자체 중복 제거 기능으로 가정하지 않음 |
+| `context_key`      | 소문자 UUID v4 문자열 36자                            | §13.2의 메모리 측정 문맥                                                |
+| `view_key`         | 소문자 UUID v4 문자열 36자                            | 이벤트가 발생한 현재 화면 표시                                          |
+| `page_type`        | `list`, `detail`, `policy`                            | 모든 이벤트                                                             |
+| `route_template`   | `/:boardSlug`, `/:boardSlug/posts/:postId`, `/policy` | `page_type`과 일치. 실제 route 문자열 금지                              |
+| `board_slug`       | `meme`                                                | list·detail 필수, policy 생략. 새 게시판은 계약 확장 후 허용            |
+| `page_content_key` | `^p1_[0-9a-f]{64}$`                                   | detail 필수. 현재 상세 게시물. list·policy에서는 생략                   |
 
 - adapter가 넣는 고정 기본 필드: `send_to`는 승인된 Measurement ID, `page_title="블라리요"`,
   `page_referrer=""`, `page_location`은 서비스 origin + `/analytics/list`, `/analytics/detail`, `/analytics/policy`.
@@ -568,38 +568,38 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
 
 표의 필드는 공통 필드에 추가된다. `?`는 선택 필드이며 실제 이름에는 포함하지 않는다.
 
-| 이벤트 | 발생 조건·횟수 | 이벤트별 매개변수 |
-| --- | --- | --- |
-| `page_view` | 동의·ready 후 정상 화면 확정 때 view당 1회. `/` redirect 중간 화면은 제외 | `previous_view_key?`, `list_page?`, `entry_source`, `entry_campaign`, `entry_share_method` |
-| `list_impression` | 항목의 50% 이상이 visible document에서 연속 1초 보이면 목록 표시·항목별 1회 | `content_key`, `list_instance_key`, `list_area`, `list_kind`, `list_page`, `list_position`, `impression_key` |
-| `select_content` | 현재 글이 아닌 목록 항목을 실제 활성화할 때. 키보드·일반 click·중간 click을 동일 handler 경계로 처리 | `content_type`, `content_key`, `list_instance_key`, `list_area`, `list_kind`, `list_page`, `list_position`, `exposure_state`, `impression_key?`, `open_mode` |
-| `list_page_change` | 이용자가 요청한 다른 목록 page가 성공적으로 표시될 때 1회. 최초 목록·실패·취소·같은 page는 제외 | `list_area`, `from_list_page`, `to_list_page`, `list_instance_key` |
-| `scroll` | 본문 25·50·75% 지점 또는 본문 끝 marker가 1초 이상 보이면 view·구간별 1회 | `depth_percent` |
-| `content_engagement` | 본문이 viewport와 겹치고 document가 visible·focus인 시간을 누적. 15초마다 또는 관측 종료 직전에 증분 전송 | `active_ms`, `flush_reason` |
-| `share_open` | 닫힌 공유 메뉴가 이용자 조작으로 실제 열릴 때 1회 | 추가 필드 없음 |
-| `share` | copy/native/kakao/x의 실제 공유 기능 호출 직전에 시도별 1회 | `share_method`, `share_attempt_key`, `parent_attempt_key?` |
-| `share_result` | 해당 공유 API에서 관측한 결과가 확정될 때 시도별 최대 1회 | `share_method`, `share_attempt_key`, `share_outcome`, `parent_attempt_key?` |
+| 이벤트               | 발생 조건·횟수                                                                                            | 이벤트별 매개변수                                                                                                                                            |
+| -------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `page_view`          | 동의·ready 후 정상 화면 확정 때 view당 1회. `/` redirect 중간 화면은 제외                                 | `previous_view_key?`, `list_page?`, `entry_source`, `entry_campaign`, `entry_share_method`                                                                   |
+| `list_impression`    | 항목의 50% 이상이 visible document에서 연속 1초 보이면 목록 표시·항목별 1회                               | `content_key`, `list_instance_key`, `list_area`, `list_kind`, `list_page`, `list_position`, `impression_key`                                                 |
+| `select_content`     | 현재 글이 아닌 목록 항목을 실제 활성화할 때. 키보드·일반 click·중간 click을 동일 handler 경계로 처리      | `content_type`, `content_key`, `list_instance_key`, `list_area`, `list_kind`, `list_page`, `list_position`, `exposure_state`, `impression_key?`, `open_mode` |
+| `list_page_change`   | 이용자가 요청한 다른 목록 page가 성공적으로 표시될 때 1회. 최초 목록·실패·취소·같은 page는 제외           | `list_area`, `from_list_page`, `to_list_page`, `list_instance_key`                                                                                           |
+| `scroll`             | 본문 25·50·75% 지점 또는 본문 끝 marker가 1초 이상 보이면 view·구간별 1회                                 | `depth_percent`                                                                                                                                              |
+| `content_engagement` | 본문이 viewport와 겹치고 document가 visible·focus인 시간을 누적. 15초마다 또는 관측 종료 직전에 증분 전송 | `active_ms`, `flush_reason`                                                                                                                                  |
+| `share_open`         | 닫힌 공유 메뉴가 이용자 조작으로 실제 열릴 때 1회                                                         | 추가 필드 없음                                                                                                                                               |
+| `share`              | copy/native/kakao/x의 실제 공유 기능 호출 직전에 시도별 1회                                               | `share_method`, `share_attempt_key`, `parent_attempt_key?`                                                                                                   |
+| `share_result`       | 해당 공유 API에서 관측한 결과가 확정될 때 시도별 최대 1회                                                 | `share_method`, `share_attempt_key`, `share_outcome`, `parent_attempt_key?`                                                                                  |
 
-| 매개변수 | 타입·허용값·조건 |
-| --- | --- |
-| `previous_view_key` | UUID v4. 같은 context의 직전 view가 있을 때만 포함 |
-| `list_instance_key` | UUID v4. 목록의 응답 page가 실제 표시될 때 새로 생성. 상세 하단 page 변경은 이 값만 교체 |
-| `content_key` | 공개 응답의 분석용 키. impression/select의 대상 글이며 현재 상세의 `page_content_key`와 구분 |
-| `list_area` | `main`, `detail_footer` |
-| `list_kind` | `regular`, `pinned` |
-| `list_page`, `from_list_page`, `to_list_page` | integer 1~10000. 실제 공개 API page 값. `page_view.list_page`는 list에서만 필수 |
-| `list_position` | regular는 1~20, pinned는 1~3. 각 묶음 안의 화면 순서 |
-| `impression_key` | UUID v4. 노출 전송 전에 생성하고 adapter 수락 후에만 보유·select에 연결. 거절하면 폐기 |
-| `content_type` | `post` |
-| `exposure_state` | `qualified`, `unqualified`. 전자는 impression_key 필수, 후자는 생략 |
-| `open_mode` | `same_tab`, `new_context`, `unknown`. 수식키·중간 클릭·target으로 판정 가능한 범위만 사용 |
-| `depth_percent` | integer 25, 50, 75, 100 |
-| `active_ms` | integer 1~60000. 직전 flush 이후 새로 관측한 시간만 전송 |
-| `flush_reason` | `interval`, `hidden`, `blur`, `navigation`, `pagehide` |
-| `share_method` | `copy`, `native`, `kakao`, `x` |
-| `share_attempt_key`, `parent_attempt_key` | UUID v4. fallback copy는 새 시도 키를 만들고 직전 native 시도를 parent로 연결 |
-| `share_outcome` | `copied`, `browser_resolved`, `cancelled`, `failed`, `unavailable`, `handoff` |
-| `entry_source`, `entry_campaign`, `entry_share_method` | §13.6의 고정 enum. 그 외 문자열 금지 |
+| 매개변수                                               | 타입·허용값·조건                                                                             |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `previous_view_key`                                    | UUID v4. 같은 context의 직전 view가 있을 때만 포함                                           |
+| `list_instance_key`                                    | UUID v4. 목록의 응답 page가 실제 표시될 때 새로 생성. 상세 하단 page 변경은 이 값만 교체     |
+| `content_key`                                          | 공개 응답의 분석용 키. impression/select의 대상 글이며 현재 상세의 `page_content_key`와 구분 |
+| `list_area`                                            | `main`, `detail_footer`                                                                      |
+| `list_kind`                                            | `regular`, `pinned`                                                                          |
+| `list_page`, `from_list_page`, `to_list_page`          | integer 1~10000. 실제 공개 API page 값. `page_view.list_page`는 list에서만 필수              |
+| `list_position`                                        | regular는 1~~20, pinned는 1~~3. 각 묶음 안의 화면 순서                                       |
+| `impression_key`                                       | UUID v4. 노출 전송 전에 생성하고 adapter 수락 후에만 보유·select에 연결. 거절하면 폐기       |
+| `content_type`                                         | `post`                                                                                       |
+| `exposure_state`                                       | `qualified`, `unqualified`. 전자는 impression_key 필수, 후자는 생략                          |
+| `open_mode`                                            | `same_tab`, `new_context`, `unknown`. 수식키·중간 클릭·target으로 판정 가능한 범위만 사용    |
+| `depth_percent`                                        | integer 25, 50, 75, 100                                                                      |
+| `active_ms`                                            | integer 1~60000. 직전 flush 이후 새로 관측한 시간만 전송                                     |
+| `flush_reason`                                         | `interval`, `hidden`, `blur`, `navigation`, `pagehide`                                       |
+| `share_method`                                         | `copy`, `native`, `kakao`, `x`                                                               |
+| `share_attempt_key`, `parent_attempt_key`              | UUID v4. fallback copy는 새 시도 키를 만들고 직전 native 시도를 parent로 연결                |
+| `share_outcome`                                        | `copied`, `browser_resolved`, `cancelled`, `failed`, `unavailable`, `handoff`                |
+| `entry_source`, `entry_campaign`, `entry_share_method` | §13.6의 고정 enum. 그 외 문자열 금지                                                         |
 
 발생 시점의 상세 규칙:
 
@@ -695,14 +695,14 @@ GTM 태그를 추가하는 점진적 중복 운영은 사용하지 않는다. [G
 
 ### 13.8 구현·검증 순서와 완료 조건
 
-| 순서 | 구현 범위·대상 | 수용 조건 — 아직 미실행 |
-| --- | --- | --- |
-| 1 | Core 공개 DTO·secret 검증, docs/packages OpenAPI, 타입·검증기 | 같은 게시물의 목록·상세 키 일치, 환경 분리, 비공개·오류·관리자 미노출, 키 없음에도 콘텐츠 정상 |
-| 2 | `consent.mjs`, `useConsent.ts`, loader·선택 UI | version2 재선택, version3 저장·만료·철회·storage 실패, 직접 GA4 동의 전 0요청, GTM 컨테이너 요청 구분 |
-| 3 | PostList·목록/상세·공유 handler, 단일 adapter | 9개 이벤트의 필드·시점·guard·send_to, 기본 필드 고정, 이벤트당 매개변수 제한, 모르는 필드 제거 |
-| 4 | 단위·브라우저 격리 검증 | SSR hydration·SPA·뒤로 가기·하단 page 변경·짧은 글·이미지 지연·새 탭·BFCache·fallback·철회 경합 검증 |
-| 5 | GA4/GTM 운영 설정·고지 — 별도 실행 | 단일 GA4 전송 담당, 향상된 측정 OFF, 맞춤 정의, version3 고지, 실제 수신 확인 |
-| 6 | 실제 공개 브라우저·DebugView 대조 | 동의 전후·철회 요청, URL/개인정보 누출 없음, 수신 중복 없음, 9개 이벤트 수신 확인 |
+| 순서 | 구현 범위·대상                                                | 수용 조건 — 아직 미실행                                                                               |
+| ---- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 1    | Core 공개 DTO·secret 검증, docs/packages OpenAPI, 타입·검증기 | 같은 게시물의 목록·상세 키 일치, 환경 분리, 비공개·오류·관리자 미노출, 키 없음에도 콘텐츠 정상        |
+| 2    | `consent.mjs`, `useConsent.ts`, loader·선택 UI                | version2 재선택, version3 저장·만료·철회·storage 실패, 직접 GA4 동의 전 0요청, GTM 컨테이너 요청 구분 |
+| 3    | PostList·목록/상세·공유 handler, 단일 adapter                 | 9개 이벤트의 필드·시점·guard·send_to, 기본 필드 고정, 이벤트당 매개변수 제한, 모르는 필드 제거        |
+| 4    | 단위·브라우저 격리 검증                                       | SSR hydration·SPA·뒤로 가기·하단 page 변경·짧은 글·이미지 지연·새 탭·BFCache·fallback·철회 경합 검증  |
+| 5    | GA4/GTM 운영 설정·고지 — 별도 실행                            | 단일 GA4 전송 담당, 향상된 측정 OFF, 맞춤 정의, version3 고지, 실제 수신 확인                         |
+| 6    | 실제 공개 브라우저·DebugView 대조                             | 동의 전후·철회 요청, URL/개인정보 누출 없음, 수신 중복 없음, 9개 이벤트 수신 확인                     |
 
 추가 실패 수용 조건:
 

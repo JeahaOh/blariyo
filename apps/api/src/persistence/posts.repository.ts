@@ -76,21 +76,47 @@ export class TypeOrmPostsRepository extends PostsRepository {
     body: CreatePost,
     actor: string
   ): Promise<PostRecord> {
-    const result = await this.db.manager.createQueryBuilder().insert().into(ContentBoardPostEntity)
-      .values({ board_id: boardId, title: body.title.trim(), source_name: body.source?.name.trim() || null, source_url: body.source?.url || null,
-        status: 'DRAFT', pinned_position: body.pinnedPosition, created_by: actor, created_at: () => 'now()', updated_by: actor, updated_at: () => 'now()' })
-      .returning('id').execute();
+    const result = await this.db.manager
+      .createQueryBuilder()
+      .insert()
+      .into(ContentBoardPostEntity)
+      .values({
+        board_id: boardId,
+        title: body.title.trim(),
+        source_name: body.source?.name.trim() || null,
+        source_url: body.source?.url || null,
+        status: 'DRAFT',
+        pinned_position: body.pinnedPosition,
+        created_by: actor,
+        created_at: () => 'now()',
+        updated_by: actor,
+        updated_at: () => 'now()',
+      })
+      .returning('id')
+      .execute();
     const row = await this.db.manager.findOneByOrFail(ContentBoardPostEntity, {
       id: decimalId(requiredRow(result.raw).id),
     });
     return mapPost(row, slug);
   }
   async update(post: PostRecord, actor: string, publishNow: boolean) {
-    const changed = await this.db.manager.createQueryBuilder().update(ContentBoardPostEntity)
-      .set({ title: post.title, source_name: post.sourceName, source_url: post.sourceUrl, status: post.status,
-        pinned_position: post.pinnedPosition, scheduled_at: post.scheduledAt, published_at: publishNow ? () => 'statement_timestamp()' : post.publishedAt,
-        lock_version: () => 'lock_version+1', updated_by: actor, updated_at: () => 'now()' })
-      .where('id=:id', { id: post.id }).execute();
+    const changed = await this.db.manager
+      .createQueryBuilder()
+      .update(ContentBoardPostEntity)
+      .set({
+        title: post.title,
+        source_name: post.sourceName,
+        source_url: post.sourceUrl,
+        status: post.status,
+        pinned_position: post.pinnedPosition,
+        scheduled_at: post.scheduledAt,
+        published_at: publishNow ? () => 'statement_timestamp()' : post.publishedAt,
+        lock_version: () => 'lock_version+1',
+        updated_by: actor,
+        updated_at: () => 'now()',
+      })
+      .where('id=:id', { id: post.id })
+      .execute();
     if (changed.affected !== 1) throw new Error('MISSING_UPDATED_POST');
     return mapPost(
       await this.db.manager.findOneByOrFail(ContentBoardPostEntity, { id: post.id }),
@@ -101,15 +127,41 @@ export class TypeOrmPostsRepository extends PostsRepository {
     await this.db.manager.delete(ContentBoardPostBlockEntity, { post_id: postId });
   }
   async addBlock(postId: string, position: number, block: EditBlock, actor: string) {
-    await this.db.manager.createQueryBuilder().insert().into(ContentBoardPostBlockEntity)
-      .values({ post_id: postId, position, type: block.type, text_content: block.type === 'TEXT' ? block.text.trim() : null,
-        image_id: block.type === 'IMAGE' ? String(block.imageId) : null, alt_text: block.type === 'IMAGE' ? block.alt.trim() : null,
-        created_by: actor, created_at: () => 'now()', updated_by: actor, updated_at: () => 'now()' }).execute();
+    await this.db.manager
+      .createQueryBuilder()
+      .insert()
+      .into(ContentBoardPostBlockEntity)
+      .values({
+        post_id: postId,
+        position,
+        type: block.type,
+        text_content: block.type === 'TEXT' ? block.text.trim() : null,
+        image_id: block.type === 'IMAGE' ? String(block.imageId) : null,
+        alt_text: block.type === 'IMAGE' ? block.alt.trim() : null,
+        created_by: actor,
+        created_at: () => 'now()',
+        updated_by: actor,
+        updated_at: () => 'now()',
+      })
+      .execute();
   }
   async history(post: PostRecord, from: PostStatus | null, reason: string, actor: string) {
-    await this.db.manager.createQueryBuilder().insert().into(ContentBoardPostStatusHistoryEntity)
-      .values({ post_id: post.id, from_status: from, to_status: post.status, reason_code: reason,
-        actor_type: actor.startsWith('admin:') ? 'ADMIN' : 'SYSTEM', created_by: actor, created_at: () => 'now()', updated_by: actor, updated_at: () => 'now()' }).execute();
+    await this.db.manager
+      .createQueryBuilder()
+      .insert()
+      .into(ContentBoardPostStatusHistoryEntity)
+      .values({
+        post_id: post.id,
+        from_status: from,
+        to_status: post.status,
+        reason_code: reason,
+        actor_type: actor.startsWith('admin:') ? 'ADMIN' : 'SYSTEM',
+        created_by: actor,
+        created_at: () => 'now()',
+        updated_by: actor,
+        updated_at: () => 'now()',
+      })
+      .execute();
   }
   async search(query: PostSearch) {
     const builder = this.db.manager
@@ -177,9 +229,18 @@ export class TypeOrmPostsRepository extends PostsRepository {
     });
   }
   async cancelConflictedSchedule(id: string, lockVersion: number) {
-    const result = await this.db.manager.createQueryBuilder().update(ContentBoardPostEntity)
-      .set({ status: 'DRAFT', scheduled_at: null, lock_version: () => 'lock_version+1', updated_by: 'system:scheduler', updated_at: () => 'now()' })
-      .where("id=:id AND status='SCHEDULED' AND lock_version=:lockVersion", { id, lockVersion }).execute();
+    const result = await this.db.manager
+      .createQueryBuilder()
+      .update(ContentBoardPostEntity)
+      .set({
+        status: 'DRAFT',
+        scheduled_at: null,
+        lock_version: () => 'lock_version+1',
+        updated_by: 'system:scheduler',
+        updated_at: () => 'now()',
+      })
+      .where("id=:id AND status='SCHEDULED' AND lock_version=:lockVersion", { id, lockVersion })
+      .execute();
     if (result.affected !== 1) return null;
     return this.find(id);
   }

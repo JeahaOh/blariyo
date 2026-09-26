@@ -1,5 +1,8 @@
 import type { Storage, Bucket, EdgeCache, StoredObject } from '../shared/storage.js';
-interface R2Credentials { accessKeyId: string; secretAccessKey: string }
+interface R2Credentials {
+  accessKeyId: string;
+  secretAccessKey: string;
+}
 export interface R2Config {
   endpoint: string;
   privateCredentials: R2Credentials;
@@ -18,17 +21,19 @@ export function r2Storage(config: R2Config): Storage {
   for (const key of ['endpoint', 'privateBucket', 'publicBucket'] as const)
     if (!config[key]) throw new Error('R2_CONFIG_REQUIRED');
   for (const credentials of [config.privateCredentials, config.publicCredentials])
-    if (!credentials?.accessKeyId || !credentials.secretAccessKey) throw new Error('R2_CONFIG_REQUIRED');
+    if (!credentials?.accessKeyId || !credentials.secretAccessKey)
+      throw new Error('R2_CONFIG_REQUIRED');
   if (config.privateBucket === config.publicBucket) throw new Error('R2_BUCKETS_MUST_DIFFER');
   if (config.privateCredentials.accessKeyId === config.publicCredentials.accessKeyId)
     throw new Error('R2_CREDENTIALS_MUST_DIFFER');
-  const createClient = (credentials: R2Credentials) => new S3Client({
-    region: 'auto',
-    endpoint: config.endpoint,
-    credentials,
-    forcePathStyle: true,
-    maxAttempts: 1,
-  });
+  const createClient = (credentials: R2Credentials) =>
+    new S3Client({
+      region: 'auto',
+      endpoint: config.endpoint,
+      credentials,
+      forcePathStyle: true,
+      maxAttempts: 1,
+    });
   const clients = {
     private: createClient(config.privateCredentials),
     public: createClient(config.publicCredentials),
@@ -39,9 +44,21 @@ export function r2Storage(config: R2Config): Storage {
   };
   return {
     async put(kind, key, bytes) {
-      const mime = new Map([['jpg','image/jpeg'], ['png','image/png'], ['gif','image/gif'], ['webp','image/webp']]).get(key.split('.').at(-1) ?? '');
+      const mime = new Map([
+        ['jpg', 'image/jpeg'],
+        ['png', 'image/png'],
+        ['gif', 'image/gif'],
+        ['webp', 'image/webp'],
+      ]).get(key.split('.').at(-1) ?? '');
       const name = bucket(kind);
-      await clients[kind].send(new PutObjectCommand({ Bucket: name, Key: key, Body: bytes, ...(mime ? { ContentType: mime } : {}) }));
+      await clients[kind].send(
+        new PutObjectCommand({
+          Bucket: name,
+          Key: key,
+          Body: bytes,
+          ...(mime ? { ContentType: mime } : {}),
+        })
+      );
     },
     async get(kind, key) {
       const name = bucket(kind);
@@ -51,7 +68,9 @@ export function r2Storage(config: R2Config): Storage {
     },
     async promote(source, target) {
       // Each credential remains scoped to one bucket; never widen it for CopyObject.
-      const response = await clients.private.send(new GetObjectCommand({ Bucket: bucket('private'), Key: source }));
+      const response = await clients.private.send(
+        new GetObjectCommand({ Bucket: bucket('private'), Key: source })
+      );
       if (!response.Body) throw new Error('STORAGE_BODY_REQUIRED');
       const bytes = await response.Body.transformToByteArray();
       await clients.public.send(
@@ -82,7 +101,11 @@ export function r2Storage(config: R2Config): Storage {
           new ListObjectsV2Command({ Bucket: name, ...(token ? { ContinuationToken: token } : {}) })
         );
         items.push(
-          ...(response.Contents || []).map((o) => { if (!o.Key || !o.LastModified || !Number.isFinite(o.LastModified.getTime())) throw new Error('INVALID_STORAGE_INVENTORY'); return { key: o.Key, createdAt: o.LastModified }; })
+          ...(response.Contents || []).map((o) => {
+            if (!o.Key || !o.LastModified || !Number.isFinite(o.LastModified.getTime()))
+              throw new Error('INVALID_STORAGE_INVENTORY');
+            return { key: o.Key, createdAt: o.LastModified };
+          })
         );
         token = response.IsTruncated ? response.NextContinuationToken : undefined;
       } while (token);
@@ -104,7 +127,14 @@ export function cloudflareCache({ zoneId, token }: { zoneId: string; token: stri
         }
       );
       const body: unknown = await response.json();
-      if (!response.ok || typeof body !== 'object' || body === null || !('success' in body) || !body.success) throw new Error('CACHE_PURGE_FAILED');
+      if (
+        !response.ok ||
+        typeof body !== 'object' ||
+        body === null ||
+        !('success' in body) ||
+        !body.success
+      )
+        throw new Error('CACHE_PURGE_FAILED');
     },
   };
 }

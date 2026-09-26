@@ -78,9 +78,18 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
   );
   for (let i = 0; i < 8; i++) {
     await service.migrate('down');
-    if (i === 0) assert.equal(requiredRow(await source.query("SELECT to_regclass('collect.batch_review') value")).value, null);
+    if (i === 0)
+      assert.equal(
+        requiredRow(await source.query("SELECT to_regclass('collect.batch_review') value")).value,
+        null
+      );
     if (i === 1) {
-      assert.equal(requiredRow(await source.query("SELECT to_regclass('collect.source_discovery_policy') value")).value, null);
+      assert.equal(
+        requiredRow(
+          await source.query("SELECT to_regclass('collect.source_discovery_policy') value")
+        ).value,
+        null
+      );
       assert.equal(await health.ready(true), false);
       assert.equal(await health.ready(false), true);
     }
@@ -132,17 +141,21 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
     try {
       const role = 'nest_app_' + randomBytes(6).toString('hex');
       await runner.query(`CREATE ROLE ${role} NOLOGIN`);
-      await runner.query('CREATE TABLE collect.batch_queue(id uuid); CREATE TABLE collect.batch_confirmation(id uuid); CREATE TABLE collect.future_batch_table(id bigint GENERATED ALWAYS AS IDENTITY)');
+      await runner.query(
+        'CREATE TABLE collect.batch_queue(id uuid); CREATE TABLE collect.batch_confirmation(id uuid); CREATE TABLE collect.future_batch_table(id bigint GENERATED ALWAYS AS IDENTITY)'
+      );
       await repo.grantApplication(role);
       await runner.query(`SET LOCAL ROLE ${role}`);
       assert.equal(await health.ready(true), true);
-      for (const table of ['batch_queue','batch_confirmation','future_batch_table']) {
+      for (const table of ['batch_queue', 'batch_confirmation', 'future_batch_table']) {
         await runner.query('SAVEPOINT private_queue');
-        await assert.rejects(runner.query(`SELECT * FROM collect.${table}`), {code:'42501'});
+        await assert.rejects(runner.query(`SELECT * FROM collect.${table}`), { code: '42501' });
         await runner.query('ROLLBACK TO SAVEPOINT private_queue');
       }
       await runner.query('SAVEPOINT future_sequence');
-      await assert.rejects(runner.query("SELECT nextval('collect.future_batch_table_id_seq')"), {code:'42501'});
+      await assert.rejects(runner.query("SELECT nextval('collect.future_batch_table_id_seq')"), {
+        code: '42501',
+      });
       await runner.query('ROLLBACK TO SAVEPOINT future_sequence');
       await runner.query('RESET ROLE');
       await runner.query(`REVOKE INSERT ON collect.collector_receipt FROM ${role}`);
@@ -168,6 +181,10 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
       await runner.rollbackTransaction();
     }
   });
+  await source.query(
+    "UPDATE ops.schema_migration SET checksum_sha256=decode('6e9871db8696ca8d351c3ca2e13e9836a5ab30e0538ce800f1b4aeb8d0eb1ca4','hex') WHERE version='V002'"
+  );
+  await service.migrate();
   await source.query(
     "UPDATE ops.schema_migration SET checksum_sha256=decode(repeat('00',32),'hex') WHERE version='V002'"
   );

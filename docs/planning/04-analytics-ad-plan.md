@@ -72,12 +72,12 @@ BigQuery 일별 원시 내보내기는 첫 구현에서 제외하고, 외부 저
 현행 legacy adapter는 GA4를 활성화한 환경에서 분석 동의가 있을 때만 다음 이벤트를 전송한다.
 `analytics-v1` 구현으로 교체할 때는 §4.1의 계약을 적용하며 두 버전을 동시에 보내지 않는다.
 
-| 이벤트 | 발생 시점 | 허용 custom parameter |
-| --- | --- | --- |
-| `page_view` | route별 첫 화면 표시 | `page_type`, `route_template` |
+| 이벤트           | 발생 시점            | 허용 custom parameter                                |
+| ---------------- | -------------------- | ---------------------------------------------------- |
+| `page_view`      | route별 첫 화면 표시 | `page_type`, `route_template`                        |
 | `select_content` | 목록에서 게시글 선택 | `board_slug`, `content_type`, `list_position_bucket` |
-| `share` | 공유 방식 선택 | `share_method`, `board_slug` |
-| `scroll` | 상세 주요 구간 도달 | `page_type`, `scroll_depth_bucket` |
+| `share`          | 공유 방식 선택       | `share_method`, `board_slug`                         |
+| `scroll`         | 상세 주요 구간 도달  | `page_type`, `scroll_depth_bucket`                   |
 
 - `/`에서 `/meme`으로 이동할 때 중복 `page_view`를 보내지 않는다.
 - 위 표에 없는 custom parameter는 추가하지 않는다.
@@ -153,8 +153,8 @@ version3 전환·철회·구버전 처리 기준은
 
 ### 목록
 
-| 슬롯 | 위치 |
-| --- | --- |
+| 슬롯             | 위치                          |
+| ---------------- | ----------------------------- |
 | `AD-FEED-INLINE` | `/meme` 목록 중간 광고 행 1개 |
 
 - 첫 게시글 앞에는 넣지 않는다.
@@ -163,11 +163,11 @@ version3 전환·철회·구버전 처리 기준은
 
 ### 상세
 
-| 슬롯 | 위치 |
-| --- | --- |
-| `AD-POST-BODY-BOTTOM` | 본문과 출처 다음 |
-| `AD-DETAIL-LIST-INLINE` | 하단 목록 중간 |
-| `AD-DETAIL-LIST-AFTER` | 하단 목록 아래 |
+| 슬롯                    | 위치             |
+| ----------------------- | ---------------- |
+| `AD-POST-BODY-BOTTOM`   | 본문과 출처 다음 |
+| `AD-DETAIL-LIST-INLINE` | 하단 목록 중간   |
+| `AD-DETAIL-LIST-AFTER`  | 하단 목록 아래   |
 
 - 상세 상단, 측면, 앵커, 전면형 광고는 두지 않는다.
 - 로그인·정책·오류 화면에는 광고를 넣지 않는다.
@@ -175,11 +175,11 @@ version3 전환·철회·구버전 처리 기준은
 
 ## 7. 광고 실패와 차단
 
-| 상태 | 처리 |
-| --- | --- |
-| timeout, no-fill, 네트워크 오류 | 슬롯을 접고 콘텐츠 유지 |
-| 광고 차단 확인 | 닫을 수 있는 전면 dim modal 표시 가능 |
-| 판정 불명 | 일반 실패로 처리 |
+| 상태                            | 처리                                  |
+| ------------------------------- | ------------------------------------- |
+| timeout, no-fill, 네트워크 오류 | 슬롯을 접고 콘텐츠 유지               |
+| 광고 차단 확인                  | 닫을 수 있는 전면 dim modal 표시 가능 |
+| 판정 불명                       | 일반 실패로 처리                      |
 
 - 광고 실패를 광고 차단으로 간주하지 않는다.
 - modal이 열린 동안 배경 조작과 스크롤은 막되 닫기, `계속 보기`, `Escape`로 즉시 닫을 수 있다.
@@ -193,12 +193,12 @@ version3 전환·철회·구버전 처리 기준은
 별도 수신처·보존·동의·필드 최소화 계약은 `(미정)`이며, 표의 `postId`는 §4 GA4 금지값이므로
 GA4에 그대로 전송할 수 없다. 활성화 전에 해당 필드의 필요성과 처리 방식을 확정한다.
 
-| 이벤트 | 필드 |
-| --- | --- |
+| 이벤트            | 필드                          |
+| ----------------- | ----------------------------- |
 | `ad_slot_request` | `slot`, `boardSlug`, `postId` |
-| `ad_impression` | `slot`, `boardSlug`, `postId` |
-| `ad_load_failed` | `slot`, `reason` |
-| `adblock_notice` | `action`, `placement` |
+| `ad_impression`   | `slot`, `boardSlug`, `postId` |
+| `ad_load_failed`  | `slot`, `reason`              |
+| `adblock_notice`  | `action`, `placement`         |
 
 광고 사업자가 금지하는 방식으로 노출·클릭을 자체 집계하거나 클릭을 유도하지 않는다.
 

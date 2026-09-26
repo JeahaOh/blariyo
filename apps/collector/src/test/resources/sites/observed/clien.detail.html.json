@@ -4,13 +4,7 @@
   "url": "https://www.clien.net/service/board/park/19268282",
   "rawSha256": "9f74ddf4ceaa2880842810a494f0760f2f44f6d15729de611df1f458f855e1c2",
   "fixtureSha256": "105b3710a55a627856b92888d82d56fb652b38835d947cc6c842d30717210ae7",
-  "shape": [
-    "TEXT",
-    "TEXT",
-    "TEXT",
-    "TEXT",
-    "LINK"
-  ],
+  "shape": ["TEXT", "TEXT", "TEXT", "TEXT", "LINK"],
   "images": 0,
   "attachments": 0,
   "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."

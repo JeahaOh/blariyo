@@ -28,14 +28,14 @@ node deploy/application/prepare-runtime-config.cjs --create
 `application-config-*` 폴더를 만든다. `--create` 없이 실행하면 읽기 전용 검사만 한다.
 로컬 저장소의 API build와 dependencies가 필요하다. 네트워크 요청·정책 발행·서버 작업은 없다.
 
-| 출력 | 내용 |
-| --- | --- |
-| `api.env` | production Core, app DB 파일 경로, private/public R2 키, 캐시 삭제 키, 내부 서비스 키, 공개 연락처 |
-| `web.env` | production Web, Access issuer·AUD, 운영자 파일 경로, 서비스 키·actor 키, 공개 연락처·확정 카피 |
-| `secrets/app-password` | app 역할 비밀번호만 복사 |
-| `secrets/admin-operators.json` | identity·operatorId·active만 복사 |
-| `compose.yaml` | [앱 계층 Compose](compose.yaml) 사본. API/Web만 정의하며 image 지정은 필수 |
-| `bundle.json` | 마지막에 기록하는 입력 준비 표시. `productionReady: false`; image·gateway 미포함 |
+| 출력                           | 내용                                                                                               |
+| ------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `api.env`                      | production Core, app DB 파일 경로, private/public R2 키, 캐시 삭제 키, 내부 서비스 키, 공개 연락처 |
+| `web.env`                      | production Web, Access issuer·AUD, 운영자 파일 경로, 서비스 키·actor 키, 공개 연락처·확정 카피     |
+| `secrets/app-password`         | app 역할 비밀번호만 복사                                                                           |
+| `secrets/admin-operators.json` | identity·operatorId·active만 복사                                                                  |
+| `compose.yaml`                 | [앱 계층 Compose](compose.yaml) 사본. API/Web만 정의하며 image 지정은 필수                         |
+| `bundle.json`                  | 마지막에 기록하는 입력 준비 표시. `productionReady: false`; image·gateway 미포함                   |
 
 DB migration·backup 비밀번호는 읽거나 복사하지 않는다. R2 보관 파일의 backup 키와 관리
 API 토큰도 출력 묶음에서 제외한다. 원본·기존 묶음은 유지하고 폴더 700·파일 600으로 저장한다.
@@ -210,13 +210,13 @@ open -e ~/.config/blariyo/public-contact.json
 생성 파일은 본인 소유·권한 600의 JSON이며 아래 5개 문자열을 입력한다. 여기서 공개라는 말은
 향후 사이트에 표시할 정보라는 뜻이다. 준비 도구가 이 값을 외부로 전송하거나 출력하지는 않는다.
 
-| 항목 | 입력할 내용 | Web 배포 시 대응 이름 |
-| --- | --- | --- |
-| `operatorDisplayName` | 공개할 실제 운영자 표시명 | `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME` |
-| `contactEmail` | 실제 수신 가능한 일반 문의 이메일 | `NUXT_PUBLIC_CONTACT_EMAIL` |
-| `rightsEmail` | 실제 수신 가능한 권리 신고 이메일 | `NUXT_PUBLIC_RIGHTS_EMAIL` |
-| `privacyEmail` | 실제 수신 가능한 개인정보 문의 이메일 | `NUXT_PUBLIC_PRIVACY_EMAIL` |
-| `privacyOfficer` | 실제 개인정보 보호책임자 또는 담당자 표시 | `NUXT_PUBLIC_PRIVACY_OFFICER` |
+| 항목                  | 입력할 내용                               | Web 배포 시 대응 이름               |
+| --------------------- | ----------------------------------------- | ----------------------------------- |
+| `operatorDisplayName` | 공개할 실제 운영자 표시명                 | `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME` |
+| `contactEmail`        | 실제 수신 가능한 일반 문의 이메일         | `NUXT_PUBLIC_CONTACT_EMAIL`         |
+| `rightsEmail`         | 실제 수신 가능한 권리 신고 이메일         | `NUXT_PUBLIC_RIGHTS_EMAIL`          |
+| `privacyEmail`        | 실제 수신 가능한 개인정보 문의 이메일     | `NUXT_PUBLIC_PRIVACY_EMAIL`         |
+| `privacyOfficer`      | 실제 개인정보 보호책임자 또는 담당자 표시 | `NUXT_PUBLIC_PRIVACY_OFFICER`       |
 
 Core에는 동일 객체를 `LEGAL_CONFIG` JSON으로 전달해야 한다. 입력 파일을 Core/Web의
 `.env`로 직접 연결하지 않으며 배포 설정을 만들 때 각각의 이름으로 변환한다.

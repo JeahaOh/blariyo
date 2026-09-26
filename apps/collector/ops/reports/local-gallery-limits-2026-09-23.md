@@ -4,10 +4,10 @@
 
 이미지 20장 때문에 실패했던 실제 공개 글 두 건을 수정된 제한으로 재수집하고 정식 API 검수 → 초안 → 별도 발행까지 확인했다. 전체 21개 사이트 완료를 의미하지 않는다. 원격 S3/R2와 Discord Gateway는 이 검증 범위가 아니다.
 
-| 출처 | 원문 | 수집 run | 저장 이미지 | 공개 글 | readback |
-| --- | --- | --- | ---: | --- | --- |
-| todayhumor | https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797973 | a3ac4fde-19e8-433f-acd8-d8a7d1841dd6 | 21 | http://localhost:3000/meme/posts/106 | raw/media/report/DB, private/public 통과 |
-| dcinside | https://gall.dcinside.com/board/view/?id=hit&no=17809 | a0500dfe-5e97-4621-8442-3c1a5b780cac | 49 | http://localhost:3000/meme/posts/107 | raw/media/report/DB, private/public 통과 |
+| 출처       | 원문                                                                   | 수집 run                             | 저장 이미지 | 공개 글                              | readback                                 |
+| ---------- | ---------------------------------------------------------------------- | ------------------------------------ | ----------: | ------------------------------------ | ---------------------------------------- |
+| todayhumor | https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797973 | a3ac4fde-19e8-433f-acd8-d8a7d1841dd6 |          21 | http://localhost:3000/meme/posts/106 | raw/media/report/DB, private/public 통과 |
+| dcinside   | https://gall.dcinside.com/board/view/?id=hit&no=17809                  | a0500dfe-5e97-4621-8442-3c1a5b780cac |          49 | http://localhost:3000/meme/posts/107 | raw/media/report/DB, private/public 통과 |
 
 DCInside 원문 143블록은 링크 설명 확장을 포함해 content 본문에 보존됐다. 두 글 모두 브라우저에서 모든 이미지 로드를 확인했다. DCInside는 390px에서도 가로 넘침이 없었다. 초안 시점에는 private 사본만 존재했으며 별도 발행 뒤 public 사본을 검증했다.
 

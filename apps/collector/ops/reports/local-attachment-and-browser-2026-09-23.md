@@ -32,13 +32,13 @@ collect 다운로드 링크0개를 확인했다. 관리자 화면의 버튼 조�
 
 ## 현재 수치
 
-| 항목 | 검증 결과 |
-| --- | --- |
-| 수집 DB | 17출처, FETCHED104건, 이미지380, FILE2, SNS21, 불일치0 |
-| 공개 API/DB/object | 71글, 이미지266, 본문71, SNS10 누락0, 실패0 |
-| 목록 | 4페이지, 고유71건, 누락·중복0 |
-| 실제 Chrome 상세 | 목록에서 찾은71개 URL 전부 방문; article 제목 표시, 이미지266 로드, 깨짐/미완료/가로넘침0 |
-| 비공개 경계 | 초안110과 숨김80/81의 공개API404, collect/private 임의경로404 |
+| 항목               | 검증 결과                                                                                 |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| 수집 DB            | 17출처, FETCHED104건, 이미지380, FILE2, SNS21, 불일치0                                    |
+| 공개 API/DB/object | 71글, 이미지266, 본문71, SNS10 누락0, 실패0                                               |
+| 목록               | 4페이지, 고유71건, 누락·중복0                                                             |
+| 실제 Chrome 상세   | 목록에서 찾은71개 URL 전부 방문; article 제목 표시, 이미지266 로드, 깨짐/미완료/가로넘침0 |
+| 비공개 경계        | 초안110과 숨김80/81의 공개API404, collect/private 임의경로404                             |
 
 브라우저 전수 검사는 각 페이지의 렌더링된 DOM과 이미지 로드를 검사했다. 모든 페이지를 개별 스크린샷으로
 육안 대조했다는 뜻은 아니다. 111번 화면은 별도 스크린샷으로 확인했다. 접속 과정에서 조회수가 증가할 수 있다.
@@ -87,26 +87,26 @@ Discord Gateway와 운영/공유 개발 S3/R2 실연동 역시 별도 미검증�
 목록·상세 구현은 각 사이트 adapter를 사용한다. 아래 실제 fixture는 저장된 관측 구조이며 이번 재접속을 뜻하지 않는다.
 17출처는 기존 live 저장 원본을 재검사했고 인벤에만 이번 신규 첨부 수집이 추가됐다. 4개 차단 출처의 synthetic 테스트를 실제 HTML 검증으로 집계하지 않는다.
 
-| source | 정책 | 실제 목록/상세 fixture | FETCHED / 이미지 / FILE / SNS | DB/object | 상태 |
-| --- | --- | --- | --- | --- | --- |
-| arcalive | HOT_LIST | 있음/있음 | 7 / 17 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| bobaedream | HOT_LIST | 있음/있음 | 4 / 10 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| clien | GENERAL_LIST | 있음/있음 | 4 / 0 / 0 / 1 | 통과 | verified-local 저장 원본 |
-| dcinside | HOT_LIST | 있음/있음 | 5 / 175 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| dmitory | GENERAL_LIST | 있음/있음 | 10 / 14 / 0 / 8 | 통과 | verified-local 저장 원본 |
-| dogdrip | HOT_LIST | 있음/있음 | 4 / 14 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| etoland | GENERAL_LIST | 있음/있음 | 4 / 1 / 0 / 1 | 통과 | verified-local 저장 원본 |
-| fmkorea | BLOCKED | 없음/없음 | 0 / 0 / 0 / 0 | 본문 성공 증거 없음 | blocked: HTTP430/보안 페이지 |
-| goodgag | GENERAL_LIST | 있음/있음 | 9 / 10 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| humoruniv | GENERAL_LIST | 있음/있음 | 6 / 18 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| instiz | GENERAL_LIST | 있음/있음 | 5 / 19 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| inven | HOT_LIST | 있음/있음 | 5 / 12 / 2 / 1 | 통과 | verified-local 저장 원본 |
-| mlbpark | GENERAL_LIST | 있음/있음 | 5 / 2 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| natepann | GENERAL_LIST | 있음/있음 | 5 / 10 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| pgr21 | DETAIL_ONLY | 없음/없음 | 0 / 0 / 0 / 0 | 본문 성공 증거 없음 | blocked: Anubis 연결 확인 |
-| ppomppu | BLOCKED | 없음/없음 | 0 / 0 / 0 / 0 | 본문 성공 증거 없음 | blocked: 302→403 |
-| ruliweb | HOT_LIST | 있음/있음 | 5 / 12 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| theqoo | HOT_LIST | 있음/있음 | 5 / 4 / 0 / 0 | 통과 | verified-local 저장 원본 |
-| todayhumor | HOT_LIST | 있음/있음 | 7 / 37 / 0 / 1 | 통과 | verified-local 저장 원본 |
-| yuldo | GENERAL_LIST | 있음/있음 | 14 / 25 / 0 / 9 | 통과 | verified-local 저장 원본 |
-| youtube-community | DETAIL_ONLY | 없음/없음 | 0 / 0 / 0 / 0 | 본문 성공 증거 없음 | unverified: HTTP200이나 본문 renderer 없음 |
+| source            | 정책         | 실제 목록/상세 fixture | FETCHED / 이미지 / FILE / SNS | DB/object           | 상태                                       |
+| ----------------- | ------------ | ---------------------- | ----------------------------- | ------------------- | ------------------------------------------ |
+| arcalive          | HOT_LIST     | 있음/있음              | 7 / 17 / 0 / 0                | 통과                | verified-local 저장 원본                   |
+| bobaedream        | HOT_LIST     | 있음/있음              | 4 / 10 / 0 / 0                | 통과                | verified-local 저장 원본                   |
+| clien             | GENERAL_LIST | 있음/있음              | 4 / 0 / 0 / 1                 | 통과                | verified-local 저장 원본                   |
+| dcinside          | HOT_LIST     | 있음/있음              | 5 / 175 / 0 / 0               | 통과                | verified-local 저장 원본                   |
+| dmitory           | GENERAL_LIST | 있음/있음              | 10 / 14 / 0 / 8               | 통과                | verified-local 저장 원본                   |
+| dogdrip           | HOT_LIST     | 있음/있음              | 4 / 14 / 0 / 0                | 통과                | verified-local 저장 원본                   |
+| etoland           | GENERAL_LIST | 있음/있음              | 4 / 1 / 0 / 1                 | 통과                | verified-local 저장 원본                   |
+| fmkorea           | BLOCKED      | 없음/없음              | 0 / 0 / 0 / 0                 | 본문 성공 증거 없음 | blocked: HTTP430/보안 페이지               |
+| goodgag           | GENERAL_LIST | 있음/있음              | 9 / 10 / 0 / 0                | 통과                | verified-local 저장 원본                   |
+| humoruniv         | GENERAL_LIST | 있음/있음              | 6 / 18 / 0 / 0                | 통과                | verified-local 저장 원본                   |
+| instiz            | GENERAL_LIST | 있음/있음              | 5 / 19 / 0 / 0                | 통과                | verified-local 저장 원본                   |
+| inven             | HOT_LIST     | 있음/있음              | 5 / 12 / 2 / 1                | 통과                | verified-local 저장 원본                   |
+| mlbpark           | GENERAL_LIST | 있음/있음              | 5 / 2 / 0 / 0                 | 통과                | verified-local 저장 원본                   |
+| natepann          | GENERAL_LIST | 있음/있음              | 5 / 10 / 0 / 0                | 통과                | verified-local 저장 원본                   |
+| pgr21             | DETAIL_ONLY  | 없음/없음              | 0 / 0 / 0 / 0                 | 본문 성공 증거 없음 | blocked: Anubis 연결 확인                  |
+| ppomppu           | BLOCKED      | 없음/없음              | 0 / 0 / 0 / 0                 | 본문 성공 증거 없음 | blocked: 302→403                           |
+| ruliweb           | HOT_LIST     | 있음/있음              | 5 / 12 / 0 / 0                | 통과                | verified-local 저장 원본                   |
+| theqoo            | HOT_LIST     | 있음/있음              | 5 / 4 / 0 / 0                 | 통과                | verified-local 저장 원본                   |
+| todayhumor        | HOT_LIST     | 있음/있음              | 7 / 37 / 0 / 1                | 통과                | verified-local 저장 원본                   |
+| yuldo             | GENERAL_LIST | 있음/있음              | 14 / 25 / 0 / 9               | 통과                | verified-local 저장 원본                   |
+| youtube-community | DETAIL_ONLY  | 없음/없음              | 0 / 0 / 0 / 0                 | 본문 성공 증거 없음 | unverified: HTTP200이나 본문 renderer 없음 |

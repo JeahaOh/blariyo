@@ -10,13 +10,13 @@
 
 ## 현행 구현과 검증 경계
 
-| 항목 | 2026-09-24 저장소 대조 결과 |
-| --- | --- |
-| 현행 수집 분류 | `HOT_LIST`; [출처 정책](../source-collection-policy.md) |
-| chart / 목록 URL | `hot` `https://theqoo.net/hot` |
-| 구현 | `THEQOO` — [목록 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooListParser.java), [상세 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooDetailParser.java), [URL 식별·조합](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooAdapter.java) |
-| 검증 범위 | 목록·상세 parser 구현. 9월 23일 실제 공개 URL의 개발 DB/object readback과 정제한 관측 fixture가 있다. 모든 글·모든 첨부 유형의 성공을 뜻하지 않는다. |
-| 실행 증거 | [관측 fixture](../../../../apps/collector/src/test/resources/sites/observed/README.md); [전체 검증표](../reference-site-validation.md)에서 임시 DB·지속 로컬 DB·운영 환경을 구분 |
+| 항목             | 2026-09-24 저장소 대조 결과                                                                                                                                                                                                                                                                                                                                                           |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 현행 수집 분류   | `HOT_LIST`; [출처 정책](../source-collection-policy.md)                                                                                                                                                                                                                                                                                                                               |
+| chart / 목록 URL | `hot` `https://theqoo.net/hot`                                                                                                                                                                                                                                                                                                                                                        |
+| 구현             | `THEQOO` — [목록 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooListParser.java), [상세 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooDetailParser.java), [URL 식별·조합](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooAdapter.java) |
+| 검증 범위        | 목록·상세 parser 구현. 9월 23일 실제 공개 URL의 개발 DB/object readback과 정제한 관측 fixture가 있다. 모든 글·모든 첨부 유형의 성공을 뜻하지 않는다.                                                                                                                                                                                                                                  |
+| 실행 증거        | [관측 fixture](../../../../apps/collector/src/test/resources/sites/observed/README.md); [전체 검증표](../reference-site-validation.md)에서 임시 DB·지속 로컬 DB·운영 환경을 구분                                                                                                                                                                                                      |
 
 - 아래 §1~10은 9월 3일 초기 정책·metadata 검토 기록이다. 당시의 `사용하지 않음`, selector 미정, fixture 미검증을 현재 코드 부재로 해석하지 않는다. 이용약관·robots·연락처와 운영 위험의 미확정 항목은 운영 활성화 전에 재확인한다.
 - 9월 21~23일 절의 승인 플래그·parser 상태·실행 명령은 각 시점의 이력이다. 현행 [개발 예제 설정](../../../../apps/collector/ops/reference-sites.sources.example.json)의 `approved=true`, `batchApproved=true`는 운영 승인 증거가 아니다. 운영자의 별도 활성화 판정은 미완료다.
@@ -26,56 +26,56 @@
 
 ## 1. 출처 식별
 
-| 항목 | 확인값 |
-| --- | --- |
-| 출처 표시명 | 더쿠 |
-| 운영 주체 | 주식회사 더쿠 |
-| 기준 URL | https://theqoo.net/ |
-| 허용 host | `(미정)` |
-| 허용 path | 없음 |
-| 제외 path | 전체 경로 |
-| 수집 목적 | 커뮤니티 게시글 후보 검토 |
+| 항목        | 확인값                    |
+| ----------- | ------------------------- |
+| 출처 표시명 | 더쿠                      |
+| 운영 주체   | 주식회사 더쿠             |
+| 기준 URL    | https://theqoo.net/       |
+| 허용 host   | `(미정)`                  |
+| 허용 path   | 없음                      |
+| 제외 path   | 전체 경로                 |
+| 수집 목적   | 커뮤니티 게시글 후보 검토 |
 
 ## 2. 정책·권리 확인
 
-| 항목 | 확인값 |
-| --- | --- |
-| 이용약관 URL | https://theqoo.net/service |
-| 이용약관 확인일 | 2026-09-03 |
-| 수집 관련 조항 판단 | 회원 게시물 저작권은 작성자에게 귀속. 회사는 서비스 운영·전시·전송·배포·홍보 및 제휴 제공 범위에서 이용 가능. 회사가 그 외 방법으로 이용하려면 사전 동의 필요. |
-| `robots.txt` URL | https://theqoo.net/robots.txt |
-| `robots.txt` 확인일 | 2026-09-03 |
-| User-Agent 적용 결과 | `/robots.txt` 요청이 사이트 404 HTML을 반환했고 명시 robots 규칙을 확인하지 못함. robots 미확인 상태로 판정. |
-| 공개 API·RSS 제공 여부 | 공개 RSS 링크 미확인 |
-| 문의·중단 요청 채널 | https://theqoo.net/contact, `admin@theqoo.net` |
-| 운영 위험 판정자 | `(미정)` |
-| 운영 위험도 | 중간 |
+| 항목                   | 확인값                                                                                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 이용약관 URL           | https://theqoo.net/service                                                                                                                                     |
+| 이용약관 확인일        | 2026-09-03                                                                                                                                                     |
+| 수집 관련 조항 판단    | 회원 게시물 저작권은 작성자에게 귀속. 회사는 서비스 운영·전시·전송·배포·홍보 및 제휴 제공 범위에서 이용 가능. 회사가 그 외 방법으로 이용하려면 사전 동의 필요. |
+| `robots.txt` URL       | https://theqoo.net/robots.txt                                                                                                                                  |
+| `robots.txt` 확인일    | 2026-09-03                                                                                                                                                     |
+| User-Agent 적용 결과   | `/robots.txt` 요청이 사이트 404 HTML을 반환했고 명시 robots 규칙을 확인하지 못함. robots 미확인 상태로 판정.                                                   |
+| 공개 API·RSS 제공 여부 | 공개 RSS 링크 미확인                                                                                                                                           |
+| 문의·중단 요청 채널    | https://theqoo.net/contact, `admin@theqoo.net`                                                                                                                 |
+| 운영 위험 판정자       | `(미정)`                                                                                                                                                       |
+| 운영 위험도            | 중간                                                                                                                                                           |
 
 확인 결과가 불명확하거나 기술 gate를 통과하지 못하면 `활성 단계`를 `비활성`으로 유지한다.
 
 ## 3. 수집 방법 결정
 
-| 단계 | 사용 여부 | 방식·이유 |
-| --- | --- | --- |
-| Discord·운영자 URL 수집 보조 | 구현 경로 있음, 운영 비활성 | `collect-url`/Discord manual queue가 단일 상세 URL을 batch DB/object store로 저장할 수 있다. robots 규칙과 외부 재사용 위험 판정 전 production 활성은 하지 않는다. |
-| 공식 공개 API·feed | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| RSS·Atom | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| server-rendered HTML 목록 | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외 |
+| 단계                           | 사용 여부                   | 방식·이유                                                                                                                                                          |
+| ------------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Discord·운영자 URL 수집 보조   | 구현 경로 있음, 운영 비활성 | `collect-url`/Discord manual queue가 단일 상세 URL을 batch DB/object store로 저장할 수 있다. robots 규칙과 외부 재사용 위험 판정 전 production 활성은 하지 않는다. |
+| 공식 공개 API·feed             | 사용하지 않음               | M0 수집 보조는 단일 상세 페이지 추출만 사용                                                                                                                        |
+| RSS·Atom                       | 사용하지 않음               | M0 수집 보조는 단일 상세 페이지 추출만 사용                                                                                                                        |
+| server-rendered HTML 목록      | 사용하지 않음               | M0 수집 보조는 단일 상세 페이지 추출만 사용                                                                                                                        |
+| headless browser·로그인 자동화 | 사용하지 않음               | 초기 범위 제외                                                                                                                                                     |
 
 선택 parser type: `HTML_LIST`
 
 ## 4. URL 규칙
 
-| 항목 | 확인값 |
-| --- | --- |
-| 목록·feed URL | 사용하지 않음 |
-| 상세 URL pattern | `https://theqoo.net/{board}/{numericDocumentId}` 후보. fixture 검증 URL 형식은 `https://theqoo.net/hot/1234567890` |
-| canonical URL 위치 | 요청 URL 사용. canonical link live 확인 전 |
-| 허용 redirect | 내부 https redirect만 후보 |
-| 제거할 query parameter | `(미정)` |
-| 유지할 query parameter | `(미정)` |
-| pagination 방식·최대 범위 | 사용하지 않음. manual URL only |
+| 항목                      | 확인값                                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 목록·feed URL             | 사용하지 않음                                                                                                      |
+| 상세 URL pattern          | `https://theqoo.net/{board}/{numericDocumentId}` 후보. fixture 검증 URL 형식은 `https://theqoo.net/hot/1234567890` |
+| canonical URL 위치        | 요청 URL 사용. canonical link live 확인 전                                                                         |
+| 허용 redirect             | 내부 https redirect만 후보                                                                                         |
+| 제거할 query parameter    | `(미정)`                                                                                                           |
+| 유지할 query parameter    | `(미정)`                                                                                                           |
+| pagination 방식·최대 범위 | 사용하지 않음. manual URL only                                                                                     |
 
 ## 5. 목록·feed 추출 규칙
 
@@ -85,13 +85,13 @@
 
 ## 6. 상세 추출 규칙
 
-| 대상 | 추출 규칙 | 우선순위 | 실패 처리 |
-| --- | --- | --- | --- |
-| canonical URL | canonical link 또는 요청 URL | 1 | 요청 URL 사용 또는 실패 |
-| 제목 | OG title 또는 게시글 제목 selector | 1 | 후보 실패 |
-| 본문 이미지 | 본문 이미지 selector 후보 | 1 | 후보 실패 또는 운영자 보정 |
-| 이미지 순서 | DOM 순서 | 1 | DOM 순서 |
-| 게시 시각 | 게시글 time/metadata 후보 | 2 | `null` |
+| 대상          | 추출 규칙                          | 우선순위 | 실패 처리                  |
+| ------------- | ---------------------------------- | -------- | -------------------------- |
+| canonical URL | canonical link 또는 요청 URL       | 1        | 요청 URL 사용 또는 실패    |
+| 제목          | OG title 또는 게시글 제목 selector | 1        | 후보 실패                  |
+| 본문 이미지   | 본문 이미지 selector 후보          | 1        | 후보 실패 또는 운영자 보정 |
+| 이미지 순서   | DOM 순서                           | 1        | DOM 순서                   |
+| 게시 시각     | 게시글 time/metadata 후보          | 2        | `null`                     |
 
 이미지 제외 규칙:
 
@@ -101,35 +101,34 @@
 - 최소 크기·허용 MIME: `(미정)`
 - 외부 CDN host 허용 범위: `theqoo.net`, `img.theqoo.net`, `img-static.theqoo.net` 후보. 사용 결정 전 보류
 
-
 ## 6-1. 이미지 임시 저장·승격 규칙
 
 [공통 추출·임시 파일 규칙](../README.md#source-common-rules)을 따른다.
 
 ## 7. 요청·운영 제한
 
-| 항목 | 확인값 |
-| --- | --- |
-| 식별 User-Agent | `(미정)` |
-| 연락 수단 | `(미정)` |
-| 요청 간격 | `(미정)` |
-| 일일 요청 상한 | `(미정)` |
-| 자동 수집 실행 시간 | 사용하지 않음 |
-| redirect 상한 | `(미정)` |
-| timeout·응답 크기 상한 | `(미정)` |
-| 연속 실패 자동 비활성 기준 | 기본 비활성 |
+| 항목                       | 확인값        |
+| -------------------------- | ------------- |
+| 식별 User-Agent            | `(미정)`      |
+| 연락 수단                  | `(미정)`      |
+| 요청 간격                  | `(미정)`      |
+| 일일 요청 상한             | `(미정)`      |
+| 자동 수집 실행 시간        | 사용하지 않음 |
+| redirect 상한              | `(미정)`      |
+| timeout·응답 크기 상한     | `(미정)`      |
+| 연속 실패 자동 비활성 기준 | 기본 비활성   |
 
 ## 8. 검증 fixture와 결과
 
-| 유형 | 샘플 식별값 | 기대 결과 | 확인 결과 |
-| --- | --- | --- | --- |
-| 정상 목록 | `hot` 목록 | 상세 URL 추출 후 detail parser로 연계 | live 개발 DB/object readback 완료 |
-| 빈 목록 | `hot` 목록 fixture | 후보 0건이면 실패 없이 report에 기록 | fixture/runner 정책으로 검증 |
-| 정상 상세 | synthetic `https://theqoo.net/hot/1234567890` | 제목·본문·이미지·SNS 추출 | `DirectUrlRunnerTests` 통과 |
-| 이미지 없는 상세 | synthetic fixture | 본문 TEXT만 저장 가능 | 기존 `TheqooParserTests` text-only 통과 |
-| 삭제·차단 | synthetic fixture | 실패 기록·재시도 제한 | 미수행 |
-| 구조 변경 | synthetic fixture | parser 실패 감지 | 기존 `TheqooParserTests` missing body 통과 |
-| 중복 URL | numeric id 후보 | 새 후보 생성 안 함 | write path dedup 테스트 필요 |
+| 유형             | 샘플 식별값                                   | 기대 결과                             | 확인 결과                                  |
+| ---------------- | --------------------------------------------- | ------------------------------------- | ------------------------------------------ |
+| 정상 목록        | `hot` 목록                                    | 상세 URL 추출 후 detail parser로 연계 | live 개발 DB/object readback 완료          |
+| 빈 목록          | `hot` 목록 fixture                            | 후보 0건이면 실패 없이 report에 기록  | fixture/runner 정책으로 검증               |
+| 정상 상세        | synthetic `https://theqoo.net/hot/1234567890` | 제목·본문·이미지·SNS 추출             | `DirectUrlRunnerTests` 통과                |
+| 이미지 없는 상세 | synthetic fixture                             | 본문 TEXT만 저장 가능                 | 기존 `TheqooParserTests` text-only 통과    |
+| 삭제·차단        | synthetic fixture                             | 실패 기록·재시도 제한                 | 미수행                                     |
+| 구조 변경        | synthetic fixture                             | parser 실패 감지                      | 기존 `TheqooParserTests` missing body 통과 |
+| 중복 URL         | numeric id 후보                               | 새 후보 생성 안 함                    | write path dedup 테스트 필요               |
 
 ## 9. 활성화 판정
 
@@ -152,11 +151,10 @@
 
 ## 10. 변경 이력
 
-| 날짜 | parser version | 변경 내용 | 재검증 결과 |
-| --- | --- | --- | --- |
-| 2026-09-03 | `(미정)` | 최초 검토 | 비활성 |
+| 날짜       | parser version      | 변경 내용                                                     | 재검증 결과                                                |
+| ---------- | ------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- |
+| 2026-09-03 | `(미정)`            | 최초 검토                                                     | 비활성                                                     |
 | 2026-09-23 | `theqoo-ordered-v1` | 목록 parser + 상세 parser + live 개발 DB/object readback 검증 | `AdditionalHotListAdapterTests`와 live batch write-db 통과 |
-
 
 ## 2026-09-21 출처별 자동 수집 정책
 

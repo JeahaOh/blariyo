@@ -54,19 +54,19 @@ apps/api/migrations/      기존 SQL 및 checksum 이력 유지
 현행 direct batch는 `run.DirectBatchRunner`가 registry에서 선택한 사이트 adapter와 공통 fetch·저장을 조합한다.
 신규 사이트 구현과 파일 분리는 아래 [사이트별 모듈 계약](#collector-site-modules)을 따른다.
 
-| 패키지 | 책임 |
-| --- | --- |
-| shared | JSON·공통 오류 |
-| config | 비밀·운영 설정·DataSource 설정 |
-| observability / lifecycle | 실행 계측 / 종료 gate |
-| run | 요청 검증·중복 방지·실행 큐·이력 저장 |
-| spool / state | 암호화 임시 파일 / 복구 상태 저장 |
-| source / core | 외부 출처 transport·정책 / BFF를 통한 Core 연동 |
-| execution | Batch 실행·6단계 pipeline·만료 복구 |
-| web / discord / scheduling | REST / Discord / Quartz 진입점 |
-| notification / maintenance | 알림·운영 이벤트 / 보존·정리 |
-| bootstrap | 기동 검사·health·의존 서비스 지표 조립 |
-| ops | migration·백업·복원·작업 조정 CLI |
+| 패키지                     | 책임                                            |
+| -------------------------- | ----------------------------------------------- |
+| shared                     | JSON·공통 오류                                  |
+| config                     | 비밀·운영 설정·DataSource 설정                  |
+| observability / lifecycle  | 실행 계측 / 종료 gate                           |
+| run                        | 요청 검증·중복 방지·실행 큐·이력 저장           |
+| spool / state              | 암호화 임시 파일 / 복구 상태 저장               |
+| source / core              | 외부 출처 transport·정책 / BFF를 통한 Core 연동 |
+| execution                  | Batch 실행·6단계 pipeline·만료 복구             |
+| web / discord / scheduling | REST / Discord / Quartz 진입점                  |
+| notification / maintenance | 알림·운영 이벤트 / 보존·정리                    |
+| bootstrap                  | 기동 검사·health·의존 서비스 지표 조립          |
+| ops                        | migration·백업·복원·작업 조정 CLI               |
 
 진입점은 `run.CollectorRunService`를 호출한다. 공통 요청 검증은 `run`이 소유하고 `web`에 의존하지 않는다.
 `run`은 execution·web·discord·scheduling을 참조하지 않는다. `source`, `core`, `spool`은 run·진입점을 참조하지 않는다.

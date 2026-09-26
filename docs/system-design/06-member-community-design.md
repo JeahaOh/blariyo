@@ -12,6 +12,7 @@
 생성 타입·요청 검증·계약 테스트를 함께 갱신한다. 현재는 Markdown 설계이며 실행 계약 생성은 구현 작업이다.
 
 <a id="architecture"></a>
+
 ## 1. 시스템 경계
 
 브라우저 → same-origin Nuxt BFF → Nest Core → PostgreSQL 흐름을 유지한다. OAuth는 외부
@@ -33,6 +34,7 @@
   기존 API 이미지의 cron으로 실행한다. 공개 익게 읽기는 provider 장애와 독립적으로 동작한다.
 
 <a id="identity"></a>
+
 ## 2. 회원 인증과 보안
 
 ### OAuth transaction
@@ -56,10 +58,10 @@
 
 ### Cookie와 CSRF
 
-| 이름 | 목적 | 속성·기한 |
-| --- | --- | --- |
+| 이름                     | 목적                                            | 속성·기한                                                                              |
+| ------------------------ | ----------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `__Host-blariyo-session` | 임의 32바이트 세션 token, DB에는 SHA-256만 저장 | Secure, HttpOnly, Path=/, Domain 없음, SameSite=Lax; 절대 7일·유휴 24시간 중 빠른 만료 |
-| `__Host-blariyo-auth` | OAuth browser binding·임시 가입 참조 | Secure, HttpOnly, Path=/, Domain 없음, SameSite=None; 10분 |
+| `__Host-blariyo-auth`    | OAuth browser binding·임시 가입 참조            | Secure, HttpOnly, Path=/, Domain 없음, SameSite=None; 10분                             |
 
 Apple `form_post` callback에는 Lax cookie가 오지 않을 수 있어 OAuth 전용 binding cookie만
 SameSite=None으로 둔다. 일반 로그인 cookie를 완화하지 않는다. callback POST만 일반 origin/CSRF
@@ -82,12 +84,12 @@ SSR 페이지에 token을 공용 cache로 남기지 않는다. 로그인 성공�
 
 공식 문서 확인일: 2026-09-08. 아래는 공통화 가능한 범위이며 실제 client 설정을 확인한 증거는 아니다.
 
-| 제공자 | 식별·검증 | 최소 요청·종료 |
-| --- | --- | --- |
-| 네이버 | profile `id`, state와 token 교환 확인 | 선택 프로필 권한 요청하지 않음; 재인증한 접근 token으로 연동 해제, 최신 API 지원은 adapter 계약 테스트 |
-| 카카오 | 서비스 회원번호, OIDC 활성화 시 서명·nonce도 검증 | 추가 프로필 동의 제외; 사용자 access token으로 unlink |
-| Google | 검증한 ID token의 `sub` | `openid`만 요청, email/profile·offline access 제외; 사용자가 연결된 앱 권한을 철회하도록 안내 |
-| Apple | 검증한 ID token `sub`, 최초 이름은 회원 키로 쓰지 않음 | name/email scope 제외; refresh credential 암호화 보관 후 상태 확인·revoke |
+| 제공자 | 식별·검증                                              | 최소 요청·종료                                                                                         |
+| ------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| 네이버 | profile `id`, state와 token 교환 확인                  | 선택 프로필 권한 요청하지 않음; 재인증한 접근 token으로 연동 해제, 최신 API 지원은 adapter 계약 테스트 |
+| 카카오 | 서비스 회원번호, OIDC 활성화 시 서명·nonce도 검증      | 추가 프로필 동의 제외; 사용자 access token으로 unlink                                                  |
+| Google | 검증한 ID token의 `sub`                                | `openid`만 요청, email/profile·offline access 제외; 사용자가 연결된 앱 권한을 철회하도록 안내          |
+| Apple  | 검증한 ID token `sub`, 최초 이름은 회원 키로 쓰지 않음 | name/email scope 제외; refresh credential 암호화 보관 후 상태 확인·revoke                              |
 
 - [네이버 로그인 API](https://developers.naver.com/docs/login/api/api.md)
 - [카카오 REST API](https://developers.kakao.com/docs/ko/kakaologin/rest-api)
@@ -100,6 +102,7 @@ Apple 문서는 유효 token이 없는 경우에도 자체 계정 삭제를 처�
 지원하지 않는 항목은 adapter capability로 표시하고 state·binding·code 단회성 검증은 필수로 유지한다.
 
 <a id="data"></a>
+
 ## 3. 데이터 모델
 
 공통: 별도 명시 없으면 열은 NOT NULL, `?`는 NULL 허용. 모든 표의 entity는 기존 공통 감사 4열을
@@ -109,18 +112,18 @@ FK 삭제는 기본 RESTRICT이며 아래 삭제 절차에서 명시적으로 �
 
 ### M1 identity
 
-| 테이블 | 고유 열·제약 | 인덱스·보존 |
-| --- | --- | --- |
-| `identity.account` | id; display_name VARCHAR(20); status VARCHAR(24) ACTIVE/REAUTH_REQUIRED/WITHDRAWING; last_login_at?; age_confirmed_at; reconsent_required BOOLEAN; lock_version | status,id; 탈퇴 worker 완료 시 삭제 |
-| `identity.social_identity` | id; account_id FK account; provider VARCHAR(10) NAVER/KAKAO/GOOGLE/APPLE; subject_hash BYTEA(32) HMAC; subject_ciphertext BYTEA; key_version INT; hash_key_version INT; status VARCHAR(16) ACTIVE/REVOKED; generation UUID UNIQUE; linked_at; authenticated_at | UNIQUE(provider,subject_hash), UNIQUE(account_id,provider); 탈퇴/해제 시 삭제 |
-| `identity.provider_credential` | id; social_identity_id FK UNIQUE; ciphertext BYTEA; key_version INT; expires_at?; last_checked_at? | Apple refresh만; 연동 종료 또는 탈퇴 외부 작업 완료/24시간 만료 시 삭제 |
-| `identity.session` | id; account_id FK; token_hash BYTEA(32) UNIQUE; csrf_hash BYTEA(32); reauthenticated_at?; idle_expires_at; absolute_expires_at; authenticated_social_identity_id FK | account_id, absolute_expires_at; 로그아웃 즉시 삭제, 매시간 만료 삭제 |
-| `identity.auth_transaction` | id; state_hash BYTEA(32) UNIQUE; binding_hash BYTEA(32); csrf_hash BYTEA(32); provider?; purpose VARCHAR(10) LOGIN/LINK/REAUTH/CONTEXT; delivery VARCHAR(10) REDIRECT/POPUP; account_id? FK; session_id? FK; status VARCHAR(20) STARTED/EXCHANGING/VERIFIED/CONSUMED; return_to VARCHAR(256); encrypted_payload BYTEA?; expires_at | expires_at; 10분 또는 소비/취소 시 secret 삭제 |
-| `identity.consent` | id; account_id FK; policy_version_id FK legal.policy_version; accepted_at | UNIQUE(account_id,policy_version_id); 탈퇴 시 삭제, 법적 예외는 공개 전 별도 확정 |
-| `identity.withdrawal` | id; account_id? FK UNIQUE; content_action VARCHAR(16) KEEP 고정; status VARCHAR(16) PENDING/RUNNING/DONE/FAILED; journaled_at?; token_hash BYTEA(32) UNIQUE; expires_at; last_error_code VARCHAR(64)?; cursor_id BIGINT?; phase VARCHAR(24) | 상태/created_at; 결과 조회 token 24시간; account 삭제 전 FK null, 완료 후 24시간 삭제 |
-| `identity.provider_disconnect` | id; withdrawal_id? FK; social_identity_id? FK; provider; encrypted_payload BYTEA?; status VARCHAR(20) PENDING/RUNNING/UNKNOWN/DONE/MANUAL/FAILED; generation UUID; guard_id FK identity.identity_guard; lease_until?; attempts INT; next_attempt_at; expires_at | 대상 식별·token은 암호문으로만 24시간; secret 삭제 후 결과 코드만 withdrawal 종료까지 유지 |
-| `identity.identity_guard` | id; provider VARCHAR(10); subject_hash BYTEA(32); hash_key_version INT; generation UUID; status VARCHAR(16) ACTIVE/DISCONNECTING/QUARANTINED; blocked_until?; lock_version | UNIQUE(provider,subject_hash); 계정/연동 삭제와 독립, 종료·보존은 아래 해제 경합 규칙 |
-| `identity.request_receipt` | id; account_id? FK; owner_hash BYTEA(32); scope VARCHAR(120); request_key VARCHAR(128); request_hash BYTEA(32); resource_id BIGINT?; result JSONB; expires_at | UNIQUE(owner_hash,scope,request_key); 24시간, token/subject/본문 미포함 |
+| 테이블                         | 고유 열·제약                                                                                                                                                                                                                                                                                                                       | 인덱스·보존                                                                                |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `identity.account`             | id; display_name VARCHAR(20); status VARCHAR(24) ACTIVE/REAUTH_REQUIRED/WITHDRAWING; last_login_at?; age_confirmed_at; reconsent_required BOOLEAN; lock_version                                                                                                                                                                    | status,id; 탈퇴 worker 완료 시 삭제                                                        |
+| `identity.social_identity`     | id; account_id FK account; provider VARCHAR(10) NAVER/KAKAO/GOOGLE/APPLE; subject_hash BYTEA(32) HMAC; subject_ciphertext BYTEA; key_version INT; hash_key_version INT; status VARCHAR(16) ACTIVE/REVOKED; generation UUID UNIQUE; linked_at; authenticated_at                                                                     | UNIQUE(provider,subject_hash), UNIQUE(account_id,provider); 탈퇴/해제 시 삭제              |
+| `identity.provider_credential` | id; social_identity_id FK UNIQUE; ciphertext BYTEA; key_version INT; expires_at?; last_checked_at?                                                                                                                                                                                                                                 | Apple refresh만; 연동 종료 또는 탈퇴 외부 작업 완료/24시간 만료 시 삭제                    |
+| `identity.session`             | id; account_id FK; token_hash BYTEA(32) UNIQUE; csrf_hash BYTEA(32); reauthenticated_at?; idle_expires_at; absolute_expires_at; authenticated_social_identity_id FK                                                                                                                                                                | account_id, absolute_expires_at; 로그아웃 즉시 삭제, 매시간 만료 삭제                      |
+| `identity.auth_transaction`    | id; state_hash BYTEA(32) UNIQUE; binding_hash BYTEA(32); csrf_hash BYTEA(32); provider?; purpose VARCHAR(10) LOGIN/LINK/REAUTH/CONTEXT; delivery VARCHAR(10) REDIRECT/POPUP; account_id? FK; session_id? FK; status VARCHAR(20) STARTED/EXCHANGING/VERIFIED/CONSUMED; return_to VARCHAR(256); encrypted_payload BYTEA?; expires_at | expires_at; 10분 또는 소비/취소 시 secret 삭제                                             |
+| `identity.consent`             | id; account_id FK; policy_version_id FK legal.policy_version; accepted_at                                                                                                                                                                                                                                                          | UNIQUE(account_id,policy_version_id); 탈퇴 시 삭제, 법적 예외는 공개 전 별도 확정          |
+| `identity.withdrawal`          | id; account_id? FK UNIQUE; content_action VARCHAR(16) KEEP 고정; status VARCHAR(16) PENDING/RUNNING/DONE/FAILED; journaled_at?; token_hash BYTEA(32) UNIQUE; expires_at; last_error_code VARCHAR(64)?; cursor_id BIGINT?; phase VARCHAR(24)                                                                                        | 상태/created_at; 결과 조회 token 24시간; account 삭제 전 FK null, 완료 후 24시간 삭제      |
+| `identity.provider_disconnect` | id; withdrawal_id? FK; social_identity_id? FK; provider; encrypted_payload BYTEA?; status VARCHAR(20) PENDING/RUNNING/UNKNOWN/DONE/MANUAL/FAILED; generation UUID; guard_id FK identity.identity_guard; lease_until?; attempts INT; next_attempt_at; expires_at                                                                    | 대상 식별·token은 암호문으로만 24시간; secret 삭제 후 결과 코드만 withdrawal 종료까지 유지 |
+| `identity.identity_guard`      | id; provider VARCHAR(10); subject_hash BYTEA(32); hash_key_version INT; generation UUID; status VARCHAR(16) ACTIVE/DISCONNECTING/QUARANTINED; blocked_until?; lock_version                                                                                                                                                         | UNIQUE(provider,subject_hash); 계정/연동 삭제와 독립, 종료·보존은 아래 해제 경합 규칙      |
+| `identity.request_receipt`     | id; account_id? FK; owner_hash BYTEA(32); scope VARCHAR(120); request_key VARCHAR(128); request_hash BYTEA(32); resource_id BIGINT?; result JSONB; expires_at                                                                                                                                                                      | UNIQUE(owner_hash,scope,request_key); 24시간, token/subject/본문 미포함                    |
 
 HMAC은 subject의 안정 조회용이며 암호화 대체가 아니다. 암호문은 AEAD를 사용하고 AAD는
 [내부 인증 자료 계약](#identity-material)의 provider·자료유형·contextId·keyVersion 배열이다.
@@ -148,15 +151,15 @@ start 요청 시 provider/purpose를 채운 STARTED transaction으로 교체한�
 기존 `content.board_post` PK·상태·TEXT block을 재사용한다. `community` 게시판 seed는
 posting_policy=USER, is_active=false로 추가하며 활성화 전 공개 목록에 나오지 않는다.
 
-| 테이블/확장 | 열·관계·제약 | 인덱스·규칙 |
-| --- | --- | --- |
-| `community.post_author` | post_id PK/FK content.board_post; account_id? FK account; participant_id NOT NULL; FK(post_id,participant_id) -> thread_participant(post_id,id) | account_id,post_id; 회원 삭제 전 null |
-| `community.thread_participant` | id; post_id FK; account_id? FK; alias_label VARCHAR(32) NOT NULL; dictionary_version VARCHAR(32) NOT NULL | UNIQUE(post_id,account_id) WHERE account_id IS NOT NULL; UNIQUE(post_id,alias_label); UNIQUE(account_id,alias_label) WHERE account_id IS NOT NULL; UNIQUE(post_id,id); 이름 재사용 금지 |
-| `community.comment` | id; post_id FK; account_id? FK; participant_id NOT NULL FK; is_post_author BOOLEAN; body VARCHAR(1000)?; status VARCHAR(20) PUBLISHED/HIDDEN_REVIEW/REMOVED; lock_version | (post_id,id), (account_id,id); 공개만 body NOT NULL; REMOVED는 body NULL; participant와 post 일치는 복합 FK |
-| `moderation.report` | id; post_id FK; comment_id? FK; reporter_account_id? FK; reason_code VARCHAR(24); detail VARCHAR(500)?; status VARCHAR(16) OPEN/RESOLVED; resolved_at?; resolution VARCHAR(16)? NONE/HIDE/REMOVE; lock_version | 대상 존재 복합 FK(comment_id,post_id); UNIQUE(reporter_account_id,post_id) WHERE comment_id IS NULL; UNIQUE(reporter_account_id,comment_id) WHERE comment_id IS NOT NULL; (status,id) |
-| `moderation.action` | id; report_id? FK; post_id? FK; comment_id? FK; account_id? FK; account_detached_at?; action VARCHAR(24); public_reason VARCHAR(300); internal_note VARCHAR(500)?; before_status VARCHAR(24)?; after_status VARCHAR(24)?; until_at? | 대상·created_at; actor 감사 열은 관리자, 본문 사본·provider 식별자 금지 |
-| `moderation.restriction` | id; account_id FK UNIQUE; status VARCHAR(12) ACTIVE/REVOKED; starts_at; ends_at?; public_reason VARCHAR(300); lock_version | account_id,status,ends_at; null ends_at은 무기한; 실제 참여 판단은 status='ACTIVE' AND starts_at<=now AND (ends_at IS NULL OR ends_at>now) |
-| `ops.member_rate_bucket` | id; account_id? FK; subject_hash BYTEA(32); action VARCHAR(24); window_start; count INT CHECK >=0; expires_at | UNIQUE(subject_hash,action,window_start); 짧은 창·KST 일 창, 만료 24시간 내 삭제 |
+| 테이블/확장                    | 열·관계·제약                                                                                                                                                                                                                        | 인덱스·규칙                                                                                                                                                                             |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `community.post_author`        | post_id PK/FK content.board_post; account_id? FK account; participant_id NOT NULL; FK(post_id,participant_id) -> thread_participant(post_id,id)                                                                                     | account_id,post_id; 회원 삭제 전 null                                                                                                                                                   |
+| `community.thread_participant` | id; post_id FK; account_id? FK; alias_label VARCHAR(32) NOT NULL; dictionary_version VARCHAR(32) NOT NULL                                                                                                                           | UNIQUE(post_id,account_id) WHERE account_id IS NOT NULL; UNIQUE(post_id,alias_label); UNIQUE(account_id,alias_label) WHERE account_id IS NOT NULL; UNIQUE(post_id,id); 이름 재사용 금지 |
+| `community.comment`            | id; post_id FK; account_id? FK; participant_id NOT NULL FK; is_post_author BOOLEAN; body VARCHAR(1000)?; status VARCHAR(20) PUBLISHED/HIDDEN_REVIEW/REMOVED; lock_version                                                           | (post_id,id), (account_id,id); 공개만 body NOT NULL; REMOVED는 body NULL; participant와 post 일치는 복합 FK                                                                             |
+| `moderation.report`            | id; post_id FK; comment_id? FK; reporter_account_id? FK; reason_code VARCHAR(24); detail VARCHAR(500)?; status VARCHAR(16) OPEN/RESOLVED; resolved_at?; resolution VARCHAR(16)? NONE/HIDE/REMOVE; lock_version                      | 대상 존재 복합 FK(comment_id,post_id); UNIQUE(reporter_account_id,post_id) WHERE comment_id IS NULL; UNIQUE(reporter_account_id,comment_id) WHERE comment_id IS NOT NULL; (status,id)   |
+| `moderation.action`            | id; report_id? FK; post_id? FK; comment_id? FK; account_id? FK; account_detached_at?; action VARCHAR(24); public_reason VARCHAR(300); internal_note VARCHAR(500)?; before_status VARCHAR(24)?; after_status VARCHAR(24)?; until_at? | 대상·created_at; actor 감사 열은 관리자, 본문 사본·provider 식별자 금지                                                                                                                 |
+| `moderation.restriction`       | id; account_id FK UNIQUE; status VARCHAR(12) ACTIVE/REVOKED; starts_at; ends_at?; public_reason VARCHAR(300); lock_version                                                                                                          | account_id,status,ends_at; null ends_at은 무기한; 실제 참여 판단은 status='ACTIVE' AND starts_at<=now AND (ends_at IS NULL OR ends_at>now)                                              |
+| `ops.member_rate_bucket`       | id; account_id? FK; subject_hash BYTEA(32); action VARCHAR(24); window_start; count INT CHECK >=0; expires_at                                                                                                                       | UNIQUE(subject_hash,action,window_start); 짧은 창·KST 일 창, 만료 24시간 내 삭제                                                                                                        |
 
 moderation.action.action 허용값은 NONE/HIDE/RESTORE/REMOVE/RESTRICT/UNRESTRICT다.
 RESTRICT/UNRESTRICT 이력은 생성 시 account_id 필수·account_detached_at NULL이다.
@@ -210,6 +213,7 @@ M1.5 멱등 receipt는 M1 `identity.request_receipt`를 재사용하되 결과�
   worker를 실행한다. 실제 법적 보존 요청은 승인 근거·기간을 가진 별도 격리 절차 없이는 보관 예외로 적용하지 않는다.
 
 <a id="api"></a>
+
 ## 4. API 공통 계약과 endpoint
 
 모든 아래 path는 `/api/v1` 기준이다. `provider=naver|kakao|google|apple`, ID는 양의 10진수 문자열,
@@ -236,15 +240,15 @@ C0·C1이 아니며 기존 허용 문자열에서 code point로 센다. 길이�
 [PostgreSQL character type](https://www.postgresql.org/docs/18/datatype-character.html),
 [PostgreSQL 문자열 함수](https://www.postgresql.org/docs/18/functions-string.html)다.
 
-| 입력 필드 | canonical 길이·줄바꿈 |
-| --- | --- |
-| `displayName` | 2~20 code point, 줄바꿈·제어 문자 금지 |
-| 글 `title` | 1~200 code point, 줄바꿈·제어 문자 금지 |
-| 글 `body` | 1~10,000 code point, LF 허용·그 밖의 제어 문자 금지 |
-| 댓글 `body` | 1~1,000 code point, LF 허용·그 밖의 제어 문자 금지 |
-| 신고 `detail` | OTHER는 1~500, 그 외는 0~500 code point; LF 허용·그 밖의 제어 문자 금지 |
-| 운영 `publicReason` | 1~300 code point, 줄바꿈·제어 문자 금지 |
-| 운영 `internalNote` | 0~500 code point, LF 허용·그 밖의 제어 문자 금지 |
+| 입력 필드           | canonical 길이·줄바꿈                                                     |
+| ------------------- | ------------------------------------------------------------------------- |
+| `displayName`       | 2~20 code point, 줄바꿈·제어 문자 금지                                    |
+| 글 `title`          | 1~200 code point, 줄바꿈·제어 문자 금지                                   |
+| 글 `body`           | 1~10,000 code point, LF 허용·그 밖의 제어 문자 금지                       |
+| 댓글 `body`         | 1~1,000 code point, LF 허용·그 밖의 제어 문자 금지                        |
+| 신고 `detail`       | OTHER는 1~~500, 그 외는 0~~500 code point; LF 허용·그 밖의 제어 문자 금지 |
+| 운영 `publicReason` | 1~300 code point, 줄바꿈·제어 문자 금지                                   |
+| 운영 `internalNote` | 0~500 code point, LF 허용·그 밖의 제어 문자 금지                          |
 
 M1/M1.5 migration은 위 필드의 상한과 NFC를 DB CHECK로 방어한다. `display_name`은
 `char_length(display_name) BETWEEN 2 AND 20`, 댓글·신고·운영 문자열은 각 상태·필수 조건과 함께
@@ -258,24 +262,24 @@ canonical 문자열을 저장·반환한다.
 
 ### 회원
 
-| Method path | 요청 | 성공 data·조건 |
-| --- | --- | --- |
-| GET `/auth/context` | 없음 | csrfToken:string, providers:provider[], authenticated:boolean, registrationEnabled:boolean, accountAccessEnabled:boolean; 사전 인증 binding 발급 |
-| POST `/auth/:provider/start` | purpose, returnTo?, delivery?:REDIRECT/POPUP(기본 REDIRECT) | authorizationUrl:string; URL은 고정 provider adapter만 생성 |
-| GET 또는 POST `/auth/:provider/callback` | provider 정의 code/state 또는 error, Apple는 form-urlencoded | REDIRECT는 검증 뒤 303 `/signup/consent` 또는 저장된 returnTo; POPUP은 서버 `/auth/complete`로 303; 오류는 허용 오류 코드만 전달 |
-| GET `/auth/signup` | 임시 binding cookie | displayName:string 기본 빈 값, termsPolicyId, signupPrivacyPolicyId, policy bodyHtml·versionLabel 각각, ageConfirmationRequired:true; 미인증 401 |
-| POST `/auth/signup` | displayName, termsPolicyId, signupPrivacyPolicyId, termsAccepted:true, privacyAccepted:true, birthDate:YYYY-MM-DD | member DTO와 cookie; 임시 transaction 소비+계정·동의·session atomic |
-| DELETE `/auth/signup` | 없음 | 임시 인증 파기, cookie 삭제 |
-| GET `/me` | 없음 | member DTO |
-| PATCH `/me` | displayName, lockVersion:int | member DTO |
-| GET `/me/consent` | 없음 | termsPolicyId, signupPrivacyPolicyId, 각 bodyHtml·versionLabel, required:boolean |
-| POST `/me/consent` | termsPolicyId, signupPrivacyPolicyId, termsAccepted:true, privacyAccepted:true | required:false; 최신 시행 버전 검증 |
-| POST `/auth/logout` | 없음 | 현재 세션 삭제, cookie 만료; 이미 없음도 200 |
-| POST `/auth/logout-all` | 없음 | 전체 세션 삭제, cookie 만료 |
-| DELETE `/me/identities/:provider` | lockVersion:int | member DTO와 disconnectStatus:DONE/PENDING/MANUAL; 최근 재인증·마지막 수단 검사 |
-| GET `/me/withdrawal-preview` | 없음 | postCount:int, commentCount:int, contentPolicy:KEEP, providers:provider[] |
-| POST `/me/withdrawals` | lockVersion:int, confirmation:true | withdrawalId, status:PENDING, statusToken:string(한 번만 반환); session 즉시 취소 |
-| GET `/withdrawals/:withdrawalId` | Authorization Bearer statusToken | status:PENDING/RUNNING/DONE/FAILED, providerResults:[{provider,status}], errorCode?:string; token 24시간·조회만 허용 |
+| Method path                              | 요청                                                                                                              | 성공 data·조건                                                                                                                                   |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| GET `/auth/context`                      | 없음                                                                                                              | csrfToken:string, providers:provider[], authenticated:boolean, registrationEnabled:boolean, accountAccessEnabled:boolean; 사전 인증 binding 발급 |
+| POST `/auth/:provider/start`             | purpose, returnTo?, delivery?:REDIRECT/POPUP(기본 REDIRECT)                                                       | authorizationUrl:string; URL은 고정 provider adapter만 생성                                                                                      |
+| GET 또는 POST `/auth/:provider/callback` | provider 정의 code/state 또는 error, Apple는 form-urlencoded                                                      | REDIRECT는 검증 뒤 303 `/signup/consent` 또는 저장된 returnTo; POPUP은 서버 `/auth/complete`로 303; 오류는 허용 오류 코드만 전달                 |
+| GET `/auth/signup`                       | 임시 binding cookie                                                                                               | displayName:string 기본 빈 값, termsPolicyId, signupPrivacyPolicyId, policy bodyHtml·versionLabel 각각, ageConfirmationRequired:true; 미인증 401 |
+| POST `/auth/signup`                      | displayName, termsPolicyId, signupPrivacyPolicyId, termsAccepted:true, privacyAccepted:true, birthDate:YYYY-MM-DD | member DTO와 cookie; 임시 transaction 소비+계정·동의·session atomic                                                                              |
+| DELETE `/auth/signup`                    | 없음                                                                                                              | 임시 인증 파기, cookie 삭제                                                                                                                      |
+| GET `/me`                                | 없음                                                                                                              | member DTO                                                                                                                                       |
+| PATCH `/me`                              | displayName, lockVersion:int                                                                                      | member DTO                                                                                                                                       |
+| GET `/me/consent`                        | 없음                                                                                                              | termsPolicyId, signupPrivacyPolicyId, 각 bodyHtml·versionLabel, required:boolean                                                                 |
+| POST `/me/consent`                       | termsPolicyId, signupPrivacyPolicyId, termsAccepted:true, privacyAccepted:true                                    | required:false; 최신 시행 버전 검증                                                                                                              |
+| POST `/auth/logout`                      | 없음                                                                                                              | 현재 세션 삭제, cookie 만료; 이미 없음도 200                                                                                                     |
+| POST `/auth/logout-all`                  | 없음                                                                                                              | 전체 세션 삭제, cookie 만료                                                                                                                      |
+| DELETE `/me/identities/:provider`        | lockVersion:int                                                                                                   | member DTO와 disconnectStatus:DONE/PENDING/MANUAL; 최근 재인증·마지막 수단 검사                                                                  |
+| GET `/me/withdrawal-preview`             | 없음                                                                                                              | postCount:int, commentCount:int, contentPolicy:KEEP, providers:provider[]                                                                        |
+| POST `/me/withdrawals`                   | lockVersion:int, confirmation:true                                                                                | withdrawalId, status:PENDING, statusToken:string(한 번만 반환); session 즉시 취소                                                                |
+| GET `/withdrawals/:withdrawalId`         | Authorization Bearer statusToken                                                                                  | status:PENDING/RUNNING/DONE/FAILED, providerResults:[{provider,status}], errorCode?:string; token 24시간·조회만 허용                             |
 
 탈퇴 요청은 contentAction을 받지 않는다. 서버가 콘텐츠 유무와 무관하게 KEEP으로 기록한다.
 삭제 선택이나 알 수 없는 필드 입력은 400 VALIDATION_FAILED로 거부한다.
@@ -293,20 +297,20 @@ LINK callback은 `/me` 계정 version을 올리고 현재 회원에만 연결하
 
 ### 익게·내 활동
 
-| Method path | 요청 | 성공 data |
-| --- | --- | --- |
-| GET `/boards/community/posts` | page? | items:[{postId,title,publishedAt,viewCount:string,commentCount:int,authorLabel:string}], pinnedItems:[]; 공통 pagination meta |
-| GET `/boards/community/posts/:postId` | contextPage? | postId,title,body,publishedAt,updatedAt,viewCount:string,authorLabel,context:{items, pagination}; 본문 TEXT만 합침 |
-| POST `/boards/community/posts/:postId/views` | 없음 | 기존 참고 조회 수 계약, 개인 이력 없음 |
-| POST `/boards/community/posts` | title, body | postId, lockVersion:1 |
-| PATCH `/boards/community/posts/:postId` | title,body,lockVersion | postId,lockVersion |
-| DELETE `/boards/community/posts/:postId` | lockVersion | postId,status:REMOVED,lockVersion |
-| GET `/boards/community/posts/:postId/comments` | page? | items:[{commentId,body:string\|null,authorLabel:string\|null,isPostAuthor:boolean\|null,status:PUBLISHED/HIDDEN_REVIEW/REMOVED,createdAt}], 공통 pagination meta |
-| POST `/boards/community/posts/:postId/comments` | body | commentId,lockVersion:1 |
-| PATCH `/boards/community/posts/:postId/comments/:commentId` | body,lockVersion | commentId,lockVersion |
-| DELETE `/boards/community/posts/:postId/comments/:commentId` | lockVersion | commentId,status:REMOVED,lockVersion |
-| GET `/me/activity` | type:posts/comments, page? | items:[{postId,commentId?:string,title:string\|null,body:string\|null,status,lockVersion,createdAt}], 공통 pagination meta; 내부 검토 사유 없음 |
-| GET `/me/community/posts/:postId/permissions` | 없음 | canEdit:boolean,canDelete:boolean,postLockVersion:int\|null,comments:[{commentId,lockVersion}]; 공개 댓글 page?(기본 1)를 함께 받아 해당 20건의 본인 댓글만 반환 |
+| Method path                                                  | 요청                       | 성공 data                                                                                                                                                        |
+| ------------------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET `/boards/community/posts`                                | page?                      | items:[{postId,title,publishedAt,viewCount:string,commentCount:int,authorLabel:string}], pinnedItems:[]; 공통 pagination meta                                    |
+| GET `/boards/community/posts/:postId`                        | contextPage?               | postId,title,body,publishedAt,updatedAt,viewCount:string,authorLabel,context:{items, pagination}; 본문 TEXT만 합침                                               |
+| POST `/boards/community/posts/:postId/views`                 | 없음                       | 기존 참고 조회 수 계약, 개인 이력 없음                                                                                                                           |
+| POST `/boards/community/posts`                               | title, body                | postId, lockVersion:1                                                                                                                                            |
+| PATCH `/boards/community/posts/:postId`                      | title,body,lockVersion     | postId,lockVersion                                                                                                                                               |
+| DELETE `/boards/community/posts/:postId`                     | lockVersion                | postId,status:REMOVED,lockVersion                                                                                                                                |
+| GET `/boards/community/posts/:postId/comments`               | page?                      | items:[{commentId,body:string\|null,authorLabel:string\|null,isPostAuthor:boolean\|null,status:PUBLISHED/HIDDEN_REVIEW/REMOVED,createdAt}], 공통 pagination meta |
+| POST `/boards/community/posts/:postId/comments`              | body                       | commentId,lockVersion:1                                                                                                                                          |
+| PATCH `/boards/community/posts/:postId/comments/:commentId`  | body,lockVersion           | commentId,lockVersion                                                                                                                                            |
+| DELETE `/boards/community/posts/:postId/comments/:commentId` | lockVersion                | commentId,status:REMOVED,lockVersion                                                                                                                             |
+| GET `/me/activity`                                           | type:posts/comments, page? | items:[{postId,commentId?:string,title:string\|null,body:string\|null,status,lockVersion,createdAt}], 공통 pagination meta; 내부 검토 사유 없음                  |
+| GET `/me/community/posts/:postId/permissions`                | 없음                       | canEdit:boolean,canDelete:boolean,postLockVersion:int\|null,comments:[{commentId,lockVersion}]; 공개 댓글 page?(기본 1)를 함께 받아 해당 20건의 본인 댓글만 반환 |
 
 공개 댓글 자리 표시에서는 body·authorLabel·isPostAuthor를 null로 하고 createdAt·commentId·상태만 남긴다.
 숨김 글과 타 게시판 글은 상세·댓글 API 모두 일반 404다. 본인 활동은 본인이 숨김 글을 삭제할 수 있도록
@@ -315,21 +319,21 @@ ID·version·일반 상태를 보여주지만 숨김 본문은 반환하지 않�
 
 ### 신고·운영
 
-| Method path | 요청 | 성공 data |
-| --- | --- | --- |
-| POST `/reports` | postId, commentId?, reasonCode, detail?:0~500 code point(OTHER는 1~500) | reportId,status:OPEN; 같은 신고면 기존 ID·현재 상태로 200 |
-| GET `/me/reports` | page? | items:[{reportId,postId,commentId?,status,createdAt,resolvedAt:timestamp\|null}], pagination meta |
-| GET `/admin/moderation/posts/:postId` | 없음 | postId,title:string\|null,body:string\|null,status,lockVersion,targetMemberRef:string\|null; USER board만 |
-| GET `/admin/moderation/posts/:postId/comments` | page? | items:[{commentId,status,createdAt,lockVersion}], 공통 pagination meta; 숨김/삭제 포함 |
-| GET `/admin/moderation/posts/:postId/comments/:commentId` | 없음 | postId,commentId,body:string\|null,status,lockVersion,targetMemberRef:string\|null; 부모 소속 검증 |
-| GET `/admin/moderation/reports` | status?:OPEN/RESOLVED, page? | items:[{reportId,postId,commentId?,reasonCode,status,createdAt,lockVersion}], pagination meta |
-| GET `/admin/moderation/reports/:reportId` | 없음 | 목록 필드+detail:string\|null,target:{title:string\|null,body:string\|null,status,lockVersion},actions:[{action,publicReason,createdAt}], targetMemberRef:string\|null |
-| POST `/admin/moderation/reports/:reportId/resolve` | resolution:NONE/HIDE/REMOVE, publicReason:1~300 code point, internalNote?:0~500 code point,lockVersion:int,targetLockVersion:int | reportId,status:RESOLVED,lockVersion |
-| POST `/admin/moderation/posts/:postId/actions` | action:HIDE/RESTORE/REMOVE,publicReason:1~300 code point,internalNote?:0~500 code point,lockVersion | postId,status,lockVersion |
-| POST `/admin/moderation/posts/:postId/comments/:commentId/actions` | action:HIDE/RESTORE/REMOVE,publicReason:1~300 code point,internalNote?:0~500 code point,lockVersion | commentId,status,lockVersion |
-| POST `/admin/moderation/members/:memberRef/restriction` | durationDays:1/7/30/null,publicReason:1~300 code point,lockVersion:int | status:ACTIVE,endsAt:timestamp\|null,lockVersion |
-| DELETE `/admin/moderation/members/:memberRef/restriction` | publicReason:1~300 code point,lockVersion:int | status:REVOKED,lockVersion |
-| GET `/admin/moderation/members/:memberRef` | 없음 | restriction:null 또는 {status,publicReason,endsAt,lockVersion}, actions:[{action,publicReason,createdAt}] |
+| Method path                                                        | 요청                                                                                                                               | 성공 data                                                                                                                                                              |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| POST `/reports`                                                    | postId, commentId?, reasonCode, detail?:0~~500 code point(OTHER는 1~~500)                                                          | reportId,status:OPEN; 같은 신고면 기존 ID·현재 상태로 200                                                                                                              |
+| GET `/me/reports`                                                  | page?                                                                                                                              | items:[{reportId,postId,commentId?,status,createdAt,resolvedAt:timestamp\|null}], pagination meta                                                                      |
+| GET `/admin/moderation/posts/:postId`                              | 없음                                                                                                                               | postId,title:string\|null,body:string\|null,status,lockVersion,targetMemberRef:string\|null; USER board만                                                              |
+| GET `/admin/moderation/posts/:postId/comments`                     | page?                                                                                                                              | items:[{commentId,status,createdAt,lockVersion}], 공통 pagination meta; 숨김/삭제 포함                                                                                 |
+| GET `/admin/moderation/posts/:postId/comments/:commentId`          | 없음                                                                                                                               | postId,commentId,body:string\|null,status,lockVersion,targetMemberRef:string\|null; 부모 소속 검증                                                                     |
+| GET `/admin/moderation/reports`                                    | status?:OPEN/RESOLVED, page?                                                                                                       | items:[{reportId,postId,commentId?,reasonCode,status,createdAt,lockVersion}], pagination meta                                                                          |
+| GET `/admin/moderation/reports/:reportId`                          | 없음                                                                                                                               | 목록 필드+detail:string\|null,target:{title:string\|null,body:string\|null,status,lockVersion},actions:[{action,publicReason,createdAt}], targetMemberRef:string\|null |
+| POST `/admin/moderation/reports/:reportId/resolve`                 | resolution:NONE/HIDE/REMOVE, publicReason:1~~300 code point, internalNote?:0~~500 code point,lockVersion:int,targetLockVersion:int | reportId,status:RESOLVED,lockVersion                                                                                                                                   |
+| POST `/admin/moderation/posts/:postId/actions`                     | action:HIDE/RESTORE/REMOVE,publicReason:1~~300 code point,internalNote?:0~~500 code point,lockVersion                              | postId,status,lockVersion                                                                                                                                              |
+| POST `/admin/moderation/posts/:postId/comments/:commentId/actions` | action:HIDE/RESTORE/REMOVE,publicReason:1~~300 code point,internalNote?:0~~500 code point,lockVersion                              | commentId,status,lockVersion                                                                                                                                           |
+| POST `/admin/moderation/members/:memberRef/restriction`            | durationDays:1/7/30/null,publicReason:1~300 code point,lockVersion:int                                                             | status:ACTIVE,endsAt:timestamp\|null,lockVersion                                                                                                                       |
+| DELETE `/admin/moderation/members/:memberRef/restriction`          | publicReason:1~300 code point,lockVersion:int                                                                                      | status:REVOKED,lockVersion                                                                                                                                             |
+| GET `/admin/moderation/members/:memberRef`                         | 없음                                                                                                                               | restriction:null 또는 {status,publicReason,endsAt,lockVersion}, actions:[{action,publicReason,createdAt}]                                                              |
 
 memberRef는 관리 화면 전용 불투명 참조로 내부 account ID를 서버 키로 인증 암호화한 값이며
 그 자체가 인증·권한을 부여하지 않는다. 이미 탈퇴해 연결이 없으면 null이다. 최초 제재는 lockVersion=0,
@@ -360,17 +364,17 @@ version과 이력 확인을 위해 반환할 수 있다. 해제 뒤 새 글·댓
 
 ### 오류·동시 요청
 
-| HTTP | code | 처리 |
-| --- | --- | --- |
-| 400 | VALIDATION_FAILED / AUTH_TRANSACTION_INVALID | 입력 또는 만료 인증 안내, state 존재 유무 세부 비공개 |
-| 401 | AUTH_REQUIRED / REAUTH_REQUIRED | 로그인 또는 재인증, 편집 내용은 현재 탭 메모리에만 유지 |
-| 403 | CSRF_INVALID / CONSENT_REQUIRED / PARTICIPATION_RESTRICTED / AGE_REQUIREMENT_NOT_MET | 재동의·제재 안내; 동의·제재 오류는 삭제·계정 종료에 적용하지 않으며 연령 오류는 신규 가입에만 적용 |
-| 404 | POST_NOT_FOUND / COMMENT_NOT_FOUND / RESOURCE_NOT_FOUND / FEATURE_DISABLED / PAGE_NOT_FOUND | 소유하지 않은 리소스, 숨김/삭제/잘못된 게시판은 같은 응답 |
-| 409 | VERSION_CONFLICT / POLICY_CHANGED / IDENTITY_ALREADY_LINKED / IDENTITY_DISCONNECT_PENDING / LAST_IDENTITY / STATE_CONFLICT | 최신 조회 후 사용자가 다시 판단, 자동 덮어쓰기 금지 |
-| 409 | IDEMPOTENCY_CONFLICT / IDEMPOTENCY_IN_PROGRESS | key 입력 충돌 또는 진행 중, 지수 backoff |
-| 413 | REQUEST_TOO_LARGE | 요청 크기를 줄여 다시 제출 |
-| 429 | RATE_LIMITED | Retry-After 초 단위, 사용자 입력 보존 |
-| 503 | DEPENDENCY_UNAVAILABLE / ALIAS_ALLOCATION_UNAVAILABLE | provider·DB 장애 또는 이름 배정 실패, 읽기 가능한 기능과 편집 입력 유지 |
+| HTTP | code                                                                                                                       | 처리                                                                                               |
+| ---- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 400  | VALIDATION_FAILED / AUTH_TRANSACTION_INVALID                                                                               | 입력 또는 만료 인증 안내, state 존재 유무 세부 비공개                                              |
+| 401  | AUTH_REQUIRED / REAUTH_REQUIRED                                                                                            | 로그인 또는 재인증, 편집 내용은 현재 탭 메모리에만 유지                                            |
+| 403  | CSRF_INVALID / CONSENT_REQUIRED / PARTICIPATION_RESTRICTED / AGE_REQUIREMENT_NOT_MET                                       | 재동의·제재 안내; 동의·제재 오류는 삭제·계정 종료에 적용하지 않으며 연령 오류는 신규 가입에만 적용 |
+| 404  | POST_NOT_FOUND / COMMENT_NOT_FOUND / RESOURCE_NOT_FOUND / FEATURE_DISABLED / PAGE_NOT_FOUND                                | 소유하지 않은 리소스, 숨김/삭제/잘못된 게시판은 같은 응답                                          |
+| 409  | VERSION_CONFLICT / POLICY_CHANGED / IDENTITY_ALREADY_LINKED / IDENTITY_DISCONNECT_PENDING / LAST_IDENTITY / STATE_CONFLICT | 최신 조회 후 사용자가 다시 판단, 자동 덮어쓰기 금지                                                |
+| 409  | IDEMPOTENCY_CONFLICT / IDEMPOTENCY_IN_PROGRESS                                                                             | key 입력 충돌 또는 진행 중, 지수 backoff                                                           |
+| 413  | REQUEST_TOO_LARGE                                                                                                          | 요청 크기를 줄여 다시 제출                                                                         |
+| 429  | RATE_LIMITED                                                                                                               | Retry-After 초 단위, 사용자 입력 보존                                                              |
+| 503  | DEPENDENCY_UNAVAILABLE / ALIAS_ALLOCATION_UNAVAILABLE                                                                      | provider·DB 장애 또는 이름 배정 실패, 읽기 가능한 기능과 편집 입력 유지                            |
 
 글·댓글 생성·수정·삭제, 신고와 운영 조치는 Idempotency-Key(1~128 ASCII)를 필수로 받는다.
 정규화한 `{params,body}` SHA-256과 actor+method+route+key를 기준으로 advisory lock→동일 receipt
@@ -381,12 +385,12 @@ version과 이력 확인을 위해 반환할 수 있다. 해제 뒤 새 글·댓
 
 ### 내부 OAuth·알림 route
 
-| Core 전용 route | 입력·결과 |
-| --- | --- |
-| POST `/internal/v1/identity/auth-transactions` | provider?,purpose,delivery,returnTo,account session? → 서버 난수·transaction; CONTEXT는 provider 없음 |
-| POST `/internal/v1/identity/auth-transactions/claim` | state,binding,provider → 단회 선점·검증 자료 |
-| POST `/internal/v1/identity/auth-transactions/complete` | [VerifiedIdentityMaterial](#identity-material) → 가입 임시 상태 또는 session/LINK/REAUTH 결과 |
-| POST `/internal/v1/identity/provider-events` | eventId:string,provider,subject:string,eventType:string,occurredAt:timestamp\|null,verifiedAt:timestamp → 중복·현재 세대 확인 후 처리 |
+| Core 전용 route                                         | 입력·결과                                                                                                                             |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| POST `/internal/v1/identity/auth-transactions`          | provider?,purpose,delivery,returnTo,account session? → 서버 난수·transaction; CONTEXT는 provider 없음                                 |
+| POST `/internal/v1/identity/auth-transactions/claim`    | state,binding,provider → 단회 선점·검증 자료                                                                                          |
+| POST `/internal/v1/identity/auth-transactions/complete` | [VerifiedIdentityMaterial](#identity-material) → 가입 임시 상태 또는 session/LINK/REAUTH 결과                                         |
+| POST `/internal/v1/identity/provider-events`            | eventId:string,provider,subject:string,eventType:string,occurredAt:timestamp\|null,verifiedAt:timestamp → 중복·현재 세대 확인 후 처리 |
 
 외부 `/api/v1/auth/:provider/notifications` POST는 provider adapter가 서명·issuer·audience·timestamp와
 replay를 검증한 알림만 Core로 보낸다. 외부 일반 CSRF 예외이나 서비스 token으로 위장한 사용자
@@ -396,6 +400,7 @@ provider 이벤트 scope와 event ID로 24시간 중복 제거한다. provider�
 Apple consent-revoked도 아래 해제 경합 규칙의 현재 세대 확인 후에만 세션 취소·REVOKED로 전환한다. 계정 삭제 요청은 다른 연결 제공자와 사용자 콘텐츠 처리 정책까지 확인하며 이벤트 수신만으로 계정 전체를 삭제하지 않는다.
 
 <a id="operations"></a>
+
 ## 5. migration·운영·복구
 
 설계 상태별 작업 순서:
@@ -411,13 +416,13 @@ Apple consent-revoked도 아래 해제 경합 규칙의 현재 세대 확인 후
 - `MEMBER_ENABLED`는 회원 기능 신규 제공(가입·새 연결)을, `ACCOUNT_ACCESS_ENABLED`는 기존 계정
   로그인·재인증·관리 접근을, `COMMUNITY_ENABLED`는 익게 신규 참여·공개를 제어한다. 신규 배포 기본값은 모두 false다.
 
-| 상태 | MEMBER | ACCOUNT_ACCESS | COMMUNITY | 허용 |
-| --- | --- | --- | --- | --- |
-| M0 신규 | false | false | false | 회원 없음, providers=[] |
-| M1 운영 | true | true | false | 가입·로그인·연결·계정 관리 |
-| M1.5 운영 | true | true | true | 회원·익게 참여 |
-| 가입 중단 | false | true | true 또는 false | 기존 회원 로그인·재인증·참여(익게가 true일 때), 새 가입·LINK 금지 |
-| 계정 정리 | false | true | false | 기존 회원 로그인·재인증·본인 삭제·탈퇴·운영 조치 |
+| 상태      | MEMBER | ACCOUNT_ACCESS | COMMUNITY       | 허용                                                              |
+| --------- | ------ | -------------- | --------------- | ----------------------------------------------------------------- |
+| M0 신규   | false  | false          | false           | 회원 없음, providers=[]                                           |
+| M1 운영   | true   | true           | false           | 가입·로그인·연결·계정 관리                                        |
+| M1.5 운영 | true   | true           | true            | 회원·익게 참여                                                    |
+| 가입 중단 | false  | true           | true 또는 false | 기존 회원 로그인·재인증·참여(익게가 true일 때), 새 가입·LINK 금지 |
+| 계정 정리 | false  | true           | false           | 기존 회원 로그인·재인증·본인 삭제·탈퇴·운영 조치                  |
 
 MEMBER=true 또는 COMMUNITY=true이면 ACCOUNT_ACCESS=true여야 한다. 회원·연동·처리 중 탈퇴가
 남아 있으면 ACCOUNT_ACCESS=false 전환을 배포 gate에서 거부한다. 계정 정리 상태에도 기존 연결
@@ -426,6 +431,7 @@ provider 설정과 callback은 유지하며 context.providers는 기존 계정 �
 REAUTH는 현재 계정과 동일 subject임을 재검증하고 LINK는 MEMBER=false에서 거부한다.
 flag를 끄더라도 삭제 worker·관리자 숨김·복구·필수 동의 조회는 중단하지 않는다. provider 자체 장애나
 침해로 인증이 불가능하면 공개 읽기를 유지하면서 검증된 문의 채널의 수동 본인 확인 절차로 처리한다.
+
 - 키 배치·암호화/해시 생성 책임은 [내부 인증 자료 계약](#identity-material)의 표를 따른다.
 - 확정 callback 도메인/client ID/secret/키 식별자, 알림 URL, 법무 시행일은 `(미정)`이며 환경 값으로 관리한다.
 - 신규 worker: `members:cleanup`, `members:withdraw`, `members:disconnect`, `moderation:cleanup`.
@@ -443,25 +449,27 @@ flag를 끄더라도 삭제 worker·관리자 숨김·복구·필수 동의 조�
   DB 기록 전 장애는 UNKNOWN으로 분류하며 무조건 재전송하지 않는다. 아래 전이표로 처리한다.
 
 <a id="acceptance"></a>
+
 ## 6. 구현 수용 검증과 공개 gate
 
 아래는 실행할 테스트 목록이며 이번 문서 작업에서 실행하지 않았다.
 
-| 계층 | 필수 시나리오 |
-| --- | --- |
-| 계약 | 모든 endpoint body·추가 필드·ID·enum·오류, callback content-type, envelope·최소 공개 필드 |
-| 인증 | state/nonce/issuer/audience 변조, code 재사용, 다른 browser binding, Apple form_post, 로그인 CSRF·open redirect, cookie 회전 |
-| DB | 동시 가입 unique, 양쪽 연동 동시 해제, 정책 발행과 가입 경쟁, 댓글 랜덤 이름 경쟁, version 충돌·멱등·상한 rollback |
-| 권한 | 다른 회원 수정·삭제, admin header 위장, 숨김 원문 누출, 제재·탈퇴와 글쓰기 경쟁, M0 USER 관리자 API 우회 |
+| 계층 | 필수 시나리오                                                                                                                                         |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 계약 | 모든 endpoint body·추가 필드·ID·enum·오류, callback content-type, envelope·최소 공개 필드                                                             |
+| 인증 | state/nonce/issuer/audience 변조, code 재사용, 다른 browser binding, Apple form_post, 로그인 CSRF·open redirect, cookie 회전                          |
+| DB   | 동시 가입 unique, 양쪽 연동 동시 해제, 정책 발행과 가입 경쟁, 댓글 랜덤 이름 경쟁, version 충돌·멱등·상한 rollback                                    |
+| 권한 | 다른 회원 수정·삭제, admin header 위장, 숨김 원문 누출, 제재·탈퇴와 글쓰기 경쟁, M0 USER 관리자 API 우회                                              |
 | 탈퇴 | 콘텐츠 KEEP 고정·삭제 선택 거부, 기존 숨김/삭제 상태·타인 댓글 보존, receipt·감사·FK 제거, 외부 timeout, worker 중단 재시작, 백업 restore 삭제 재적용 |
-| UI | 네 provider 성공/취소/장애, 동의 변경, 만료·429 입력 유지, 360/768/1280px, 키보드·focus·aria-live |
-| 회귀 | M0 공개 목록·상세·조회 수·운영자 수동 발행과 비활성 GA4 동작 유지 |
+| UI   | 네 provider 성공/취소/장애, 동의 변경, 만료·429 입력 유지, 360/768/1280px, 키보드·focus·aria-live                                                     |
+| 회귀 | M0 공개 목록·상세·조회 수·운영자 수동 발행과 비활성 GA4 동작 유지                                                                                     |
 
 공개 차단은 [법무 README](../legal/README.md)를 따른다. 설계 기본값으로 연령 확인·보존 기간을
 기술적으로 정했다고 적법성이 확정된 것은 아니다. mock adapter로 로컬 개발할 수 있으나 실제 제공자
 등록·계약 테스트·법무 고지·복원 시험 없이 M1/M1.5 운영 준비 완료라고 판정하지 않는다.
 
 <a id="disconnect-races"></a>
+
 ## 7. 연동 해제·재연결·지연 알림의 경합
 
 - provider+subject 단위 `identity_guard`를 먼저 lock하고 account→identity→job 순서로 lock한다.
@@ -489,15 +497,16 @@ flag를 끄더라도 삭제 worker·관리자 숨김·복구·필수 동의 조�
   알림 확인 실패를 성공으로 덮지 않으며 adapter별 처리·재시도·수동 경로를 실제 provider 테스트로 검증한다.
 
 <a id="identity-material"></a>
+
 ## 8. 내부 인증 자료와 키 소유권
 
-| 자료 | 생성·검증 | 전달·보관 |
-| --- | --- | --- |
-| provider subject 원문 | BFF가 고정 provider adapter로 인증 결과를 검증 | Core complete/event의 인증된 TLS 내부 요청에서만 일시 수신; 요청 log/APM 제외 |
-| subject_hash | Core가 `HMAC(subjectKey, provider + NUL + subject)` 생성 | DB 32-byte hash; subjectKey와 버전은 Core·전용 migration command만 보유 |
-| subject_ciphertext | BFF가 별도 AEAD subjectKey로 암호화 | Core는 불투명 envelope 저장, 일반 Core HTTP는 복호화 불가 |
-| Apple refresh ciphertext | BFF credential adapter가 별도 AEAD credentialKey로 암호화 | credential 테이블, 전용 철회/상태 확인 command만 복호화 |
-| 회원 actor HMAC | Core가 별도 actorKey로 account ID 가명화 | 감사 열만, subject 조회 키와 분리 |
+| 자료                     | 생성·검증                                                 | 전달·보관                                                                     |
+| ------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| provider subject 원문    | BFF가 고정 provider adapter로 인증 결과를 검증            | Core complete/event의 인증된 TLS 내부 요청에서만 일시 수신; 요청 log/APM 제외 |
+| subject_hash             | Core가 `HMAC(subjectKey, provider + NUL + subject)` 생성  | DB 32-byte hash; subjectKey와 버전은 Core·전용 migration command만 보유       |
+| subject_ciphertext       | BFF가 별도 AEAD subjectKey로 암호화                       | Core는 불투명 envelope 저장, 일반 Core HTTP는 복호화 불가                     |
+| Apple refresh ciphertext | BFF credential adapter가 별도 AEAD credentialKey로 암호화 | credential 테이블, 전용 철회/상태 확인 command만 복호화                       |
+| 회원 actor HMAC          | Core가 별도 actorKey로 account ID 가명화                  | 감사 열만, subject 조회 키와 분리                                             |
 
 위 표의 subjectKey는 HMAC용과 AEAD용을 서로 다른 secret 이름
 `IDENTITY_SUBJECT_HMAC_KEY`와 `IDENTITY_SUBJECT_AEAD_KEY`로 주입한다. credential은
@@ -524,6 +533,7 @@ subject 복호화 키는 BFF·전용 철회/키 회전 command에만 준다. 일
 조회 키 병행 계약을 따른다. 삭제한 원문을 키 교체 목적으로 복구하거나 새로 장기 보관하지 않는다.
 
 <a id="auth-continuation"></a>
+
 ## 9. 편집 중 인증과 복귀
 
 편집 도중 401 재로그인은 `delivery=POPUP`을 사용한다. 사용자 클릭으로 빈 인증 창을 먼저 열고
@@ -559,6 +569,7 @@ REDIRECT의 returnTo는 검증한 상대 경로만 서버 transaction에 저장�
    UI·Core·PostgreSQL에서 같은 결과로 검증.
 
 <a id="hash-key-rotation"></a>
+
 ## 11. 원문 없는 차단 기록의 HMAC 키 교체
 
 - 조회용 keyring은 current 쓰기 키 1개와 retiring 조회 키들로 구성한다. 기존
@@ -583,19 +594,20 @@ REDIRECT의 returnTo는 검증한 상대 경로만 서버 transaction에 저장�
   해당 provider의 신규 가입·연결을 차단하고 기존 계정 접근·삭제를 위한 사고 대응 경로를 적용한다.
 
 <a id="disconnect-outcomes"></a>
+
 ## 12. 외부 해제 결과별 전이표
 
 이 표가 모든 해제 worker·운영 재처리의 단일 기준이다. FAILED는 명시적 영구 실패,
 UNKNOWN은 외부 실행 여부 불명이다. MANUAL은 수동 확인 필요이며 성공을 뜻하지 않는다.
 
-| 관찰 결과 | job / guard | 자동 재전송 | 다음 처리 |
-| --- | --- | --- | --- |
-| 외부 요청이 전송되지 않았음을 증명 | PENDING / DISCONNECTING | 가능 | 1분→5분→30분→2시간, 이후 2시간; secret 유효기간 안에서만 |
-| provider가 미적용·재시도 가능을 명시 | PENDING / DISCONNECTING | 가능 | 위 간격, provider Retry-After가 길면 그 값을 우선 |
-| 완료 또는 이미 해제됨을 해당 주체에 대해 확인 | DONE / 해제 가능 | 불필요 | 진행 중 요청 없음 확인 뒤 차단 해제 |
-| timeout·응답 유실·연결 중단·lease 만료·성공 응답 후 DB 기록 실패 | UNKNOWN / QUARANTINED | 금지 | 상태 확인·운영 확인으로 전환; HTTP 5xx만으로 미적용을 추정하지 않음 |
-| 명시적 영구 거절·잘못된 자격 증명 | FAILED / QUARANTINED | 금지 | 설정 수정·수동 확인; 외부 미적용이 증명돼야 재처리 가능 |
-| secret 24시간 만료, 미완료 | MANUAL / QUARANTINED | 금지 | 암호문 secret 파기, 최소 guard만 보존 |
+| 관찰 결과                                                        | job / guard             | 자동 재전송 | 다음 처리                                                           |
+| ---------------------------------------------------------------- | ----------------------- | ----------- | ------------------------------------------------------------------- |
+| 외부 요청이 전송되지 않았음을 증명                               | PENDING / DISCONNECTING | 가능        | 1분→5분→30분→2시간, 이후 2시간; secret 유효기간 안에서만            |
+| provider가 미적용·재시도 가능을 명시                             | PENDING / DISCONNECTING | 가능        | 위 간격, provider Retry-After가 길면 그 값을 우선                   |
+| 완료 또는 이미 해제됨을 해당 주체에 대해 확인                    | DONE / 해제 가능        | 불필요      | 진행 중 요청 없음 확인 뒤 차단 해제                                 |
+| timeout·응답 유실·연결 중단·lease 만료·성공 응답 후 DB 기록 실패 | UNKNOWN / QUARANTINED   | 금지        | 상태 확인·운영 확인으로 전환; HTTP 5xx만으로 미적용을 추정하지 않음 |
+| 명시적 영구 거절·잘못된 자격 증명                                | FAILED / QUARANTINED    | 금지        | 설정 수정·수동 확인; 외부 미적용이 증명돼야 재처리 가능             |
+| secret 24시간 만료, 미완료                                       | MANUAL / QUARANTINED    | 금지        | 암호문 secret 파기, 최소 guard만 보존                               |
 
 UNKNOWN에서 현재 상태가 해제됨이고 이전 요청도 더 이상 실행 중이 아님을 확인하면 DONE이다.
 아직 연결되어 있음만으로 이전 요청 미실행을 단정하지 않는다. 미적용·진행 중 요청 없음이 확인되고
@@ -606,6 +618,7 @@ MANUAL 경로를 유지한다. 확인 시각·오류 코드만 기록하고 원�
 연결 중단·파기는 §7과 제품 정책을 따른다. 재시도·수동 확인으로 최초 보존 기한을 갱신하지 않는다.
 
 <a id="restriction-detachment"></a>
+
 ## 13. 탈퇴 후 제재 이력의 계정 연결 제거
 
 `moderation.action.account_detached_at`은 TIMESTAMPTZ(3) NULL 허용이다. RESTRICT/UNRESTRICT에는
@@ -634,6 +647,7 @@ CHECK (
 해제 미전송/5xx/응답 유실/secret 만료별 전이, 제재 이력 생성 시 null 거부·탈퇴 시 분리 허용·FK 삭제 성공·재연결 거부.
 
 <a id="signup-birth-date"></a>
+
 ## 14. 가입 생년월일 입력과 연령 판정
 
 - 네 제공자 모두 POST `/auth/signup`의 `birthDate`를 직접 입력받는다. 소셜 프로필 생일이나
@@ -652,6 +666,7 @@ CHECK (
   누락·구형 ageConfirmed 요청 거부, 네 제공자 동일 판정, 실패 시 회원 생성 없음, 로그·receipt 원문 미잔존.
 
 <a id="random-name-assignment"></a>
+
 ## 15. 글별 랜덤 이름 배정
 
 - 원문 사전과 조합 규칙은 [기획 사전](../planning/09-random-name-catalog.md)을 따른다. Core가 버전별
@@ -679,14 +694,14 @@ CHECK (
 
 2026-09-08 문서 대조 결과다. 아래는 계약 연결을 확인한 것이며 구현 테스트 통과가 아니다.
 
-| 변경 | 제품·화면 | API·DB·실패 처리 | 복원·검증 |
-| --- | --- | --- | --- |
-| 글별 랜덤 이름 | 사전 §1–5, 같은 글 고정·다른 글 변경·배지 | §15, participant 필수·이름 고유 제약·배정 실패 전체 rollback | 사전 변경에도 label 유지, 탈퇴 FK 제거 뒤 배지 보존 |
-| 소셜 최소 수집 | 서비스 기획 M1, 직접 표시명·생일 입력 | provider 최소 scope, 불필요한 프로필 미저장 | provider별 실제 반환값·로그 검증 미실행 |
-| 연령 판정 | 생년월일 입력, 미성년 가입 거부 | §14, Core 한국 날짜 판정·원문 미보관 | 생일 경계·연령 거부·로그 미잔존 미실행 |
-| 가입 동의 전문 | legal 전문 초안·개별 필수 동의 | 현행 정책 ID 두 개 검증·원자적 가입 | 정책 교체 경쟁·동의 원문 artifact 검증 미실행 |
-| 탈퇴 KEEP | 삭제 선택 없음·편집 불가 안내 | 입력 contentAction 없음·서버 KEEP 고정·기존 콘텐츠 상태 유지 | ledger는 회원 연결 제거 재적용, 콘텐츠 삭제/재공개로 변환 금지 |
-| 계정 이력 분리 | 개인정보 삭제·이의제기 경로 | §13, 제재 이력 분리와 계정 FK 삭제 순서 | worker 재시작·백업 복원·재연결 거부 미실행 |
+| 변경           | 제품·화면                                 | API·DB·실패 처리                                             | 복원·검증                                                      |
+| -------------- | ----------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
+| 글별 랜덤 이름 | 사전 §1–5, 같은 글 고정·다른 글 변경·배지 | §15, participant 필수·이름 고유 제약·배정 실패 전체 rollback | 사전 변경에도 label 유지, 탈퇴 FK 제거 뒤 배지 보존            |
+| 소셜 최소 수집 | 서비스 기획 M1, 직접 표시명·생일 입력     | provider 최소 scope, 불필요한 프로필 미저장                  | provider별 실제 반환값·로그 검증 미실행                        |
+| 연령 판정      | 생년월일 입력, 미성년 가입 거부           | §14, Core 한국 날짜 판정·원문 미보관                         | 생일 경계·연령 거부·로그 미잔존 미실행                         |
+| 가입 동의 전문 | legal 전문 초안·개별 필수 동의            | 현행 정책 ID 두 개 검증·원자적 가입                          | 정책 교체 경쟁·동의 원문 artifact 검증 미실행                  |
+| 탈퇴 KEEP      | 삭제 선택 없음·편집 불가 안내             | 입력 contentAction 없음·서버 KEEP 고정·기존 콘텐츠 상태 유지 | ledger는 회원 연결 제거 재적용, 콘텐츠 삭제/재공개로 변환 금지 |
+| 계정 이력 분리 | 개인정보 삭제·이의제기 경로               | §13, 제재 이력 분리와 계정 FK 삭제 순서                      | worker 재시작·백업 복원·재연결 거부 미실행                     |
 
 동의 전문 법무 검토·운영 발행, 사전 전체 조합 적절성 검수, provider 운영 설정과 실행 검증은 여전히
 공개 조건이다. 이번 검토로 해당 조건을 완료 처리하지 않는다.

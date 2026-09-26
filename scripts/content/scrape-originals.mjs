@@ -203,10 +203,13 @@ function jsonObjects(node, output = []) {
     else if (key === 'contextJSON' && typeof child === 'string') {
       try {
         jsonObjects(JSON.parse(child), output);
-      } catch {
+      } catch (error) {
+        if (!(error instanceof SyntaxError)) throw error;
         try {
           jsonObjects(JSON.parse(JSON.parse(`"${child}"`)), output);
-        } catch {}
+        } catch (nestedError) {
+          if (!(nestedError instanceof SyntaxError)) throw nestedError;
+        }
       }
     }
   }

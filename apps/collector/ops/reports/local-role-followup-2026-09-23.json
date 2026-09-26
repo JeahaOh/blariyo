@@ -19,9 +19,7 @@
         "failures": 1,
         "unknownDates": 1,
         "skippedByDate": 0,
-        "errors": [
-          "SOURCE_IMAGE_LIMIT_EXCEEDED"
-        ]
+        "errors": ["SOURCE_IMAGE_LIMIT_EXCEEDED"]
       },
       "readbackPass": true,
       "images": 4,

@@ -7,25 +7,25 @@
 기존 합성 fixture와 구분하며 이 표의 숫자는 해당 fixture 한 건의 관측값이다.
 원문 텍스트·닉네임·미디어 URL은 정제했으므로 내용의 진위를 증명하는 자료가 아니다.
 
-| source | 목록 후보 | 상세 블록 | 이미지 | LINK | 첨부 |
-|---|---:|---:|---:|---:|---:|
-| arcalive | 45 | 2 | 1 | 0 | 0 |
-| bobaedream | 30 | 1 | 1 | 0 | 0 |
-| clien | 30 | 5 | 0 | 1 | 0 |
-| dcinside | 47 | 90 | 50 | 14 | 0 |
-| dmitory | 20 | 3 | 0 | 3 | 0 |
-| dogdrip | 20 | 9 | 3 | 0 | 0 |
-| etoland | 49 | 1 | 0 | 1 | 0 |
-| goodgag | 15 | 1 | 1 | 0 | 0 |
-| humoruniv | 25 | 2 | 2 | 0 | 0 |
-| instiz | 39 | 16 | 9 | 0 | 0 |
-| inven | 20 | 2 | 1 | 0 | 0 |
-| mlbpark | 30 | 1 | 0 | 0 | 0 |
-| natepann | 58 | 5 | 3 | 0 | 0 |
-| ruliweb | 31 | 3 | 1 | 0 | 0 |
-| theqoo | 18 | 2 | 0 | 1 | 0 |
-| todayhumor | 30 | 21 | 21 | 0 | 0 |
-| yuldo | 15 | 4 | 3 | 0 | 0 |
+| source     | 목록 후보 | 상세 블록 | 이미지 | LINK | 첨부 |
+| ---------- | --------: | --------: | -----: | ---: | ---: |
+| arcalive   |        45 |         2 |      1 |    0 |    0 |
+| bobaedream |        30 |         1 |      1 |    0 |    0 |
+| clien      |        30 |         5 |      0 |    1 |    0 |
+| dcinside   |        47 |        90 |     50 |   14 |    0 |
+| dmitory    |        20 |         3 |      0 |    3 |    0 |
+| dogdrip    |        20 |         9 |      3 |    0 |    0 |
+| etoland    |        49 |         1 |      0 |    1 |    0 |
+| goodgag    |        15 |         1 |      1 |    0 |    0 |
+| humoruniv  |        25 |         2 |      2 |    0 |    0 |
+| instiz     |        39 |        16 |      9 |    0 |    0 |
+| inven      |        20 |         2 |      1 |    0 |    0 |
+| mlbpark    |        30 |         1 |      0 |    0 |    0 |
+| natepann   |        58 |         5 |      3 |    0 |    0 |
+| ruliweb    |        31 |         3 |      1 |    0 |    0 |
+| theqoo     |        18 |         2 |      0 |    1 |    0 |
+| todayhumor |        30 |        21 |     21 |    0 |    0 |
+| yuldo      |        15 |         4 |      3 |    0 |    0 |
 
 - fixture와 provenance: `apps/collector/src/test/resources/sites/observed/`.
 - 테스트: `ObservedSiteFixtureTests`의 34개 회귀 + 웃긴대학 혼합 본문 테스트 1개.
@@ -36,12 +36,12 @@
 
 ## 실패와 증거의 경계
 
-| source | 최신 확인 내용 | readback / 재개 조건 |
-|---|---|---|
-| pgr21 | 상세 수집 `SOURCE_ACCESS_BLOCKED` | run `429a48ae-5926-4031-92d1-bcda418adb7a` 실패 ledger/report/item readback 통과. 본문 수집 성공 아님. 공개 정적 응답 제공 시 재검증 |
+| source            | 최신 확인 내용                                                                             | readback / 재개 조건                                                                                                                                            |
+| ----------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| pgr21             | 상세 수집 `SOURCE_ACCESS_BLOCKED`                                                          | run `429a48ae-5926-4031-92d1-bcda418adb7a` 실패 ledger/report/item readback 통과. 본문 수집 성공 아님. 공개 정적 응답 제공 시 재검증                            |
 | youtube-community | HTTP 응답에 `ytInitialData`는 있으나 JSON root는 `responseContext`뿐. 게시글 renderer 없음 | run `84c83f1d-8a28-4c70-ba4f-8e9d9ab04357` FAILED/PARSE_FAILED의 readback 통과. 삭제·비공개라고 단정하지 않으며 실제 공개 본문 응답이 있는 URL/허용 경로가 필요 |
-| fmkorea | 목록 probe HTTP430 / `SOURCE_HTTP_REJECTED`; chart gate로만 막힌 batch와 실제 요청을 구분 | 이번 응답 6169bytes/hash 확보. 공개 접근 허용 후 재검증. CAPTCHA/보안 우회 안 함 |
-| ppomppu | 목록 probe HTTP302→403 / `SOURCE_ACCESS_BLOCKED` | 공개 접근 허용 또는 공식 경로 확인 후 재개. 실패 저장과 본문 성공은 별도 |
+| fmkorea           | 목록 probe HTTP430 / `SOURCE_HTTP_REJECTED`; chart gate로만 막힌 batch와 실제 요청을 구분  | 이번 응답 6169bytes/hash 확보. 공개 접근 허용 후 재검증. CAPTCHA/보안 우회 안 함                                                                                |
+| ppomppu           | 목록 probe HTTP302→403 / `SOURCE_ACCESS_BLOCKED`                                           | 공개 접근 허용 또는 공식 경로 확인 후 재개. 실패 저장과 본문 성공은 별도                                                                                        |
 
 ## 실제 실행 결과와 남은 readback
 

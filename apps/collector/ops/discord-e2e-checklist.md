@@ -18,11 +18,11 @@
 아래 URL과 성공/차단 기대는 기존 표본이다. 실행 전에 공개 여부·승인 범위를 다시 확인하며,
 출처 응답이 바뀌면 실제 결과를 기록한다. 과거 차단 상태를 재현하려고 접근 제한을 우회하지 않는다.
 
-| source | URL | 기대 결과 |
-|---|---|---|
-| theqoo | `https://theqoo.net/hot/4353370346` 또는 당일 공개 hot URL | 확인 메시지 후 batch queue 등록, 상세 fetch/parser/DB/object readback |
-| todayhumor | `https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797970` 또는 당일 공개 humorbest URL | 확인 메시지 후 batch queue 등록, 상세 fetch/parser/DB/object readback |
-| pgr21 | `https://pgr21.com/humor/507793` | 확인 메시지 후 batch queue 등록, `SOURCE_ACCESS_BLOCKED` 실패 저장/readback |
+| source     | URL                                                                                                   | 기대 결과                                                                   |
+| ---------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| theqoo     | `https://theqoo.net/hot/4353370346` 또는 당일 공개 hot URL                                            | 확인 메시지 후 batch queue 등록, 상세 fetch/parser/DB/object readback       |
+| todayhumor | `https://www.todayhumor.co.kr/board/view.php?table=humorbest&no=1797970` 또는 당일 공개 humorbest URL | 확인 메시지 후 batch queue 등록, 상세 fetch/parser/DB/object readback       |
+| pgr21      | `https://pgr21.com/humor/507793`                                                                      | 확인 메시지 후 batch queue 등록, `SOURCE_ACCESS_BLOCKED` 실패 저장/readback |
 
 ## 실행 순서
 
@@ -64,21 +64,21 @@ limit 10;
 
 ## 결과 기록 템플릿
 
-| 항목 | 결과 |
-|---|---|
-| 검증 일시 |  |
-| collector build/commit |  |
-| Discord Gateway connected | 미검증 |
-| command registration | 미검증 |
-| allowlist 거부 테스트 | 미검증 |
-| `/collect status` | 미검증 |
+| 항목                                                     | 결과   |
+| -------------------------------------------------------- | ------ |
+| 검증 일시                                                |        |
+| collector build/commit                                   |        |
+| Discord Gateway connected                                | 미검증 |
+| command registration                                     | 미검증 |
+| allowlist 거부 테스트                                    | 미검증 |
+| `/collect status`                                        | 미검증 |
 | `/collect url` 확인 전 수집 queue/run/item/object 무쓰기 | 미검증 |
-| 확인 후 batch queue 등록 | 미검증 |
-| batch fetch/parser/write-db | 미검증 |
-| object store readback | 미검증 |
-| Discord 결과 알림 | 미검증 |
-| 운영자 검토 URL 또는 run id |  |
-| 판정 | 미검증 |
+| 확인 후 batch queue 등록                                 | 미검증 |
+| batch fetch/parser/write-db                              | 미검증 |
+| object store readback                                    | 미검증 |
+| Discord 결과 알림                                        | 미검증 |
+| 운영자 검토 URL 또는 run id                              |        |
+| 판정                                                     | 미검증 |
 
 ## 완료 판정
 

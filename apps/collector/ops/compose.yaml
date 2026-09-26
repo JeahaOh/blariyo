@@ -22,14 +22,14 @@ services:
   collector:
     build:
       context: ..
-    user: "${COLLECTOR_UID:-10001}:${COLLECTOR_GID:-10001}"
+    user: '${COLLECTOR_UID:-10001}:${COLLECTOR_GID:-10001}'
     environment:
       COLLECTOR_DATABASE_URL: jdbc:postgresql://database:5432/collector
       COLLECTOR_DATABASE_USER: collector
       COLLECTOR_CORE_ORIGIN: ${COLLECTOR_CORE_ORIGIN:?Set HTTPS service origin}
       COLLECTOR_SECRETS_DIRECTORY: /run/operator-secrets
       COLLECTOR_SPOOL_DIRECTORY: /state/spool
-    command: ["--spring.config.additional-location=file:/config/collector.properties"]
+    command: ['--spring.config.additional-location=file:/config/collector.properties']
     volumes:
       - type: bind
         source: ${COLLECTOR_SECRETS_PATH:?Set private secrets directory}

@@ -4,20 +4,29 @@
  */
 export function textLinks(text) {
   /** @type {Array<[string,string]>} */
-  const brackets = [['(', ')'], ['[', ']'], ['{', '}']];
+  const brackets = [
+    ['(', ')'],
+    ['[', ']'],
+    ['{', '}'],
+  ];
   const parts = [];
   let offset = 0;
   for (const match of text.matchAll(/https?:\/\/[^\s<>"']+/giu)) {
     let candidate = match[0].replace(/[.,!?:;]+$/u, '');
     for (const [open, close] of brackets) {
-      while (candidate.endsWith(close) && candidate.split(close).length > candidate.split(open).length)
+      while (
+        candidate.endsWith(close) &&
+        candidate.split(close).length > candidate.split(open).length
+      )
         candidate = candidate.slice(0, -1);
     }
     let href;
     try {
       const url = new URL(candidate);
       if (url.hostname && !url.username && !url.password) href = url.href;
-    } catch { /* Keep invalid input as plain text. */ }
+    } catch {
+      /* Keep invalid input as plain text. */
+    }
     if (!href) continue;
     if (match.index > offset) parts.push({ text: text.slice(offset, match.index) });
     parts.push({ text: candidate, href });

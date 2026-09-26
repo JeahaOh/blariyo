@@ -53,7 +53,10 @@ await test(
     await mkdir('.local-data/admin-ux-rework/screenshots', { recursive: true });
     for (const width of [1280, 390, 320]) {
       await page.setViewportSize({ width, height: 900 });
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      assert.equal(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        true
+      );
       await page.screenshot({
         path: `.local-data/admin-ux-rework/screenshots/admin-login-${width}.png`,
         fullPage: true,
@@ -64,7 +67,10 @@ await test(
     await expect(page.getByRole('heading', { name: '게시글 관리', exact: true })).toBeVisible();
     for (const width of [1440, 1280, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 900 });
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      assert.equal(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        true
+      );
       await page.screenshot({
         path: `.local-data/admin-ux-rework/screenshots/admin-posts-${width}.png`,
         fullPage: true,
@@ -509,7 +515,9 @@ await test(
               const authTabPromise = context.waitForEvent('page');
               await page.getByRole('link', { name: '새 탭에서 다시 인증' }).click();
               const authTab = await authTabPromise;
-              await expect(authTab.getByRole('button', { name: '개발 관리자 로그인' })).toBeVisible();
+              await expect(
+                authTab.getByRole('button', { name: '개발 관리자 로그인' })
+              ).toBeVisible();
               await authTab.getByRole('button', { name: '개발 관리자 로그인' }).click();
               await expect(authTab).toHaveURL(`${f.origin}/admin/batch?itemId=${item.id}`);
               await authTab.close();

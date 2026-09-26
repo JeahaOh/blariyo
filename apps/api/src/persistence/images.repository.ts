@@ -27,10 +27,25 @@ export class TypeOrmImagesRepository extends ImagesRepository {
     super();
   }
   async create(image: NewImage) {
-    const result = await this.db.manager.createQueryBuilder().insert().into(ContentBoardPostImageEntity)
-      .values({ private_storage_key: image.key, status: 'STAGED', content_sha256: image.hash, mime_type: image.mime,
-        byte_size: image.byteSize, width: image.width, height: image.height, created_by: image.actor, created_at: () => 'now()', updated_by: image.actor, updated_at: () => 'now()' })
-      .returning('id').execute();
+    const result = await this.db.manager
+      .createQueryBuilder()
+      .insert()
+      .into(ContentBoardPostImageEntity)
+      .values({
+        private_storage_key: image.key,
+        status: 'STAGED',
+        content_sha256: image.hash,
+        mime_type: image.mime,
+        byte_size: image.byteSize,
+        width: image.width,
+        height: image.height,
+        created_by: image.actor,
+        created_at: () => 'now()',
+        updated_by: image.actor,
+        updated_at: () => 'now()',
+      })
+      .returning('id')
+      .execute();
     return decimalId(requiredRow(result.raw).id);
   }
   async find(id: string, lock = false): Promise<Image | null> {
@@ -67,9 +82,17 @@ export class TypeOrmImagesRepository extends ImagesRepository {
     actor: string,
     clearPublic = false
   ): Promise<void> {
-    await this.db.manager.createQueryBuilder().update(ContentBoardPostImageEntity)
-      .set({ status: next, ...(clearPublic ? { public_storage_key: null } : {}), updated_by: actor, updated_at: () => 'now()' })
-      .where('id=:id AND status=:expected', { id, expected }).execute();
+    await this.db.manager
+      .createQueryBuilder()
+      .update(ContentBoardPostImageEntity)
+      .set({
+        status: next,
+        ...(clearPublic ? { public_storage_key: null } : {}),
+        updated_by: actor,
+        updated_at: () => 'now()',
+      })
+      .where('id=:id AND status=:expected', { id, expected })
+      .execute();
   }
   async attached(postId: string): Promise<Image[]> {
     const values = await this.db.manager.find(ContentBoardPostImageEntity, {
@@ -90,13 +113,25 @@ export class TypeOrmImagesRepository extends ImagesRepository {
     }));
   }
   async update(image: Image, actor: string): Promise<void> {
-    await this.db.manager.createQueryBuilder().update(ContentBoardPostImageEntity)
-      .set({ post_id: image.postId, status: image.status, public_storage_key: image.publicKey, updated_by: actor, updated_at: () => 'now()' })
-      .where('id=:id', { id: image.id }).execute();
+    await this.db.manager
+      .createQueryBuilder()
+      .update(ContentBoardPostImageEntity)
+      .set({
+        post_id: image.postId,
+        status: image.status,
+        public_storage_key: image.publicKey,
+        updated_by: actor,
+        updated_at: () => 'now()',
+      })
+      .where('id=:id', { id: image.id })
+      .execute();
   }
   async markPrivateDelete(id: string, actor: string): Promise<void> {
-    await this.db.manager.createQueryBuilder().update(ContentBoardPostImageEntity)
+    await this.db.manager
+      .createQueryBuilder()
+      .update(ContentBoardPostImageEntity)
       .set({ status: 'PRIVATE_DELETE_PENDING', updated_by: actor, updated_at: () => 'now()' })
-      .where('id=:id', { id }).execute();
+      .where('id=:id', { id })
+      .execute();
   }
 }

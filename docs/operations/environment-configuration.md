@@ -6,12 +6,12 @@
 
 ## 1. 환경 구분
 
-| 환경 | 목적 | 실행 위치 | DB | object storage | 공개 접근 |
-| --- | --- | --- | --- | --- | --- |
-| `local` | 개인 PC 개발과 빠른 화면 확인 | 개발자 PC | 로컬 PostgreSQL `5439`, API/batch 제한 role 분리 | 로컬 디렉터리 `.local-data/media`, `.local-data/collector-objects` | loopback 중심 |
-| `dev` | 팀 개발 통합 확인 | 개발 서버 또는 개발자 공유 장비 | dev 전용 DB | dev 전용 R2/S3 bucket | 내부/제한 공개 |
-| `stage` | production과 같은 방식의 리허설 | stage 서버 | stage 전용 DB | stage 전용 R2/S3 bucket | 관리자·검수자 제한 |
-| `prod` | 실제 서비스 | 운영 서버와 별도 collector PC | 같은 production DB, API/batch role과 테이블 소유권 분리 | production R2 bucket 분리 | 승인된 public만 공개 |
+| 환경    | 목적                            | 실행 위치                       | DB                                                      | object storage                                                     | 공개 접근            |
+| ------- | ------------------------------- | ------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------ | -------------------- |
+| `local` | 개인 PC 개발과 빠른 화면 확인   | 개발자 PC                       | 로컬 PostgreSQL `5439`, API/batch 제한 role 분리        | 로컬 디렉터리 `.local-data/media`, `.local-data/collector-objects` | loopback 중심        |
+| `dev`   | 팀 개발 통합 확인               | 개발 서버 또는 개발자 공유 장비 | dev 전용 DB                                             | dev 전용 R2/S3 bucket                                              | 내부/제한 공개       |
+| `stage` | production과 같은 방식의 리허설 | stage 서버                      | stage 전용 DB                                           | stage 전용 R2/S3 bucket                                            | 관리자·검수자 제한   |
+| `prod`  | 실제 서비스                     | 운영 서버와 별도 collector PC   | 같은 production DB, API/batch role과 테이블 소유권 분리 | production R2 bucket 분리                                          | 승인된 public만 공개 |
 
 예시의 local/dev는 개발·시험 모드를, stage/prod는 `NODE_ENV=production`을 사용한다. 실행 위치와 모드는
 별개여서 로컬 격리 Docker 검사도 production 모드를 검증한다. production 모드의 API는 `DATABASE_URL`과
@@ -21,13 +21,13 @@
 
 실제 `.env` 파일은 커밋하지 않는다. 아래 파일을 복사해서 각 환경의 비공개 위치에서 채운다.
 
-| 파일 | 용도 |
-| --- | --- |
-| `.env.example` | 공통 규칙 안내 |
-| `.env.local.example` | 개인 PC 개발 |
-| `.env.dev.example` | 공유 개발 환경 |
+| 파일                 | 용도                   |
+| -------------------- | ---------------------- |
+| `.env.example`       | 공통 규칙 안내         |
+| `.env.local.example` | 개인 PC 개발           |
+| `.env.dev.example`   | 공유 개발 환경         |
 | `.env.stage.example` | production 방식 리허설 |
-| `.env.prod.example` | production 입력 목록 |
+| `.env.prod.example`  | production 입력 목록   |
 
 예시 파일에는 실제 token, R2 secret, Discord token, Cloudflare Access 값, 개인정보를 넣지 않는다.
 `<...>` placeholder는 각 환경의 secret manager, 0600 env 파일, Docker secret, Keychain 또는 운영자 전용 파일에서 주입한다.
@@ -54,13 +54,13 @@ prod에서는 `IMAGE_ORIGIN=https://media.blariyo.com`만 공개 이미지 host�
 
 ## 4. 저장 prefix와 공개 범위
 
-| prefix | 소유자 | 공개 여부 | 화면에서 보는 방법 |
-| --- | --- | --- | --- |
-| `collect/raw/*` | batch | 비공개 | 일반 화면 노출 없음 |
-| `collect/media/*` | batch | 비공개 | 개발·관리자 preview proxy 필요 |
-| `collect/report/*` | batch | 비공개 | 운영 report/readback |
-| `content/private/*` | API | 비공개 | 관리자 preview endpoint |
-| `content/published/posts/*` | API | 공개 가능 | `IMAGE_ORIGIN + '/' + key` |
+| prefix                      | 소유자 | 공개 여부 | 화면에서 보는 방법             |
+| --------------------------- | ------ | --------- | ------------------------------ |
+| `collect/raw/*`             | batch  | 비공개    | 일반 화면 노출 없음            |
+| `collect/media/*`           | batch  | 비공개    | 개발·관리자 preview proxy 필요 |
+| `collect/report/*`          | batch  | 비공개    | 운영 report/readback           |
+| `content/private/*`         | API    | 비공개    | 관리자 preview endpoint        |
+| `content/published/posts/*` | API    | 공개 가능 | `IMAGE_ORIGIN + '/' + key`     |
 
 수집 이미지는 게시 승인 전까지 공개 이미지가 아니다. 개발 중 확인이 필요하면 public bucket에 임시 복사하지 말고,
 인증된 `GET /api/v1/admin/collect/batch-items/{itemId}/media/{position}/preview`가 collect object를 읽고
@@ -70,12 +70,12 @@ DB hash/size와 이미지 검증을 통과한 사본만 반환한다. 이 경로
 
 ## 5. 환경별 권장 origin
 
-| 환경 | `SITE_ORIGIN` | `IMAGE_ORIGIN` | `NUXT_PUBLIC_SITE_ORIGIN` | `NUXT_PUBLIC_IMAGE_ORIGIN` |
-| --- | --- | --- | --- | --- |
-| local | `http://localhost:3000` | `http://localhost:3000/media` | `http://localhost:3000` | `http://localhost:3000/media` |
-| dev | `https://dev.blariyo.com` | `https://dev-media.blariyo.com` | 같음 | 같음 |
-| stage | `https://stage.blariyo.com` | `https://stage-media.blariyo.com` | 같음 | 같음 |
-| prod | `https://blariyo.com` | `https://media.blariyo.com` | 같음 | 같음 |
+| 환경  | `SITE_ORIGIN`               | `IMAGE_ORIGIN`                    | `NUXT_PUBLIC_SITE_ORIGIN` | `NUXT_PUBLIC_IMAGE_ORIGIN`    |
+| ----- | --------------------------- | --------------------------------- | ------------------------- | ----------------------------- |
+| local | `http://localhost:3000`     | `http://localhost:3000/media`     | `http://localhost:3000`   | `http://localhost:3000/media` |
+| dev   | `https://dev.blariyo.com`   | `https://dev-media.blariyo.com`   | 같음                      | 같음                          |
+| stage | `https://stage.blariyo.com` | `https://stage-media.blariyo.com` | 같음                      | 같음                          |
+| prod  | `https://blariyo.com`       | `https://media.blariyo.com`       | 같음                      | 같음                          |
 
 dev/stage 도메인은 설정 예시이며 DNS·서버가 준비됐다는 뜻이 아니다. stage/prod의 `SITE_ORIGIN`과
 `IMAGE_ORIGIN`은 HTTPS여야 한다. API startup은 production 모드에서 이를 검사한다.
@@ -99,7 +99,6 @@ batch는 `collect/raw`, `collect/media`, `collect/report` prefix만 쓴다. API�
 - `IMAGE_ORIGIN`에 `collect/media`나 private bucket host를 넣지 않는다.
 - public URL을 DB에 backfill하지 않는다. URL은 항상 origin + key로 계산한다.
 
-
 ## 8. 수집 결과 승격 규칙
 
 batch 수집 결과는 바로 공개 게시글이 아니다. 운영 또는 로컬 확인에서 `/meme`에 노출하려면 별도 승격 단계가 필요하다.
@@ -111,7 +110,6 @@ batch 수집 결과는 바로 공개 게시글이 아니다. 운영 또는 로�
 5. 화면 URL은 항상 `{IMAGE_ORIGIN}/{publicStorageKey}`로 계산한다.
 
 따라서 `collect/media/{runId}/{itemId}/{position}`을 `public_storage_key`에 직접 넣으면 local `/media` 프록시와 운영 CDN/R2 모두에서 공개 이미지 계약을 만족하지 못한다.
-
 
 ## 9. Core 연결과 direct batch 검수의 실행 경계
 
@@ -146,7 +144,6 @@ V005의 `collect.batch_queue`·`collect.batch_confirmation`은 batch 전용이�
 - source 파일 변경과 격리 테스트만으로 운영 반영을 판정하지 않는다. 9월 23일 운영 반영 기록에는
   migration 소유자·API 수집 결과 SELECT·backup 새 테이블 읽기 권한 확인이 있다. 원격 batch writer의
   VPN/사설 경로·HBA와 실제 허용/거부 시험까지 완료한 것으로 확대하지 않는다.
-
 
 Collector V006의 `collect.batch_media_correction`은 소유자 전용 유지보수 감사 테이블이다.
 API/batch runtime에는 이 테이블 조회·쓰기나 `correct_batch_media_mime` 실행 권한을 주지 않는다.

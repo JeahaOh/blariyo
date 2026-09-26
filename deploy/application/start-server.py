@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json,os,socket,subprocess,sys,stat,time
+import json,os,socket,subprocess,sys
 from pathlib import Path
 BASE=Path('/opt/blariyo/application/release-56351a45eea650c0f02e5043')
 GATE=Path('/opt/blariyo/gateway')

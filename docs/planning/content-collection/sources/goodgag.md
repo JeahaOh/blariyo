@@ -10,13 +10,13 @@
 
 ## 현행 구현과 검증 경계
 
-| 항목 | 2026-09-24 저장소 대조 결과 |
-| --- | --- |
-| 현행 수집 분류 | `GENERAL_LIST`; [출처 정책](../source-collection-policy.md) |
-| chart / 목록 URL | `latest` `https://www.goodgag.net/` |
-| 구현 | `GOODGAG` — [목록 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagListParser.java), [상세 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagDetailParser.java), [URL 식별·조합](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagAdapter.java) |
-| 검증 범위 | 목록·상세 parser 구현. 9월 23일 실제 공개 URL의 개발 DB/object readback과 정제한 관측 fixture가 있다. 모든 글·모든 첨부 유형의 성공을 뜻하지 않는다. |
-| 실행 증거 | [관측 fixture](../../../../apps/collector/src/test/resources/sites/observed/README.md); [전체 검증표](../reference-site-validation.md)에서 임시 DB·지속 로컬 DB·운영 환경을 구분 |
+| 항목             | 2026-09-24 저장소 대조 결과                                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 현행 수집 분류   | `GENERAL_LIST`; [출처 정책](../source-collection-policy.md)                                                                                                                                                                                                                                                                                                                                  |
+| chart / 목록 URL | `latest` `https://www.goodgag.net/`                                                                                                                                                                                                                                                                                                                                                          |
+| 구현             | `GOODGAG` — [목록 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagListParser.java), [상세 parser](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagDetailParser.java), [URL 식별·조합](../../../../apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagAdapter.java) |
+| 검증 범위        | 목록·상세 parser 구현. 9월 23일 실제 공개 URL의 개발 DB/object readback과 정제한 관측 fixture가 있다. 모든 글·모든 첨부 유형의 성공을 뜻하지 않는다.                                                                                                                                                                                                                                         |
+| 실행 증거        | [관측 fixture](../../../../apps/collector/src/test/resources/sites/observed/README.md); [전체 검증표](../reference-site-validation.md)에서 임시 DB·지속 로컬 DB·운영 환경을 구분                                                                                                                                                                                                             |
 
 - 아래 §1~10은 9월 3일 초기 정책·metadata 검토 기록이다. 당시의 `사용하지 않음`, selector 미정, fixture 미검증을 현재 코드 부재로 해석하지 않는다. 이용약관·robots·연락처와 운영 위험의 미확정 항목은 운영 활성화 전에 재확인한다.
 - 9월 21~23일 절의 승인 플래그·parser 상태·실행 명령은 각 시점의 이력이다. 현행 [개발 예제 설정](../../../../apps/collector/ops/reference-sites.sources.example.json)의 `approved=true`, `batchApproved=true`는 운영 승인 증거가 아니다. 운영자의 별도 활성화 판정은 미완료다.
@@ -28,40 +28,40 @@
 
 ## 1. 출처 식별
 
-| 항목 | 확인값 |
-| --- | --- |
-| 출처 표시명 | 고급유머 |
-| 운영 주체 | `(미정)`; 앱 스토어 노출 개발자: SmapIe/FunHanApp 계열로 관찰 |
-| 기준 URL | `https://www.goodgag.net` |
-| 허용 host | `www.goodgag.net` |
-| 허용 path | 없음 |
-| 제외 path | 전체 |
-| 수집 목적 | 벤치마킹 참고. 수집 출처로는 사용하지 않음. |
+| 항목        | 확인값                                                        |
+| ----------- | ------------------------------------------------------------- |
+| 출처 표시명 | 고급유머                                                      |
+| 운영 주체   | `(미정)`; 앱 스토어 노출 개발자: SmapIe/FunHanApp 계열로 관찰 |
+| 기준 URL    | `https://www.goodgag.net`                                     |
+| 허용 host   | `www.goodgag.net`                                             |
+| 허용 path   | 없음                                                          |
+| 제외 path   | 전체                                                          |
+| 수집 목적   | 벤치마킹 참고. 수집 출처로는 사용하지 않음.                   |
 
 ## 2. 정책·권리 확인
 
-| 항목 | 확인값 |
-| --- | --- |
-| 이용약관 URL | `https://www.goodgag.net/mbr/join/rule` |
-| 이용약관 확인일 | 2026-09-03 |
-| 수집 관련 조항 판단 | 기존 Blariyo 기획상 고급유머는 벤치마킹 대상이지 수집 출처가 아니다. 별도 수집 허가도 확인하지 못했다. |
-| `robots.txt` URL | `https://www.goodgag.net/robots.txt` |
-| `robots.txt` 확인일 | 2026-09-03 |
-| User-Agent 적용 결과 | `User-agent: *`는 `/` 허용으로 보이나 GPTBot, OAI-SearchBot, ChatGPT-User 등 AI 크롤러와 주요 scraper/SEO bot을 명시 차단한다. |
-| 공개 API·RSS 제공 여부 | sitemap은 확인, 공개 API·RSS는 `(미정)` |
-| 문의·중단 요청 채널 | 앱 스토어 설명상 `hello@goodgag.net` 관찰. 문서에는 비밀값 없음. |
-| 운영 위험 판정자 | `(미정)` |
-| 운영 위험도 | 대상 아님 |
+| 항목                   | 확인값                                                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 이용약관 URL           | `https://www.goodgag.net/mbr/join/rule`                                                                                        |
+| 이용약관 확인일        | 2026-09-03                                                                                                                     |
+| 수집 관련 조항 판단    | 기존 Blariyo 기획상 고급유머는 벤치마킹 대상이지 수집 출처가 아니다. 별도 수집 허가도 확인하지 못했다.                         |
+| `robots.txt` URL       | `https://www.goodgag.net/robots.txt`                                                                                           |
+| `robots.txt` 확인일    | 2026-09-03                                                                                                                     |
+| User-Agent 적용 결과   | `User-agent: *`는 `/` 허용으로 보이나 GPTBot, OAI-SearchBot, ChatGPT-User 등 AI 크롤러와 주요 scraper/SEO bot을 명시 차단한다. |
+| 공개 API·RSS 제공 여부 | sitemap은 확인, 공개 API·RSS는 `(미정)`                                                                                        |
+| 문의·중단 요청 채널    | 앱 스토어 설명상 `hello@goodgag.net` 관찰. 문서에는 비밀값 없음.                                                               |
+| 운영 위험 판정자       | `(미정)`                                                                                                                       |
+| 운영 위험도            | 대상 아님                                                                                                                      |
 
 ## 3. 수집 방법 결정
 
-| 단계 | 사용 여부 | 방식·이유 |
-| --- | --- | --- |
-| Discord·운영자 URL 수집 보조 | 사용하지 않음 | 벤치마킹 대상이며 수집 출처로 등록하지 않는다. |
-| 공식 공개 API·feed | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| RSS·Atom | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| server-rendered HTML 목록 | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용 |
-| headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외. |
+| 단계                           | 사용 여부     | 방식·이유                                      |
+| ------------------------------ | ------------- | ---------------------------------------------- |
+| Discord·운영자 URL 수집 보조   | 사용하지 않음 | 벤치마킹 대상이며 수집 출처로 등록하지 않는다. |
+| 공식 공개 API·feed             | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용    |
+| RSS·Atom                       | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용    |
+| server-rendered HTML 목록      | 사용하지 않음 | M0 수집 보조는 단일 상세 페이지 추출만 사용    |
+| headless browser·로그인 자동화 | 사용하지 않음 | 초기 범위 제외.                                |
 
 선택 parser type: `MANUAL`
 
@@ -79,23 +79,22 @@
 
 사용하지 않는다.
 
-
 ## 6-1. 이미지 임시 저장·승격 규칙
 
 [공통 추출·임시 파일 규칙](../README.md#source-common-rules)을 따른다.
 
 ## 7. 요청·운영 제한
 
-| 항목 | 확인값 |
-| --- | --- |
-| 식별 User-Agent | 사용하지 않음 |
-| 연락 수단 | `(미정)` |
-| 요청 간격 | 사용하지 않음 |
-| 일일 요청 상한 | 0 |
-| 자동 수집 실행 시간 | 사용하지 않음 |
-| redirect 상한 | 사용하지 않음 |
-| timeout·응답 크기 상한 | 사용하지 않음 |
-| 연속 실패 자동 비활성 기준 | 기본 비활성 |
+| 항목                       | 확인값        |
+| -------------------------- | ------------- |
+| 식별 User-Agent            | 사용하지 않음 |
+| 연락 수단                  | `(미정)`      |
+| 요청 간격                  | 사용하지 않음 |
+| 일일 요청 상한             | 0             |
+| 자동 수집 실행 시간        | 사용하지 않음 |
+| redirect 상한              | 사용하지 않음 |
+| timeout·응답 크기 상한     | 사용하지 않음 |
+| 연속 실패 자동 비활성 기준 | 기본 비활성   |
 
 ## 8. 검증 fixture와 결과
 
@@ -121,10 +120,9 @@ fixture 작성 대상이 아니다.
 
 ## 10. 변경 이력
 
-| 날짜 | parser version | 변경 내용 | 재검증 결과 |
-| --- | --- | --- | --- |
-| 2026-09-03 | `(미정)` | 최초 검토 | 차단 |
-
+| 날짜       | parser version | 변경 내용 | 재검증 결과 |
+| ---------- | -------------- | --------- | ----------- |
+| 2026-09-03 | `(미정)`       | 최초 검토 | 차단        |
 
 ## 2026-09-21 출처별 자동 수집 정책
 

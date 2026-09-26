@@ -7,35 +7,35 @@
 
 ## 현재 구성
 
-| 항목 | 배포 결과 |
-| --- | --- |
-| 공개 웹 | `https://blariyo.com/` → `/meme`, `www` → 대표 도메인 308 |
-| 공개 이미지 | `https://media.blariyo.com/`, public R2 버킷만 연결 |
-| 서버 | AWS Lightsail 서울 x86_64·2GB, swap 2GB, 고정 IP 미사용 |
-| 연결 | Cloudflare → Tunnel → Nginx → Nuxt Web/BFF → Nest Core → PostgreSQL 18 |
-| 포트 | DB·Core·Web·Nginx host port 미공개. SSH 관리 경계와 별도 |
-| 방식 | 단일 VM Docker Compose 교체. 블루그린·무중단 배포 아님 |
-| 운영 이미지 | Git SHA `8af72449a7d56c9701efd0d73dc7d430a66f9610`의 CI 성공·GHCR API/Web digest를 확인해 배포. 서버 build 없음 |
-| 마지막 확인 release | `/opt/blariyo/application/release-8af7244-gtm-20260925`; 서버·저장소 부팅 helper가 같은 경로 참조 |
-| 기능 | M0 Core 공개. 회원·광고·GA4·카카오는 비활성. 관리자 batch 검수는 활성, URL·Discord 접수와 자동 수집 실행은 비활성 |
-| GTM | `GTM-5BRTQ5T3` 운영 HTML 삽입·브라우저 스크립트 HTTP 200·컨테이너 초기화 확인. GTM 내부 태그·GA4 수신은 별도 |
-| 연락처 | 기존 비공개 입력 재사용. Cloudflare Email Routing → 일반 Gmail |
+| 항목                | 배포 결과                                                                                                         |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 공개 웹             | `https://blariyo.com/` → `/meme`, `www` → 대표 도메인 308                                                         |
+| 공개 이미지         | `https://media.blariyo.com/`, public R2 버킷만 연결                                                               |
+| 서버                | AWS Lightsail 서울 x86_64·2GB, swap 2GB, 고정 IP 미사용                                                           |
+| 연결                | Cloudflare → Tunnel → Nginx → Nuxt Web/BFF → Nest Core → PostgreSQL 18                                            |
+| 포트                | DB·Core·Web·Nginx host port 미공개. SSH 관리 경계와 별도                                                          |
+| 방식                | 단일 VM Docker Compose 교체. 블루그린·무중단 배포 아님                                                            |
+| 운영 이미지         | Git SHA `8af72449a7d56c9701efd0d73dc7d430a66f9610`의 CI 성공·GHCR API/Web digest를 확인해 배포. 서버 build 없음   |
+| 마지막 확인 release | `/opt/blariyo/application/release-8af7244-gtm-20260925`; 서버·저장소 부팅 helper가 같은 경로 참조                 |
+| 기능                | M0 Core 공개. 회원·광고·GA4·카카오는 비활성. 관리자 batch 검수는 활성, URL·Discord 접수와 자동 수집 실행은 비활성 |
+| GTM                 | `GTM-5BRTQ5T3` 운영 HTML 삽입·브라우저 스크립트 HTTP 200·컨테이너 초기화 확인. GTM 내부 태그·GA4 수신은 별도      |
+| 연락처              | 기존 비공개 입력 재사용. Cloudflare Email Routing → 일반 Gmail                                                    |
 
 ## 확인된 결과와 한계
 
-| 범위 | 확인한 증거 | 완료로 확대하지 않는 범위 |
-| --- | --- | --- |
-| DB | 9/23 API V005→V008, Collector V001–V006 적용·ledger/checksum 및 업무 데이터 17테이블 1,937행 readback. 적용 전후 암호화 백업의 R2 실다운로드·해시·격리 PostgreSQL 18 복원 통과 | 현재 ledger/권한·최신 백업·새 VM/media 복구 |
-| CI·앱 | 9/25 `8af7244` 원격 CI `verify`·`collector`·API/Web `images` 성공, digest로 운영 교체. DB·Core·Web·Nginx healthy, timer 5개 active. 새 암호화 백업의 R2 다운로드·격리 복원과 DB ledger 불변 확인 | 이후 로컬 HEAD의 배포나 자동 CD, 2GB 최대 수용량·무중단 보장 |
-| 정책 | TERMS/PRIVACY v0.1, 2026-09-20 시행, SQL 본문 해시·공개 API·화면 확인 | 후속 기능 법무 gate·개별 사건 면책 |
-| 공개 경로 | 9/23 게시글 74건 공개, 목록 4페이지·상세 API 74건·본문 786블록·이미지 308개 전수 대조, 대표 상세 HTML 7건·Chrome 표본 확인. 정책·health HTTPS와 redirect 확인 | 현재 실시간 수량·후속 변경·전체 브라우저 기기 |
-| 관리자 | 이메일 Allow, MFA 6시간, 익명·위조 JWT의 관리자 경로 Access 302, 내부 경로 외부 404 | 실제 TOTP 완료 후 앱 운영자 매핑·작성·업로드·발행·숨김 |
-| R2/CDN | 세 버킷별 키 검사, 앱 어댑터 private→public 복사, 9/23 공개 이미지 308개 다운로드·크기/SHA-256 대조 | CDN HIT·전체 전파·브라우저 CORS·교차 객체 읽기/쓰기 차단 전체 검사 |
-| 작업 | 예약 발행·outbox·cleanup timer 설치, 수동 단발 실행 | 실제 예약 게시글 장기 처리·외부 실패 알림 |
-| 로그 | 전용 rsyslog, root 접근 제한, 최대 7일 보관 timer, 실제 수신·합성 만료 파일 삭제 | 제공자 감사 기록·호스트 로그·DB 운영 이력은 같은 TTL 대상 아님 |
-| DB 백업 | 하루 두 번 age 암호화→R2. 9/25 배포 전 새 백업의 실다운로드 SHA-256·격리 PostgreSQL 18 복원·정책/ledger/수량 대조 | 다음 배포 전 최신 백업, 새 VM 전체 복구·RTO, media 전체 복제, 7일 지난 실제 object 삭제 관찰 |
-| 부팅 | 서비스·timer enabled/active | 실제 VM 재부팅 시험 |
-| 보안 보강 | 기존 JS 9개 쿼리 무관 캐시·Cloudflare 비용/DDoS 알림 유지. 9/25 공개 HTML/JSON 404·Web 직접 JSON 404 no-store, 새 JS/CSS 10개 원래 URL·쿼리 변형 해시·immutable 확인 | 새 자산의 쿼리 무관 규칙·구 탭 보존·다른 4xx/5xx·장기 관찰 미검증. [후속 기록](security-protection-status.md) |
+| 범위      | 확인한 증거                                                                                                                                                                                      | 완료로 확대하지 않는 범위                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| DB        | 9/23 API V005→V008, Collector V001–V006 적용·ledger/checksum 및 업무 데이터 17테이블 1,937행 readback. 적용 전후 암호화 백업의 R2 실다운로드·해시·격리 PostgreSQL 18 복원 통과                   | 현재 ledger/권한·최신 백업·새 VM/media 복구                                                                   |
+| CI·앱     | 9/25 `8af7244` 원격 CI `verify`·`collector`·API/Web `images` 성공, digest로 운영 교체. DB·Core·Web·Nginx healthy, timer 5개 active. 새 암호화 백업의 R2 다운로드·격리 복원과 DB ledger 불변 확인 | 이후 로컬 HEAD의 배포나 자동 CD, 2GB 최대 수용량·무중단 보장                                                  |
+| 정책      | TERMS/PRIVACY v0.1, 2026-09-20 시행, SQL 본문 해시·공개 API·화면 확인                                                                                                                            | 후속 기능 법무 gate·개별 사건 면책                                                                            |
+| 공개 경로 | 9/23 게시글 74건 공개, 목록 4페이지·상세 API 74건·본문 786블록·이미지 308개 전수 대조, 대표 상세 HTML 7건·Chrome 표본 확인. 정책·health HTTPS와 redirect 확인                                    | 현재 실시간 수량·후속 변경·전체 브라우저 기기                                                                 |
+| 관리자    | 이메일 Allow, MFA 6시간, 익명·위조 JWT의 관리자 경로 Access 302, 내부 경로 외부 404                                                                                                              | 실제 TOTP 완료 후 앱 운영자 매핑·작성·업로드·발행·숨김                                                        |
+| R2/CDN    | 세 버킷별 키 검사, 앱 어댑터 private→public 복사, 9/23 공개 이미지 308개 다운로드·크기/SHA-256 대조                                                                                              | CDN HIT·전체 전파·브라우저 CORS·교차 객체 읽기/쓰기 차단 전체 검사                                            |
+| 작업      | 예약 발행·outbox·cleanup timer 설치, 수동 단발 실행                                                                                                                                              | 실제 예약 게시글 장기 처리·외부 실패 알림                                                                     |
+| 로그      | 전용 rsyslog, root 접근 제한, 최대 7일 보관 timer, 실제 수신·합성 만료 파일 삭제                                                                                                                 | 제공자 감사 기록·호스트 로그·DB 운영 이력은 같은 TTL 대상 아님                                                |
+| DB 백업   | 하루 두 번 age 암호화→R2. 9/25 배포 전 새 백업의 실다운로드 SHA-256·격리 PostgreSQL 18 복원·정책/ledger/수량 대조                                                                                | 다음 배포 전 최신 백업, 새 VM 전체 복구·RTO, media 전체 복제, 7일 지난 실제 object 삭제 관찰                  |
+| 부팅      | 서비스·timer enabled/active                                                                                                                                                                      | 실제 VM 재부팅 시험                                                                                           |
+| 보안 보강 | 기존 JS 9개 쿼리 무관 캐시·Cloudflare 비용/DDoS 알림 유지. 9/25 공개 HTML/JSON 404·Web 직접 JSON 404 no-store, 새 JS/CSS 10개 원래 URL·쿼리 변형 해시·immutable 확인                             | 새 자산의 쿼리 무관 규칙·구 탭 보존·다른 4xx/5xx·장기 관찰 미검증. [후속 기록](security-protection-status.md) |
 
 위 공개·DB 수량은 **9월 23일 관측값**이며, 새 발행·수정에 따라 달라질 수 있다. 수집 항목은 당시 108건(FETCHED 104·FAILED 2·BLOCKED 1·SKIPPED_POLICY 1)이다. 관리자 batch 검수 API/Web flag는 당시 `true`였고, 내부 service의 108건 조회·16개 출처 이미지 미리보기를 확인했다. 실제 MFA 세션의 관리자 조작은 별도 인수 대상이다. URL 접수·Discord 접수·자동 수집은 활성화하지 않았다. direct raw/media/report/queue 보존·고지 계약(QD-04)은 미정이며, batch 검수 활성화만으로 계약이나 운영 인수가 완료된 것은 아니다.
 

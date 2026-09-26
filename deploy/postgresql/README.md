@@ -57,19 +57,19 @@ python3 deploy/postgresql/initialize-from-mac.py --host 13.124.55.99 --apply
 
 ## 파일별 역할
 
-| 파일 | 실행 주체와 용도 |
-| --- | --- |
-| [create-roles.py](create-roles.py) | 서버의 Docker 관리 권한 사용자. 역할별 파일을 읽어 SQL을 표준입력으로 전달 |
-| [create-batch-role.sql](create-batch-role.sql) | 초기 3역할 이후 batch login만 추가, 기존 비밀번호 유지 |
-| [create-roles.sql](create-roles.sql) | PostgreSQL의 `postgres`. 새 `blariyo` DB에 역할·기본 접근 권한 생성 |
-| [pg_hba.conf](pg_hba.conf) | PostgreSQL 시작 설정. Unix socket 관리 접근과 역할별 TCP 인증 제한 |
-| [apply-privileges.sql](apply-privileges.sql) | `blariyo_migrator`. migration 이후 기존·향후 객체 권한 적용 |
-| [compose.yaml](compose.yaml) | PostgreSQL만 실행. 영속 volume, 내부 network, 공개 host port 없음, memory 768MiB |
-| [install-from-mac.py](install-from-mac.py) | 맥의 비밀번호 파일 검사, 명시적 설치 옵션에서만 SSH 표준입력 전송 |
-| [install-server.py](install-server.py) | 서버 root로 전용 파일 보관·Compose 실행·역할 생성·접속 검사 |
-| [migrate-from-mac.py](migrate-from-mac.py) | 검증된 image archive 검사, `--apply`에서만 SSH 전송·초기 migration 요청 |
-| [migrate-server.py](migrate-server.py) | 서버 사전 검사·변경 전 DB 사본·non-root 앱 migration·역할별 권한 검사 |
-| [test-initial-migration.py](test-initial-migration.py) | 실제 배포 archive를 load하고 합성 DB에서 최초 적용·재실행·변조 거부 검사 |
+| 파일                                                   | 실행 주체와 용도                                                                 |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| [create-roles.py](create-roles.py)                     | 서버의 Docker 관리 권한 사용자. 역할별 파일을 읽어 SQL을 표준입력으로 전달       |
+| [create-batch-role.sql](create-batch-role.sql)         | 초기 3역할 이후 batch login만 추가, 기존 비밀번호 유지                           |
+| [create-roles.sql](create-roles.sql)                   | PostgreSQL의 `postgres`. 새 `blariyo` DB에 역할·기본 접근 권한 생성              |
+| [pg_hba.conf](pg_hba.conf)                             | PostgreSQL 시작 설정. Unix socket 관리 접근과 역할별 TCP 인증 제한               |
+| [apply-privileges.sql](apply-privileges.sql)           | `blariyo_migrator`. migration 이후 기존·향후 객체 권한 적용                      |
+| [compose.yaml](compose.yaml)                           | PostgreSQL만 실행. 영속 volume, 내부 network, 공개 host port 없음, memory 768MiB |
+| [install-from-mac.py](install-from-mac.py)             | 맥의 비밀번호 파일 검사, 명시적 설치 옵션에서만 SSH 표준입력 전송                |
+| [install-server.py](install-server.py)                 | 서버 root로 전용 파일 보관·Compose 실행·역할 생성·접속 검사                      |
+| [migrate-from-mac.py](migrate-from-mac.py)             | 검증된 image archive 검사, `--apply`에서만 SSH 전송·초기 migration 요청          |
+| [migrate-server.py](migrate-server.py)                 | 서버 사전 검사·변경 전 DB 사본·non-root 앱 migration·역할별 권한 검사            |
+| [test-initial-migration.py](test-initial-migration.py) | 실제 배포 archive를 load하고 합성 DB에서 최초 적용·재실행·변조 거부 검사         |
 
 ## Lightsail에 DB만 설치하는 단계
 
@@ -257,7 +257,6 @@ python3 deploy/postgresql/initialize-from-mac.py --host 13.124.55.99 --apply --p
 서버 교체 시 대상 검증값을 갱신해야 하며, 운영 중 일반 release migration용으로 반복하지 않는다.
 이미 배포된 서버에서 단순 확인을 위해 위 초기화 명령을 다시 실행하지 않는다.
 
-
 ## Direct batch 역할 추가 (초기 3역할과 별도 절차)
 
 9월 23일 운영 기록은 API V008·Collector V006과 API/backup 권한을 확인했다. 별도 PC의 batch
@@ -280,7 +279,6 @@ python3 deploy/postgresql/create-roles.py --container <postgres-container> \
 추가 전후 모두 권한 SQL을 재실행할 수 있다. 실행 중 batch를 멈추고 백업한 뒤 적용한다.
 HBA의 batch login 추가는 새 네트워크 공개를 의미하지 않는다. 원격 PC는 별도로 검증한
 VPN/사설 경로만 사용하며 PostgreSQL port를 인터넷에 공개하지 않는다.
-
 
 Collector V006의 MIME 정정 함수와 `batch_media_correction`은 migrator 전용이다.
 `apply-privileges.sql`의 API/batch 명시 목록에 이 테이블·함수를 추가하지 않는다.

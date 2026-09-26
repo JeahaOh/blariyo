@@ -1,5 +1,7 @@
 # M0 현재 진행 상황
 
+> 2026-09-25 복구 상태: 이 checkout은 stash의 원래 local main을 기준으로 만든 `feature/HARN-08-stash-recovery`다. 기존 PR #1/#2와 원본 develop은 유지한다. 현재 복구 범위·검증·보존 항목은 [복구 결과](../worklog/2026-09-25/git-governance/STASH-RECOVERY.md)를 따르며, 본문의 과거 통과 기록을 원격 병합·보호 설정·운영 완료로 해석하지 않는다.
+
 - **전체 판정: 부분 완료. 9월 25일 SHA `8af7244`의 CI·API/Web 운영 배포·GTM 실제 로딩을 확인했다. DB는 API V008·Collector V006을 유지하며, 실제 운영자 인수와 수집 실연동·계약은 남아 있다.**
 - 기본 현황: [9월 25일 운영 배포·검증](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)을 반영했다. 9월 23일 DB·콘텐츠 전수 대조와 9월 25일 앱 교체·공개 응답 검증은 [운영 상태](operations/current-status.md)에서 날짜별로 구분한다.
 - Git·배포 식별자를 구분한다. 운영 앱은 `8af7244`이며 후속 문서 커밋·다른 세션의 미커밋 변경은 해당 이미지에 포함되지 않는다. [9월 24일 Git 관측](../worklog/2026-09-24/documentation-refresh/EVIDENCE.md)은 당시 기록이다.
@@ -8,17 +10,17 @@
 
 ## 완료 범위와 남은 조건
 
-| 작업 | 현재 완료 범위 | 남은 조건 |
-| --- | --- | --- |
-| Core 관리자 P0-01~03 | 최소 화면·검색·오류 복구·저장 결과 확인·인증 실패 뒤 동일 요청 보존 | 실제 운영자 사용성·Access 인증 확인 |
-| 로컬 실행 P0-04 | 격리 실행기의 예약·이미지 회수 worker, 중복 소유 방지·재시작·실패 복구와 실제 시각 검증 | 운영자가 직접 수행하는 인수 12건 |
-| CI A-1/P1-07 | Java fixture·Collector job·로컬 macOS/Linux 재현. SHA `8af7244`의 원격 verify/collector/API·Web images 성공·digest 확인 | 다음 후보 SHA의 원격 CI·digest 확인, Windows·별도 PC 검증 |
-| Direct 검수 P1-02 | 정식 메뉴·필터·검수/반려·초안 이동·불확실 응답 복구. 9/23 운영 검수 flag ON, 내부 service 108건 조회·16개 출처 미리보기 | 실제 MFA 운영자 화면 조작·Access·원격 object 인수. QD-04 보존·고지 별도 |
-| 사이트 모듈 P1-06 | 21 adapter·21 상세·19 목록 parser 분리, 기존 결과 보존 | direct robots/Crawl-delay·영속 일일 budget·redirect 상한 보완, 누락 실제 표본·차단 4개 재개 조건 |
-| 문서 정합성 P1-01 | D01~D03의 direct/legacy 저장·권한·검수 규칙 정렬 | Web 입력/source 변경 권한 QD-03, 보존·고지 계약 QD-04, legacy API/DB 본문 상한 1000/40 불일치 |
-| 배포·DB 반영 P0-05 | 9/25 `8af7244` API/Web 교체·GTM 로딩·새 백업 복원·timer 재개 확인. API V008·Collector V006 유지. 9/23 게시글 74·이미지 308 공개·전수 readback | 실제 MFA 작성/업로드/발행/숨김·예약/알림 인수, 다음 후보별 호환성·백업·복귀 확인. 실제 rollback·재부팅 미검증 |
-| 수집 실연동 P1-03~05/07 | 로컬 코드·격리 증거와 실행서 준비 | 다른 PC/Windows·비운영 DB/object·Discord·보존 회수 구현/검증 |
-| 운영 관찰 P2 | 관찰 조건 정의 | 실제 운영 개시 후 7일 기록 |
+| 작업                    | 현재 완료 범위                                                                                                                                | 남은 조건                                                                                                     |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Core 관리자 P0-01~03    | 최소 화면·검색·오류 복구·저장 결과 확인·인증 실패 뒤 동일 요청 보존                                                                           | 실제 운영자 사용성·Access 인증 확인                                                                           |
+| 로컬 실행 P0-04         | 격리 실행기의 예약·이미지 회수 worker, 중복 소유 방지·재시작·실패 복구와 실제 시각 검증                                                       | 운영자가 직접 수행하는 인수 12건                                                                              |
+| CI A-1/P1-07            | Java fixture·Collector job·로컬 macOS/Linux 재현. SHA `8af7244`의 원격 verify/collector/API·Web images 성공·digest 확인                       | 다음 후보 SHA의 원격 CI·digest 확인, Windows·별도 PC 검증                                                     |
+| Direct 검수 P1-02       | 정식 메뉴·필터·검수/반려·초안 이동·불확실 응답 복구. 9/23 운영 검수 flag ON, 내부 service 108건 조회·16개 출처 미리보기                       | 실제 MFA 운영자 화면 조작·Access·원격 object 인수. QD-04 보존·고지 별도                                       |
+| 사이트 모듈 P1-06       | 21 adapter·21 상세·19 목록 parser 분리, 기존 결과 보존                                                                                        | direct robots/Crawl-delay·영속 일일 budget·redirect 상한 보완, 누락 실제 표본·차단 4개 재개 조건              |
+| 문서 정합성 P1-01       | D01~D03의 direct/legacy 저장·권한·검수 규칙 정렬                                                                                              | Web 입력/source 변경 권한 QD-03, 보존·고지 계약 QD-04, legacy API/DB 본문 상한 1000/40 불일치                 |
+| 배포·DB 반영 P0-05      | 9/25 `8af7244` API/Web 교체·GTM 로딩·새 백업 복원·timer 재개 확인. API V008·Collector V006 유지. 9/23 게시글 74·이미지 308 공개·전수 readback | 실제 MFA 작성/업로드/발행/숨김·예약/알림 인수, 다음 후보별 호환성·백업·복귀 확인. 실제 rollback·재부팅 미검증 |
+| 수집 실연동 P1-03~05/07 | 로컬 코드·격리 증거와 실행서 준비                                                                                                             | 다른 PC/Windows·비운영 DB/object·Discord·보존 회수 구현/검증                                                  |
+| 운영 관찰 P2            | 관찰 조건 정의                                                                                                                                | 실제 운영 개시 후 7일 기록                                                                                    |
 
 ## 분석 확장 analytics-v1 — 2026-09-25 명세 확정
 
@@ -72,20 +74,33 @@
 - `actionlint v1.7.12`의 workflow 2개 검사와 YAML 구조 대조 통과. 액션 SHA 외 job·권한·실행 명령·입력 변경은 없다.
   변경을 포함한 `8af7244`의 CI #15는 verify·collector·API/Web images가 성공했다. backup-restore workflow의 갱신 후 실행과 전체 로그의 경고 0건 여부는 별도 미검증이다.
 
+## Git·개발 harness — 2026-09-25 복구 및 원격 확인
+
+- **stash 복구·6개 단계 커밋 완료, 원격 도입은 미완료.** 복구 branch는 `feature/HARN-08-stash-recovery`, 코드 검증 기준은 `49b84e4`, 문서 포함 복구 완료 commit은 `de28c0c`다. 후속 상태 갱신은 문서만 변경한다.
+- 원본 stash `c373dac`, 원본 `develop`의 미추적 파일 56개와 다른 세션 worktree를 보존했다. local main의 기존 8개 commit은 복구 branch의 선행 이력이며 develop에는 미반영이다.
+- `git ls-remote`로 `origin/main`, `origin/develop`, `origin/release`가 모두 `8af7244`임을 확인했다. 초기 develop 생성·tracking 단계는 끝났고, 기존 작업의 통합은 남았다. 단일 `release`는 설계의 `release/<version>`과 다르므로 처리 방침 확정 전 그대로 둔다.
+- 복구 worktree 로컬 검증: 전체 `lint:all` 통과(SQL 27개·finding 0), harness 52/52, quality 10/10, architecture 9/9, 루트 39/39, API 단위 34/34, Collector 273/273, 브라우저 26/26. API/Web build·타입 검사, API/Collector 복원 31/41개 table·sequence도 통과했다. 각 검사의 범위와 로그는 [복구 결과](../worklog/2026-09-25/git-governance/STASH-RECOVERY.md)에 기록했다.
+- Collector 원문 HTML 49개는 포맷으로 원문 hash·parser 결과가 바뀌어 기존 바이트로 되돌렸다. 기대 hash를 바꾸지 않았고 parser 입력 HTML만 formatter에서 제외했다. 모든 SQL lint와 migration checksum 계약·기존 ledger 호환 검증은 유지했다.
+- [PR #1](https://github.com/JeahaOh/blariyo/pull/1)은 Open·미병합: verify 실패, collector 성공, images skip. 브라우저 41개 중 39개 통과·2개 실패이며 이미지 재시도 버튼 timeout과 후속 완료 증거 assertion이 원인이다.
+- [PR #2](https://github.com/JeahaOh/blariyo/pull/2)는 Draft·미병합: event-context와 harness-gate 실패, 나머지 8개 skip. develop 기준 SHA에 `.harness/policy.json`이 없어 차단됐다. context 부재로 최종 receipt도 생성되지 않았다. 복구 branch의 로컬 PASS를 이 두 PR의 원격 PASS로 승계하지 않는다.
+- GitHub 인증된 Settings에서 classic branch protection과 ruleset이 모두 없는 것을 확인했다. 원격 필수 검사 강제는 **미활성**이다. 조회만 했으며 설정은 변경하지 않았다.
+- HARN-01~07은 모두 부분 구현이다. schema·자동 lease heartbeat·다중 host 조정, CI 실패 시 증거 보존, trusted-ref 또는 code-owner 보호, 실제 Windows/restore/receipt 실행·readback, release provider·배포·merge-back 수용이 남았다. [구현 계획](ai/harness-implementation-plan.md)의 수용 기준을 충족하기 전 전체 완료로 표시하지 않는다.
+- 다음 순서와 통합 판단은 [로드맵](roadmap.md#개발-도구--githarness-도입-계획)을 따른다. 기존 제품 17개 task의 완료 수량·운영 배포 상태는 변경하지 않는다.
+
 ## 검증 근거
 
 아래 실행들은 서로 다른 시점·환경의 증거다. 중복 합산하거나 9월 24일 문서 갱신에서 다시 수행했다고 표시하지 않는다.
 
-| 범위 | 확인된 결과 | 원본 |
-| --- | --- | --- |
-| Core 통합·실제 실행기 | 통합 93+복원 재실행1, 실행기 업무12+worker4, 전체 Chromium28 후 영향17/복구8 | [Core 보완 결과](../worklog/2026-09-23/admin-core/FIX-RESULTS.md) |
-| Collector 분리 | 비교40 일치, Java273/273·Core 연동5/5 | [사이트 분리](../worklog/2026-09-23/collector-site-modules/RESULTS.md) |
-| Collector CI 로컬 재현 | macOS273·Linux Docker arm64 273 각각 통과 | [CI 결과](../worklog/2026-09-23/collector-ci/RESULTS.md) |
-| Direct 검수 | API15·관련 Chromium27, 320/1280px·DB/private object 대조 | [검수 UI 결과](../worklog/2026-09-23/batch-review-ui/RESULTS.md) |
-| Core 이미지 후보 | V005에서 후보/이전 앱 업무 및 복귀 통과; V008에서 이전 앱 readiness503 확인 | [후보 식별·호환 행렬](../worklog/2026-09-23/release/candidate.md) |
-| 원격 CI·배포 | SHA `8af7244` CI #15 성공·API/Web digest 교체·실제 GTM 로딩·새 백업 복원·공개 smoke | [9/25 앱 배포 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md) |
-| DB·공개 | API V008·Collector V006, 74 게시글·308 이미지·108 수집 항목 반영. 목록/상세·이미지 전수 대조, 전후 백업 복원 | [DB·콘텐츠 반영 기록](../worklog/2026-09-23/release/production-db-promotion.md) |
-| 9/23 커밋 준비 당시 | Node24 루트 검사29/29, 실패·생략0 | [진행 보관 기록](../worklog/2026-09-23/progress-checkpoint.md) |
+| 범위                   | 확인된 결과                                                                                                  | 원본                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| Core 통합·실제 실행기  | 통합 93+복원 재실행1, 실행기 업무12+worker4, 전체 Chromium28 후 영향17/복구8                                 | [Core 보완 결과](../worklog/2026-09-23/admin-core/FIX-RESULTS.md)                      |
+| Collector 분리         | 비교40 일치, Java273/273·Core 연동7/7                                                                        | [사이트 분리](../worklog/2026-09-23/collector-site-modules/RESULTS.md)                 |
+| Collector CI 로컬 재현 | macOS273·Linux Docker arm64 273 각각 통과                                                                    | [CI 결과](../worklog/2026-09-23/collector-ci/RESULTS.md)                               |
+| Direct 검수            | API15·관련 Chromium27, 320/1280px·DB/private object 대조                                                     | [검수 UI 결과](../worklog/2026-09-23/batch-review-ui/RESULTS.md)                       |
+| Core 이미지 후보       | V005에서 후보/이전 앱 업무 및 복귀 통과; V008에서 이전 앱 readiness503 확인                                  | [후보 식별·호환 행렬](../worklog/2026-09-23/release/candidate.md)                      |
+| 원격 CI·배포           | SHA `8af7244` CI #15 성공·API/Web digest 교체·실제 GTM 로딩·새 백업 복원·공개 smoke                          | [9/25 앱 배포 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md) |
+| DB·공개                | API V008·Collector V006, 74 게시글·308 이미지·108 수집 항목 반영. 목록/상세·이미지 전수 대조, 전후 백업 복원 | [DB·콘텐츠 반영 기록](../worklog/2026-09-23/release/production-db-promotion.md)        |
+| 9/23 커밋 준비 당시    | Node24 루트 검사29/29, 실패·생략0                                                                            | [진행 보관 기록](../worklog/2026-09-23/progress-checkpoint.md)                         |
 
 요구사항 집계는 [40개 대조표](development-specs/requirements-status.md)의 **I30/P9/U1**이다. 40개 묶음 중 주요 구현 확인 30개(75%)이며 개발 공수·제품 완성도·출시 준비율이 아니다. C16 운영자 사용성, O07 실제 인수·복귀를 포함한 부분 항목은 유지한다.
 
@@ -100,7 +115,7 @@
 ## 보존된 로컬 자원
 
 - 준비된 인수 sandbox: `.local-data/admin-sandbox-eecd0319a964` (준비 당시 서버 종료; 재개 시 가동·포트 상태 확인).
-- 과거 로컬 이미지 후보: `.local-data/release-preparation/blariyo-app-images-20260923T124646Z-ij42qk3e/` (V005 권고 시점의 후보이며 9/23 운영 release 식별자로 재사용하지 않음).
+- 과거 로컬 이미지 후보: `.local-data/release-preparation/blariyo-app-images-20260923T124626Z-ij42qk3e/` (V005 권고 시점의 후보이며 9/23 운영 release 식별자로 재사용하지 않음).
 - 비공개 runtime 설정 사본: `~/.config/blariyo/application-config-ZzkcSI/` (실값은 커밋하지 않음).
 - 9월 23일 커밋 준비 당시 검사 원본은 Git 제외 `test-results/`에, 당시 원본·diff 백업은 `.local-data/commit-preparation/`에 보존했다. 이번 문서 갱신의 테스트 실행 기록은 아니다.
 - 위 로컬 파일 경로는 다른 PC에서 자동 복원되지 않는다. Git 문서·코드와 비공개 실행 자원을 구분한다.

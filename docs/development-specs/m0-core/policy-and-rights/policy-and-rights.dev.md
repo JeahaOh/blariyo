@@ -46,17 +46,17 @@
 
 ## 5. 요구사항 추적표
 
-| 요구사항 | 분류 | 출처 | 반영 산출물 | 상태 |
-| --- | --- | --- | --- | --- |
-| current 전문과 버전·적용 기간 이력 | 확정 | 화면 설계 §10 | get-policy, D01·D08 policy | 반영 |
-| 시행된 본문 불변·버전 보관 | 확정 | 데이터 모델 §4 | publish-policy, D08 command | 반영 |
-| modal·직접 route 동등 내용 | 확정 | 서비스 기획 §11 | policy-viewer | 반영 |
-| 현재 URL을 넣은 권리 mailto | 확정 | 화면 설계 §10 | submit-rights-inquiry, rights-entry | 반영 |
-| 법무·문의 실값의 properties/config 주입 | 확정 | OD-M0-006·legal README | policy D01·D08 | 현행 M0 실값 주입·발행 기록 있음. 후속 변경의 필수값/고지 조건 유지 |
-| 사업자등록 전 사업자 정보 보류 | 확정 | OD-M0-006·legal README | policy D01·D08 | `(미정)` 유지 |
-| 단일 권리 문의 링크와 복사 대체 안내 | 확정 | 2026-09-20 사용자 결정·화면 설계 | rights D01·D08 | 이메일 주소·제목·본문 전체 복사 |
-| mail client 실행 결과 확정 판정 없음 | 확정 | 화면 설계 | rights D01·D08 | 1.6초 동안 blur·hidden 신호 없음은 대체 안내 조건일 뿐 |
-| form·API | 범위 밖 | 서비스 기획 §11 | 전체 | 생성 안 함 |
+| 요구사항                                | 분류    | 출처                             | 반영 산출물                         | 상태                                                                |
+| --------------------------------------- | ------- | -------------------------------- | ----------------------------------- | ------------------------------------------------------------------- |
+| current 전문과 버전·적용 기간 이력      | 확정    | 화면 설계 §10                    | get-policy, D01·D08 policy          | 반영                                                                |
+| 시행된 본문 불변·버전 보관              | 확정    | 데이터 모델 §4                   | publish-policy, D08 command         | 반영                                                                |
+| modal·직접 route 동등 내용              | 확정    | 서비스 기획 §11                  | policy-viewer                       | 반영                                                                |
+| 현재 URL을 넣은 권리 mailto             | 확정    | 화면 설계 §10                    | submit-rights-inquiry, rights-entry | 반영                                                                |
+| 법무·문의 실값의 properties/config 주입 | 확정    | OD-M0-006·legal README           | policy D01·D08                      | 현행 M0 실값 주입·발행 기록 있음. 후속 변경의 필수값/고지 조건 유지 |
+| 사업자등록 전 사업자 정보 보류          | 확정    | OD-M0-006·legal README           | policy D01·D08                      | `(미정)` 유지                                                       |
+| 단일 권리 문의 링크와 복사 대체 안내    | 확정    | 2026-09-20 사용자 결정·화면 설계 | rights D01·D08                      | 이메일 주소·제목·본문 전체 복사                                     |
+| mail client 실행 결과 확정 판정 없음    | 확정    | 화면 설계                        | rights D01·D08                      | 1.6초 동안 blur·hidden 신호 없음은 대체 안내 조건일 뿐              |
+| form·API                                | 범위 밖 | 서비스 기획 §11                  | 전체                                | 생성 안 함                                                          |
 
 ## 6. 업무 규칙과 수용 조건
 
@@ -124,7 +124,7 @@ BFF, 내부 제공자는 Core `PublicService.policy`이며 초안·정제 전 �
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `type`: `terms`,`privacy`; policy_type mapping; 유형
 - `version`: 공개된 version label; policy; 생략 시 current

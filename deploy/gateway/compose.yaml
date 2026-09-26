@@ -4,9 +4,9 @@ services:
   nginx:
     image: nginx:1.30.5-alpine@sha256:ef8676b33d681f272ba429b27658bdd7e640963279714c96bddf1dc76307f7b6
     platform: linux/amd64
-    user: "101:101"
+    user: '101:101'
     entrypoint: [nginx]
-    command: [-c, /etc/nginx/nginx.conf, -g, "daemon off;"]
+    command: [-c, /etc/nginx/nginx.conf, -g, 'daemon off;']
     restart: unless-stopped
     read_only: true
     cap_drop: [ALL]
@@ -23,7 +23,7 @@ services:
         read_only: true
         bind:
           create_host_path: false
-    tmpfs: ["/tmp:size=16m,mode=1777,noexec,nosuid"]
+    tmpfs: ['/tmp:size=16m,mode=1777,noexec,nosuid']
     networks: [edge]
     healthcheck:
       test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/__gateway_health]
@@ -33,7 +33,7 @@ services:
       start_period: 10s
     logging:
       driver: json-file
-      options: {max-size: 10m, max-file: "3"}
+      options: { max-size: 10m, max-file: '3' }
 networks:
   edge:
     external: true

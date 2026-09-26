@@ -12,28 +12,28 @@
 
 ## 2. 확정 카피
 
-| 적용 위치 | 확정값 |
-| --- | --- |
-| 메인 | `블라리요` |
-| 홈 보조 문구 | `블라블라블라` |
-| 홈 `<title>` | `블라리요 - 블라블라블라` |
-| 홈 `description` | `블라리요에서 블라블라블라` |
-| 홈 `og:title` | `블라리요` |
-| 홈 `og:description` | `블라리요에서 블라블라블라` |
-| 푸터 브랜드 한 줄 | `블라블라블라` |
-| 푸터 일반 문의 | `문의·오류 제보` |
-| 푸터 저작권 표시 | `© 2026 Blariyo. All rights reserved.` |
+| 적용 위치           | 확정값                                 |
+| ------------------- | -------------------------------------- |
+| 메인                | `블라리요`                             |
+| 홈 보조 문구        | `블라블라블라`                         |
+| 홈 `<title>`        | `블라리요 - 블라블라블라`              |
+| 홈 `description`    | `블라리요에서 블라블라블라`            |
+| 홈 `og:title`       | `블라리요`                             |
+| 홈 `og:description` | `블라리요에서 블라블라블라`            |
+| 푸터 브랜드 한 줄   | `블라블라블라`                         |
+| 푸터 일반 문의      | `문의·오류 제보`                       |
+| 푸터 저작권 표시    | `© 2026 Blariyo. All rights reserved.` |
 
 ## 3. Properties/config 계약
 
-| key | 값 | 사용 위치 |
-| --- | --- | --- |
-| `NUXT_PUBLIC_SITE_NAME` | `블라리요` | 홈 메인, `og:title`, site name |
-| `NUXT_PUBLIC_HOME_TAGLINE` | `블라블라블라` | 홈 보조 문구 |
-| `NUXT_PUBLIC_HOME_TITLE` | `블라리요 - 블라블라블라` | 홈 `<title>` |
-| `NUXT_PUBLIC_HOME_DESCRIPTION` | `블라리요에서 블라블라블라` | 홈 `description` |
+| key                               | 값                          | 사용 위치                                    |
+| --------------------------------- | --------------------------- | -------------------------------------------- |
+| `NUXT_PUBLIC_SITE_NAME`           | `블라리요`                  | 홈 메인, `og:title`, site name               |
+| `NUXT_PUBLIC_HOME_TAGLINE`        | `블라블라블라`              | 홈 보조 문구                                 |
+| `NUXT_PUBLIC_HOME_TITLE`          | `블라리요 - 블라블라블라`   | 홈 `<title>`                                 |
+| `NUXT_PUBLIC_HOME_DESCRIPTION`    | `블라리요에서 블라블라블라` | 홈 `description`                             |
 | `NUXT_PUBLIC_HOME_OG_DESCRIPTION` | `블라리요에서 블라블라블라` | 홈 `og:description`, 상세 TEXT 없음 fallback |
-| `NUXT_PUBLIC_FOOTER_TAGLINE` | `블라블라블라` | 푸터 브랜드 한 줄 |
+| `NUXT_PUBLIC_FOOTER_TAGLINE`      | `블라블라블라`              | 푸터 브랜드 한 줄                            |
 
 위 값은 public runtime config에서 관리한다. `apps/web/nuxt.config.ts`에 확정 기본값이 있으며
 배포 환경변수로 덮어쓸 수 있다. production startup 검증은 기본값을 적용한 최종 config의 빈 값·

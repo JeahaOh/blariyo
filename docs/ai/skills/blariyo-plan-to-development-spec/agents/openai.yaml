@@ -1,4 +1,4 @@
 interface:
-  display_name: "Blariyo Markdown 개발 Spec"
-  short_description: "기능별 단일 Markdown 명세와 정본 참조 관리"
-  default_prompt: "$blariyo-plan-to-development-spec를 사용해 Blariyo 기획과 관련 정본을 대조하고 기능별 기존 Markdown 명세 하나에 API 보충·흐름·화면 계약을 통합해줘."
+  display_name: 'Blariyo Markdown 개발 Spec'
+  short_description: '기능별 단일 Markdown 명세와 정본 참조 관리'
+  default_prompt: '$blariyo-plan-to-development-spec를 사용해 Blariyo 기획과 관련 정본을 대조하고 기능별 기존 Markdown 명세 하나에 API 보충·흐름·화면 계약을 통합해줘.'

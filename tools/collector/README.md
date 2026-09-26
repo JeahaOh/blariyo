@@ -97,13 +97,13 @@ cron은 **5필드(분·시·일·월·요일)**이고 s2b_batch/Quartz의 초 �
 예약을 끄려면 `schedule.enabled=false`로 설정한다. HTTP·Discord 즉시 실행은 계속 가능하다.
 cron은 기존 후보 처리만 수행하며 사이트 목록을 돌아 새 URL을 찾는 기능은 아니다.
 
-| Method | 로컬 경로 | 동작 |
-| --- | --- | --- |
-| GET | `/health` | 서버·활성 실행·Discord 연결 상태 |
-| GET | `/v1/schedule` | cron·timezone·다음 실행 시각 |
-| POST | `/v1/runs` | 즉시 실행 요청, `202`와 runId 반환 |
-| GET | `/v1/runs` | 최근 실행 이력 최대 50건 |
-| GET | `/v1/runs/{runId}` | 실행별 상태·처리 결과 |
+| Method | 로컬 경로          | 동작                               |
+| ------ | ------------------ | ---------------------------------- |
+| GET    | `/health`          | 서버·활성 실행·Discord 연결 상태   |
+| GET    | `/v1/schedule`     | cron·timezone·다음 실행 시각       |
+| POST   | `/v1/runs`         | 즉시 실행 요청, `202`와 runId 반환 |
+| GET    | `/v1/runs`         | 최근 실행 이력 최대 50건           |
+| GET    | `/v1/runs/{runId}` | 실행별 상태·처리 결과              |
 
 모든 경로는 `Authorization: Bearer <COLLECTOR_CONTROL_TOKEN>`이 필요하다.
 쿠키 인증·CORS는 제공하지 않는다. 서버는 `127.0.0.1`에만 열리므로 원격 인터넷에 공개되지 않는다.

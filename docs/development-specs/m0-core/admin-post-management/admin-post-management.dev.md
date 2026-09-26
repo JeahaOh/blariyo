@@ -46,20 +46,20 @@
 
 ## 5. 요구사항 추적표
 
-| 요구사항 | 분류 | 출처 | 반영 산출물 | 상태 |
-| --- | --- | --- | --- | --- |
-| 상태·게시판·제목 prefix 검색 | 확정 | 화면 설계 §2 | `search-posts`, D08 | 반영 |
-| TEXT/IMAGE·출처·공지 편집 | 확정 | 화면 설계 §2 | create/update API, D08 | 반영 |
-| 즉시·예약·예약 취소 | 확정 | API 설계 §5 | publish/unschedule, D01 | 반영 |
-| 기본 예약 슬롯·임의 예약·장애 복구 | 확정 | 인프라 계획 §8, 보안·운영 §12 | publish, D01 | `07:30`·`17:30` KST와 매분 due 처리 반영 |
-| 숨김 후 재공개·최종 제거 | 확정 | 서비스 기획 §3 | hide/republish/remove, D01 | 반영 |
-| 이미지 검증·private/public 분리 | 확정 | 보안 §4, 아키텍처 §5 | image API, D01 | 반영 |
-| multi-file upload validation·object 회수 | 확정 | 데이터 모델 §5, API 설계 §5, 보안·운영 §4 | `upload-images`, D01·D08 | 요청 gate fields 없음·파일별 413 우선순위·503 fields 미제공·cleanup 반영 |
-| 관리자 검색의 전체 page 초과 처리 | 확정 | API 설계 §5 | `search-posts` | `200` 빈 items 반영 |
-| 관리자 `postId` 형식 오류 처리 | 확정 | API 설계 §5 | `get-post-editor` | `404 POST_NOT_FOUND` 반영 |
-| staging 이미지 폐기 `202` 성공 body | 확정 | API 설계 §5 | `discard-image` | 공통 성공 envelope 반영 |
-| 실제 R2·관리자 provider 운영값 | 미검증 | infra·보안 정본 | 전체 | 실행 전 확인 |
-| 수집·회원·광고 | 범위 밖 | 서비스 기획 §1 | 전체 | 제외 |
+| 요구사항                                 | 분류    | 출처                                      | 반영 산출물                | 상태                                                                     |
+| ---------------------------------------- | ------- | ----------------------------------------- | -------------------------- | ------------------------------------------------------------------------ |
+| 상태·게시판·제목 prefix 검색             | 확정    | 화면 설계 §2                              | `search-posts`, D08        | 반영                                                                     |
+| TEXT/IMAGE·출처·공지 편집                | 확정    | 화면 설계 §2                              | create/update API, D08     | 반영                                                                     |
+| 즉시·예약·예약 취소                      | 확정    | API 설계 §5                               | publish/unschedule, D01    | 반영                                                                     |
+| 기본 예약 슬롯·임의 예약·장애 복구       | 확정    | 인프라 계획 §8, 보안·운영 §12             | publish, D01               | `07:30`·`17:30` KST와 매분 due 처리 반영                                 |
+| 숨김 후 재공개·최종 제거                 | 확정    | 서비스 기획 §3                            | hide/republish/remove, D01 | 반영                                                                     |
+| 이미지 검증·private/public 분리          | 확정    | 보안 §4, 아키텍처 §5                      | image API, D01             | 반영                                                                     |
+| multi-file upload validation·object 회수 | 확정    | 데이터 모델 §5, API 설계 §5, 보안·운영 §4 | `upload-images`, D01·D08   | 요청 gate fields 없음·파일별 413 우선순위·503 fields 미제공·cleanup 반영 |
+| 관리자 검색의 전체 page 초과 처리        | 확정    | API 설계 §5                               | `search-posts`             | `200` 빈 items 반영                                                      |
+| 관리자 `postId` 형식 오류 처리           | 확정    | API 설계 §5                               | `get-post-editor`          | `404 POST_NOT_FOUND` 반영                                                |
+| staging 이미지 폐기 `202` 성공 body      | 확정    | API 설계 §5                               | `discard-image`            | 공통 성공 envelope 반영                                                  |
+| 실제 R2·관리자 provider 운영값           | 미검증  | infra·보안 정본                           | 전체                       | 실행 전 확인                                                             |
+| 수집·회원·광고                           | 범위 밖 | 서비스 기획 §1                            | 전체                       | 제외                                                                     |
 
 ## 6. 업무 규칙과 수용 조건
 
@@ -134,7 +134,7 @@ image를 선점해 `DRAFT` 게시글과 순서가 있는 block을 만든다.
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `Idempotency-Key`: opaque, 최대 128자 저장; ops; 재전송 key
 - `boardSlug`: 활성 작성 대상; board; 게시판
@@ -201,7 +201,7 @@ image의 private 삭제를 예약한다.
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `imageId`: 양수, 미연결 STAGED; `board_post_image`; 폐기 대상
 
@@ -257,7 +257,7 @@ Idempotency-Key 계약 없음. 상태 조건부 update로 경쟁을 막고 202 �
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `postId`: 양수; post; 편집 글
 
@@ -313,7 +313,7 @@ image 삭제와 cache purge를 예약한다.
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `postId`: 양수; post; 대상
 - `lockVersion`: 현재값; post; 동시성
@@ -368,7 +368,7 @@ BFF/Core proxy만 object를 읽고 storage provider URL은 client에 주지 않�
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `imageId`: 양수; `board_post_image.id`; preview 대상
 
@@ -422,7 +422,7 @@ pagination 없음; browser/CDN cache 금지.
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `postId`: 양수; post; 대상
 - `Idempotency-Key`: opaque; ops; 재전송
@@ -508,7 +508,7 @@ actor·scope·key 기준 24시간 보존하고 대상 경로 매개변수와 bod
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `postId`: 양수; post; 대상
 - `Idempotency-Key`: opaque; ops; 재전송 key
@@ -564,7 +564,7 @@ key 재전송은 기존 결과. terminal 상태에서 다른 명령은 거부한
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `postId`: 양수; post; 대상
 - `Idempotency-Key`: opaque; ops; 재전송 key
@@ -622,7 +622,7 @@ key 재전송과 결정적 object key를 사용한다. DB commit 전 R2 실패�
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `status`: 단일 게시 상태; post; 상태
 - `board`: 게시판 slug; board; 게시판
@@ -663,7 +663,6 @@ page size 50 고정, `private, no-store`. `page`가 `1~10000` 범위 안이지�
 
 잘못된 query는 `400 VALIDATION_FAILED`다.
 
-
 #### Contract test와 미검증
 
 필터 조합·정렬·인증·응답 allowlist·storage key 비노출과 초과 page의 `200` 빈 결과를 검증한다.
@@ -688,7 +687,7 @@ page size 50 고정, `private, no-store`. `page`가 `1~10000` 범위 안이지�
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `postId`: 양수; post; 대상
 - `Idempotency-Key`: opaque; ops; 재전송 key
@@ -742,7 +741,7 @@ due scheduler와 취소 경쟁, key 재전송, 상태 이력을 검증한다. �
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `postId`: 양수; post; 대상
 - `lockVersion`: 현재값; post; 동시성
@@ -808,7 +807,7 @@ Core는 검증·재인코딩해 private 원본으로 저장하고 미연결 `STA
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `files`: 1~10개, 각 10MiB, 요청 100MiB; API·보안; 이미지
 
@@ -910,8 +909,8 @@ M0 Core 범위에 일반 사용자 업로드 endpoint를 추가한다는 뜻이 
 
 #### 단계별 API 매핑
 
-1 [upload](#api-upload-images)·[preview](#api-preview-image), 3~4 [create](#api-create-post),
-6~7 [publish](#api-publish-post), 미사용 image는 [discard](#api-discard-image).
+1 [upload](#api-upload-images)·[preview](#api-preview-image), 3~~4 [create](#api-create-post),
+6~~7 [publish](#api-publish-post), 미사용 image는 [discard](#api-discard-image).
 
 #### 데이터·상태 전이
 
@@ -1078,7 +1077,7 @@ R2·DB·outbox의 운영 runtime은 미검증이다. 격리 로컬 실행 결과
 
 #### 필드·표시값·validation
 
-제목 1~200, block 1~1000, IMAGE 최대 200, TEXT 1~20000, alt 1~300, source는 name·HTTPS URL pair,
+제목 1~~200, block 1~~1000, IMAGE 최대 200, TEXT 1~~20000, alt 1~~300, source는 name·HTTPS URL pair,
 image file 10MiB·요청 10개/100MiB. 오류는 field 가까이에 표시한다.
 
 #### 이벤트·버튼·이동·후처리
@@ -1114,13 +1113,13 @@ label·오류 연결, block 순서 키보드 조작 대안, dialog focus trap/re
 
 #### 이벤트별 D01·API 매핑
 
-| 이벤트 | D01 | API |
-| --- | --- | --- |
-| 검색·선택 | 공통 편집 진입 | [search](#api-search-posts), [detail](#api-get-post-editor) |
-| upload·폐기 | [초안 발행](#d01-draft-and-publish-post) | [upload](#api-upload-images), [preview](#api-preview-image), [discard](#api-discard-image) |
-| 저장·발행 | [초안 발행](#d01-draft-and-publish-post) | [create](#api-create-post), [update](#api-update-post), [publish](#api-publish-post) |
-| 예약·취소 | [예약 관리](#d01-schedule-post) | [publish](#api-publish-post), [unschedule](#api-unschedule-post) |
-| 숨김·재공개·제거 | [권리 처리](#d01-handle-rights-request) | [hide](#api-hide-post), [republish](#api-republish-post), [remove](#api-remove-post) |
+| 이벤트           | D01                                      | API                                                                                        |
+| ---------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------ |
+| 검색·선택        | 공통 편집 진입                           | [search](#api-search-posts), [detail](#api-get-post-editor)                                |
+| upload·폐기      | [초안 발행](#d01-draft-and-publish-post) | [upload](#api-upload-images), [preview](#api-preview-image), [discard](#api-discard-image) |
+| 저장·발행        | [초안 발행](#d01-draft-and-publish-post) | [create](#api-create-post), [update](#api-update-post), [publish](#api-publish-post)       |
+| 예약·취소        | [예약 관리](#d01-schedule-post)          | [publish](#api-publish-post), [unschedule](#api-unschedule-post)                           |
+| 숨김·재공개·제거 | [권리 처리](#d01-handle-rights-request)  | [hide](#api-hide-post), [republish](#api-republish-post), [remove](#api-remove-post)       |
 
 #### 메시지와 사용자 피드백
 
@@ -1137,6 +1136,5 @@ label·오류 연결, block 순서 키보드 조작 대안, dialog focus trap/re
 upload 실패 UX는 all-or-nothing, 요청 단위 gate `413`의 `fields` 없음, 파일별 `413`·`415`의 모든
 실패 파일 표시, `503`의 파일 표시 없음으로 확정됐다. 2026-09-23 UI·browser 실행 증거는 위 결과에
 연결한다. 실제 운영자 인증·수동 반복 업무 인수·운영 R2/CDN은 별도 미검증이며 로컬 결과로 대체하지 않는다.
-
 
 수집 초안의 원문 보존을 위해 게시글 편집 IMAGE 블록 상한은 200개다. 일반 업로드 요청의 10개/100MiB·파일당 10MiB 제한은 유지한다. direct batch 미디어 용량은 [수집 명세](../../m0-collection-assist/collection-assist/collection-assist.dev.md#2026-09-23-다중-이미지와-수집-용량-계약)를 따른다.

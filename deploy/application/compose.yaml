@@ -6,7 +6,7 @@ services:
     image: ${BLARIYO_API_IMAGE:?Verified amd64 API image is required}
     platform: linux/amd64
     pull_policy: never
-    user: "1000:1000"
+    user: '1000:1000'
     init: true
     restart: unless-stopped
     read_only: true
@@ -26,22 +26,28 @@ services:
         read_only: true
         bind:
           create_host_path: false
-    tmpfs: ["/tmp:size=32m,mode=1777,noexec,nosuid"]
+    tmpfs: ['/tmp:size=32m,mode=1777,noexec,nosuid']
     networks: [app, data]
     healthcheck:
-      test: [CMD, node, -e, "fetch('http://127.0.0.1:4000/internal/health/ready',{signal:AbortSignal.timeout(3000)}).then(async r=>{if(!r.ok||(await r.json()).status!=='READY')process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:4000/internal/health/ready',{signal:AbortSignal.timeout(3000)}).then(async r=>{if(!r.ok||(await r.json()).status!=='READY')process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 60s
     logging:
       driver: json-file
-      options: {max-size: 10m, max-file: "3"}
+      options: { max-size: 10m, max-file: '3' }
   web:
     image: ${BLARIYO_WEB_IMAGE:?Verified amd64 Web image is required}
     platform: linux/amd64
     pull_policy: never
-    user: "1000:1000"
+    user: '1000:1000'
     init: true
     restart: unless-stopped
     read_only: true
@@ -61,21 +67,27 @@ services:
         read_only: true
         bind:
           create_host_path: false
-    tmpfs: ["/tmp:size=32m,mode=1777,noexec,nosuid"]
+    tmpfs: ['/tmp:size=32m,mode=1777,noexec,nosuid']
     networks: [edge, app]
     depends_on:
       api:
         condition: service_healthy
     healthcheck:
       # Production /health/ready needs Access identity. Do not weaken it for Docker.
-      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/health/live',{signal:AbortSignal.timeout(3000)}).then(async r=>{if(!r.ok||(await r.json()).status!=='UP')process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3000/health/live',{signal:AbortSignal.timeout(3000)}).then(async r=>{if(!r.ok||(await r.json()).status!=='UP')process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 60s
     logging:
       driver: json-file
-      options: {max-size: 10m, max-file: "3"}
+      options: { max-size: 10m, max-file: '3' }
 networks:
   edge: {}
   # Required provider HTTPS egress: Web -> Access JWKS; Core -> R2/Cloudflare API.

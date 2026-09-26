@@ -1,6 +1,7 @@
 # M0 시스템 아키텍처
 
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
+
 - 문서 상태: M0 아키텍처 설계 계약 · direct batch와 legacy 호환 구분
 - 최초 기준일: 2026-09-04
 - 문서 대조일: 2026-09-24 (새 runtime 검증 아님)
@@ -66,14 +67,14 @@ API: batch 결과 SELECT -> API 소유 검수 상태 -> content DRAFT -> 별도 
 
 ## 3. 컨테이너 구성
 
-| 컨테이너 | 역할 | 외부 공개 |
-| --- | --- | --- |
-| `cloudflared` | Cloudflare Tunnel 연결 | outbound only |
-| `nginx` | 내부 reverse proxy, 보안 header, 요청 크기 제한 | tunnel 내부 |
-| `web` | Nuxt SSR, SEO·OG HTML, 외부 `/api/v1` BFF | Nginx 경유 |
-| `api` | Core API, 조회·발행·숨김 transaction과 단발성 cron command | Docker app network에서 Web만 HTTP 접근 |
-| `postgresql` | 게시글·정책·운영 작업 저장 | Docker private network only |
-| `backup` | 정기 DB dump 암호화·R2 업로드 | outbound only |
+| 컨테이너      | 역할                                                       | 외부 공개                              |
+| ------------- | ---------------------------------------------------------- | -------------------------------------- |
+| `cloudflared` | Cloudflare Tunnel 연결                                     | outbound only                          |
+| `nginx`       | 내부 reverse proxy, 보안 header, 요청 크기 제한            | tunnel 내부                            |
+| `web`         | Nuxt SSR, SEO·OG HTML, 외부 `/api/v1` BFF                  | Nginx 경유                             |
+| `api`         | Core API, 조회·발행·숨김 transaction과 단발성 cron command | Docker app network에서 Web만 HTTP 접근 |
+| `postgresql`  | 게시글·정책·운영 작업 저장                                 | Docker private network only            |
+| `backup`      | 정기 DB dump 암호화·R2 업로드                              | outbound only                          |
 
 수집은 서버 VM에 별도 fetch 컨테이너를 만들지 않는다. 별도 batch 컴퓨터의 `collector`가 source policy에 따라
 Discord URL 확인 입력, 목록·상세 fetch, parser, `collect.batch_*`, object store와 report를 소유한다. `api`는
@@ -353,14 +354,14 @@ timeout이 발생하면 item 또는 source run을 실패·차단으로 남긴다
 
 ## 6. 캐시 정책
 
-| 대상 | 기본값 | 비고 |
-| --- | --- | --- |
-| `/meme?page=n` | `no-store` | 모든 query 변형 포함 |
-| `/:boardSlug/posts/:postId` | `no-store` | 상세와 내장 목록 포함 |
-| 정책 현재 본문 | CDN `300초` | 새 버전 시행 시 purge |
-| 404·오류 | `no-store` | 숨김 정보가 cache에 남지 않게 함 |
-| R2 공개 이미지 | `public, max-age=31536000, immutable` | storage key에 content hash 포함 |
-| 관리자·계정 화면 | `private, no-store` | CDN cache 금지 |
+| 대상                        | 기본값                                | 비고                             |
+| --------------------------- | ------------------------------------- | -------------------------------- |
+| `/meme?page=n`              | `no-store`                            | 모든 query 변형 포함             |
+| `/:boardSlug/posts/:postId` | `no-store`                            | 상세와 내장 목록 포함            |
+| 정책 현재 본문              | CDN `300초`                           | 새 버전 시행 시 purge            |
+| 404·오류                    | `no-store`                            | 숨김 정보가 cache에 남지 않게 함 |
+| R2 공개 이미지              | `public, max-age=31536000, immutable` | storage key에 content hash 포함  |
+| 관리자·계정 화면            | `private, no-store`                   | CDN cache 금지                   |
 
 게시글 API·HTML은 저장하지 않고 이미지는 불변 key로 길게 cache한다. 게시글 이미지가 바뀌면 기존 key를 덮어쓰지 않고 새 key를 발급한다.
 숨김 commit 이후 시작된 조회는 목록에서 제외하고 상세는 일반화된 404를 반환한다.
@@ -372,20 +373,21 @@ timeout이 발생하면 item 또는 source run을 실패·차단으로 남긴다
 
 다음 조건 전에는 구조를 늘리지 않는다.
 
-| 관측 조건 | 다음 조치 |
-| --- | --- |
-| 메모리 7일 p95가 80% 초과 또는 OOM 발생 | VM RAM 상향 |
-| DB CPU·I/O가 병목이고 앱 CPU는 여유 | PostgreSQL 전용 VM 또는 관리형 DB 분리 |
-| 이미지 10GB 또는 R2 무료 operation 초과 | R2 유료 사용 유지, 비용 알림 추가 |
-| 월 공개 요청이 단일 VM 처리량의 60% 초과 | Web BFF·Core API 컴퓨트 분리 또는 Core API replica 검토 |
-| 배포 중단이 사업 손실로 이어짐 | 2대 구성·관리형 DB·load balancer 검토 |
-| M0 검증 조건 충족 | 소셜 계정·참여 기능 설계 활성화 |
-| 로컬 collector 운영 시간이 병목이거나 자동 수집이 공개 운영에 필요해짐 | 서버 worker 컨테이너 또는 외부 job runner 도입 검토 |
-| 특정 출처의 차단·파싱 실패가 반복됨 | 해당 출처 목록 수집 중단, 운영자 URL 지정만 유지 |
+| 관측 조건                                                              | 다음 조치                                               |
+| ---------------------------------------------------------------------- | ------------------------------------------------------- |
+| 메모리 7일 p95가 80% 초과 또는 OOM 발생                                | VM RAM 상향                                             |
+| DB CPU·I/O가 병목이고 앱 CPU는 여유                                    | PostgreSQL 전용 VM 또는 관리형 DB 분리                  |
+| 이미지 10GB 또는 R2 무료 operation 초과                                | R2 유료 사용 유지, 비용 알림 추가                       |
+| 월 공개 요청이 단일 VM 처리량의 60% 초과                               | Web BFF·Core API 컴퓨트 분리 또는 Core API replica 검토 |
+| 배포 중단이 사업 손실로 이어짐                                         | 2대 구성·관리형 DB·load balancer 검토                   |
+| M0 검증 조건 충족                                                      | 소셜 계정·참여 기능 설계 활성화                         |
+| 로컬 collector 운영 시간이 병목이거나 자동 수집이 공개 운영에 필요해짐 | 서버 worker 컨테이너 또는 외부 job runner 도입 검토     |
+| 특정 출처의 차단·파싱 실패가 반복됨                                    | 해당 출처 목록 수집 중단, 운영자 URL 지정만 유지        |
 
 Redis, queue broker, Kubernetes, Elasticsearch는 위 조건과 직접 연결된 필요가 확인되기 전에는 도입하지 않는다.
 
 <a id="spring-collector-transition"></a>
+
 ## Spring 수집 서버 전환 계약 (2026-09-08)
 
 당시 상태: 전환 방향 확정·설계 정본 반영, Spring 구현 미착수·검증 미완료.
@@ -396,15 +398,15 @@ Redis, queue broker, Kubernetes, Elasticsearch는 위 조건과 직접 연결된
 
 ### 확정한 컴포넌트와 경계
 
-| 컴포넌트 | 책임 |
-| --- | --- |
-| 운영자 로컬 Spring Boot 서버 | 상시 프로세스·REST 진입·공통 배치 실행 경로 |
-| Spring Batch | 수집 Job·Step 실행, 실행 이력·재시작 관리 |
-| Quartz | cron에 따른 실행 요청. 자체적으로 후보 상태나 발행 상태를 변경하지 않음 |
-| REST API·Discord | 권한 확인 후 같은 배치 실행 경로 호출. 독립 runner·중복 추출 경로를 만들지 않음 |
-| Java/Spring 추출기 | 허용 출처의 fetch·parser·로컬 임시 이미지 처리 |
-| 기존 Web/BFF | `/api/collector/v1/*`를 `/internal/collect/*`로 중계 |
-| 기존 Core | collector 인증·후보·이미지·검수·초안·발행과 서비스 DB의 유일한 쓰기 주체 |
+| 컴포넌트                     | 책임                                                                            |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| 운영자 로컬 Spring Boot 서버 | 상시 프로세스·REST 진입·공통 배치 실행 경로                                     |
+| Spring Batch                 | 수집 Job·Step 실행, 실행 이력·재시작 관리                                       |
+| Quartz                       | cron에 따른 실행 요청. 자체적으로 후보 상태나 발행 상태를 변경하지 않음         |
+| REST API·Discord             | 권한 확인 후 같은 배치 실행 경로 호출. 독립 runner·중복 추출 경로를 만들지 않음 |
+| Java/Spring 추출기           | 허용 출처의 fetch·parser·로컬 임시 이미지 처리                                  |
+| 기존 Web/BFF                 | `/api/collector/v1/*`를 `/internal/collect/*`로 중계                            |
+| 기존 Core                    | collector 인증·후보·이미지·검수·초안·발행과 서비스 DB의 유일한 쓰기 주체        |
 
 ```text
 운영자 로컬: Quartz cron / REST API / Discord

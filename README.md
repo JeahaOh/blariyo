@@ -21,16 +21,16 @@
 
 같은 내용을 README에 다시 정의하지 않고 아래 문서를 정본으로 사용한다.
 
-| 질문 | 정본 |
-| --- | --- |
-| 무엇을 어느 단계에 만드는가 | [서비스 기획서](docs/planning/01-service-plan.md) |
-| 화면에서 어떻게 동작하는가 | [화면 설계서](docs/planning/03-screen-design.md) |
-| 분석·광고를 언제 어떻게 적용하는가 | [분석·광고 계획](docs/planning/04-analytics-ad-plan.md) |
-| 어떤 기술 경계로 구현하는가 | [M0 시스템 설계](docs/system-design/README.md) |
-| PostgreSQL schema 계약은 무엇인가 | [M0 데이터 모델](docs/system-design/02-data-model.md) |
-| HTTP 계약은 무엇인가 | [M0 API 설계](docs/system-design/03-api-design.md) |
-| 어떻게 배포·백업·복구하는가 | [인프라 설계](docs/system-design/04-infrastructure-design.md), [보안·운영 설계](docs/system-design/05-security-operations.md) |
-| AI가 어떤 순서와 근거로 작업하는가 | [AI 작업 안내](docs/ai/README.md) |
+| 질문                               | 정본                                                                                                                          |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| 무엇을 어느 단계에 만드는가        | [서비스 기획서](docs/planning/01-service-plan.md)                                                                             |
+| 화면에서 어떻게 동작하는가         | [화면 설계서](docs/planning/03-screen-design.md)                                                                              |
+| 분석·광고를 언제 어떻게 적용하는가 | [분석·광고 계획](docs/planning/04-analytics-ad-plan.md)                                                                       |
+| 어떤 기술 경계로 구현하는가        | [M0 시스템 설계](docs/system-design/README.md)                                                                                |
+| PostgreSQL schema 계약은 무엇인가  | [M0 데이터 모델](docs/system-design/02-data-model.md)                                                                         |
+| HTTP 계약은 무엇인가               | [M0 API 설계](docs/system-design/03-api-design.md)                                                                            |
+| 어떻게 배포·백업·복구하는가        | [인프라 설계](docs/system-design/04-infrastructure-design.md), [보안·운영 설계](docs/system-design/05-security-operations.md) |
+| AI가 어떤 순서와 근거로 작업하는가 | [AI 작업 안내](docs/ai/README.md)                                                                                             |
 
 제품 범위는 planning, 구현 세부는 system-design, 실제 완료 여부는 migration·OpenAPI·source·test를 기준으로 판단한다.
 
@@ -139,14 +139,14 @@ npm run test:docker
 schema 비교에 읽기만 사용한다. Chromium은 전용 Playwright 서버에 연결하고 실제 Nuxt·DB를 사용한다.
 `npm test`는 DB 없는 단위·구조·계약 검증이며 통합 검증을 SKIP으로 성공 처리하지 않는다.
 
-| 범위 | 실행 증거 |
-| --- | --- |
-| strict·구조 | API·Web·계약 런타임·테스트·운영 스크립트 타입 검사 및 lint, 도메인·Repository·ORM 의존성 검사 |
-| API·DB·운영 | Nest 통합: 실제 PostgreSQL 잠금·transaction·멱등성·quota·lease/fencing·업로드 보상·outbox·예약·정책·운영 CLI |
-| schema·복원 | 전체 schema dump, 모든 application row·sequence·migration ledger/checksum을 별도 PostgreSQL 복원본과 대조하고 실제 공개 API 확인 |
-| 브라우저·BFF | 실제 Chromium의 공개·관리자·수집 검수·업로드 실패·예약·동의·반응형 흐름 |
-| Spring | 실제 JVM/Batch/Quartz, 응답 유실·중단/재시작·권위 상태 변경·100건 중복·백업/복원·운영 CLI |
-| Docker | 현재 작업 트리의 Core·Nuxt production image, 합성 Access/JWKS·정책 CLI, 발행·숨김, health, 유지보수·SIGTERM 및 연결 해제 |
+| 범위         | 실행 증거                                                                                                                        |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| strict·구조  | API·Web·계약 런타임·테스트·운영 스크립트 타입 검사 및 lint, 도메인·Repository·ORM 의존성 검사                                    |
+| API·DB·운영  | Nest 통합: 실제 PostgreSQL 잠금·transaction·멱등성·quota·lease/fencing·업로드 보상·outbox·예약·정책·운영 CLI                     |
+| schema·복원  | 전체 schema dump, 모든 application row·sequence·migration ledger/checksum을 별도 PostgreSQL 복원본과 대조하고 실제 공개 API 확인 |
+| 브라우저·BFF | 실제 Chromium의 공개·관리자·수집 검수·업로드 실패·예약·동의·반응형 흐름                                                          |
+| Spring       | 실제 JVM/Batch/Quartz, 응답 유실·중단/재시작·권위 상태 변경·100건 중복·백업/복원·운영 CLI                                        |
+| Docker       | 현재 작업 트리의 Core·Nuxt production image, 합성 Access/JWKS·정책 CLI, 발행·숨김, health, 유지보수·SIGTERM 및 연결 해제         |
 
 Docker 외부 HTTP는 전용 네트워크의 합성 저장소·CDN·인증 대역으로만 연결한다.
 이 로컬 검증과 별도로 운영 R2 어댑터·공개 이미지·캐시 삭제 API, 정책 발행, 서버 배포,
@@ -259,7 +259,6 @@ checksum·행/sequence 및 현재 앱 호환성을 확인하며 V003 결과로 �
 - [PostgreSQL 전환 결정](worklog/2026-08-14/session/postgresql-transition.md)
 - [planning·system-design 경계 재검토](worklog/2026-08-14/session/planning-system-design-boundary-review.md)
 - [게시판·권리 정책 정정](worklog/2026-08-12/session/board-policy-correction.md)
-
 
 ## M0 Core + Spring 수집 보조 진행
 

@@ -49,20 +49,20 @@
 
 ## 5. 요구사항 추적표
 
-| 요구사항 | 분류 | 출처 | 반영 산출물 | 상태 |
-| --- | --- | --- | --- | --- |
-| `/`를 `/meme`으로 이동 | 확정 | 서비스 기획 §2 | D01 `browse-posts`, D08 `meme-list` | 반영 |
-| 확장 가능한 게시판 구조와 `meme` 초기 데이터 | 확정 | 서비스 기획 §14, 데이터 모델 §3·§10 | `list-boards`, D01 `browse-posts`, migration contract test | 반영 |
-| 공지 0~3건과 일반 글 20건 분리 | 확정 | 서비스 기획 §5 | `list-posts`, D08 `meme-list` | 반영 |
-| 같은 게시판 상세와 하단 20건 | 확정 | 화면 설계 §6 | `get-post`, D01·D08 `view-post` | 반영 |
-| 숨김·삭제·예약·초안을 같은 404로 처리 | 확정 | API 설계 §3 | `get-post`, D08 `post-detail` | 반영 |
-| 정상 상세 표시 뒤 조회 수 1 증가, 실패는 비차단 | 확정 | 분석 계획 §3 | `increment-post-view`, D01 `view-post` | 반영 |
-| 공유 popup/sheet와 provider fallback | 확정 | 화면 설계 §7 | D01 `share-post`, D08 `post-detail` | 반영 |
-| 상세 SSR canonical·OG·Twitter metadata와 404 `noindex` | 확정 | 화면 설계 §7, 퍼블리싱 SSR 계약 | D01 `view-post`, D08 `post-detail`, SSR integration test | 반영 |
-| payload 오류 code 이름 | 확정 | API 설계 §3·§6 | `increment-post-view` | `VALIDATION_FAILED` 반영 |
-| IMAGE 없는 상세의 OG fallback·description 생성 규칙 | 확정 | 화면 설계 §7 | D08 `post-detail` | 기본 이미지·TEXT 요약 반영 |
-| 서비스 도메인·카카오 공유 방식 | 확정·활성화 차단 | 서비스 기획 §7, 보안·운영 §4 | D01 `share-post`, D08 `post-detail` | 도메인·SDK 방식 반영, 운영값 전 활성화 차단 |
-| 로그인·광고·수집 | 범위 밖 | 서비스 기획 §1 | 모든 산출물 | 제외 |
+| 요구사항                                               | 분류             | 출처                                | 반영 산출물                                                | 상태                                        |
+| ------------------------------------------------------ | ---------------- | ----------------------------------- | ---------------------------------------------------------- | ------------------------------------------- |
+| `/`를 `/meme`으로 이동                                 | 확정             | 서비스 기획 §2                      | D01 `browse-posts`, D08 `meme-list`                        | 반영                                        |
+| 확장 가능한 게시판 구조와 `meme` 초기 데이터           | 확정             | 서비스 기획 §14, 데이터 모델 §3·§10 | `list-boards`, D01 `browse-posts`, migration contract test | 반영                                        |
+| 공지 0~3건과 일반 글 20건 분리                         | 확정             | 서비스 기획 §5                      | `list-posts`, D08 `meme-list`                              | 반영                                        |
+| 같은 게시판 상세와 하단 20건                           | 확정             | 화면 설계 §6                        | `get-post`, D01·D08 `view-post`                            | 반영                                        |
+| 숨김·삭제·예약·초안을 같은 404로 처리                  | 확정             | API 설계 §3                         | `get-post`, D08 `post-detail`                              | 반영                                        |
+| 정상 상세 표시 뒤 조회 수 1 증가, 실패는 비차단        | 확정             | 분석 계획 §3                        | `increment-post-view`, D01 `view-post`                     | 반영                                        |
+| 공유 popup/sheet와 provider fallback                   | 확정             | 화면 설계 §7                        | D01 `share-post`, D08 `post-detail`                        | 반영                                        |
+| 상세 SSR canonical·OG·Twitter metadata와 404 `noindex` | 확정             | 화면 설계 §7, 퍼블리싱 SSR 계약     | D01 `view-post`, D08 `post-detail`, SSR integration test   | 반영                                        |
+| payload 오류 code 이름                                 | 확정             | API 설계 §3·§6                      | `increment-post-view`                                      | `VALIDATION_FAILED` 반영                    |
+| IMAGE 없는 상세의 OG fallback·description 생성 규칙    | 확정             | 화면 설계 §7                        | D08 `post-detail`                                          | 기본 이미지·TEXT 요약 반영                  |
+| 서비스 도메인·카카오 공유 방식                         | 확정·활성화 차단 | 서비스 기획 §7, 보안·운영 §4        | D01 `share-post`, D08 `post-detail`                        | 도메인·SDK 방식 반영, 운영값 전 활성화 차단 |
+| 로그인·광고·수집                                       | 범위 밖          | 서비스 기획 §1                      | 모든 산출물                                                | 제외                                        |
 
 ## 6. 업무 규칙과 수용 조건
 
@@ -133,7 +133,7 @@ BFF, 내부 제공자는 Core `PublicService.detail`이다. Core의 공개 DTO�
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `boardSlug`: 활성 slug; `content.board`; 요청 게시판
 - `postId`: 양의 정수; `board_post.id`; 글 번호
@@ -202,7 +202,7 @@ context의 page size는 20이다. 게시판 문맥 없는 상세 alias는 제공
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `boardSlug`: 활성 게시판; board; 게시판
 - `postId`: 양의 정수; post; 글 번호
@@ -322,7 +322,7 @@ Nuxt SSR과 상세 하단 목록이 활성 게시판의 공지와 일반 글 한
 
 #### Request
 
-**필드 보충 — 제약·데이터 매핑**
+##### 필드 보충 — 제약·데이터 매핑
 
 - `boardSlug`: lowercase 영문·숫자·하이픈, 활성 게시판; `content.board`; 게시판
 - `page`: 기본 1, 1~10000; API 계약; 일반 글 page
@@ -404,9 +404,9 @@ page size 20 고정, OFFSET 방식이다. 공지는 total·page size에서 제�
 
 #### API 매핑
 
-| 단계 | API |
-| --- | --- |
-| 2~3 | [게시글 목록 조회](#api-list-posts) |
+| 단계                | API                                  |
+| ------------------- | ------------------------------------ |
+| 2~3                 | [게시글 목록 조회](#api-list-posts)  |
 | 게시판 메뉴 확장 시 | [활성 게시판 조회](#api-list-boards) |
 
 #### 데이터·상태 전이
@@ -522,11 +522,11 @@ JavaScript key, CSP host는 properties/config로 관리하며 실제 값은 `(�
 
 #### API 매핑
 
-| 단계 | API |
-| --- | --- |
-| 1~2 | [게시글 상세 조회](#api-get-post) |
-| 4 | [게시글 조회 수 증가](#api-increment-post-view) |
-| 5 | [게시글 목록 조회](#api-list-posts) |
+| 단계 | API                                             |
+| ---- | ----------------------------------------------- |
+| 1~2  | [게시글 상세 조회](#api-get-post)               |
+| 4    | [게시글 조회 수 증가](#api-increment-post-view) |
+| 5    | [게시글 목록 조회](#api-list-posts)             |
 
 #### 데이터·상태 전이
 
@@ -571,13 +571,13 @@ page navigation, 브랜드 문구 `블라블라블라`와 정책·권리 footer 
 
 #### 필드·표시값·validation
 
-| 표시 | 데스크톱 | 모바일 | 규칙 |
-| --- | --- | --- | --- |
-| 번호 | 표시 | 표시 | 공지는 `공지` badge |
-| 제목 | 한 줄 | 1~2줄 | 행 전체 상세 link |
-| 조회 수 | 표시 | 필요 시 숨김 | 참고값 |
-| 작성자 | `운영자` | 숨김 가능 | M0 고정 표시 |
-| 시각 | 표시 | 표시 | locale formatting |
+| 표시    | 데스크톱 | 모바일       | 규칙                |
+| ------- | -------- | ------------ | ------------------- |
+| 번호    | 표시     | 표시         | 공지는 `공지` badge |
+| 제목    | 한 줄    | 1~2줄        | 행 전체 상세 link   |
+| 조회 수 | 표시     | 필요 시 숨김 | 참고값              |
+| 작성자  | `운영자` | 숨김 가능    | M0 고정 표시        |
+| 시각    | 표시     | 표시         | locale formatting   |
 
 page는 1 이상만 허용한다.
 
@@ -603,10 +603,10 @@ page는 1 이상만 허용한다.
 
 #### 이벤트별 D01·API 매핑
 
-| 이벤트 | D01 | API |
-| --- | --- | --- |
+| 이벤트         | D01                            | API                          |
+| -------------- | ------------------------------ | ---------------------------- |
 | 최초·page 조회 | [목록 탐색](#d01-browse-posts) | [목록 조회](#api-list-posts) |
-| 상세 이동 | [상세 열람](#d01-view-post) | 상세 route SSR |
+| 상세 이동      | [상세 열람](#d01-view-post)    | 상세 route SSR               |
 
 #### 메시지와 피드백
 
@@ -700,12 +700,12 @@ focus return을 지원한다. 이미지 alt, 44px target, 360px 이상 무가로
 
 #### 이벤트별 D01·API 매핑
 
-| 이벤트 | D01 | API |
-| --- | --- | --- |
-| 최초 표시 | [상세 열람](#d01-view-post) | [상세 조회](#api-get-post) |
-| 조회 수 | [상세 열람](#d01-view-post) | [조회 수 증가](#api-increment-post-view) |
-| 하단 page | [상세 열람](#d01-view-post) | [목록 조회](#api-list-posts) |
-| 공유 | [게시글 공유](#d01-share-post) | API 해당 없음 |
+| 이벤트    | D01                            | API                                      |
+| --------- | ------------------------------ | ---------------------------------------- |
+| 최초 표시 | [상세 열람](#d01-view-post)    | [상세 조회](#api-get-post)               |
+| 조회 수   | [상세 열람](#d01-view-post)    | [조회 수 증가](#api-increment-post-view) |
+| 하단 page | [상세 열람](#d01-view-post)    | [목록 조회](#api-list-posts)             |
+| 공유      | [게시글 공유](#d01-share-post) | API 해당 없음                            |
 
 #### 메시지와 사용자 피드백
 

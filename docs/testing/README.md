@@ -9,11 +9,11 @@
 
 ## 1. 어디부터 읽을까
 
-| 문서 | 용도 |
-| --- | --- |
-| [M0 Core 케이스](core-cases.md) | 공개 조회, 권한, 게시글·이미지, 화면, 정책과 동의 30개 |
-| [수집·운영 케이스](collection-operations-cases.md) | legacy 수집·운영10개와 direct batch·queue·검수6개 |
-| [향후 게시판·익게 케이스](future-board-cases.md) | M1.5 및 선택적인 게시판 관리 기능 6개. 현재 M0 통과 조건에 포함하지 않음 |
+| 문서                                               | 용도                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------ |
+| [M0 Core 케이스](core-cases.md)                    | 공개 조회, 권한, 게시글·이미지, 화면, 정책과 동의 30개                   |
+| [수집·운영 케이스](collection-operations-cases.md) | legacy 수집·운영10개와 direct batch·queue·검수6개                        |
+| [향후 게시판·익게 케이스](future-board-cases.md)   | M1.5 및 선택적인 게시판 관리 기능 6개. 현재 M0 통과 조건에 포함하지 않음 |
 
 추천 순서는 `PUB-02 → PUB-04 → ADM-01 → ADM-02 → IMG-03 → ADM-05 → COL-03 → OPS-02`다.
 앞부분에서 HTTP·DB 검증 방법을 익힌 뒤, 동시성·외부 실패·프로세스 복구로 넓힌다.
@@ -40,12 +40,12 @@
 2. **실행**: 실제 검증 대상에 요청한다. 예: 목록 API의 1·2페이지 조회.
 3. **검증**: 기대한 값과 비교한다. 예: 각각 20개·1개, 두 페이지에 같은 글 없음.
 
-| 종류 | 쉽게 말하면 | 현재 작성 위치 | 실제로 사용할 대상 |
-| --- | --- | --- | --- |
-| 서비스 단위 | 한 업무 함수의 판단 검사 | `apps/api/test/*.service.test.ts` | Repository 대역 허용 |
-| API·DB 통합 | 서버 응답과 저장 결과 함께 검사 | `apps/api/test/*.integration.test.ts` | compiled Nest + 실제 PostgreSQL |
-| 브라우저 | 사람이 화면에서 하는 동작 검사 | `tests/browser/*.test.ts` | 실제 Nuxt·BFF·Nest + Chromium |
-| 프로세스 복구 | 프로그램이 죽었다 살아난 뒤 검사 | `tests/spring/*.test.ts`, 기존 Docker runner | 실제 JVM/컨테이너 + 독립 DB |
+| 종류          | 쉽게 말하면                      | 현재 작성 위치                               | 실제로 사용할 대상              |
+| ------------- | -------------------------------- | -------------------------------------------- | ------------------------------- |
+| 서비스 단위   | 한 업무 함수의 판단 검사         | `apps/api/test/*.service.test.ts`            | Repository 대역 허용            |
+| API·DB 통합   | 서버 응답과 저장 결과 함께 검사  | `apps/api/test/*.integration.test.ts`        | compiled Nest + 실제 PostgreSQL |
+| 브라우저      | 사람이 화면에서 하는 동작 검사   | `tests/browser/*.test.ts`                    | 실제 Nuxt·BFF·Nest + Chromium   |
+| 프로세스 복구 | 프로그램이 죽었다 살아난 뒤 검사 | `tests/spring/*.test.ts`, 기존 Docker runner | 실제 JVM/컨테이너 + 독립 DB     |
 
 대역은 실패를 원하는 시점에 재현하는 가짜 외부 의존성이다. 저장소 오류를 재현할 때는 유용하지만,
 DB 롤백·잠금을 검증하면서 DB까지 대역으로 바꾸면 실제 DB의 동작은 검증되지 않는다.
@@ -92,16 +92,16 @@ JUnit 결과에 실패·건너뜀이 있거나 DB readback suite가 없으면 �
 
 ### 공통 데이터 이름
 
-| 이름 | 준비 값과 주의점 |
-| --- | --- |
-| 운영자 A/B | 서로 다른 합성 actor. Core 테스트는 service token/actor를 주입하고, BFF 인증은 별도 검사 |
-| 게시판 A | migration의 `meme`, 활성·ADMIN |
-| 게시판 B | 테스트 DB에만 `qa-board`, 활성·ADMIN·겹치지 않는 display_order로 추가 |
-| 게시판 C | 테스트 DB에만 `qa-hidden`, 비활성·ADMIN으로 추가 |
-| 공개 글 | `PUBLISHED`, DB 현재 시각보다 과거의 `published_at`, TEXT block 포함 |
-| 숨김·예약·초안·제거 글 | 각각 `HIDDEN_REVIEW`, `SCHEDULED`, `DRAFT`, `REMOVED`. 필수 시각·사유는 DB 제약 준수 |
-| 이미지 | `sharp`로 생성한 작은 유효 PNG. 확장자만 PNG인 문자열은 정상 이미지가 아님 |
-| 요청 key | `randomUUID()`. 재전송 케이스에서만 의도적으로 같은 key 재사용 |
+| 이름                   | 준비 값과 주의점                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------- |
+| 운영자 A/B             | 서로 다른 합성 actor. Core 테스트는 service token/actor를 주입하고, BFF 인증은 별도 검사 |
+| 게시판 A               | migration의 `meme`, 활성·ADMIN                                                           |
+| 게시판 B               | 테스트 DB에만 `qa-board`, 활성·ADMIN·겹치지 않는 display_order로 추가                    |
+| 게시판 C               | 테스트 DB에만 `qa-hidden`, 비활성·ADMIN으로 추가                                         |
+| 공개 글                | `PUBLISHED`, DB 현재 시각보다 과거의 `published_at`, TEXT block 포함                     |
+| 숨김·예약·초안·제거 글 | 각각 `HIDDEN_REVIEW`, `SCHEDULED`, `DRAFT`, `REMOVED`. 필수 시각·사유는 DB 제약 준수     |
+| 이미지                 | `sharp`로 생성한 작은 유효 PNG. 확장자만 PNG인 문자열은 정상 이미지가 아님               |
+| 요청 key               | `randomUUID()`. 재전송 케이스에서만 의도적으로 같은 key 재사용                           |
 
 조회 테스트는 SQL로 데이터를 준비해도 된다. **발행 기능을 테스트할 때는 SQL로 이미 발행된 상태를
 만들고 성공했다고 판단하지 않는다.** 초안을 준비한 뒤 실제 발행 API/서비스를 호출한다.
@@ -187,13 +187,13 @@ await test('PUB-02: 일반 글 21개는 20개와 1개로 나뉜다', async (t) =
 
 ### 다른 케이스에서 재사용할 파일
 
-| 작성하려는 테스트 | 먼저 읽을 구현 예시 |
-| --- | --- |
-| 관리자 JSON/multipart 요청 | [admin-http](../../apps/api/test/admin-http.integration.test.ts)의 `request` 함수와 합성 인증값 |
-| 예상 오류 응답 검사 | [contract-response](../../apps/api/test/contract-response.ts)의 `contractError`; status는 별도 assert |
-| DB 상태·행 수 확인 | [failures](../../apps/api/test/failures.integration.test.ts)의 `requiredRow`·`rows`와 대상 조건 SELECT |
-| 실제 화면 준비·정리 | [browserFixture](../../tests/helpers/browser-fixture.ts), [브라우저 흐름](../../tests/browser/core.test.ts) |
-| Spring 기동·중단·복구 | [spring-runtime helper](../../tests/helpers/spring-runtime.ts), [Step 경계 테스트](../../tests/spring/step-boundaries.test.ts) |
+| 작성하려는 테스트          | 먼저 읽을 구현 예시                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 관리자 JSON/multipart 요청 | [admin-http](../../apps/api/test/admin-http.integration.test.ts)의 `request` 함수와 합성 인증값                                |
+| 예상 오류 응답 검사        | [contract-response](../../apps/api/test/contract-response.ts)의 `contractError`; status는 별도 assert                          |
+| DB 상태·행 수 확인         | [failures](../../apps/api/test/failures.integration.test.ts)의 `requiredRow`·`rows`와 대상 조건 SELECT                         |
+| 실제 화면 준비·정리        | [browserFixture](../../tests/helpers/browser-fixture.ts), [브라우저 흐름](../../tests/browser/core.test.ts)                    |
+| Spring 기동·중단·복구      | [spring-runtime helper](../../tests/helpers/spring-runtime.ts), [Step 경계 테스트](../../tests/spring/step-boundaries.test.ts) |
 
 본문에서 `초안 생성 요청`, `hide 요청`처럼 부르는 명령의 정확한 body·header는
 [M0 OpenAPI](../development-specs/m0-core/openapi/m0-core.yaml)와
@@ -238,14 +238,14 @@ DB 잠금은 서로 다른 연결을 사용해야 하며 같은 transaction의 �
 
 ### 관측 지점
 
-| 검증할 것 | 확인할 값 |
-| --- | --- |
-| 정상 응답 | status + error/success envelope + 필요한 업무 필드 + cache header |
-| 저장 성공 | 대상 row의 상태·내용·version, 관련 block/image/history/receipt |
-| 중복 방지 | 같은 postId, 대상 데이터·업무 이력의 증가량 1, 외부 copy 추가 0 |
-| 실패 원자성 | 요청 전후 업무 데이터 동일. 실패 정리용 outbox는 별도 기대값으로 확인 |
-| 비공개 처리 | 새 공개 조회의 404 + 본문/제목/key/사유 부재. 화면만 숨겼는지 확인하지 않음 |
-| 외부 실패 복구 | 실제 object inventory·outbox 상태. HTTP 503만 보고 종료하지 않음 |
+| 검증할 것      | 확인할 값                                                                   |
+| -------------- | --------------------------------------------------------------------------- |
+| 정상 응답      | status + error/success envelope + 필요한 업무 필드 + cache header           |
+| 저장 성공      | 대상 row의 상태·내용·version, 관련 block/image/history/receipt              |
+| 중복 방지      | 같은 postId, 대상 데이터·업무 이력의 증가량 1, 외부 copy 추가 0             |
+| 실패 원자성    | 요청 전후 업무 데이터 동일. 실패 정리용 outbox는 별도 기대값으로 확인       |
+| 비공개 처리    | 새 공개 조회의 404 + 본문/제목/key/사유 부재. 화면만 숨겼는지 확인하지 않음 |
+| 외부 실패 복구 | 실제 object inventory·outbox 상태. HTTP 503만 보고 종료하지 않음            |
 
 requestId·현재 시각처럼 요청마다 바뀌는 값은 무조건 전체 JSON 비교하지 않는다. 형식·상호 일치와
 업무 결과를 따로 비교한다. 로그에서 `PASS`라는 문자열을 찾는 것으로 검증을 대신하지 않는다.

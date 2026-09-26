@@ -19,7 +19,11 @@ export default defineEventHandler(async (event) => {
   if (env.NODE_ENV === 'production' && !localCore(config.coreOrigin))
     throw createError({ statusCode: 404 });
   const path = mediaPath(getRouterParam(event, 'path'));
-  if (!/^(?:posts|content\/published\/posts)\/[1-9][0-9]*\/[1-9][0-9]*-[a-f0-9]{64}\.(jpg|png|webp|gif)$/.test(path))
+  if (
+    !/^(?:posts|content\/published\/posts)\/[1-9][0-9]*\/[1-9][0-9]*-[a-f0-9]{64}\.(jpg|png|webp|gif)$/.test(
+      path
+    )
+  )
     throw createError({ statusCode: 404 });
   const response = await fetch(`${config.coreOrigin}/internal/local-media/${path}`);
   if (!response.ok) throw createError({ statusCode: 404 });

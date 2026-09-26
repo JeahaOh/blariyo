@@ -18,29 +18,29 @@
 공지 제외·본문·이미지·첨부·SNS·저장 검증 전체의 완료 수가 아니다. 원본 HTML은 비공개
 .local-data/site-probes에 보관하고, 재현용 최소 fixture는 출처와 변환 내역을 함께 기록한다.
 
-| source | 정책 | chart / URL | 상세 parser | 실제 목록 관측 |
-|---|---|---|---|---|
-| arcalive | HOT_LIST | `hot` https://arca.live/b/live | `ARCALIVE` | 45개 후보 (상세/저장 별도) |
-| bobaedream | HOT_LIST | `hot` https://www.bobaedream.co.kr/list?code=best | `BOBAEDREAM` | 30개 후보 (상세/저장 별도) |
-| clien | GENERAL_LIST | `latest` https://www.clien.net/service/board/park | `CLIEN` | 30개 후보 (상세/저장 별도) |
-| dcinside | HOT_LIST | `hot` https://gall.dcinside.com/board/lists/?id=hit | `DCINSIDE` | 47개 후보 (상세/저장 별도) |
-| dmitory | GENERAL_LIST | `latest` https://www.dmitory.com/issue | `DMITORY` | 20개 후보 (상세/저장 별도) |
-| dogdrip | HOT_LIST | `hot` https://www.dogdrip.net/dogdrip?sort_index=popular | `DOGDRIP` | 후속 실제 HTTP200, 20개 후보; 이전 접근 실패와 구분 |
-| etoland | GENERAL_LIST | `latest` https://etoland.co.kr/b/etohumor06/list | `ETOLAND` | 저장 HTML에 공지 제외를 적용해 49개 고유 후보; 로컬 공지80/81 숨김·공개404는 당시 로컬 검증 결과 |
-| fmkorea | BLOCKED | `hot` https://www.fmkorea.com/best | `FMKOREA` | SOURCE_HTTP_REJECTED |
-| goodgag | GENERAL_LIST | `latest` https://www.goodgag.net/ | `GOODGAG` | 15개 후보 (상세/저장 별도) |
-| humoruniv | GENERAL_LIST | `latest` https://m.humoruniv.com/board/list.html?table=pds | `HUMORUNIV` | 25개 후보 (상세/저장 별도) |
-| instiz | GENERAL_LIST | `latest` https://www.instiz.net/pt | `INSTIZ` | 39개 후보 (상세/저장 별도) |
-| inven | HOT_LIST | `hot` https://www.inven.co.kr/best/issue | `INVEN` | 20개 후보 (상세/저장 별도) |
-| mlbpark | GENERAL_LIST | `latest` https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen | `MLBPARK` | 30개 후보 (상세/저장 별도) |
-| natepann | GENERAL_LIST | `latest` https://pann.nate.com/talk/c20002 | `NATEPANN` | 58개 후보 (상세/저장 별도) |
-| pgr21 | DETAIL_ONLY | `없음` 없음 | `PGR21` | 상세 전용; 목록 미설정 |
-| ppomppu | BLOCKED | `hot` https://www.ppomppu.co.kr/hot.php | `PPOMPPU` | SOURCE_ACCESS_BLOCKED |
-| ruliweb | HOT_LIST | `hot` https://bbs.ruliweb.com/best/humor | `RULIWEB` | 31개 후보 (상세/저장 별도) |
-| theqoo | HOT_LIST | `hot` https://theqoo.net/hot | `THEQOO` | 18개 후보 (상세/저장 별도) |
-| todayhumor | HOT_LIST | `hot` https://www.todayhumor.co.kr/board/list.php?table=humorbest | `TODAYHUMOR` | 30개 후보 (상세/저장 별도) |
-| yuldo | GENERAL_LIST | `latest` https://yul-do.com/humorissue | `YULDO` | 15개 후보 (상세/저장 별도) |
-| youtube-community | DETAIL_ONLY | `없음` 없음 | `YOUTUBE_COMMUNITY` | 상세 전용; 목록 미설정 |
+| source            | 정책         | chart / URL                                                       | 상세 parser         | 실제 목록 관측                                                                                   |
+| ----------------- | ------------ | ----------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------ |
+| arcalive          | HOT_LIST     | `hot` https://arca.live/b/live                                    | `ARCALIVE`          | 45개 후보 (상세/저장 별도)                                                                       |
+| bobaedream        | HOT_LIST     | `hot` https://www.bobaedream.co.kr/list?code=best                 | `BOBAEDREAM`        | 30개 후보 (상세/저장 별도)                                                                       |
+| clien             | GENERAL_LIST | `latest` https://www.clien.net/service/board/park                 | `CLIEN`             | 30개 후보 (상세/저장 별도)                                                                       |
+| dcinside          | HOT_LIST     | `hot` https://gall.dcinside.com/board/lists/?id=hit               | `DCINSIDE`          | 47개 후보 (상세/저장 별도)                                                                       |
+| dmitory           | GENERAL_LIST | `latest` https://www.dmitory.com/issue                            | `DMITORY`           | 20개 후보 (상세/저장 별도)                                                                       |
+| dogdrip           | HOT_LIST     | `hot` https://www.dogdrip.net/dogdrip?sort_index=popular          | `DOGDRIP`           | 후속 실제 HTTP200, 20개 후보; 이전 접근 실패와 구분                                              |
+| etoland           | GENERAL_LIST | `latest` https://etoland.co.kr/b/etohumor06/list                  | `ETOLAND`           | 저장 HTML에 공지 제외를 적용해 49개 고유 후보; 로컬 공지80/81 숨김·공개404는 당시 로컬 검증 결과 |
+| fmkorea           | BLOCKED      | `hot` https://www.fmkorea.com/best                                | `FMKOREA`           | SOURCE_HTTP_REJECTED                                                                             |
+| goodgag           | GENERAL_LIST | `latest` https://www.goodgag.net/                                 | `GOODGAG`           | 15개 후보 (상세/저장 별도)                                                                       |
+| humoruniv         | GENERAL_LIST | `latest` https://m.humoruniv.com/board/list.html?table=pds        | `HUMORUNIV`         | 25개 후보 (상세/저장 별도)                                                                       |
+| instiz            | GENERAL_LIST | `latest` https://www.instiz.net/pt                                | `INSTIZ`            | 39개 후보 (상세/저장 별도)                                                                       |
+| inven             | HOT_LIST     | `hot` https://www.inven.co.kr/best/issue                          | `INVEN`             | 20개 후보 (상세/저장 별도)                                                                       |
+| mlbpark           | GENERAL_LIST | `latest` https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen      | `MLBPARK`           | 30개 후보 (상세/저장 별도)                                                                       |
+| natepann          | GENERAL_LIST | `latest` https://pann.nate.com/talk/c20002                        | `NATEPANN`          | 58개 후보 (상세/저장 별도)                                                                       |
+| pgr21             | DETAIL_ONLY  | `없음` 없음                                                       | `PGR21`             | 상세 전용; 목록 미설정                                                                           |
+| ppomppu           | BLOCKED      | `hot` https://www.ppomppu.co.kr/hot.php                           | `PPOMPPU`           | SOURCE_ACCESS_BLOCKED                                                                            |
+| ruliweb           | HOT_LIST     | `hot` https://bbs.ruliweb.com/best/humor                          | `RULIWEB`           | 31개 후보 (상세/저장 별도)                                                                       |
+| theqoo            | HOT_LIST     | `hot` https://theqoo.net/hot                                      | `THEQOO`            | 18개 후보 (상세/저장 별도)                                                                       |
+| todayhumor        | HOT_LIST     | `hot` https://www.todayhumor.co.kr/board/list.php?table=humorbest | `TODAYHUMOR`        | 30개 후보 (상세/저장 별도)                                                                       |
+| yuldo             | GENERAL_LIST | `latest` https://yul-do.com/humorissue                            | `YULDO`             | 15개 후보 (상세/저장 별도)                                                                       |
+| youtube-community | DETAIL_ONLY  | `없음` 없음                                                       | `YOUTUBE_COMMUNITY` | 상세 전용; 목록 미설정                                                                           |
 
 ## 실행·기간·완료 정책
 

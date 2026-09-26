@@ -29,7 +29,16 @@ export function adapters(env: Environment = process.env) {
       privateBucket: required('R2_PRIVATE_BUCKET', 'R2_CONFIG_REQUIRED'),
       publicBucket: required('R2_PUBLIC_BUCKET', 'R2_CONFIG_REQUIRED'),
     };
-    return { storage: r2Storage(config), cache: cloudflareCache({ zoneId: required('CACHE_ZONE_ID', 'CACHE_CONFIG_REQUIRED'), token: required('CACHE_PURGE_TOKEN', 'CACHE_CONFIG_REQUIRED') }) };
+    return {
+      storage: r2Storage(config),
+      cache: cloudflareCache({
+        zoneId: required('CACHE_ZONE_ID', 'CACHE_CONFIG_REQUIRED'),
+        token: required('CACHE_PURGE_TOKEN', 'CACHE_CONFIG_REQUIRED'),
+      }),
+    };
   }
-  return { storage: localStorage(env.STORAGE_ROOT || '.local-data/media', { production }), cache: localCache({ production }) };
+  return {
+    storage: localStorage(env.STORAGE_ROOT || '.local-data/media', { production }),
+    cache: localCache({ production }),
+  };
 }

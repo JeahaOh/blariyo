@@ -3,9 +3,7 @@
   "scope": "Read-only running server inventory; no secrets, request bodies, or user identifiers",
   "nginx_config_sha256": "9728047ec8f6309794ab0f6fa96dc8c1cbf9f783ea9240dc778ff9b954d64555",
   "gateway_health": "UP",
-  "public_wildcard_tcp_ports": [
-    22
-  ],
+  "public_wildcard_tcp_ports": [22],
   "containers": [
     {
       "name": "blariyo-gateway-nginx-1",

@@ -10,13 +10,13 @@
 
 이 문서는 “어떤 운영 형태와 공급자를 선택하는가”만 결정한다.
 
-| 내용 | 정본 |
-| --- | --- |
-| 제품 범위·게시 규칙·사용자 화면 | `docs/planning/01-service-plan.md`, `03-screen-design.md` |
-| DB 테이블·자료형·제약·migration | `docs/system-design/02-data-model.md` |
-| endpoint·request·response·오류 | `docs/system-design/03-api-design.md` |
-| network·container·자원·배포 절차 | `docs/system-design/04-infrastructure-design.md` |
-| 인증·secret·백업·복구·관측 | `docs/system-design/05-security-operations.md` |
+| 내용                             | 정본                                                      |
+| -------------------------------- | --------------------------------------------------------- |
+| 제품 범위·게시 규칙·사용자 화면  | `docs/planning/01-service-plan.md`, `03-screen-design.md` |
+| DB 테이블·자료형·제약·migration  | `docs/system-design/02-data-model.md`                     |
+| endpoint·request·response·오류   | `docs/system-design/03-api-design.md`                     |
+| network·container·자원·배포 절차 | `docs/system-design/04-infrastructure-design.md`          |
+| 인증·secret·백업·복구·관측       | `docs/system-design/05-security-operations.md`            |
 
 하위 시스템 설계가 제품 범위를 바꾸면 이 문서를 포함한 planning 정본을 먼저 수정한다. 반대로 planning 문서에는 기술 계약의 사본을 만들지 않고 해당 system-design 문서를 연결한다.
 
@@ -37,16 +37,16 @@
 
 ## 3. 확정 기술 선택
 
-| 영역 | M0 선택 | 선택 경계 |
-| --- | --- | --- |
-| 웹·BFF | Nuxt SSR + same-origin `/api/v1` | HTML·OG 생성과 외부 API 계약 |
-| Core API | NestJS + TypeORM + TypeScript strict | Docker 내부 조회와 운영자 transaction |
-| 런타임 | Node.js `24.18.0` LTS | Nuxt·Nest Core 통일 |
-| 데이터베이스 | PostgreSQL 18 | 단일 영구 관계형 DB, MySQL·MariaDB 병행 없음 |
-| 이미지 | Cloudflare R2 Standard | private 원본, public media 분리 |
-| 엣지 | Cloudflare Free | DNS·CDN·TLS·Tunnel·Access |
-| 배포 단위 | Docker Compose | 단일 VM |
-| 원격 백업 | private R2 bucket | media와 credential·bucket 분리 |
+| 영역         | M0 선택                              | 선택 경계                                    |
+| ------------ | ------------------------------------ | -------------------------------------------- |
+| 웹·BFF       | Nuxt SSR + same-origin `/api/v1`     | HTML·OG 생성과 외부 API 계약                 |
+| Core API     | NestJS + TypeORM + TypeScript strict | Docker 내부 조회와 운영자 transaction        |
+| 런타임       | Node.js `24.18.0` LTS                | Nuxt·Nest Core 통일                          |
+| 데이터베이스 | PostgreSQL 18                        | 단일 영구 관계형 DB, MySQL·MariaDB 병행 없음 |
+| 이미지       | Cloudflare R2 Standard               | private 원본, public media 분리              |
+| 엣지         | Cloudflare Free                      | DNS·CDN·TLS·Tunnel·Access                    |
+| 배포 단위    | Docker Compose                       | 단일 VM                                      |
+| 원격 백업    | private R2 bucket                    | media와 credential·bucket 분리               |
 
 Redis, MongoDB, 별도 managed DB, Kubernetes, 다중 API instance와 다중 region은 M0에 포함하지 않는다.
 
@@ -61,16 +61,16 @@ Redis, MongoDB, 별도 managed DB, Kubernetes, 다중 API instance와 다중 reg
 
 ## 5. 공개 경로와 구성 경계
 
-| 공개 경로 | 제품 역할 |
-| --- | --- |
-| `/` | `/meme`으로 이동 |
-| `/meme` | 짤 게시판 목록 |
-| `/:boardSlug/posts/:postId` | 해당 게시판의 게시글 상세 |
-| `/terms`, `/privacy`, `/cookie-settings` | 정책 화면 직접 진입 |
-| `/admin*` | 운영자 화면. 외부 관리자 인증 필수, 검색 엔진 비노출 |
-| `/api/v1/boards/:boardSlug/posts*` | Nuxt BFF의 게시판 하위 공개 목록·상세 API |
-| `/api/v1/admin/*` | 게시글·이미지·수집 후보 관리자 API. 외부 관리자 인증 필수 |
-| `/api/v1/*` | Nuxt BFF의 나머지 공개 API |
+| 공개 경로                                | 제품 역할                                                 |
+| ---------------------------------------- | --------------------------------------------------------- |
+| `/`                                      | `/meme`으로 이동                                          |
+| `/meme`                                  | 짤 게시판 목록                                            |
+| `/:boardSlug/posts/:postId`              | 해당 게시판의 게시글 상세                                 |
+| `/terms`, `/privacy`, `/cookie-settings` | 정책 화면 직접 진입                                       |
+| `/admin*`                                | 운영자 화면. 외부 관리자 인증 필수, 검색 엔진 비노출      |
+| `/api/v1/boards/:boardSlug/posts*`       | Nuxt BFF의 게시판 하위 공개 목록·상세 API                 |
+| `/api/v1/admin/*`                        | 게시글·이미지·수집 후보 관리자 API. 외부 관리자 인증 필수 |
+| `/api/v1/*`                              | Nuxt BFF의 나머지 공개 API                                |
 
 - PostgreSQL과 application container port는 인터넷에 직접 공개하지 않는다. Nest Core API는 Nginx route·public DNS·host port 없이 Nuxt BFF만 HTTP로 호출한다. cron은 API image의 단발성 command로 실행한다.
 - 관리자 화면과 관리자 API의 외부 identity는 Nuxt BFF의 교체 가능한 adapter가 검증한다. 초기 provider는 Cloudflare Access지만 Core API는 이에 종속되지 않는다.
@@ -92,14 +92,14 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 
 ## 7. 기능 단계와 인프라 영향
 
-| 단계 | 기능 | 인프라 영향 |
-| --- | --- | --- |
-| M0 Core | 공개 짤 목록·상세, 운영자 발행·숨김, 정책, 참고용 조회 수, 기본 비활성 GA4 연동 | 현재 단일 VM·PostgreSQL·R2와 조건부 Google tag CSP·동의 설정 |
-| M0 수집 보조 | 별도 PC 단건·확인 queue·저장 결과 검수, Web URL 전달 계약은 미정 | direct DB/object 제한 역할·private collect 저장·API 검수; 기존 service token 중계는 legacy |
-| M0 자동 수집 | 허용 출처 목록/상세 저장 구현, 운영 실행 비활성 | 출처별 parser·공통 요청 통제·보존 회수·실행 담당/주기 인수 |
-| M1 | 소셜 가입·로그인·탈퇴 | provider secret, callback, session store 계약 추가 |
-| M1.5 | 익게 작성·댓글·신고·moderation | 사용자 쓰기 부하와 abuse 방어 재산정 |
-| 후속 | 광고 | consent, 외부 script와 CSP 검토 |
+| 단계         | 기능                                                                            | 인프라 영향                                                                                |
+| ------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| M0 Core      | 공개 짤 목록·상세, 운영자 발행·숨김, 정책, 참고용 조회 수, 기본 비활성 GA4 연동 | 현재 단일 VM·PostgreSQL·R2와 조건부 Google tag CSP·동의 설정                               |
+| M0 수집 보조 | 별도 PC 단건·확인 queue·저장 결과 검수, Web URL 전달 계약은 미정                | direct DB/object 제한 역할·private collect 저장·API 검수; 기존 service token 중계는 legacy |
+| M0 자동 수집 | 허용 출처 목록/상세 저장 구현, 운영 실행 비활성                                 | 출처별 parser·공통 요청 통제·보존 회수·실행 담당/주기 인수                                 |
+| M1           | 소셜 가입·로그인·탈퇴                                                           | provider secret, callback, session store 계약 추가                                         |
+| M1.5         | 익게 작성·댓글·신고·moderation                                                  | 사용자 쓰기 부하와 abuse 방어 재산정                                                       |
+| 후속         | 광고                                                                            | consent, 외부 script와 CSP 검토                                                            |
 
 M1·광고 같은 후속 기능은 단계 착수 전에 planning·system-design을 확정한다. 현재 운영에는
 수집 V008/Collector V006과 데이터가 반영됐고 관리자 batch 검수만 9월 23일 활성 관측됐다.

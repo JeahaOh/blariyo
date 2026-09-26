@@ -161,17 +161,17 @@ DatabaseContext의 TypeORM manager 또는 같은 QueryRunner를 사용한다. �
 
 2026-09-24 대조에서 후속 `batch-result.repository.ts`, `batch-review.repository.ts`의 일반 조회·갱신·receipt와 `collection.repository.ts`의 `discoveryAllowed`가 직접 SQL을 사용하는 차이를 확인했다. 이는 아래의 기존 예외 승인 근거로 자동 포괄하지 않는다. TypeORM manager와 매개변수는 사용하지만 일반 ORM 처리 계약과의 정합성은 [로드맵](../roadmap.md)에서 후속 정리한다. batch 목록의 항목별 재조회도 존재하므로 아래의 과거 공개/관리자 게시글 쿼리 수를 direct 검수 목록에 적용하지 않는다.
 
-| 파일 (persistence/) | 예외와 이유 | 검증 |
-| --- | --- | --- |
-| database.ts | READ ONLY transaction, session/xact advisory lock·unlock. PostgreSQL 연결 수명과 잠금 의미 보존 | database/migrations 통합, 동시 요청 |
-| migrations.repository.ts | 기존 ledger 준비·checksum 기록, 원래 SQL 실행·권한 GRANT. 별도 TypeORM migration 이력 미생성 | migrations/schema-restore 통합 |
-| health.repository.ts | 보안 함수 ops.is_schema_ready, catalog 및 역할별 schema/table/sequence 권한 확인 | migrations/core-isolation/HTTP 경계 |
-| cleanup.repository.ts | collect 테이블 부재를 to_regclass로 확인해 Core-only 환경에서도 정리 유지 | core-isolation/runtime-operations |
-| collection-cleanup.repository.ts | V2 receipt 테이블 존재 확인. 실제 만료 삭제는 Entity QueryBuilder | collection-v2/core-isolation |
-| collection-operations.repository.ts | catalog 검사와 기존 drain 뒤 ACCESS EXCLUSIVE·ADD/VALIDATE 제약 적용. 식별자는 고정 allowlist | collection-operations/collection-v2 |
-| collector-lease.repository.ts | 만료 대상 SELECT FOR UPDATE SKIP LOCKED와 UPDATE RETURNING을 한 CTE로 실행 | collector-lease/collection-v2·Spring |
-| collector-quota.repository.ts | MATERIALIZED clock_timestamp 한 값으로 KST 날짜·다음 자정 계산. 예산/예약 저장은 ORM | collection-v2·quota 경계 |
-| posts.repository.ts | 예약 실패 알림의 ON CONFLICT 카운트 증가와 GREATEST 시각을 단일 문장으로 처리 | schedule-alerts/failures |
+| 파일 (persistence/)                 | 예외와 이유                                                                                     | 검증                                 |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------ |
+| database.ts                         | READ ONLY transaction, session/xact advisory lock·unlock. PostgreSQL 연결 수명과 잠금 의미 보존 | database/migrations 통합, 동시 요청  |
+| migrations.repository.ts            | 기존 ledger 준비·checksum 기록, 원래 SQL 실행·권한 GRANT. 별도 TypeORM migration 이력 미생성    | migrations/schema-restore 통합       |
+| health.repository.ts                | 보안 함수 ops.is_schema_ready, catalog 및 역할별 schema/table/sequence 권한 확인                | migrations/core-isolation/HTTP 경계  |
+| cleanup.repository.ts               | collect 테이블 부재를 to_regclass로 확인해 Core-only 환경에서도 정리 유지                       | core-isolation/runtime-operations    |
+| collection-cleanup.repository.ts    | V2 receipt 테이블 존재 확인. 실제 만료 삭제는 Entity QueryBuilder                               | collection-v2/core-isolation         |
+| collection-operations.repository.ts | catalog 검사와 기존 drain 뒤 ACCESS EXCLUSIVE·ADD/VALIDATE 제약 적용. 식별자는 고정 allowlist   | collection-operations/collection-v2  |
+| collector-lease.repository.ts       | 만료 대상 SELECT FOR UPDATE SKIP LOCKED와 UPDATE RETURNING을 한 CTE로 실행                      | collector-lease/collection-v2·Spring |
+| collector-quota.repository.ts       | MATERIALIZED clock_timestamp 한 값으로 KST 날짜·다음 자정 계산. 예산/예약 저장은 ORM            | collection-v2·quota 경계             |
+| posts.repository.ts                 | 예약 실패 알림의 ON CONFLICT 카운트 증가와 GREATEST 시각을 단일 문장으로 처리                   | schedule-alerts/failures             |
 
 GRANT role 이름은 소문자 identifier 형식 검증 후 사용하고, 전환 제약의 table/name은 고정 목록만 허용한다.
 값 매개변수를 식별자에 대신 적용했다고 주장하지 않는다. Repository 계약에는 SQL·ORM 객체를 노출하지 않는다.

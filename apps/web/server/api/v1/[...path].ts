@@ -27,7 +27,8 @@ export default defineEventHandler(async (event) => {
     const batchReview = /^\/api\/v1\/admin\/collect\/batch-items(?:\/|$)/.test(url.pathname);
     if (batchReview && !config.collectBatchReviewEnabled) return error(404, 'BATCH_ITEM_NOT_FOUND');
     if (
-      !batchReview && url.pathname.startsWith('/api/v1/admin/collect/') &&
+      !batchReview &&
+      url.pathname.startsWith('/api/v1/admin/collect/') &&
       !config.collectManualUrlEnabled &&
       !config.collectDiscordCommandEnabled
     )
@@ -109,10 +110,20 @@ export default defineEventHandler(async (event) => {
           : { body: JSON.stringify(body) }),
       // Collected galleries may require sequential validation of up to 200 images.
       // A lost response must be retried with the original idempotency key.
-      signal: AbortSignal.timeout(operation.operationId === 'promoteBatchItem' ? 180000
-        : operation.operationId === 'previewBatchImage' || multipart ? 60000 : 15000),
+      signal: AbortSignal.timeout(
+        operation.operationId === 'promoteBatchItem'
+          ? 180000
+          : operation.operationId === 'previewBatchImage' || multipart
+            ? 60000
+            : 15000
+      ),
     });
-    if (['previewImage', 'previewCollectionImage', 'previewBatchImage'].includes(operation.operationId) && response.ok) {
+    if (
+      ['previewImage', 'previewCollectionImage', 'previewBatchImage'].includes(
+        operation.operationId
+      ) &&
+      response.ok
+    ) {
       const type = response.headers.get('content-type') || '';
       if (!/^image\/(jpeg|png|webp|gif)$/.test(type)) return error(503, 'DEPENDENCY_UNAVAILABLE');
       setHeader(event, 'Cache-Control', 'private, no-store');

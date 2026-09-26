@@ -8,8 +8,10 @@ const prefixes = { app: 'APP_DB', migration: 'MIGRATION_DB' } as const;
 const users = { app: 'blariyo_app', migration: 'blariyo_migrator' } as const;
 const credentialPrefixes = ['APP_DB', 'MIGRATION_DB', 'BACKUP_DB'];
 const fileSettings = [
-  'DB_HOST', 'DB_PORT', 'DB_NAME',
-  ...credentialPrefixes.flatMap(prefix => [`${prefix}_USER`, `${prefix}_PASSWORD_FILE`]),
+  'DB_HOST',
+  'DB_PORT',
+  'DB_NAME',
+  ...credentialPrefixes.flatMap((prefix) => [`${prefix}_USER`, `${prefix}_PASSWORD_FILE`]),
 ];
 
 function passwordFromFile(file: string): string {
@@ -34,17 +36,27 @@ function passwordFromFile(file: string): string {
 export function resolveDatabaseUrl(env: Environment, role: DatabaseRole): string {
   const production = env.NODE_ENV === 'production';
   const prefix = prefixes[role];
-  if (production && (env.DATABASE_URL !== undefined || env.PGPASSWORD !== undefined ||
-    credentialPrefixes.some(value => env[`${value}_PASSWORD`] !== undefined))) {
+  if (
+    production &&
+    (env.DATABASE_URL !== undefined ||
+      env.PGPASSWORD !== undefined ||
+      credentialPrefixes.some((value) => env[`${value}_PASSWORD`] !== undefined))
+  ) {
     throw new Error('PRODUCTION_DB_PASSWORD_FILE_REQUIRED');
   }
   if (env.DATABASE_URL !== undefined) {
-    if (fileSettings.some(name => env[name] !== undefined)) throw new Error('DB_CONFIG_AMBIGUOUS');
+    if (fileSettings.some((name) => env[name] !== undefined))
+      throw new Error('DB_CONFIG_AMBIGUOUS');
     if (!env.DATABASE_URL) throw new Error('DATABASE_URL_REQUIRED');
     return env.DATABASE_URL;
   }
-  if (credentialPrefixes.some(value => value !== prefix &&
-    (env[`${value}_USER`] !== undefined || env[`${value}_PASSWORD_FILE`] !== undefined))) {
+  if (
+    credentialPrefixes.some(
+      (value) =>
+        value !== prefix &&
+        (env[`${value}_USER`] !== undefined || env[`${value}_PASSWORD_FILE`] !== undefined)
+    )
+  ) {
     throw new Error('DB_CREDENTIAL_SCOPE_INVALID');
   }
   const host = env.DB_HOST;
@@ -54,11 +66,19 @@ export function resolveDatabaseUrl(env: Environment, role: DatabaseRole): string
   const file = env[`${prefix}_PASSWORD_FILE`];
   if (!host || !database || !user || !file) throw new Error('DB_FILE_CONFIG_REQUIRED');
   const identifier = /^[a-z_][a-z0-9_]{0,62}$/;
-  if ((!isIP(host) && !/^[a-zA-Z0-9](?:[a-zA-Z0-9.-]{0,251}[a-zA-Z0-9])?$/.test(host)) ||
-    !/^[0-9]{1,5}$/.test(port) || Number(port) < 1 || Number(port) > 65535 ||
-    !identifier.test(database) || !identifier.test(user)) throw new Error('DB_FILE_CONFIG_INVALID');
+  if (
+    (!isIP(host) && !/^[a-zA-Z0-9](?:[a-zA-Z0-9.-]{0,251}[a-zA-Z0-9])?$/.test(host)) ||
+    !/^[0-9]{1,5}$/.test(port) ||
+    Number(port) < 1 ||
+    Number(port) > 65535 ||
+    !identifier.test(database) ||
+    !identifier.test(user)
+  )
+    throw new Error('DB_FILE_CONFIG_INVALID');
   if (production && user !== users[role]) throw new Error('DB_ROLE_INVALID');
-  const url = new URL(`postgresql://${isIP(host) === 6 ? `[${host}]` : host}:${Number(port)}/${database}`);
+  const url = new URL(
+    `postgresql://${isIP(host) === 6 ? `[${host}]` : host}:${Number(port)}/${database}`
+  );
   url.username = user;
   url.password = encodeURIComponent(passwordFromFile(file));
   return url.href;

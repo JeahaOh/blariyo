@@ -4,11 +4,7 @@
   "url": "https://bbs.ruliweb.com/community/board/300143/read/76770654",
   "rawSha256": "0e7424d2f982e8bbb7183e68e025ed442167a42bc2835e80b3ca36bcc88ae2f8",
   "fixtureSha256": "2473da7ec1328f20db3a94a8f0e6919527aa01bb0c815c6fd4e615d84c542c08",
-  "shape": [
-    "IMAGE:1",
-    "TEXT",
-    "TEXT"
-  ],
+  "shape": ["IMAGE:1", "TEXT", "TEXT"],
   "images": 1,
   "attachments": 0,
   "transformation": "Observed HTML structure retained; scripts/comments/non-structural attributes removed; text and remote asset URLs replaced. Original vs sanitized parser structure checked before writing. This is not a live verification substitute."

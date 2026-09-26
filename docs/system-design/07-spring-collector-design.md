@@ -21,7 +21,7 @@ OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는
 
 내부 패키지·의존성 규칙과 CLI 배치는 [M0 코드 구조](08-code-structure.md)를 따른다.
 
-### direct 실행의 미충족 통제 — 2026-09-24 코드 대조
+## direct 실행의 미충족 통제 — 2026-09-24 코드 대조
 
 - 제품 계약의 robots·Crawl-delay 확인, 재시작해도 유지되는 출처별 일일 요청 상한은 여전히 필요하다.
   현재 `DirectBatchRunner`·`DirectUrlRunner` → `SourceRequests` 경로에는 robots 조회/판정과 일일 budget 저장 호출이 없다.
@@ -49,19 +49,19 @@ OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는
 
 ## 1. 확정 선택과 되돌리기 조건
 
-| 항목 | 기본 선택 | 선택 이유 | 되돌리기 조건 |
-| --- | --- | --- | --- |
-| 코드 위치 | M0 구현 저장소의 `apps/collector` 독립 Gradle 애플리케이션 | 기존 Core/BFF contract와 한 변경에서 검증하면서 Node runtime과 배포 프로세스는 분리 | 별도 release cadence·접근 권한·장애 격리가 실제 운영 요구가 되면 별도 저장소로 분리 |
-| Java | JDK 25 LTS | 2026-09-08 현재 LTS이고 Boot 4.1 지원 범위 안 | 선택 배포판의 macOS 지원·라이선스·보안 업데이트가 운영 조건을 충족하지 못하면 지원되는 다른 JDK 25 배포판 사용 |
-| Spring | Spring Boot 4.1.1, Boot BOM이 관리하는 Spring Batch 6.0.5·Quartz 2.5.2 | 현재 stable 조합을 한 BOM으로 맞춰 임의 버전 혼합을 피함 | source 작성 시 공개된 보안 수정 patch가 있으면 같은 minor 최신 patch로 올리고 전체 test 재실행 |
-| Build | Gradle Wrapper 9.7.1, Kotlin DSL | Boot 4.1이 Gradle 9.x를 지원하고 wrapper checksum으로 재현 가능 | plugin 호환 실패가 재현되면 Boot 지원 범위인 Gradle 8.14 최신 patch로 한시 하향 |
-| parser·Discord | jsoup 1.23.2, JDA 6.4.2 | 설계 minor를 유지하고 구현 의존성을 patch 버전으로 고정 | 실제 fixture·Discord Gateway contract test 실패 또는 보안 공지가 있으면 호환 patch로 갱신 |
-| Core HTTP | Spring `RestClient`, 외부 출처 HTTP는 JDK `HttpClient`와 수동 redirect | Core JSON 호출과 SSRF 통제가 필요한 외부 fetch를 분리 | HTTP/2·proxy·관측 요구가 기본 client로 충족되지 않을 때 보안 contract test를 유지한 채 교체 |
-| 외부 fetch 제한 | connect 5초·요청 20초, HTML 2MiB·robots 512KiB·이미지 10MiB, redirect 최대 3회·같은 host | 단건 M0에서 자원 고갈을 제한하고 기존 preview 10MiB 계약과 맞춤 | 실제 fixture가 정상 응답을 반복 차단하면 출처별 더 낮은 값부터 검증하고 상향 변경 기록 |
-| 실행 저장소 | 운영자 PC의 전용 PostgreSQL 18, `batch`·`quartz`·`collector` schema | Batch restart·Quartz misfire·중복 실행·outbox를 crash 뒤에도 복구 | 단일 PC에서 PostgreSQL 운영 부담이 실제로 과도하고 동일 fault test를 통과하는 대체 JDBC 저장소가 확인될 때 교체 |
-| 처리 단위 | 후보 1건당 Tasklet Job 1개, 기본 동시 실행 1 | 외부 HTTP와 Core API는 chunk transaction으로 원자화할 수 없고 M0는 단건 처리 | backlog·CPU·quota 지표와 동시성 fault test가 통과하면 서로 다른 후보만 제한 병렬화 |
-| Quartz | 15분 주기, `Asia/Seoul`, misfire `DO_NOTHING`, 기본 비활성 | PC 복귀 때 몰아서 외부 요청하지 않고 M0 단건 부하를 제한 | 처리 대기 SLA와 실제 quota 근거가 생기면 주기·동시성을 함께 재산정 |
-| 로컬 REST | `127.0.0.1:18787`, 전용 bearer scope, cookie·CORS 없음 | 알려진 Python 8787 값을 승계하지 않고 외부 노출을 기본 차단 | 원격 운영이 필요해지면 loopback 우회를 열지 말고 mTLS 또는 인증 reverse proxy를 별도 설계 |
+| 항목            | 기본 선택                                                                                | 선택 이유                                                                           | 되돌리기 조건                                                                                                   |
+| --------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 코드 위치       | M0 구현 저장소의 `apps/collector` 독립 Gradle 애플리케이션                               | 기존 Core/BFF contract와 한 변경에서 검증하면서 Node runtime과 배포 프로세스는 분리 | 별도 release cadence·접근 권한·장애 격리가 실제 운영 요구가 되면 별도 저장소로 분리                             |
+| Java            | JDK 25 LTS                                                                               | 2026-09-08 현재 LTS이고 Boot 4.1 지원 범위 안                                       | 선택 배포판의 macOS 지원·라이선스·보안 업데이트가 운영 조건을 충족하지 못하면 지원되는 다른 JDK 25 배포판 사용  |
+| Spring          | Spring Boot 4.1.1, Boot BOM이 관리하는 Spring Batch 6.0.5·Quartz 2.5.2                   | 현재 stable 조합을 한 BOM으로 맞춰 임의 버전 혼합을 피함                            | source 작성 시 공개된 보안 수정 patch가 있으면 같은 minor 최신 patch로 올리고 전체 test 재실행                  |
+| Build           | Gradle Wrapper 9.7.1, Kotlin DSL                                                         | Boot 4.1이 Gradle 9.x를 지원하고 wrapper checksum으로 재현 가능                     | plugin 호환 실패가 재현되면 Boot 지원 범위인 Gradle 8.14 최신 patch로 한시 하향                                 |
+| parser·Discord  | jsoup 1.23.2, JDA 6.4.2                                                                  | 설계 minor를 유지하고 구현 의존성을 patch 버전으로 고정                             | 실제 fixture·Discord Gateway contract test 실패 또는 보안 공지가 있으면 호환 patch로 갱신                       |
+| Core HTTP       | Spring `RestClient`, 외부 출처 HTTP는 JDK `HttpClient`와 수동 redirect                   | Core JSON 호출과 SSRF 통제가 필요한 외부 fetch를 분리                               | HTTP/2·proxy·관측 요구가 기본 client로 충족되지 않을 때 보안 contract test를 유지한 채 교체                     |
+| 외부 fetch 제한 | connect 5초·요청 20초, HTML 2MiB·robots 512KiB·이미지 10MiB, redirect 최대 3회·같은 host | 단건 M0에서 자원 고갈을 제한하고 기존 preview 10MiB 계약과 맞춤                     | 실제 fixture가 정상 응답을 반복 차단하면 출처별 더 낮은 값부터 검증하고 상향 변경 기록                          |
+| 실행 저장소     | 운영자 PC의 전용 PostgreSQL 18, `batch`·`quartz`·`collector` schema                      | Batch restart·Quartz misfire·중복 실행·outbox를 crash 뒤에도 복구                   | 단일 PC에서 PostgreSQL 운영 부담이 실제로 과도하고 동일 fault test를 통과하는 대체 JDBC 저장소가 확인될 때 교체 |
+| 처리 단위       | 후보 1건당 Tasklet Job 1개, 기본 동시 실행 1                                             | 외부 HTTP와 Core API는 chunk transaction으로 원자화할 수 없고 M0는 단건 처리        | backlog·CPU·quota 지표와 동시성 fault test가 통과하면 서로 다른 후보만 제한 병렬화                              |
+| Quartz          | 15분 주기, `Asia/Seoul`, misfire `DO_NOTHING`, 기본 비활성                               | PC 복귀 때 몰아서 외부 요청하지 않고 M0 단건 부하를 제한                            | 처리 대기 SLA와 실제 quota 근거가 생기면 주기·동시성을 함께 재산정                                              |
+| 로컬 REST       | `127.0.0.1:18787`, 전용 bearer scope, cookie·CORS 없음                                   | 알려진 Python 8787 값을 승계하지 않고 외부 노출을 기본 차단                         | 원격 운영이 필요해지면 loopback 우회를 열지 말고 mTLS 또는 인증 reverse proxy를 별도 설계                       |
 
 ### 공식 호환 근거
 
@@ -123,13 +123,13 @@ Core HTTP를 글마다 호출하지 않고 `collect.batch_*`와 batch object sto
 모든 진입점은 controller나 listener에서 Job을 직접 만들지 않고 `CollectorRunService.submit()`을 호출한다.
 서비스는 권한·feature flag·중복을 확인하고 같은 `RunCommand`를 만든다.
 
-| 값 | 역할 | 생성·중복 규칙 |
-| --- | --- | --- |
-| `triggerRequestKey` | 진입 요청 멱등 식별 | Discord는 interaction ID 기반 HMAC, REST는 필수 `Idempotency-Key`의 HMAC, Quartz는 trigger key와 scheduled fire time의 HMAC. 원문 key는 로그에 남기지 않음 |
-| `jobRequestId` | Batch JobInstance 식별 UUID | `triggerRequestKey` 최초 접수 때 한 번 생성하며 재전송은 같은 값 반환. 유일한 identifying JobParameter |
-| `candidateId` | Core 후보 | Discord URL은 기존 후보 접수 API 성공 후 획득, 관리자·재시도는 전달된 ID, Quartz는 claim 성공 후 확정. Batch context에는 ID만 저장 |
-| `collectorExecutionId` | 한 후보 처리 소유권 UUID | 일반 claim 또는 NEW 후보의 `PREVIEW_REFRESH` 시작마다 새로 생성. RUNNING에서는 lease·lockVersion, NEW preview에서는 execution ID·lockVersion으로 fencing |
-| `apiRequestId` | 한 Core 호출 추적 | 응답 `meta.requestId`를 기록하되 로그 상관용이며 멱등 key를 대신하지 않음 |
+| 값                     | 역할                        | 생성·중복 규칙                                                                                                                                             |
+| ---------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `triggerRequestKey`    | 진입 요청 멱등 식별         | Discord는 interaction ID 기반 HMAC, REST는 필수 `Idempotency-Key`의 HMAC, Quartz는 trigger key와 scheduled fire time의 HMAC. 원문 key는 로그에 남기지 않음 |
+| `jobRequestId`         | Batch JobInstance 식별 UUID | `triggerRequestKey` 최초 접수 때 한 번 생성하며 재전송은 같은 값 반환. 유일한 identifying JobParameter                                                     |
+| `candidateId`          | Core 후보                   | Discord URL은 기존 후보 접수 API 성공 후 획득, 관리자·재시도는 전달된 ID, Quartz는 claim 성공 후 확정. Batch context에는 ID만 저장                         |
+| `collectorExecutionId` | 한 후보 처리 소유권 UUID    | 일반 claim 또는 NEW 후보의 `PREVIEW_REFRESH` 시작마다 새로 생성. RUNNING에서는 lease·lockVersion, NEW preview에서는 execution ID·lockVersion으로 fencing   |
+| `apiRequestId`         | 한 Core 호출 추적           | 응답 `meta.requestId`를 기록하되 로그 상관용이며 멱등 key를 대신하지 않음                                                                                  |
 
 - 동일 `triggerRequestKey` 재전송은 같은 `jobRequestId`와 현재 실행 상태를 반환한다. payload가 다르면
   `409 IDEMPOTENCY_CONFLICT`이며 새 Job을 만들지 않는다.
@@ -143,14 +143,14 @@ Core HTTP를 글마다 호출하지 않고 `collect.batch_*`와 batch object sto
 
 Job 이름은 `collectCandidateJob`이며 후보 1건을 다음 Tasklet Step으로 처리한다.
 
-| 순서 | Step | 성공 checkpoint | 실패·restart 기준 |
-| --- | --- | --- | --- |
-| 1 | `resolveCandidate` | Discord·관리자 요청은 candidateId, Quartz는 `NEXT_PENDING` 선택 의도 | Discord 접수는 같은 key로 replay. Quartz는 candidateId 없이 Step 2로 갈 수 있으나 외부 fetch로 가지 않음 |
-| 2 | `claimCandidate` | 일반 모드는 candidateId·collectorExecutionId·lockVersion·leaseUntil, refresh 모드는 NEW candidate의 새 execution ID·version | Quartz의 candidateId는 이 Step의 일반 claim 응답으로 확정. claim 응답 유실은 같은 key replay |
-| 3 | `fetchAndExtract` | quota reservation ID별 network 상태, parser version, 암호화 result spool ref·SHA-256 | 원격 요청은 rollback 불가. `NETWORK_STARTED`이면 같은 요청을 자동 재송신하지 않고 새 quota 예약의 명시적 retry로 분리. refresh mode는 result 추출을 건너뛰고 Step 2가 준 이미지 URL만 받음 |
-| 4 | `submitResult` | Core status, result payload SHA-256, 새 lockVersion, position→candidateImageId | 같은 key·동일 bytes replay. 멱등 보존 뒤에는 execution-state의 digest와 terminal 상태 대조. refresh mode는 이 Step을 건너뜀 |
-| 5 | `uploadPreviews` | 이미지별 source SHA-256, idempotency key hash, preview expiry, 새 lockVersion | 이미지별 순차 처리. 성공 이미지 다음부터 restart하고 response loss는 same-key replay 또는 execution-state 대조 |
-| 6 | `notifyAndFinalize` | 후보 결과·preview 결과·Discord 결과·Core 운영 이벤트 결과를 별도 기록 | Discord 실패가 수집 성공을 rollback하지 않음. outbox로 제한 재시도 |
+| 순서 | Step                | 성공 checkpoint                                                                                                             | 실패·restart 기준                                                                                                                                                                          |
+| ---- | ------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | `resolveCandidate`  | Discord·관리자 요청은 candidateId, Quartz는 `NEXT_PENDING` 선택 의도                                                        | Discord 접수는 같은 key로 replay. Quartz는 candidateId 없이 Step 2로 갈 수 있으나 외부 fetch로 가지 않음                                                                                   |
+| 2    | `claimCandidate`    | 일반 모드는 candidateId·collectorExecutionId·lockVersion·leaseUntil, refresh 모드는 NEW candidate의 새 execution ID·version | Quartz의 candidateId는 이 Step의 일반 claim 응답으로 확정. claim 응답 유실은 같은 key replay                                                                                               |
+| 3    | `fetchAndExtract`   | quota reservation ID별 network 상태, parser version, 암호화 result spool ref·SHA-256                                        | 원격 요청은 rollback 불가. `NETWORK_STARTED`이면 같은 요청을 자동 재송신하지 않고 새 quota 예약의 명시적 retry로 분리. refresh mode는 result 추출을 건너뛰고 Step 2가 준 이미지 URL만 받음 |
+| 4    | `submitResult`      | Core status, result payload SHA-256, 새 lockVersion, position→candidateImageId                                              | 같은 key·동일 bytes replay. 멱등 보존 뒤에는 execution-state의 digest와 terminal 상태 대조. refresh mode는 이 Step을 건너뜀                                                                |
+| 5    | `uploadPreviews`    | 이미지별 source SHA-256, idempotency key hash, preview expiry, 새 lockVersion                                               | 이미지별 순차 처리. 성공 이미지 다음부터 restart하고 response loss는 same-key replay 또는 execution-state 대조                                                                             |
+| 6    | `notifyAndFinalize` | 후보 결과·preview 결과·Discord 결과·Core 운영 이벤트 결과를 별도 기록                                                       | Discord 실패가 수집 성공을 rollback하지 않음. outbox로 제한 재시도                                                                                                                         |
 
 chunk는 사용하지 않는다. 후보 1건과 원격 side effect를 로컬 DB transaction으로 묶을 수 없기 때문이다.
 Step 2 claim 자체가 ownership 획득 gate다. claim 성공 뒤 Step 3~6에 들어갈 때와 restart할 때 Core 상태를
@@ -159,13 +159,13 @@ Step 2 claim 자체가 ownership 획득 gate다. claim 성공 뒤 Step 3~6에 �
 
 Spring Batch 결과와 후보 결과는 별개다.
 
-| 상황 | Batch 결과 | Core 후보 해석 |
-| --- | --- | --- |
-| fetch gate가 금지하고 실패 결과 제출 성공 | `COMPLETED` + business outcome `FETCH_FAILED` | `FETCH_FAILED` |
-| result 성공, preview 일부 실패 | `COMPLETED_WITH_WARNINGS`에 대응하는 custom exit code | `NEW`, 일부 preview 없음 |
-| Core 응답을 재확인할 수 없음 | `STOPPED` 또는 restartable failure | 추측하지 않고 기존 상태 유지 |
-| stale lease/version | non-retryable execution failure | 새 소유자 상태 유지, 자동 새 result 금지 |
-| 알림만 최종 실패 | Job 수집 결과 유지, notification outcome `FINAL_FAILED` | 후보 상태 유지, 운영 이벤트 별도 |
+| 상황                                      | Batch 결과                                              | Core 후보 해석                           |
+| ----------------------------------------- | ------------------------------------------------------- | ---------------------------------------- |
+| fetch gate가 금지하고 실패 결과 제출 성공 | `COMPLETED` + business outcome `FETCH_FAILED`           | `FETCH_FAILED`                           |
+| result 성공, preview 일부 실패            | `COMPLETED_WITH_WARNINGS`에 대응하는 custom exit code   | `NEW`, 일부 preview 없음                 |
+| Core 응답을 재확인할 수 없음              | `STOPPED` 또는 restartable failure                      | 추측하지 않고 기존 상태 유지             |
+| stale lease/version                       | non-retryable execution failure                         | 새 소유자 상태 유지, 자동 새 result 금지 |
+| 알림만 최종 실패                          | Job 수집 결과 유지, notification outcome `FINAL_FAILED` | 후보 상태 유지, 운영 이벤트 별도         |
 
 ## 5. Core API 확장
 
@@ -178,13 +178,13 @@ collector credential 등록에 `contractVersion=LEGACY_V1|SPRING_V2`를 두고 l
 
 ### 5.1 기존 endpoint의 강화
 
-| Endpoint | 추가 계약 |
-| --- | --- |
-| `POST /internal/collect/candidates` | 기존처럼 `Idempotency-Key` 필수. 성공 replay 보존을 24시간에서 7일로 연장 |
-| `POST /internal/collect/candidates/claim` | `Idempotency-Key`, `jobRequestId`, `collectorExecutionId`, `mode=COLLECT\|PREVIEW_REFRESH` 추가. current execution이 유효한 같은 key replay는 같은 items·version·lease 응답. refresh는 candidateId 필수·NEW만 허용하고 status·attempt·`lease_until`을 바꾸지 않음 |
-| `POST /internal/collect/candidates/{id}/heartbeat` | `Idempotency-Key`, `collectorExecutionId` 추가. 같은 key replay는 같은 갱신 결과. current execution·version·유효 lease가 아니면 부수 효과 없이 409 |
-| `POST /internal/collect/candidates/{id}/result` | `collectorExecutionId`와 server-computed canonical payload SHA-256 저장. 기존 key replay 7일. RUNNING의 current execution·version·유효 처리 lease만 첫 반영 |
-| `POST /internal/collect/candidates/{id}/images/{imageId}/preview` | `Idempotency-Key`, `collectorExecutionId`, `X-Content-SHA256` 필수. NEW·current execution·version만 검사하고 종료된 처리 lease는 요구하지 않음. 같은 key·같은 bytes는 version을 다시 올리지 않음 |
+| Endpoint                                                          | 추가 계약                                                                                                                                                                                                                                                         |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /internal/collect/candidates`                               | 기존처럼 `Idempotency-Key` 필수. 성공 replay 보존을 24시간에서 7일로 연장                                                                                                                                                                                         |
+| `POST /internal/collect/candidates/claim`                         | `Idempotency-Key`, `jobRequestId`, `collectorExecutionId`, `mode=COLLECT\|PREVIEW_REFRESH` 추가. current execution이 유효한 같은 key replay는 같은 items·version·lease 응답. refresh는 candidateId 필수·NEW만 허용하고 status·attempt·`lease_until`을 바꾸지 않음 |
+| `POST /internal/collect/candidates/{id}/heartbeat`                | `Idempotency-Key`, `collectorExecutionId` 추가. 같은 key replay는 같은 갱신 결과. current execution·version·유효 lease가 아니면 부수 효과 없이 409                                                                                                                |
+| `POST /internal/collect/candidates/{id}/result`                   | `collectorExecutionId`와 server-computed canonical payload SHA-256 저장. 기존 key replay 7일. RUNNING의 current execution·version·유효 처리 lease만 첫 반영                                                                                                       |
+| `POST /internal/collect/candidates/{id}/images/{imageId}/preview` | `Idempotency-Key`, `collectorExecutionId`, `X-Content-SHA256` 필수. NEW·current execution·version만 검사하고 종료된 처리 lease는 요구하지 않음. 같은 key·같은 bytes는 version을 다시 올리지 않음                                                                  |
 
 collector 요청의 **2xx 완료 receipt**만 7일 보존한다. 429·503·일시 dependency 오류는 완료 receipt를
 남기지 않고 짧은 in-progress lock을 해제해 같은 key 재시도가 현재 상태를 다시 평가하게 한다. 400·401·
@@ -202,12 +202,12 @@ preview file은 Core idempotency row가 아니라 local encrypted spool에 보�
 
 ### 5.2 추가 endpoint
 
-| Method | Core path | 목적 |
-| --- | --- | --- |
-| `GET` | `/internal/collect/status?windowHours=24` | `/collect status`용 Core 집계. `windowHours` 기본 24, 범위 1~168 |
-| `GET` | `/internal/collect/candidates/{candidateId}/execution-state` | response loss·restart용 최소 후보, lease, result digest, 이미지 preview 상태 조회 |
-| `POST` | `/internal/collect/sources/{sourceId}/request-reservations` | 외부 HTTP 한 번의 quota를 원자 예약·즉시 차감 |
-| `POST` | `/internal/collect/operational-events` | 알림 최종 실패·reconcile 필요 같은 일반화 운영 이벤트를 멱등 기록 |
+| Method | Core path                                                    | 목적                                                                              |
+| ------ | ------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| `GET`  | `/internal/collect/status?windowHours=24`                    | `/collect status`용 Core 집계. `windowHours` 기본 24, 범위 1~168                  |
+| `GET`  | `/internal/collect/candidates/{candidateId}/execution-state` | response loss·restart용 최소 후보, lease, result digest, 이미지 preview 상태 조회 |
+| `POST` | `/internal/collect/sources/{sourceId}/request-reservations`  | 외부 HTTP 한 번의 quota를 원자 예약·즉시 차감                                     |
+| `POST` | `/internal/collect/operational-events`                       | 알림 최종 실패·reconcile 필요 같은 일반화 운영 이벤트를 멱등 기록                 |
 
 모두 기존 BFF collector prefix로만 호출하고 `system:collector` scope를 세분화한다.
 
@@ -301,18 +301,18 @@ execution에 한해 `{candidateId,status,terminal:true}`만 반환해 spool 폐�
 
 `collect.candidate`에 다음 nullable 필드를 추가한다.
 
-| 열 | 타입 | 용도 |
-| --- | --- | --- |
-| `collector_execution_id` | `UUID` | 현재 또는 마지막 Spring 처리 실행. retry→PENDING에서 NULL |
-| `last_heartbeat_at` | `TIMESTAMPTZ(3)` | 마지막으로 성공한 heartbeat |
-| `result_payload_sha256` | `BYTEA` | canonical result bytes SHA-256. NEW/FETCH_FAILED에서 재확인 |
+| 열                       | 타입             | 용도                                                        |
+| ------------------------ | ---------------- | ----------------------------------------------------------- |
+| `collector_execution_id` | `UUID`           | 현재 또는 마지막 Spring 처리 실행. retry→PENDING에서 NULL   |
+| `last_heartbeat_at`      | `TIMESTAMPTZ(3)` | 마지막으로 성공한 heartbeat                                 |
+| `result_payload_sha256`  | `BYTEA`          | canonical result bytes SHA-256. NEW/FETCH_FAILED에서 재확인 |
 
 `collect.candidate_image`에는 다음 필드를 추가한다.
 
-| 열 | 타입 | 용도 |
-| --- | --- | --- |
-| `preview_source_sha256` | `BYTEA` | collector가 제출한 file bytes SHA-256 |
-| `preview_uploaded_at` | `TIMESTAMPTZ(3)` | 현재 preview 첫 성공 시각 |
+| 열                      | 타입             | 용도                                  |
+| ----------------------- | ---------------- | ------------------------------------- |
+| `preview_source_sha256` | `BYTEA`          | collector가 제출한 file bytes SHA-256 |
+| `preview_uploaded_at`   | `TIMESTAMPTZ(3)` | 현재 preview 첫 성공 시각             |
 
 `collector_execution_id`는 claim 때 설정하고 heartbeat·result·preview의 fencing 조건에 포함한다.
 `result_payload_sha256`는 result와 같은 transaction에서 기록한다. preview 교체·삭제 때 source hash와
@@ -323,12 +323,12 @@ result digest를 비우고 현재 retry cycle의 `attempt_count`를 0으로 되�
 
 Core가 소유하는 `collect.source_request_budget`을 둔다.
 
-| 열 | 타입 | 조건 |
-| --- | --- | --- |
-| `source_id` | `BIGINT` | `collect.source` FK |
-| `budget_date` | `DATE` | `Asia/Seoul` 기준 날짜 |
+| 열               | 타입      | 조건                               |
+| ---------------- | --------- | ---------------------------------- |
+| `source_id`      | `BIGINT`  | `collect.source` FK                |
+| `budget_date`    | `DATE`    | `Asia/Seoul` 기준 날짜             |
 | `reserved_count` | `INTEGER` | 0 이상, 성공 reservation 때 1 증가 |
-| `lock_version` | `INTEGER` | 1 이상 |
+| `lock_version`   | `INTEGER` | 1 이상                             |
 
 PK는 `(source_id,budget_date)`다. `collect.source_request_reservation`은 UUID PK, source/candidate,
 collector execution ID, HMAC한 request key, request kind, budget date, reserved 시각, `valid_until`, 상태를
@@ -447,20 +447,20 @@ in-progress receipt를 해제해 같은 key가 현재 quota·dependency 상태�
 
 ### 9.2 장애창 판정
 
-| 장애창 | restart 동작 | 금지 동작 |
-| --- | --- | --- |
-| 후보 접수 commit 뒤 응답 유실 | 같은 key로 candidateId replay | 새 key로 같은 URL 후보 생성 |
-| claim commit 뒤 응답 유실 | 같은 key로 items·lease·version replay | candidate 미상태로 외부 fetch |
-| heartbeat commit 뒤 응답 유실 | 같은 key replay 또는 execution-state 조회 | 이전 version으로 result |
-| reservation commit 뒤 응답 유실 | 같은 key로 reservation replay 후 최초 송신 | quota 새 예약부터 생성 |
-| network 시작 뒤 응답 유실 | 같은 요청 자동 재송신 금지, retry 결정 시 새 reservation | 이전 reservation 재사용 송신 |
-| result commit 뒤 응답 유실 | 같은 key·동일 bytes replay, 7일 뒤 digest reconcile | 새 key·다른 payload 제출 |
-| result 성공 뒤 Batch checkpoint 전 종료 | Core digest·version 조회 후 preview부터 계속 | fetch·result 무조건 반복 |
-| preview object·DB commit 뒤 응답 유실 | same-key replay, 7일 뒤 source digest reconcile | 이전 version으로 다음 이미지 업로드 |
-| 여러 preview 중 종료 | 성공 digest 다음 position부터 순차 진행 | 성공 이미지 재생성·병렬 업로드 |
-| NEW preview 만료·누락 | `PREVIEW_REFRESH` claim 뒤 새 quota로 image와 preview만 처리 | NEW를 RUNNING/PENDING으로 변경·result 반복 |
-| 반려·승격과 restart 경합 | terminal 상태 확인, Job 중단·spool 삭제 | 후보를 NEW/PENDING으로 되돌림 |
-| 알림 전후 종료 | persistent outbox delivery ID로 재개 | 후보 result rollback |
+| 장애창                                  | restart 동작                                                 | 금지 동작                                  |
+| --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------ |
+| 후보 접수 commit 뒤 응답 유실           | 같은 key로 candidateId replay                                | 새 key로 같은 URL 후보 생성                |
+| claim commit 뒤 응답 유실               | 같은 key로 items·lease·version replay                        | candidate 미상태로 외부 fetch              |
+| heartbeat commit 뒤 응답 유실           | 같은 key replay 또는 execution-state 조회                    | 이전 version으로 result                    |
+| reservation commit 뒤 응답 유실         | 같은 key로 reservation replay 후 최초 송신                   | quota 새 예약부터 생성                     |
+| network 시작 뒤 응답 유실               | 같은 요청 자동 재송신 금지, retry 결정 시 새 reservation     | 이전 reservation 재사용 송신               |
+| result commit 뒤 응답 유실              | 같은 key·동일 bytes replay, 7일 뒤 digest reconcile          | 새 key·다른 payload 제출                   |
+| result 성공 뒤 Batch checkpoint 전 종료 | Core digest·version 조회 후 preview부터 계속                 | fetch·result 무조건 반복                   |
+| preview object·DB commit 뒤 응답 유실   | same-key replay, 7일 뒤 source digest reconcile              | 이전 version으로 다음 이미지 업로드        |
+| 여러 preview 중 종료                    | 성공 digest 다음 position부터 순차 진행                      | 성공 이미지 재생성·병렬 업로드             |
+| NEW preview 만료·누락                   | `PREVIEW_REFRESH` claim 뒤 새 quota로 image와 preview만 처리 | NEW를 RUNNING/PENDING으로 변경·result 반복 |
+| 반려·승격과 restart 경합                | terminal 상태 확인, Job 중단·spool 삭제                      | 후보를 NEW/PENDING으로 되돌림              |
+| 알림 전후 종료                          | persistent outbox delivery ID로 재개                         | 후보 result rollback                       |
 
 ## 10. 암호화 작업 spool과 이미지 수명주기
 
@@ -492,14 +492,14 @@ private preview는 서로 다른 저장물이며 같은 cleanup worker가 관리
 로컬 API 기본 origin은 `http://127.0.0.1:18787`이다. `0.0.0.0`, LAN 주소, 기존 Cloudflare Tunnel과
 public reverse proxy bind는 거부한다. 다음 endpoint만 둔다.
 
-| Method | Path | scope |
-| --- | --- | --- |
-| `POST` | `/local/v1/jobs/collect` | `collector.local.run` |
-| `GET` | `/local/v1/jobs/{jobRequestId}` | `collector.local.read` |
+| Method | Path                                 | scope                  |
+| ------ | ------------------------------------ | ---------------------- |
+| `POST` | `/local/v1/jobs/collect`             | `collector.local.run`  |
+| `GET`  | `/local/v1/jobs/{jobRequestId}`      | `collector.local.read` |
 | `POST` | `/local/v1/jobs/{jobRequestId}/stop` | `collector.local.stop` |
-| `GET` | `/local/v1/status` | `collector.local.read` |
-| `GET` | `/actuator/health/liveness` | loopback, 상세 없음 |
-| `GET` | `/actuator/health/readiness` | `collector.local.read` |
+| `GET`  | `/local/v1/status`                   | `collector.local.read` |
+| `GET`  | `/actuator/health/liveness`          | loopback, 상세 없음    |
+| `GET`  | `/actuator/health/readiness`         | `collector.local.read` |
 
 - `POST /local/v1/jobs/collect` body는 `mode=COLLECT|PREVIEW_REFRESH`, 선택 `candidateId`, `lockVersion`,
   `nextPending`만 허용한다. 새 수동 `PREVIEW_REFRESH`는 관리자 검수 응답에서 받은 candidateId와 현재
@@ -653,7 +653,6 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 위 실제 값은 문서에 secret 원문으로 기록하지 않는다. 구현·로컬 증거가 있더라도 외부 입력·남은 direct 통제·
 원격 writer·Discord·운영 인수가 미완료이므로 `수집 활성화 가능`으로 판정하지 않는다.
 
-
 ## 16. 원문 수집과 별도 PC 실행 확장
 
 2026-09-20 사용자 결정에 따른 설계. 문서 작성과 구현·실제 Discord·원격 PC 운영 검증은 별도다.
@@ -691,11 +690,11 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 ### Result와 후보 보관
 
 - **2026-09-24 미해결 차이:** 아래 1000블록은 OpenAPI·API 검증 계약이다. V006의 실제
-  `candidate.content_blocks` DB CHECK는 1~40이라 41~1000블록 저장과 일치하지 않는다.
+  `candidate.content_blocks` DB CHECK는 1~~40이라 41~~1000블록 저장과 일치하지 않는다.
   legacy 재활성화 전에 후속 migration·경계 테스트로 정합성을 맞춰야 한다.
   [데이터 모델의 근거](02-data-model.md#원문-수집-후보-확장-2026-09-20)와 P1-01에서 추적하며 direct batch 저장과 구분한다.
-- 성공 result의 optional `contentBlocks`는 원문 모드의 표시이며 1~1000개다. 없으면 기존 metadata 모드다.
-  TEXT는 `{type:TEXT,text}`(trim 후 1~20,000자), IMAGE는 `{type:IMAGE,imagePosition,alt}`(1~20, alt 0~300자),
+- 성공 result의 optional `contentBlocks`는 원문 모드의 표시이며 1~~1000개다. 없으면 기존 metadata 모드다.
+  TEXT는 `{type:TEXT,text}`(trim 후 1~~20,000자), IMAGE는 `{type:IMAGE,imagePosition,alt}`(1~~20, alt 0~~300자),
   LINK는 `{type:LINK,url,label}`(HTTP(S) URL 2,048자 이하, label 0~300자)다. LINK는 서버의 fetch 명령이 아니다.
 - 이 legacy result 계약은 이미지 최대 20개다. 현행 direct 원문은 별도 저장 계약에서 0~200개를 지원한다. imagePosition은 연속된 후보
   position을 빠짐없이 정확히 한 번씩 참조해야 한다. source title·본문은 요약하거나 한도에 맞춰 자르지 않는다.
@@ -726,7 +725,6 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 4. 첨부 누락 승격 차단·전체 본문 승격·TEXT-only·SNS 링크 보존·retry/reject 초기화를 확인한다.
 5. URL 접수·Discord·Quartz의 공통 queue와 기존 restart/response-loss 검증을 재실행한다.
 6. 격리 test 통과와 실제 다른 PC 설치·Discord Gateway·출처 호출을 구분해 보고한다.
-
 
 ### 운영체제별 설정 경계
 
@@ -762,7 +760,7 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
   readback과 4출처의 실패 기록은 검증표에 있다. 원격 batch writer·Discord Gateway E2E는 별도다.
   Java 25 jar를 macOS·PowerShell·Docker Linux에서 공통 실행한다. `COLLECTOR_SOURCES_FILE`,
   `COLLECTOR_CONFIG_FILE`, `COLLECTOR_JAR`로 경로를 주입하고 secret은 기존 전용 파일 backend를 사용한다.
-- max-pages 1~10, max-items 1~100, since 1h~720h, interval 최소 10초·최대 1시간. 출처 설정이 더 엄격하면 낮출 수 없다.
+- max-pages 1~~10, max-items 1~~100, since 1h~720h, interval 최소 10초·최대 1시간. 출처 설정이 더 엄격하면 낮출 수 없다.
   게시 시각 미확인은 INCLUDE_UNKNOWN/REQUIRE_KNOWN에 따라 포함·제외하고 report에 구분한다.
   다음 페이지는 실제 목록의 허용 pagination 링크만 따른다.
 - robots·Crawl-delay·일일 budget은 위 미충족 통제에 따라 보완이 필요하다. 현행 direct의 재시도·redirect·site stop은
@@ -874,7 +872,7 @@ BATCH_SOURCE_BUSY로 종료하며, 잠금 확보 후 남은 RUNNING 실행은 BA
 새 실행에서 미완성 DISCOVERED/FETCHING/FAILED/BLOCKED item만 다시 처리하며 미완성 media 행을
 같은 트랜잭션에서 교체한다. FETCHED snapshot과 API 검수/content는 변경하지 않는다.
 이 동작은 사용자가 새 CLI 실행을 요청했을 때의 재시도이며 차단 우회가 아니다.
-batch object 설정은 COLLECTOR_*만 사용한다. API의 R2_PRIVATE_* 자격 증명으로 fallback하지 않는다.
+batch object 설정은 COLLECTOR__만 사용한다. API의 R2_PRIVATE__ 자격 증명으로 fallback하지 않는다.
 
 목록 유형 보정(2026-09-23): HOT_LIST는 hot, GENERAL_LIST는 latest를 사용하고 chart 생략 시 defaultChart를 따른다.
 DETAIL_ONLY에는 chart를 정의하지 않는다. 날짜 미확인 항목은 INCLUDE_UNKNOWN에서 unknownDates로 보고하며,
@@ -912,7 +910,6 @@ REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 s
 - API 결과 조회는 failureCode와 skipReason을 반환한다. 실패·기간제외 항목은 승인/초안 승격할 수 없다.
 - V004는 V003 위에 새 migration으로 적용한다. 기존 완료 snapshot과 migration checksum을 변경하지 않는다.
 
-
 ## 2026-09-23 다중 이미지와 수집 용량 계약
 
 - Web 중계 대기 시간은 batch 초안 승격 180초, batch 이미지 preview 60초다. 일반 JSON 요청 15초와 일반 이미지 업로드 60초는 유지한다. 응답을 받지 못하면 새 요청 키로 다시 생성하지 않고 같은 멱등 키와 본문으로 완료 결과를 조회한다.
@@ -920,7 +917,7 @@ REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 s
 - API 초안의 이미지 준비에는 120초의 처리 예산을 둔다. 이미지 처리 전·후와 DB 확정 직전에 경과 시간을 검사하며, 초과하면 503으로 거부하고 준비한 사본을 기존 회수 경로로 넘긴다. 이미 시작된 파일 I/O를 강제로 중단하는 전체 요청의 절대 기한은 아니다. 이미지 디코딩/재인코딩은 작업당 30초로 제한한다. 잠금·저장소 지연으로 중계 응답을 잃어도 DB에 확정한 초안과 영수증을 먼저 확인해 사본을 잘못 삭제하지 않는다.
 - direct batch는 원문 이미지 최대 200개, 첨부 최대 20개, 본문 최대 1000블록을 보존한다. 초과한 원문을 잘라 성공 처리하지 않는다.
 
-- source 설정 `mediaLimits`의 `maxImages`(1~200), `maxFileBytes`(1~31457280), `maxTotalBytes`(1~157286400)는 생략하면 각 상한을 기본값으로 사용한다. 사이트별로 낮출 수 있고 전역 상한을 높일 수 없다.
+- source 설정 `mediaLimits`의 `maxImages`(1~~200), `maxFileBytes`(1~~31457280), `maxTotalBytes`(1~157286400)는 생략하면 각 상한을 기본값으로 사용한다. 사이트별로 낮출 수 있고 전역 상한을 높일 수 없다.
 - 파일당 30MiB, 이미지와 첨부를 합친 글당 150MiB를 순차 다운로드 중 검증한다. 남은 용량을 넘는 파일은 object 저장 전에 실패한다. HTML 원문 30MiB 제한은 별도다.
 - API 수집 이미지 preview/초안 승격은 동일한 30MiB 입력 한도를 사용한다. 승격 전에 모든 media의 크기 합계 150MiB를 확인하며, 재인코딩한 이미지도 개별 30MiB·합계 150MiB를 넘으면 쓰기 전에 거부한다. 이미 준비한 사본은 기존 실패 복구 경로로 회수한다.
 - 일반 관리자 업로드 요청의 파일당 10MiB·요청당 10개/100MiB와 이미지 픽셀·애니메이션 디코딩 한도는 유지한다. 게시글 편집 계약은 200장까지 허용해 수집 초안을 내용 손실 없이 편집할 수 있다.
@@ -942,7 +939,6 @@ REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 s
 - 지원 확장자의 파일 링크는 anchor와 일반 텍스트 URL 모두 첨부 후보로 등록한다. 본문 내 반복 LINK는 원문 순서대로 유지하되 같은 절대 파일 URL은 한 번만 다운로드한다. 첨부 한도20개는 고유 URL 기준이며, 이미지는 이 규칙으로 임의 제거하지 않는다.
 - 저장은 기존 정확한 CDN origin 허용·요청 간격·파일/합계 크기 제한을 따른다. 첨부 bytes는 collect에만 보관하고 API 초안/공개에는 원문 링크를 보존한다. 압축 파일의 압축 해제·실행과 익명 collect 다운로드는 하지 않는다.
 
-
 ### Batch V006 완료 이미지 MIME 정정
 
 - 목적: 원문 HTTP Content-Type을 우선했던 과거 IMAGE 행의 MIME만 실제 파일 형식에 맞게 정정한다. API/batch runtime의 완료 snapshot 쓰기 권한은 확대하지 않는다.
@@ -954,7 +950,6 @@ REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 s
 - 복구는 새 operation UUID와 현재 revision으로 역방향 정정을 남기는 방식이다. 감사 행 삭제나 version 되감기를 하지 않는다. 원래 MIME이 틀렸던 상태로 되돌아간다는 점을 복구 보고에 표시한다.
 - 이 경로는 DB metadata 정정이다. 원격 S3 Content-Type metadata 정정이나 원문 재수집을 자동으로 수행하지 않는다. 로컬 파일 저장소 검증을 원격 bucket 검증으로 간주하지 않는다.
 - 수용: 격리 DB에서 migration 재실행, stale 조건/hash/size 거부, 중복 요청, rollback, runtime 직접 수정·함수 실행 거부, 감사 변경 금지, review 잠금 경합을 검증하고 실제 로컬 파일/DB를 재대조한다.
-
 
 ### 큰 수집 애니메이션의 분할 검사
 

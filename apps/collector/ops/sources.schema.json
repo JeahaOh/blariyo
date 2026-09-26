@@ -37,10 +37,7 @@
         "type": "boolean"
       },
       "coreSourceId": {
-        "type": [
-          "integer",
-          "null"
-        ],
+        "type": ["integer", "null"],
         "minimum": 1
       },
       "parser": {
@@ -127,31 +124,16 @@
         "type": "object"
       },
       "titleSelector": {
-        "type": [
-          "string",
-          "null"
-        ]
+        "type": ["string", "null"]
       },
       "imageSelector": {
-        "type": [
-          "string",
-          "null"
-        ]
+        "type": ["string", "null"]
       },
       "bodySelector": {
-        "type": [
-          "string",
-          "null"
-        ]
+        "type": ["string", "null"]
       },
       "collectionPolicy": {
-        "enum": [
-          "HOT_LIST",
-          "DETAIL_ONLY",
-          "BLOCKED",
-          "UNVERIFIED",
-          "GENERAL_LIST"
-        ]
+        "enum": ["HOT_LIST", "DETAIL_ONLY", "BLOCKED", "UNVERIFIED", "GENERAL_LIST"]
       },
       "hostAliases": {
         "type": "array",
@@ -162,17 +144,11 @@
         "uniqueItems": true
       },
       "defaultChart": {
-        "type": [
-          "string",
-          "null"
-        ],
+        "type": ["string", "null"],
         "pattern": "^[a-z]{1,20}$"
       },
       "datePolicy": {
-        "enum": [
-          "INCLUDE_UNKNOWN",
-          "REQUIRE_KNOWN"
-        ]
+        "enum": ["INCLUDE_UNKNOWN", "REQUIRE_KNOWN"]
       },
       "mediaLimits": {
         "type": "object",

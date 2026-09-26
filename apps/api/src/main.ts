@@ -12,7 +12,11 @@ export async function start(env: Environment = process.env) {
   const collection = collectionSettings(env);
   const collectorTokens = await loadCollectorTokens(collection, env);
   const production = env.NODE_ENV === 'production';
-  if (production && (!/^https:\/\//.test(env.SITE_ORIGIN || '') || !/^https:\/\//.test(env.IMAGE_ORIGIN || ''))) throw new Error('PRODUCTION_ORIGIN_REQUIRED');
+  if (
+    production &&
+    (!/^https:\/\//.test(env.SITE_ORIGIN || '') || !/^https:\/\//.test(env.IMAGE_ORIGIN || ''))
+  )
+    throw new Error('PRODUCTION_ORIGIN_REQUIRED');
   if (production) {
     const secret = env.ANALYTICS_CONTENT_KEY_SECRET || '';
     if (!secret) throw new Error('ANALYTICS_CONTENT_KEY_SECRET_REQUIRED');
@@ -24,7 +28,11 @@ export async function start(env: Environment = process.env) {
     }
   }
   const app = await createNestApplication({
-    databaseUrl, ...adapters(env), ...collection, collectorTokens, collectReader: collectReader(env),
+    databaseUrl,
+    ...adapters(env),
+    ...collection,
+    collectorTokens,
+    collectReader: collectReader(env),
     localMedia: !production,
     ...(env.SERVICE_TOKEN === undefined ? {} : { serviceToken: env.SERVICE_TOKEN }),
     ...(env.SITE_ORIGIN === undefined ? {} : { siteOrigin: env.SITE_ORIGIN }),
@@ -39,12 +47,18 @@ export async function start(env: Environment = process.env) {
     app.enableShutdownHooks(['SIGINT', 'SIGTERM']);
     await app.listen(Number(env.PORT || 3100), env.HOST || '127.0.0.1');
     return app;
-  } catch (error) { await app.close(); throw error; }
+  } catch (error) {
+    await app.close();
+    throw error;
+  }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  try { await start(); }
-  catch (error) {
-    console.error(error instanceof Error && /^[A-Z_]+$/.test(error.message) ? error.message : 'STARTUP_FAILED');
+  try {
+    await start();
+  } catch (error) {
+    console.error(
+      error instanceof Error && /^[A-Z_]+$/.test(error.message) ? error.message : 'STARTUP_FAILED'
+    );
     process.exitCode = 1;
   }
 }

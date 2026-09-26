@@ -1,6 +1,7 @@
 # M0 저비용 인프라 설계
 
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
+
 - 문서 상태: M0 인프라 설계 계약 · Lightsail 공개 배포 완료, 관리자 쓰기 흐름·장기 관찰 미검증
 - 기준일: 2026-09-04
 - 정합성 검토일: 2026-09-24 (현재 source·Compose·9월 23일 배포 기록 대조; 서버 재조회 없음)
@@ -11,12 +12,12 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 
 ## 1. 비용 목표
 
-| 단계 | 월 인프라 목표 | 허용 수준 |
-| --- | --- | --- |
-| 개발 | `$0` | 로컬 Docker Compose |
-| 비공개 검증 | `$0` | OCI Always Free 확보 시 사용 |
-| 초기 공개 검증 | `$0~12` | 단일 VM, 단일 리전, 백업 복구 |
-| 유료 안정안 | `$12~24` | Lightsail 서울 2GB, 필요 시 4GB |
+| 단계           | 월 인프라 목표 | 허용 수준                       |
+| -------------- | -------------- | ------------------------------- |
+| 개발           | `$0`           | 로컬 Docker Compose             |
+| 비공개 검증    | `$0`           | OCI Always Free 확보 시 사용    |
+| 초기 공개 검증 | `$0~12`        | 단일 VM, 단일 리전, 백업 복구   |
+| 유료 안정안    | `$12~24`       | Lightsail 서울 2GB, 필요 시 4GB |
 
 도메인 등록비와 권리 문의용 메일 주소는 인프라 월 비용에서 분리한다. 광고·소셜 provider 심사
 비용도 M0 핵심 비용에 넣지 않는다. M0 GA4 연동은 기본 비활성이고 자체 분석 서버·DB 용량을
@@ -30,14 +31,14 @@ OCI·Hetzner의 다음 비교는 당시 검토 이력이며 현재 구매 권고
 다시 확인한다. 현행 선택인 Lightsail public IPv4 Linux 2GB/4GB는 공식 가격표상 각각 $12/$24이며
 고정 IP 미사용을 IPv6-only 요금 선택으로 해석하지 않는다.
 
-| 후보 | 위치·사양 | 월 기준 | 장점 | 위험·판단 |
-| --- | --- | ---: | --- | --- |
-| OCI Always Free A1 | 서울, ARM64 `2 OCPU / 12GB`, block 총 200GB 한도 내 | `$0` | 한국 지연시간, 충분한 RAM, 무료 | capacity 부족 가능, 무료 지원 없음, 계정·정책 의존. 검증용 1순위 |
-| AWS Lightsail | 서울, `2 vCPU / 2GB / 60GB / 3TB` | `$12` | 낮은 지연, 단순 가격, 전환 쉬움 | OCI보다 비싸고 2GB가 빠듯함. 유료 fallback 1순위 |
-| AWS Lightsail | 서울, `2 vCPU / 4GB / 80GB / 4TB` | `$24` | 여유 있는 단일 서버 | 초기에는 과함. 메모리 지표 초과 시 전환 |
-| Hetzner CPX12 | 싱가포르, shared AMD | 약 `$17.99` + IPv4 선택 비용 | 단순 VPS, 유럽 대비 가까움 | 2026-06 가격 인상 후 Lightsail 서울보다 비싸고 지연도 큼. 제외 |
-| Hetzner CX23 | 독일, `2 vCPU / 4GB / 40GB` | 약 `$4.09` + IPv4 | 매우 저렴 | 한국 cache miss·관리 작업 지연이 큼. 개발·백업용 외에는 제외 |
-| Oracle AMD Micro | 서울, 최대 2개 `1GB` VM | `$0` | x86 무료 | 각 1GB로 Nuxt+API+PostgreSQL 통합 운영에 부족. A1 실패 시도용 |
+| 후보               | 위치·사양                                           |                      월 기준 | 장점                            | 위험·판단                                                        |
+| ------------------ | --------------------------------------------------- | ---------------------------: | ------------------------------- | ---------------------------------------------------------------- |
+| OCI Always Free A1 | 서울, ARM64 `2 OCPU / 12GB`, block 총 200GB 한도 내 |                         `$0` | 한국 지연시간, 충분한 RAM, 무료 | capacity 부족 가능, 무료 지원 없음, 계정·정책 의존. 검증용 1순위 |
+| AWS Lightsail      | 서울, `2 vCPU / 2GB / 60GB / 3TB`                   |                        `$12` | 낮은 지연, 단순 가격, 전환 쉬움 | OCI보다 비싸고 2GB가 빠듯함. 유료 fallback 1순위                 |
+| AWS Lightsail      | 서울, `2 vCPU / 4GB / 80GB / 4TB`                   |                        `$24` | 여유 있는 단일 서버             | 초기에는 과함. 메모리 지표 초과 시 전환                          |
+| Hetzner CPX12      | 싱가포르, shared AMD                                | 약 `$17.99` + IPv4 선택 비용 | 단순 VPS, 유럽 대비 가까움      | 2026-06 가격 인상 후 Lightsail 서울보다 비싸고 지연도 큼. 제외   |
+| Hetzner CX23       | 독일, `2 vCPU / 4GB / 40GB`                         |            약 `$4.09` + IPv4 | 매우 저렴                       | 한국 cache miss·관리 작업 지연이 큼. 개발·백업용 외에는 제외     |
+| Oracle AMD Micro   | 서울, 최대 2개 `1GB` VM                             |                         `$0` | x86 무료                        | 각 1GB로 Nuxt+API+PostgreSQL 통합 운영에 부족. A1 실패 시도용    |
 
 공식 근거:
 
@@ -51,11 +52,11 @@ OCI·Hetzner의 다음 비교는 당시 검토 이력이며 현재 구매 권고
 
 ### DNS·CDN·관리자 접근
 
-| 서비스 | M0 사용 | 월 예상 |
-| --- | --- | ---: |
-| Cloudflare Free | DNS, CDN, Universal SSL, DDoS 방어 | `$0` |
-| Cloudflare Tunnel | origin inbound port 제거 | `$0` 범위 |
-| Cloudflare Access Free | 1~2명 운영자 route 보호 | `$0` |
+| 서비스                 | M0 사용                            |   월 예상 |
+| ---------------------- | ---------------------------------- | --------: |
+| Cloudflare Free        | DNS, CDN, Universal SSL, DDoS 방어 |      `$0` |
+| Cloudflare Tunnel      | origin inbound port 제거           | `$0` 범위 |
+| Cloudflare Access Free | 1~2명 운영자 route 보호            |      `$0` |
 
 2026-09-24 공식 [가격표](https://www.cloudflare.com/plans/)에서 Free 웹 요금 $0, Zero Trust Free 사용자 한도 50명을 확인했다. 무료 기능과 유료 부가 기능의 과금은 분리한다.
 
@@ -66,12 +67,12 @@ Cloudflare 장애가 공개 origin 전체 장애로 이어질 수 있는 의존�
 
 ### 이미지·백업 저장소
 
-| 후보 | 가격·무료 구간 | 판단 |
-| --- | --- | --- |
-| Cloudflare R2 Standard | 10GB-month, Class A 100만, Class B 1,000만/월 무료; egress 무료 | 기본 선택 |
-| Backblaze B2 | 첫 10GB 무료, 이후 약 `$6.95/TB-month`; egress 정책 별도 | R2 정책 변경 시 대안 |
-| VM local disk | VM 요금 포함 | 임시 staging만 허용, 유일 원본 금지 |
-| AWS S3 | 안정적이지만 storage·request·egress 분리 과금 | M0 비용상 제외 |
+| 후보                   | 가격·무료 구간                                                  | 판단                                |
+| ---------------------- | --------------------------------------------------------------- | ----------------------------------- |
+| Cloudflare R2 Standard | 10GB-month, Class A 100만, Class B 1,000만/월 무료; egress 무료 | 기본 선택                           |
+| Backblaze B2           | 첫 10GB 무료, 이후 약 `$6.95/TB-month`; egress 정책 별도        | R2 정책 변경 시 대안                |
+| VM local disk          | VM 요금 포함                                                    | 임시 staging만 허용, 유일 원본 금지 |
+| AWS S3                 | 안정적이지만 storage·request·egress 분리 과금                   | M0 비용상 제외                      |
 
 - [Cloudflare R2 가격](https://developers.cloudflare.com/r2/pricing/)
 - [Backblaze B2 가격](https://www.backblaze.com/cloud-storage/pricing)
@@ -139,12 +140,12 @@ Cloudflare R2 Standard
 
 월 예상:
 
-| 항목 | 예상 |
-| --- | ---: |
-| OCI compute·block | `$0` Always Free 한도 내 |
-| Cloudflare Free·Access·Tunnel | `$0` |
-| R2 | `$0` 10GB·operation 무료 구간 내 |
-| 합계 | `$0` |
+| 항목                          |                             예상 |
+| ----------------------------- | -------------------------------: |
+| OCI compute·block             |         `$0` Always Free 한도 내 |
+| Cloudflare Free·Access·Tunnel |                             `$0` |
+| R2                            | `$0` 10GB·operation 무료 구간 내 |
+| 합계                          |                             `$0` |
 
 전제:
 
@@ -170,12 +171,12 @@ Cloudflare R2 Standard
 
 월 예상:
 
-| 항목 | 예상 |
-| --- | ---: |
-| Lightsail 2GB | `$12` |
-| Cloudflare | `$0` |
-| R2 초기 무료 구간 | `$0` |
-| 합계 | `$12` |
+| 항목              |  예상 |
+| ----------------- | ----: |
+| Lightsail 2GB     | `$12` |
+| Cloudflare        |  `$0` |
+| R2 초기 무료 구간 |  `$0` |
+| 합계              | `$12` |
 
 2GB 운영 제한:
 
@@ -229,25 +230,25 @@ Internet
 
 ### OCI A1
 
-| container | CPU limit | memory limit |
-| --- | ---: | ---: |
-| cloudflared | 0.25 | 128MB |
-| nginx | 0.25 | 128MB |
-| web | 1.00 | 768MB |
-| api | 0.75 | 512MB |
-| postgresql | 1.25 | 2GB |
-| backup 단발성 | 0.50 | 512MB |
+| container     | CPU limit | memory limit |
+| ------------- | --------: | -----------: |
+| cloudflared   |      0.25 |        128MB |
+| nginx         |      0.25 |        128MB |
+| web           |      1.00 |        768MB |
+| api           |      0.75 |        512MB |
+| postgresql    |      1.25 |          2GB |
+| backup 단발성 |      0.50 |        512MB |
 
 합계 limit은 물리 CPU보다 클 수 있지만 reservation은 설정하지 않는다. PostgreSQL과 SSR이 동시에 폭주하지 않는 M0 저트래픽을 전제로 한다.
 
 ### Lightsail 2GB
 
-| container | memory limit |
-| --- | ---: |
-| cloudflared + nginx | 192MB 합계 |
-| web | 384MB |
-| api | 256MB |
-| postgresql | 768MB |
+| container           | memory limit |
+| ------------------- | -----------: |
+| cloudflared + nginx |   192MB 합계 |
+| web                 |        384MB |
+| api                 |        256MB |
+| postgresql          |        768MB |
 
 OS page cache와 daemon을 위해 나머지를 남긴다. memory limit 초과 재시작을 숨기지 않고 알림 대상으로 둔다.
 
@@ -290,11 +291,11 @@ Docker의 빈 volume 초기화 hook 대신 migration 이후 별도 seed 단계�
 
 ## 6. 환경 분리
 
-| 환경 | 구성 |
-| --- | --- |
-| local | 개발 PC Compose, local PostgreSQL, local filesystem 또는 R2 test bucket |
-| test | CI service PostgreSQL, 외부 R2 호출 없이 fake adapter |
-| production | Lightsail 서울 단일 VM, 공개 media·비공개 원본·collect·backup R2 분리 |
+| 환경       | 구성                                                                    |
+| ---------- | ----------------------------------------------------------------------- |
+| local      | 개발 PC Compose, local PostgreSQL, local filesystem 또는 R2 test bucket |
+| test       | CI service PostgreSQL, 외부 R2 호출 없이 fake adapter                   |
+| production | Lightsail 서울 단일 VM, 공개 media·비공개 원본·collect·backup R2 분리   |
 
 M0에서는 별도 상시 staging 서버를 두지 않는다. CI·격리 후보 검증 후 기존 운영 Compose를 순차 교체한다.
 루트 Compose의 preview profile은 로컬용이며 운영 서버의 preview project가 구축됐다는 뜻이 아니다.
@@ -307,18 +308,18 @@ token·webhook URL·collector service token은 서버 `.env`와 별도 secret으
 `apps/web/nuxt.config.ts`, `deploy/application/prepare-runtime-config.cjs`, API bootstrap이 기준이다.
 다음 표는 주요 책임만 요약한다. 비밀값은 문서나 browser public config에 넣지 않는다.
 
-| 범주 | 현행 입력과 역할 |
-| --- | --- |
-| 공개 origin·카피 | API `SITE_ORIGIN`·`IMAGE_ORIGIN`, Web `NUXT_PUBLIC_SITE_ORIGIN`·`NUXT_PUBLIC_IMAGE_ORIGIN`; 홈/푸터 카피는 [카피 계약](../planning/06-copy-contract.md) |
-| 공개 법무 고지 | `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME`, `NUXT_PUBLIC_CONTACT_EMAIL`, `NUXT_PUBLIC_RIGHTS_EMAIL`, `NUXT_PUBLIC_PRIVACY_EMAIL`, `NUXT_PUBLIC_PRIVACY_OFFICER`; 정책 발행 command의 `LEGAL_CONFIG`는 별도 |
-| Kakao | `NUXT_PUBLIC_KAKAO_ENABLED`, `NUXT_PUBLIC_KAKAO_KEY`, `NUXT_PUBLIC_KAKAO_SDK_URL`, `NUXT_PUBLIC_KAKAO_INTEGRITY`, `NUXT_PUBLIC_KAKAO_CONNECT_ORIGINS` |
-| GA4 | `NUXT_PUBLIC_GA4_ENABLED`, `NUXT_PUBLIC_ANALYTICS_APPROVED`, `NUXT_PUBLIC_GA4_MEASUREMENT_ID`, `NUXT_PUBLIC_ANALYTICS_CONNECT_ORIGINS` |
-| 인증·내부 호출 | Core `SERVICE_TOKEN`, Web `NUXT_SERVICE_TOKEN`·`NUXT_ACTOR_SECRET`·`NUXT_ADMIN_*`·`NUXT_ACCESS_*`·`NUXT_CORE_ORIGIN` |
-| 캐시 제거 | API `CACHE_ZONE_ID`, `CACHE_PURGE_TOKEN`; 과거 `CF_ZONE_ID`·`CF_CACHE_PURGE_TOKEN`은 현재 bootstrap 입력이 아님 |
-| DB | `DB_HOST/PORT/NAME`, 역할별 `APP_DB_*`·`MIGRATION_DB_*`·`BACKUP_DB_*`와 password file; 아래 권한 분리 유지 |
-| 저장소·백업 | Core의 private/public R2 설정, backup 전용 R2 credential·공개 age recipient; 복호화 키는 서버 외부 |
-| 수집 flag | Core `COLLECT_BATCH_REVIEW_ENABLED`·`COLLECT_MANUAL_URL_ENABLED`·`COLLECT_DISCORD_COMMAND_ENABLED`와 Web의 대응 `NUXT_COLLECT_*` |
-| direct 실행 | Collector 전용 DB/object 환경과 source config 파일; [실행 안내](../../apps/collector/ops/README.md)를 따르며 Core/Web 설정과 혼합하지 않음 |
+| 범주             | 현행 입력과 역할                                                                                                                                                                                    |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 공개 origin·카피 | API `SITE_ORIGIN`·`IMAGE_ORIGIN`, Web `NUXT_PUBLIC_SITE_ORIGIN`·`NUXT_PUBLIC_IMAGE_ORIGIN`; 홈/푸터 카피는 [카피 계약](../planning/06-copy-contract.md)                                             |
+| 공개 법무 고지   | `NUXT_PUBLIC_OPERATOR_DISPLAY_NAME`, `NUXT_PUBLIC_CONTACT_EMAIL`, `NUXT_PUBLIC_RIGHTS_EMAIL`, `NUXT_PUBLIC_PRIVACY_EMAIL`, `NUXT_PUBLIC_PRIVACY_OFFICER`; 정책 발행 command의 `LEGAL_CONFIG`는 별도 |
+| Kakao            | `NUXT_PUBLIC_KAKAO_ENABLED`, `NUXT_PUBLIC_KAKAO_KEY`, `NUXT_PUBLIC_KAKAO_SDK_URL`, `NUXT_PUBLIC_KAKAO_INTEGRITY`, `NUXT_PUBLIC_KAKAO_CONNECT_ORIGINS`                                               |
+| GA4              | `NUXT_PUBLIC_GA4_ENABLED`, `NUXT_PUBLIC_ANALYTICS_APPROVED`, `NUXT_PUBLIC_GA4_MEASUREMENT_ID`, `NUXT_PUBLIC_ANALYTICS_CONNECT_ORIGINS`                                                              |
+| 인증·내부 호출   | Core `SERVICE_TOKEN`, Web `NUXT_SERVICE_TOKEN`·`NUXT_ACTOR_SECRET`·`NUXT_ADMIN_*`·`NUXT_ACCESS_*`·`NUXT_CORE_ORIGIN`                                                                                |
+| 캐시 제거        | API `CACHE_ZONE_ID`, `CACHE_PURGE_TOKEN`; 과거 `CF_ZONE_ID`·`CF_CACHE_PURGE_TOKEN`은 현재 bootstrap 입력이 아님                                                                                     |
+| DB               | `DB_HOST/PORT/NAME`, 역할별 `APP_DB_*`·`MIGRATION_DB_*`·`BACKUP_DB_*`와 password file; 아래 권한 분리 유지                                                                                          |
+| 저장소·백업      | Core의 private/public R2 설정, backup 전용 R2 credential·공개 age recipient; 복호화 키는 서버 외부                                                                                                  |
+| 수집 flag        | Core `COLLECT_BATCH_REVIEW_ENABLED`·`COLLECT_MANUAL_URL_ENABLED`·`COLLECT_DISCORD_COMMAND_ENABLED`와 Web의 대응 `NUXT_COLLECT_*`                                                                    |
+| direct 실행      | Collector 전용 DB/object 환경과 source config 파일; [실행 안내](../../apps/collector/ops/README.md)를 따르며 Core/Web 설정과 혼합하지 않음                                                          |
 
 `NUXT_TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip`는 Tunnel 밖 origin 접근을 차단한 운영 환경에서만 사용한다.
 Kakao/GA4는 운영값·정책·CSP·provider 설정·실제 네트워크 gate를 충족한 뒤 활성화한다. 비활성 환경은
@@ -437,16 +438,16 @@ preview 저장량과 PUT/GET/DELETE 비용은 위 영구 원본 예산에 포함
 
 ## 9. 비용 전환 기준
 
-| 지표 | 조치 |
-| --- | --- |
-| OCI A1 생성 불가 3일 | 과거 선택 기준. 현재 Lightsail 운영에 적용하지 않음 |
-| 월 infra 예상 `$15` 초과 | 비용 원인 검토 후 승인 없이는 신규 유료 자원 금지 |
-| R2 7GB | 저장 추세·원본 retention 점검 |
-| R2 9GB | 유료 전환 또는 orphan·복구 유예 만료 원본 삭제 검증 |
-| Lightsail OOM 1회 | 원인 확인, 재발 가능하면 4GB 전환 |
-| swap 사용 15분 이상 지속 | 4GB 전환 검토 |
-| 월 transfer 70% | CDN cache와 이미지 크기 검토 |
-| 복구 4시간 초과 2회 | 유료 VM·snapshot 또는 DB 분리 검토 |
+| 지표                     | 조치                                                |
+| ------------------------ | --------------------------------------------------- |
+| OCI A1 생성 불가 3일     | 과거 선택 기준. 현재 Lightsail 운영에 적용하지 않음 |
+| 월 infra 예상 `$15` 초과 | 비용 원인 검토 후 승인 없이는 신규 유료 자원 금지   |
+| R2 7GB                   | 저장 추세·원본 retention 점검                       |
+| R2 9GB                   | 유료 전환 또는 orphan·복구 유예 만료 원본 삭제 검증 |
+| Lightsail OOM 1회        | 원인 확인, 재발 가능하면 4GB 전환                   |
+| swap 사용 15분 이상 지속 | 4GB 전환 검토                                       |
+| 월 transfer 70%          | CDN cache와 이미지 크기 검토                        |
+| 복구 4시간 초과 2회      | 유료 VM·snapshot 또는 DB 분리 검토                  |
 
 무료 구간을 유지하기 위해 사용자 요청 실패, 데이터 삭제, 보안 완화를 선택하지 않는다. 한도를 넘으면 기능을 망가뜨리는 대신 명시적으로 유료 전환한다.
 

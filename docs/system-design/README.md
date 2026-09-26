@@ -13,11 +13,11 @@
 
 ## 문서 책임과 우선순위
 
-| 계층 | 답하는 질문 | 포함하는 내용 | 포함하지 않는 내용 |
-| --- | --- | --- | --- |
-| planning | 무엇을, 어느 단계에, 어떤 제품 규칙으로 만드는가 | 범위·운영 정책·화면·수용 기준 | SQL 자료형·endpoint payload·container 설정 |
-| system-design | 확정 요구사항을 어떻게 구현하는가 | 컴포넌트·DB·API·인프라·보안 계약 | 제품 범위의 독자적 변경 |
-| executable artifacts | 계약이 실제로 구현됐는가 | migration·OpenAPI·source·test·Compose | 미구현 설계를 구현 완료로 간주하는 설명 |
+| 계층                 | 답하는 질문                                      | 포함하는 내용                         | 포함하지 않는 내용                         |
+| -------------------- | ------------------------------------------------ | ------------------------------------- | ------------------------------------------ |
+| planning             | 무엇을, 어느 단계에, 어떤 제품 규칙으로 만드는가 | 범위·운영 정책·화면·수용 기준         | SQL 자료형·endpoint payload·container 설정 |
+| system-design        | 확정 요구사항을 어떻게 구현하는가                | 컴포넌트·DB·API·인프라·보안 계약      | 제품 범위의 독자적 변경                    |
+| executable artifacts | 계약이 실제로 구현됐는가                         | migration·OpenAPI·source·test·Compose | 미구현 설계를 구현 완료로 간주하는 설명    |
 
 제품 범위가 충돌하면 planning을 먼저 고치고 system-design을 맞춘다. 구현 세부가 충돌하면 해당 system-design 문서가 우선한다. 실행 산출물이 system-design과 다르면 구현 완료가 아니라 drift로 판정한다.
 
@@ -62,36 +62,36 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 
 ## 문서 구성
 
-| 문서 | 역할 |
-| --- | --- |
-| [01-system-architecture.md](01-system-architecture.md) | 시스템 경계, 컴포넌트, 요청·발행·숨김·수집 흐름 |
-| [02-data-model.md](02-data-model.md) | ERD, 테이블·인덱스·상태 전이·보존 계약 |
-| [03-api-design.md](03-api-design.md) | 공개·관리자 API와 공통 응답·오류 계약 |
-| [04-infrastructure-design.md](04-infrastructure-design.md) | 저비용 사업자 비교, 배포 토폴로지와 비용 상한 |
-| [05-security-operations.md](05-security-operations.md) | 접근통제, secret, 백업·복구·관측·장애 대응 |
-| [06-member-community-design.md](06-member-community-design.md) | M1·M1.5 아키텍처·데이터·API·보안·운영 확장; 문서 작성과 공개 gate 별도 |
-| [07-spring-collector-design.md](07-spring-collector-design.md) | 현행 direct batch 저장·검수·Discord queue와 기존 Spring 호환 계약; 구현·활성화 별도 |
-| [08-code-structure.md](08-code-structure.md) | Nest API·Nuxt·Java 수집기의 내부 책임과 사이트별 모듈 의존성 |
+| 문서                                                                       | 역할                                                                                                      |
+| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [01-system-architecture.md](01-system-architecture.md)                     | 시스템 경계, 컴포넌트, 요청·발행·숨김·수집 흐름                                                           |
+| [02-data-model.md](02-data-model.md)                                       | ERD, 테이블·인덱스·상태 전이·보존 계약                                                                    |
+| [03-api-design.md](03-api-design.md)                                       | 공개·관리자 API와 공통 응답·오류 계약                                                                     |
+| [04-infrastructure-design.md](04-infrastructure-design.md)                 | 저비용 사업자 비교, 배포 토폴로지와 비용 상한                                                             |
+| [05-security-operations.md](05-security-operations.md)                     | 접근통제, secret, 백업·복구·관측·장애 대응                                                                |
+| [06-member-community-design.md](06-member-community-design.md)             | M1·M1.5 아키텍처·데이터·API·보안·운영 확장; 문서 작성과 공개 gate 별도                                    |
+| [07-spring-collector-design.md](07-spring-collector-design.md)             | 현행 direct batch 저장·검수·Discord queue와 기존 Spring 호환 계약; 구현·활성화 별도                       |
+| [08-code-structure.md](08-code-structure.md)                               | Nest API·Nuxt·Java 수집기의 내부 책임과 사이트별 모듈 의존성                                              |
 | [09-security-cost-protection-plan.md](09-security-cost-protection-plan.md) | Cloudflare·AWS 보안/비용 보강 적용 계획; 정적 JS 캐시·알림 1차 적용, 요청 제한·전체 정상 이용 검증은 별도 |
-| [design-readiness.md](design-readiness.md) | 단계별 설계 기준선·구현 수용·production 공개 승인 현행 판정 |
+| [design-readiness.md](design-readiness.md)                                 | 단계별 설계 기준선·구현 수용·production 공개 승인 현행 판정                                               |
 
 ## 핵심 결정
 
-| 영역 | M0 결정 |
-| --- | --- |
-| 공개 BE·FE 런타임 | Node.js `24.18.0` LTS |
-| 웹·BFF | Nuxt SSR + same-origin `/api/v1` 외부 계약 |
-| Core API | NestJS + TypeORM + TypeScript strict, Docker app network에서 Web만 HTTP 접근; cron은 단발성 command |
-| 서비스 데이터베이스 | PostgreSQL 18. 현행 direct batch/API는 같은 database에서 소유 테이블과 role을 분리. 기존 Spring 서버의 전용 `batch`·`quartz`·`collector` DB는 legacy 호환 경로 |
-| DB schema | `M0 Core`: `content`, `legal`, `ops`; `M0 수집 보조`: `collect`; 이후 schema는 단계별 migration에서 추가 |
-| 이미지·수집 object | Cloudflare R2 Standard. private/public/backup bucket과 collect/private/public prefix·reader/writer 자격증명 분리; 실제 연결은 운영 상태·인수 증거로 판정 |
-| 수집 | 별도 batch 컴퓨터의 `collector`가 source policy에 따라 목록·상세 fetch, parser, `collect.batch_*`, object store와 report를 소유. API는 결과 조회·검수·초안 승격·공개를 소유하며 외부 fetch를 하지 않음 |
-| 엣지 | Cloudflare Free DNS·CDN·Universal SSL |
-| 원본 연결 | Cloudflare Tunnel로 공개 inbound port 제거 |
-| 운영자 접근 | BFF의 교체 가능한 외부 인증 adapter, Core의 provider-neutral 서비스 토큰 검증 |
-| 배포 단위 | 단일 ARM64 또는 x86_64 VM의 Docker Compose |
-| 현재 컴퓨트 | 9월 23일 관측: Lightsail 서울 x86_64 2GB. OCI 우선안·가격 비교는 인프라 문서의 당시 검토안이며 현행 미배포 상태가 아님 |
-| 고가용성 | M0에서는 구성하지 않고 백업 복구로 대응 |
+| 영역                | M0 결정                                                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 공개 BE·FE 런타임   | Node.js `24.18.0` LTS                                                                                                                                                                                  |
+| 웹·BFF              | Nuxt SSR + same-origin `/api/v1` 외부 계약                                                                                                                                                             |
+| Core API            | NestJS + TypeORM + TypeScript strict, Docker app network에서 Web만 HTTP 접근; cron은 단발성 command                                                                                                    |
+| 서비스 데이터베이스 | PostgreSQL 18. 현행 direct batch/API는 같은 database에서 소유 테이블과 role을 분리. 기존 Spring 서버의 전용 `batch`·`quartz`·`collector` DB는 legacy 호환 경로                                         |
+| DB schema           | `M0 Core`: `content`, `legal`, `ops`; `M0 수집 보조`: `collect`; 이후 schema는 단계별 migration에서 추가                                                                                               |
+| 이미지·수집 object  | Cloudflare R2 Standard. private/public/backup bucket과 collect/private/public prefix·reader/writer 자격증명 분리; 실제 연결은 운영 상태·인수 증거로 판정                                               |
+| 수집                | 별도 batch 컴퓨터의 `collector`가 source policy에 따라 목록·상세 fetch, parser, `collect.batch_*`, object store와 report를 소유. API는 결과 조회·검수·초안 승격·공개를 소유하며 외부 fetch를 하지 않음 |
+| 엣지                | Cloudflare Free DNS·CDN·Universal SSL                                                                                                                                                                  |
+| 원본 연결           | Cloudflare Tunnel로 공개 inbound port 제거                                                                                                                                                             |
+| 운영자 접근         | BFF의 교체 가능한 외부 인증 adapter, Core의 provider-neutral 서비스 토큰 검증                                                                                                                          |
+| 배포 단위           | 단일 ARM64 또는 x86_64 VM의 Docker Compose                                                                                                                                                             |
+| 현재 컴퓨트         | 9월 23일 관측: Lightsail 서울 x86_64 2GB. OCI 우선안·가격 비교는 인프라 문서의 당시 검토안이며 현행 미배포 상태가 아님                                                                                 |
+| 고가용성            | M0에서는 구성하지 않고 백업 복구로 대응                                                                                                                                                                |
 
 ## 설계 원칙
 

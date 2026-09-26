@@ -43,7 +43,13 @@ export class AppModule {
       module: AppModule,
       imports: [
         collection,
-        BatchReviewModule.register(persistence, images, posts, options.collectReader ?? new DisabledCollectReader(), options),
+        BatchReviewModule.register(
+          persistence,
+          images,
+          posts,
+          options.collectReader ?? new DisabledCollectReader(),
+          options
+        ),
         HealthModule.register(persistence, options),
         PoliciesModule.register(persistence),
         PublicModule.register(persistence, {

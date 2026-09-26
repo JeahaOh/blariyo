@@ -50,7 +50,7 @@ if [[ -z "${COLLECTOR_OBJECT_STORE_DIRECTORY:-}" ]]; then
   require_env COLLECTOR_OBJECT_STORE_S3_SECRET_ACCESS_KEY
 fi
 
-repo_root="$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)"
+repo_root="$(CDPATH='' cd -- "$(dirname -- "$0")/../../.." && pwd)"
 report_dir="${COLLECTOR_VERIFY_REPORT_DIR:-/tmp/blariyo-collector-production-readback}"
 mkdir -p "$report_dir"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -128,10 +128,10 @@ for operation in "${operations[@]}"; do
   IFS=$'\t' read -r kind source row_chart row_max_pages row_max_items row_since row_interval row_url <<< "$operation"
   if [[ "$kind" == "batch" ]]; then
     command_label="batch:${row_chart:-hot}"
-    output="$($repo_root/bin/blariyo-collector batch --source "$source" --chart "${row_chart:-hot}" --max-pages "${row_max_pages:-$max_pages}" --max-items "${row_max_items:-$max_items}" --since "${row_since:-$since}" --interval-ms "${row_interval:-$interval}" --write-db || true)"
+    output="$("$repo_root"/bin/blariyo-collector batch --source "$source" --chart "${row_chart:-hot}" --max-pages "${row_max_pages:-$max_pages}" --max-items "${row_max_items:-$max_items}" --since "${row_since:-$since}" --interval-ms "${row_interval:-$interval}" --write-db || true)"
   else
     command_label="collect-url"
-    output="$($repo_root/bin/blariyo-collector collect-url --source "$source" --url "$row_url" --interval-ms "${row_interval:-$interval}" --write-db || true)"
+    output="$("$repo_root"/bin/blariyo-collector collect-url --source "$source" --url "$row_url" --interval-ms "${row_interval:-$interval}" --write-db || true)"
   fi
   printf '%s\n' "$output" >> "$jsonl"
   run_id="$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("runId", ""))' <<< "$output")"

@@ -1,138 +1,462 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>블라리요 익게 확장 참고 와이어프레임</title>
-  <style>
-    :root { --ink:#262626; --muted:#565f64; --line:#d4dce0; --soft:#e2f4f3; --brand:#00a19b; --accent:#c74b50; --paper:#f9f9f9; --canvas:#3a4a5a; }
-    * { box-sizing:border-box; }
-    body { margin:0; color:var(--ink); background:var(--canvas); font-family:Arial,"Noto Sans KR",sans-serif; }
-    a { color:inherit; }
-    button, input, textarea { font:inherit; }
-    .review { padding:12px 18px; display:flex; justify-content:space-between; gap:16px; align-items:center; background:#222; color:#fff; }
-    .review strong { display:block; }
-    .review small { color:#bbb; }
-    .tabs { display:flex; gap:6px; flex-wrap:wrap; }
-    .tab { border:1px solid #666; border-radius:999px; padding:7px 12px; background:#333; color:#fff; cursor:pointer; }
-    .tab[aria-selected="true"] { background:#fff; color:#111; }
-    .browser { max-width:760px; margin:24px auto; background:var(--paper); border:1px solid #8b9fa8; box-shadow:0 12px 34px rgba(0,0,0,.16); }
-    .chrome { padding:10px 16px; border-bottom:1px solid var(--line); color:var(--muted); background:#fafafa; }
-    .site-header { background:var(--canvas); }
-    .header-inner { max-width:760px; min-height:54px; margin:auto; padding:0 12px; display:grid; grid-template-columns:88px 1fr 88px; align-items:center; color:#fff; }
-    .brand { grid-column:2; justify-self:center; color:#fff; text-decoration:none; font-size:20px; font-weight:900; }
-    .nav { min-height:42px; display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid var(--line); background:var(--paper); }
-    .nav a { position:relative; display:grid; place-items:center; text-decoration:none; font-weight:800; }
-    .nav .active::after { position:absolute; right:8px; bottom:-1px; left:8px; height:3px; border-radius:3px 3px 0 0; background:var(--accent); content:""; }
-    .future { grid-column:3; justify-self:end; color:#fff; font-size:11px; }
-    .page { max-width:760px; margin:auto; padding:24px 20px 48px; }
-    .notice { margin-bottom:20px; padding:14px 16px; border:1px solid #f1bd6b; background:#fff7e6; line-height:1.6; }
-    .title-row { display:flex; justify-content:space-between; align-items:end; gap:16px; margin-bottom:18px; }
-    h1 { margin:0; font-size:30px; }
-    .copy { margin:7px 0 0; color:var(--muted); }
-    .primary { border:1px solid #007a76; border-radius:4px; padding:11px 16px; background:var(--brand); color:var(--ink); font-weight:800; cursor:pointer; }
-    .board { border-top:2px solid var(--ink); }
-    .row { display:grid; grid-template-columns:auto auto 1fr; gap:7px 0; align-content:center; min-height:64px; padding:10px 0; border-bottom:1px solid var(--line); }
-    .row.head { display:none; }
-    .row > a { grid-column:1/-1; grid-row:1; }
-    .row > :nth-child(3) { grid-column:1; grid-row:2; }
-    .row > :nth-child(1) { grid-column:2; grid-row:2; }
-    .row > :nth-child(4) { grid-column:3; grid-row:2; }
-    .row > :nth-child(1)::before, .row > :nth-child(4)::before { margin:0 7px; color:#8b9fa8; content:"|"; }
-    .row a { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; text-decoration:none; font-weight:700; }
-    .muted { color:var(--muted); font-size:13px; }
-    .pagination { display:flex; justify-content:center; gap:6px; margin-top:22px; }
-    .pagination button { width:38px; height:38px; border:1px solid var(--line); background:#fff; }
-    .pagination .current { background:var(--ink); color:#fff; }
-    .form { max-width:720px; margin:auto; }
-    .field { display:grid; gap:7px; margin:18px 0; }
-    .field label { font-weight:800; }
-    .field input, .field textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:12px; }
-    .field textarea { min-height:260px; resize:vertical; }
-    .undecided { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:24px; }
-    .card { padding:18px; border:1px solid var(--line); background:var(--soft); }
-    .card h2 { margin:0 0 8px; font-size:17px; }
-    .card p { margin:0; color:var(--muted); line-height:1.6; }
-    [hidden] { display:none !important; }
-    @media (max-width:720px) {
-      .review { align-items:flex-start; flex-direction:column; }
-      .browser { margin:0; border-left:0; border-right:0; }
-      .header-inner { min-height:52px; grid-template-columns:72px 1fr 72px; padding:0 10px; }
-      .future { font-size:11px; }
-      .page { padding:22px 14px 40px; }
-      .title-row { align-items:flex-start; flex-direction:column; }
-      .row { min-height:66px; }
-      .undecided { grid-template-columns:1fr; }
-    }
-  </style>
-</head>
-<body>
-  <header class="review">
-    <div><strong>익게/community M1.5 설계 참고</strong><small>초기 공개 대상 아님 · 정적 화면은 구현·운영 활성화 증거가 아님</small></div>
-    <div class="tabs" role="tablist" aria-label="화면 선택">
-      <button class="tab" type="button" aria-selected="true" data-screen="list">익게 목록</button>
-      <button class="tab" type="button" aria-selected="false" data-screen="write">글쓰기 참고</button>
-      <button class="tab" type="button" aria-selected="false" data-screen="undecided">공개 전 확인</button>
-    </div>
-  </header>
-
-  <div class="browser">
-    <div class="chrome">https://blariyo.com/community</div>
-    <header class="site-header">
-      <div class="header-inner">
-        <span aria-hidden="true"></span>
-        <a class="brand" href="/meme">블라리요</a>
-        <span class="future">추후 공개 화면</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>블라리요 익게 확장 참고 와이어프레임</title>
+    <style>
+      :root {
+        --ink: #262626;
+        --muted: #565f64;
+        --line: #d4dce0;
+        --soft: #e2f4f3;
+        --brand: #00a19b;
+        --accent: #c74b50;
+        --paper: #f9f9f9;
+        --canvas: #3a4a5a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--canvas);
+        font-family: Arial, 'Noto Sans KR', sans-serif;
+      }
+      a {
+        color: inherit;
+      }
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+      .review {
+        padding: 12px 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        background: #222;
+        color: #fff;
+      }
+      .review strong {
+        display: block;
+      }
+      .review small {
+        color: #bbb;
+      }
+      .tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        border: 1px solid #666;
+        border-radius: 999px;
+        padding: 7px 12px;
+        background: #333;
+        color: #fff;
+        cursor: pointer;
+      }
+      .tab[aria-selected='true'] {
+        background: #fff;
+        color: #111;
+      }
+      .browser {
+        max-width: 760px;
+        margin: 24px auto;
+        background: var(--paper);
+        border: 1px solid #8b9fa8;
+        box-shadow: 0 12px 34px rgba(0, 0, 0, 0.16);
+      }
+      .chrome {
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        background: #fafafa;
+      }
+      .site-header {
+        background: var(--canvas);
+      }
+      .header-inner {
+        max-width: 760px;
+        min-height: 54px;
+        margin: auto;
+        padding: 0 12px;
+        display: grid;
+        grid-template-columns: 88px 1fr 88px;
+        align-items: center;
+        color: #fff;
+      }
+      .brand {
+        grid-column: 2;
+        justify-self: center;
+        color: #fff;
+        text-decoration: none;
+        font-size: 20px;
+        font-weight: 900;
+      }
+      .nav {
+        min-height: 42px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-bottom: 1px solid var(--line);
+        background: var(--paper);
+      }
+      .nav a {
+        position: relative;
+        display: grid;
+        place-items: center;
+        text-decoration: none;
+        font-weight: 800;
+      }
+      .nav .active::after {
+        position: absolute;
+        right: 8px;
+        bottom: -1px;
+        left: 8px;
+        height: 3px;
+        border-radius: 3px 3px 0 0;
+        background: var(--accent);
+        content: '';
+      }
+      .future {
+        grid-column: 3;
+        justify-self: end;
+        color: #fff;
+        font-size: 11px;
+      }
+      .page {
+        max-width: 760px;
+        margin: auto;
+        padding: 24px 20px 48px;
+      }
+      .notice {
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        border: 1px solid #f1bd6b;
+        background: #fff7e6;
+        line-height: 1.6;
+      }
+      .title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 30px;
+      }
+      .copy {
+        margin: 7px 0 0;
+        color: var(--muted);
+      }
+      .primary {
+        border: 1px solid #007a76;
+        border-radius: 4px;
+        padding: 11px 16px;
+        background: var(--brand);
+        color: var(--ink);
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .board {
+        border-top: 2px solid var(--ink);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: auto auto 1fr;
+        gap: 7px 0;
+        align-content: center;
+        min-height: 64px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .row.head {
+        display: none;
+      }
+      .row > a {
+        grid-column: 1/-1;
+        grid-row: 1;
+      }
+      .row > :nth-child(3) {
+        grid-column: 1;
+        grid-row: 2;
+      }
+      .row > :nth-child(1) {
+        grid-column: 2;
+        grid-row: 2;
+      }
+      .row > :nth-child(4) {
+        grid-column: 3;
+        grid-row: 2;
+      }
+      .row > :nth-child(1)::before,
+      .row > :nth-child(4)::before {
+        margin: 0 7px;
+        color: #8b9fa8;
+        content: '|';
+      }
+      .row a {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        text-decoration: none;
+        font-weight: 700;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 22px;
+      }
+      .pagination button {
+        width: 38px;
+        height: 38px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+      .pagination .current {
+        background: var(--ink);
+        color: #fff;
+      }
+      .form {
+        max-width: 720px;
+        margin: auto;
+      }
+      .field {
+        display: grid;
+        gap: 7px;
+        margin: 18px 0;
+      }
+      .field label {
+        font-weight: 800;
+      }
+      .field input,
+      .field textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      .field textarea {
+        min-height: 260px;
+        resize: vertical;
+      }
+      .undecided {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 24px;
+      }
+      .card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        background: var(--soft);
+      }
+      .card h2 {
+        margin: 0 0 8px;
+        font-size: 17px;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      @media (max-width: 720px) {
+        .review {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .browser {
+          margin: 0;
+          border-left: 0;
+          border-right: 0;
+        }
+        .header-inner {
+          min-height: 52px;
+          grid-template-columns: 72px 1fr 72px;
+          padding: 0 10px;
+        }
+        .future {
+          font-size: 11px;
+        }
+        .page {
+          padding: 22px 14px 40px;
+        }
+        .title-row {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .row {
+          min-height: 66px;
+        }
+        .undecided {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="review">
+      <div>
+        <strong>익게/community M1.5 설계 참고</strong
+        ><small>초기 공개 대상 아님 · 정적 화면은 구현·운영 활성화 증거가 아님</small>
       </div>
-      <nav class="nav" aria-label="게시판"><a href="/meme">짤</a><a class="active" href="/community" aria-current="page">익게</a><a href="/news">뉴스</a></nav>
+      <div class="tabs" role="tablist" aria-label="화면 선택">
+        <button class="tab" type="button" aria-selected="true" data-screen="list">익게 목록</button>
+        <button class="tab" type="button" aria-selected="false" data-screen="write">
+          글쓰기 참고
+        </button>
+        <button class="tab" type="button" aria-selected="false" data-screen="undecided">
+          공개 전 확인
+        </button>
+      </div>
     </header>
 
-    <main class="page">
-      <div class="notice">이 화면은 표시명 `익게`, 내부 코드 `community`, URL `/community`의 M1.5 참고안이다. 비회원은 읽고, 유효 회원은 필수 동의·제재 상태를 통과하면 참여한다. 댓글·신고·글별 랜덤 이름·탈퇴 후 콘텐츠 유지는 <a href="../../../planning/08-member-community-plan.md">회원·익게 제품 계약</a>을 따른다.</div>
-
-      <section data-view="list">
-        <div class="title-row"><div><h1>익게</h1><p class="copy">최신 최초 발행순 · 페이지당 20개 · 첫 버전은 텍스트 게시판</p></div><button class="primary" type="button" data-open="write">글쓰기 참고</button></div>
-        <div class="board">
-          <div class="row head"><span>번호</span><span>제목</span><span>작성자</span><span>시간</span></div>
-          <div class="row"><span class="muted">128</span><a href="#">익게 게시글 제목 예시</a><span class="muted">달빛 아래 느긋한 수달</span><span class="muted">14:20</span></div>
-          <div class="row"><span class="muted">127</span><a href="#">게시판형 목록 밀도 확인용 제목</a><span class="muted">공방의 그림 그리는 푸딩</span><span class="muted">13:42</span></div>
-          <div class="row"><span class="muted">126</span><a href="#">모바일에서는 작성자 열을 숨길 수 있음</a><span class="muted">무지개 아래 탐험하는 오카리나</span><span class="muted">12:18</span></div>
+    <div class="browser">
+      <div class="chrome">https://blariyo.com/community</div>
+      <header class="site-header">
+        <div class="header-inner">
+          <span aria-hidden="true"></span>
+          <a class="brand" href="/meme">블라리요</a>
+          <span class="future">추후 공개 화면</span>
         </div>
-        <nav class="pagination" aria-label="페이지 이동"><button disabled>‹</button><button class="current">1</button><button>2</button><button>3</button><button>›</button></nav>
-      </section>
+        <nav class="nav" aria-label="게시판">
+          <a href="/meme">짤</a><a class="active" href="/community" aria-current="page">익게</a
+          ><a href="/news">뉴스</a>
+        </nav>
+      </header>
 
-      <section data-view="write" hidden>
-        <form class="form">
-          <div class="title-row"><div><h1>익게 글쓰기</h1><p class="copy">제목 1~200자 · 본문 1~10,000자 · HTML·Markdown 해석 없음</p></div></div>
-          <div class="field"><label for="title">제목</label><input id="title" type="text" placeholder="제목 1~200자"></div>
-          <div class="field"><label for="body">본문</label><textarea id="body" placeholder="본문 1~10,000자"></textarea></div>
-          <button class="primary" type="button">등록 배치 참고</button>
-        </form>
-      </section>
-
-      <section data-view="undecided" hidden>
-        <div class="title-row"><div><h1>공개 전 확인할 것</h1><p class="copy">아래는 기능 미정이 아니라 M1.5 공개 조건과 첫 버전 제외 범위다.</p></div></div>
-        <div class="undecided">
-          <article class="card"><h2>회원 참여 gate</h2><p>실제 provider 등록·callback·secret, 필수 동의 artifact와 회원 상태 검증이 끝나야 작성·댓글·신고를 공개한다.</p></article>
-          <article class="card"><h2>법무·운영 근거</h2><p>신고·제재 보존 근거와 기간, 약관 고지, 운영자 처리 가능 여부를 검토한다. 설계값만으로 공개하지 않는다.</p></article>
-          <article class="card"><h2>첫 버전 제외</h2><p>공지, 검색, 이미지, 예약, 초안 저장, 추천·비추천, 랭킹, 쪽지, 팔로우와 대댓글은 M1.5 첫 버전에 넣지 않는다.</p></article>
-          <article class="card"><h2>확정된 참여·운영 규칙</h2><p>본인 글·댓글만 수정·삭제하며, 신고는 자동 숨김이 아니다. 운영자는 검토 뒤 숨김·복원·삭제·제재를 처리한다.</p></article>
+      <main class="page">
+        <div class="notice">
+          이 화면은 표시명 `익게`, 내부 코드 `community`, URL `/community`의 M1.5 참고안이다.
+          비회원은 읽고, 유효 회원은 필수 동의·제재 상태를 통과하면 참여한다. 댓글·신고·글별 랜덤
+          이름·탈퇴 후 콘텐츠 유지는
+          <a href="../../../planning/08-member-community-plan.md">회원·익게 제품 계약</a>을 따른다.
         </div>
-      </section>
-    </main>
-  </div>
 
-  <script>
-    const tabs = Array.from(document.querySelectorAll('[data-screen]'));
-    const views = Array.from(document.querySelectorAll('[data-view]'));
-    function show(name) {
-      views.forEach((view) => { view.hidden = view.dataset.view !== name; });
-      tabs.forEach((tab) => { tab.setAttribute('aria-selected', String(tab.dataset.screen === name)); });
-      history.replaceState(null, '', `#${name}`);
-    }
-    tabs.forEach((tab) => tab.addEventListener('click', () => show(tab.dataset.screen)));
-    document.querySelectorAll('[data-open]').forEach((button) => button.addEventListener('click', () => show(button.dataset.open)));
-    show(location.hash.slice(1) || 'list');
-  </script>
-</body>
+        <section data-view="list">
+          <div class="title-row">
+            <div>
+              <h1>익게</h1>
+              <p class="copy">최신 최초 발행순 · 페이지당 20개 · 첫 버전은 텍스트 게시판</p>
+            </div>
+            <button class="primary" type="button" data-open="write">글쓰기 참고</button>
+          </div>
+          <div class="board">
+            <div class="row head">
+              <span>번호</span><span>제목</span><span>작성자</span><span>시간</span>
+            </div>
+            <div class="row">
+              <span class="muted">128</span><a href="#">익게 게시글 제목 예시</a
+              ><span class="muted">달빛 아래 느긋한 수달</span><span class="muted">14:20</span>
+            </div>
+            <div class="row">
+              <span class="muted">127</span><a href="#">게시판형 목록 밀도 확인용 제목</a
+              ><span class="muted">공방의 그림 그리는 푸딩</span><span class="muted">13:42</span>
+            </div>
+            <div class="row">
+              <span class="muted">126</span><a href="#">모바일에서는 작성자 열을 숨길 수 있음</a
+              ><span class="muted">무지개 아래 탐험하는 오카리나</span
+              ><span class="muted">12:18</span>
+            </div>
+          </div>
+          <nav class="pagination" aria-label="페이지 이동">
+            <button disabled>‹</button><button class="current">1</button><button>2</button
+            ><button>3</button><button>›</button>
+          </nav>
+        </section>
+
+        <section data-view="write" hidden>
+          <form class="form">
+            <div class="title-row">
+              <div>
+                <h1>익게 글쓰기</h1>
+                <p class="copy">제목 1~200자 · 본문 1~10,000자 · HTML·Markdown 해석 없음</p>
+              </div>
+            </div>
+            <div class="field">
+              <label for="title">제목</label
+              ><input id="title" type="text" placeholder="제목 1~200자" />
+            </div>
+            <div class="field">
+              <label for="body">본문</label
+              ><textarea id="body" placeholder="본문 1~10,000자"></textarea>
+            </div>
+            <button class="primary" type="button">등록 배치 참고</button>
+          </form>
+        </section>
+
+        <section data-view="undecided" hidden>
+          <div class="title-row">
+            <div>
+              <h1>공개 전 확인할 것</h1>
+              <p class="copy">아래는 기능 미정이 아니라 M1.5 공개 조건과 첫 버전 제외 범위다.</p>
+            </div>
+          </div>
+          <div class="undecided">
+            <article class="card">
+              <h2>회원 참여 gate</h2>
+              <p>
+                실제 provider 등록·callback·secret, 필수 동의 artifact와 회원 상태 검증이 끝나야
+                작성·댓글·신고를 공개한다.
+              </p>
+            </article>
+            <article class="card">
+              <h2>법무·운영 근거</h2>
+              <p>
+                신고·제재 보존 근거와 기간, 약관 고지, 운영자 처리 가능 여부를 검토한다.
+                설계값만으로 공개하지 않는다.
+              </p>
+            </article>
+            <article class="card">
+              <h2>첫 버전 제외</h2>
+              <p>
+                공지, 검색, 이미지, 예약, 초안 저장, 추천·비추천, 랭킹, 쪽지, 팔로우와 대댓글은 M1.5
+                첫 버전에 넣지 않는다.
+              </p>
+            </article>
+            <article class="card">
+              <h2>확정된 참여·운영 규칙</h2>
+              <p>
+                본인 글·댓글만 수정·삭제하며, 신고는 자동 숨김이 아니다. 운영자는 검토 뒤
+                숨김·복원·삭제·제재를 처리한다.
+              </p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const tabs = Array.from(document.querySelectorAll('[data-screen]'));
+      const views = Array.from(document.querySelectorAll('[data-view]'));
+      function show(name) {
+        views.forEach((view) => {
+          view.hidden = view.dataset.view !== name;
+        });
+        tabs.forEach((tab) => {
+          tab.setAttribute('aria-selected', String(tab.dataset.screen === name));
+        });
+        history.replaceState(null, '', `#${name}`);
+      }
+      tabs.forEach((tab) => tab.addEventListener('click', () => show(tab.dataset.screen)));
+      document
+        .querySelectorAll('[data-open]')
+        .forEach((button) => button.addEventListener('click', () => show(button.dataset.open)));
+      show(location.hash.slice(1) || 'list');
+    </script>
+  </body>
 </html>

@@ -127,9 +127,10 @@ export function normalizeInput(value) {
         key,
         typeof item === 'string' && ['url', 'remoteUrl'].includes(key) && /^https?:\/\//.test(item)
           ? normalizeUrl(item)
-          : typeof item === 'string' && ['title', 'text', 'alt', 'name', 'titlePrefix'].includes(key)
-          ? item.trim()
-          : normalizeInput(item),
+          : typeof item === 'string' &&
+              ['title', 'text', 'alt', 'name', 'titlePrefix'].includes(key)
+            ? item.trim()
+            : normalizeInput(item),
       ])
     );
   return value;
@@ -138,7 +139,11 @@ export function normalizeInput(value) {
  * @param {string} value
  */
 function normalizeUrl(value) {
-  try { return new URL(value).href; } catch { return value; }
+  try {
+    return new URL(value).href;
+  } catch {
+    return value;
+  }
 }
 /** @param {Operation} operation @param {number} status @param {unknown} value @returns {unknown} */
 export function projectResponse(operation, status, value) {

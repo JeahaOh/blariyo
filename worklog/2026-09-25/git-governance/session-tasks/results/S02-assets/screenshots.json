@@ -1,0 +1,32 @@
+[
+  {
+    "path": "screenshots/editor-1280.png",
+    "sha256": "2ee6eb23151c81947c49b1ed4331451c365ef104d101eb070077a4d85596abb8",
+    "bytes": 194959
+  },
+  {
+    "path": "screenshots/editor-320.png",
+    "sha256": "b41ff72c1eb03cfdbb6b532468100ae106284e0270c86833b426af0821063341",
+    "bytes": 75414
+  },
+  {
+    "path": "screenshots/editor-390.png",
+    "sha256": "c4c098bdcb30be9d5f49d8d8edde09854ae0be68a8b037ad52641aa717254a93",
+    "bytes": 75363
+  },
+  {
+    "path": "screenshots/editor-768.png",
+    "sha256": "f688410aefffc8fb5add1dc4b45310de2293ec166d99d6556ce5446f62034e68",
+    "bytes": 192036
+  },
+  {
+    "path": "screenshots/list-320.png",
+    "sha256": "124d80d14a29c28ac65311785268a6ea949719bcf1809b8d96a9dcdc51ba0348",
+    "bytes": 120444
+  },
+  {
+    "path": "screenshots/list-390.png",
+    "sha256": "ff3b41e74784139926a87ff0cb7f2aa32c9c1d2a5a0a42e8a2543979c91f7ca5",
+    "bytes": 122275
+  }
+]

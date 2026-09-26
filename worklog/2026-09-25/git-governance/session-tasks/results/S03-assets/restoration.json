@@ -1,0 +1,110 @@
+{
+  "observedAt": "2026-09-26T06:24:43.381008+00:00",
+  "restored": [
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "command": [
+        "git",
+        "-C",
+        "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+        "config",
+        "--worktree",
+        "--unset",
+        "core.hooksPath"
+      ],
+      "configSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "otherConfigEntriesPreserved": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+      "command": [
+        "git",
+        "-C",
+        "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+        "config",
+        "--worktree",
+        "--unset",
+        "core.hooksPath"
+      ],
+      "configSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "otherConfigEntriesPreserved": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+      "command": [
+        "git",
+        "-C",
+        "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+        "config",
+        "--worktree",
+        "--unset",
+        "core.hooksPath"
+      ],
+      "configSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "otherConfigEntriesPreserved": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "command": [
+        "git",
+        "-C",
+        "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+        "config",
+        "--worktree",
+        "--unset",
+        "core.hooksPath"
+      ],
+      "configSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "otherConfigEntriesPreserved": true
+    }
+  ],
+  "worktrees": [
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "coreHooksPath": null,
+      "effectiveHooksDirectory": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+      "activeHookFiles": [],
+      "changed": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review",
+      "coreHooksPath": null,
+      "effectiveHooksDirectory": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+      "activeHookFiles": [],
+      "changed": false
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+      "coreHooksPath": null,
+      "effectiveHooksDirectory": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+      "activeHookFiles": [],
+      "changed": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+      "coreHooksPath": null,
+      "effectiveHooksDirectory": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+      "activeHookFiles": [],
+      "changed": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+      "coreHooksPath": null,
+      "effectiveHooksDirectory": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+      "activeHookFiles": [],
+      "changed": false
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "coreHooksPath": null,
+      "effectiveHooksDirectory": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+      "activeHookFiles": [],
+      "changed": true
+    }
+  ],
+  "preservedMetadataFiles": 40,
+  "wrapperCountPreserved": 16,
+  "extensionsWorktreeConfig": true,
+  "deletedFiles": [],
+  "installedNewHooks": false
+}

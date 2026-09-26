@@ -1,0 +1,262 @@
+{
+  "observedAt": "2026-09-26T14:58:17.555919+09:00",
+  "source": "Public GitHub REST GET; no write requests",
+  "branches": [
+    {
+      "name": "develop",
+      "sha": "1ad626c92dd418f31827d17ccbb9f3580f58447f",
+      "protected": false
+    },
+    {
+      "name": "feature/DPL-00-nightly-deploy-design",
+      "sha": "edb54b9a8c3f4a2775151e2309241be186fae4ab",
+      "protected": false
+    },
+    {
+      "name": "feature/HARN-06-git-governance-bootstrap",
+      "sha": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+      "protected": false
+    },
+    {
+      "name": "feature/HARN-06-governance-registration",
+      "sha": "ada24744af144b7a3d72df3e029e1845594dc33c",
+      "protected": false
+    },
+    {
+      "name": "feature/HARN-07-release-fixture-clock",
+      "sha": "6a431358db73b9c59be4125fa0749beb014e7acd",
+      "protected": false
+    },
+    {
+      "name": "feature/HARN-08-cleanup-review",
+      "sha": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+      "protected": false
+    },
+    {
+      "name": "feature/HARN-08-harness-review",
+      "sha": "f782c0be80763f279cd11fb261bfc825cadf9b6d",
+      "protected": false
+    },
+    {
+      "name": "feature/HARN-08-legacy-main-review",
+      "sha": "df7482704c7867712c12028d1a69e59bfd662acc",
+      "protected": false
+    },
+    {
+      "name": "feature/HARN-08-policy-review",
+      "sha": "8a72c9ae3e09460718de61065810a95594cd891c",
+      "protected": false
+    },
+    {
+      "name": "feature/HARN-09-browser-retry",
+      "sha": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "protected": false
+    },
+    {
+      "name": "feature/HARN-09-ci-diagnostics",
+      "sha": "299ea62ab8eb3e00d4471fc82930137fc5026dc0",
+      "protected": false
+    },
+    {
+      "name": "feature/discord-env-setup",
+      "sha": "7bede4485321bc2adc9b68b2c25cefb17eb44808",
+      "protected": false
+    },
+    {
+      "name": "feature/m0-core",
+      "sha": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+      "protected": false
+    },
+    {
+      "name": "feature/m0-core-web",
+      "sha": "c48f0845133cafea1c046eb26bec7e040d781ca6",
+      "protected": false
+    },
+    {
+      "name": "main",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "protected": false
+    },
+    {
+      "name": "planning-design-only",
+      "sha": "0ade2e4815e74af68d337f73bd10877da28cce2f",
+      "protected": false
+    },
+    {
+      "name": "release",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "protected": false
+    }
+  ],
+  "prs": [
+    {
+      "number": 9,
+      "state": "open",
+      "draft": true,
+      "mergedAt": null,
+      "url": "https://github.com/JeahaOh/blariyo/pull/9",
+      "headRef": "feature/HARN-07-release-fixture-clock",
+      "headSha": "6a431358db73b9c59be4125fa0749beb014e7acd",
+      "baseRef": "feature/HARN-09-ci-diagnostics",
+      "baseSha": "299ea62ab8eb3e00d4471fc82930137fc5026dc0"
+    },
+    {
+      "number": 8,
+      "state": "open",
+      "draft": true,
+      "mergedAt": null,
+      "url": "https://github.com/JeahaOh/blariyo/pull/8",
+      "headRef": "feature/HARN-09-ci-diagnostics",
+      "headSha": "299ea62ab8eb3e00d4471fc82930137fc5026dc0",
+      "baseRef": "feature/HARN-08-harness-review",
+      "baseSha": "f782c0be80763f279cd11fb261bfc825cadf9b6d"
+    },
+    {
+      "number": 7,
+      "state": "open",
+      "draft": true,
+      "mergedAt": null,
+      "url": "https://github.com/JeahaOh/blariyo/pull/7",
+      "headRef": "feature/HARN-08-harness-review",
+      "headSha": "f782c0be80763f279cd11fb261bfc825cadf9b6d",
+      "baseRef": "feature/HARN-08-cleanup-review",
+      "baseSha": "a1a4802c75c0048345778ad11ae2af39b9315fd7"
+    },
+    {
+      "number": 6,
+      "state": "open",
+      "draft": true,
+      "mergedAt": null,
+      "url": "https://github.com/JeahaOh/blariyo/pull/6",
+      "headRef": "feature/HARN-08-cleanup-review",
+      "headSha": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+      "baseRef": "feature/HARN-08-policy-review",
+      "baseSha": "8a72c9ae3e09460718de61065810a95594cd891c"
+    },
+    {
+      "number": 5,
+      "state": "open",
+      "draft": true,
+      "mergedAt": null,
+      "url": "https://github.com/JeahaOh/blariyo/pull/5",
+      "headRef": "feature/HARN-08-policy-review",
+      "headSha": "8a72c9ae3e09460718de61065810a95594cd891c",
+      "baseRef": "feature/HARN-08-legacy-main-review",
+      "baseSha": "df7482704c7867712c12028d1a69e59bfd662acc"
+    },
+    {
+      "number": 4,
+      "state": "open",
+      "draft": true,
+      "mergedAt": null,
+      "url": "https://github.com/JeahaOh/blariyo/pull/4",
+      "headRef": "feature/HARN-08-legacy-main-review",
+      "headSha": "df7482704c7867712c12028d1a69e59bfd662acc",
+      "baseRef": "develop",
+      "baseSha": "1ad626c92dd418f31827d17ccbb9f3580f58447f"
+    },
+    {
+      "number": 3,
+      "state": "closed",
+      "draft": false,
+      "mergedAt": "2026-09-26T02:43:27Z",
+      "url": "https://github.com/JeahaOh/blariyo/pull/3",
+      "headRef": "feature/HARN-09-browser-retry",
+      "headSha": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "baseRef": "develop",
+      "baseSha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    },
+    {
+      "number": 2,
+      "state": "open",
+      "draft": true,
+      "mergedAt": null,
+      "url": "https://github.com/JeahaOh/blariyo/pull/2",
+      "headRef": "feature/HARN-06-git-governance-bootstrap",
+      "headSha": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+      "baseRef": "develop",
+      "baseSha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    },
+    {
+      "number": 1,
+      "state": "open",
+      "draft": false,
+      "mergedAt": null,
+      "url": "https://github.com/JeahaOh/blariyo/pull/1",
+      "headRef": "feature/HARN-06-governance-registration",
+      "headSha": "ada24744af144b7a3d72df3e029e1845594dc33c",
+      "baseRef": "develop",
+      "baseSha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    }
+  ],
+  "refs": [
+    {
+      "sha": "1ad626c92dd418f31827d17ccbb9f3580f58447f",
+      "name": "refs/heads/develop"
+    },
+    {
+      "sha": "edb54b9a8c3f4a2775151e2309241be186fae4ab",
+      "name": "refs/heads/feature/DPL-00-nightly-deploy-design"
+    },
+    {
+      "sha": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+      "name": "refs/heads/feature/HARN-06-git-governance-bootstrap"
+    },
+    {
+      "sha": "ada24744af144b7a3d72df3e029e1845594dc33c",
+      "name": "refs/heads/feature/HARN-06-governance-registration"
+    },
+    {
+      "sha": "6a431358db73b9c59be4125fa0749beb014e7acd",
+      "name": "refs/heads/feature/HARN-07-release-fixture-clock"
+    },
+    {
+      "sha": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+      "name": "refs/heads/feature/HARN-08-cleanup-review"
+    },
+    {
+      "sha": "f782c0be80763f279cd11fb261bfc825cadf9b6d",
+      "name": "refs/heads/feature/HARN-08-harness-review"
+    },
+    {
+      "sha": "df7482704c7867712c12028d1a69e59bfd662acc",
+      "name": "refs/heads/feature/HARN-08-legacy-main-review"
+    },
+    {
+      "sha": "8a72c9ae3e09460718de61065810a95594cd891c",
+      "name": "refs/heads/feature/HARN-08-policy-review"
+    },
+    {
+      "sha": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "name": "refs/heads/feature/HARN-09-browser-retry"
+    },
+    {
+      "sha": "299ea62ab8eb3e00d4471fc82930137fc5026dc0",
+      "name": "refs/heads/feature/HARN-09-ci-diagnostics"
+    },
+    {
+      "sha": "7bede4485321bc2adc9b68b2c25cefb17eb44808",
+      "name": "refs/heads/feature/discord-env-setup"
+    },
+    {
+      "sha": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+      "name": "refs/heads/feature/m0-core"
+    },
+    {
+      "sha": "c48f0845133cafea1c046eb26bec7e040d781ca6",
+      "name": "refs/heads/feature/m0-core-web"
+    },
+    {
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "name": "refs/heads/main"
+    },
+    {
+      "sha": "0ade2e4815e74af68d337f73bd10877da28cce2f",
+      "name": "refs/heads/planning-design-only"
+    },
+    {
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "name": "refs/heads/release"
+    }
+  ]
+}

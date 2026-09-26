@@ -1,0 +1,24 @@
+{
+  "finishedAt": "2026-09-26T15:56:41.167337+09:00",
+  "localBranches": {
+    "refs/heads/feature/HARN-06-git-governance-bootstrap": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+    "refs/heads/feature/HARN-06-governance-registration": "ada24744af144b7a3d72df3e029e1845594dc33c",
+    "refs/heads/feature/HARN-07-release-fixture-clock": "6a431358db73b9c59be4125fa0749beb014e7acd",
+    "refs/heads/feature/HARN-08-cleanup-review": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+    "refs/heads/feature/HARN-08-harness-review": "f782c0be80763f279cd11fb261bfc825cadf9b6d",
+    "refs/heads/feature/HARN-08-legacy-main-review": "df7482704c7867712c12028d1a69e59bfd662acc",
+    "refs/heads/feature/HARN-08-policy-review": "8a72c9ae3e09460718de61065810a95594cd891c",
+    "refs/heads/feature/HARN-08-stash-recovery": "5957492429b668377bede866c90f878b43225785",
+    "refs/heads/feature/HARN-09-browser-retry": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+    "refs/heads/feature/HARN-09-ci-diagnostics": "299ea62ab8eb3e00d4471fc82930137fc5026dc0"
+  },
+  "stash": "c373dac4ad6584e663ad958d1c9d64767dc48605",
+  "obsoleteTrackingRef": {
+    "name": "refs/remotes/fixprep/harness",
+    "sha": "85796f2667a7a9e0f220e7cefd1c025c33f86e2c"
+  },
+  "gitOutput": [
+    "Deleted branch feature/HARN-06-git-governance-bootstrap (was f376e3d).\nDeleted branch feature/HARN-06-governance-registration (was ada2474).\nDeleted branch feature/HARN-07-release-fixture-clock (was 6a43135).\nDeleted branch feature/HARN-08-cleanup-review (was a1a4802).\nDeleted branch feature/HARN-08-harness-review (was f782c0b).\nDeleted branch feature/HARN-08-legacy-main-review (was df74827).\nDeleted branch feature/HARN-08-policy-review (was 8a72c9a).\nDeleted branch feature/HARN-08-stash-recovery (was 5957492).\nDeleted branch feature/HARN-09-browser-retry (was 2b61c4c).\nDeleted branch feature/HARN-09-ci-diagnostics (was 299ea62).\n",
+    "Dropped stash@{0} (c373dac4ad6584e663ad958d1c9d64767dc48605)\n"
+  ]
+}

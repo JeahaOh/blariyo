@@ -1,0 +1,245 @@
+{
+  "verifiedAt": "2026-09-26T15:58:20.335373+09:00",
+  "checks": {
+    "removedRefsAbsent": true,
+    "otherRefsPreserved": true,
+    "noUnexpectedRefsCreated": true,
+    "rootUntrackedImplementationAbsent": true,
+    "removedWorktreesAbsent": true,
+    "removedMetadataAndCachesAbsent": true,
+    "temporaryArchiveCloneAbsent": true,
+    "rootHeadBranchAndTrackedDiffPreserved": true,
+    "rootExistingFilesPreserved": true,
+    "m0CoreUnchanged": true,
+    "s02ProductCandidateUnchanged": true,
+    "existingRecordsAndBackupsPreserved": true,
+    "retainedWorktreeConfigPreserved": true,
+    "defaultHooksPreserved": true,
+    "onlyDeletedBranchTrackingConfigRemoved": true,
+    "extensionsWorktreeConfigPreserved": true,
+    "retainedWorktreesHaveNoCustomHooks": true,
+    "bundleStillMatches": true,
+    "additionalMetadataBackupVerified": true,
+    "gitDiffCheck": true,
+    "exactlyTwoSharedWorktreesRemain": true,
+    "exactlySixLocalBranchesRemain": true
+  },
+  "passed": true,
+  "localBranches": {
+    "refs/heads/develop": "beacb90ef6c7490d35a111e7c7c9cce34b666ce5",
+    "refs/heads/feature/m0-core": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+    "refs/heads/main": "e51f1b501f7cc327da279102dd69eac2f4c554db",
+    "refs/heads/office": "0dde53881c85629f62bbceade5408ec6177a0e8c",
+    "refs/heads/planning-design-only": "3e8935b6541e204a7bf2a1a4b3d68c5c0d5d8854",
+    "refs/heads/release": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+  },
+  "sharedWorktrees": [
+    "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+    "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core"
+  ],
+  "rootStatus": [
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/BRANCH-TRANSITION-INVENTORY.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/DEVELOP-BOOTSTRAP-DECISION.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/LINT-CANDIDATE-REVIEW.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/README.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/REQUEST.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/RESULT.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/ASSETS.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/FILES.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/README.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/inventory.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/verification.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/.gitignore"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/README.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/before.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/design-archive-readback.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/manifest.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/manual-git-checks.txt"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/metadata-deleted.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/refs-deleted.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/root-files-deleted.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-local-cleanup/verification.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/PLAN.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/README.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/REQUEST.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/T1.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/baseline.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/input-ancestry.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/input-history-scan.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/pre-commit-boundary.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/refs-difference.txt"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/selector.patch"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/manifest.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/rollback-before.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/rollback-result.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/README.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/RESULT-TEMPLATE.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S01-git-assets.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S02-product-preservation.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S03-hooks-secrets.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S04-lint-tooling.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S05-architecture.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S06-mixed-cleanup.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S07-migration-checksum.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S08-database-restore.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S09-harness-policy-release.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S10-ci-integration.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/S11-docs-closeout.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/results/LOCAL-CLEANUP.md"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/tasks.json"
+    },
+    {
+      "xy": "??",
+      "path": "worklog/2026-09-25/git-governance/session-tasks/verification.json"
+    }
+  ],
+  "preservedM0DirtyPaths": 88,
+  "preservedRootTrackedFiles": 1238,
+  "remoteWrite": false
+}

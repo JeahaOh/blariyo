@@ -1,0 +1,52 @@
+{
+  "recordedAt": "2026-09-26T06:26:42.783963+00:00",
+  "node": "v24.18.0",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "--test",
+        "tests/harness/hooks.test.mjs"
+      ],
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 8347.616917,
+      "log": "logs/original-hooks-tests.log"
+    },
+    {
+      "argv": [
+        "node",
+        "--test",
+        "tests/git-checks.test.mjs"
+      ],
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 3170.950458,
+      "log": "logs/manual-checks-tests.log"
+    },
+    {
+      "argv": [
+        "node",
+        "node_modules/prettier/bin/prettier.cjs",
+        "--check",
+        "scripts/git-checks/check.mjs",
+        "scripts/git-checks/README.md",
+        "tests/git-checks.test.mjs"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "runtimeScope": "Synthetic commits and local bare-remote pushes in temporary repositories only; no project remote push",
+  "initialPreflight": "Sandbox blocked ps before any setting change; approved process-name-only retry passed; no active Git process found",
+  "archiveWhitespaceAttribute": {
+    "path": "worklog/2026-09-25/git-governance/session-tasks/results/.gitattributes",
+    "onlyTarget": "S02-assets/product-preservation.patch",
+    "initialDiagnostics": 140,
+    "contextLines": 135,
+    "deletedLines": 5,
+    "value": "-whitespace",
+    "reason": "Preserve original archived patch bytes; source whitespace and all text secret checks remain enabled"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "posts": 12,
+  "checkedAt": "2026-09-26T06:09:30.729Z",
+  "completedStages": 3,
+  "finalPosts": [
+    {
+      "status": "PUBLISHED",
+      "count": 12
+    }
+  ],
+  "elapsedMs": 20383,
+  "mutationRequests": 101,
+  "browserErrors": [],
+  "authentication": "synthetic-local",
+  "operatorAcceptance": "not-performed",
+  "database": "isolated-random-fixture",
+  "media": "temporary-local-storage",
+  "launcher": "scripts/local/start-development.mjs --sandbox --workers",
+  "origin": "http://localhost:3000",
+  "workerExecution": "periodic commands, no direct test invocation"
+}

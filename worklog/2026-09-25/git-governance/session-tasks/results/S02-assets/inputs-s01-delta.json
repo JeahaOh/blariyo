@@ -1,0 +1,63 @@
+{
+  "addedRefs": [
+    {
+      "name": "refs/codex/turn-diffs/captures/1790402668180/ab68d659-06da-443e-9253-005501172c53/base",
+      "sha": "740db6324d7450ba08d062eebe620430f3f7ad41"
+    }
+  ],
+  "removedRefs": [],
+  "changedRefs": [],
+  "worktrees": [
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "headChanged": false,
+      "addedPaths": [
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/.gitignore",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/README.md",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/RESTORE.md",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/SHA256SUMS",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/after.json",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/before.json",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/final-check.json",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/fixtures.json",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/inventory-delta.json",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/remote.json",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/restore-readback.json",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/source-file-manifest.json",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/verification.json",
+        "worklog/2026-09-25/git-governance/session-tasks/results/S01-RESULT.md"
+      ],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review",
+      "headChanged": false,
+      "addedPaths": [],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+      "headChanged": false,
+      "addedPaths": [],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+      "headChanged": false,
+      "addedPaths": [],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+      "headChanged": false,
+      "addedPaths": [],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "headChanged": false,
+      "addedPaths": [],
+      "removedPaths": []
+    }
+  ]
+}

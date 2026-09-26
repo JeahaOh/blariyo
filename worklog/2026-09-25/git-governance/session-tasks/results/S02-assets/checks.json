@@ -1,0 +1,48 @@
+[
+  {
+    "name": "build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "startedAt": "2026-09-26T15:06:51.372636+09:00",
+    "seconds": 6.76,
+    "exitCode": 0
+  },
+  {
+    "name": "api-test-build",
+    "command": [
+      "npm",
+      "run",
+      "build:test",
+      "-w",
+      "@blariyo/api"
+    ],
+    "startedAt": "2026-09-26T15:06:58.136649+09:00",
+    "seconds": 1.09,
+    "exitCode": 0
+  },
+  {
+    "name": "typecheck-tests",
+    "command": [
+      "npm",
+      "run",
+      "typecheck:tests"
+    ],
+    "startedAt": "2026-09-26T15:06:59.230168+09:00",
+    "seconds": 1.17,
+    "exitCode": 0
+  },
+  {
+    "name": "lint-tests",
+    "command": [
+      "npm",
+      "run",
+      "lint:tests"
+    ],
+    "startedAt": "2026-09-26T15:07:00.407348+09:00",
+    "seconds": 2.24,
+    "exitCode": 0
+  }
+]

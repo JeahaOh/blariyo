@@ -1,0 +1,24 @@
+{
+  "observedAt": "2026-09-26T06:26:42.774728+00:00",
+  "repository": "/Users/zeaha/task_list/20260926-blariyo-s02-product-preservation",
+  "base": "df7482704c7867712c12028d1a69e59bfd662acc",
+  "commit": "a13500b080781660538688ff53d489021376df77",
+  "paths": [
+    "tests/browser/admin-recovery.test.ts"
+  ],
+  "patchSha256": "1eb8725a5cba143c471cc0dd2c62fe9e381d05286443df60b503d5e426e3c357",
+  "matchesTestedS02Patch": true,
+  "statusClean": true,
+  "stagedSecretCheck": {
+    "passed": true,
+    "scannedBlobs": 1
+  },
+  "priorBrowserTests": {
+    "passed": 12,
+    "failed": 0,
+    "rerun": false,
+    "reason": "Committed file blob exactly matches S02 tested candidate"
+  },
+  "note": "First byte comparison used abbreviated diff object IDs; full-index comparison matches archived patch.",
+  "pushed": false
+}

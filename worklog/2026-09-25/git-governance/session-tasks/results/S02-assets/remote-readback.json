@@ -1,0 +1,33 @@
+{
+  "observedAt": "2026-09-26T15:08:01.871674+09:00",
+  "prs": [
+    {
+      "number": 3,
+      "url": "https://github.com/JeahaOh/blariyo/pull/3",
+      "state": "closed",
+      "mergedAt": "2026-09-26T02:43:27Z",
+      "headSha": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "baseSha": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "mergeCommitSha": "1ad626c92dd418f31827d17ccbb9f3580f58447f"
+    },
+    {
+      "number": 4,
+      "url": "https://github.com/JeahaOh/blariyo/pull/4",
+      "state": "open",
+      "mergedAt": null,
+      "headSha": "df7482704c7867712c12028d1a69e59bfd662acc",
+      "baseSha": "1ad626c92dd418f31827d17ccbb9f3580f58447f",
+      "mergeCommitSha": "5a353d50b8d116c4440779fcb6f6769242f0e05d"
+    },
+    {
+      "number": 6,
+      "url": "https://github.com/JeahaOh/blariyo/pull/6",
+      "state": "open",
+      "mergedAt": null,
+      "headSha": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+      "baseSha": "8a72c9ae3e09460718de61065810a95594cd891c",
+      "mergeCommitSha": "edcbcd78bb47fe973df7ab8984fc2c6bf18934ed"
+    }
+  ],
+  "changedSinceInventory": false
+}

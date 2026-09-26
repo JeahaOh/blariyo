@@ -1,0 +1,47 @@
+{
+  "checkedAt": "2026-09-26T05:14:50.979614+00:00",
+  "status": "passed",
+  "issues": 32,
+  "indexedPaths": 495,
+  "allObservedScopePathsCovered": true,
+  "relatedPrsAndCurrentHeadRuns": 9,
+  "hookWrappersStaticallyChecked": 16,
+  "relativeLinksChecked": 12,
+  "whitespace": "passed",
+  "headsRefsStashAndExistingChangesPreserved": [
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "headAndExistingChangesUnchanged": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review",
+      "headAndExistingChangesUnchanged": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+      "headAndExistingChangesUnchanged": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+      "headAndExistingChangesUnchanged": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+      "headAndExistingChangesUnchanged": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "headAndExistingChangesUnchanged": true
+    }
+  ],
+  "runtimeTests": "not executed",
+  "ciRuns": "read only; none triggered",
+  "rollback": "none performed",
+  "scope": "Inventory artifacts only",
+  "artifactHashes": {
+    "ASSETS.md": "b242bf2ca5447d459f0366423db4f3416e248cfd42b9f12b252283b30e314304",
+    "FILES.md": "61e9469ce5b6a3d6b666411bd31bd74641c7005a36f1e64e63589ad6e49cbd39",
+    "README.md": "c66140f143d2899f7a042a2293c10c0f0a9eeacbda19a861da0d5ea61b0e4a77",
+    "inventory.json": "1979d7af0a3b80d7dc5022759ef037a6bc8cd4d7f775df4319af288e35879b0c"
+  }
+}

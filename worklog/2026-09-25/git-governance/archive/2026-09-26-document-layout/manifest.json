@@ -1,0 +1,461 @@
+{
+  "reorganizedAt": "2026-09-26T16:09:48.629289+09:00",
+  "scope": "worklog/2026-09-25/git-governance",
+  "purpose": "Group historical requests and implementation records; keep current navigation separate from immutable recovery evidence.",
+  "movedFiles": 21,
+  "changes": [
+    {
+      "oldPath": "BRANCH-TRANSITION-INVENTORY.md",
+      "newPath": "archive/2026-09-25-implementation/BRANCH-TRANSITION-INVENTORY.md",
+      "oldSha256": "141330db3106ab587ceaf2e7d44e67a30c595c777fbbbd68545f96e9c82f446b",
+      "newSha256": "141330db3106ab587ceaf2e7d44e67a30c595c777fbbbd68545f96e9c82f446b",
+      "linkEdits": [],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "DEVELOP-BOOTSTRAP-DECISION.md",
+      "newPath": "archive/2026-09-25-implementation/DEVELOP-BOOTSTRAP-DECISION.md",
+      "oldSha256": "67e865935af09ba5f45b66300ba6c1fa082e0d16591a7f7aecff29731eb06db4",
+      "newSha256": "67e865935af09ba5f45b66300ba6c1fa082e0d16591a7f7aecff29731eb06db4",
+      "linkEdits": [],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "LINT-CANDIDATE-REVIEW.md",
+      "newPath": "archive/2026-09-25-implementation/LINT-CANDIDATE-REVIEW.md",
+      "oldSha256": "b817e7cbd99717be93c959142ce6b4fe59227539665a8ac64cb3dcd9932617e5",
+      "newSha256": "b817e7cbd99717be93c959142ce6b4fe59227539665a8ac64cb3dcd9932617e5",
+      "linkEdits": [],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "README.md",
+      "newPath": "archive/2026-09-25-implementation/STATUS.md",
+      "oldSha256": "62b5ce2bf2914b477389dc8674d4054f1257600955972fba5b949f8d54b69fbc",
+      "newSha256": "62b5ce2bf2914b477389dc8674d4054f1257600955972fba5b949f8d54b69fbc",
+      "linkEdits": [],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "REQUEST.md",
+      "newPath": "archive/2026-09-25-implementation/REQUEST.md",
+      "oldSha256": "b35c4a24f843828cb2b948718ada5371c4639d8fa8de46ba3d7fe7bbc7ba943e",
+      "newSha256": "92cee2c74d413c8a3f38bd707dbd4b1c72fd41a413715b8c8cfbc335b70002bb",
+      "linkEdits": [
+        {
+          "old": "../../README.md",
+          "new": "../../../../README.md"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "RESULT.md",
+      "newPath": "archive/2026-09-25-implementation/RESULT.md",
+      "oldSha256": "00c6118f7b3f2131d7181598aaee0322ec5fdb2d811121ddc0a1c4de86b62369",
+      "newSha256": "5a6ee0b83f26891add4bffefd5b26332368ea95e121de062c8fc3f6eb6ff57f5",
+      "linkEdits": [
+        {
+          "old": "README.md",
+          "new": "STATUS.md"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/README.md",
+      "newPath": "session-tasks/requests/README.md",
+      "oldSha256": "c199957df71001a57f6fc5ee3e6f57b6812dee5faa28a0a134e0d254de2b9b1c",
+      "newSha256": "ab0c3fefb243353ce472d65b3d700baf88b2674dc0215ca1245e7ba101fe5506",
+      "linkEdits": [
+        {
+          "old": "results/LOCAL-CLEANUP.md",
+          "new": "../results/LOCAL-CLEANUP.md"
+        },
+        {
+          "old": "../archive/2026-09-26-local-cleanup/README.md",
+          "new": "../../archive/2026-09-26-local-cleanup/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/ASSETS.md",
+          "new": "../../archive/2026-09-26-full-inventory/ASSETS.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/verification.json",
+          "new": "../../archive/2026-09-26-full-inventory/verification.json"
+        },
+        {
+          "old": "../archive/2026-09-26-t0-t1-cancelled/README.md",
+          "new": "../../archive/2026-09-26-t0-t1-cancelled/README.md"
+        }
+      ],
+      "historicalNoticeAdded": true
+    },
+    {
+      "oldPath": "session-tasks/RESULT-TEMPLATE.md",
+      "newPath": "session-tasks/requests/RESULT-TEMPLATE.md",
+      "oldSha256": "ab1063c24314f8615be236f8c7d05253bcd8e857e8b95e9bd4187da516d7ce2d",
+      "newSha256": "ab1063c24314f8615be236f8c7d05253bcd8e857e8b95e9bd4187da516d7ce2d",
+      "linkEdits": [],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S01-git-assets.md",
+      "newPath": "session-tasks/requests/S01-git-assets.md",
+      "oldSha256": "aed63e04677bc47b8fb3a7ba813e1fd7a205829e398125ffdb82299bcf7ea3d0",
+      "newSha256": "22077d4eafc51f8584144ffde10f927826ec66dcb75a899be0a3e9e46e961c0e",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S02-product-preservation.md",
+      "newPath": "session-tasks/requests/S02-product-preservation.md",
+      "oldSha256": "a363d3a7011b9d1756340acf5e80bf78ab69b8e615a8ed9473439571391688f3",
+      "newSha256": "39d67fb8abbab75c6f75d04e8228b0c54db60d0027b4a22844b9f134a82a4c1e",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S03-hooks-secrets.md",
+      "newPath": "session-tasks/requests/S03-hooks-secrets.md",
+      "oldSha256": "7097decbd9fea79039885513dba092d9818f87287bbbb5bf18af09643aeb8bc1",
+      "newSha256": "32d574311cdfec65c5108191ac90b5eee451d1ea821614572e9b3d88b7d0d8ec",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S04-lint-tooling.md",
+      "newPath": "session-tasks/requests/S04-lint-tooling.md",
+      "oldSha256": "64b149fc9341c776e381d96e6d09734c9a02891fe7520951039e290a8096151b",
+      "newSha256": "cbc23fc3cef1171e0530048d90e7b83d6f23672aa2961647d5e1540ffc0cd099",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S05-architecture.md",
+      "newPath": "session-tasks/requests/S05-architecture.md",
+      "oldSha256": "04099322ff994eadd253242bae845f08c0c71bc5e022ef8e4cc61dca3ecd4fe7",
+      "newSha256": "2edfb01cd7b34475cc6cb0160367f36f3192016d2b0172b3a9a05ada6172dfce",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S06-mixed-cleanup.md",
+      "newPath": "session-tasks/requests/S06-mixed-cleanup.md",
+      "oldSha256": "fc594184a381d2022979eacc7c92e05e6ab666025e550ceb71b44bd03bd189f7",
+      "newSha256": "55b8c95067f3199ca567b634f531f07f18ece67468d694ee5d098bfad3339475",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S07-migration-checksum.md",
+      "newPath": "session-tasks/requests/S07-migration-checksum.md",
+      "oldSha256": "65d7658f0510129c0ed16c901f860659582b385b50015d118cf236ca11f097cf",
+      "newSha256": "9f2daa60067e4fb8848ca58c6497be0e1b508a4027172c3cfd25bce47a56e350",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S08-database-restore.md",
+      "newPath": "session-tasks/requests/S08-database-restore.md",
+      "oldSha256": "28c0b19401439544addb87cc4ea433a462e95b2d3789504368d7bf2d5157c1c0",
+      "newSha256": "c6e38aad51193401e702f6b332d6aa7ac0e29a98b6f37eff38f9d2f04c353471",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S09-harness-policy-release.md",
+      "newPath": "session-tasks/requests/S09-harness-policy-release.md",
+      "oldSha256": "97130730cb8e72f23e555781b30062998dec5360c29a18607adf5d108c6d8952",
+      "newSha256": "f592eb72102aa4fb02a11776d2674393283125a8629b80e40ae1f654229ce216",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S10-ci-integration.md",
+      "newPath": "session-tasks/requests/S10-ci-integration.md",
+      "oldSha256": "bfcdfd7c34a438c019a7ad76e3991af8fdeff75a99e1250fe38cae55ca6ac7b7",
+      "newSha256": "f6c0dbb5b2bfa89b28e54321ec6c4b5dca9d8d7d78232885f8de81e489454952",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/S11-docs-closeout.md",
+      "newPath": "session-tasks/requests/S11-docs-closeout.md",
+      "oldSha256": "b90534e5087efa2dbe77aa4ac5e0294e17b2164e00a45973e43508e0571a9d75",
+      "newSha256": "dce39f3bd8ea372dfe1cfd5e94a6365781dd2f522952fa3172d47edab609af1d",
+      "linkEdits": [
+        {
+          "old": "../archive/2026-09-26-full-inventory/README.md",
+          "new": "../../archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/FILES.md",
+          "new": "../../archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "old": "../archive/2026-09-26-full-inventory/inventory.json",
+          "new": "../../archive/2026-09-26-full-inventory/inventory.json"
+        },
+        {
+          "old": "../archive/2026-09-26-t0-t1-cancelled/README.md",
+          "new": "../../archive/2026-09-26-t0-t1-cancelled/README.md"
+        },
+        {
+          "old": "../archive/2026-09-26-t0-t1-cancelled/rollback-result.json",
+          "new": "../../archive/2026-09-26-t0-t1-cancelled/rollback-result.json"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/results/S01-RESULT.md",
+      "newPath": "session-tasks/results/S01-RESULT.md",
+      "oldSha256": "4e459c902cb8d0a75192cdb6eba852209ed38f7ae5d6979c91d86cdc9da9f9a7",
+      "newSha256": "d26f4658a2cb9eec7da304cebbad1e4d215753fd07c927c990c572d744d0b27d",
+      "linkEdits": [
+        {
+          "old": "../README.md",
+          "new": "../requests/README.md"
+        },
+        {
+          "old": "../S01-git-assets.md",
+          "new": "../requests/S01-git-assets.md"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/results/S02-RESULT.md",
+      "newPath": "session-tasks/results/S02-RESULT.md",
+      "oldSha256": "22d54d06f2887e343ea92ba909ddae7ac742fac8a47b9ab990cf485b8ff51cf5",
+      "newSha256": "c688ed99de0f13dc8cdec92ce53fd82d6aced6dc72bdd0cc195cdbf9fb8afb7c",
+      "linkEdits": [
+        {
+          "old": "../S02-product-preservation.md",
+          "new": "../requests/S02-product-preservation.md"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/results/S03-RESULT.md",
+      "newPath": "session-tasks/results/S03-RESULT.md",
+      "oldSha256": "44c50bedd19786f754d23ed65300315ce37c3e28b54632c0cf70315e26591e83",
+      "newSha256": "3d6b33508dffbdac20cc981b22e2604ea922708f1c05e35604cd59195900ce92",
+      "linkEdits": [
+        {
+          "old": "../S03-hooks-secrets.md",
+          "new": "../requests/S03-hooks-secrets.md"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "archive/2026-09-26-t0-t1-cancelled/README.md",
+      "newPath": "archive/2026-09-26-t0-t1-cancelled/README.md",
+      "oldSha256": "8c48f2b40904c2d08df66e91fdbdbb00e2196982eb4744a428e9a3784f119c3d",
+      "newSha256": "271c210d8bac13d7536e9b6ebf02bd254d61a8234ae8e5ba526c93fadcb739cd",
+      "linkEdits": [
+        {
+          "old": "evidence/",
+          "new": "evidence"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "archive/2026-09-26-t0-t1-cancelled/REQUEST.md",
+      "newPath": "archive/2026-09-26-t0-t1-cancelled/REQUEST.md",
+      "oldSha256": "56cb553d312debf11471b28161306ccfc02fcef1678e54e21c60d78e38c1d347",
+      "newSha256": "f105ceac7c43acdcce59803a6d836958c5cfe478c39f82f1849a660b1b57e184",
+      "linkEdits": [
+        {
+          "old": "../../REQUEST.md",
+          "new": "../2026-09-25-implementation/REQUEST.md"
+        }
+      ],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/tasks.json",
+      "newPath": "session-tasks/requests/tasks.json",
+      "oldSha256": "edf5393932856b763a4cef519bc755a8c4a7993bfaa69ce727e5c07fb2acf3f1",
+      "newSha256": "edf5393932856b763a4cef519bc755a8c4a7993bfaa69ce727e5c07fb2acf3f1",
+      "linkEdits": [],
+      "historicalNoticeAdded": false
+    },
+    {
+      "oldPath": "session-tasks/verification.json",
+      "newPath": "session-tasks/requests/verification.json",
+      "oldSha256": "24fd57f9ea3d6c7ecf1045c00583016c0fd024918f7ba990d1cd94f51ac90893",
+      "newSha256": "24fd57f9ea3d6c7ecf1045c00583016c0fd024918f7ba990d1cd94f51ac90893",
+      "linkEdits": [],
+      "historicalNoticeAdded": false
+    }
+  ],
+  "historicalUnavailableLinks": [
+    {
+      "source": "RESULT.md",
+      "originalLink": "../../../docs/ai/git-workflow.md",
+      "originalTarget": "docs/ai/git-workflow.md",
+      "treatment": "retain missing historical path as inline code; archive guide links to remotely saved design"
+    },
+    {
+      "source": "RESULT.md",
+      "originalLink": "../../../docs/ai/harness-implementation-plan.md",
+      "originalTarget": "docs/ai/harness-implementation-plan.md",
+      "treatment": "retain missing historical path as inline code; archive guide links to remotely saved design"
+    }
+  ],
+  "preservedChecksumEntries": 546,
+  "head": "beacb90ef6c7490d35a111e7c7c9cce34b666ce5",
+  "commit": false,
+  "push": false
+}

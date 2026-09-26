@@ -1,0 +1,1088 @@
+{
+  "observedAt": "2026-09-26T14:58:15.959296+09:00",
+  "worktreePorcelainSha256": "f5027cea15982ce2b88e56a4ab7a139f57d7da644504018cad9f4fc362f9f48c",
+  "worktrees": [
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "head": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "branch": "refs/heads/develop",
+      "status": [
+        {
+          "xy": "??",
+          "path": ".githooks/commit-msg"
+        },
+        {
+          "xy": "??",
+          "path": ".githooks/post-commit"
+        },
+        {
+          "xy": "??",
+          "path": ".githooks/pre-commit"
+        },
+        {
+          "xy": "??",
+          "path": ".githooks/pre-push"
+        },
+        {
+          "xy": "??",
+          "path": ".harness/policy.json"
+        },
+        {
+          "xy": "??",
+          "path": ".harness/tasks/HARN-06.json"
+        },
+        {
+          "xy": "??",
+          "path": ".harness/tasks/HARN-07.json"
+        },
+        {
+          "xy": "??",
+          "path": ".markdownlint-cli2.jsonc"
+        },
+        {
+          "xy": "??",
+          "path": ".prettierignore"
+        },
+        {
+          "xy": "??",
+          "path": ".quality/baseline.candidate.json"
+        },
+        {
+          "xy": "??",
+          "path": ".quality/requirements.txt"
+        },
+        {
+          "xy": "??",
+          "path": ".ruff.toml"
+        },
+        {
+          "xy": "??",
+          "path": ".sqlfluff"
+        },
+        {
+          "xy": "??",
+          "path": ".stylelintrc.json"
+        },
+        {
+          "xy": "??",
+          "path": "apps/api/src/commands/migration-checksum-compatibility.ts"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/config/checkstyle/checkstyle.xml"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/content/migration-checksum.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/branches.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/check.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/ci-context.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/cli.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/git.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/hooks.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/job-receipt.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/lease_lock.py"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/leases.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/merge-back.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/release.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/restore-scope.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/run-tests.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/secrets.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/tap.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/harness/verify.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/quality/eslint.config.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/quality/lint-all.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/quality/lint-contracts.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/quality/lint-debt.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/quality/setup-native-tools.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "scripts/test-collector-restore.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/branches.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/ci-context.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/ci-workflow.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/hooks.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/job-receipt.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/leases.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/merge-back.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/release.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/restore-scope.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/harness/verify.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/quality/lint-debt.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/quality/lint-tools.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/BRANCH-TRANSITION-INVENTORY.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/DEVELOP-BOOTSTRAP-DECISION.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/LINT-CANDIDATE-REVIEW.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/README.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/REQUEST.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/RESULT.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/ASSETS.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/FILES.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/README.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/inventory.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/verification.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/PLAN.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/README.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/REQUEST.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/T1.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/baseline.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/input-ancestry.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/input-history-scan.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/pre-commit-boundary.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/refs-difference.txt"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/selector.patch"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/manifest.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/rollback-before.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/rollback-result.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/README.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/RESULT-TEMPLATE.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S01-git-assets.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S02-product-preservation.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S03-hooks-secrets.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S04-lint-tooling.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S05-architecture.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S06-mixed-cleanup.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S07-migration-checksum.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S08-database-restore.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S09-harness-policy-release.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S10-ci-integration.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S11-docs-closeout.md"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/tasks.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/session-tasks/verification.json"
+        }
+      ],
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ignoredExclusions": [
+        ".DS_Store",
+        ".local-data/",
+        ".ruff_cache/",
+        ".ruff_cache/.gitignore",
+        ".ruff_cache/0.16.9/",
+        ".ruff_cache/CACHEDIR.TAG",
+        "apps/api/.local-data/",
+        "apps/api/dist-test/",
+        "apps/api/dist/",
+        "apps/collector/.gradle/",
+        "apps/collector/build/",
+        "apps/collector/ops/__pycache__/",
+        "apps/collector/ops/reports/local-21-hot-run-20260923-072050.log",
+        "apps/web/.nuxt/",
+        "apps/web/.output/",
+        "apps/web/node_modules/",
+        "codex-session-01a0bd7f-f6af-7cc1-a535-1e260fd98d71.md",
+        "deploy/application/__pycache__/",
+        "deploy/backup/__pycache__/",
+        "deploy/operations/__pycache__/",
+        "deploy/postgresql/__pycache__/",
+        "docs/.DS_Store",
+        "docs/ai/.DS_Store",
+        "node_modules/",
+        "test-results/",
+        "worklog/.DS_Store",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/api-test-build.log",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/browser-admin-recovery.log",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/build.log",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/lint-tests.log",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/npm-ci.log",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/typecheck-tests.log",
+        "worklog/task-list/.DS_Store",
+        "worklog/task-list/.blariyo-recovery/",
+        "worklog/task-list/.blariyo-recovery/.gitignore",
+        "worklog/task-list/.blariyo-recovery/postgres-age-identity.txt",
+        "worklog/task-list/09/",
+        "worklog/task-list/09/.DS_Store",
+        "worklog/task-list/09/20/",
+        "worklog/task-list/09/20/.DS_Store",
+        "worklog/task-list/blariyo-app-images-20260920T005129Z-jqc_0wnp/",
+        "worklog/task-list/blariyo-app-images-20260920T005324Z-rhn14v8g/",
+        "worklog/task-list/blariyo-db-migration-20260920/",
+        "worklog/task-list/blariyo-session-commit-20260920/",
+        "worklog/task-list/commit-blariyo-deployment.py"
+      ]
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review",
+      "head": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "branch": "refs/heads/feature/HARN-09-browser-retry",
+      "status": [],
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ignoredExclusions": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+      "head": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+      "branch": "refs/heads/feature/HARN-06-git-governance-bootstrap",
+      "status": [],
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ignoredExclusions": [
+        ".ruff_cache/",
+        ".ruff_cache/.gitignore",
+        ".ruff_cache/0.16.9/",
+        ".ruff_cache/CACHEDIR.TAG",
+        "apps/api/dist-test/",
+        "apps/api/dist/",
+        "apps/collector/.gradle/",
+        "apps/collector/build/",
+        "apps/web/.nuxt/",
+        "apps/web/node_modules/",
+        "node_modules/"
+      ]
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+      "head": "6a431358db73b9c59be4125fa0749beb014e7acd",
+      "branch": "refs/heads/feature/HARN-07-release-fixture-clock",
+      "status": [],
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ignoredExclusions": [
+        ".ruff_cache/",
+        ".ruff_cache/.gitignore",
+        ".ruff_cache/0.16.9/",
+        ".ruff_cache/CACHEDIR.TAG",
+        "apps/api/dist-test/",
+        "apps/api/dist/",
+        "apps/collector/.gradle/",
+        "apps/collector/build/",
+        "apps/web/.nuxt/",
+        "apps/web/node_modules/",
+        "node_modules/",
+        "test-results/"
+      ]
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+      "head": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+      "branch": "refs/heads/feature/m0-core",
+      "status": [
+        {
+          "xy": " M",
+          "path": ".dockerignore"
+        },
+        {
+          "xy": " M",
+          "path": "README.md"
+        },
+        {
+          "xy": " M",
+          "path": "apps/api/src/app.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "apps/api/src/collection-routes.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "apps/api/src/collection.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "apps/api/src/db.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "apps/api/src/migrate.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "apps/web/app/pages/admin-collect.vue"
+        },
+        {
+          "xy": " M",
+          "path": "apps/web/server/api/collector/v1/[...path].ts"
+        },
+        {
+          "xy": " M",
+          "path": "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md"
+        },
+        {
+          "xy": " M",
+          "path": "docs/development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml"
+        },
+        {
+          "xy": " M",
+          "path": "docs/system-design/07-spring-collector-design.md"
+        },
+        {
+          "xy": " M",
+          "path": "packages/contracts/openapi/m0-collection-assist.yaml"
+        },
+        {
+          "xy": " M",
+          "path": "packages/contracts/src/collection-api.d.ts"
+        },
+        {
+          "xy": " M",
+          "path": "packages/contracts/src/schema.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "scripts/test-docker.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "scripts/test-integration.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "tests/constraints.test.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "tests/core-isolation.test.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "tests/helpers/browser-fixture.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "apps/api/migrations/V005__spring_collection.down.sql"
+        },
+        {
+          "xy": "??",
+          "path": "apps/api/migrations/V005__spring_collection.sql"
+        },
+        {
+          "xy": "??",
+          "path": "apps/api/src/collection-transition.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "apps/api/src/collection-v2.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/.gitignore"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/build.gradle.kts"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/gradle.lockfile"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/gradle/wrapper/gradle-wrapper.jar"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/gradle/wrapper/gradle-wrapper.properties"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/gradlew"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/gradlew.bat"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/ops/README.md"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/ops/render-launchd.py"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/ops/test-render-launchd.py"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/settings.gradle.kts"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/BackupMain.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/BatchRuntime.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectionPipeline.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorApplication.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorFailure.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorHealth.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorMetrics.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorRunService.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorTelemetry.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CoreClient.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/DataSourceConfiguration.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/DiscordGateway.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/DiscordPolicy.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/EncryptedSpool.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/ExpiredRecovery.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/JobControlMain.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/Json.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/LocalController.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/LocalSecurity.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/MetadataRetention.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/MigrationMain.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/NotificationWorker.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/OperationalEventOutbox.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/OperatorSettings.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/PinnedHttp.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/QuartzConfiguration.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/RunRepository.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/Secrets.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/ShutdownGate.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/SourcePolicy.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/SourceTransport.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/SpoolCleanup.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/StartupChecks.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/StateStore.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/java/com/blariyo/collector/TransportConfiguration.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/resources/application.properties"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/main/resources/db/collector-v001.sql"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/test/java/com/blariyo/collector/CoreObservationTests.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/test/java/com/blariyo/collector/FixtureApplication.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/test/java/com/blariyo/collector/FixtureControls.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/test/java/com/blariyo/collector/FixtureStepCrash.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/test/java/com/blariyo/collector/PinnedHttpTests.java"
+        },
+        {
+          "xy": "??",
+          "path": "apps/collector/src/test/java/com/blariyo/collector/SecurityTests.java"
+        },
+        {
+          "xy": "??",
+          "path": "docs/implementation/m0-completion/acceptance.md"
+        },
+        {
+          "xy": "??",
+          "path": "docs/implementation/m0-completion/evidence.md"
+        },
+        {
+          "xy": "??",
+          "path": "docs/implementation/m0-completion/operations-observation.md"
+        },
+        {
+          "xy": "??",
+          "path": "tests/browser/collector-events.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/collection-v2.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/spring/control.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/spring/fencing.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/spring/preview.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/spring/runtime.test.mjs"
+        },
+        {
+          "xy": "??",
+          "path": "tests/spring/step-boundaries.test.mjs"
+        }
+      ],
+      "diffSha256": "fb8b9f96712918d0cfc5548f6e7bf6b24120e1d5e540e30de9de7f9c4e2acd7e",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ignoredExclusions": [
+        ".DS_Store",
+        "apps/.DS_Store",
+        "apps/collector/.gradle/",
+        "apps/collector/build/",
+        "apps/collector/ops/__pycache__/",
+        "apps/web/.nuxt/",
+        "apps/web/.output/",
+        "apps/web/node_modules/",
+        "node_modules/",
+        "test-results/",
+        "tools/.DS_Store",
+        "tools/collector/__pycache__/"
+      ]
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "head": "5957492429b668377bede866c90f878b43225785",
+      "branch": "refs/heads/feature/HARN-08-stash-recovery",
+      "status": [
+        {
+          "xy": " M",
+          "path": ".github/workflows/ci.yml"
+        },
+        {
+          "xy": " M",
+          "path": "docs/ai/git-workflow.md"
+        },
+        {
+          "xy": " M",
+          "path": "docs/ai/harness-implementation-plan.md"
+        },
+        {
+          "xy": " M",
+          "path": "docs/roadmap.md"
+        },
+        {
+          "xy": " M",
+          "path": "docs/status.md"
+        },
+        {
+          "xy": " M",
+          "path": "tests/browser/admin-workflow.test.ts"
+        },
+        {
+          "xy": " M",
+          "path": "tests/harness/ci-workflow.test.mjs"
+        },
+        {
+          "xy": " M",
+          "path": "worklog/2026-09-25/git-governance/STASH-RECOVERY.md"
+        },
+        {
+          "xy": "??",
+          "path": ".harness/tasks/HARN-09.json"
+        },
+        {
+          "xy": "??",
+          "path": "worklog/2026-09-25/git-governance/CI-RECOVERY.md"
+        }
+      ],
+      "diffSha256": "0b14ae92626040901c073e8bbc3bb84f51a80059f1f9be2d647419c19317320a",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ignoredExclusions": [
+        ".ruff_cache/",
+        ".ruff_cache/.gitignore",
+        ".ruff_cache/0.16.9/",
+        ".ruff_cache/CACHEDIR.TAG",
+        "apps/api/dist-test/",
+        "apps/api/dist/",
+        "apps/collector/.gradle/",
+        "apps/collector/build/",
+        "apps/web/.nuxt/",
+        "apps/web/.output/",
+        "apps/web/node_modules/",
+        "node_modules/",
+        "test-results/"
+      ]
+    }
+  ],
+  "refs": [
+    {
+      "name": "refs/codex/turn-diffs/captures/1790392051596/f51508d0-444b-4cff-beb3-a2323647c938/base",
+      "sha": "b7fbd9fea6eedeb718bf2e1948c70a119bd8cdec"
+    },
+    {
+      "name": "refs/codex/turn-diffs/captures/1790395511642/0fdde8b7-6ee3-49d2-82c0-67f790ffa915/base",
+      "sha": "36f69e0fbf32cdd41fe741a1760ea03e3bfbaa94"
+    },
+    {
+      "name": "refs/codex/turn-diffs/captures/1790402116215/665d086d-b9ea-4012-9a0e-1805e309f179/base",
+      "sha": "3bd34f6824f4e6459cdd24fc4fa3282708e8c7be"
+    },
+    {
+      "name": "refs/codex/turn-diffs/checkpoints/a751673902b0e57d97f84d5b177e00fc/6086514186a1ed81f953e7fecb11b81e/1790402060957/15e37e59-3ea0-4fa3-9d4a-88b795398ca6",
+      "sha": "3bd34f6824f4e6459cdd24fc4fa3282708e8c7be"
+    },
+    {
+      "name": "refs/codex/turn-diffs/checkpoints/ddf04511f7141a21f295496fea02ac00/99d1a525ccb22205eadac54928d10c56/1790396158910/e5e5729c-2d27-419c-9be2-c9575dafc5ae",
+      "sha": "4bb982efb8b1d81f905bec88c7ce1fa24aa4c84a"
+    },
+    {
+      "name": "refs/heads/develop",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    },
+    {
+      "name": "refs/heads/feature/HARN-06-git-governance-bootstrap",
+      "sha": "f376e3dd7a2a41d489d5e0e67b591d62fe151753"
+    },
+    {
+      "name": "refs/heads/feature/HARN-06-governance-registration",
+      "sha": "ada24744af144b7a3d72df3e029e1845594dc33c"
+    },
+    {
+      "name": "refs/heads/feature/HARN-07-release-fixture-clock",
+      "sha": "6a431358db73b9c59be4125fa0749beb014e7acd"
+    },
+    {
+      "name": "refs/heads/feature/HARN-08-cleanup-review",
+      "sha": "a1a4802c75c0048345778ad11ae2af39b9315fd7"
+    },
+    {
+      "name": "refs/heads/feature/HARN-08-harness-review",
+      "sha": "f782c0be80763f279cd11fb261bfc825cadf9b6d"
+    },
+    {
+      "name": "refs/heads/feature/HARN-08-legacy-main-review",
+      "sha": "df7482704c7867712c12028d1a69e59bfd662acc"
+    },
+    {
+      "name": "refs/heads/feature/HARN-08-policy-review",
+      "sha": "8a72c9ae3e09460718de61065810a95594cd891c"
+    },
+    {
+      "name": "refs/heads/feature/HARN-08-stash-recovery",
+      "sha": "5957492429b668377bede866c90f878b43225785"
+    },
+    {
+      "name": "refs/heads/feature/HARN-09-browser-retry",
+      "sha": "2b61c4ca038adea80069f0d020019199b4c1e53c"
+    },
+    {
+      "name": "refs/heads/feature/HARN-09-ci-diagnostics",
+      "sha": "299ea62ab8eb3e00d4471fc82930137fc5026dc0"
+    },
+    {
+      "name": "refs/heads/feature/m0-core",
+      "sha": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727"
+    },
+    {
+      "name": "refs/heads/main",
+      "sha": "e51f1b501f7cc327da279102dd69eac2f4c554db"
+    },
+    {
+      "name": "refs/heads/office",
+      "sha": "0dde53881c85629f62bbceade5408ec6177a0e8c"
+    },
+    {
+      "name": "refs/heads/planning-design-only",
+      "sha": "3e8935b6541e204a7bf2a1a4b3d68c5c0d5d8854"
+    },
+    {
+      "name": "refs/heads/release",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    },
+    {
+      "name": "refs/remotes/fixprep/harness",
+      "sha": "85796f2667a7a9e0f220e7cefd1c025c33f86e2c"
+    },
+    {
+      "name": "refs/remotes/origin/HEAD",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    },
+    {
+      "name": "refs/remotes/origin/develop",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    },
+    {
+      "name": "refs/remotes/origin/feature/DPL-00-nightly-deploy-design",
+      "sha": "edb54b9a8c3f4a2775151e2309241be186fae4ab"
+    },
+    {
+      "name": "refs/remotes/origin/feature/HARN-06-git-governance-bootstrap",
+      "sha": "f376e3dd7a2a41d489d5e0e67b591d62fe151753"
+    },
+    {
+      "name": "refs/remotes/origin/feature/HARN-06-governance-registration",
+      "sha": "ada24744af144b7a3d72df3e029e1845594dc33c"
+    },
+    {
+      "name": "refs/remotes/origin/feature/HARN-07-release-fixture-clock",
+      "sha": "6a431358db73b9c59be4125fa0749beb014e7acd"
+    },
+    {
+      "name": "refs/remotes/origin/feature/HARN-08-cleanup-review",
+      "sha": "a1a4802c75c0048345778ad11ae2af39b9315fd7"
+    },
+    {
+      "name": "refs/remotes/origin/feature/HARN-08-harness-review",
+      "sha": "f782c0be80763f279cd11fb261bfc825cadf9b6d"
+    },
+    {
+      "name": "refs/remotes/origin/feature/HARN-08-legacy-main-review",
+      "sha": "df7482704c7867712c12028d1a69e59bfd662acc"
+    },
+    {
+      "name": "refs/remotes/origin/feature/HARN-08-policy-review",
+      "sha": "8a72c9ae3e09460718de61065810a95594cd891c"
+    },
+    {
+      "name": "refs/remotes/origin/feature/HARN-09-browser-retry",
+      "sha": "2b61c4ca038adea80069f0d020019199b4c1e53c"
+    },
+    {
+      "name": "refs/remotes/origin/feature/HARN-09-ci-diagnostics",
+      "sha": "299ea62ab8eb3e00d4471fc82930137fc5026dc0"
+    },
+    {
+      "name": "refs/remotes/origin/feature/discord-env-setup",
+      "sha": "7bede4485321bc2adc9b68b2c25cefb17eb44808"
+    },
+    {
+      "name": "refs/remotes/origin/feature/m0-core",
+      "sha": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727"
+    },
+    {
+      "name": "refs/remotes/origin/feature/m0-core-web",
+      "sha": "c48f0845133cafea1c046eb26bec7e040d781ca6"
+    },
+    {
+      "name": "refs/remotes/origin/main",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    },
+    {
+      "name": "refs/remotes/origin/planning-design-only",
+      "sha": "0ade2e4815e74af68d337f73bd10877da28cce2f"
+    },
+    {
+      "name": "refs/remotes/origin/release",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    },
+    {
+      "name": "refs/stash",
+      "sha": "c373dac4ad6584e663ad958d1c9d64767dc48605"
+    }
+  ],
+  "stash": [
+    {
+      "sha": "c373dac4ad6584e663ad958d1c9d64767dc48605",
+      "parents": [
+        "e51f1b501f7cc327da279102dd69eac2f4c554db",
+        "3717cc55313ad7d1215691dc1593c6d3fd5889c9"
+      ]
+    }
+  ]
+}

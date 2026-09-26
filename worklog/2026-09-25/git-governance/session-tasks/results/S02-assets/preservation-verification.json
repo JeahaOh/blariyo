@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-09-26T15:08:30.097759+09:00",
+  "commits": 8,
+  "productCommits": 7,
+  "governanceDesignCommits": 1,
+  "productPaths": 70,
+  "governanceDesignPaths": 2,
+  "productCandidateExactMatches": 69,
+  "GOV30IndexCoverage": true,
+  "fixtures": 49,
+  "provenancePaths": 42,
+  "fixtureProvenanceHashMatches": {
+    "baseline": 49,
+    "stash": 0,
+    "default": 49,
+    "candidate": 49,
+    "delivery": 49
+  },
+  "S01ArchiveFixtureCopiesMatched": 98,
+  "protectedPaths": 162,
+  "productPatchSha256": "c1da1cd66035bb4206374f7973337656452ac060e6f8eddd5c6bb6c2f852aad7"
+}

@@ -1,0 +1,3070 @@
+[
+  {
+    "path": "apps/api/src/app.module.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "ffc2b95bc60a8392e4b68ed97c1c5f533ef9fd62",
+      "sha256": "34e6f9a563f2545fb69feba9b45dcfa7627532763284874b6329fa6e00b2e132",
+      "bytes": 2715,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "1a28d75fcd84e4bfb6758a8286fecb708a906988",
+      "sha256": "e1ad43ebd92e6f0e8fbf24c48d775ff1715806e052301569c3dfdbb6843b5d0d",
+      "bytes": 2881,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "ffc2b95bc60a8392e4b68ed97c1c5f533ef9fd62",
+      "sha256": "34e6f9a563f2545fb69feba9b45dcfa7627532763284874b6329fa6e00b2e132",
+      "bytes": 2715,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "1a28d75fcd84e4bfb6758a8286fecb708a906988",
+      "sha256": "e1ad43ebd92e6f0e8fbf24c48d775ff1715806e052301569c3dfdbb6843b5d0d",
+      "bytes": 2881,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "c0ebbbe9a26b75766255583ffb621caa3908069f",
+      "sha256": "471122649864de294df1d1f140f0a44c0f66049add261d518c442491afab12b6",
+      "bytes": 2941,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "01f7af62c529d79032f686542caf1a8707b01c7fd44b8f4802341644ac60777f",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/api/src/features/public/public.controller.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "24b8f35e4de291bd8818b04406889dabecb75f45",
+      "sha256": "fff5984cc7d280e38bd6d4f2c4d06d7216b70e1787f7bc74524b7d038fb7eeed",
+      "bytes": 2084,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "425b92bdb4100df6a7f25336bec199e79f27f340",
+      "sha256": "d745af937e8a4a2a39d42ca8f67e23b4d40a0cf850f530850178e14da5ae7568",
+      "bytes": 2098,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "24b8f35e4de291bd8818b04406889dabecb75f45",
+      "sha256": "fff5984cc7d280e38bd6d4f2c4d06d7216b70e1787f7bc74524b7d038fb7eeed",
+      "bytes": 2084,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "425b92bdb4100df6a7f25336bec199e79f27f340",
+      "sha256": "d745af937e8a4a2a39d42ca8f67e23b4d40a0cf850f530850178e14da5ae7568",
+      "bytes": 2098,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "425b92bdb4100df6a7f25336bec199e79f27f340",
+      "sha256": "d745af937e8a4a2a39d42ca8f67e23b4d40a0cf850f530850178e14da5ae7568",
+      "bytes": 2098,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "a528d81db1d25adf868203b9b381b0c7bc7ce31463f5dc4c2c4e986ce28e7e44",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/api/src/features/public/public.dto.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "b187f55eca8482a29f47922b0ea6d2f43067800a",
+      "sha256": "6e27014e50c8fdf69120b008be47f835a94284306feb66260d327832c16946e9",
+      "bytes": 3212,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "486e6c7ae5b2307e0d9af8a485d223a5b4163989",
+      "sha256": "98ddd750b92d1d6048308b8a8d95e6162d31a43d3fe37811bf30c5ef9cd84b48",
+      "bytes": 3854,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "b187f55eca8482a29f47922b0ea6d2f43067800a",
+      "sha256": "6e27014e50c8fdf69120b008be47f835a94284306feb66260d327832c16946e9",
+      "bytes": 3212,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "486e6c7ae5b2307e0d9af8a485d223a5b4163989",
+      "sha256": "98ddd750b92d1d6048308b8a8d95e6162d31a43d3fe37811bf30c5ef9cd84b48",
+      "bytes": 3854,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "19080c12d3977880a63c43f264930a21a3e1bf39",
+      "sha256": "8ac3658bd44b99ed32effed929e7913477ae889e47338ee9caa1565136e03a5a",
+      "bytes": 3852,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "bfd13eddf3d9c47e5233ca0593981259e3ac4eaa2fb2fbb063745542edb52b1a",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/api/src/main.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "1219599da85f4c8447b90ac0b3b1756bdb40e3e9",
+      "sha256": "f04da3d8603d72f23dfd87b2e2fe2ba7c7a2bc4704451c1a01af7abacfd1348c",
+      "bytes": 1997,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "197f9abb023f45985fc962ef139032a4f0f72362",
+      "sha256": "b65df805023170a25a9526b74ab2d25cd9bb852fe9881aa4869ee43a0772bf18",
+      "bytes": 2508,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "1219599da85f4c8447b90ac0b3b1756bdb40e3e9",
+      "sha256": "f04da3d8603d72f23dfd87b2e2fe2ba7c7a2bc4704451c1a01af7abacfd1348c",
+      "bytes": 1997,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "197f9abb023f45985fc962ef139032a4f0f72362",
+      "sha256": "b65df805023170a25a9526b74ab2d25cd9bb852fe9881aa4869ee43a0772bf18",
+      "bytes": 2508,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "a196a0247bbedb5dd07f67e8bc989ba6e1b17974",
+      "sha256": "64c10306f3b84ced01177d05c758287239a3b4cce320ed9067380a8dad3a93b6",
+      "bytes": 2566,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "f84b303070e7f556ee4c1454508125b910f06a865f6b679ae4447105ac194416",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/api/test/public-http.integration.test.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "11084855e0ab4f4db9849f5cadc2a2ad2613c33a",
+      "sha256": "45e28a467f4aa3770c296faf57990deb40e94a823a2d9337c16a0166b977a882",
+      "bytes": 5490,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "37f1b9fd61975d64716d396dbe7191cd81ee1f8d",
+      "sha256": "67d39fe701dfe2cc2383f5c8e28ae2743b90f489c0d7bc05275a01aed6cf38f7",
+      "bytes": 5639,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "11084855e0ab4f4db9849f5cadc2a2ad2613c33a",
+      "sha256": "45e28a467f4aa3770c296faf57990deb40e94a823a2d9337c16a0166b977a882",
+      "bytes": 5490,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "37f1b9fd61975d64716d396dbe7191cd81ee1f8d",
+      "sha256": "67d39fe701dfe2cc2383f5c8e28ae2743b90f489c0d7bc05275a01aed6cf38f7",
+      "bytes": 5639,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "37f1b9fd61975d64716d396dbe7191cd81ee1f8d",
+      "sha256": "67d39fe701dfe2cc2383f5c8e28ae2743b90f489c0d7bc05275a01aed6cf38f7",
+      "bytes": 5639,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "ef71c078ef002f161ef8232474ceecc12c50c71e1ec8dfa79ef014c25ae6c95d",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/api/test/public.service.test.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "91621aa30995bbecd7e5521a4bf23e8c2d44e6dd",
+      "sha256": "2206e0812a334866f4708803e1fc8d25aba3db86dc6161cc00d2a0ec0bcfae36",
+      "bytes": 5385,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "35f38dea59d4b3cf245a59629a0c4608e1b49373",
+      "sha256": "ad5a8757b16757d280301df0bd660c81853e38f8cc02dbe145fae3c3229b7a68",
+      "bytes": 5469,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "91621aa30995bbecd7e5521a4bf23e8c2d44e6dd",
+      "sha256": "2206e0812a334866f4708803e1fc8d25aba3db86dc6161cc00d2a0ec0bcfae36",
+      "bytes": 5385,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "35f38dea59d4b3cf245a59629a0c4608e1b49373",
+      "sha256": "ad5a8757b16757d280301df0bd660c81853e38f8cc02dbe145fae3c3229b7a68",
+      "bytes": 5469,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "275b342f44bc122986e52ad560dcf85e384915ad",
+      "sha256": "28639578a4dc170c126e2a8c8fa027db6a9e539ef34417af402575da9ec06ad5",
+      "bytes": 5911,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "8f188908968f32c3624a1f03b3fc37f681f592dcf27c756c7702d16025438d4b",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/app.vue",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "c7cfb86001ce4e0443d92ff61f8db15fe885b620",
+      "sha256": "7fb7f6235d6c9de0d2d3cf5e44522ae51ba5c5903e13448f43ceff8ce8c7d5ba",
+      "bytes": 409,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "c0d9df0d758913947e311980bf406fcfa54b19f4",
+      "sha256": "c8cea5ebc9e199c88cf97700c1fe6f1590a23bd389cf10071681b7a211cc1172",
+      "bytes": 622,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "c7cfb86001ce4e0443d92ff61f8db15fe885b620",
+      "sha256": "7fb7f6235d6c9de0d2d3cf5e44522ae51ba5c5903e13448f43ceff8ce8c7d5ba",
+      "bytes": 409,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "c0d9df0d758913947e311980bf406fcfa54b19f4",
+      "sha256": "c8cea5ebc9e199c88cf97700c1fe6f1590a23bd389cf10071681b7a211cc1172",
+      "bytes": 622,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "c0d9df0d758913947e311980bf406fcfa54b19f4",
+      "sha256": "c8cea5ebc9e199c88cf97700c1fe6f1590a23bd389cf10071681b7a211cc1172",
+      "bytes": 622,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "45796a364ea84506e0af116ef15e92300b962f8d738f35f8e30665c86700b63e",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/assets/css/admin.css",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "c8f548db372c6cb48bbd6ca97f14986817c114ac",
+      "sha256": "d35165194fe76ba467e9f96549608588787b69cd2c06d7b3f2dd2b915963ea80",
+      "bytes": 12420,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "c8f548db372c6cb48bbd6ca97f14986817c114ac",
+      "sha256": "d35165194fe76ba467e9f96549608588787b69cd2c06d7b3f2dd2b915963ea80",
+      "bytes": 12420,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "dde92bd68d24e31d7ba7e50fd8ed9782cf686db0",
+      "sha256": "e33922270d9f2d06212660cc5e87cba61d38eeaad3338af496bb0705b0718cf7",
+      "bytes": 12607,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "003d0ef010b6a80fc0c8fd30c0fd6b692b543d0f0b0000cd6a67d3c10215820a",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/assets/css/main.css",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "978dd22345e3d620c5f27127998c6aa5598d0095",
+      "sha256": "7e58bd99b2d2e34d0ffcb98fffc7189d533601b3b472e307034b4222ced0806e",
+      "bytes": 11716,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "53f577538164df5024238e5e7c57de4089e78cf0",
+      "sha256": "344f55f8b7aca09d5f5be31d6e411978ddbed642bb76057ea7149925ccf449ea",
+      "bytes": 11866,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "978dd22345e3d620c5f27127998c6aa5598d0095",
+      "sha256": "7e58bd99b2d2e34d0ffcb98fffc7189d533601b3b472e307034b4222ced0806e",
+      "bytes": 11716,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "53f577538164df5024238e5e7c57de4089e78cf0",
+      "sha256": "344f55f8b7aca09d5f5be31d6e411978ddbed642bb76057ea7149925ccf449ea",
+      "bytes": 11866,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "b2433d49786ddaa532c25e6380948659491d1180",
+      "sha256": "e302fb3695afeb101a06948fd761f2d62c4535644f22ccf17def802e5a15ad1a",
+      "bytes": 11973,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "6874f0359e3a9e43027fce08852a81214b91c47ce0db40521b04196443cdfb0a",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/components/AdminWorkspace.vue",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "4bc935815bb4612441251617326e1985eaff8ee2",
+      "sha256": "e295216e0ce1bf57e7b83cf4f325392cad64bd70d72b164cc410d8279c70df9d",
+      "bytes": 2476,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "4bc935815bb4612441251617326e1985eaff8ee2",
+      "sha256": "e295216e0ce1bf57e7b83cf4f325392cad64bd70d72b164cc410d8279c70df9d",
+      "bytes": 2476,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "4bc935815bb4612441251617326e1985eaff8ee2",
+      "sha256": "e295216e0ce1bf57e7b83cf4f325392cad64bd70d72b164cc410d8279c70df9d",
+      "bytes": 2476,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "7ab9e34700702c5ae3a0b7ebb35232fe4b048b48fefd3a59a2f81bd2eb8406ce",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/components/PostList.vue",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "27f6fb8c72d6591176fdf90b4d8380e47cf4ae19",
+      "sha256": "e50d3299577ea12f292846dca4510deb45e1d6e2805f0f300b895b111d8f5bb4",
+      "bytes": 2150,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "6ec973e7649f36f004b7211af2e5a6010ac149f8",
+      "sha256": "423b0024ea721da0177a1c5d47d61557172657f03b36e47431f8740c417b26d8",
+      "bytes": 7000,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "27f6fb8c72d6591176fdf90b4d8380e47cf4ae19",
+      "sha256": "e50d3299577ea12f292846dca4510deb45e1d6e2805f0f300b895b111d8f5bb4",
+      "bytes": 2150,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "6ec973e7649f36f004b7211af2e5a6010ac149f8",
+      "sha256": "423b0024ea721da0177a1c5d47d61557172657f03b36e47431f8740c417b26d8",
+      "bytes": 7000,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "6ec973e7649f36f004b7211af2e5a6010ac149f8",
+      "sha256": "423b0024ea721da0177a1c5d47d61557172657f03b36e47431f8740c417b26d8",
+      "bytes": 7000,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "421d80eb8aaa5b477740e603447af3962e39ce3f5730245f1824406cc1d10954",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/pages/[boardSlug]/index.vue",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "d1b07ee5e3a029d5320bde6b7b9d717da943755e",
+      "sha256": "83422dba2a05e5c611f2ae3a9f5de498cad7ce8eefba70bae31a5c28b43b5e2b",
+      "bytes": 2039,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "f4fa8b55a6329d0b0264c2fd1b7a2571cc482a07",
+      "sha256": "2044aae2e9afe2565427580f336e8ee1aa4cb4e414ed1290a5911b51d3a199e0",
+      "bytes": 2401,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "d1b07ee5e3a029d5320bde6b7b9d717da943755e",
+      "sha256": "83422dba2a05e5c611f2ae3a9f5de498cad7ce8eefba70bae31a5c28b43b5e2b",
+      "bytes": 2039,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "f4fa8b55a6329d0b0264c2fd1b7a2571cc482a07",
+      "sha256": "2044aae2e9afe2565427580f336e8ee1aa4cb4e414ed1290a5911b51d3a199e0",
+      "bytes": 2401,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "f4fa8b55a6329d0b0264c2fd1b7a2571cc482a07",
+      "sha256": "2044aae2e9afe2565427580f336e8ee1aa4cb4e414ed1290a5911b51d3a199e0",
+      "bytes": 2401,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "a2ef0a5f165249013ad4c4a2ce4f1a4c80e5cd223059db70ffdf9b63fcad50e8",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/pages/[boardSlug]/posts/[postId].vue",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "540834fa0de47afb987c4290e3eea14a2de969aa",
+      "sha256": "6266c3279b9bfb29b70a2b5f569e55cf12e25564428c15f85b818371f4a9e8e4",
+      "bytes": 8761,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "371ceeb6ebe6a1f1aeb3afc0612c7a328b16521c",
+      "sha256": "5fdbf152f841f27506b8f50d3d49b1f01e1579065d861f9a77fc975ff306dc84",
+      "bytes": 17536,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "540834fa0de47afb987c4290e3eea14a2de969aa",
+      "sha256": "6266c3279b9bfb29b70a2b5f569e55cf12e25564428c15f85b818371f4a9e8e4",
+      "bytes": 8761,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "371ceeb6ebe6a1f1aeb3afc0612c7a328b16521c",
+      "sha256": "5fdbf152f841f27506b8f50d3d49b1f01e1579065d861f9a77fc975ff306dc84",
+      "bytes": 17536,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "371ceeb6ebe6a1f1aeb3afc0612c7a328b16521c",
+      "sha256": "5fdbf152f841f27506b8f50d3d49b1f01e1579065d861f9a77fc975ff306dc84",
+      "bytes": 17536,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "3309df963201437b953ae6a4064eabe806a8e2c72638c1e5d367a291c7617a97",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/pages/admin-batch.vue",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "b1066ae1c42fca633c291ea046379c65dc98dfe8",
+      "sha256": "84808633a5bd33f134476bbad46df0f7d59b746248d4aed55dd93945dd1a06b9",
+      "bytes": 14002,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "a066747a056f85d3b45f760c4d5cc038b688fa69",
+      "sha256": "3a5bedd26942f9108cc04ebb5e50caf80feba4603e249c4d623a033c414fc6ea",
+      "bytes": 19614,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "b1066ae1c42fca633c291ea046379c65dc98dfe8",
+      "sha256": "84808633a5bd33f134476bbad46df0f7d59b746248d4aed55dd93945dd1a06b9",
+      "bytes": 14002,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "a066747a056f85d3b45f760c4d5cc038b688fa69",
+      "sha256": "3a5bedd26942f9108cc04ebb5e50caf80feba4603e249c4d623a033c414fc6ea",
+      "bytes": 19614,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "a066747a056f85d3b45f760c4d5cc038b688fa69",
+      "sha256": "3a5bedd26942f9108cc04ebb5e50caf80feba4603e249c4d623a033c414fc6ea",
+      "bytes": 19614,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "2d0c3c680a61b83108ce7947799747d2079a033cb4cfab7347001030933a93c8",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/pages/admin-login.vue",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "30b27df244334388dbd25e72cd14034d58fa6de0",
+      "sha256": "acba796afd5e1c7a1d4b19873378f1e4421acf3386a6aa81c6bf5d7b98b9dcba",
+      "bytes": 3619,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "30b27df244334388dbd25e72cd14034d58fa6de0",
+      "sha256": "acba796afd5e1c7a1d4b19873378f1e4421acf3386a6aa81c6bf5d7b98b9dcba",
+      "bytes": 3619,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "30b27df244334388dbd25e72cd14034d58fa6de0",
+      "sha256": "acba796afd5e1c7a1d4b19873378f1e4421acf3386a6aa81c6bf5d7b98b9dcba",
+      "bytes": 3619,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "aed7ed30953453306184381b019a4ad87e1fdac520929a988a027f873bc70e24",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/pages/admin.vue",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "d1463eaeb2d5b2b1a59114ccf9770c8f554a9046",
+      "sha256": "0fd010e6b89b6544866eab6f6a3baa52727688232e176ca0f6e8889fd0833464",
+      "bytes": 31954,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "4aa4bf1620d419022a6aacc1bfa986b2d6f6129b",
+      "sha256": "93c3c1feb3f9b9bdb80dbe3eb4ef5cb3fe3bb302116ef6c18a6894fcc74acabd",
+      "bytes": 32286,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "d1463eaeb2d5b2b1a59114ccf9770c8f554a9046",
+      "sha256": "0fd010e6b89b6544866eab6f6a3baa52727688232e176ca0f6e8889fd0833464",
+      "bytes": 31954,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "4aa4bf1620d419022a6aacc1bfa986b2d6f6129b",
+      "sha256": "93c3c1feb3f9b9bdb80dbe3eb4ef5cb3fe3bb302116ef6c18a6894fcc74acabd",
+      "bytes": 32286,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "4aa4bf1620d419022a6aacc1bfa986b2d6f6129b",
+      "sha256": "93c3c1feb3f9b9bdb80dbe3eb4ef5cb3fe3bb302116ef6c18a6894fcc74acabd",
+      "bytes": 32286,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "17341c147eacbda32bfaeb8388fb3b8d7ea9d37fb5657764b0b6ca3a7d78919e",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/plugins/analytics.client.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "12f19ee502a1740fee80d74a18aba960915e0729",
+      "sha256": "c002eca168174db3adc93e717ea800aa3472935320517cd4226cc8dfcd6b49a5",
+      "bytes": 1246,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "8e315fa2423636f8f9f4b14940e704020db6764b",
+      "sha256": "4cc310bc92529c16c75c16ab7a4f778dc6dbe1fffc0b6d5f84f6d84eb024e3d1",
+      "bytes": 1350,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "12f19ee502a1740fee80d74a18aba960915e0729",
+      "sha256": "c002eca168174db3adc93e717ea800aa3472935320517cd4226cc8dfcd6b49a5",
+      "bytes": 1246,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "8e315fa2423636f8f9f4b14940e704020db6764b",
+      "sha256": "4cc310bc92529c16c75c16ab7a4f778dc6dbe1fffc0b6d5f84f6d84eb024e3d1",
+      "bytes": 1350,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "8e315fa2423636f8f9f4b14940e704020db6764b",
+      "sha256": "4cc310bc92529c16c75c16ab7a4f778dc6dbe1fffc0b6d5f84f6d84eb024e3d1",
+      "bytes": 1350,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "9dc815ef2ee8450af71f6e631a5af2a7320426c82ff1f495aaf925bf590e3a0e",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/app/utils/consent.mjs",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "9751ec7512e604b00a84c3ef46e2a9aefc11c702",
+      "sha256": "259e97cc2c79d1c4a71783d234be2c6c40ec9896f8ec42c3e3c2e27e24473344",
+      "bytes": 8916,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "3adea7569693e3682943950667efa01712595a2c",
+      "sha256": "3ed6965d3c1152c2452c76f776a725ab3332783ab6c0d488ca4afe43c8ef732d",
+      "bytes": 15482,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "9751ec7512e604b00a84c3ef46e2a9aefc11c702",
+      "sha256": "259e97cc2c79d1c4a71783d234be2c6c40ec9896f8ec42c3e3c2e27e24473344",
+      "bytes": 8916,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "3adea7569693e3682943950667efa01712595a2c",
+      "sha256": "3ed6965d3c1152c2452c76f776a725ab3332783ab6c0d488ca4afe43c8ef732d",
+      "bytes": 15482,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "3adea7569693e3682943950667efa01712595a2c",
+      "sha256": "3ed6965d3c1152c2452c76f776a725ab3332783ab6c0d488ca4afe43c8ef732d",
+      "bytes": 15482,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "edc57d5dfcc8580c014d09aaa28af8d1b647a9a26673abcdc1387ea02cbd60be",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/nuxt.config.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "b2e749eae678c083ff78a01c02e6cd0aaf0a7a33",
+      "sha256": "6d1e3b25c56ac7d5e66a98894b9a449c5ce7f8ed91f5a43aa61aa240ef2a62db",
+      "bytes": 2203,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "b38d5a59ef61f21d449b2993cdf35517b12f858d",
+      "sha256": "e1e144d1536db9af9ab374f4958a83e6c8d8806680c221ffa88b3fb4b429f989",
+      "bytes": 2264,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "b2e749eae678c083ff78a01c02e6cd0aaf0a7a33",
+      "sha256": "6d1e3b25c56ac7d5e66a98894b9a449c5ce7f8ed91f5a43aa61aa240ef2a62db",
+      "bytes": 2203,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "b38d5a59ef61f21d449b2993cdf35517b12f858d",
+      "sha256": "e1e144d1536db9af9ab374f4958a83e6c8d8806680c221ffa88b3fb4b429f989",
+      "bytes": 2264,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "b38d5a59ef61f21d449b2993cdf35517b12f858d",
+      "sha256": "e1e144d1536db9af9ab374f4958a83e6c8d8806680c221ffa88b3fb4b429f989",
+      "bytes": 2264,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "15b15a4f0669c5866a16df7ec66dd88a701ea52972807a3e2de1334f2100c571",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/server/api/admin/local-session.delete.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "a82d6a709b5a9b0a13eb6ab772b983cf8f99b723",
+      "sha256": "c8dfc2f179ae43f5f76ecfeb010f2c2ae1b46daeb1e351663ac37d43e7486a43",
+      "bytes": 277,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "a82d6a709b5a9b0a13eb6ab772b983cf8f99b723",
+      "sha256": "c8dfc2f179ae43f5f76ecfeb010f2c2ae1b46daeb1e351663ac37d43e7486a43",
+      "bytes": 277,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "a82d6a709b5a9b0a13eb6ab772b983cf8f99b723",
+      "sha256": "c8dfc2f179ae43f5f76ecfeb010f2c2ae1b46daeb1e351663ac37d43e7486a43",
+      "bytes": 277,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "48dd37b675a31284bb24c32ba04e1a6a7b92bb25bfa41a86bf7abaac5200f87e",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/server/api/admin/local-session.post.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "771f808d70bdb6263d8a6549c4f587ffd90317b4",
+      "sha256": "4ad09e09c4ac758185a6194c34af5ead21b0cef3bff7e18186d1f6bffd63cc5f",
+      "bytes": 490,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "771f808d70bdb6263d8a6549c4f587ffd90317b4",
+      "sha256": "4ad09e09c4ac758185a6194c34af5ead21b0cef3bff7e18186d1f6bffd63cc5f",
+      "bytes": 490,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "771f808d70bdb6263d8a6549c4f587ffd90317b4",
+      "sha256": "4ad09e09c4ac758185a6194c34af5ead21b0cef3bff7e18186d1f6bffd63cc5f",
+      "bytes": 490,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "eae270858588decc52c4c2269d445e10046a8cfd37b0c65b027d9cbc46fcbd70",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/server/api/admin/session.get.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "2aac9f362520def970c7fe8b568170bc0ca5ddf9",
+      "sha256": "c785b4a60f6191328ea50727dfedf3ed6d0a2864f75b1a2834c7cab105e9a1eb",
+      "bytes": 364,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "2aac9f362520def970c7fe8b568170bc0ca5ddf9",
+      "sha256": "c785b4a60f6191328ea50727dfedf3ed6d0a2864f75b1a2834c7cab105e9a1eb",
+      "bytes": 364,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "2aac9f362520def970c7fe8b568170bc0ca5ddf9",
+      "sha256": "c785b4a60f6191328ea50727dfedf3ed6d0a2864f75b1a2834c7cab105e9a1eb",
+      "bytes": 364,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "c57d4fc5d6b4d900ff0d67822324f84d888751b6332c8347a7890dd5e6cdf0ac",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/server/middleware/admin.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "465e6457e8b896431b7a1908281767ea0d2a98cb",
+      "sha256": "976ab3d8d52dd9ed236d7935b13d03148e1ca5004c76a41032e34c211e069ffa",
+      "bytes": 805,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "569c62bc2e8a0ea6a143a47f87f93923ba308c19",
+      "sha256": "13e288bbf3da25ca60f6fd8d4b89b411b4b607e35d2a4dd77863bf11e2d4ec95",
+      "bytes": 1201,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "465e6457e8b896431b7a1908281767ea0d2a98cb",
+      "sha256": "976ab3d8d52dd9ed236d7935b13d03148e1ca5004c76a41032e34c211e069ffa",
+      "bytes": 805,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "569c62bc2e8a0ea6a143a47f87f93923ba308c19",
+      "sha256": "13e288bbf3da25ca60f6fd8d4b89b411b4b607e35d2a4dd77863bf11e2d4ec95",
+      "bytes": 1201,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "569c62bc2e8a0ea6a143a47f87f93923ba308c19",
+      "sha256": "13e288bbf3da25ca60f6fd8d4b89b411b4b607e35d2a4dd77863bf11e2d4ec95",
+      "bytes": 1201,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "f4cb9355f69fd0e646dc7c964366e7c256fbd73342fcc3d7b0aa3066fb9349af",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/server/plugins/production.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "3d31947f8378eb22bf65a65a3018fe7136840fe8",
+      "sha256": "aeb55347a839c9c685d865e6a89ae0e4f580a2ee9f81d227f5b299bd69ffddb8",
+      "bytes": 1055,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "b3372b6a516c919912d17d56bfd360442704f5b8",
+      "sha256": "663eafa57a8fc93cc12c738983eb307d1cb1d73a4584e4c6380bef1c246654f1",
+      "bytes": 1088,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "3d31947f8378eb22bf65a65a3018fe7136840fe8",
+      "sha256": "aeb55347a839c9c685d865e6a89ae0e4f580a2ee9f81d227f5b299bd69ffddb8",
+      "bytes": 1055,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "b3372b6a516c919912d17d56bfd360442704f5b8",
+      "sha256": "663eafa57a8fc93cc12c738983eb307d1cb1d73a4584e4c6380bef1c246654f1",
+      "bytes": 1088,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "b3372b6a516c919912d17d56bfd360442704f5b8",
+      "sha256": "663eafa57a8fc93cc12c738983eb307d1cb1d73a4584e4c6380bef1c246654f1",
+      "bytes": 1088,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "2dd50b1e0ae3d593596db3c4b05e2f87464d846e981b249a62debaccb65261fe",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/server/utils/local-admin.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "002b61c89f7bf6759f6770d11f28f7cb4287128c",
+      "sha256": "dd0e9dbca2ecf48e9f0a17b12e66bf2c9c0692a38d94ed30d7cb982eb8860c05",
+      "bytes": 1657,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "002b61c89f7bf6759f6770d11f28f7cb4287128c",
+      "sha256": "dd0e9dbca2ecf48e9f0a17b12e66bf2c9c0692a38d94ed30d7cb982eb8860c05",
+      "bytes": 1657,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "002b61c89f7bf6759f6770d11f28f7cb4287128c",
+      "sha256": "dd0e9dbca2ecf48e9f0a17b12e66bf2c9c0692a38d94ed30d7cb982eb8860c05",
+      "bytes": 1657,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "0f28b04e961a9b1c4b432a8b43f2d46f140fc7a18c88526634ec66ca17081236",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "apps/web/shared/admin-return.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "1d543e42c201f00362ac3cb1ab3acf61a6d77f2b",
+      "sha256": "e26cf4411ee00e73013eaad2998daa052f1c702500cabb99f2dd4e0462747ab7",
+      "bytes": 931,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "1d543e42c201f00362ac3cb1ab3acf61a6d77f2b",
+      "sha256": "e26cf4411ee00e73013eaad2998daa052f1c702500cabb99f2dd4e0462747ab7",
+      "bytes": 931,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "1d543e42c201f00362ac3cb1ab3acf61a6d77f2b",
+      "sha256": "e26cf4411ee00e73013eaad2998daa052f1c702500cabb99f2dd4e0462747ab7",
+      "bytes": 931,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "899ff22f2d06f09cb19c6d9bec7f3a02e348585dbcf8ff8fb6db2721ee350e30",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "deploy/application/README.md",
+    "sourceCommits": [
+      "945b7462eaf2c7effdb810718f77cd3149c07911"
+    ],
+    "baseline": {
+      "blob": "529f8c460a50bdd0256723527c43dca41275f9bb",
+      "sha256": "3e937efd30384ae36c5e5243b24a65a9198cd338e40189bce16ece19b7f7a853",
+      "bytes": 19726,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "e7be0e1f89c094c72e9f969117189ddab256a579",
+      "sha256": "a30c0ad61cd459ccf01e883161d98bbc5ed469f9a66d1ef83404f250f58e8fcd",
+      "bytes": 19783,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "529f8c460a50bdd0256723527c43dca41275f9bb",
+      "sha256": "3e937efd30384ae36c5e5243b24a65a9198cd338e40189bce16ece19b7f7a853",
+      "bytes": 19726,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "e7be0e1f89c094c72e9f969117189ddab256a579",
+      "sha256": "a30c0ad61cd459ccf01e883161d98bbc5ed469f9a66d1ef83404f250f58e8fcd",
+      "bytes": 19783,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "a21c4a395ee40214f9996f53a35d79f95b3c0af8",
+      "sha256": "16d1179970a204f0e04cee5066f4d46a001ec30350dbd366635a5831572cb316",
+      "bytes": 20536,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "b3121c945326a77549a99e6bcd7d2ff0c9963a819b4b33b10f69447ff0408f30",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "deploy/operations/start-application.py",
+    "sourceCommits": [
+      "f920954862fb4fbf8bf15608d996670030fd1f7b"
+    ],
+    "baseline": {
+      "blob": "d71e83cd067f0349a06023c2734ccc661d1404cd",
+      "sha256": "362232e6f757d2b733f73e13f27a8d74a60244e6cf10353158ca9f1e90cea831",
+      "bytes": 581,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "787bae38a4aa020a90a1b0bd33553cf9d7608f08",
+      "sha256": "62c8d3da9e693ece660942fb2b2059305ef9c5635f01456bea4a9a8463009e13",
+      "bytes": 577,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "d71e83cd067f0349a06023c2734ccc661d1404cd",
+      "sha256": "362232e6f757d2b733f73e13f27a8d74a60244e6cf10353158ca9f1e90cea831",
+      "bytes": 581,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "787bae38a4aa020a90a1b0bd33553cf9d7608f08",
+      "sha256": "62c8d3da9e693ece660942fb2b2059305ef9c5635f01456bea4a9a8463009e13",
+      "bytes": 577,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "787bae38a4aa020a90a1b0bd33553cf9d7608f08",
+      "sha256": "62c8d3da9e693ece660942fb2b2059305ef9c5635f01456bea4a9a8463009e13",
+      "bytes": 577,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "20c528e5d81b94b5c6c3c7b0d56993475f9d307ef92b895299a863530c538b52",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/README.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33"
+    ],
+    "baseline": {
+      "blob": "a266d8cc7806b007fb6130f2248973d7bda8b8f9",
+      "sha256": "582bd6c313319e774a0cb1a2a19d05e5d3da380fa9e7689518b8dbf0993a5003",
+      "bytes": 2544,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "2f29fab929cd786ae77114f1097c1c20e9cf4000",
+      "sha256": "d331eb7bcaacbeaa071139f21e6fdc6bfba96295db00a23eb5aa729a1c449cf5",
+      "bytes": 2728,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "a266d8cc7806b007fb6130f2248973d7bda8b8f9",
+      "sha256": "582bd6c313319e774a0cb1a2a19d05e5d3da380fa9e7689518b8dbf0993a5003",
+      "bytes": 2544,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "2f29fab929cd786ae77114f1097c1c20e9cf4000",
+      "sha256": "d331eb7bcaacbeaa071139f21e6fdc6bfba96295db00a23eb5aa729a1c449cf5",
+      "bytes": 2728,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "7687fc105d3c11402a202d3e830f99a220a66b90",
+      "sha256": "f42b42fde64fef6a3cef7d2d086443f13e31f9c3316ea511bb554372ed0ef9d8",
+      "bytes": 4652,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-29",
+      "GOV-30"
+    ],
+    "productPatchSha256": "8268ffbf0f527ab9e08cd802ebd9221ff5b7bb9572fb80138e48090d6086a8b0",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "9ba3ee3c689ed89d55770fe7930d7f778712ae1b",
+      "sha256": "4e3f5b875d02cc1f9aee1711ce921a9b52fb77b8c219d670cbdbcfe9b6436bf9",
+      "bytes": 86961,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "5fd57f0d4b48f76b97b55c60b3da79c9eb467210",
+      "sha256": "b9f7fa54a5ceac13f40c2f2f77bade4c4b17faa1c38484b321f357d50136c629",
+      "bytes": 87314,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "9ba3ee3c689ed89d55770fe7930d7f778712ae1b",
+      "sha256": "4e3f5b875d02cc1f9aee1711ce921a9b52fb77b8c219d670cbdbcfe9b6436bf9",
+      "bytes": 86961,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "5fd57f0d4b48f76b97b55c60b3da79c9eb467210",
+      "sha256": "b9f7fa54a5ceac13f40c2f2f77bade4c4b17faa1c38484b321f357d50136c629",
+      "bytes": 87314,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "12f693a6e02917324045e7ab0ce5f95eb50dceaf",
+      "sha256": "24ead9e206b5531059435e8cbc28f5dc38414e341ef91842ddf811d35d314cad",
+      "bytes": 96605,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "3d7d5727e64e058597e1374ccb867d1d196a87ffbe8b06f3bf4fe8d8e84a2947",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/development-specs/m0-core/admin-post-management/admin-post-management.dev.md",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "e37345e56defa005f395db8b03f516994661f8fb",
+      "sha256": "73b1436eaf58cf4a074bc3157164ba35e1c4d14ab4a37c3a94b880a407102339",
+      "bytes": 55930,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "ab066b12da8e8b3da22b43b49a0736536f13ad82",
+      "sha256": "1af5cbe39974929a004dae006a23a202e8c11838b9ae3450749562e92c760554",
+      "bytes": 56266,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "e37345e56defa005f395db8b03f516994661f8fb",
+      "sha256": "73b1436eaf58cf4a074bc3157164ba35e1c4d14ab4a37c3a94b880a407102339",
+      "bytes": 55930,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "ab066b12da8e8b3da22b43b49a0736536f13ad82",
+      "sha256": "1af5cbe39974929a004dae006a23a202e8c11838b9ae3450749562e92c760554",
+      "bytes": 56266,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "90d53e4da7d8560579a5ba821d5eedb4092f18c6",
+      "sha256": "2fd12857bba2b1a9942b1e8ce61c85cdeaef1542a53f1935286eea9d1ea363d1",
+      "bytes": 58248,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "6896a02164f020a08781ee29a50143ad1fa715fa8352c9efae66194b63110a61",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "945b7462eaf2c7effdb810718f77cd3149c07911",
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "34a417a41fa32e7582cd79ab0a0c9142fd0887a0",
+      "sha256": "7f45d6d0c85e53fbfe8d3d642283c469f68e54fde291086a1819929f8240d463",
+      "bytes": 22760,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "15df0ca570ffe0da37526e88544d612ec05325fd",
+      "sha256": "ec58156b3750ba1a40633ef582fe4529d981ca5482a115bac59093cafd9490bb",
+      "bytes": 51838,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "34a417a41fa32e7582cd79ab0a0c9142fd0887a0",
+      "sha256": "7f45d6d0c85e53fbfe8d3d642283c469f68e54fde291086a1819929f8240d463",
+      "bytes": 22760,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "15df0ca570ffe0da37526e88544d612ec05325fd",
+      "sha256": "ec58156b3750ba1a40633ef582fe4529d981ca5482a115bac59093cafd9490bb",
+      "bytes": 51838,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "aa6217f746f083bf937c0cd20afdd051b7aa7143",
+      "sha256": "3df2c14729d5df699d01182e9d6a1e4c2f0c8de04f672d33770628e14cbaba8b",
+      "bytes": 57372,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "84f5d2f36476d44f14d42f7f7cc51aec3d354b8523664fc539e11e2ec12caecf",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/development-specs/m0-core/openapi/m0-core.yaml",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "32ff949e74cd2f4946264d64b82b6e331e2b0dc7",
+      "sha256": "6fca891507082f908bb9b4f0ed2d17f6823ff97eafcdd84fe59bb2fd0f28a73a",
+      "bytes": 49608,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "bb8add9e6db4366c7b9db3e56d7f4d51570921d7",
+      "sha256": "9f07638132c59c70192597cb8271846f9c6fa74b961c0beffa2c326f64180b4d",
+      "bytes": 49832,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "32ff949e74cd2f4946264d64b82b6e331e2b0dc7",
+      "sha256": "6fca891507082f908bb9b4f0ed2d17f6823ff97eafcdd84fe59bb2fd0f28a73a",
+      "bytes": 49608,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "bb8add9e6db4366c7b9db3e56d7f4d51570921d7",
+      "sha256": "9f07638132c59c70192597cb8271846f9c6fa74b961c0beffa2c326f64180b4d",
+      "bytes": 49832,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "bb8add9e6db4366c7b9db3e56d7f4d51570921d7",
+      "sha256": "9f07638132c59c70192597cb8271846f9c6fa74b961c0beffa2c326f64180b4d",
+      "bytes": 49832,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "381ddd1abc95ab4e2946c26cc972c829091a96be2e788fc18b4670c8de0340b0",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/development-specs/requirements-status.md",
+    "sourceCommits": [
+      "945b7462eaf2c7effdb810718f77cd3149c07911"
+    ],
+    "baseline": {
+      "blob": "d6320c8d732bcfe7b31982056ca3b19dcef779fc",
+      "sha256": "6fb89f6014da611048e2857790d2244edb922822a62a9f4a67dbf8f9c054cd43",
+      "bytes": 19291,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "7c0a84d95e9299b688ea0d977a688566160ad072",
+      "sha256": "80cdc56fd1707d9eab08425497b4e873b8a532c8a28e565dd7b9ce2085b63ca3",
+      "bytes": 19168,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "d6320c8d732bcfe7b31982056ca3b19dcef779fc",
+      "sha256": "6fb89f6014da611048e2857790d2244edb922822a62a9f4a67dbf8f9c054cd43",
+      "bytes": 19291,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "7c0a84d95e9299b688ea0d977a688566160ad072",
+      "sha256": "80cdc56fd1707d9eab08425497b4e873b8a532c8a28e565dd7b9ce2085b63ca3",
+      "bytes": 19168,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "2463d644c07340c79187c60cc4ac560a1690ea86",
+      "sha256": "55d22335c6056ccd038593f58bf1e8b69e683dedd6a70b7301febadb17a0dadf",
+      "bytes": 28991,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "37d3c00f2e594b67a6c3e93131fcba7f2e2b6e55da6a16ecbbbd7a813979524a",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/legal/README.md",
+    "sourceCommits": [
+      "945b7462eaf2c7effdb810718f77cd3149c07911"
+    ],
+    "baseline": {
+      "blob": "eef023676095ddac50715afa6736a4bdf09c1df2",
+      "sha256": "53dddc5d3909cb8b5b865ab7969096ba7486842e2e5e972c24dade548e16a55d",
+      "bytes": 19464,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "b4e6f108184d416f352e5d30adcdf898fd5c9496",
+      "sha256": "9dd2990bb4357ccf47abb6ea82baac8ac58fc965bb4704051503e8bdc1ec9067",
+      "bytes": 19785,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "eef023676095ddac50715afa6736a4bdf09c1df2",
+      "sha256": "53dddc5d3909cb8b5b865ab7969096ba7486842e2e5e972c24dade548e16a55d",
+      "bytes": 19464,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "b4e6f108184d416f352e5d30adcdf898fd5c9496",
+      "sha256": "9dd2990bb4357ccf47abb6ea82baac8ac58fc965bb4704051503e8bdc1ec9067",
+      "bytes": 19785,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "139ebfebd6114cb0a82f88a539c8ef44e9498cd2",
+      "sha256": "5cef9213eda013172311c037e3698def97dbcdcd34aab4859e268dcb21164298",
+      "bytes": 25953,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "4582e07dc70e1882e24ee5c583590a0a5e167aea79eb99fa09aceb8ac8be5402",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/legal/cookie-settings.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "00d5e6c840c09bffdb05228f165e6977abbe50cb",
+      "sha256": "c1b18cf5c1b9c21972d28d32abc80161d9e5076c6c53e4701faf6eeafb804d9f",
+      "bytes": 9622,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "34b7ebaf057778fc76c33098e38a7482bcc82ef8",
+      "sha256": "b5df2d43870a7c69ec4c0208bd7b86bb6d23b2190278815439fac370f45e2133",
+      "bytes": 11591,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "00d5e6c840c09bffdb05228f165e6977abbe50cb",
+      "sha256": "c1b18cf5c1b9c21972d28d32abc80161d9e5076c6c53e4701faf6eeafb804d9f",
+      "bytes": 9622,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "34b7ebaf057778fc76c33098e38a7482bcc82ef8",
+      "sha256": "b5df2d43870a7c69ec4c0208bd7b86bb6d23b2190278815439fac370f45e2133",
+      "bytes": 11591,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "4f0d8b88f4333c98d2f8a98e84e030b2b4527445",
+      "sha256": "8b81ad0d5218c1c5dc16460654bee704e0dfb131f02dfad5c173690ab05aa0cd",
+      "bytes": 12910,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "7d9474cad03915a2ab01959fd66f9b5936d19e0463a920b720e19fbbca1777b3",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/legal/privacy-policy.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "f647dcee1fc1ba7f207d276f4a475de8e799a363",
+      "sha256": "51bff58447cf04d43c98d43f2d805de507386e8bb393ac726691c0c8151419c4",
+      "bytes": 34188,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "53aaf4fb55ac85b690c73ff753eff20d102ae795",
+      "sha256": "3c166b49896f581add8b3b8f7604412d1269e9ac67e2749df711869f8c2a9df4",
+      "bytes": 36430,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "f647dcee1fc1ba7f207d276f4a475de8e799a363",
+      "sha256": "51bff58447cf04d43c98d43f2d805de507386e8bb393ac726691c0c8151419c4",
+      "bytes": 34188,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "53aaf4fb55ac85b690c73ff753eff20d102ae795",
+      "sha256": "3c166b49896f581add8b3b8f7604412d1269e9ac67e2749df711869f8c2a9df4",
+      "bytes": 36430,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "5efc0005d30ac5ceaedebf93d5e2c3f49e4cbb09",
+      "sha256": "e56f1e8bab5469bf5fbda6fd1f64e4ee6ac060c40aabeba902bfde5f398cfdd0",
+      "bytes": 46028,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "dfa6f2510b54ae39ffa9990036e2510327151a012e1d04d5ee3c30f9950afa43",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/migration/contract-evolution.json",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "7731560dba70ac83265160a06fd15896a1d077cf",
+      "sha256": "b9a70dc57932adc98180f5798e97727680b433dcc61788618795d0aeef5ff86b",
+      "bytes": 3696,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "bfe48bf3ca3410e8a192d1b5717f408416f3cd73",
+      "sha256": "510b02777d5a71419bfba83db647ae1d5487a0488b6b25cdbe834e40a26df9ab",
+      "bytes": 4222,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "7731560dba70ac83265160a06fd15896a1d077cf",
+      "sha256": "b9a70dc57932adc98180f5798e97727680b433dcc61788618795d0aeef5ff86b",
+      "bytes": 3696,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "bfe48bf3ca3410e8a192d1b5717f408416f3cd73",
+      "sha256": "510b02777d5a71419bfba83db647ae1d5487a0488b6b25cdbe834e40a26df9ab",
+      "bytes": 4222,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "15b2e5c9247c37b4a534b5a5dcfd72675b842503",
+      "sha256": "704c5bc75718bb8e4eaa5e63c7ac1a29633260dbaa464cd104a28a1d02965587",
+      "bytes": 10720,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-18",
+      "GOV-30"
+    ],
+    "productPatchSha256": "7c910f98def6f1b28c75b3fad581f03604895c9131d4e739dc61a581fb74264a",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/operations/current-status.md",
+    "sourceCommits": [
+      "f920954862fb4fbf8bf15608d996670030fd1f7b",
+      "945b7462eaf2c7effdb810718f77cd3149c07911"
+    ],
+    "baseline": {
+      "blob": "54e258805fb828cf0d2847ee34708b5a855c77da",
+      "sha256": "cfd93f831ed500477197ed9ccaeea1aa84e4549c075d3c61f207bee000e38a66",
+      "bytes": 10106,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "b8ca8fa190d3f99e2d2a7ff1e4c077ee25080bde",
+      "sha256": "bb1eb4dbd57b47b05aa03df8540429dbc7809d6ab481dfb3cdb307505e835b7e",
+      "bytes": 10374,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "54e258805fb828cf0d2847ee34708b5a855c77da",
+      "sha256": "cfd93f831ed500477197ed9ccaeea1aa84e4549c075d3c61f207bee000e38a66",
+      "bytes": 10106,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "b8ca8fa190d3f99e2d2a7ff1e4c077ee25080bde",
+      "sha256": "bb1eb4dbd57b47b05aa03df8540429dbc7809d6ab481dfb3cdb307505e835b7e",
+      "bytes": 10374,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "da1638b0e3d4e8b9d3e2b0f1eb09be2c91ed588e",
+      "sha256": "bf597fac0d6afcd2af0b6e31a63a9f66a1311f96b16c983ae81d8a60252f0212",
+      "bytes": 13247,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "5fc0884e83f9911789e6386fbe7d4dffd2f0fb29acc3eb01973a66fdbf7bd7ba",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/operations/deployment-policy.md",
+    "sourceCommits": [
+      "945b7462eaf2c7effdb810718f77cd3149c07911"
+    ],
+    "baseline": {
+      "blob": "8f247581004df0cb6027aa02aebf576208386424",
+      "sha256": "b4548420666bde05f24718286d9b34d170dc7795b5db1980c4f744dabd526fed",
+      "bytes": 10041,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "753c8ab3571950255f243e4648531766c795321e",
+      "sha256": "077bef2b056826e4b98174ba9086198f233d4853326042a1ab85ece5ecc59683",
+      "bytes": 10211,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "8f247581004df0cb6027aa02aebf576208386424",
+      "sha256": "b4548420666bde05f24718286d9b34d170dc7795b5db1980c4f744dabd526fed",
+      "bytes": 10041,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "753c8ab3571950255f243e4648531766c795321e",
+      "sha256": "077bef2b056826e4b98174ba9086198f233d4853326042a1ab85ece5ecc59683",
+      "bytes": 10211,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "de9e6d2d3dbec48357b27161cf876ed67b67fb60",
+      "sha256": "613d3a10732ba3567c7b6a199ad51e10b8a86664d80c96d2de27b07ba242f5a8",
+      "bytes": 10679,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "04870d4b9ce026cf80e4c9f03e099b9cb474743e337e89e8cd7357772a22a10a",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/operations/deployment-runbook.md",
+    "sourceCommits": [
+      "f920954862fb4fbf8bf15608d996670030fd1f7b",
+      "945b7462eaf2c7effdb810718f77cd3149c07911"
+    ],
+    "baseline": {
+      "blob": "8386dafc9f1fed9039e5d4f0fb73299d85be7bc8",
+      "sha256": "b3bfc9719a614bd04bc3733e780928796f87f980bd02c314faa2dea8dc2371ef",
+      "bytes": 17982,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "cbc25f20e3c236367f2fe8e576e703c1f60d68b7",
+      "sha256": "e6dd9bdc1704fe7b14478d5450a8817c0d052037db17932255a1eae25ce79a5a",
+      "bytes": 18088,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "8386dafc9f1fed9039e5d4f0fb73299d85be7bc8",
+      "sha256": "b3bfc9719a614bd04bc3733e780928796f87f980bd02c314faa2dea8dc2371ef",
+      "bytes": 17982,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "cbc25f20e3c236367f2fe8e576e703c1f60d68b7",
+      "sha256": "e6dd9bdc1704fe7b14478d5450a8817c0d052037db17932255a1eae25ce79a5a",
+      "bytes": 18088,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "b83e49caaa658046d7723a8cbf2d6a8a711d7def",
+      "sha256": "5dc364155edfab76a75f57dfdc13d2cab40587aac2880f5cc5c9a863eff9fcc5",
+      "bytes": 18773,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "a133da608c87b27e1948dc73f7f8dce0327ecde31b8a69a993a80bc738ebed35",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/operations/security-protection-status.md",
+    "sourceCommits": [
+      "945b7462eaf2c7effdb810718f77cd3149c07911"
+    ],
+    "baseline": {
+      "blob": "1919bbb0d00e5a924f40fd4fc7f0670faaf127b3",
+      "sha256": "bcb27470c4f817302cba90d3213f5cf426972282bce82dd1c3cd052b06e54c84",
+      "bytes": 29569,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "5cedda5e1657fc302e1d31a881da3a97ab4618e4",
+      "sha256": "88216c277e7103f5bdbee7588687d485ea6e4f21b8c12a4f03ada71aac311494",
+      "bytes": 29504,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "1919bbb0d00e5a924f40fd4fc7f0670faaf127b3",
+      "sha256": "bcb27470c4f817302cba90d3213f5cf426972282bce82dd1c3cd052b06e54c84",
+      "bytes": 29569,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "5cedda5e1657fc302e1d31a881da3a97ab4618e4",
+      "sha256": "88216c277e7103f5bdbee7588687d485ea6e4f21b8c12a4f03ada71aac311494",
+      "bytes": 29504,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "cf680daa723129b536849a11f8b4ebd08abaa3ef",
+      "sha256": "9ee675767aae4164b449775799d21d66f49ddb44abfc2e566a99e76b56109fb1",
+      "bytes": 34106,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "8934247b4e40b155b9d61822b908e4e4eea8ec57cb0fd96df3b654e83e63e2ce",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/planning/03-screen-design.md",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "cce7f7a87c2f688c6ca1c339efe4bbbd7b57afd6",
+      "sha256": "eb0103ee9c0b6488e81d400f196ec8178889a6e193239c98cf7b2c92015cb95f",
+      "bytes": 40867,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "b5a30366467f669dabd9960e2f6d986a08099ea6",
+      "sha256": "6bab0184e99012dc62427d14837b5ea643e117522bbe2c605dfd3ecba490c4f8",
+      "bytes": 45535,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "cce7f7a87c2f688c6ca1c339efe4bbbd7b57afd6",
+      "sha256": "eb0103ee9c0b6488e81d400f196ec8178889a6e193239c98cf7b2c92015cb95f",
+      "bytes": 40867,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "b5a30366467f669dabd9960e2f6d986a08099ea6",
+      "sha256": "6bab0184e99012dc62427d14837b5ea643e117522bbe2c605dfd3ecba490c4f8",
+      "bytes": 45535,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "b5a30366467f669dabd9960e2f6d986a08099ea6",
+      "sha256": "6bab0184e99012dc62427d14837b5ea643e117522bbe2c605dfd3ecba490c4f8",
+      "bytes": 45535,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "4356400836c7edc7cf1005216c17f40bbb635fb45f6d4fdd9b995ab4244623e9",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/planning/04-analytics-ad-plan.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "945b7462eaf2c7effdb810718f77cd3149c07911",
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "6c133cd14df6d4f83b054941a1b024a831f1020e",
+      "sha256": "c29dd7a921609050d2faa88cb0f5220853c6d2d6bc8806888c94b33d6442b4ad",
+      "bytes": 17067,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "862017d91e03e399d8bdea417375c40d98588e4a",
+      "sha256": "30cc6262dffdfde2041c6b19ba6916cd9aac745968d0a2f96c09259151a60ee3",
+      "bytes": 21675,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "6c133cd14df6d4f83b054941a1b024a831f1020e",
+      "sha256": "c29dd7a921609050d2faa88cb0f5220853c6d2d6bc8806888c94b33d6442b4ad",
+      "bytes": 17067,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "862017d91e03e399d8bdea417375c40d98588e4a",
+      "sha256": "30cc6262dffdfde2041c6b19ba6916cd9aac745968d0a2f96c09259151a60ee3",
+      "bytes": 21675,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "33bd47c6a7745d7872f63cc97741680c268c4fc6",
+      "sha256": "b1f43a38d5b023de34a3b3df8261914469b1e1f14f0a942271312d629e68a6d7",
+      "bytes": 22344,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "5176bc1da8b6ea2c653c6e809ff4ecd9c172b06a9dd5345e4e3f65a0c7c70c71",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/planning/04-analytics-expansion-proposal.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "5e23dde1e925577475e540517340dbb0e7ff1bed",
+      "sha256": "bd27f3de3ff43d967f38d2249c276cd5c1f5de9283af6b48740ce46790299d2f",
+      "bytes": 30298,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "5e23dde1e925577475e540517340dbb0e7ff1bed",
+      "sha256": "bd27f3de3ff43d967f38d2249c276cd5c1f5de9283af6b48740ce46790299d2f",
+      "bytes": 30298,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "1f9a5c97e9bfda325f3023a63d7ee44269b77d45",
+      "sha256": "beb47494e5ebaaccd56a671ca403e77e5e48f201383e1934a2a54548fdbda8d7",
+      "bytes": 35893,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "a30382ab55aa3654fd8401b06449529486cd0489de2a845e98b462849e9343cd",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/roadmap.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "945b7462eaf2c7effdb810718f77cd3149c07911"
+    ],
+    "baseline": {
+      "blob": "b960a7fa4abbe63ff5a066cfb0e38ac454ca2267",
+      "sha256": "430927a62752bb1e1c4b0c6f549967e3fa38d3526a5eb11713143794e526b079",
+      "bytes": 33353,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "1fe2f106f6b395f8b2b454f824497dd34e536bca",
+      "sha256": "9ba7c472810299a4f296385012b797b0d48cb8d94f7a7f040e4d65a13e1ed679",
+      "bytes": 33943,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "b960a7fa4abbe63ff5a066cfb0e38ac454ca2267",
+      "sha256": "430927a62752bb1e1c4b0c6f549967e3fa38d3526a5eb11713143794e526b079",
+      "bytes": 33353,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "1fe2f106f6b395f8b2b454f824497dd34e536bca",
+      "sha256": "9ba7c472810299a4f296385012b797b0d48cb8d94f7a7f040e4d65a13e1ed679",
+      "bytes": 33943,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "fabfee18ce9a68d72877c55f43bd945644b6cb99",
+      "sha256": "af59c5c442c130d697036c6b8be79fb87b2a1857334a28ccc88100598a62a992",
+      "bytes": 43585,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-29",
+      "GOV-30"
+    ],
+    "productPatchSha256": "70b9847e2727e5ed27e10f30120bbc94825fbe2ae5a578baf891a407264c483c",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/status.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "945b7462eaf2c7effdb810718f77cd3149c07911"
+    ],
+    "baseline": {
+      "blob": "c17590c0a5170c64386cbd9e777067bc5cfdfacf",
+      "sha256": "d408bc7d1eb65150026aabeebc77b409e5cf9d3eb7d3051c283f15f57cbf2170",
+      "bytes": 12528,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "1a1548516d7da48e816fe2aba1062ea5a2e6dac8",
+      "sha256": "7b3bb96e5d17a8b4c1f3426c6bd626f2d8756f4f2ddbae79d2ec2af4043b9654",
+      "bytes": 13337,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "c17590c0a5170c64386cbd9e777067bc5cfdfacf",
+      "sha256": "d408bc7d1eb65150026aabeebc77b409e5cf9d3eb7d3051c283f15f57cbf2170",
+      "bytes": 12528,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "1a1548516d7da48e816fe2aba1062ea5a2e6dac8",
+      "sha256": "7b3bb96e5d17a8b4c1f3426c6bd626f2d8756f4f2ddbae79d2ec2af4043b9654",
+      "bytes": 13337,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "65ccc2a80c358bb84ed42e1f69f959751d558280",
+      "sha256": "64840deff17ece9d07d117d49498799a8fdb0b5d97b0c888bd46031242fa183f",
+      "bytes": 22197,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-29",
+      "GOV-30"
+    ],
+    "productPatchSha256": "6978c05aeb71f36a717bde639b96fddd09463f85617c470dc4c529d21a43d74f",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/system-design/01-system-architecture.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "dc531ed776b6576cb348ba14782e37db05526526",
+      "sha256": "6753b3b1f236797caf9d548702982a14e049550c1e60184f699430d15bd9f349",
+      "bytes": 29524,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "44ccd11d3a4e577f8d08fb11ef4d65a26a384d3d",
+      "sha256": "dd4b3fdf3b0af75a2ff09e6e43fecb72f013c4e9dc5bbad32b84721e62a24a45",
+      "bytes": 30299,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "dc531ed776b6576cb348ba14782e37db05526526",
+      "sha256": "6753b3b1f236797caf9d548702982a14e049550c1e60184f699430d15bd9f349",
+      "bytes": 29524,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "44ccd11d3a4e577f8d08fb11ef4d65a26a384d3d",
+      "sha256": "dd4b3fdf3b0af75a2ff09e6e43fecb72f013c4e9dc5bbad32b84721e62a24a45",
+      "bytes": 30299,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "2c7f72a4c25b8667c53d96d1598193ed1eb65536",
+      "sha256": "1a544033c8ad06b33c80dd534f08c0e617e32e236a8a7ecccca75105feb79e1e",
+      "bytes": 32231,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-16",
+      "GOV-30"
+    ],
+    "productPatchSha256": "c805b8bef2a2fed0e8e62ef0bda91f68aeda784cee139dc747071b0480c79edd",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/system-design/03-api-design.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "f05ff89af8e2f04a1cf3e60f9977c00ea084431b",
+      "sha256": "fb597c7c68d5f12ee6dd14d181a5ced83a85ae384f4a5dd94efa61b608fe1d90",
+      "bytes": 59026,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "b5a521f98d50cd2d1ee2ad73e9cdcb37354d5934",
+      "sha256": "a15f3e525c1d30e9a35c4c1733400231d4319727f2e8d61f854091d842b8d6f9",
+      "bytes": 61166,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "f05ff89af8e2f04a1cf3e60f9977c00ea084431b",
+      "sha256": "fb597c7c68d5f12ee6dd14d181a5ced83a85ae384f4a5dd94efa61b608fe1d90",
+      "bytes": 59026,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "b5a521f98d50cd2d1ee2ad73e9cdcb37354d5934",
+      "sha256": "a15f3e525c1d30e9a35c4c1733400231d4319727f2e8d61f854091d842b8d6f9",
+      "bytes": 61166,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "e09e4ed5d07251ca031c932a4e358e7f4b2cd7c4",
+      "sha256": "3b709dbfae4250ab43c40f2d40c47ee885953a7f51ecff6a6edbf76a6a1fdcbe",
+      "bytes": 66861,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "0022e1e8128b73b73443438d5a0255f183dc7976792c1de7d4648993b1666d1e",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/system-design/05-security-operations.md",
+    "sourceCommits": [
+      "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "945b7462eaf2c7effdb810718f77cd3149c07911",
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "46b2027a4b2217409b54824a36c8faa85c246e3e",
+      "sha256": "6c7f7ecb0e62bf35f67a99ee63bea3113d80ecbf641ac4472221518bc3386c1b",
+      "bytes": 48444,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "1aa8c3bf2fb5d6cac61c085b9e7808a3edcf7f3c",
+      "sha256": "a47de1f0fb4af65197577a3c19d5fb4588d5c5c43def6b3d497c54720b0cba0c",
+      "bytes": 50994,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "46b2027a4b2217409b54824a36c8faa85c246e3e",
+      "sha256": "6c7f7ecb0e62bf35f67a99ee63bea3113d80ecbf641ac4472221518bc3386c1b",
+      "bytes": 48444,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "1aa8c3bf2fb5d6cac61c085b9e7808a3edcf7f3c",
+      "sha256": "a47de1f0fb4af65197577a3c19d5fb4588d5c5c43def6b3d497c54720b0cba0c",
+      "bytes": 50994,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "5097db3800ba8f465a395b34b0aa840893978e7a",
+      "sha256": "fb2abcc946363ff25b85f58167c4f840261a714b78cdb3d22e153ebfea57d262",
+      "bytes": 59431,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존; 관리자 접근·수집 검토 UX 변경 보존; GTM 배포 관련 변경/당시 증거 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "ce4507651d15e8f7264075d7edfe5a7ce931ffbdf6b9e89dc93621858745102f",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "docs/testing/local-playwright-docker.md",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "c559acfbde1d6ff03e8ef85307d8d6c78e15c8a7",
+      "sha256": "3aedf1997d93dd32de4ee8cc928c7442470b7d1b37a9b317227504edb2d28ec9",
+      "bytes": 2357,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "c559acfbde1d6ff03e8ef85307d8d6c78e15c8a7",
+      "sha256": "3aedf1997d93dd32de4ee8cc928c7442470b7d1b37a9b317227504edb2d28ec9",
+      "bytes": 2357,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "c559acfbde1d6ff03e8ef85307d8d6c78e15c8a7",
+      "sha256": "3aedf1997d93dd32de4ee8cc928c7442470b7d1b37a9b317227504edb2d28ec9",
+      "bytes": 2357,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S11",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "2e3693fa5b00140517855b93b389f0abb4b7aa4d4345894a5a876d23dec49e15",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "package.json",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "d1436449d4e8c398af6349d5ac83dab8fbe6c400",
+      "sha256": "bf3c36d61a093f8a717541bf3aeb0c9c9d4d816ccf98668b1aab082882837f42",
+      "bytes": 2497,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "cad98480581b70f1d8773e0d6db714834ba8d472",
+      "sha256": "c7abef031356054d2905d1fbba7c4ddebb9576f077146433514ee59be170ff15",
+      "bytes": 2567,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "d1436449d4e8c398af6349d5ac83dab8fbe6c400",
+      "sha256": "bf3c36d61a093f8a717541bf3aeb0c9c9d4d816ccf98668b1aab082882837f42",
+      "bytes": 2497,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "cad98480581b70f1d8773e0d6db714834ba8d472",
+      "sha256": "c7abef031356054d2905d1fbba7c4ddebb9576f077146433514ee59be170ff15",
+      "bytes": 2567,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "04748489803d39378c805148c425d336d9f30f7e",
+      "sha256": "c2322a9bbb154f8d965553354ecd8870f1b9b968ef7c74e2d6e65bf4890cf834",
+      "bytes": 3409,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S10",
+    "overlappingIssues": [
+      "GOV-13",
+      "GOV-15",
+      "GOV-16",
+      "GOV-19",
+      "GOV-30"
+    ],
+    "productPatchSha256": "20cb4cafbed002d41873b217bd8a1aae809be23a9fbe1d3bdf3834ed2a84fc29",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "packages/contracts/openapi/m0-core.yaml",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "32ff949e74cd2f4946264d64b82b6e331e2b0dc7",
+      "sha256": "6fca891507082f908bb9b4f0ed2d17f6823ff97eafcdd84fe59bb2fd0f28a73a",
+      "bytes": 49608,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "bb8add9e6db4366c7b9db3e56d7f4d51570921d7",
+      "sha256": "9f07638132c59c70192597cb8271846f9c6fa74b961c0beffa2c326f64180b4d",
+      "bytes": 49832,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "32ff949e74cd2f4946264d64b82b6e331e2b0dc7",
+      "sha256": "6fca891507082f908bb9b4f0ed2d17f6823ff97eafcdd84fe59bb2fd0f28a73a",
+      "bytes": 49608,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "bb8add9e6db4366c7b9db3e56d7f4d51570921d7",
+      "sha256": "9f07638132c59c70192597cb8271846f9c6fa74b961c0beffa2c326f64180b4d",
+      "bytes": 49832,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "bb8add9e6db4366c7b9db3e56d7f4d51570921d7",
+      "sha256": "9f07638132c59c70192597cb8271846f9c6fa74b961c0beffa2c326f64180b4d",
+      "bytes": 49832,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "b127c5a82798eeb0a0c7a9e618347989f074ef5ff832024ef609fa0115bd8e83",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "packages/contracts/src/api.d.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "b4bf0263ad46d362fb870296ba2b3cbc9015ac94",
+      "sha256": "3e34875319f128bc3c8a60735c4042e6c2fdf2566039ee051cc37c190bd1927e",
+      "bytes": 47307,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "e204244e95e8dab7f7e7aba9e3570f49df23e7f5",
+      "sha256": "340389a1f9f4b3f9cb4d177581d29626353418b014100641be5788c25bc11ddf",
+      "bytes": 47389,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "b4bf0263ad46d362fb870296ba2b3cbc9015ac94",
+      "sha256": "3e34875319f128bc3c8a60735c4042e6c2fdf2566039ee051cc37c190bd1927e",
+      "bytes": 47307,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "e204244e95e8dab7f7e7aba9e3570f49df23e7f5",
+      "sha256": "340389a1f9f4b3f9cb4d177581d29626353418b014100641be5788c25bc11ddf",
+      "bytes": 47389,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "e204244e95e8dab7f7e7aba9e3570f49df23e7f5",
+      "sha256": "340389a1f9f4b3f9cb4d177581d29626353418b014100641be5788c25bc11ddf",
+      "bytes": 47389,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "ee6b98c50be3d667e29d732a768731ce6762a03f14c6bf99f6db45cc3e6ca1cb",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "packages/contracts/src/schema.mjs",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "578ed59894fafb40f931333aaf25f2f343940a38",
+      "sha256": "77286a83a2126e4247621f0d5729ee9b2c42d1a461cc7869516ca2144976487e",
+      "bytes": 111486,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "a392c9e27de10a57c2992c395a426e80b4b61fe2",
+      "sha256": "63725c52ed490f275e1bbec5f1bbc1b85174c14be86827ba7f74e3375fc31289",
+      "bytes": 111670,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "578ed59894fafb40f931333aaf25f2f343940a38",
+      "sha256": "77286a83a2126e4247621f0d5729ee9b2c42d1a461cc7869516ca2144976487e",
+      "bytes": 111486,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "a392c9e27de10a57c2992c395a426e80b4b61fe2",
+      "sha256": "63725c52ed490f275e1bbec5f1bbc1b85174c14be86827ba7f74e3375fc31289",
+      "bytes": 111670,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "a392c9e27de10a57c2992c395a426e80b4b61fe2",
+      "sha256": "63725c52ed490f275e1bbec5f1bbc1b85174c14be86827ba7f74e3375fc31289",
+      "bytes": 111670,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "0d579c14e7893465c36f586e804b7bf3cfa6703d48eb1515ae6b436e8a281a0a",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "scripts/local/README.md",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "390a55645303ed0a9f4f2dbcc607ebe695d9cce5",
+      "sha256": "649de5ba4e5a4c7ca69d0439a4b8e6e4c429d6f5c1a4dbc85a4738c9a9528533",
+      "bytes": 24520,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "e10c2267d309f51bb640232e0e4c94ce2c0fa6e1",
+      "sha256": "2873b41d02accdac5ad345b86be8c36cf3e54c23a00f494d636c7f4a6b689524",
+      "bytes": 24566,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "390a55645303ed0a9f4f2dbcc607ebe695d9cce5",
+      "sha256": "649de5ba4e5a4c7ca69d0439a4b8e6e4c429d6f5c1a4dbc85a4738c9a9528533",
+      "bytes": 24520,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "e10c2267d309f51bb640232e0e4c94ce2c0fa6e1",
+      "sha256": "2873b41d02accdac5ad345b86be8c36cf3e54c23a00f494d636c7f4a6b689524",
+      "bytes": 24566,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "abaac9b137f252b8465cca26a63d3b6dc92083e4",
+      "sha256": "304e2385cab79084101d1b789fdf7bdf91194ad80f3b4eb4ad77d3725bc7e0d7",
+      "bytes": 24562,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "56ea4f4c0a6d9a946635a9e2ee02fcc3e2e17bc7522c0cc15d0c2c86f4db5673",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "scripts/local/open-admin.mjs",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "4462e029fca84f4a275d9b78ec97f835c2eef47b",
+      "sha256": "49d778b1b9193a6d5fb0d44afc5ca04bd4984f3b1f372313681c8f5a143609a6",
+      "bytes": 3970,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "1f811f2a18bde9f86c8373a19ef6f38576a5cec0",
+      "sha256": "7f07c9c6b653ee445de7b77b522add5ed883639ad7c9aa6c379c6281fe7569f5",
+      "bytes": 5607,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "4462e029fca84f4a275d9b78ec97f835c2eef47b",
+      "sha256": "49d778b1b9193a6d5fb0d44afc5ca04bd4984f3b1f372313681c8f5a143609a6",
+      "bytes": 3970,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "1f811f2a18bde9f86c8373a19ef6f38576a5cec0",
+      "sha256": "7f07c9c6b653ee445de7b77b522add5ed883639ad7c9aa6c379c6281fe7569f5",
+      "bytes": 5607,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "1f811f2a18bde9f86c8373a19ef6f38576a5cec0",
+      "sha256": "7f07c9c6b653ee445de7b77b522add5ed883639ad7c9aa6c379c6281fe7569f5",
+      "bytes": 5607,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "76224dd587d4d374d7aaf103ebe35e5a02800bc47cf89721f9c141d4f4a3d479",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "scripts/local/playwright-tests.mjs",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "9cdb5231d2aa95919bdf211eeae94543af6483c4",
+      "sha256": "0f959426ee17dd875dfa2f92f592c69157487cf710c6a4bb24ed9f431d0886f3",
+      "bytes": 6231,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "9cdb5231d2aa95919bdf211eeae94543af6483c4",
+      "sha256": "0f959426ee17dd875dfa2f92f592c69157487cf710c6a4bb24ed9f431d0886f3",
+      "bytes": 6231,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "50f43e0e62e35b13beddf0fee30e3de76837b684",
+      "sha256": "5a71159fdb24b28b3ff1791edc9ea2f1408e03eca5db6e017bb9e8dde7b09409",
+      "bytes": 6405,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "23f3acd7e5387256886d78062ee02084ed8ffda298d87472aa3d3a8a87b1b500",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "scripts/local/start-development.mjs",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "62e15025e67f3ea426e828843bb7ca4ecf2ff0fc",
+      "sha256": "09b1c108ce8ac341212809c8a9430e790c9cb08cde6324715b951556f22197da",
+      "bytes": 7398,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "3fc7c913af39bf5dd7869fd462f5bc1162df3ad4",
+      "sha256": "08fe1a83eb160f3ee2a1f89a8eb41f249f4863288356f6483588ceaffa38aa3f",
+      "bytes": 7444,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "62e15025e67f3ea426e828843bb7ca4ecf2ff0fc",
+      "sha256": "09b1c108ce8ac341212809c8a9430e790c9cb08cde6324715b951556f22197da",
+      "bytes": 7398,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "3fc7c913af39bf5dd7869fd462f5bc1162df3ad4",
+      "sha256": "08fe1a83eb160f3ee2a1f89a8eb41f249f4863288356f6483588ceaffa38aa3f",
+      "bytes": 7444,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "3fc7c913af39bf5dd7869fd462f5bc1162df3ad4",
+      "sha256": "08fe1a83eb160f3ee2a1f89a8eb41f249f4863288356f6483588ceaffa38aa3f",
+      "bytes": 7444,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "abd1c2a8747bbdf8a5094387b0e84d5a9766dbfcd15964bed408c0c2495d6efe",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "tests/browser/admin-workflow.test.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "292ff072859590a5f30866ca30c374540ea1084e",
+      "sha256": "9de1c4c8fd17735e6ea841931edae61e03dfdeabd15fd4528a9b13c2c3741e2a",
+      "bytes": 17771,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "d184d6b2b552d108bbffcfce3c3036e11d0ed065",
+      "sha256": "fffdbbacaf1ccadc2d8e7f63077d8875efce0e1f258b79fe313f6c6ddeda50c8",
+      "bytes": 17833,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "292ff072859590a5f30866ca30c374540ea1084e",
+      "sha256": "9de1c4c8fd17735e6ea841931edae61e03dfdeabd15fd4528a9b13c2c3741e2a",
+      "bytes": 17771,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "ea67a149da0bdd48f6c0599955f54fac2a75da50",
+      "sha256": "54f25844d1cfece69a92e0758ca10501736f554d05c30ea58652b475f9584d8b",
+      "bytes": 17916,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "ea67a149da0bdd48f6c0599955f54fac2a75da50",
+      "sha256": "54f25844d1cfece69a92e0758ca10501736f554d05c30ea58652b475f9584d8b",
+      "bytes": 17916,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": false,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-27",
+      "GOV-30"
+    ],
+    "productPatchSha256": "7744b7608f3aa6b9354b1fe39ca45f304e6b75ab97e6c1e8fb0b17430021aa33",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "tests/browser/analytics-events.test.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "0c665c9e531811a205fcffbcdf91795356a1e128",
+      "sha256": "5beab632cea89fb98ee718d0365e7caf96dc163250fa7f5cdaec5c0934ec261b",
+      "bytes": 6696,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "0c665c9e531811a205fcffbcdf91795356a1e128",
+      "sha256": "5beab632cea89fb98ee718d0365e7caf96dc163250fa7f5cdaec5c0934ec261b",
+      "bytes": 6696,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "0c665c9e531811a205fcffbcdf91795356a1e128",
+      "sha256": "5beab632cea89fb98ee718d0365e7caf96dc163250fa7f5cdaec5c0934ec261b",
+      "bytes": 6696,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "b7c8e20004301658b32ba14823f11feee227570404784173319a0e1d41279f42",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "tests/browser/batch-review.test.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "936333a8dc945733562b9cdc2bb52c6f8c7396aa",
+      "sha256": "238a0e81818c4f78a859f1d96eaaeb8fb5ad7e33cb5ed84135fd9e4a754ce351",
+      "bytes": 24057,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "ebd6085543cccd323611434363f3d15f6579d37b",
+      "sha256": "7937531fd380dbf2336f8dc3c4466702ec262cc471ff0a81f32c7ddb16a78c8d",
+      "bytes": 29633,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "936333a8dc945733562b9cdc2bb52c6f8c7396aa",
+      "sha256": "238a0e81818c4f78a859f1d96eaaeb8fb5ad7e33cb5ed84135fd9e4a754ce351",
+      "bytes": 24057,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "ebd6085543cccd323611434363f3d15f6579d37b",
+      "sha256": "7937531fd380dbf2336f8dc3c4466702ec262cc471ff0a81f32c7ddb16a78c8d",
+      "bytes": 29633,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "3fe4b7e993e6d1da1e33274b7305bff4189eb862",
+      "sha256": "2b7397fe7a628b216ba0832b81769ad0c6d16826aa95f6d610f190f925fc6fed",
+      "bytes": 29713,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "2a5d793c676fbcbc9bb09c97bd3e96390fe499331eb77ddbb193632ca4a9786e",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "tests/browser/consent.test.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "439384957004ada4b6e8ede1566359d8ebe83dac",
+      "sha256": "19ba8ddd9d9ee9654a832cc3781740bc5e0e75cd8b1ed97cd1e738a12645ea0c",
+      "bytes": 10518,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "0c0ec5b6ee3345feb927ee954768fd7e5a15b012",
+      "sha256": "6809997015bedd055594a311976839679753c15fe5bff48fa405a68ab57a935d",
+      "bytes": 10521,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "439384957004ada4b6e8ede1566359d8ebe83dac",
+      "sha256": "19ba8ddd9d9ee9654a832cc3781740bc5e0e75cd8b1ed97cd1e738a12645ea0c",
+      "bytes": 10518,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "0c0ec5b6ee3345feb927ee954768fd7e5a15b012",
+      "sha256": "6809997015bedd055594a311976839679753c15fe5bff48fa405a68ab57a935d",
+      "bytes": 10521,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "0c0ec5b6ee3345feb927ee954768fd7e5a15b012",
+      "sha256": "6809997015bedd055594a311976839679753c15fe5bff48fa405a68ab57a935d",
+      "bytes": 10521,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "26628302c15e682fc425117c97e18ff830744ab7c702065c77c86cfe98ef61f5",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "tests/consent.test.ts",
+    "sourceCommits": [
+      "8389eeee11a2f01af36843b2d94a350b10363b5b"
+    ],
+    "baseline": {
+      "blob": "818511871b16f8421788b7f1e490e235ad56a7d3",
+      "sha256": "e6d9ee3aa1bfa7985b4d55a660b3111b1f4d31900af782f29e12cbe605809c69",
+      "bytes": 7888,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "1adeac1b8cc2e06293a47b155e1a1902c5d7586c",
+      "sha256": "04012125b90a30fdd0e0e6152063c0aaa73d50696dd605da76ca1477f7b531c9",
+      "bytes": 13068,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "818511871b16f8421788b7f1e490e235ad56a7d3",
+      "sha256": "e6d9ee3aa1bfa7985b4d55a660b3111b1f4d31900af782f29e12cbe605809c69",
+      "bytes": 7888,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "1adeac1b8cc2e06293a47b155e1a1902c5d7586c",
+      "sha256": "04012125b90a30fdd0e0e6152063c0aaa73d50696dd605da76ca1477f7b531c9",
+      "bytes": 13068,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "1adeac1b8cc2e06293a47b155e1a1902c5d7586c",
+      "sha256": "04012125b90a30fdd0e0e6152063c0aaa73d50696dd605da76ca1477f7b531c9",
+      "bytes": 13068,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "GA4 동의·이벤트 구현/계약 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "d6c2c505bdfff5449b4ab729c73d3458cf1c7cc492869b3e95156d75752b714d",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "tests/helpers/browser-fixture.ts",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": {
+      "blob": "ef4ff12ff20f6177b7b6fe5cf301cdfe122042d3",
+      "sha256": "fab809d3444309516edb4275692a1e931928ab97de7f21d9d5751a3d4841208d",
+      "bytes": 10198,
+      "mode": "100644"
+    },
+    "product": {
+      "blob": "3ae0dca6a42772de1e021e35b5bd9a51696c2a80",
+      "sha256": "fcc2f544c0afa69b148acf8aa0f2ea9febdacdadbd4ebcd8ce0d2b32448305c1",
+      "bytes": 10320,
+      "mode": "100644"
+    },
+    "currentDefault": {
+      "blob": "ef4ff12ff20f6177b7b6fe5cf301cdfe122042d3",
+      "sha256": "fab809d3444309516edb4275692a1e931928ab97de7f21d9d5751a3d4841208d",
+      "bytes": 10198,
+      "mode": "100644"
+    },
+    "pr4Candidate": {
+      "blob": "3ae0dca6a42772de1e021e35b5bd9a51696c2a80",
+      "sha256": "fcc2f544c0afa69b148acf8aa0f2ea9febdacdadbd4ebcd8ce0d2b32448305c1",
+      "bytes": 10320,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "3ae0dca6a42772de1e021e35b5bd9a51696c2a80",
+      "sha256": "fcc2f544c0afa69b148acf8aa0f2ea9febdacdadbd4ebcd8ce0d2b32448305c1",
+      "bytes": 10320,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "기존 제품 변경 보존; 관리자 접근·수집 검토 UX 변경 보존",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-17",
+      "GOV-30"
+    ],
+    "productPatchSha256": "b6c213b5f2a743f4450197e68d6716cfec5302bd20513c370777d5b0666e276d",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "worklog/2026-09-25/admin-ux-rework/REQUEST.md",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "b64bfedb7b433c9650a610e217347fce6f93f919",
+      "sha256": "3a980714ce0c5d5b040c8c9a5e1a8f91bb3667f61ea0c327c2f21091d48c73cf",
+      "bytes": 20433,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "b64bfedb7b433c9650a610e217347fce6f93f919",
+      "sha256": "3a980714ce0c5d5b040c8c9a5e1a8f91bb3667f61ea0c327c2f21091d48c73cf",
+      "bytes": 20433,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "b64bfedb7b433c9650a610e217347fce6f93f919",
+      "sha256": "3a980714ce0c5d5b040c8c9a5e1a8f91bb3667f61ea0c327c2f21091d48c73cf",
+      "bytes": 20433,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "과거 제품 요청·구현·검증 기록 보존; 현재 운영 완료로 승계하지 않음",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-29",
+      "GOV-30"
+    ],
+    "productPatchSha256": "04c7c73d7067bce8cb4b4dfd310f9de56c46dff603d30201007d0000b1884d7c",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "worklog/2026-09-25/admin-ux-rework/TASKS.md",
+    "sourceCommits": [
+      "6e053140b5367ebabb61e5c476dcb128304ef1cb"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "01fbc34a06cd9c88bb0e914326e699a5fd7f89d2",
+      "sha256": "1469390f888bbacb12fa79bb2876f0511f9e2d1b9ab8a414c18eb87dce48ee49",
+      "bytes": 6797,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "01fbc34a06cd9c88bb0e914326e699a5fd7f89d2",
+      "sha256": "1469390f888bbacb12fa79bb2876f0511f9e2d1b9ab8a414c18eb87dce48ee49",
+      "bytes": 6797,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "01fbc34a06cd9c88bb0e914326e699a5fd7f89d2",
+      "sha256": "1469390f888bbacb12fa79bb2876f0511f9e2d1b9ab8a414c18eb87dce48ee49",
+      "bytes": 6797,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "과거 제품 요청·구현·검증 기록 보존; 현재 운영 완료로 승계하지 않음",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-29",
+      "GOV-30"
+    ],
+    "productPatchSha256": "7adae1f2e54a29e0f16fcaac5bef6f27c4c37189a272519110c529ae83e4b4f8",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "worklog/2026-09-25/analytics-v1/RESULTS.md",
+    "sourceCommits": [
+      "62f6fe5d7727e1c040c87537b5a7ba9a570de4e2"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "f3777be8eb41b54d06aac93ab93782bda1bc75a0",
+      "sha256": "e1c528f8de094aab9d2ee3527048e41282c72030522dd5d6006f98a372db4624",
+      "bytes": 6324,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "f3777be8eb41b54d06aac93ab93782bda1bc75a0",
+      "sha256": "e1c528f8de094aab9d2ee3527048e41282c72030522dd5d6006f98a372db4624",
+      "bytes": 6324,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "f3777be8eb41b54d06aac93ab93782bda1bc75a0",
+      "sha256": "e1c528f8de094aab9d2ee3527048e41282c72030522dd5d6006f98a372db4624",
+      "bytes": 6324,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "과거 제품 요청·구현·검증 기록 보존; 현재 운영 완료로 승계하지 않음",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-29",
+      "GOV-30"
+    ],
+    "productPatchSha256": "133439ba573ebc3a7058f0ba20243c1fc333ebacaa71f6c82da31e30f978771c",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md",
+    "sourceCommits": [
+      "f920954862fb4fbf8bf15608d996670030fd1f7b"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "2b3fd4acdfc8bd7dfea0c34c3ca46368e39e3379",
+      "sha256": "08242860b7aa36553d51ca1e235e1d4044706409b0e0d904c0d9d83c9f2b3f4d",
+      "bytes": 4694,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "2b3fd4acdfc8bd7dfea0c34c3ca46368e39e3379",
+      "sha256": "08242860b7aa36553d51ca1e235e1d4044706409b0e0d904c0d9d83c9f2b3f4d",
+      "bytes": 4694,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "2b3fd4acdfc8bd7dfea0c34c3ca46368e39e3379",
+      "sha256": "08242860b7aa36553d51ca1e235e1d4044706409b0e0d904c0d9d83c9f2b3f4d",
+      "bytes": 4694,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "과거 제품 요청·구현·검증 기록 보존; 현재 운영 완료로 승계하지 않음",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-29",
+      "GOV-30"
+    ],
+    "productPatchSha256": "aad087b23d66ff1844acf0c46fed0239bae5af0d599572e13e691686b4c77f75",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  },
+  {
+    "path": "worklog/2026-09-25/hot-collection/RESULTS.md",
+    "sourceCommits": [
+      "e51f1b501f7cc327da279102dd69eac2f4c554db"
+    ],
+    "baseline": null,
+    "product": {
+      "blob": "07ddc05d1ff663dc3f4512ab137c49c6c275696d",
+      "sha256": "6bee57428daf4e93659deee66e3d36f9b8ff146a84b8108e4c8bb8289cd06222",
+      "bytes": 6280,
+      "mode": "100644"
+    },
+    "currentDefault": null,
+    "pr4Candidate": {
+      "blob": "07ddc05d1ff663dc3f4512ab137c49c6c275696d",
+      "sha256": "6bee57428daf4e93659deee66e3d36f9b8ff146a84b8108e4c8bb8289cd06222",
+      "bytes": 6280,
+      "mode": "100644"
+    },
+    "delivery": {
+      "blob": "07ddc05d1ff663dc3f4512ab137c49c6c275696d",
+      "sha256": "6bee57428daf4e93659deee66e3d36f9b8ff146a84b8108e4c8bb8289cd06222",
+      "bytes": 6280,
+      "mode": "100644"
+    },
+    "candidateMatchesProductBytes": true,
+    "keep": "과거 제품 요청·구현·검증 기록 보존; 현재 운영 완료로 승계하지 않음",
+    "laterOwner": "S02/S06",
+    "overlappingIssues": [
+      "GOV-29",
+      "GOV-30"
+    ],
+    "productPatchSha256": "270b9c2b8c43e21c3c77cd6251fe89e773ab1bbd3b6b81449e27fd66996f495d",
+    "archive": "S01/private/git-assets.bundle",
+    "deletionAuthorized": false
+  }
+]

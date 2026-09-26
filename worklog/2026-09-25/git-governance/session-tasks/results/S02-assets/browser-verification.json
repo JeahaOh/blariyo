@@ -1,0 +1,41 @@
+{
+  "startedAt": "2026-09-26T15:08:55.602282+09:00",
+  "candidateBase": "df7482704c7867712c12028d1a69e59bfd662acc",
+  "postgresPort": 55449,
+  "playwrightPort": 55450,
+  "developmentDatabaseUsed": false,
+  "ownedContainers": [
+    {
+      "id": "f9635a0ac161b04f7ae3f16825b3b14d1db540ddaa0e3c45f1a8c221ddaf84d8",
+      "image": "postgres:18"
+    },
+    {
+      "id": "46e1fbfbcf22363bc775ec625b334d50651e51e85b163b60de1929e00d509552",
+      "image": "mcr.microsoft.com/playwright:v1.63.0-noble"
+    }
+  ],
+  "cleanup": [
+    {
+      "id": "46e1fbfbcf22363bc775ec625b334d50651e51e85b163b60de1929e00d509552",
+      "exitCode": 0
+    },
+    {
+      "id": "f9635a0ac161b04f7ae3f16825b3b14d1db540ddaa0e3c45f1a8c221ddaf84d8",
+      "exitCode": 0
+    }
+  ],
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "--test-concurrency=1",
+    "tests/browser/admin-recovery.test.ts",
+    "tests/browser/admin-workflow.test.ts"
+  ],
+  "exitCode": 0,
+  "seconds": 28.66,
+  "fixtureDatabasesRemaining": [],
+  "finishedAt": "2026-09-26T15:09:31.247968+09:00",
+  "fixtureDatabaseReadbackPattern": "m0_browser_%",
+  "sandboxDatabaseCleanupEvidence": "localDevelopmentFixture teardown passed; dedicated PostgreSQL container removed"
+}

@@ -1,0 +1,12 @@
+diff --git a/tests/browser/admin-workflow.test.ts b/tests/browser/admin-workflow.test.ts
+index d184d6b2b552d108bbffcfce3c3036e11d0ed065..ea67a149da0bdd48f6c0599955f54fac2a75da50 100644
+--- a/tests/browser/admin-workflow.test.ts
++++ b/tests/browser/admin-workflow.test.ts
+@@ -322,6 +322,7 @@ await test(
+       await page.setViewportSize({ width: 1280, height: 900 });
+       await page.route('**/api/v1/admin/images/*/preview*', (route) => route.abort());
+       await button('최신 내용 확인').click();
++      await expect(page.locator('section')).toHaveAttribute('aria-busy', 'false');
+       // Reloading an identical src may stay cached: explicitly invalidate the DOM src to exercise onerror.
+       await page
+         .getByAltText('업로드 미리보기')

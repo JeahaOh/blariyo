@@ -1,0 +1,21 @@
+✔ retains four existing secret pattern families (1.083ms)
+✔ staged scan reads the index even when the working file is safe, and suppresses CLI values (151.805416ms)
+✔ staged whitespace is rejected without printing the affected content (60.864542ms)
+✔ ordinary deletion and arbitrary staged paths have no task policy (119.600583ms)
+✔ symlink target is not read, and binary/gitlink omissions are counted (156.782167ms)
+✔ message check accepts ordinary titles without trailers and rejects secrets (50.256625ms)
+✔ history scans earlier commits even when the secret file was deleted (279.477042ms)
+✔ root commits, spaced Unicode paths, renames and deletions are checked (236.270958ms)
+✔ merge resolution content is scanned against every parent (344.084708ms)
+✔ commit messages and annotated tag messages are scanned (230.5425ms)
+✔ outgoing has no branch, deletion or force-update restrictions and deduplicates commits (253.125375ms)
+✔ missing objects, malformed IDs, unsupported tags and shallow history fail closed (189.038417ms)
+✔ restoring a worktree hook setting preserves wrappers, original hooks and neighboring config (850.242541ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2965.569667

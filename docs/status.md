@@ -20,6 +20,18 @@
 | 수집 실연동 P1-03~05/07 | 로컬 코드·격리 증거와 실행서 준비 | 다른 PC/Windows·비운영 DB/object·Discord·보존 회수 구현/검증 |
 | 운영 관찰 P2 | 관찰 조건 정의 | 실제 운영 개시 후 7일 기록 |
 
+## WEB·API 03:00 KST 자동 배포 — 2026-09-26 설계
+
+- 사용자 결정: 매일 03:00 Asia/Seoul에 main의 검증된 API/Web 자동 배포, 필요 시 같은 실행기로 수동 배포.
+- [설계](system-design/10-nightly-deployment.md)·[배포 정책](operations/deployment-policy.md)·
+  [DPL-01~09 task](implementation-tasks/nightly-deployment.md)를 작성했다.
+- 구현·서버 timer 설치·GHCR 인증·실제 배포·rollback/재부팅·야간 실행은 **미실행**이다.
+  현재 CI는 이미지 게시까지만 수행하며 운영은 기존 수동 절차를 유지한다.
+- 선행 입력: 현재 release/ledger/설정 재조회, GHCR 읽기 권한, 서버 밖 복호화 키를 사용하는 무인 복원 검증,
+  알림 실수신 경로와 자원 기준. DB 변경·민감 기능 변경은 자동 배포에서 보류한다.
+- 별도 worktree의 문서 작업이며 기존 Core/수집/법무 미완료 항목과 운영 검증 판정을 변경하지 않았다.
+  [작업·검증 기록](../worklog/2026-09-26/nightly-deployment/RESULTS.md)을 따른다.
+
 ## Google Tag Manager — 2026-09-25 로컬 적용
 
 - `GTM-5BRTQ5T3` 공통 script를 `<head>` 맨 앞에, `noscript` iframe을 `<body>` 바로 뒤에 삽입했다.

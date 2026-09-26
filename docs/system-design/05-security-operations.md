@@ -447,7 +447,7 @@ R2 장애는 공개 읽기의 ready 실패 조건으로 두지 않는다. 업로
 | PostgreSQL custom-format logical dump | 매일 03:30·15:30 KST | 최근 7일 |
 | 주간 보존 복사 | M0에서는 만들지 않음 | 최소 보관 원칙에 따라 별도 8주 복사 없음 |
 | backup manifest 검증 | 매일 dump 후 | backup과 동일 |
-| 실제 복원 시험 | 매월 첫째 주 | 결과 1년 |
+| 실제 복원 시험 | 매월 첫째 주 및 배포 전 새 백업 검증 | 결과 1년 |
 | R2 media inventory | 매주 | 8주 |
 | R2 private staging orphan inventory | 매일 1회 | 실행 결과 90일 |
 
@@ -502,6 +502,16 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
 - 장기 장애 시 B2로 media adapter를 전환하되 DB의 private·public storage key 분리 계약은 유지한다.
 
 ## 11. 배포와 rollback
+
+### 매일 03:00 KST 배포 계약 — 2026-09-26
+
+[야간 배포 설계](10-nightly-deployment.md)는 main의 검증된 API/Web을 운영 서버가 매일
+03:00 Asia/Seoul에 검사·배포하고 같은 절차로 수동 실행하도록 정한다. **설계 작성, 구현·활성화 미완료**다.
+DB/설정 계약 변경·정책/인증/분석 활성화 등 민감 변경은 자동 대상에서 보류하고 기존 gate를 유지한다.
+새 백업의 동일 archive 격리 복원과 서버 밖 복구키 보관은 함께 지킨다. 무인 외부 검증 경로가
+없으면 자동 활성화를 보류한다. 기존 03:30·15:30 백업과 공유 잠금·backup ID로 경합을 통제한다.
+자동·수동·복귀는 전역 잠금·영속 journal·정상 부팅 참조를 공유하며 실패/수동 복귀 뒤에는 AUTO_HOLD다.
+실제 MFA 인수·외부 알림 수신과 자동 smoke 통과는 별도로 보고한다.
 
 ### 배포 전 gate
 

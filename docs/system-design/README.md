@@ -73,6 +73,7 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 | [07-spring-collector-design.md](07-spring-collector-design.md) | 현행 direct batch 저장·검수·Discord queue와 기존 Spring 호환 계약; 구현·활성화 별도 |
 | [08-code-structure.md](08-code-structure.md) | Nest API·Nuxt·Java 수집기의 내부 책임과 사이트별 모듈 의존성 |
 | [09-security-cost-protection-plan.md](09-security-cost-protection-plan.md) | Cloudflare·AWS 보안/비용 보강 적용 계획; 정적 JS 캐시·알림 1차 적용, 요청 제한·전체 정상 이용 검증은 별도 |
+| [10-nightly-deployment.md](10-nightly-deployment.md) | 매일 03:00 KST API/Web 자동 배포·공통 수동 실행·후보/복귀/외부 복원 계약; 설계 작성, 구현·활성화 미실행 |
 | [design-readiness.md](design-readiness.md) | 단계별 설계 기준선·구현 수용·production 공개 승인 현행 판정 |
 
 ## 핵심 결정

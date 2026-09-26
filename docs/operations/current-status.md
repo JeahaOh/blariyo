@@ -51,7 +51,7 @@
 4. 7일 보관 관찰, 월간 DB 복원, 별도 일정의 VM 재부팅·새 VM 복구를 수행한다.
 5. AWS 비용 알림을 확인한다. 9월 20일 1차 보강 조회에서는 무료 플랜·잔여 크레딧 $120·2027-03-15 종료 표시를 확인했다. 이는 현재 잔액 조회가 아니다. 결제/요금제는 변경하지 않았다.
 6. [보안·비용 보호 적용 계획](../system-design/09-security-cost-protection-plan.md)의 정적 JS 9개 캐시·Cloudflare 비용/DDoS 알림과 게이트웨이 오류 `no-store`를 유지한다. 9월 23일 앱 배포 후 공개·Web 직접 JSON 404도 `no-store`였다. 새 JS/CSS 파일명의 쿼리 무관 캐시는 기존 9개 규칙에 자동 포함되지 않으므로 별도 관리 작업이다. 정상 이용·공유 IP·관리자 흐름 검증 후 요청 제한을 판단한다.
-7. 다음 후보의 SHA별 원격 CI·GHCR digest와 운영 배포를 다시 대조한다. `5c581c2`의 CI 성공·수동 서버 배포는 9월 23일 기록으로 확인했고, 현재 workflow의 자동 CD는 미구현이다. [CI/CD 후속 기록](../../worklog/2026-09-20/local-ui-cicd/TODO-CICD-DEPLOY.md)은 당시 TODO로 보존한다.
+7. 다음 후보의 SHA별 원격 CI·GHCR digest와 운영 배포를 다시 대조한다. `5c581c2`의 CI 성공·수동 서버 배포는 9월 23일 기록으로 확인했고, 현재 workflow의 자동 CD는 미구현이다. 2026-09-26 [03:00 KST 설계](../system-design/10-nightly-deployment.md)와 [DPL task](../implementation-tasks/nightly-deployment.md)를 추가했으나 운영 활성화는 하지 않았다. [CI/CD 후속 기록](../../worklog/2026-09-20/local-ui-cicd/TODO-CICD-DEPLOY.md)은 당시 TODO로 보존한다.
 
 9월 20일 보안 후속 작업은 당시 요청의 코드·설정·문서, SSH 서버 점검, 공개 HTTP 검증 범위에서 마감했다.
 당시 남긴 관리 콘솔/API 설정과 재개 조건은 [보안 작업 기록](security-protection-status.md#7-이번-작업-마감과-남은-일)을 따른다.

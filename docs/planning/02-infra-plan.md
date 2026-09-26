@@ -2,7 +2,7 @@
 
 - 문서 상태: M0 인프라 의사결정 정본
 - 기준일: 2026-09-03
-- 정합성 검토일: 2026-09-24 (현행 direct/legacy·9월 23일 운영 기록 대조)
+- 정합성 검토일: 2026-09-26 (03:00 KST 배포 결정 추가; 운영 서버 재조회 없음)
 - 역할: 배포 방향·비용 경계·공급자 선택을 정의한다. 스키마, API payload, container 자원값과 운영 명령은 정의하지 않는다.
 - 관련 문서: [서비스 기획서](01-service-plan.md), [콘텐츠 수집 기획](content-collection/README.md), [시스템 설계](../system-design/README.md), [상세 인프라 설계](../system-design/04-infrastructure-design.md), [보안·운영 설계](../system-design/05-security-operations.md)
 
@@ -119,6 +119,21 @@ URL·Discord 접수와 자동 수집은 별도 gate이며 검수 flag ON으로 �
   consent, CSP, callback allowlist를 다시 검토한다.
 
 구체적인 제한값과 runbook은 [보안·운영 설계](../system-design/05-security-operations.md)를 따른다.
+
+### WEB·API 정기 배포 결정 — 2026-09-26
+
+- 매일 **03:00 KST(Asia/Seoul)**에 운영 서버가 main의 검증된 API/Web 배포 후보를 확인한다.
+  새 후보가 있고 백업·호환성·운영 조건을 만족하면 자동 교체하며, 변경이 없으면 재시작하지 않는다.
+- 운영자는 필요할 때 같은 검증·복귀 절차로 수동 배포한다. 매번 수동 승인하는 기존 기본 방식에서
+  정기 자동 배포+수동 실행으로 전환하되, 최초 운영 활성화는 구현·인수 뒤 별도 수행한다.
+- 첫 자동화는 DB 구조·runtime 설정·기능 활성화 변경이 없는 앱 교체다. DB 변경·정책 발행·Collector
+  배포와 수동 인수가 필요한 변경은 별도 절차로 처리한다.
+- main 반영은 정기 배포 후보 등록 의사를 뜻한다. 수동 복귀 후에는 자동 배포를 보류한다.
+- 단일 VM·현재 비용 경계·서버 밖 복구키 보관을 유지한다. 무인 복원 검증 장비와 알림 수신 경로는
+  구현 선행 입력이며 미확정 상태로 활성화하지 않는다.
+- **현재는 설계만 작성했으며 자동 배포는 비활성·미구현이다.**
+  세부 시간·후보·권한·실패 계약은 [야간 배포 설계](../system-design/10-nightly-deployment.md),
+  실행 계획은 [DPL-01~09](../implementation-tasks/nightly-deployment.md)를 따른다.
 
 ## 9. 배포 전에 확정할 운영값
 

@@ -372,14 +372,17 @@ Core는 `R2_PRIVATE_*`와 `R2_PUBLIC_*`만 사용하고 backup key는 backup 작
 [실서버 배포 실행서](../operations/deployment-runbook.md)를 따른다.
 SHA `5c581c2`의 원격 CI·GHCR 게시와 API/Web 수동 서버 배포는 9월 23일 기록에서 확인했다.
 이후 SHA의 성공과 자동 CD를 뜻하지 않는다. Collector CI는 있으나 운영 Collector 배포·기동은 별도다.
+2026-09-26 목표는 [WEB·API 03:00 KST 자동 배포](10-nightly-deployment.md)로 갱신했다.
+서버 timer·공통 수동 실행기·후보 manifest·외부 복원 검증은 미구현이며 DPL-01~09로 추적한다.
+아래는 현재 수동 절차의 요약이다. 자동 경로는 DB migration과 runtime 계약 변경 후보를 보류한다.
 
 1. CI가 Node `24.18.0`에서 타입·lint·unit·integration·브라우저 test를 실행한다.
 2. 검사된 main의 `linux/amd64` image를 commit SHA tag로 build한다. 현재 서울 x86_64 대상이며 arm64는 대상 서버가 생기면 추가한다.
 3. GHCR에 push하고 digest를 기록한다. main push만으로 운영 서버에 자동 배포하지 않는다.
 4. 서버는 image를 pull하고 DB backup을 실행한다.
-5. backward-compatible migration을 적용한다.
+5. DB 변경이 있으면 승인된 별도 절차에서 호환성을 검증하고 migration을 적용한다. 야간 자동 배포는 migration을 실행하지 않는다.
 6. `api`, `web`을 순서대로 recreate한다.
-7. `/health/live`, `/health/ready`, `/meme`, 공개 상세 smoke를 실행한다.
+7. Core 내부 `/internal/health/ready`, Web `/health/live`, `/meme`, 공개 상세 smoke를 실행한다. 실제 Access MFA 인수는 별도다.
 8. 실패하면 현재 DB와 호환성을 검증한 이전 image digest로 복귀한다. V008에서 9월 20일 구 API는 readiness 503이다. 비호환 schema는 자동 rollback하지 않고 복구 절차를 따른다.
 
 서버에서 `npm install`과 build를 실행하지 않는다. 배포 파일에는 image digest를 기록한다.

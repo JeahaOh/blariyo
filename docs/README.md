@@ -13,6 +13,7 @@
 | 아키텍처·DB·API·보안 | [기술 설계](system-design/README.md) | 기술 계약의 정본 |
 | 기능별 구현 계약 | [개발 명세](development-specs/) | 기능별 API·업무 흐름·수용 조건 |
 | 실행 환경·배포·백업·복구 | [운영 안내](operations/README.md) | 문서는 지침, deploy는 실행 도구 |
+| WEB·API 매일 03:00 KST 배포 | [설계](system-design/10-nightly-deployment.md), [구현 task](implementation-tasks/nightly-deployment.md) | 설계·구현·운영 활성화 구분 |
 | 테스트·운영자 인수 | [검증 안내](testing/README.md), [인수 기록](testing/operator-acceptance.md) | 합성 검사와 실제 인수 구분 |
 | 정적 화면 검토물 | [화면 자료](ui/README.md) | 제품 정본과 구분 |
 | AI 작업 지침 | [AI 안내](ai/README.md) | 경로 탐색·정본·검증 규칙 |

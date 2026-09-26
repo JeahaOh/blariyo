@@ -1,6 +1,8 @@
 # GitHub CI와 배포 정책
 
-2026-09-20 결정, 2026-09-24 문서 갱신. **로컬에서 수정 → PR 검증 → main의 검증된 이미지 → 운영자가 배포 실행**을 기본으로 한다.
+2026-09-20 수동 배포 결정, **2026-09-26 매일 03:00 KST 자동 배포+필요 시 수동 배포로 목표 정책 변경**.
+목표는 로컬 수정 → PR 검증 → main의 API/Web 이미지·후보 게시 → 운영 서버의 정기/수동 실행이다.
+**구현·운영 활성화 전까지 현재 수동 배포 절차를 유지한다. 이번 변경은 설계·계획이며 자동 배포 설치가 아니다.**
 마지막 운영 확인은 2026-09-23의 [`5c581c2` API/Web 배포](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)와
 [DB V008·Collector V006 반영](../../worklog/2026-09-23/release/production-db-promotion.md) 기록이다.
 이 문서 갱신에서 원격 CI·서버를 다시 조회하지 않았다. 실제 명령과 복귀 조건은 [배포 실행서](deployment-runbook.md)에 있다.
@@ -42,7 +44,7 @@ Actions는 전체 commit SHA로 고정하며 변경은 버전·테스트를 대�
 
 검사된 main만 GHCR(GitHub 이미지 저장소)에 `linux/amd64` API/Web 이미지를 게시한다.
 tag는 전체 Git SHA, 배포 식별자는 `image@sha256:...` digest다. `latest` 배포는 하지 않는다.
-image 생성 job만 `packages: write`를 갖고 PR은 읽기 권한만 쓴다. fork PR에 운영 secret을 주지 않는다.
+현재 image 생성 job만 `packages: write`를 갖고 PR은 읽기 권한만 쓴다. fork PR에 운영 secret을 주지 않는다.
 Collector JAR·SBOM과 JUnit 결과는 7일 보관하는 검사 artifact로 남긴다. Collector GHCR 이미지 게시·
 설치·운영 배포는 이 job에 포함하지 않는다. 프로세스 복구·실제 외부 연동·Windows 검증은 별도다.
 
@@ -77,7 +79,7 @@ private 접근과 서버의 최소 package 읽기 권한은 별도 설정 확인
 아니다. 9월 23일 사전·사후 백업의 R2 다운로드·격리 복원은 확인됐으나 실제 rollback·VM 재부팅과
 운영자 MFA 인수는 남아 있다. 새 후보의 SHA별 CI·서버 ledger·백업은 다시 확인한다.
 
-## CD: 검증된 산출물의 수동 운영 배포
+## CD: 현행 수동 절차와 03:00 자동 배포 전환
 
 main push는 운영 배포를 실행하지 않는다. 현재는 기존 맥의 archive 전달 방식도 계속 사용할 수 있다.
 GHCR 경로를 사용할 때 서버의 읽기 전용 registry 인증과 digest pull을 먼저 검증해야 한다.
@@ -90,12 +92,26 @@ V008의 마지막 확인 기준은 `5c581c2` 앱 image다. DB 전체 복구는 �
 파괴적인 DB 변경은 호환 단계로 나누고, 불가피한 경우 점검 시간을 별도로 잡는다.
 구 이미지·사전 dump는 다음 배포의 복귀 가능 여부를 확인하기 전까지 정리하지 않는다.
 
-자동 CD는 서버가 승인된 manifest를 가져오는 방식이 다음 후보다. 고정 IP 미사용 결정을 유지하고,
-GitHub runner IP 전체에 SSH를 개방하거나 운영 VM에 PR용 self-hosted runner를 두지 않는다.
-현재 SSH helper에는 최초 대상 정보가 고정된 부분이 있고, 로컬 부팅 helper는 9월 23일
-`release-5c581c2-db-v008-20260923`으로 갱신됐다. 서버 현재 값은 다음 배포 전 확인한다.
-두 도구를 범용 자동 CD로 보지 않는다. 새 후보의 release·설정·migration·백업·복귀를 확인한 뒤
-서버 pull 기반 자동화 여부를 별도 설계·검증한다.
+2026-09-26 결정한 목표는 **서버가 매일 03:00 Asia/Seoul에 main의 최신 성공 후보 manifest를
+가져와 API/Web을 함께 배포하는 방식**이다. 운영자가 필요할 때 같은 실행기를 수동 호출한다.
+후보 선택·시간·잠금·DB/설정 보류·복귀·복원키 경계의 정본은
+[야간 배포 설계](../system-design/10-nightly-deployment.md), 구현 순서는
+[DPL-01~09](../implementation-tasks/nightly-deployment.md)다.
+
+- CI의 verify·collector·API/Web 이미지 생성이 모두 성공한 한 SHA를 배포 단위로 삼는다.
+  더 최신 main 커밋이 실패/진행 중이어도 이미 게시된 최신 성공 후보는 배포될 수 있다.
+- 자동 경로는 DB 변경·신규 필수 설정·민감 기능/정책 변경이 없는 app-only 후보만 허용한다.
+  migration/설정 교체와 실제 MFA 등 수동 인수가 필요한 변경은 별도 절차로 보류한다.
+- 새 백업의 R2 다운로드·동일 archive 격리 복원을 유지한다. 현재 복호화 키가 서버 밖에 있으므로
+  DPL-04의 외부 무인 검증 경로가 준비되지 않으면 자동화를 활성화하지 않는다.
+- 자동/수동/rollback은 같은 잠금·기록·검사를 사용한다. 수동 rollback 또는 실패 복귀 뒤에는
+  AUTO_HOLD로 문제 버전의 다음날 자동 재배포를 막고 명시적으로 재개한다.
+- 놓친 새벽 일정을 낮 재부팅 때 신규 배포로 따라 실행하지 않는다. 미완료 교체 복구는 별개다.
+- 자동 배포 검사 통과와 실제 운영자 MFA·업무 인수는 별도 결과다. OPS-01~03을 자동 완료하지 않는다.
+
+고정 IP 미사용 결정을 유지하고 GitHub runner IP 전체에 SSH를 개방하거나 운영 VM에 PR용
+self-hosted runner를 두지 않는다. 현행 SSH helper의 고정 대상과 부팅 helper의 고정 release는
+DPL-01에서 재조회하고 DPL-05에서 교체한다. 현재 도구가 범용 자동 CD를 지원한다고 보지 않는다.
 
 ## 확인한 공식 근거
 

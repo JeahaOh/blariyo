@@ -301,11 +301,11 @@ legacy 전환 조건을 포함하며 Core 실제 운영 관찰과 구분해 사�
 
 - [설계](ai/git-workflow.md), [구현 계획](ai/harness-implementation-plan.md), [현재 CI 근거](../worklog/2026-09-25/git-governance/CI-RECOVERY.md)를 따른다. HARN-01~07 전체 도입은 부분 구현이다.
 - 완료한 전달: develop 생성·tracking, stash 복구와 기존 8개 SHA 보존, 단계별 commit·push, Draft PR #3~#9 생성. 후속 HARN-09 `8c1b5c1`·HARN-07 `0fe6255`는 원격에 반영됐다.
-- 해소한 CI 결함: API build 전 lint 실행, Windows Python 배포본 부재, 고정 날짜 release CLI fixture 만료. PR #9에서 Linux 전체 lint·harness·architecture와 Windows lease가 실제 통과했다. 최종 quality·verify·gate는 아직 실패다.
+- PR #3은 develop `1ad626c`로 병합했고 병합 후 CI `36212646767`의 verify·Collector가 성공했다. 후속 로컬 수정은 checksum 쌍 고정, #7 CI 선행 수정 포함, #4~#9 선행 브랜치 merge 동기화다. 자동 승인 검토의 push 거절로 새 후보는 아직 원격 미반영이다.
 
 | 우선순위 | 남은 작업                             | 완료 조건·의존성                                                                                                                                             |
 | -------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| P0       | 브라우저 수정 PR #3 선행 검토·통합    | PR #3 자체 verify·Collector 성공. PR #9에는 미포함이며 이미지 재시도 timeout 재발. 검토 후 승인된 통합 결과에서 동일 browser 검증 통과                       |
+| P0       | 후속 수정 커밋 원격 반영·CI 수용      | PR #6 checksum 수정 `a1a4802`, PR #7 선행 CI 수정 `f782c0b`와 #4~#9 동기화 커밋 push. 자동 승인 검토 차단 해소 후 정확한 SHA의 CI 확인                       |
 | P0       | 기존 local main 8개 commit 검토       | PR #4의 SHA 보존, trailer 없는 기존 commit을 새 gate 활성화 전에 검토·검증. 정책 PR과 설계 문서 충돌 해결                                                    |
 | P0       | 정책·cleanup·harness와 후속 수정 통합 | #5 → #6 → #7 → #8 → #9 검토. 선행 통합 뒤 각 PR을 develop 기준으로 retarget하고 정확한 head/base의 전체 CI 통과. 현재 feature → feature 차단을 우회하지 않음 |
 | P0       | CI artifact 내용 수용                 | 진단·receipt 생성/업로드와 내용 검증을 구분. 실제 JSON의 subject SHA·run/attempt·binding·job 결과·hash를 대조                                                |
@@ -316,7 +316,7 @@ legacy 전환 조건을 포함하며 Core 실제 운영 관찰과 구분해 사�
 
 - Windows lease 통과는 Windows 전체 lint나 모든 GUI Git 지원을 증명하지 않는다. PR #9의 Core/Collector restore skip은 복원 성공으로 계산하지 않는다. 최종 develop 통합 SHA에서 분류와 필요한 restore job을 다시 확인한다.
 - 실제 통합 순서는 [CI 복구 계획](../worklog/2026-09-25/git-governance/CI-RECOVERY.md)을 따른다. PR #1/#2와 복구 branch는 보존한다. 같은 변경의 중복 병합·자동 rebase·기존 SHA 재작성은 하지 않는다.
-- 현재 worktree·Git metadata 쓰기 권한은 확보됐다. 문서 후속 갱신을 기존 task 허용 경로에서 별도 commit·push한다. 병합·배포·원격 보호 설정은 승인 범위 밖이다.
+- 현재 worktree·Git metadata 쓰기 권한은 확보됐다. 후속 commit·push는 승인 범위지만 push 실행이 환경에서 거절됐다. 선행 PR 병합 전 #7~#9의 feature → feature 실패는 남으며, 정책 완화나 실패 무시 병합은 하지 않는다. #4~#9 병합·배포·원격 보호 설정은 승인 범위 밖이다.
 - 기존 제품 출시 조건을 추가하지 않는다. 담당자·기한은 `(미정)`이며 원격 수용 전 전체 진척률을 임의의 백분율로 표시하지 않는다.
 
 ## 11. 갱신 규칙

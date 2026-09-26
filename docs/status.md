@@ -76,7 +76,7 @@
 
 ## Git·개발 harness — 2026-09-26 원격 검증 및 잔여 수용
 
-- **로컬 구현·분리 커밋·Draft PR 전달 완료, develop 통합·원격 강제는 미완료.** HARN-01~07은 모두 부분 구현이다. 테스트 수를 전체 구현률로 환산하지 않는다.
+- **PR #3 병합·병합 후 CI 완료, 후속 3건 수정은 로컬 커밋 완료·push 차단.** HARN-01~07은 모두 부분 구현이며 #4~#9 통합·원격 강제는 미완료다. 테스트 수를 전체 구현률로 환산하지 않는다.
 - 운영 기준 `8af7244`에서 develop 생성·tracking을 마쳤다. 원본 stash `c373dac`, local main의 기존 8개 commit과 다른 세션 worktree를 유지한다. 원본 미추적 파일 56개 중 `RESULT.md`는 과거 snapshot과 다르며 이번 후속 작업에서 덮어쓰지 않았다. 단일 `release` ref는 `release/<version>` 정책과 달라 처리 결정이 남았다.
 - 기존 8개 commit은 PR #4에 SHA 그대로 전달했다. 검토 흐름은 브라우저 #3 → 기존 기능 #4 → 정책/task 등록 #5 → cleanup #6 → harness #7 → CI 진단·환경 #8 → release fixture #9다. #5~#9의 feature base는 검토 차이를 위한 연결이며 최종 feature → develop 정책을 대신하지 않는다.
 - 코드 후속 전달: HARN-09 `8c1b5c1`은 API 빌드 선행·Windows Python 고정 버전 수정, HARN-07 `0fe6255`는 release CLI fixture의 실행 시각 기준 증거 생성이다. 각각 [Draft PR #8](https://github.com/JeahaOh/blariyo/pull/8)·[Draft PR #9](https://github.com/JeahaOh/blariyo/pull/9)에 push했다. hook은 HARN-09의 release 테스트 경로를 거부했고 task 전용 branch로 분리했다. 허용 경로를 확장하지 않았다.
@@ -86,12 +86,14 @@
 | PR #8 `36210788239`, head `8c1b5c1` | verify·Collector·Windows lease·Core restore·event-context·restore-scope                                             | release fixture 수정 전 harness 52/54로 quality·최종 gate 실패; Collector restore·images skip                          |
 | PR #9 `36210803673`, head `0fe6255` | Linux harness·quality 회귀·harness lint·architecture·전체 lint, Windows lease·Collector·event-context·restore-scope | quality는 feature → feature 방향 차단; verify는 browser 41/43 실패; 최종 gate 실패; Core/Collector restore·images skip |
 
-- PR #9 browser 실패는 관리자 이미지 재시도 버튼 timeout과 실패 stage의 완료 증거 기록을 거부한 부모 assertion이다. PR #8과 #9의 해당 파일은 같다. 재조회 완료 대기를 추가한 [Draft PR #3](https://github.com/JeahaOh/blariyo/pull/3), commit `2b61c4c`는 아직 포함되지 않았으며 선행 검토·통합이 필요하다. PR #3 자체의 verify·Collector는 통과했다. PR #9의 실패를 전체 CI 성공으로 보고하지 않는다.
+- 위 표는 당시 실행이다. 이후 PR #9 `36211581344`는 verify·Collector·Windows 성공, 브랜치 방향 검사와 최종 gate 실패였다. [PR #3](https://github.com/JeahaOh/blariyo/pull/3)은 `1ad626c`로 develop에 병합했고, 병합 후 [CI 36212646767](https://github.com/JeahaOh/blariyo/actions/runs/36212646767)의 verify·Collector가 성공했다. images는 조건에 따른 skip이며 배포하지 않았다.
+- 후속 로컬 수정: PR #6 `a1a4802`는 API·Collector·콘텐츠 수집의 구 checksum 호환을 승인된 previous/current 쌍으로 제한한다. PR #7 `f782c0b`는 API build 선행·Windows Python·날짜 fixture 수정을 활성화 시점에 포함한다. #4~#9 작업 브랜치는 선행 변경을 merge하여 기존 SHA를 보존했고 #6~#9 task-range가 통과했다. #8에는 진단 보존 등이, #9에는 문서 4개만 차이로 남는다.
+- 이번 후보의 로컬 검증: Node 24.18.0 harness 54/54, migration 계약·임시 DB 통합 회귀 각 1/1, Collector 전체 274/274·skip 0·DB readback 15개, architecture 9/9 성공. 전체 lint 중 Java cache 쓰기로 실패한 Checkstyle·Java fixture 2개는 새 Gradle 프로세스로 따로 통과했고 다른 lint는 통과했다. 하나의 전체 lint 실행 성공이나 새 원격 CI 성공으로 표현하지 않는다.
 - 복구 당시 별도 검증: 전체 lint(SQL 27개·finding 0), harness 52/52, quality 10/10, architecture 9/9, API 단위 34/34, Collector 273/273, browser 26/26 및 API/Collector 복원 31/41개 table·sequence. 이후 동일 후속 후보에서 macOS 전체 lint·harness 54/54·architecture 9/9를 확인했다. 각 SHA와 환경의 증거를 합쳐 새 실행 결과로 표시하지 않는다.
 - Collector 원문 HTML 49개의 바이트를 유지하고 parser 입력만 formatter에서 제외했다. 저장소 전체 SQL 27개 lint와 migration checksum evolution·명시적인 구 ledger 호환 계약은 유지한다.
 - 진단 artifact와 검증 receipt를 분리했고 원격 생성·업로드를 확인했다. JSON 내용·hash·run/attempt 대조는 미완료다. 복원 job skip은 해당 실행의 복원 통과를 뜻하지 않는다.
 - 마지막 인증된 Settings 관측에서 classic protection/ruleset은 없었다. 설정을 바꾸지 않았으며 trusted-ref 또는 code-owner 보호, 필수 gate 강제와 설정 readback은 남았다. 자동 heartbeat·다중 host·증거 schema/보존기간·지원 환경 확정, 실제 release/provider·배포·merge-back 수용도 남았다.
-- 현재 worktree와 Git metadata의 쓰기 권한 제한은 해소됐다. 이번 후속 문서 갱신은 HARN-07의 기존 허용 경로 안에서 별도 commit·push한다. 병합·배포·원격 보호 설정은 실행 범위에 포함하지 않는다.
+- 로컬 worktree·Git metadata 쓰기는 가능하다. 후속 push는 기존 사용자 승인에도 자동 승인 검토가 일괄·단독 명령을 모두 거절했고 현재 실행 설정에서 추가 승인 요청은 불가하다. 따라서 새 커밋은 아직 원격 PR에 없다. #4~#9 병합·배포·원격 보호 설정은 실행하지 않았다.
 - 상세 Git·CI 증거는 [CI 복구 기록](../worklog/2026-09-25/git-governance/CI-RECOVERY.md), 과거 복구 검증은 [stash 복구 결과](../worklog/2026-09-25/git-governance/STASH-RECOVERY.md), 잔여 순서는 [로드맵](roadmap.md#개발-도구--githarness-도입-계획)을 따른다. 기존 제품 17개 task·운영 배포 상태는 변경하지 않는다.
 
 ## 검증 근거

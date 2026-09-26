@@ -147,3 +147,27 @@ PR #8은 verify·Collector·Windows lease·Core restore 성공, quality·harness
 - 문서 4개는 현재 HARN-07 manifest의 기존 허용 경로에 속하므로 코드 수정과 분리한 문서 commit으로 전달한다. 미정 계약이나 전체 gate 실패를 완료로 승격하지 않는다.
 
 - 적용 후 검증: Markdown lint 145개 파일 오류 0, 변경 문서 상대 링크 118개 정상, HARN-07 허용 경로 및 변경 파일 4개 일치, `git diff --check` 통과. 이번 변경은 문서뿐이므로 앱·harness 전체 테스트를 다시 실행한 것으로 보고하지 않는다.
+
+## 2026-09-26 PR #3 병합 후 3건 수정과 전달 차단
+
+- PR #3은 사용자 승인으로 develop에 merge commit `1ad626c92dd418f31827d17ccbb9f3580f58447f`를 만들었다. 병합 후 CI `36212646767`은 verify·Collector success, images skipped다. 기존 source SHA `2b61c4c`는 유지한다.
+- 이번 범위는 발견한 3건 수정과 병합 가능한 후보 준비다. #4~#9 실제 병합·배포·원격 보호 설정은 포함하지 않는다.
+- PR #6 `a1a4802`: 구 applied hash만 맞으면 임의 current hash도 허용하던 API·Collector·콘텐츠 수집 비교를 previous/current 쌍으로 제한했다. API 8개·Collector 6개 버전의 실제 현재 SQL과 legacy hash, 변조 current, 미등록 applied/version을 검증한다. Collector V001은 Spring Batch 6.0.5·Quartz 2.5.2 리소스를 포함하는 합성 hash이며 예전 hash와 새 hash를 직접 계산·대조했다. SQL 원문과 DB ledger는 변경하지 않았다.
+- PR #7 `f782c0b`: #8에서 API build/lint 순서·Windows Python 수정, #9에서 release CLI 날짜 fixture 수정을 먼저 포함했다. 진단 보존 구현은 #8에 남겼다. 세 파일은 HARN-08의 기존 허용 경로이며 manifest를 확대하지 않았다.
+- #4→#5→#6→#7→#8→#9 순서로 선행 브랜치를 merge했다. PR #3의 browser 대기가 모두 포함되고 원래 8개 commit과 각 PR의 원래 head가 조상으로 남는다. rebase·force push·원격 병합은 없었다. task-range 결과는 #6 333개, #7 56개, #8 8개, #9 문서 4개 경로 통과다.
+- 원본은 보존하고 임시 독립 clone에서 bootstrap 이전 브랜치 #4~#6을 준비했다. #6 staged 5개 파일은 기존 검사기로 path·비밀 검사를 수행했다. 임시 사본에서 CI 파일을 적용하려던 restore와 patch 명령은 자동 승인 검토/프로젝트 경계에서 거절돼 실제 쓰기 허용된 delivery worktree로 커밋을 가져왔다. #7 이후 커밋은 설치된 hook을 유지했다.
+- 검증: Node 24.18.0 harness 54/54·skip 0, Node migration 계약 회귀 1/1, Collector checksum 회귀 1/1·skip 0, architecture 9/9. 처음 Java 회귀는 JDK 탐색 실패 후 설치된 Java 25 경로를 지정해 성공했다. lint도 기본 Node 25를 거부한 뒤 고정 Node로 실행했다. 전체 lint의 Java Checkstyle·Java fixture는 재사용 Gradle 프로세스의 delivery cache 생성 실패였으며 `--no-daemon`/`GRADLE_OPTS=-Dorg.gradle.daemon=false`로 해당 2개만 재검증해 성공했다. 나머지 lint는 성공, SQL/CSS/Markdown/format finding 0이다. 전체 lint 한 실행의 exit 0이나 새 Linux/Windows CI 성공으로 합쳐 표현하지 않는다.
+- 원격 전달 차단: `git push --atomic origin ...`과 단독 `git push origin feature/HARN-08-cleanup-review`가 모두 실행 전 자동 승인 검토에서 거절됐다. 메시지는 `approval required by policy, but AskForApproval is set to Never`이며 구체적 사유는 제공되지 않았다. 사용자 commit·push 권한 부족이나 harness 오류로 해석하지 않는다. 원격 PR 본문·대상·Draft 상태는 갱신하지 않았다.
+- 재개 순서: 아래 6개 feature ref를 push하고 새 CI 확인 → #4 검토·병합 → #5/#6을 차례로 develop 대상으로 바꾸고 검증·병합 → #7/#8/#9도 선행 통합 SHA에서 같은 절차. 선행 병합 전 #7~#9의 feature → feature 실패는 정책상 남는다. 성공한 로컬 검사를 원격 병합 가능 판정으로 대체하지 않는다.
+- 추가 DB 검증: Node 24.18.0의 API migration 통합 1/1 성공. Java 25 Collector 전체 274/274·77 suites·skip 0·DB readback 15개 성공. 기존 runner가 임의 이름의 임시 DB를 생성·정리했으며 기존 개발 DB 데이터나 운영 DB를 대상으로 실행하지 않았다.
+- 문서·전송 준비 검증: Markdown 145개 오류 0, 변경 문서의 상대 링크 88개 존재, diff 공백 검사 통과. outgoing 검사에서 6개 ref·10개 신규 도달 commit을 검사했고 기존 remote head가 각 로컬 head의 조상임을 확인했다. 이 문서 후속 커밋은 같은 검사로 별도 확인한다.
+
+```sh
+git -C /Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery push --atomic origin \
+  feature/HARN-08-legacy-main-review \
+  feature/HARN-08-policy-review \
+  feature/HARN-08-cleanup-review \
+  feature/HARN-08-harness-review \
+  feature/HARN-09-ci-diagnostics \
+  feature/HARN-07-release-fixture-clock
+```

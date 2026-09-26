@@ -143,3 +143,13 @@ feature→release는 CLI 병합을 허용하고 release→main은 GitHub 웹 GUI
 - 현행 절차: [Git workflow](../../../docs/ai/git-workflow.md), 공통 요약: [AGENTS.md](../../../AGENTS.md).
 - 이번 변경·적용 한계·검증: [브랜치 전략 변경 기록](BRANCH-STRATEGY.md).
 - GitHub 설정·hook 설치·실제 병합과 배포는 수행하지 않는다. 문서 반영과 강제 적용은 별도다.
+
+## GitHub Free와 로컬 hook 채택 — 후속 확정
+
+- 사용자 결정: GitHub Free를 유지하고 로컬 hook을 사용한다. 다른 Git 플랫폼으로 이전하지 않는다.
+- 유료 원격 브랜치 보호·추가 CI를 현재 필수 조건으로 삼지 않는다. 기존 CI는 이번 변경에서 유지한다.
+- feature→release→main, main의 GitHub 웹 병합, main 기점 hotfix와 역전달 규칙은 유지한다.
+- hook은 main commit·로컬 merge commit·대상 push, release 일반 commit·삭제·이력 재작성 push를 차단한다.
+  설치본 유지·검증 방법과 미설치·우회·웹/API 한계는 [Git workflow](../../../docs/ai/git-workflow.md)에 둔다.
+- 구현·설치·테스트·기존 변경 보존의 실제 결과는 [로컬 hook 적용 기록](LOCAL-HOOKS.md)에서 구분한다.
+  과거 대안 비교·미설치 기록은 당시 이력으로 보존한다.

@@ -1,6 +1,7 @@
 # Git 브랜치와 병합 절차
 
-- 상태: 2026-09-26 사용자 확정. GitHub 보호 설정·hook·추가 CI는 적용 전이다.
+- 상태: 2026-09-26 사용자 확정. **GitHub Free 유지 + 로컬 Git hook**을 채택한다.
+  hook은 구현됐으며 clone별 설치·검증은 별도다. GitHub 유료 보호·플랫폼 이전·추가 CI는 현재 필수 조건이 아니다.
 - 공통 권한·worktree·기록 기준은 [AGENTS.md](../../AGENTS.md), 검사 계약은 [harness](harness.md)를 따른다.
 - 이 문서는 최신 사용자 결정인 `feature → release → main`을 구체화한다. 과거 worklog의 반대 순서를 현행 규칙으로 사용하지 않는다.
 
@@ -26,7 +27,8 @@ main HEAD가 실제 운영 버전이라는 뜻은 아니다. 실제 배포 여�
 4. 검증할 release SHA와 main 기준 SHA를 기록하고 release→main PR을 준비한다.
    PR 생성·조회·검사는 CLI로 할 수 있지만 최종 병합은 GitHub 웹 GUI에서만 한다.
 5. PR의 head/base가 바뀌면 기존 결과를 새 후보의 검증으로 재사용하지 않는다. 충돌 해결로 내용이 바뀌면 관련 검사를 다시 수행한다.
-6. main 반영 후 실제 main SHA의 CI·이미지 digest를 확인한다. 배포는 별도 요청·절차를 따른다.
+6. main 반영 후 실제 main SHA를 확인한다. 배포할 때 해당 SHA의 검증·이미지 digest·실행 결과를 확인하며,
+   배포는 별도 요청·절차를 따른다. 기존 CI의 유지·확장을 브랜치 보호 도입의 필수 조건으로 삼지 않는다.
 
 main에는 로컬 직접 commit·push, `gh pr merge`·병합 API·자동 병합을 사용하지 않는다.
 GUI로 실행한다는 사실도 병합 권한을 대신하지 않으며, AI의 실행 범위는 매번 받은 사용자 요청을 따른다.
@@ -58,39 +60,65 @@ main ──분기──> hotfix-<주제영역>
 별도 브랜치나 장기간 중단을 요구하는 말이 아니다. main 승격을 준비하는 동안에는 후보 SHA를 기록하고,
 새 기능·결함 수정·hotfix 전달로 release가 바뀌면 후보를 다시 정해 검증한다. 진행 중 feature 작업 자체는 계속할 수 있다.
 
-## GitHub·CI·hook 적용안
+## GitHub Free 운영 기준
 
-아래는 후속 구현·설정 시의 기준이며 현재 설치·강제 적용됐다는 뜻이 아니다.
+- 플랫폼은 GitHub를 유지한다. 비공개 저장소의 GitHub Free에서는 서버 측 branch protection·ruleset을
+  사용할 수 없으므로 적용됐다고 보고하지 않는다. 공개 저장소 전환·유료 전환은 이번 결정에 포함하지 않는다.
+  [GitHub 보호 브랜치 지원 범위](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
+- 로컬 hook은 Git 명령 실행 시 실수를 차단하고, AI 공통 지침은 작업 범위·병합 방향·웹 GUI 사용을 규정한다.
+  웹에서 main PR을 병합할 때 같은 저장소의 release 또는 hotfix-*인지, 후보 SHA의 필요한 검증이 끝났는지 확인한다.
+- 현재 hook은 작업 기록 내용·사용자 승인·전체 변경 범위·제품 테스트 결과를 자동 판정하지 않는다.
+  이 항목은 작업자와 병합 담당자가 확인한다. hook 통과를 commit·push 권한으로 해석하지 않는다.
+- 추가 CI는 필요할 때 별도 요청으로 구성한다. 기존 workflow는 이번에 삭제하거나 수정하지 않는다.
+  CI가 실행되면 대상 SHA·실행 여부·결과를 확인하며, 검사 실행을 원격 병합 강제 차단과 혼동하지 않는다.
 
-| 위치 | 적용할 내용 | 한계와 주의 |
+## 로컬 hook 설치와 검증
+
+편집 정본은 [`.githooks/`](../../.githooks/guard.sh), 설치 도구는
+[`scripts/git-hooks.mjs`](../../scripts/git-hooks.mjs)다. clone별로 다음을 실행한다.
+
+```sh
+npm run hooks:install
+npm run hooks:check
+npm run test:git-hooks
+```
+
+- 설치는 Git 공통 디렉터리의 `blariyo-hooks/`에 source 사본을 만들고 해당 clone의 `core.hooksPath`를 연결한다.
+  현재 환경은 `.git/blariyo-hooks/`이며 과거 `.git/harness-hooks/`를 재사용하지 않는다.
+  다른 브랜치에 `.githooks/`가 없어도 설치본은 남는다. 같은 clone의 linked worktree는 공통 설정을 공유한다.
+- 다른 `core.hooksPath`나 기존 실행 hook이 있으면 자동 덮어쓰지 않고 중단한다. 담당·통합 방법을 확인한다.
+- hook source를 수정하거나 새 변경을 받은 뒤 `hooks:check`가 설치본 차이를 보고하면 내용을 검토하고
+  `hooks:install`로 다시 설치한다. 설치는 반복 실행할 수 있으며 다른 clone에는 자동 전파되지 않는다.
+- 설치·테스트에는 Node.js가 필요하고, 설치된 hook 실행에는 Git과 POSIX sh만 필요하다. npm 의존성 설치는 필요 없다.
+
+| hook | 차단 | 허용 |
 | --- | --- | --- |
-| GitHub main 보호 | PR 필수, 필수 검사, force push·삭제 제한, 필요한 최소 우회 권한 | 기본 PR 규칙만으로 웹 GUI 전용을 구분할 수 없음 |
-| main 대상 PR 검사 | 같은 저장소의 release 또는 hotfix-*인지 확인하고 실제 변경·검증 결과 확인 | branch 이름만으로 변경 내용·긴급 수정의 적정성을 증명하지 않음 |
-| GitHub release 보호 | force push·삭제 제한, 사용자에게 허용된 로컬 병합 결과의 push 경로 유지 | 로컬 merge+push를 허용하면서 PR 전용 규칙을 일괄 켜지 않음 |
-| CI | release push의 통합 검사, main 대상 PR 검사, main 병합 후 최종 SHA 검사·이미지 게시 | release push 후 실행한 검사는 이미 수신된 push의 사전 차단 증거가 아님 |
-| 로컬 hook | main 대상 push 조기 차단, 요청된 변경 범위·작업 기록·로컬 검사 확인 | 미설치·우회 가능. GitHub CLI/API의 서버 병합을 가로채지 못함 |
-| AI 공통 지침 | 병합 방향·실행 수단·긴급 수정 전달·권한 경계 | 문서만으로 위반을 기술적으로 방지하지 못함 |
+| `pre-commit` | main 직접 commit, release 일반 commit | feature·hotfix commit, MERGE_HEAD가 있는 release 병합 완료 commit |
+| `pre-merge-commit` | main의 로컬 merge commit | release 통합 등 main 이외의 merge commit |
+| `pre-push` | 원격 main 생성·수정·삭제, release 삭제·이력 재작성 | release의 기존 이력을 포함하는 push, release 최초 생성, 일반 feature·hotfix push |
 
-main의 필수 검사에는 실제로 실행되는 CI를 지정한다. 생략·미실행을 성공으로 취급하지 않도록 검사 결과를 집계한다.
-코드 작성자가 필수 검사 자체를 임의 약화해 통과시키지 못하도록 workflow 변경과 검사 출처·우회 권한도 검토한다.
-혼자 관리하는 저장소라면 본인 PR을 승인할 수 없는 별도 리뷰어 필수 설정을 무조건 추가하지 않는다.
+pre-push는 현재 브랜치 이름이 아닌 **Git이 제공한 실제 목적지 ref**를 검사한다. `HEAD:main`, 다른 원격 이름,
+여러 ref를 보내는 push에도 적용한다. release의 원격 기준 커밋이 로컬에 없으면 자동 fetch하지 않고 중단한다.
+해당 원격을 fetch하고 변경·병합 상태를 확인한 뒤 다시 실행한다. `--force` 여부 자체가 아니라 이전 원격 커밋의
+이력을 포함하는지를 판정하므로, 실제 이력을 지우는 `--force-with-lease`도 차단한다.
 
-GitHub는 같은 PR을 웹과 CLI에서 모두 병합할 수 있다. 따라서 표준 PR·검사 규칙에 대한 이 문서의 판단은
-**기본 보호 설정만으로 GUI 전용 병합을 완전히 강제할 수 없다는 것**이다.
-이 요구를 더 강하게 제한하려면 AI용 계정·토큰에 main 병합 권한을 주지 않는 권한 분리를 검토한다.
-같은 병합 가능 자격 증명을 사람과 AI가 공유하면서 CLI만 금지됐다고 판단하지 않는다.
-[GitHub PR 병합](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/merging-a-pull-request),
-[GitHub ruleset](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)
+### 한계
 
-pre-push는 실제 원격 대상 ref를 확인해야 한다. 현재 체크아웃 이름만 검사하면 다른 이름의 로컬 ref를 main으로 보내는 경우를 놓친다.
-hook 파일은 저장소에서 버전 관리하고 설치 절차로 연결하는 방식이 적합하다. `.git/` 내부 파일만 고치면 다른 clone에 배포되지 않는다.
-로컬 hook은 `--no-verify` 등으로 우회할 수 있으므로 원격 보호를 대체하지 않는다.
-[Git hook](https://git-scm.com/docs/githooks), [Git push](https://git-scm.com/docs/git-push)
+- `--no-verify`, hook 설정 변경·미설치, 다른 clone, 웹·API 요청은 이 hook의 보호 범위 밖이다. AI는 G07에 따라 우회하지 않는다.
+- commit을 만들지 않는 fast-forward merge, reset·update-ref 등 로컬 ref 이동 전체를 가로채지는 않는다.
+  main을 로컬에서 바꿔도 이 hook을 거치는 main push는 차단된다. 이를 로컬 main 변경 전체 차단으로 보고하지 않는다.
+- main으로의 GitHub 웹 PR 병합은 허용하지만 hook이 웹·CLI·API 병합을 구별해 강제하지는 못한다.
+  웹 전용과 release/hotfix 소스 제한은 공통 작업 규칙이다.
+- 사용자 예외도 hook을 자동 해제하는 근거가 아니다. 예외 실행이 필요하면 대상·권한·설정 변경을 별도로 확인한다.
+
+[Git hook](https://git-scm.com/docs/githooks), [Git push](https://git-scm.com/docs/git-push),
+[GitHub PR 병합](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/merging-a-pull-request)
 
 ## 전환과 검증
 
 - 기존 main·release의 서로 다른 커밋과 미커밋 변경은 대조·보존한다. 새 흐름을 이유로 자동 reset·stash·강제 push하지 않는다.
 - 현재 [CI](../../.github/workflows/ci.yml)와 [배포 정책](../operations/deployment-policy.md)은 main 검증·이미지 게시를 사용한다.
-  main 게시 기준은 새 흐름에서도 유지 가능하며 release push 검사·main PR 소스 제한은 추가 구현 대상이다.
-- 적용 전 저장소 요금제·권한·기존 ruleset을 조회해 가능한 설정을 확정한다. 보호 규칙은 CLI 허용 경로와 충돌시키지 않는다.
-- 적용 결과는 문서, 로컬 hook, 원격 보호, CI, 실제 배포를 나눠 검증한다. 거부돼야 할 main push와 정상 허용 경로를 각각 확인한다.
+  main 게시 기준은 유지 가능하지만 CI source의 존재만으로 운영 필수성·실제 실행을 판단하지 않는다.
+  release push 검사·main PR 소스 자동 검사는 필요한 경우의 후속 작업이다.
+- 적용 결과는 문서, 로컬 hook 설치·테스트, 원격 보호, CI, 실제 배포를 나눠 검증한다.
+  임시 로컬 저장소에서 거부돼야 할 main push와 정상 허용 경로를 확인하고, 실제 GitHub push 거부 증거와 구분한다.

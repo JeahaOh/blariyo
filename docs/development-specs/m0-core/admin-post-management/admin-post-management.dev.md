@@ -1143,6 +1143,6 @@ upload 실패 UX는 all-or-nothing, 요청 단위 gate `413`의 `fields` 없음,
 
 ## M0-D04 역할 인계 — 2026-09-26
 
-[권한 정본](../../../system-design/05-security-operations.md#m0-d04-roles)의 OWNER와 EDITOR는 이 명세의 글/이미지/예약/발행/숨김 업무를 모두 수행한다. 이미지 업로드·preview는 API 기능으로 제공하고 친구에게 R2/서버/DB/Drive credential을 배포하지 않는다. OWNER만 계정/설정·서버·백업 복구를 관리한다. existing active operator registry에 role을 추가하고 BFF가 외부 role header를 제거, Core가 service token·내부 role·operation allowlist를 검사하도록 후속 구현한다. 메뉴 숨김만으로 권한 적용을 완료 처리하지 않는다.
+[권한 정본](../../../system-design/05-security-operations.md#m0-d04-roles)의 OWNER와 EDITOR는 이 명세의 글/이미지/예약/발행/숨김 업무를 모두 수행한다. 이미지 업로드·preview는 API 기능으로 제공하고 친구에게 R2/서버/DB/Drive credential을 배포하지 않는다. OWNER만 계정/설정·서버·백업 복구를 관리한다. 9/27 active operator registry에 필수 role을 추가했고 BFF 외부 role header 제거·Core service token/내부 role/operation allowlist를 구현·로컬 검증했다. 메뉴 숨김만으로 권한 적용을 완료 처리하지 않는다.
 
-OPS-01/02에서 두 계정의 정상 게시물 작업, EDITOR 직접 설정/legacy source PATCH/관리 자원 접근 거부, role 위조·active 회수 뒤 기존 session 거부, secret 미노출을 별도 기록한다(D04-T1~T6). 현재 AdminGuard의 actor 형식 검사만으로 역할 분리가 구현됐다고 보지 않는다. 새 권한 화면·범용 프레임워크는 추가하지 않으며 기존 UX task를 이 설계 전체에 종속시키지 않는다.
+OPS-01/02에서 두 계정의 정상 게시물 작업, EDITOR 직접 설정/legacy source PATCH/관리 자원 접근 거부, role 위조·active 회수 뒤 기존 session 거부, secret 미노출을 별도 기록한다(D04-T1~T6). [D04-T1~T6 로컬 증거](../../../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)가 있으며 실제 두 운영자 계정 인수는 별도로 남아 있다. 새 권한 화면·범용 프레임워크는 추가하지 않으며 기존 UX task를 이 설계 전체에 종속시키지 않는다.

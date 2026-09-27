@@ -33,7 +33,7 @@ Discord 채널은 사용자 보고로 생성 완료·현재 사용자만 참여�
 - **우선순위:** P1.
 - **목표:** 실제 batch 실행 PC에서 비운영 DB/object 역할 경계와 Discord Gateway 흐름을 확인한다.
 - **선행:** QD-05 실행 OS/장비 및 QD-06 제한 계정·bucket/prefix·guild/channel 준비, P1 입력 계약.
-- **완료 증거:** batch→DB/object→API 검수/readback, 역할 간 쓰기 거부·dry-run 무쓰기·worker 재시작·미승인 공개0, Discord 취소/만료/권한/중복 interaction 기록.
+- **완료 증거:** batch→DB/object→API 검수/readback, 역할 간 쓰기 거부·dry-run 콘텐츠/object 무저장(요청 quota 기록)·worker 재시작·미승인 공개0, Discord 취소/만료/권한/중복 interaction 기록.
 
 ## OPS-05 초기 7일 운영 관찰
 
@@ -48,4 +48,4 @@ Discord 채널은 사용자 보고로 생성 완료·현재 사용자만 참여�
 - OPS-01/02: [D04](../system-design/05-security-operations.md#m0-d04-roles)의 OWNER/EDITOR 정상 게시물/이미지·검수 및 직접 설정/API/관리 자원 거부를 D04-T1~T6으로 기록한다. 친구의 게시물 업무를 위해 서버·R2·Drive credential을 공유하지 않는다.
 - OPS-03: [D03](../system-design/05-security-operations.md#m0-d03-drive) 구현과 T1~T6. 선택 dump의 content/dedup 복구·direct 원문/queue 비복구와 재수집 금지, R2 대체본·Drive 병행/실다운로드·독립 격리 복원·7일 삭제·인증 실패·Discord 실수신·R2 복귀를 각각 증거로 남긴다. 기존 R2 성공을 Drive 완료로 표시하지 않는다.
 - OPS-04: D02 실제 runtime snapshot/heartbeat·장비 중단과 늦은 요청 만료·전용 역할, D04 서비스 간 거부 및 출처 S1~S5 운영 조건을 인수한다. Discord 채널 생성은 사용자 보고, 실수신은 후속 실제 시험이며 친구 초대는 필수가 아니다.
-- 위 설계만 완료됐으며 신규 구현·실제 서비스 연결·DB/object 삭제·전송은 미실행이다.
+- 2026-09-27 D03/D04·mailbox/회수의 로컬 코드·격리 시험은 [실행 기록](../../worklog/2026-09-27/m0-implementation/README.md)에 있다. 실제 서비스 연결·운영 DB/object 삭제·외부 전송은 미실행이다. [운영 인계](../operations/m0-operation-handoff.md)에 입력·실행 순서·증거 양식·Core 실제7일 관찰표를 연결했다.

@@ -11,6 +11,14 @@
 미충족 항목이 있다. 아래 실행 명령·예제의 승인 플래그를 운영 활성화 허가로 해석하지 않는다.
 [필수 보완과 검증 조건](../../../docs/system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)을 먼저 따른다.
 
+## Web direct 입력의 실행 조건
+
+- API `COLLECT_DIRECT_INPUT_ENABLED`, Web `NUXT_COLLECT_DIRECT_INPUT_ENABLED`, queue 실행기 `COLLECTOR_WEB_INPUT_ENABLED`의 기본값은 모두 `false`다. legacy manual/Discord flag와 독립적이다. 서버 설정 후보 생성기도 API/Web direct 입력을 비활성으로 만든다.
+- queue 실행기의 Web 입력은 명시한 `COLLECTOR_SOURCE_CONFIG` 또는 `COLLECTOR_SOURCES_FILE`/`collector.sources-file`을 요구한다. 예제 파일을 자동으로 실제 실행 설정으로 발표하지 않는다. `approved`, `enabled`, `collectionPolicy`, `dailyRequestLimit`을 포함한 실제 설정이 검증돼야 수집 허용으로 표시한다. 일일 한도 누락은 비활성/미설정이다.
+- API V010·Collector V010과 `deploy/postgresql/apply-privileges.sql`의 역할별 재적용이 선행한다. API는 mailbox/alias를 소유하고 batch receipt/runtime view만 읽는다. batch는 제한 claim/ack/cleanup 함수와 자기 테이블만 사용한다.
+- queue 실행기는 기동/성공한 reload 때 안전 필드의 설정 버전과 적용 시각을 발표하고, 30초마다 heartbeat와 mailbox 인수를 수행한다. 요청 최대20개·lease60초·요청24시간을 적용하며 원문 HTTP는 인수 transaction 밖에서 실행한다. 단건 요청 상태는 Web에서 5초마다 조회하고 화면 이탈/백그라운드에서 조회를 멈춘다.
+- 이 절은 구현 인계다. COL-01/02 요청 통제·실제 S1~S5 출처 승인·장비/사설 경로·고지·운영 권한 인수 전에는 세 flag를 활성화하지 않는다. 배포 후보에서 요청을 차단하려면 API/Web flag부터 끄고 기존 접수 건의 기한/상태를 확인한다. 전체 수집 중단은 별도로 queue/Discord 실행기의 신규 시작을 중지하고 진행 중 작업을 정상 종료한다. DB 행 삭제나 legacy 재활성화로 되돌리지 않는다.
+
 ## 변경 검증과 CI
 
 Node 24.18.0·Java 25와 격리 PostgreSQL 18을 준비하고 저장소 루트에서 `npm run test:collector`를 실행한다.
@@ -212,14 +220,14 @@ CLI는 자기 컴퓨터의 loopback API만 호출하고 candidateId와 jobReques
 
 ### 직접 저장 batch 실행
 
-먼저 실행 중인 batch를 종료하고 DB/object 백업 후 MigrationMain으로 V006까지 적용한다.
+먼저 실행 중인 batch를 종료하고 DB/object 백업 후 MigrationMain으로 V010까지 적용하고 제한 역할 권한을 재적용한다.
 V003과 새 collector 코드는 함께 사용한다. V003 DB에서 구버전 collector만 재시작하는 rollback은 지원하지 않는다.
 DB 연결은 직접 연결 또는 session pooling이어야 하며 transaction pooling은 지원하지 않는다.
 새 media key는 collect/media/{runId}/{itemId}/{position}이고 기존 key는 조회 호환을 유지한다.
 DB가 source 잠금 소유·상태 전이·version을 검사하며, 완성 report/checkpoint와 run 종료를 함께 확정한다.
 
 `batch`는 목록·상세 요청과 parser 결과를 직접 collect DB와 object store에 기록한다. Core 후보 endpoint를 호출하지
-않는다. `--dry-run`은 network read와 robots 확인만 수행하고 DB/object store를 쓰지 않는다.
+않는다. `--dry-run`도 robots·목록/상세 요청 전에 batch DB의 일일 quota를 예약하므로 제한 DB 연결이 필요하다. 콘텐츠 row와 object는 저장하지 않는다. source 설정에 명시적 dailyRequestLimit과 최소10000ms 간격이 없으면 실행을 거부한다.
 
 ```sh
 COLLECTOR_SOURCES_FILE=/config/sources.json \
@@ -388,7 +396,7 @@ queue request는 실행마다 새 `batch_run`을 연결한다. 중단 후 재개
 403·삭제·parser·크기 초과·rate-limit은 요청을 종결한다. 403/정책 거부/rate-limit 뒤 같은 source의
 다른 대기 요청도 15분간 유예한다. 만료된 confirmation은 접수하지 않고, 확인 완료 receipt는 재전송에 같은 ID를 반환한다.
 `queue --once`는 한 건의 처리/복구 결과 또는 IDLE을 JSON으로 출력하며, 장기 실행 `queue --write-db`는 JSONL로 기록한다.
-queue/discord 명령은 `--write-db`가 필수다. 기존 `batch --dry-run`은 여전히 DB/object 무쓰기다.
+queue/discord 명령은 `--write-db`가 필수다. `batch --dry-run`은 콘텐츠/object 무저장이고 batch DB 요청 quota만 기록한다. `SiteProbeMain`도 같은 제한 DB 연결·robots·quota를 사용한다.
 
 V005 migration은 기존 QUEUED run의 payload를 같은 ID의 request로 옮기고 이전 run에
 `BATCH_QUEUE_MIGRATED`를 기록한다. 원문·미디어·기존 게시글은 삭제하지 않는다.

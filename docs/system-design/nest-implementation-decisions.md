@@ -159,7 +159,7 @@ health를 503으로 바꾸는 새 동작을 도입하지 않는다. 근거: 04-i
 일반 목록·조회·갱신은 Entity/Repository/QueryBuilder로 처리하는 것이 전환 계약이다. 아래 전환 당시 raw SQL도 모두
 DatabaseContext의 TypeORM manager 또는 같은 QueryRunner를 사용한다. 외부 입력은 값 매개변수로 전달한다.
 
-2026-09-24 대조에서 후속 `batch-result.repository.ts`, `batch-review.repository.ts`의 일반 조회·갱신·receipt와 `collection.repository.ts`의 `discoveryAllowed`가 직접 SQL을 사용하는 차이를 확인했다. 이는 아래의 기존 예외 승인 근거로 자동 포괄하지 않는다. TypeORM manager와 매개변수는 사용하지만 일반 ORM 처리 계약과의 정합성은 [로드맵](../roadmap.md)에서 후속 정리한다. batch 목록의 항목별 재조회도 존재하므로 아래의 과거 공개/관리자 게시글 쿼리 수를 direct 검수 목록에 적용하지 않는다.
+2026-09-27 CON-02 구현에서 direct 전용 예외의 범위를 아래에 명시했다. batch 소유 결과는 API에서 읽기만 하며 API 소유 검수·mailbox 쓰기와 구분한다. 일반 `collection.repository.ts`의 `discoveryAllowed`는 등록된 Entity 조회로 변경했다. direct 검수 목록은 항목별 재조회를 제거하고 만료를 검사한 materialized CTE의 같은 항목 집합에서 전체 개수·페이지·검수 상태를 읽는다. 격리 HTTP 시험의 1건/20건 목록은 모두 SQL 5회(트랜잭션 제어4회 + 데이터 조회1회)이며 쓰기는0회였다. 이 수치는 [현재 DB 시험](../../apps/api/test/batch-review.integration.test.ts)의 결과로, 대량 데이터 부하 성능이나 운영 지연을 증명하지 않는다.
 
 | 파일 (persistence/) | 예외와 이유 | 검증 |
 | --- | --- | --- |
@@ -172,6 +172,11 @@ DatabaseContext의 TypeORM manager 또는 같은 QueryRunner를 사용한다. �
 | collector-lease.repository.ts | 만료 대상 SELECT FOR UPDATE SKIP LOCKED와 UPDATE RETURNING을 한 CTE로 실행 | collector-lease/collection-v2·Spring |
 | collector-quota.repository.ts | MATERIALIZED clock_timestamp 한 값으로 KST 날짜·다음 자정 계산. 예산/예약 저장은 ORM | collection-v2·quota 경계 |
 | posts.repository.ts | 예약 실패 알림의 ON CONFLICT 카운트 증가와 GREATEST 시각을 단일 문장으로 처리 | schedule-alerts/failures |
+| batch-result.repository.ts | batch 소유 item/lifecycle 읽기 전용 projection. 원문 삭제 후에도 남는 lifecycle에서 404/410을 구분하고 DB 시각 기준 만료를 검사 | batch-review/batch-retention 통합 |
+| batch-review.repository.ts | 위 CTE 목록·고정 media/검수 projection, API 소유 review의 버전 조건 UPDATE RETURNING·ON CONFLICT 및 멱등 receipt. batch queue/item 일반 쓰기는 금지하며 D01 trigger와 동일 transaction 경계를 유지 | batch-review의 권한·결과·1/20건 쿼리 수·승격/만료 통합 |
+| direct-request.repository.ts | API 소유 mailbox/alias의 원자 INSERT·멱등/24시간·DB 시각 rate 계산, 두 hash 활성 identity·영구 dedup 조회, batch의 고정 receipt/runtime view 읽기. cleanup은 API 소유 제한 함수만 호출 | direct-mailbox/direct-retry/direct-expiry·역할 통합 |
+
+`cleanup.repository.ts`는 mailbox 테이블이 없는 Core 배포와 호환되도록 고정 cleanup 함수의 존재를 확인한 뒤 호출한다. 위 예외는 직접 SQL 전반이나 controller/service의 DB 접근을 허용하지 않는다. DTO·동적 필터 값은 계속 매개변수로 전달하고 source 설정·batch 내부 queue·credential을 응답에 포함하지 않는다. 기능 추가 때 예외 경로·권한·쿼리 수를 다시 대조한다.
 
 GRANT role 이름은 소문자 identifier 형식 검증 후 사용하고, 전환 제약의 table/name은 고정 목록만 허용한다.
 값 매개변수를 식별자에 대신 적용했다고 주장하지 않는다. Repository 계약에는 SQL·ORM 객체를 노출하지 않는다.
@@ -211,3 +216,7 @@ strict/noUncheckedIndexedAccess/exactOptionalPropertyTypes 및 type-aware lint�
 교체 전 두 구현을 39 operation, 요청 1872건·응답 및 투영 각각 5424건과 normalizeInput으로 대조했다.
 검사용 후보는 실제 index.mjs 연결 후 제거한다. 인접 선언 파일만 검사한 것으로 오인하지 않도록
 TypeScript 파일 목록에서 실제 index.mjs가 포함되는 것도 확인한다.
+
+### 2026-09-27 API009/010 metadata
+
+API 소유 `content.post_collection_origin`·`collect.web_collection_request`·`web_collection_request_key`의 Entity/관계를 추가했다. PostgreSQL catalog의23table/273column/19FK 전수 대조·각 relation 실제 조회·전후 schema 동일을 통과했다. synchronize/migrationsRun/자동 relation 쓰기는 계속 꺼져 있으며 mailbox 제한 SQL 예외를 ORM DDL 생성으로 바꾸지 않는다. Collector 소유 테이블의 일반 쓰기 권한은 없다.

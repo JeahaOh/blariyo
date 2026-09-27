@@ -4,8 +4,13 @@ definePageMeta({ path: '/admin/batch' });
 type Decision = 'REVIEWING' | 'APPROVED' | 'REJECTED' | 'DRAFT';
 type Filters = { source: string; state: string; reviewStatus: string };
 const requestFetch = useRequestFetch();
+const { data: features } = await useAsyncData('admin-features', () =>
+  requestFetch<{ batchReview: boolean; directInput: boolean }>('/api/admin/features').catch(() => null)
+);
+if (!features.value?.batchReview && !features.value?.directInput)
+  throw createError({ statusCode: 404, message: '수집 기능을 사용할 수 없습니다.' });
 const { data: listing, error } = await useAsyncData('batch-review-list', () =>
-  requestFetch<ApiResponse<'listBatchItems'>>('/api/v1/admin/collect/batch-items')
+  features.value?.batchReview ? requestFetch<ApiResponse<'listBatchItems'>>('/api/v1/admin/collect/batch-items') : Promise.resolve(null)
 );
 if (error.value)
   throw createError({
@@ -22,6 +27,32 @@ const busy = ref(false),
   title = ref('');
 const appliedFilters = ref<Filters>({ source: '', state: '', reviewStatus: '' });
 const selected = ref<ApiResponse<'getBatchItem'>['data']['item'] | null>(null);
+const expiredPostId = ref<number | null>(null);
+function expireOriginal() {
+  const expiredItemId = selected.value?.itemId;
+  expiredPostId.value = selected.value?.review.postId ?? null;
+  selected.value = null; title.value = ''; pending.value = null;
+  if (listing.value) {
+    const before = listing.value.data.items.length;
+    listing.value.data.items = listing.value.data.items.filter(item => item.itemId !== expiredItemId && Date.parse(item.retention.expiresAt) > Date.now());
+    listing.value.data.totalItems = Math.max(0, listing.value.data.totalItems - before + listing.value.data.items.length);
+    listing.value.data.totalPages = Math.max(1, Math.ceil(listing.value.data.totalItems / 20));
+  }
+  message.value = '원문 보관 기한이 지나 본문과 미리보기를 닫았습니다.';
+  void fetchList(page.value, appliedFilters.value).catch(() => { listError.value = '만료 원문을 닫았습니다. 목록을 다시 조회해 주세요.'; });
+}
+let expiryTimer: ReturnType<typeof setTimeout> | undefined;
+watch(() => selected.value?.retention.expiresAt, (deadline) => {
+  clearTimeout(expiryTimer);
+  if (!deadline || !import.meta.client) return;
+  const expire = () => {
+    const remaining = Date.parse(deadline) - Date.now();
+    if (remaining > 0) { expiryTimer = setTimeout(expire, Math.min(2147483647, remaining)); return; }
+    expireOriginal();
+  };
+  expire();
+});
+onUnmounted(() => clearTimeout(expiryTimer));
 const pending = ref<{
   itemId: string;
   path: string;
@@ -80,6 +111,7 @@ async function open(id: string) {
   if (locked.value) return;
   busy.value = true;
   message.value = '';
+  expiredPostId.value = null;
   try {
     selected.value = (
       await $fetch<ApiResponse<'getBatchItem'>>(`/api/v1/admin/collect/batch-items/${id}`, {
@@ -87,8 +119,11 @@ async function open(id: string) {
       })
     ).data.item;
     title.value = selected.value.title || '';
-  } catch {
-    message.value = '상세를 불러오지 못했습니다. 수집 결과와 본문 형식을 확인해 주세요.';
+  } catch (error) {
+    selected.value = null; title.value = '';
+    message.value = apiError(error).code === 'BATCH_ITEM_EXPIRED'
+      ? '원문 보관 기한이 지나 본문과 미리보기를 닫았습니다.'
+      : '상세를 불러오지 못했습니다. 수집 결과와 본문 형식을 확인해 주세요.';
   } finally {
     busy.value = false;
   }
@@ -145,6 +180,9 @@ async function executePending() {
     }
   } catch (error) {
     const code = apiError(error).code;
+    if (code === 'BATCH_ITEM_EXPIRED') {
+      expireOriginal(); return;
+    }
     const definitive =
       code &&
       [
@@ -189,6 +227,9 @@ onBeforeRouteLeave(() => !locked.value);
   <main class="batch-admin">
     <h1>수집 결과 검수</h1>
     <AdminNavigation />
+    <NuxtLink v-if="expiredPostId" :to="{ path: '/admin', query: { postId: expiredPostId } }">보존된 게시글 사본 열기</NuxtLink>
+    <DirectCollectionInput v-if="features?.directInput" :review-enabled="features.batchReview" @collected="open" />
+    <template v-if="features?.batchReview">
     <p>원문과 첨부를 확인한 뒤 승인하세요. 초안을 만들어도 자동으로 발행되지 않습니다.</p>
     <form @submit.prevent="refresh(1, true)">
       <label>출처 <input v-model="source" :disabled="locked" placeholder="예: theqoo" /></label>
@@ -319,6 +360,8 @@ onBeforeRouteLeave(() => !locked.value);
             :src="`/api/v1/admin/collect/batch-items/${selected.itemId}/media/${block.imagePosition}/preview`"
             :alt="block.alt || `수집 이미지 ${block.imagePosition}`"
             :source-url="selected.canonicalUrl"
+            :status-path="`/api/v1/admin/collect/batch-items/${selected.itemId}`"
+            @expired="expireOriginal"
           />
           <p v-else>
             <a :href="block.url" target="_blank" rel="noopener noreferrer">{{
@@ -336,6 +379,7 @@ onBeforeRouteLeave(() => !locked.value);
         </li>
       </ul>
     </section>
+    </template>
   </main>
 </template>
 <style scoped>

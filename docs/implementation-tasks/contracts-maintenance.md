@@ -22,3 +22,15 @@ legacy 수집 계약 항목은 재활성화 결정 전까지 조건부다. direc
 ### CON-02의 M0-D02/P1-01 후속 구현 범위
 
 기존 raw SQL/조회 개선 ID에 direct 입력 연결을 추적한다. [D02 API](../system-design/03-api-design.md#m0-d02-api)·[모델](../system-design/02-data-model.md#m0-d02-input-model)의 API mailbox pull, batch receipt/runtime projection, 새4개 endpoint·화면과 migration을 구현한다. 현재 legacy 폼·source PATCH로 대체하지 않는다. D01 중복/만료·D04 역할 계약을 먼저 적용하고 COL-01/02 요청 통제를 연결한다. OpenAPI 문서와 packages/contracts 사본·생성 타입을 구현 변경에서 함께 갱신한다. 완료 증거는 D02-T1~T6, DB 역할 거부·API 외부 무요청·소스 설정 version 대조와 실제 화면 인수다. CON-01 legacy 재활성화 작업은 계속 조건부다.
+
+## 2026-09-27 로컬 결과
+
+CON-02의4개 API/BFF/UI·mailbox/lease/runtime·Java/API golden34·SQL 예외와1/20건 동일SQL5회·원문 외부 요청0을 구현·검증했다. [완료 감사](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)의 D02-T1~T6·D04와 API 전체 실DB130개를 따른다. 실제 장비·운영 인수는 [별도 인계](../operations/m0-operation-handoff.md), CON-01은1000/40 차이를 유지한 조건부 대기다.
+
+### 로컬 준비 도구 후속 — 2026-09-27 문서 대조
+
+- 상태: **구현 보완 필요**, CON-02 후속·O05/P1-03과 연결. 앱/API 시험 통과와 별도로 발견한 개발 환경 준비 경로다.
+- 근거: [prepare-batch-review](../../scripts/local/prepare-batch-review.mjs)는 migration을 현행 코드로 실행한 뒤 batch 함수 권한을 전부 회수하고 `assert_source_owner`/`assert_run_owner` 두 함수만 재허용한다. table 허용 목록도 V006 시점이며 출력은 `API V008 / Collector V006`으로 고정돼 있다.
+- 영향: 신규 budget·mailbox·runtime/retention 관련 함수·테이블 권한을 준비하지 못한다. [DirectRequestBudget](../../apps/collector/src/main/java/com/blariyo/collector/run/DirectRequestBudget.java)가 요구하는 `reserve_batch_request` 등이 누락돼 최신 direct 실행 준비 완료로 사용할 수 없다. 실제 이 도구 재실행/실패 재현은 이번 문서 작업에서 하지 않았다.
+- 작업: [현행 권한 계약](../../deploy/postgresql/apply-privileges.sql)을 로컬 역할에 명시적으로 매핑하고 실제 ledger를 출력하도록 정렬한다. 제한 역할과 콘텐츠 보호를 유지하며 소유자 계정 실행으로 우회하지 않는다.
+- 완료 증거: 기존 개발 DB와 분리한 시험 대상에서 도구 적용→실제 ledger/권한 readback→제한 batch 역할의 quota/mailbox/runtime 허용 및 content/검수 쓰기 거부. [로컬 실행서](../../scripts/local/README.md)와 환경 안내를 함께 갱신한다.

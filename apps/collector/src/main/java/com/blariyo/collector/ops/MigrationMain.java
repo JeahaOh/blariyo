@@ -46,6 +46,10 @@ public final class MigrationMain {
             apply(db,"V004");
             apply(db,"V005");
             apply(db,"V006");
+            apply(db,"V007");
+            apply(db,"V008");
+            apply(db,"V009");
+            apply(db,"V010");
             db.commit();
             return;
           }
@@ -67,6 +71,10 @@ public final class MigrationMain {
         apply(db,"V004");
         apply(db,"V005");
         apply(db,"V006");
+        apply(db,"V007");
+        apply(db,"V008");
+        apply(db,"V009");
+        apply(db,"V010");
         db.commit();
       } catch (Exception e) {
         db.rollback();

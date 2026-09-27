@@ -1,18 +1,38 @@
 # M0 로드맵 — 남은 작업과 완료 조건
 
-
-- 최신 상태·재개 입력·로컬 자원: [현재 진행 상황](status.md).
-- 실행 가능한 task 단위와 의존성: [구현 task 목록](implementation-tasks/README.md).
+- 2026-09-27 로컬 구현: UX-01~06, D01~D04, COL-01/02 및 CON-02의 코드·계약·추가migration·운영 도구를 반영했다. 검수1/20건의 SQL은 모두5회이며 신규 입력/회수 기능은 기본 OFF다.
+- 실행 결과와 최종 판정: [완료 조건 감사](../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md), [현재 상태](status.md), [17개 task](implementation-tasks/README.md).
+- 남은 실제 인수: [운영 인계](operations/m0-operation-handoff.md)의 OWNER/EDITOR Access/MFA, 장비·사설 DB/R2 경로, Drive/Discord 실연동·18시간 이내 복구 증거, source별 S1~S5·고지, Core 운영7일. CON-01은 재활성화 결정 전 조건부다.
+- 다음 승인된 배포는 현재 미커밋 후보의 SHA/digest·migration/권한·선택백업·복귀를 새로 검증한다. 기존 R2 정상 백업을 Drive 실제 인수 전에 중단하지 않는다.
 
 - 기준: [9/23 마지막 운영 관측](operations/current-status.md), [요구사항 40개](development-specs/requirements-status.md). 2026-09-24 문서 갱신에서는 서버·DB·CI를 재조회하지 않았다. 단계·요구사항 ID와 미완료 조건을 유지하고 과거 실행 결과는 worklog에 보존한다.
 - 목표: **Core 관리자와 운영 흐름을 먼저 마감해 콘텐츠 운영을 시작하고, 수집 기능은 운영과 병행해 검증 후 활성화한다.**
 - 전제: 기존 Core/API·DB 모델을 재사용한다. 신규 관리자 프레임워크, 통계 대시보드, 회원·광고, 자동 발행을 추가하지 않는다.
 - 순서: P0-01~04의 개발자 로컬 작업과 P0-05의 9/23 배포·DB 반영 이후 **운영자 인수→운영 예약/알림·복귀 확인**이 다음 단계다. P1은 입력 계약·시험 자원이 준비된 범위부터 병행하고 P2는 실제 운영 기간으로 관찰한다.
-- 9/26 최종 결정: [운영 DB 백업만 Google Drive, 공개 전·공개 이미지/첨부는 기존 R2 유지](planning/02-infra-plan.md#6-데이터와-저장소-원칙). 백업 공급자 선택은 확정, Drive 계정·권한과 전환 구현·복원 검증은 잔여다. 기존 R2 백업 성공을 Drive 인수 증거로 재사용하지 않는다.
+- 9/26 최종 결정: [운영 DB 백업만 Google Drive, 공개 전·공개 이미지/첨부는 기존 R2 유지](planning/02-infra-plan.md#6-데이터와-저장소-원칙). 백업 공급자 선택은 확정, Drive 계정·권한·실다운로드/복원·실제 전환 인수는 잔여다. 로컬 전환/복원 도구는9/27 증거를 따른다. 기존 R2 백업 성공을 Drive 인수 증거로 재사용하지 않는다.
 - 출처 범위: **검증된 출처만 M0에 포함**한다. 에펨코리아·뽐뿌·유튜브 커뮤니티는 [COL-REANALYZE-01](../worklog/2026-09-26/collection-source-reanalysis/README.md) 한 task로 대기하며 현재 작업 종료 후 사용자 재개 지시 전에는 분석하지 않는다. PGR21도 미검증 후속 후보로 남긴다. 기존 21개 구현·관측 이력은 보존한다.
 - 과거 일정: P0 4–6 작업일, P1 추가 3–5 작업일은 최초 계획 당시 추정이다. 현재 잔여 공수나 납기로 재사용하지 않는다.
 
 ## 1. 다음 시작점
+
+2026-09-27 현재의 잔여 실행 목록이다. 기존 ID를 유지하며 로컬 완료 항목을 다시 구현하지 않는다.
+아래 순서는 의존성 기준이고 운영자 인수·계정 준비는 병행할 수 있다. 정확한 설치/백업/회수 순서는 [운영 인계](operations/m0-operation-handoff.md#인수-순서와-중단-시-조치)를 따른다.
+
+| 순서·우선순위 | 잔여 task | 착수 입력·담당 | 완료 증거 |
+| --- | --- | --- | --- |
+| 0 · P1 | CON-02 후속/O05: 로컬 개발 준비 도구 권한·상태 출력 정렬 | 개발자, 별도 시험 DB | [후속 작업](implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)의 최신 함수/table 최소 권한·실제 ledger 출력·허용/거부 readback. 해당 도구 사용 전 |
+| 1 · P0 | 변경 검토·커밋·배포 후보 준비 | 작업 범위별 Git 반영 요청 / 개발자 | 범위 분리 diff, 후보 commit SHA·검사·image digest. 현재 구현은 미커밋 |
+| 2 · P0 | OPS-01/02: 사람의 반복 업무·실제 Access/MFA 인수 | 두 운영자·시험 콘텐츠·시간 | 인수12개 시나리오/10~20건 업무의 소요·혼동·재작업, OWNER/EDITOR 허용·거부·기존 세션 회수 |
+| 3 · P0 | P0-05/OPS-02/03: 운영 상태 재조회·새 후보 반영·복귀 | 운영 접근·적용 범위/시간 / 사용자+개발자 | 현재 SHA/digest/ledger/flag/timer, 최근18시간 내 백업·격리 복원, API009/010·Collector007~010/권한·호환 복귀·실제 재부팅 |
+| 4 · P1 | OPS-04/P1-03/04/07: 실제 장비·원격 DB/R2·Discord | QD-05/06의 장비·사설 경로·제한 계정 | DB/object byte/hash readback, 권한 거부, 재시작·24시간 만료, Discord 취소/중복/권한·실수신. 지원 OS별 증거 분리 |
+| 5 · P0/P1 | OPS-03/COL-04: 선택 백업·Drive 전환·보존 회수 | Drive·R2·age 복구·비운영 삭제 대상 / 사용자 | R2 선택 대체본·기존 full 처리, Drive 정기2회 성공·독립 복원·만료/알림·R2 복귀, 제한 회수와 content 사본 보호. 실제 수집 회수 활성 전 필수 |
+| 6 · P1 | COL-03/A08: 선택 출처·설정·고지 인수 | 승인된 표본/source 설정·고지 검토 | source/방식/config hash/SHA별 S1~S5·실제 운영 적용 목록, 고지 발행과 범위 내 활성화 |
+| 7 · P2 | OPS-05: Core 실제7일 관찰 | 운영 개시·담당/시작일 | 실제 날짜별 예약·알림·백업·용량·오류·권리 요청과 미해결 장애 조치 |
+
+문서 상태 동기화는 이번 요청에서 수행한다. 운영 인수 미완료를 앱 미구현으로 표시하지 않는다.
+CON-01 legacy는 재활성화 결정 후, COL-REANALYZE-01은 사용자 재개 지시 후에만 착수한다.
+GA4/Kakao·회원·광고·캐시·서버 통합/증설과 대시보드는 현재 마감의 필수 잔여에 포함하지 않는다.
+
 
 검색엔진 설정의 로컬 구현·검증은 [현재 상태](status.md#검색엔진-설정--2026-09-24-로컬-변경)를 따른다.
 다음 승인된 API/Web 배포에서 `/robots.txt`의 Cloudflare+앱 규칙 병합, `/sitemap.xml`과 하위 XML,
@@ -55,15 +75,10 @@
 
 운영 서버가 이미 존재하므로 새 인프라 구축을 P0 선행으로 넣지 않는다. 위 조건 통과는 **M0 Core 콘텐츠 운영 개시**이며 수집 보조·자동 수집 또는 M0 전체 완료는 아니다.
 
-2026-09-24 추가 대조: 공개 게시판 탭의 퍼블리싱 적색과 앱 청록 차이는
-[색상표](planning/07-color-palette.md)에서 추적한다. UI 수용 시 적용색과 화면 증거를 맞춘다.
-GA4 활성화 전에는 [분석 동의 명세](development-specs/m0-core/analytics-consent/analytics-consent.dev.md)의
-읽기·cookie 삭제 실패 안내 차이와 실제 Google 속성/자동 측정/network를 확인한다.
-GA4 OFF 상태의 Core 공개와 별개이며, 로컬 대체 tag 테스트를 실제 Google 검증으로 승계하지 않는다.
-
-정책 viewer는 이력 선택 뒤 본문 상단 이동 계약에 대한 명시 처리가 없다(`PolicyViewer.vue`). 긴 본문에서 버전 전환·스크롤/포커스 회귀를 보완한다. [정책·권리 명세](development-specs/m0-core/policy-and-rights/policy-and-rights.dev.md)의 잔여 화면 조건이며 실제 브라우저 장애를 이번 문서 검토에서 재현한 것은 아니다.
-
-공개 화면 잔여: 상세 SSR의 OG/Twitter 이미지 alt·크기 메타정보와 목록 page 변경 뒤 heading 초점 처리가 없다. 하단 목록 오류의 영역 내 재시도·브라우저 공유 성공/취소 안내도 명세대로 인수되지 않았다. [공개 탐색 명세 §13](development-specs/m0-core/public-post-browsing/public-post-browsing.dev.md#13-2026-09-24-소스-대조와-남은-수용-조건)의 소스 차이를 P0 화면 마감/인수에서 추적한다.
+2026-09-27 UX-01~06 로컬 구현·브라우저 검증 완료: 정책 이력/목록 초점, SSR 이미지 메타정보,
+하단 retry/공유 안내, 동의 읽기·cookie 삭제 실패/재시도, 청록 탭 정렬을 확인했다.
+[Core 화면 task와 증거](implementation-tasks/core-ux.md)를 따른다. GA4 기본 OFF는 유지하고 실제
+Google 속성/자동 측정/network·카카오 활성화·운영 배포는 해당 별도 인수 전까지 미검증이다.
 
 
 ## 3. P1 — 수집 보조·자동 수집 마감
@@ -74,15 +89,15 @@ GA4 OFF 상태의 Core 공개와 별개이며, 로컬 대체 tag 테스트를 �
 | --- | --- | --- | --- |
 | P1-01 | 서비스 기획/보안/수집 spec의 legacy/direct 분리; 관리자 URL 입력 소유권·source 설정 정본 확정 | API가 collect 큐를 무제한 수정하거나 원문을 fetch하지 않는 입력 계약, legacy 활성화 범위, 설정 버전 규칙을 문서·contract로 일치 | 결정 QD-02/03 / 개발자+운영자 |
 | P1-02 | 정식 메뉴→batch 결과→검수→선택 초안 편집 이동의 로컬 구현·격리 검증 완료, 운영 검수 flag ON | 실제 MFA 인증 브라우저에서 승인·반려·중복·실패·충돌·초안 이동 인수; QD-04 gate 유지 | 운영자 MFA·원격 object / 운영자+개발자 |
-| P1-03 | 실제 다른 PC batch→공유 비운영 DB/S3/R2→API 검수·승격 readback | DB run/item/media·object hash/size 일치, 역할 간 쓰기 거부, dry-run 무쓰기, worker 재시작, 미승인 공개0 | 비운영 자원·제한 계정 / 개발자+운영 담당 |
+| P1-03 | 실제 다른 PC batch→공유 비운영 DB/S3/R2→API 검수·승격 readback | DB run/item/media·object hash/size 일치, 역할 간 쓰기 거부, dry-run 콘텐츠/object 무저장·요청 quota 기록, worker 재시작, 미승인 공개0 | 비운영 자원·제한 계정 / 개발자+운영 담당 |
 | P1-04 | Discord 실제 Gateway·slash 등록·확인·큐·완료/실패 조회 | 취소·만료·권한 없음·중복 interaction 포함, 외부 fetch는 확인 뒤만 발생, 끝까지 실제 증거 기록 | 테스트 guild/channel/역할·실행 PC / 운영자+개발자 |
-| P1-05 | direct DB/object 보존·실패 orphan 회수 | 대상 manifest dry-run→제한 대상 삭제→DB/object readback; 진행 중/검수 중/승격 참조 보호·재실행 멱등·부분 실패 복구 | QD-04 계약과 migration 검토 / 개발자 |
-| P1-06 | direct robots/Crawl-delay·일일 budget·redirect 상한 보완; 검증된 M0 적용 출처와 미검증 후속 후보 분리 | 단건·목록·queue 요청 통제, 재시작·날짜 경계 일일 총량, redirect 3회 상한; M0 적용 목록의 원문·미디어·DB/object 재조회·운영 수용 증거. 21개 전부 통과를 요구하지 않음 | source별 허용 공개 접근·공통 통제 보완 / 개발자 |
+| P1-05 | direct DB/object 보존·실패 orphan 회수의 실제 인수 | 로컬 D01-T1~T7 완료. 실제 대상 manifest→제한 삭제→DB/object readback, 기한·사본 보호·부분 실패 복구 | 선택 백업/기존 full 대체·고지·제한 자원 / 사용자+개발자 |
+| P1-06 | 검증된 M0 적용 출처와 미검증 후속 후보의 실제 수용 | robots/Crawl-delay·영속 budget·redirect3회 로컬 완료. 적용 출처별 S1~S5·원문/미디어·DB/object·운영 수용, 21개 전부 통과 조건 없음 | source별 허용 설정·승인 표본·실장비 / 사용자+개발자 |
 | P1-07 | collector CI job·macOS/Linux Docker arm64 로컬 재현과 `5c581c2` 원격 CI 완료 | 다음 변경 SHA의 원격 CI 재검증, Windows PowerShell·별도 Linux/실제 PC 실행 결과 구분 | P1-03, 시험 장비 / 개발자 |
 
 2026-09-23 P1-01 후속: D01~D03의 현행 direct/legacy 문서 충돌을 보완했다.
 [문서 정합성 결과](../worklog/2026-09-23/collection-contract-alignment/RESULTS.md)를 따른다.
-Web URL 전달·source 조회·보존의 기술 계약은 M0-D01/D02에 확정했다. 구현·고지는 QD-03/04로 남아 있어 P1-01 전체 완료는 아니다.
+Web URL 전달·source 조회·보존은 M0-D01/D02 확정 후9/27 구현·로컬 검증했다. 실제 장비·고지·운영 인수는 QD-03/04와 OPS-04로 남아 있어 P1-01 전체 완료는 아니다.
 
 2026-09-24 P1-01 추가 차이: legacy 원문 API는 최대 1000블록을 허용하지만 V006 DB CHECK는 40이다.
 legacy 재활성화 전에 새 migration과 40/41/1000/1001 경계 검증으로 저장 계약을 맞춘다.
@@ -92,7 +107,7 @@ P1-01 legacy 추가 차이: 사이트 parser의 `attachmentCandidates`를 `Colle
 
 기계 명세 정렬 잔여: [OpenAPI 대조 결과](development-specs/m0-core/openapi-draft.md#2026-09-24-구조화-계약-대조의-잔여)의 production 인증/readiness 설명과 legacy preview MIME 표기를 소스·생성 계약과 함께 정렬한다.
 
-P1-01 유지보수 잔여: 후속 batch result/review와 discovery policy 조회의 직접 SQL이 기존 일반 ORM 처리 계약의 예외 목록에 포함돼 있지 않다. [Nest 결정 문서](system-design/nest-implementation-decisions.md#raw-sql의-제한된-예외-목록)의 정합성을 맞추고, 검수 목록의 항목별 재조회는 일괄 조회·쿼리 수 회귀 검증 대상으로 관리한다. 정적 차이이며 운영 장애나 성능 한계가 재현됐다는 뜻은 아니다.
+P1-01/CON-02 유지보수 로컬 완료(9/27): direct batch result/review·discovery policy 조회의 [SQL 예외](system-design/nest-implementation-decisions.md#raw-sql의-제한된-예외-목록)를 정렬하고 검수1건/20건 모두 SQL5회(데이터1회)로 검증했다. 같은 코드를 다시 구현할 잔여로 세지 않는다.
 
 2026-09-23 P1-02 후속: direct 관리 메뉴·필터·검수·선택 초안 이동과 오류 복구의 격리 로컬 구현/검증을 완료했다.
 [검수 UI 결과](../worklog/2026-09-23/batch-review-ui/RESULTS.md)의 API 15건·브라우저 27건을 따른다.
@@ -100,23 +115,24 @@ P1-01의 URL 입력/source 설정 계약과 실제 운영자·Access·원격 환
 
 2026-09-23 P1-07 후속: Collector job 구성과 macOS·Linux Docker 검사 재현을 완료했고, `5c581c2` 원격 collector job도 성공했다([앱 배포](../worklog/2026-09-23/release/production-deployment-5c581c2.md)). Windows·별도 PC·실제 운영 Collector 기동은 남아 있다.
 
-2026-09-24 문서 전수 대조에서 P1-06 선행 구현 차이를 확인했다. direct `SourceRequests` 경로에
-robots 판정·Crawl-delay·영속 일일 budget 연결이 없고, redirect는 설계 3회와 달리 성공 시 최대4회까지 가능하다.
-legacy의 `DiscoveryFetcher`/Core quota를 direct 통과 근거로 사용할 수 없다. 운영 활성화 전 공통 실행 통제와
-실패 시 네트워크 무요청·재시작/날짜 경계 테스트가 필요하다. [기술 근거](system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조).
+2026-09-24에 발견한 P1-06 통제 차이는9/27 `SourceRequests`·영속 budget에서 구현·로컬 검증했다.
+robots 금지/미확인 무요청, Crawl-delay, 재시작/KST 날짜 경계, redirect 최대3회·4번째 목적지 무요청을 확인했다.
+[기술 근거](system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)를 따르며 실제 출처 S1~S5 인수는 남아 있다.
 
 <a id="관리자-url-입력의-미정-경계"></a>
-### 관리자 URL 입력 — 설계 확정·구현 잔여
+<a id="관리자-url-입력--설계-확정구현-잔여"></a>
+### 관리자 URL 입력 — 로컬 완료·실제 인수 잔여
 
 - [M0-D02](system-design/01-system-architecture.md#m0-d02-delivery)는 API 소유 입력 mailbox를 batch가 DB pull/ack하는 방식으로 확정했다. 인증된 batch endpoint 대안은 장비 노출·상시 가동 비용 때문에 채택하지 않았다.
-- API/Web 원문 fetch 금지, batch queue/item 소유권을 유지한다. 접수/상태/재시도와 runtime source 읽기 전용 조회는 [API·OpenAPI](system-design/03-api-design.md#m0-d02-api)에 연결했다. 기존 Web URL 폼은 legacy이므로 구현 완료가 아니다.
-- CON-02/P1-01에서 DB 함수·queue 연결·BFF/controller·화면·실행 계약 사본을 함께 구현한다. Core 수동 운영은 이 작업 전체를 기다리지 않는다.
+- API/Web 원문 fetch 금지, batch queue/item 소유권을 유지한다. 접수/상태/재시도와 runtime source 읽기 전용 조회는 [API·OpenAPI](system-design/03-api-design.md#m0-d02-api)에 연결했다. 새 `/admin/batch` 입력은9/27 구현·로컬 검증됐으며 기존 `/admin/collect` 폼은 legacy다.
+- CON-02/P1-01의 DB 함수·queue 연결·BFF/controller·화면·실행 계약 사본을 함께 구현·로컬 검증했다. 실제 장비/운영 인수는 남아 있다. Core 수동 운영은 이 작업 전체를 기다리지 않는다.
 
 <a id="direct-보존삭제의-미정-경계"></a>
-### direct 보존·삭제 — 설계 확정·구현 잔여
+<a id="direct-보존삭제--설계-확정구현-잔여"></a>
+### direct 보존·삭제 — 로컬 완료·실제 인수 잔여
 
 - [M0-D01](system-design/02-data-model.md#m0-d01-retention)에 최초 검수 후7일/미검수28일·영구 최소 중복 키·동시 처리·부수 사본·제한 삭제·복원 계약을 확정했다. 재검수로 기한을 연장하지 않는다.
-- COL-04가 새 migration·권한/worker·dry-run·제한 삭제/DB/object readback을 담당한다. 기존 불변 trigger를 끄거나 runtime 일반 DELETE를 부여하지 않는다.
+- COL-04의 새 migration·권한/worker·dry-run·격리 삭제/DB/object readback은9/27 로컬 검증했다. 실제 제한 자원 삭제 인수는 남아 있다. 기존 불변 trigger를 끄거나 runtime 일반 DELETE를 부여하지 않는다.
 - [M0-D03](system-design/05-security-operations.md#m0-d03-drive)의 선택 백업으로 원본 보존과 백업7일을 분리한다. 정상 R2 대체본 검증→Drive 병행·독립 복원→전환은 OPS-03에서 인수하며 고지·실제 삭제 완료는 잔여다.
 
 ## 4. P2 — 운영하며 개선
@@ -134,18 +150,26 @@ legacy의 `DiscoveryFetcher`/Core quota를 direct 통과 근거로 사용할 수
 
 ## 5. 추가로 확정할 항목
 
-| 결정 ID | 결정 사항 | 권고·현재 상태 | 결정 시점·책임 |
-| --- | --- | --- | --- |
-| QD-01 | 첫 운영 범위 | 9/23 Core 공개와 batch 검수 flag ON 관측. URL·Discord 접수와 자동 수집은 비활성, 수집 목표는 별도 추적 | 운영 담당: 현재 flag 재조회·실제 관리자 인수 |
-| QD-02 | 관리자 UI 최소안·정식 수집 메뉴 | Core 최소안·저장 복구·실행 연결과 direct 메뉴 통합 로컬 완료. 비활성 수집 메뉴 미노출, 운영자 수동 인수 잔여 | Core 운영자 사용성 인수 및 P1-01 계약 확인 |
-| QD-03 | Web URL 입력 전달·source 변경 권한 | API mailbox pull·실제 runtime 설정 읽기 전용 조회로 확정. 설정 편집 UI 없음, batch 소유권 유지 | P1-01/CON-02, M0-D02 구현·인수 |
-| QD-04 | direct 원본·첨부·report·queue 보존·고지 | 정책 확정: 이미지·첨부·원문·본문은 검수 완료·반려 후 7일, 미검수는 수집일부터 28일, 중복 방지 최소 식별자는 무기한. M0-D01 기술 계약 확정, 회수 구현·고지 검증 잔여 | P1-05/COL-04, 후속 migration·회수 시험 |
-| QD-05 | 실제 수집 실행 PC·OS·상시 실행 방식 | 장비 미정, Raspberry Pi 4 예상 후보(9/26). 실제 선택 장비부터 검증하며 macOS 사용을 확정하지 않음. 지원 OS·재시작·자원 검증 필요 | P1-03/07 전, 운영 담당 |
-| QD-06 | 비운영 R2·Drive·DB·Discord 테스트 대상 | 공개 전·공개 media R2, DB 백업만 Drive 선택. Drive 계정/용량·제한 권한·시험 영역, R2 bucket/prefix·guild/channel 준비; secret 원문은 문서/채팅에 기록하지 않음 | 백업 전환·P1-03/04 전, 운영 담당 |
-| QD-07 | source별 운영 활성화·M0 적용 범위 | 범위 확정: 검증된 출처만 M0. 기존 21개는 구현·검증 목록으로 보존하고 미검증은 후속 후보. 세 출처 재분석은 대기 | P1-06/활성화 전, M0-D05 증거표를 기준으로 부족 gate 보완·실제 적용 목록 인수 |
-| QD-08 | 장애 알림 수신자·운영 권한·release 인수 | 사용자만 서버·백업 관리, 친구는 게시물 권한만. Discord 채널 생성 완료·현재 사용자만 참여(사용자 보고). 기본 발행 07:30/17:30 KST 유지. 실제 권한·채널 연결·수신·인수 일정 검증 잔여 | 운영 인수 전, 게시물은 두 운영자·서버/복구는 사용자 |
+2026-09-27 대조. 정책 결정과 실제 계정 입력, 실검증 후 인수를 구분한다. 아래 미정 값은 추정하지 않으며 문서 작성만으로 실행을 승인하지 않는다.
 
-법무 연락처·정책 v0.1은 기존 주입 기록을 먼저 확인한다. 사용자에게 이미 입력한 값을 다시 요구하거나, 후속 기능의 미정/법무 조건을 근거 없이 삭제하지 않는다.
+| 시점 | 사용자 결정·확인 | 구분·현재 상태 | 확정 결과를 쓰는 작업 |
+| --- | --- | --- | --- |
+| 실장비 인수 전 | 수집 장비·OS·가동 시간·재시작 담당 | QD-05 결정 필요. 현행은 별도 장비, RPi4는 후보. 서버 통합·캐시·4GB 증설 연구는 미승인·미적용 | OPS-04, P1-03/07 |
+| 외부 시험 전 | 사용할 Drive 계정·종류·남은 용량·전용 폴더, 비운영 DB/R2/Drive 시험 영역 | QD-06 실제 대상 지정·입력 필요. DB 백업 공급자를 Drive로 정한 결정은 유지 | OPS-03/04·COL-04 |
+| 실제 업무·배포 전 | 운영자 인수 시간, 운영 반영 범위/시점, 백업 전환과 7일 관찰 담당·시작일 | QD-01/08 실행 일정·인수 필요. 사용자만 서버/백업 관리, 공동 운영자는 게시물 업무 | OPS-01~05·P0-05 |
+| 출처별 실검증 후 | 첫 M0 적용 source/방식/config 목록 | QD-07 조건부 인수. 검증된 출처만 포함하며 S1~S5 증거가 없는 후보는 활성화하지 않음 | COL-03·A08 |
+| 수집/Drive 활성화 전 | 실제 처리 항목·계약 대조와 고지 검토 후 시행 시점 | QD-04 고지 인수 필요. 정책 7일/28일·최소 중복 키 무기한은 확정 | COL-03/04·OPS-03 |
+
+**이미 확정된 사항:** QD-01 Core 우선 운영·수집은 검증 후 활성화, QD-02 최소 관리자/정식 검수 메뉴,
+QD-03 API mailbox pull·runtime 읽기 전용 조회(설정 편집 UI 없음), QD-04 최초 검수/반려 후7일·미검수28일·최소 중복 키 무기한,
+QD-06 DB 백업만 Drive·공개 전/공개 이미지와 첨부는 R2, QD-07 검증된 출처만 M0,
+QD-08 사용자 OWNER/서버·백업 관리·공동 운영자 EDITOR/게시물 업무 및 기본 발행07:30/17:30 KST.
+이 정책과 역할을 다시 결정받지 않는다. 구현은 로컬 완료, 실제 계정 적용과 운영 수용은 별도다.
+
+**준비 입력:** 두 운영자 identity 매핑, Discord bot/guild/channel 연결, age 복구키 접근, 제한 역할/credential은
+[운영자 준비 목록](operations/owner-setup-checklist.md#m0-design-inputs)의 기존 비공개 설정부터 확인한다.
+Discord 채널 생성·사용자만 참여는 사용자 보고로 확인됐으며 다시 만들거나 친구를 초대할 필요는 없다.
+법무 연락처·정책 v0.1도 기존 주입·발행 기록을 우선한다. 비밀 원문을 채팅·Git으로 받지 않는다.
 
 ## 6. 실행 시 사용할 검증 명령
 
@@ -221,7 +245,7 @@ Java fixture·migration 회귀를 보완했고 SHA `5c581c2`의 원격 verify·c
 
 - 운영 담당: 현재 release·부팅 helper·실행 digest·DB ledger/checksum·flag·timer·최신 백업을 읽기 전용으로 재조회한다. 이 조회는 9월 23일 결과를 현재값으로 고정하지 않기 위한 선행 작업이다.
 - 운영자+개발자: 별도 승인된 운영 콘텐츠 범위에서 실제 Access MFA 허용/거부, 작성·업로드·발행·예약·취소·숨김·R2/CDN 회수·알림 실수신을 확인한다. 격리 인수 환경의 12건 측정은 E에서 별도로 진행한다.
-- 다음 배포가 필요하면 [정책](operations/deployment-policy.md)과 [실행서](operations/deployment-runbook.md)에 따라 그 후보 SHA의 CI·digest·설정·V008/Collector V006 호환성·최근 18시간 이내 새 백업/복원·복귀 경로를 대조한다. V008에서 9월 20일 구 API는 readiness 503이고, 실제 운영 rollback·VM 재부팅은 아직 시험하지 않았다.
+- 다음 배포가 필요하면 [정책](operations/deployment-policy.md)과 [실행서](operations/deployment-runbook.md)에 따라 그 후보 SHA의 CI·digest·설정·현재 ledger에서 API010/Collector010 이행·이전 앱 호환성·최근18시간 이내 새 백업/복원·복귀 경로를 대조한다. V008에서 9월 20일 구 API는 readiness 503이고, 실제 운영 rollback·VM 재부팅은 아직 시험하지 않았다.
 
 ### G. Core 콘텐츠 운영 개시
 
@@ -244,25 +268,25 @@ Discord 검증은 이번 실행에 포함하지 않았으며, P1 전체는 부�
 **P1-02의 화면 연결·격리 브라우저 검증 완료:** 조건부 관리 메뉴, 출처/수집 상태/검수 상태 필터,
 원문·이미지·첨부 확인, 승인/반려, `postId` 초안 편집 연결과 응답 유실 복구를 구현했다.
 API 통합 15건·관련 브라우저 27건을 통과했다. 로컬 테스트 인증·격리 DB/object 증거이며 실제 운영자
-수동 인수·Access·원격 object 검증과 URL 입력/source 소유권 결정은 남아 있다. 9월 23일 운영에서는 검수 flag를 켜고 내부 service 조회·미리보기를 확인했으나 실제 MFA 화면 조작은 미실행이다.
+수동 인수·Access·원격 object 검증은 남아 있다. URL 입력/source 소유권은9/26 확정했고9/27 구현·로컬 검증했다. 9월 23일 운영에서는 검수 flag를 켜고 내부 service 조회·미리보기를 확인했으나 실제 MFA 화면 조작은 미실행이다.
 [검수 UI 결과](../worklog/2026-09-23/batch-review-ui/RESULTS.md)를 따른다.
 
 **9월 23일 당시 P1-01 기록 / 9월 26일 M0-D02로 입력 설계 후속 확정:** 서비스 기획·수집 기획·보안·개발 명세의
 현행 direct/legacy 경계를 정리했다. raw HTML 비공개 저장, 결과 조회/검수/queue 역할 분리,
 원문 보존과 별도 발행을 실제 source·권한 SQL·OpenAPI와 대조했다. 보존 기간·고지 정합성과
-당시 Web 입력/source 계약(QD-03/04)은 미확정이었다. 현재 목표 계약은 위 M0-D01/D02이며 구현·고지는 남아 있다.
+당시 Web 입력/source 계약(QD-03/04)은 미확정이었다. 현재 M0-D01/D02 구현·로컬 검증은9/27 완료했고 실제 고지·운영 인수는 남아 있다.
 [문서 정합성 결과](../worklog/2026-09-23/collection-contract-alignment/RESULTS.md)를 따른다.
 
 | 순서 | 작업 | 확인할 결과 |
 | --- | --- | --- |
 | P1-01/02 | URL 입력 전달·source 소유권 계약과 실제 운영자 검수 인수 | API 외부 fetch·batch queue 무제한 쓰기 금지, MFA 검수·반려·선택 초안 이동, 자동 공개0 |
-| P1-03 | 다른 PC batch→공유 비운영 DB/object→API 검수·승격 | 역할별 쓰기 거부·dry-run 무쓰기·DB/object hash/size·재시작 복구 |
+| P1-03 | 다른 PC batch→공유 비운영 DB/object→API 검수·승격 | 역할별 쓰기 거부·dry-run 콘텐츠/object 무저장·요청 quota 기록·DB/object hash/size·재시작 복구 |
 | P1-04 | 실제 Discord Gateway/slash·확인·큐·완료 조회 | 권한·취소·만료·중복·실패를 실제 환경에서 검증 |
-| P1-05 | 원본/첨부/report/queue 보존·orphan 회수 | 기간 계약 확정, dry-run manifest, 진행/승격 참조 보호, 제한 삭제·readback |
-| P1-06 | direct robots·일일 budget·redirect 보완, 모듈 분리 후 누락 표본·차단 출처 재개 조건 | 외부 요청 통제·3회 redirect 경계, 원문/이미지/파일/SNS 보존, live/fixture 분리, 차단 우회 없음 |
+| P1-05 | 원본/첨부/report/queue·orphan 회수의 실제 인수 | 확정7일/28일, 로컬 D01 완료 이후 선택 백업·고지·제한 삭제/readback |
+| P1-06 | 로컬 통제 검증 후 선택 출처 S1~S5·운영 인수 | 요청 통제·원문/이미지/파일/SNS·DB/object 증거, live/fixture 분리·차단 우회 없음 |
 | P1-07 | Collector CI 해당 SHA 성공 후 지원 OS·별도 PC 확인 | 다음 SHA CI, macOS·Windows·Linux·별도 PC 실행 결과 분리 |
 
-비운영 DB/object 제한 계정, Discord 테스트 대상, 실제 실행 PC/OS, 보존 기간은 각 단계 전에 확인한다.
+비운영 DB/object 제한 계정, Discord 테스트 대상, 실제 실행 PC/OS는 각 단계 전에 확인한다. 보존 기간7일/28일은 확정값을 적용한다.
 기존 입력을 먼저 확인하며 비밀 원문은 기록하지 않는다. 차단 4개 출처를 임의로 완료/제외 처리하지 않는다.
 
 ### I. P2 운영 관찰과 개선

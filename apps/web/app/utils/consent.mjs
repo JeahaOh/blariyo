@@ -5,12 +5,14 @@
  * @typedef {IArguments | Record<string, unknown>} AnalyticsDataLayerEntry
  * @typedef {{gtag?: ((...args: unknown[]) => void) | undefined, dataLayer?: AnalyticsDataLayerEntry[] | undefined, [key: `ga-disable-${string}`]: boolean}} AnalyticsWindow
  */
-/** @param {ConsentReader} storage @param {boolean} enabled @param {Date} [now] @returns {Consent | null} */
-export function readConsent(storage, enabled, now = new Date()) {
+/** @param {ConsentReader} storage @param {boolean} enabled @param {Date} [now] @param {() => void} [onInvalid] @returns {Consent | null} */
+export function readConsent(storage, enabled, now = new Date(), onInvalid = () => {}) {
   if (!enabled) return null;
   try {
+    const stored = storage.getItem('blariyo_consent');
+    if (stored === null) return null;
     /** @type {unknown} */
-    const input = JSON.parse(storage.getItem('blariyo_consent') || 'null');
+    const input = JSON.parse(stored);
     const value =
       input && typeof input === 'object' ? Object.fromEntries(Object.entries(input)) : {};
     if (
@@ -19,13 +21,19 @@ export function readConsent(storage, enabled, now = new Date()) {
       typeof value.analytics !== 'boolean' ||
       value.ads !== false ||
       typeof value.savedAt !== 'string'
-    )
+    ) {
+      onInvalid();
       return null;
+    }
     const saved = new Date(value.savedAt),
       expiry = new Date(saved);
     expiry.setUTCFullYear(expiry.getUTCFullYear() + 1);
     if (expiry.getUTCMonth() !== saved.getUTCMonth()) expiry.setUTCDate(0);
-    if (!Number.isFinite(+saved) || saved > now || expiry <= now) return null;
+    if (!Number.isFinite(+saved) || saved > now) {
+      onInvalid();
+      return null;
+    }
+    if (expiry <= now) return null;
     return {
       ...value,
       version: 2,
@@ -35,6 +43,7 @@ export function readConsent(storage, enabled, now = new Date()) {
       savedAt: value.savedAt,
     };
   } catch {
+    onInvalid();
     return null;
   }
 }
@@ -91,7 +100,7 @@ const allowed = {
  */
 /**
  * @template {AnalyticsScript} Script
- * @param {{window: AnalyticsWindow, document: AnalyticsDocument<Script>, storage: ConsentReader, enabled: boolean, measurementId: string, origin: string, getPath: () => string}} options
+ * @param {{window: AnalyticsWindow, document: AnalyticsDocument<Script>, storage: ConsentReader, enabled: boolean, measurementId: string, origin: string, getPath: () => string, onCookieFailure?: (failed: boolean) => void, onConsentInvalid?: () => void}} options
  */
 export function analyticsRuntime({
   window: win,
@@ -101,11 +110,14 @@ export function analyticsRuntime({
   measurementId,
   origin,
   getPath,
+  onCookieFailure = () => {},
+  onConsentInvalid = () => {},
 }) {
   let loading = false,
     loaded = false,
     generation = 0,
-    storageFailed = false;
+    storageFailed = false,
+    cookieFailed = false;
   /** @type {{key: string, path: string} | null} */
   let pendingPageView = null;
   /** @type {string | null} */
@@ -115,9 +127,10 @@ export function analyticsRuntime({
   const permitted = () =>
     enabled &&
     !storageFailed &&
+    !cookieFailed &&
     /^G-[A-Z0-9]+$/.test(measurementId) &&
     !getPath().startsWith('/admin') &&
-    readConsent(storage, true)?.analytics === true;
+    readConsent(storage, true, new Date(), onConsentInvalid)?.analytics === true;
   function stop() {
     generation++;
     pendingPageView = null;
@@ -134,6 +147,7 @@ export function analyticsRuntime({
     commands.clear();
     loading = false;
     loaded = false;
+    let failed = false;
     try {
       const host = doc.location?.hostname || '',
         parts = host.split('.');
@@ -147,9 +161,13 @@ export function analyticsRuntime({
           for (const domain of domains)
             doc.cookie = `${name}=; Max-Age=0; Path=/;${domain ? ' Domain=' + domain + ';' : ''}`;
       }
+      // A browser can silently ignore a cookie write; verify the visible cookies too.
+      failed = doc.cookie.split(';').some((cookie) => /^_ga(?:_|=)/.test(cookie.trim()));
     } catch {
-      /* Transmission stays disabled even when browser cookie access fails. */
+      failed = true;
     }
+    cookieFailed = failed;
+    onCookieFailure(failed);
   }
   /** @param {string} event @param {Record<string, unknown>} [values] @param {string} [path] */
   function send(event, values = {}, path = getPath()) {

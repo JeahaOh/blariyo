@@ -1,0 +1,6 @@
+[Timer]
+OnCalendar=hourly
+Persistent=true
+Unit=blariyo-backup-expiry.service
+[Install]
+WantedBy=timers.target

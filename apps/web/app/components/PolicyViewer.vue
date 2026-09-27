@@ -2,6 +2,9 @@
 import type { ApiResponse } from '~~/shared/api-types';
 const props = defineProps<{ type: 'terms' | 'privacy' }>();
 const selected = ref<string | undefined>(undefined);
+const policyHeading = ref<HTMLHeadingElement | null>(null);
+let focusVersion: string | undefined;
+watch(selected, (version) => { focusVersion = version; });
 const { data, error, status, refresh } = await useFetch<ApiResponse<'getPolicy'>>(
   () => `/api/v1/policies/${props.type}`,
   {
@@ -9,6 +12,13 @@ const { data, error, status, refresh } = await useFetch<ApiResponse<'getPolicy'>
   }
 );
 const day = (v: string) => v?.slice(0, 10).replaceAll('-', '.');
+watch([data, status], async () => {
+  if (status.value !== 'success' || !focusVersion || data.value?.data.policy.version !== focusVersion) return;
+  focusVersion = undefined;
+  await nextTick();
+  policyHeading.value?.focus({ preventScroll: true });
+  policyHeading.value?.scrollIntoView({ block: 'start', behavior: 'instant' });
+});
 </script>
 <template>
   <section class="policy-viewer">
@@ -20,7 +30,7 @@ const day = (v: string) => v?.slice(0, 10).replaceAll('-', '.');
     <template v-else-if="data">
       <header class="policy-modal-header">
         <span class="policy-kicker">BLARIYO POLICY</span>
-        <h1>{{ data.data.policy.title }}</h1>
+        <h1 ref="policyHeading" tabindex="-1">{{ data.data.policy.title }}</h1>
         <p>
           버전 {{ data.data.policy.version }} · {{ day(data.data.policy.effectiveAt) }}부터 적용
         </p>
@@ -52,6 +62,7 @@ const day = (v: string) => v?.slice(0, 10).replaceAll('-', '.');
   </section>
 </template>
 <style scoped>
+.policy-modal-header h1 { scroll-margin-top: 72px; }
 .policy-body {
   overflow-wrap: anywhere;
   font-size: 13px;

@@ -106,7 +106,7 @@ endpoint별 계약은 [API 설계](../system-design/03-api-design.md), network�
 | 단계 | 기능 | 인프라 영향 |
 | --- | --- | --- |
 | M0 Core | 공개 짤 목록·상세, 운영자 발행·숨김, 정책, 참고용 조회 수, 기본 비활성 GA4 연동 | 현재 단일 VM·PostgreSQL·R2와 조건부 Google tag CSP·동의 설정 |
-| M0 수집 보조 | 별도 PC 단건·확인 queue·저장 결과 검수, Web URL mailbox 전달 설계 확정·구현 잔여 | direct DB/object 제한 역할·private collect 저장·API 검수; 기존 service token 중계는 legacy |
+| M0 수집 보조 | 별도 PC 단건·확인 queue·저장 결과 검수, Web URL mailbox 전달 구현·로컬 검증 완료(9/27), 실제 장비·운영 인수 잔여 | direct DB/object 제한 역할·private collect 저장·API 검수; 기존 service token 중계는 legacy |
 | M0 자동 수집 | 허용 출처 목록/상세 저장 구현, 운영 실행 비활성 | 출처별 parser·공통 요청 통제·보존 회수·실행 담당/주기 인수 |
 | M1 | 소셜 가입·로그인·탈퇴 | provider secret, callback, session store 계약 추가 |
 | M1.5 | 익게 작성·댓글·신고·moderation | 사용자 쓰기 부하와 abuse 방어 재산정 |

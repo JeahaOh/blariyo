@@ -75,7 +75,7 @@
 
 | 항목 | 현행 direct batch | 기존 legacy 호환 |
 | --- | --- | --- |
-| 입력 | CLI·Discord 확인/queue; Web URL 전달은 API mailbox pull 목표 계약(미구현) | `/admin/collect`의 Core 후보 접수 |
+| 입력 | CLI·Discord 확인/queue; Web URL 전달은 API mailbox pull 구현·로컬 검증 완료(9/27), 실제 접수 활성화 별도 | `/admin/collect`의 Core 후보 접수 |
 | source 정본 | 실행기에 주입한 검토된 source 설정 파일 | Core `source`와 기존 출처 수정 UI |
 | 결과 | batch 소유 DB·비공개 raw/media/report object | API candidate·임시 preview |
 | 검수 | `/admin/batch` → 검수 시작/승인/반려 → 초안 | 기존 후보 승인/반려/선택 이미지 |
@@ -91,7 +91,7 @@ Web 입력·source 조회의 M0-D02 설계 확정 후에도 API에 batch queue �
 
 - 사용자 결정: 수집한 **이미지·일반 첨부·원문 HTML·본문은 검수 완료·반려 시점부터 7일 후 삭제**한다. 수집 시각이나 발행 시각을 이 7일의 기산점으로 사용하지 않는다.
 - **미검수 자료는 수집일부터 4주(28일) 보관**한다. 검수 완료·반려 자료의 7일 규칙과 상태별로 구분한다.
-- **중복 방지용 최소 식별자는 무기한 보관**한다. 후속 확인 답변으로 확정했으며 이전 ‘검수일부터 1년’은 철회됐다. 원문·본문·이미지·첨부와 불필요한 식별 이력 전체를 무기한 남기는 뜻이 아니다. 최소 필드·정규화·유일성·삭제 후 중복 판정은 [M0-D01](../../system-design/02-data-model.md#m0-d01-retention)에 확정했다. 실제 migration·삭제 검증은 잔여다.
+- **중복 방지용 최소 식별자는 무기한 보관**한다. 후속 확인 답변으로 확정했으며 이전 ‘검수일부터 1년’은 철회됐다. 원문·본문·이미지·첨부와 불필요한 식별 이력 전체를 무기한 남기는 뜻이 아니다. 최소 필드·정규화·유일성·삭제 후 중복 판정은 [M0-D01](../../system-design/02-data-model.md#m0-d01-retention)에 확정했다. 추가 migration·격리 삭제/복원은 9/27 로컬 검증했고 실제 운영 적용·제한 자원 삭제 인수는 남아 있다.
 - 이 정책은 batch 소유 수집 자료에 적용한다. API 소유 content 초안·공개 게시글용 사본은 기존 콘텐츠 정책을 따르며 함께 삭제하지 않는다.
 - [D01](../../system-design/02-data-model.md#m0-d01-retention)에 구체화한 계약: 중복 방지에 필요한 최소 식별 필드, report·queue·감사 기록의 최소 보관, 진행 중 작업과 만료의 경쟁, 재검수·참조 보호·실패 orphan·백업 사본/복원 후 삭제 재적용. 원문·본문을 report/queue 등 다른 형태로 남겨 삭제를 무효화하지 않는다. 식별자 보관을 사용자 식별정보 전체의 보관으로 확대하지 않는다.
 - 운영상 예외가 필요하면 근거·범위·종료 조건을 분리한다. 기존 legacy 30일을 direct 정책에 자동 적용하지 않는다. 사용자 정책과 기술적 구현 세부사항을 구분해 후자는 개발자가 설계한다.
@@ -99,7 +99,7 @@ Web 입력·source 조회의 M0-D02 설계 확정 후에도 API에 batch queue �
 - 실행 장비는 `(미정)`이며 Raspberry Pi 4가 후보이다. 현재 Mac 또는 다른 PC로 확정하지 않았고, 장비 선정 후 해당 OS·Java·저장소·재시작·자원 사용을 검증한다.
 - **M0 범위는 검증된 출처만으로 확정**한다. 기존 21개는 구현·검증 대상 목록이며 전부 통과를 M0 완료 조건으로 강제하지 않는다. 적용 출처 목록은 허용 범위·요청 통제·원문/미디어 완전성·DB/object 재조회·운영 수용 증거를 대조해 기록하며, 개발 DB 저장 이력 17개를 자동으로 M0 확정 17개로 바꾸지 않는다.
 - 에펨코리아·뽐뿌·유튜브 커뮤니티 재분석은 [COL-REANALYZE-01](../../../worklog/2026-09-26/collection-source-reanalysis/README.md) 한 task로 대기한다. 현재 작업 종료 후 사용자 재개 지시 전에는 분석하지 않는다. PGR21도 현재 미검증 상태로 M0 확정 범위에 넣지 않는다. 검증되지 않은 출처는 후속 후보로 유지하며 실패·미검증을 성공으로 바꾸지 않는다.
-- 최종 저장소 선택은 **운영 DB 백업만 Google Drive**다. 공개 전·공개 이미지/첨부와 아래 R2 collect·private 경로는 유지한다. ‘공개 전 게시물도 Drive’라는 앞선 선택은 철회됐으며 [인프라 계획](../02-infra-plan.md#6-데이터와-저장소-원칙)을 따른다. DB 백업 전환은 아직 미구현이다.
+- 최종 저장소 선택은 **운영 DB 백업만 Google Drive**다. 공개 전·공개 이미지/첨부와 아래 R2 collect·private 경로는 유지한다. ‘공개 전 게시물도 Drive’라는 앞선 선택은 철회됐으며 [인프라 계획](../02-infra-plan.md#6-데이터와-저장소-원칙)을 따른다. 선택 백업·Drive 전환 도구와 독립 age/DB 복원은 9/27 로컬 검증했다. 실제 Drive 연결·운영 전환은 [운영 인계](../../operations/m0-operation-handoff.md)로 남아 있다.
 - 이는 제품 정책 결정이며 삭제 기능·migration·법무 고지·운영 적용 완료가 아니다. 최신 결정 이력은 [M0 마무리 계획 §12](../../../worklog/2026-09-26/m0-completion-plan/README.md#retention-scope-roles-20260926)를 따른다.
 
 ## 2. 개발·활성화 단계
@@ -111,7 +111,7 @@ Web 입력·source 조회의 M0-D02 설계 확정 후에도 API에 batch queue �
 | --- | --- | --- | --- |
 | 0 | 수집 가능성 검증 | 출처 한 곳의 공개 목록·상세 구조, 허용 범위와 metadata 추출 가능성 확인 | 플랫폼 공개를 차단하지 않음 |
 | 1 | M0 Core | 수동 초안·이미지·발행·숨김, 공개 목록·상세, 출처·정책·권리 대응 | 첫 공개 필수 |
-| 2 | M0 수집 보조 | 상세 URL의 원문·이미지·첨부/SNS 수집, 검수·반려·초안 승격. Web 입력은 API mailbox pull 설계 확정·구현 잔여 | 별도 기능 활성화만 차단 |
+| 2 | M0 수집 보조 | 상세 URL의 원문·이미지·첨부/SNS 수집, 검수·반려·초안 승격. Web 입력은 API mailbox pull 구현·로컬 검증 완료, 실제 장비·출처 인수 잔여 | 별도 기능 활성화만 차단 |
 | 3 | M0 자동 수집 | 이번 구현 대상. 사용 결정된 출처 목록·피드 주기 확인, 후보 적재, 실패 시 자동 비활성 | 출처별 기능 활성화만 차단 |
 
 수집 가능성 검증은 production scraper가 아니다. 실제 DB·후보 큐·scheduler에 연결하지 않고,
@@ -470,7 +470,7 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
 - Discord Application, guild·channel·운영 역할과 명령 권한
 - Discord 보고 webhook, `/collect url` 명령, 감사 기록 보존 기간
 - collector 실행 PC·실행 계정, direct DB role·collect writer·Discord secret 발급/회전/분실 대응
-- Web URL 입력/source 변경의 소유권·전달 방식과 direct 원본·media·queue 보존/파기·고지
+- 확정된 Web mailbox/runtime 읽기·direct7일/28일 계약의 실제 장비/설정·파기·고지 인수. 소유권·전달 방식·보존 기간은 재결정 대상이 아님
 
 위 항목이 미정이어도 `M0 Core` 플랫폼 개발과 공개는 진행할 수 있다. 다만 수집 보조 또는 자동
 수집 기능은 관련 항목과 해당 단계의 gate가 끝나기 전에는 활성화할 수 없다.
@@ -558,8 +558,9 @@ Discord 발송 실패는 수집 실패로 바꾸지 않는다. 보고서를 내�
   `공지:`·`[필독]` 같은 제목 prefix를 제외하되 일반 제목 중간에 들어간 단어만으로는 제외하지 않는다.
 - robots·이용약관·공개 범위·연락처·요청 간격을 확인한 출처만 네트워크 수집을 활성화한다.
   기술 조사에서 공개 HTML을 읽은 사실은 재사용 허용·DB 적재·production 활성화의 증거가 아니다.
-- direct batch `--dry-run`은 DB와 object store를 변경하지 않는다. 사이트 네트워크 요청과 요청 간격은 적용하며
-  Core quota 예약 API는 호출하지 않는다. `--write-db`는 batch가 collect DB/object store에 직접 저장하고
+- direct batch `--dry-run`은 콘텐츠 DB와 object store를 변경하지 않는다. COL-01의 재시작 후에도 유지되는
+  일일 한도를 적용하기 위해 batch DB의 요청 수·다음 허용 시각만 기록한다. robots·간격 검사를 적용하며
+  Core quota 예약 API는 호출하지 않는다. 출처 probe도 같은 요청 통제를 사용한다. `--write-db`는 batch가 collect DB/object store에 직접 저장하고
   자동 발행하지 않는다. 기본 재수집은 완료된 항목 skip이다.
 - 이미지는 본문 순서를 보존하며 `src`, `data-src`, `data-original`, `data-original-src`, `data-lazy-src`,
   `data-srcset`/`srcset`, CSS `background-image`에서 허용 CDN URL만 후보로 삼는다. lazy-load placeholder와

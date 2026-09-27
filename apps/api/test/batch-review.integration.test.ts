@@ -4,7 +4,7 @@ import { randomUUID, randomBytes, createHash } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import sharp from 'sharp';
-import { createDataSource } from '../dist/persistence/database.js';
+import { createDataSource, DatabaseContext } from '../dist/persistence/database.js';
 import { requiredRow } from '../dist/persistence/rows.js';
 import { migrationContext } from '../dist/commands/migrate.js';
 import { MigrationsService } from '../dist/commands/migrations.service.js';
@@ -12,6 +12,7 @@ import { createNestApplication } from '../dist/bootstrap/application.js';
 import { LocalCollectReader } from '../dist/adapters/collect-reader.js';
 import { localStorage } from '../dist/adapters/storage.js';
 import { OutboxService } from '../dist/operations/outbox.service.js';
+import { ImagesService } from '../dist/features/images/images.service.js';
 import { contractSuccess } from './contract-response.js';
 
 const databaseUrl = process.env.TEST_NEST_DATABASE_URL;
@@ -26,6 +27,9 @@ await test('batch-owned objects pass through API review and draft before separat
   // Real V003/V004 triggers and legal transitions are exercised by Collector PostgreSQL tests.
   const lifecycle=await readFile('apps/collector/src/main/resources/db/collector-v004.sql','utf8');
   await pool.transaction(manager=>manager.query(lifecycle.slice(0,lifecycle.indexOf('CREATE OR REPLACE FUNCTION'))));
+  await pool.transaction(async manager => {
+    await manager.query(await readFile('apps/collector/src/main/resources/db/collector-v007.sql','utf8'));
+  });
   const root = await mkdtemp('/private/tmp/blariyo-batch-review-');
   t.after(() => rm(root, { recursive: true, force: true }));
   const storage = localStorage(root + '/api');
@@ -36,7 +40,7 @@ await test('batch-owned objects pass through API review and draft before separat
   await app.listen(0, '127.0.0.1');
   const origin = await app.getUrl();
   const request = (path:string, body?:unknown, key=randomUUID(), auth=true) => fetch(origin+'/api/v1'+path, {
-    method:body===undefined?'GET':'POST', headers:auth?{'X-Blariyo-Service-Token':token,'X-Blariyo-Admin-Actor':actor,'Idempotency-Key':key,'content-type':'application/json'}:{},
+    method:body===undefined?'GET':'POST', headers:auth?{'X-Blariyo-Service-Token':token,'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor':actor,'Idempotency-Key':key,'content-type':'application/json'}:{},
     ...(body===undefined?{}:{body:JSON.stringify(body)})
   });
   const status = async (response:Promise<Response>, expected:number) => {const r=await response;assert.equal(r.status,expected,await r.text());};
@@ -333,5 +337,65 @@ await test('batch-owned objects pass through API review and draft before separat
     assert.equal(empty.totalItems,0);assert.equal(empty.totalPages,1);assert.deepEqual(empty.items,[]);
     await status(request('/admin/collect/batch-items?state=INVALID'),400);
     await status(request('/admin/collect/batch-items?reviewStatus=INVALID'),400);
+  });
+  await t.test('D01: expired payload and idempotent receipts are inaccessible and excluded from list totals',async()=>{
+    const next=await seed('expired-http',[{type:'TEXT',text:'expiry canary'}]);
+    const body={itemVersion:1,lockVersion:0,decision:'REVIEWING'},key=randomUUID();
+    await status(request(next.path+'/review',body,key),200);
+    const before=(await contractSuccess('getBatchItem',await request(next.path))).data.item;
+    assert.equal(before.retention.retentionState,'LIVE');
+    assert.equal(before.retention.reviewFinalizedAt,null);
+    const listing=(await contractSuccess('listBatchItems',await request('/admin/collect/batch-items'))).data;
+    await pool.query("UPDATE collect.batch_retention SET expires_at=clock_timestamp() WHERE item_id=$1",[next.id]);
+    for(const response of [request(next.path),request(next.path+'/media/1/preview'),
+      request(next.path+'/review',body,key),request(next.path+'/draft',{itemVersion:1,lockVersion:1,boardSlug:'meme'})])await status(response,410);
+    const after=(await contractSuccess('listBatchItems',await request('/admin/collect/batch-items'))).data;
+    assert.equal(after.totalItems,listing.totalItems-1);
+    assert.ok(after.items.every(item=>item.itemId!==next.id));
+  });
+  await t.test('D01: crash staging has a pre-PUT cleanup receipt and never deletes committed content copies',async()=>{
+    const expiresAt=new Date(Date.now()+60000).toISOString();
+    const uploaded=await app.get(ImagesService).uploadCollected(bytes,actor,1024*1024,{expiresAt,deadline:performance.now()+60000});
+    const imageId=uploaded.items[0]?.imageId;
+    assert.ok(imageId);
+    const staging=requiredRow(await pool.query('SELECT private_storage_key,source_expires_at FROM content.board_post_image WHERE id=$1',[imageId]));
+    const key=String(staging.private_storage_key);
+    const intent=requiredRow(await pool.query("SELECT payload,next_attempt_at FROM ops.outbox_task WHERE payload->>'privateStorageKey'=$1 AND payload->>'cleanupReason'='COLLECT_STAGING'",[key]));
+    assert.deepEqual(intent.payload,{privateStorageKey:key,objectCreatedAt:requiredRow([intent.payload]).objectCreatedAt,sourceExpiresAt:expiresAt,cleanupReason:'COLLECT_STAGING'});
+    assert.ok(intent.next_attempt_at instanceof Date&&intent.next_attempt_at.getTime()<=Date.parse(expiresAt));
+    const protectedImage=requiredRow(await pool.query('SELECT private_storage_key,source_expires_at FROM content.board_post_image WHERE post_id=$1',[postId]));
+    assert.equal(protectedImage.source_expires_at,null);
+    const protectedKey=String(protectedImage.private_storage_key),protectedBytes=await storage.get('private',protectedKey);
+    // Advance only this isolated DB's cleanup receipts; no external clock or account is touched.
+    await pool.query("UPDATE ops.outbox_task SET next_attempt_at=clock_timestamp() WHERE payload->>'cleanupReason'='COLLECT_STAGING'");
+    await app.get(OutboxService).run(1000);
+    await assert.rejects(storage.get('private',key));
+    assert.deepEqual(await storage.get('private',protectedKey),protectedBytes);
+    assert.equal(requiredRow(await pool.query('SELECT status FROM content.board_post_image WHERE id=$1',[imageId])).status,'DELETED');
+  });
+  await t.test('CON-02: one and twenty review items use the same SQL count with a single data query',async()=>{
+    const sourceKey='query-count-'+randomUUID(),runId=randomUUID();
+    await pool.query("INSERT INTO collect.batch_source(source_key,host,policy_version) VALUES($1,'example.invalid','fixture')",[sourceKey]);
+    await pool.query("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,interval_ms) VALUES($1,$2,'manual','WRITE_DB','COMPLETED',1,20,10000)",[runId,sourceKey]);
+    const seed=async()=>{
+      const item=randomUUID(),canonical='https://example.invalid/'+item;
+      await pool.query(`INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,version,fetched_at)
+        VALUES($1::uuid,$2,$3,$1::text,$4::text,sha256(convert_to($4::text,'UTF8')),'FETCHED','query count','[{"type":"TEXT","text":"fixture"}]',1,clock_timestamp())`,[item,runId,sourceKey,canonical]);
+    };
+    const logger=app.get(DatabaseContext).source.logger,original=logger.logQuery.bind(logger);
+    const measure=async(expected:number)=>{
+      const queries:string[]=[];logger.logQuery=(query:string)=>{queries.push(query);};
+      try{
+        const result=await contractSuccess('listBatchItems',await request('/admin/collect/batch-items?source='+sourceKey));
+        assert.equal(result.data.items.length,expected);assert.equal(result.data.totalItems,expected);
+        const data=queries.filter(query=>query.includes('FROM collect.batch_item'));
+        assert.equal(data.length,1);assert.match(data[0]??'',/WITH visible AS MATERIALIZED/);
+        assert.equal(queries.some(query=>/\b(?:INSERT|UPDATE|DELETE)\b/.test(query)),false);
+        return queries.length;
+      }finally{logger.logQuery=original;}
+    };
+    await seed();const one=await measure(1);
+    for(let index=1;index<20;index++)await seed();const twenty=await measure(20);
+    assert.equal(one,twenty);t.diagnostic(`review SQL statements: one=${one}, twenty=${twenty}, data queries=1`);
   });
 });

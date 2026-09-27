@@ -31,6 +31,10 @@ public final class SourceRegistry {
     if (!config.has(key)) throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
     return new Source(key, config.get(key));
   }
+  public List<Source> sources() {
+    return config.properties().stream().map(entry -> new Source(entry.getKey(), entry.getValue()))
+        .sorted(Comparator.comparing(Source::key)).toList();
+  }
   public Source host(String host, String coreId) {
     var matches = new ArrayList<Source>();
     for (var entry : config.properties()) {

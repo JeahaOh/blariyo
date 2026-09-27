@@ -26,13 +26,13 @@ class DirectUrlRunnerAllSiteParserTests {
     var store = mock(BatchStore.class);
     var objects = mock(BatchObjectStore.class);
     UUID run = UUID.randomUUID(), item = UUID.randomUUID();
-    when(store.begin(eq(sourceKey), eq("manual"), eq("WRITE_DB"), eq(1), eq(1), eq(0L), isNull())).thenReturn(run);
+    when(store.begin(eq(sourceKey), eq("manual"), eq("WRITE_DB"), eq(1), eq(1), eq(10000L), isNull())).thenReturn(run);
     when(store.claim(eq(run),eq(sourceKey),anyString(),eq(url))).thenReturn(item);
     when(objects.put(anyString(), any(), anyString())).thenAnswer(invocation ->
         new BatchObjectStore.Record(invocation.getArgument(0), new byte[32], ((byte[]) invocation.getArgument(1)).length, invocation.getArgument(2)));
 
-    var report = new DirectUrlRunner(transport(url, bodySelector), store, objects, ignored -> {})
-        .run(source(sourceKey, parser), new DirectUrlRunner.Options(sourceKey, url, 0, true));
+    var report = new DirectUrlRunner(TestSourceControls.allowRobots(transport(url, bodySelector)), store, objects, ignored -> {})
+        .run(source(sourceKey, parser), new DirectUrlRunner.Options(sourceKey, url, 10000, true));
 
     assertEquals("COMPLETED", report.state(), report.toString());
     assertEquals(1, report.fetched());
@@ -97,7 +97,7 @@ class DirectUrlRunnerAllSiteParserTests {
       case "youtube-community" -> "https://www.youtube.com/";
       default -> throw new IllegalArgumentException(sourceKey);
     });
-    return new SourceRegistry(Json.tree(Map.of(sourceKey, Map.ofEntries(
+    return TestSourceControls.registry(Json.tree(Map.of(sourceKey, Map.ofEntries(
         Map.entry("host", base.getHost()),
         Map.entry("approved", true),
         Map.entry("blockedReason", ""),

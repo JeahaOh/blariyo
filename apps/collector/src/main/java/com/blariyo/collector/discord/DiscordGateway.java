@@ -99,6 +99,10 @@ public final class DiscordGateway extends ListenerAdapter {
                   return;
                 }
                 var confirmation = intake.prepare(event.getId(), event.getUser().getId(), event.getChannel().getId(), event.getOption("url").getAsString());
+                if (confirmation.requestId()!=null) {
+                  hook.editOriginal("이미 접수한 수집 요청입니다. 요청 ID: " + confirmation.requestId()).queue();
+                  return;
+                }
                 String url = confirmation.url();
                 URI uri = URI.create(url);
                 hook.editOriginal(
@@ -108,7 +112,8 @@ public final class DiscordGateway extends ListenerAdapter {
                             + url
                             + "\nrobots·상세·이미지 요청이 발생하며 검수 후에만 발행됩니다.")
                     .setComponents(
-                        ActionRow.of(Button.primary("collect-confirm:" + confirmation.id(), "수집 확인")))
+                        ActionRow.of(Button.primary("collect-confirm:" + confirmation.id(), "수집 확인"),
+                            Button.secondary("collect-cancel:" + confirmation.id(), "취소")))
                     .queue();
               } catch (Exception e) {
                 hook.editOriginal("수집 요청을 준비하지 못했습니다. 설정과 허용 출처를 확인하세요.").queue();
@@ -118,7 +123,8 @@ public final class DiscordGateway extends ListenerAdapter {
 
   @Override
   public void onButtonInteraction(ButtonInteractionEvent event) {
-    if (!event.getComponentId().startsWith("collect-confirm:")) return;
+    boolean cancel = event.getComponentId().startsWith("collect-cancel:");
+    if (!cancel && !event.getComponentId().startsWith("collect-confirm:")) return;
     if (!authorized(
         event.getGuild() == null ? null : event.getGuild().getId(),
         event.getChannel().getId(),
@@ -135,7 +141,12 @@ public final class DiscordGateway extends ListenerAdapter {
             hook -> {
               try {
                 UUID id =
-                    UUID.fromString(event.getComponentId().substring("collect-confirm:".length()));
+                    UUID.fromString(event.getComponentId().substring((cancel ? "collect-cancel:" : "collect-confirm:").length()));
+                if (cancel) {
+                  intake.cancel(id, event.getUser().getId(), event.getChannel().getId());
+                  hook.editOriginal("확인 전 수집 요청을 취소했습니다.").queue();
+                  return;
+                }
                 UUID queued = intake.confirm(id, event.getUser().getId(), event.getChannel().getId());
                 hook.editOriginal("수집 작업을 batch queue에 접수했습니다. 요청 ID: " + queued).queue();
               } catch (Exception e) {

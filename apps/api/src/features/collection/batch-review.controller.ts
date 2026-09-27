@@ -26,7 +26,7 @@ export class BatchReviewController {
   }
   @Get(':itemId/media/:position/preview') async preview(@Input(ContractPipe) input:RequestInput){
     const result=await this.service.preview(stringField(input.params,'itemId'),Number(stringField(input.params,'position')));
-    return new BinaryResult(result.bytes,result.mime);
+    return new BinaryResult(result.bytes,result.mime,'private, no-store',true,result.deadline);
   }
   @Post(':itemId/review') async review(@Input(ContractPipe) input:RequestInput,@Actor() actor:string){
     if(!reviewIs(input.body))fail(400,'VALIDATION_FAILED');

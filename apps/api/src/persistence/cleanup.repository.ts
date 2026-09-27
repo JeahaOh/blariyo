@@ -15,12 +15,13 @@ export class TypeOrmCleanupRepository extends CleanupRepository {
   }
   async lockExpiredStaged() {
     return (await this.db.manager.createQueryBuilder(ContentBoardPostImageEntity, 'image')
-      .where("image.post_id IS NULL AND image.status='STAGED' AND image.updated_at<now()-interval '24 hours'")
+      .where("image.post_id IS NULL AND image.status='STAGED' AND (image.created_at<=clock_timestamp()-interval '24 hours' OR image.source_expires_at<=clock_timestamp())")
       .setLock('pessimistic_write').setOnLocked('skip_locked').getMany())
       .map(image => ({ id: image.id, privateKey: image.private_storage_key }));
   }
   async expireReceipts() {
     await this.db.manager.createQueryBuilder().delete().from(OpsIdempotencyRequestEntity).where('expires_at<now()').execute();
+    await this.db.manager.query("DO $$ BEGIN IF to_regprocedure('collect.cleanup_web_requests()') IS NOT NULL THEN PERFORM collect.cleanup_web_requests(); END IF; END $$");
   }
   async referenced(bucket: Bucket, key: string, collectionPreview: boolean) {
     const image = collectionPreview

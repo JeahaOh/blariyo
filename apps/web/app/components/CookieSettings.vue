@@ -1,7 +1,11 @@
 <script setup lang="ts">
-const { enabled, consent, storageError, refresh, save } = useConsent();
+const { enabled, consent, storageError, refresh, save, retry } = useConsent();
 const analytics = ref(false);
 defineEmits(['saved']);
+function retryChoice() {
+  retry();
+  analytics.value = consent.value?.analytics === true;
+}
 onMounted(() => {
   refresh();
   analytics.value = consent.value?.analytics === true;
@@ -17,5 +21,6 @@ onMounted(() => {
       ><button @click="save(analytics) && $emit('saved')">선택 저장</button></template
     >
     <p role="status">{{ storageError }}</p>
+    <button v-if="storageError" @click="retryChoice">다시 시도</button>
   </section>
 </template>

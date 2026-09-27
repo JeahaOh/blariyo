@@ -95,6 +95,21 @@ await test('SSR summary preserves graphemes, normalizes whitespace and never pad
   assert.equal(description([]), '블라리요에서 블라블라블라');
 });
 
+await test('consent read failures are reported; missing, expired and disabled storage are distinct', () => {
+  let failures = 0;
+  const invalid = () => { failures++; };
+  for (const value of ['', '{broken', 'null', '{"version":1}', JSON.stringify({ version: 2, scope: 'analytics', analytics: true, ads: false, savedAt: 'invalid' })]) {
+    assert.equal(readConsent({ getItem: () => value }, true, new Date(), invalid), null);
+  }
+  assert.equal(failures, 5);
+  assert.equal(readConsent({ getItem: () => { throw new Error('blocked'); } }, true, new Date(), invalid), null);
+  assert.equal(failures, 6);
+  const expired = JSON.stringify({ version: 2, scope: 'analytics', analytics: true, ads: false, savedAt: '2020-01-01T00:00:00Z' });
+  for (const value of [null, expired]) assert.equal(readConsent({ getItem: () => value }, true, new Date(), invalid), null);
+  assert.equal(readConsent({ getItem: () => { throw new Error('disabled must not read'); } }, false, new Date(), invalid), null);
+  assert.equal(failures, 6);
+});
+
 await test('late analytics load and error callbacks cannot cancel a newer consent generation', () => {
   for (const callback of ['onload', 'onerror'] as const) {
     const map = new Map<string, string>();

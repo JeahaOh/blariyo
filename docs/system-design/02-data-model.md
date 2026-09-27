@@ -1041,6 +1041,16 @@ result 원문 payload와 image temp는 macOS Keychain key로 AES-256-GCM 암호�
 
 Core에는 다음 quota 표를 추가한다.
 
+### Direct 요청 budget — `collect.batch_request_budget`
+
+Collector V010의 direct 전용 최소 집계다. `source_key`가 기본 키이며 KST `budget_date`,
+`request_count`, `next_allowed_at`, `updated_at`만 보관한다. 원문·URL·운영자 identity는 저장하지 않는다.
+단건·목록·queue·probe와 dry-run의 모든 HTTP 시도는 같은 source 한도에서 차감한다.
+`reserve_batch_request(text,integer,bigint)` 제한 함수의 row lock·DB 시각·2초 permit으로
+동시 예약·재시작·자정 경계를 처리한다. batch에 일반 row 수정·삭제 권한은 주지 않는다.
+최소 집계는 선택 백업에 포함하며 원문 제외 table과 구분한다. 상세 동작은
+[COL-01/02 요청 통제](07-spring-collector-design.md#col-0102-direct-요청-통제-보완--2026-09-27)를 따른다.
+
 ### 출처 요청 budget — `collect.source_request_budget`
 
 V005 legacy의 일일 예산이다. direct 실행기는 이 테이블을 사용하지 않는다.
@@ -1162,7 +1172,7 @@ content post FK·승격 URL/source 중복·검수 전이는 DB 제약과 trigger
   본문·URL이 없는 metadata 시스템이라고 고지하지 않는다. 일반 로그·공개 API에서 수집 내부 정보를 제한한다.
 - DB의 max_pages 100/max_items 10000 CHECK와 CLI 10/100 및 source별 더 낮은 상한은 다른 층의 제한이다.
   큰 DB 허용값을 CLI 실행 허용값으로 사용하지 않는다.
-- V003 이후 runtime DELETE 거부와 완료 불변 trigger가 있다. 자동 보존/삭제는 미구현이며 별도 소유권·참조 보호 계약이 필요하다.
+- V003 이후 runtime DELETE 거부와 완료 불변 trigger가 있다. 9/27에는 API V009·Collector V007~V010의 제한 함수·회수 worker를 추가해 보존/삭제를 로컬 검증했다. 일반 runtime DELETE 거부는 유지하며 실제 운영 회수 인수는 별도다.
 
 
 ### Collector V006 MIME 정정 감사
@@ -1176,7 +1186,7 @@ media별 증가 revision과 operation UUID로 조건부 수정·재실행을 구
 <a id="m0-d01-retention"></a>
 ## M0-D01 — direct 보존·삭제의 목표 계약
 
-2026-09-26 설계 보완. 아래 신규 모델·함수·권한은 **미구현**이며 기존 API V008/Collector V006을 수정하지 않고 후속 migration으로 적용한다. API 소유 게시글 사본은 §9의 기존 정책을 유지한다.
+2026-09-26 확정 설계의 신규 모델·함수·권한은 9/27 API V009/V010·Collector V007~V010 및 회수 worker로 구현·로컬 검증했다. 기존 API V001~V008/Collector V001~V006은 수정하지 않았다. [D01-T1~T7 증거](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)와 실제 운영 migration/제한 삭제 인수를 구분한다. API 소유 게시글 사본은 §9의 기존 정책을 유지한다.
 
 ### 시각과 상태
 
@@ -1242,7 +1252,7 @@ media별 증가 revision과 operation UUID로 조건부 수정·재실행을 구
 - 설치 순서: 수집/검수 쓰기 정지→기존 정상 백업 확인→새 모델/제한 함수의 additive 설치·metadata backfill dry-run→검증된 선택 백업·기존 full 사본 대체→API guard→worker dry-run→제한 삭제. 과거 collected_at은 fetched_at과 run 시작/객체 생성 중 **가장 이른 입증 시각**을 사용한다. 검수 최초 시각이 없으면 updated_at을 최초로 가장하지 않고 수집+28일과 updated_at+7일 중 빠른 기한으로 이행해 기간을 늘리지 않는다. 시각 근거가 전혀 없으면 즉시 만료 후보로 분리한다.
 - rollback은 새 입력·worker 정지와 이전 앱의 read-only 전환까지다. 파기된 raw 복구·삭제 키 제거·기존 raw 포함 백업 복원으로 되돌리지 않는다. content 정상 사본은 유지한다.
 
-| 시험 ID | 기대 결과·검증 방법 (후속 구현) |
+| 시험 ID | 기대 결과·검증 방법 (9/27 로컬 검증, 실제 운영 인수 별도) |
 | --- | --- |
 | D01-T1 | 7일/28일 직전 허용·정각 거부, UTC/KST 경계 동일: 고정 DB clock 통합 시험 |
 | D01-T2 | 27일째 첫 승인→34일 만료, 재검수/반려 전환으로 연장 없음, 28일 정각 최초 검수 거부 |
@@ -1276,5 +1286,14 @@ D01 구현 선택 근거: 전체 URL/post ID 영구 보관 대신 두 SHA-256 �
 
 D02 요청 digest는 검증된 원래 `{url}` JSON의 canonical serialization(정렬된 property, 공백 없는 JSON)을 SHA-256한 값이다. URL 식별용 canonical_hash와 분리하므로 같은 Idempotency-Key에 다른 URL 문자열을 보내면 정규화 결과가 같아도409다. retry digest는 previous requestId와 expectedVersion이다. projection version은 PENDING=0, receipt 최초 상태=1부터 증가, receipt 없이 기한 만료면1; updatedAt은 해당 전이 DB 시각(기한 만료는 acceptBefore)이다. retry는 새 requestId/version0으로 시작한다.
 
+batch가 꺼진 채 ACCEPTED 대기 요청의 acceptBefore를 넘긴 경우 GET은 EXPIRED·BATCH_QUEUE_EXPIRED로 계산하며
+updatedAt=acceptBefore, version=마지막 receipt version+1을 반환한다. receipt/queue를 쓰지 않는다.
+batch가 실제 EXPIRED receipt를 기록하면 그 version을 그대로 사용하므로 추가 가산하지 않는다.
+RUNNING과 이미 끝난 receipt의 결과는 시간만으로 덮어쓰지 않는다.
+
 
 API 승격 중 준비한 private staging은 content 게시글에 commit되기 전까지 `sourceExpiresAt`을 회수 outbox에 전달한다. 만료/승격 실패 후 해당 API worker가 자기 private credential로 회수하며 collect retention 계정에 private/public 삭제 권한을 주지 않는다. commit된 사본은 이 source deadline의 대상에서 제거하고 content 기존 정책을 적용한다. D01-T3/T6에서 두 객체 집합과 outbox 실패 뒤 회수를 각각 확인한다.
+
+### 2026-09-27 확인 전 Discord 취소 구현
+
+Collector V010의 `cancel_confirmation`은 actor/channel HMAC을 검사하고 확인과 같은 advisory lock으로 직렬화한다. 확인 전 취소는 URL·source/post 원문을 즉시 NULL로 만들며 `cancelled_at`·HMAC·기존10분기한만 남긴다. 같은 취소는 멱등이며 취소 후 확인/동일interaction 재준비는 거부한다. 이미 queue에 접수된 요청을 취소하지 않는다. 만료 후 회수는 기존 제한 worker가 수행하고 일반 runtime DELETE 권한은 늘리지 않는다. 실제5역할 거부 및 동시 확인/취소 시험은 [최종 감사](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)를 따른다.

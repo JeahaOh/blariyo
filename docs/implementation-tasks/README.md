@@ -1,6 +1,6 @@
 # 구현 task 목록
 
-2026-09-24 기준 [로드맵](../roadmap.md)과 현행 코드·검증 문서에서 확인된 미완료 구현/인수 항목 17개를 실행 단위로 분리한다. 각 task는 완료 증거가 남아야 닫을 수 있다. 이 문서는 계획이며 구현 완료를 뜻하지 않는다.
+2026-09-24에 분리한 기존 17개 task를 유지하고 9/27 구현·로컬 검증과 실제 인수 상태를 구분한다. 현재 잔여 순서는 [로드맵](../roadmap.md#1-다음-시작점), 사용자 결정·입력은 [결정 목록](../roadmap.md#5-추가로-확정할-항목)을 따른다. 과거 task 정의의 미래형 문구를 현재 미구현 수로 세지 않는다.
 
 2026-09-26 실행 준비: [구현 task list](../../worklog/2026-09-26/m0-implementation-plan/IMPLEMENTATION-TASKS.md)와 [구현 goal 요청문](../../worklog/2026-09-26/m0-implementation-plan/IMPLEMENTATION-GOAL-PROMPT.md)에 아래 ID의 실행 순서·로컬 완료 조건·실제 운영 잔여를 연결했다. 작성만으로 구현을 시작하거나 이 목록의 상태를 완료로 바꾸지 않는다. 제품·기술 계약은 아래 정본 링크가 우선한다.
 
@@ -17,12 +17,27 @@ P0는 Core 운영 개시 조건, P1은 수집 기능 활성화 전 조건, P2는
 
 ## 상태 정의
 
+2026-09-27 현재 상태:
+
+| task | 로컬 코드·검증 | 남은 작업 |
+| --- | --- | --- |
+| UX-01~06 (6개) | 완료 | 실제 운영자 인수·외부 provider 확인은 OPS 및 기능별 활성화 조건 |
+| COL-01/02 (2개) | 완료 | 선택 source의 실제 정책/간격/한도는 COL-03 |
+| COL-03 (1개) | fixture/과거 개발 이력 있음 | 현재 선택 출처 S1~S5·편입 인수 미실행 |
+| COL-04 (1개) | D01-T1~T7 완료 | 실제 선택 백업 대체·고지·제한 삭제/복원 인수 |
+| OPS-01~05 (5개) | 관련 자동 검사·도구 완료 | 사람의 업무·Access/MFA·실장비/외부 서비스·실제7일 관찰 |
+| CON-01 (1개) | 조건부 대기 | legacy 재활성화 결정 때1000/40·DTO/MIME/auth 정합화 |
+| CON-02 (1개) | 앱 입력/SQL·D02-T1~T6 완료 | 실장비 인수 및 [로컬 준비 도구 권한 정렬](contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조) |
+
+합계17개다. 로컬 구현 완료와 실제 task 인수 완료를 하나의 체크 수로 합치지 않는다.
+
+
 - **대기:** 착수 입력 또는 선행 조건 확인 전.
 - **진행:** 구현/검증 중이며 완료 증거가 아직 모이지 않음.
 - **차단:** 명시된 결정·환경 입력이 없어 해당 범위를 안전하게 진행할 수 없음.
 - **완료:** task별 코드·테스트·운영 증거가 모두 연결됨.
 
-현재 모든 task의 시작 상태는 **대기**이며, 차단 상태는 선행 결정이 실제로 확인된 뒤 표시한다. 과거 실행 결과는 현재 task의 새 SHA 검증을 대신하지 않는다.
+2026-09-24 시작 상태는 모두 대기였다. 2026-09-27에는 [UX-01~06 로컬 완료](core-ux.md#2026-09-27-로컬-완료-증거), D01~04/COL/CON 로컬 코드를 반영하고 [항목별 완료 감사](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)로 최신 검증을 판정한다. 실제 출처·운영 계정/장비·7일 관찰은 별도 인수로 남는다. [현재 실행 증거](../../worklog/2026-09-27/m0-implementation/README.md)를 따르며 과거 PASS를 새 source 검증으로 승계하지 않는다.
 
 ## 완료 보고
 
@@ -32,7 +47,7 @@ P0는 Core 운영 개시 조건, P1은 수집 기능 활성화 전 조건, P2는
 <a id="m0-design-handoff"></a>
 ## M0-D06 — 설계 보완 구현 인계 (2026-09-26)
 
-D01~D05 기술 계약·출처 증거표를 아래 기존 ID에 연결한다. 상태는 **설계 문서 보완 / 구현·운영 인수 잔여**다. 기존 17개 task ID·요구사항 집계는 바꾸지 않는다. 문서 검증과 실제 source/test/운영 검증의 구분은 [실행 결과](../../worklog/2026-09-26/m0-design-completion/README.md)를 따른다.
+D01~D05 기술 계약·출처 증거표를 아래 기존 ID에 연결한다. 설계 인계 당시 상태는 **설계 문서 보완 / 구현·운영 인수 잔여**였으며9/27의 로컬 결과는 위 완료 감사가 대체한다. 기존 17개 task ID·요구사항 집계는 바꾸지 않는다. 문서 검증과 실제 source/test/운영 검증의 구분은 [실행 결과](../../worklog/2026-09-26/m0-design-completion/README.md)를 따른다.
 
 | 결정 | 정본 절·개발 입력 | 기존 task·순서 | 필요한 구현/migration·호환성 | 검증 시나리오·완료 증거 |
 | --- | --- | --- | --- | --- |
@@ -41,7 +56,7 @@ D01~D05 기술 계약·출처 증거표를 아래 기존 ID에 연결한다. 상
 | D03 Drive 선택 백업·복원·전환 | [보안/운영 D03](../system-design/05-security-operations.md#m0-d03-drive), [인프라 인계](../system-design/04-infrastructure-design.md#m0-d01d04-인프라-인계--2026-09-26) | OPS-03, D01 모델 적용 뒤 R2 profile 검증→Drive 병행→전환 | backup runner/전송/manifest/만료 timer·독립 복원·Discord; 영구/임시 DB 데이터 분리. 현행 R2 source 교체는 후속 | D03-T1~T6·D01-T7, exact backup ID/hash·격리 DB 결과·실수신·복귀 receipt |
 | D04 OWNER/EDITOR·서비스 역할 | [보안/운영 D04](../system-design/05-security-operations.md#m0-d04-roles), [관리자 spec](../development-specs/m0-core/admin-post-management/admin-post-management.dev.md#m0-d04-역할-인계--2026-09-26) | OPS-01/02/04, 구현은 기존 auth adapter/Core guard 범위 | registry role·내부 role header·operation allowlist·회수, 서비스별 DB/R2/Drive ACL. UI 추가 없음 | D04-T1~T6: 허용·직접 접근 거부·위조/회수·secret 미노출; 실제 두 계정 증거 |
 | D05 검증된 출처만 편입 | [S1~S5](../planning/content-collection/source-collection-policy.md#m0-admission), [21개 증거표](../planning/content-collection/reference-site-validation.md#m0-evidence-20260926) | COL-01/02→COL-03, COL-04/OPS-04 뒤 활성 | 현재 local17 성공과4 차단/미검증을 유지, 실제 source/config hash를 조회한 뒤 선택 출처별 수용 | S1~S5 receipt, 시각/환경/SHA/원문 순서·byte readback·오류/운영 인수; 미충족은 후보 |
-| D06 문서/실행 계약·상태 인계 | 이 표·[readiness](../system-design/design-readiness.md)·[requirements](../development-specs/requirements-status.md) | CON-01 legacy는 비활성 유지, CON-02/각 task에서 구현 후 상태 갱신 | 이번 docs OpenAPI planned 경로는 실행 source에 없음. 구현 시 copies 비교·타입 생성·API/DB/BFF 회귀를 같은 변경에서 수행 | 링크/anchor·OpenAPI 형식·diff는 이번 문서 증거; test/build/runtime은 해당 구현 SHA로 새 실행 |
+| D06 문서/실행 계약·상태 인계 | 이 표·[readiness](../system-design/design-readiness.md)·[requirements](../development-specs/requirements-status.md) | CON-01 legacy는 비활성 유지, CON-02/각 task에서 구현 후 상태 갱신 | 9/27 신규4개operation/retention schema는 implemented-local로 실행 사본·생성 타입·API/DB/BFF에 연결됨. 운영 활성은 별도 | 링크/anchor·OpenAPI 형식·diff는 이번 문서 증거; test/build/runtime은 해당 구현 SHA로 새 실행 |
 
 ### 실행 순서와 되돌리기
 

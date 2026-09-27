@@ -56,7 +56,7 @@ await test('original administrator transactions, storage and scheduler with stri
     }: { method?: string; body?: unknown; key?: string; auth?: boolean } = {}
   ) => {
     const headers: Record<string, string> = auth
-      ? { 'X-Blariyo-Service-Token': token, 'X-Blariyo-Admin-Actor': actor, 'Idempotency-Key': key }
+      ? { 'X-Blariyo-Service-Token': token, 'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor': actor, 'Idempotency-Key': key }
       : {};
     if (body && !(body instanceof FormData)) headers['content-type'] = 'application/json';
     return fetch(origin + '/api/v1' + path, {

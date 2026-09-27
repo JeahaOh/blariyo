@@ -1,11 +1,20 @@
 # M0 현재 진행 상황
 
+- 문서 갱신: 2026-09-27. [사용자 결정·입력](roadmap.md#5-추가로-확정할-항목) → [잔여 작업](roadmap.md#1-다음-시작점) 순으로 확인한다. 로컬 구현과 운영 인수의 오래된 상태 표기를 동기화했고 [갱신 검증](../worklog/2026-09-27/m0-status-refresh/README.md)에 범위를 기록한다.
+
+- 후속 구현 발견: [로컬 준비 도구의 최신 DB 권한·ledger 출력 정렬](implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)이 필요하다. 앱/격리 시험 결과와 별개이며 이번에는 source를 수정하거나 기존 개발 DB에서 도구를 재실행하지 않았다.
+
+- 2026-09-27 M0 로컬 코드: UX-01~06·보존/회수·mailbox/4개API/입력UI·robots/quota/redirect·선택백업/Drive 도구·OWNER/EDITOR를 구현했다. API010/Collector010이며 운영 migration을 적용했다는 뜻이 아니다.
+- 로컬 검증: API 실DB30 files/130 tests·서비스35·Collector289·공통34 PASS, 실제5역할73table/16sequence 복원·PG18/age 선택복원53보존/17제외·과거full008/006→010/010·Docker API/Web PASS. 실제 Chromium52와 범위·자원 감사까지 통과해 로컬 구현·검증·운영 인계를 완료했다. 상세는 [완료 조건 감사](../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)에서 판정한다.
+- 다음 실제 작업: [운영 인계](operations/m0-operation-handoff.md)의 계정/장비·허용 출처·법무·비운영 대상 입력을 확인한 뒤 별도 승인된 범위로 인수한다. 현재 브랜치는 `feature/m0-design-completion`, HEAD `71ed8efe`; 새 변경은 미커밋이며 stage/push/배포 없음.
+- 범위 경계: GA4·광고·legacy 기본 OFF, 실제 source 요청·Drive/R2/Discord 전송·운영 삭제·설치 미실행. 실제 두 운영자/Access·출처 S1~S5·Core7일과 CON-01 조건부 항목은 남아 있다.
+
 - **전체 판정: 부분 완료. 9월 26일 공개 HTTP에서 robots·사이트맵·일부 noindex와 GTM HTML 삽입을 확인했다. 실제 운영자 인수와 수집 실연동·계약은 남아 있다.**
-- 최신 점검: 2026-09-26 소스·정본 대조 및 16:39 KST 이후 공개 GET. 현재 서버 image digest·DB·백업·원격 CI는 재조회하지 않았다. SHA `5c581c2` 배포와 DB·콘텐츠 전수 검증은 9월 23일 증거로 유지한다. [운영 상태](operations/current-status.md)와 [오늘 점검 근거](../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md)를 따른다.
+- 마지막 공개 HTTP 점검: 2026-09-26 소스·정본 대조 및 16:39 KST 이후 공개 GET. 현재 서버 image digest·DB·백업·원격 CI는 재조회하지 않았다. SHA `5c581c2` 배포와 DB·콘텐츠 전수 검증은 9월 23일 증거로 유지한다. [운영 상태](operations/current-status.md)와 [오늘 점검 근거](../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md)를 따른다.
 - Git 확인: 2026-09-26 점검 종료·후속 문서 갱신 기준 `release@02c041a`, 로컬 `origin/release` 추적 참조보다 1커밋 앞섰다. 기존 worklog 미커밋 변경을 보존했으며 원격 상태를 새로 조회한 결과는 아니다. [동기화 기록](../worklog/2026-09-26/m0-progress-audit/STATUS-SYNC.md).
 - 과거 전체 goal의 `blocked` 기록은 당시 선행 조건 판단이다. 현재 도구 상태나 기능 폐기를 뜻하지 않는다.
 - 상세 실행 순서는 [잔여 과정](roadmap.md), 실제 커밋 식별자는 [진행 보관·커밋 기록](../worklog/2026-09-23/progress-checkpoint.md)을 따른다.
-- 9/26 최종 결정: 운영 DB 백업만 Google Drive로 전환하고 공개 전·공개 이미지/첨부는 기존 R2를 유지한다. [백업 전환 조건](planning/02-infra-plan.md#6-데이터와-저장소-원칙)은 잔여이며 구현·운영 전환은 미완료다. 에펨코리아·뽐뿌·유튜브 커뮤니티 [재분석 task](../worklog/2026-09-26/collection-source-reanalysis/README.md)는 생성 완료·분석 대기다.
+- 9/26 최종 결정: 운영 DB 백업만 Google Drive로 전환하고 공개 전·공개 이미지/첨부는 기존 R2를 유지한다. [백업 전환 조건](planning/02-infra-plan.md#6-데이터와-저장소-원칙)의 실제 계정·운영 전환은 잔여다. 로컬 전환 도구·실제 age/격리DB 복원은 위9/27 증거를 따른다. 에펨코리아·뽐뿌·유튜브 커뮤니티 [재분석 task](../worklog/2026-09-26/collection-source-reanalysis/README.md)는 생성 완료·분석 대기다.
 
 ## 완료 범위와 남은 조건
 
@@ -15,11 +24,11 @@
 | 로컬 실행 P0-04 | 격리 실행기의 예약·이미지 회수 worker, 중복 소유 방지·재시작·실패 복구와 실제 시각 검증 | 운영자가 직접 수행하는 인수 12건 |
 | CI A-1/P1-07 | Java fixture 준비·Collector job·로컬 macOS/Linux 재현. SHA `5c581c2`의 원격 verify/collector/API·Web images 성공·digest 확인 | 다음 후보 SHA의 원격 CI·digest 확인, Windows·별도 PC 검증 |
 | Direct 검수 P1-02 | 정식 메뉴·필터·검수/반려·초안 이동·불확실 응답 복구. 9/23 운영 검수 flag ON, 내부 service 108건 조회·16개 출처 미리보기 | 실제 MFA 운영자 화면 조작·Access·원격 object 인수. QD-04 보존·고지 별도 |
-| 사이트 모듈 P1-06 | 21 adapter·21 상세·19 목록 parser 분리, 기존 결과 보존 | 요청 통제 보완과 검증된 M0 적용 목록의 수용 증거. 차단·미검증은 후속 후보이며 전체 21개 통과 조건 아님 |
-| 문서 정합성 P1-01 | D01~D03의 direct/legacy 저장·권한·검수 규칙 정렬 | M0-D01/D02 설계의 구현·고지 QD-03/04,  legacy API/DB 본문 상한 1000/40 불일치 |
+| 사이트 모듈 P1-06 | 21 adapter·21 상세·19 목록 parser 분리, 기존 결과 보존 | 검증된 M0 적용 목록의 실제 수용 증거. 요청 통제는9/27 로컬 검증 완료. 차단·미검증은 후속 후보이며 전체 21개 통과 조건 아님 |
+| 문서 정합성 P1-01 | D01~D03의 direct/legacy 저장·권한·검수 규칙 정렬 | QD-03/04 실제 고지·운영 인수, legacy API/DB 본문 상한 1000/40 불일치 |
 | 배포·DB 반영 P0-05 | 9/23 `5c581c2` CI·GHCR digest→API/Web 배포, API V008·Collector V006, 게시글 74·이미지 308 공개·전수 readback, 전후 백업 다운로드·격리 복원 | 현재 상태 재조회, 실제 MFA 작성/업로드/발행/숨김·예약/알림 인수, 다음 배포 후보별 호환성·백업·복귀 확인. 실제 rollback·재부팅 미검증 |
 | 검색엔진 설정·GTM 공개 반영 | 9/26 robots 앱 규칙·사이트맵 XML·API/health noindex·공개 HTML의 GTM 삽입 확인 | 현재 배포 SHA/digest, 비공개 글 제외 전수 대조·검색 색인, GTM 실제 태그·동의·공개 정책·GA4 수신 검증 |
-| 수집 실연동 P1-03~05/07 | 로컬 코드·격리 증거와 실행서 준비 | 다른 PC/Windows·비운영 DB/object·Discord·보존 회수 구현/검증 |
+| 수집 실연동 P1-03~05/07 | 로컬 코드·격리 증거와 실행서 준비 | 다른 PC/Windows·비운영 DB/object·Discord·보존 회수 실제 인수 |
 | 운영 관찰 P2 | 관찰 조건 정의 | 실제 운영 개시 후 7일 기록 |
 
 ## Google Tag Manager — 2026-09-25 로컬 적용
@@ -93,15 +102,15 @@
 | 9/23 커밋 준비 당시 | Node24 루트 검사29/29, 실패·생략0 | [진행 보관 기록](../worklog/2026-09-23/progress-checkpoint.md) |
 | 9/26 공개 HTTP | 인증 없는 GET 7개 200, robots·사이트맵·일부 noindex·GTM HTML 반영. 내부 운영·브라우저 실인수 제외 | [점검 근거](../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md) |
 
-요구사항 집계는 9월 26일 재계산한 [40개 대조표](development-specs/requirements-status.md)의 **I30/P9/U1**이다. 전체 주요 구현 확인은 30/40(75%), Core는 15/16(93.8%)이다. 개발 공수·세부 요구 충족률·제품 완성도·출시 준비율이 아니며 C16 운영자 사용성, O07 실제 인수·복귀를 포함한 부분 항목은 유지한다. 화면 마감·수집 통제·보존 회수와 실연동 잔여는 [오늘 점검 보고서](../worklog/2026-09-26/m0-progress-audit/REPORT.md), 실행 단위는 [구현 task 목록](implementation-tasks/README.md)을 따른다.
+요구사항 집계는 9월27일 로컬 구현을 반영한 [40개 대조표](development-specs/requirements-status.md)의 **I32/P8/U0**다. 주요 구현 확인32/40(80%)이며 개발 공수·출시 준비율이 아니다. 남은 부분 항목은 C16·A08·B07·O02·O05~O08이다. 실제 운영 인수와 조건부 legacy 작업은 [로드맵](roadmap.md#1-다음-시작점), 17개 task의 현재 상태는 [구현 목록](implementation-tasks/README.md)을 따른다.
 
 ## 재개 순서와 입력
 
 1. 운영자가 준비된 [격리 인수 환경](testing/operator-acceptance.md)에서 반복 업무 12건을 수행하고 혼동·재작업·실패를 기록한다. 별도로 승인된 운영 콘텐츠 범위에서 실제 Access MFA 세션의 작성·업로드·발행·예약·취소·숨김을 인수한다. 인증 비밀은 전달하지 않는다.
 2. 운영 담당이 현재 release·flag·DB ledger·백업/timer·공개 API를 먼저 읽기 전용으로 재조회한다. 그 결과에 따라 별도 운영 시나리오에서 예약 실행·알림 실수신·복귀 가능성을 검증한다. 다음 배포에는 최근 18시간 이내 백업·복원 증거가 필요하며, 9월 23일 백업과 공개 수량을 현재값으로 재사용하지 않는다.
-3. 다음 코드 배포가 필요하면 [배포 실행서](operations/deployment-runbook.md)에 따라 그 후보 SHA의 원격 CI·digest, V008/Collector V006 호환성, 최신 백업·복원 및 복귀 경로를 새로 대조한다. V008에서 9월 20일 구 API는 readiness 503이다.
-4. 9/26 최종 결정: 이미지·첨부·원문 HTML·본문은 검수 완료·반려 후 7일 삭제, 미검수는 수집일부터 28일, 중복 방지용 최소 식별자는 무기한 보관한다. 검증된 출처만 M0 범위다. QD-03 초기 출처 설정은 개발자 설계 위임을 유지하고 QD-03/04의 기술 계약은 [설계 인계](implementation-tasks/README.md#m0-design-handoff)로 확정했으며 고지·회수 구현은 잔여다. 사용자가 서버·백업을 관리하고 친구는 게시물 권한만 갖는다. Discord 채널은 사용자 보고로 생성 완료·현재 사용자만 참여하며 실연동·수신은 미검증이다. 수집 장비는 Raspberry Pi 4 후보로 실연동 전 선택한다. [최신 결정](../worklog/2026-09-26/m0-completion-plan/README.md#retention-scope-roles-20260926)을 따르며, 문서 반영을 운영 적용 완료로 해석하지 않는다.
-5. direct의 robots/Crawl-delay·영속 일일 budget 연결과 redirect 상한 차이를 먼저 보완한다([코드 대조 근거](system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)). 비운영 DB/object·Discord 시험 대상과 실행 PC/OS가 정해지면 다른 PC batch·원격 권한·Gateway를 실연동한다. 출처별 활성화와 실제 7일 관찰은 별도다.
+3. 다음 코드 배포가 필요하면 [배포 실행서](operations/deployment-runbook.md)에 따라 그 후보 SHA의 원격 CI·digest, 현행 운영 ledger에서 API010/Collector010으로의 이행·이전 앱 호환성, 최신 선택 백업·복원 및 복귀 경로를 새로 대조한다. V008에서 9월 20일 구 API는 readiness 503이다.
+4. 9/26 최종 결정: 이미지·첨부·원문 HTML·본문은 검수 완료·반려 후 7일 삭제, 미검수는 수집일부터 28일, 중복 방지용 최소 식별자는 무기한 보관한다. 검증된 출처만 M0 범위다. QD-03 초기 출처 설정은 개발자 설계 위임을 유지하고 QD-03/04의 기술 계약은 [설계 인계](implementation-tasks/README.md#m0-design-handoff)로 확정했으며 회수 구현·로컬 검증은9/27 완료했고 실제 고지·운영 회수 인수는 남아 있다. 사용자가 서버·백업을 관리하고 친구는 게시물 권한만 갖는다. Discord 채널은 사용자 보고로 생성 완료·현재 사용자만 참여하며 실연동·수신은 미검증이다. 수집 장비는 Raspberry Pi 4 후보로 실연동 전 선택한다. [최신 결정](../worklog/2026-09-26/m0-completion-plan/README.md#retention-scope-roles-20260926)을 따르며, 문서 반영을 운영 적용 완료로 해석하지 않는다.
+5. direct의 robots/Crawl-delay·영속 일일 budget·redirect 최대3회는9/27 구현·로컬 검증했다([코드 대조 근거](system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)). 비운영 DB/object·Discord 시험 대상과 실행 PC/OS가 정해지면 다른 PC batch·원격 권한·Gateway를 실연동한다. 출처별 활성화와 실제 7일 관찰은 별도다.
 
 ## 보존된 로컬 자원
 
@@ -113,4 +122,4 @@
 
 ## M0 기존 설계 보완 — 2026-09-26
 
-M0-D01~D06의 보존/삭제·Web mailbox·Drive 백업·역할·출처 편입 계약을 [인계표](implementation-tasks/README.md#m0-design-handoff)로 연결했다. [문서 검증](../worklog/2026-09-26/m0-design-completion/README.md)과 구현/운영 증거를 구분한다. 애플리케이션 source·migration·실행 설정·실행 계약 사본은 수정하지 않았으며 구현 집계 I30/P9/U1은 유지한다. 출처 편입 확정을 입증하는 증거는 현재 없고, 17개 로컬 성공 이력도 운영 통과가 아니다. 독립적인 UX 작업은 병행할 수 있다.
+M0-D01~D06의 보존/삭제·Web mailbox·Drive 백업·역할·출처 편입 계약을 [인계표](implementation-tasks/README.md#m0-design-handoff)로 연결했다. [문서 검증](../worklog/2026-09-26/m0-design-completion/README.md)과 구현/운영 증거를 구분한다. 9월26일 설계 단계에서는 애플리케이션 source·migration·실행 계약 사본을 변경하지 않았다. 이후9월27일의 미커밋 구현·검증과 집계는 이 문서 상단을 따른다. 출처 편입 확정을 입증하는 증거는 현재 없고, 17개 로컬 성공 이력도 운영 통과가 아니다. 독립적인 UX 작업은 병행할 수 있다.

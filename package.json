@@ -32,6 +32,8 @@
     "collection:transition": "node apps/api/dist/commands/collection-transition.js",
     "test:fixtures": "node scripts/prepare-collector-fixtures.mjs",
     "test:collector": "node scripts/test-collector-readback.mjs",
+    "test:backup": "node --test deploy/backup/test-drive.mjs deploy/backup/test-backup-jobs.mjs deploy/operations/test-collect-retention.mjs && python3 -B deploy/backup/test-runner.py",
+    "test:direct-identity": "npm run build -w @blariyo/api && apps/collector/gradlew -p apps/collector testClasses fixtureClasspath && node scripts/test-direct-identity.mjs",
     "test:nest": "npm run test:fixtures && npm run build && npm run build:test -w @blariyo/api && node scripts/test-nest-integration.ts",
     "typecheck:scripts": "tsc -p scripts/tsconfig.json",
     "lint:scripts": "eslint --config scripts/eslint.config.mjs scripts/**/*.ts",

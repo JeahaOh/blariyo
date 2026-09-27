@@ -1,0 +1,6 @@
+[Timer]
+OnCalendar=*-*-* *:*:00
+Persistent=true
+Unit=blariyo-backup-alerts.service
+[Install]
+WantedBy=timers.target

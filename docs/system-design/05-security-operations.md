@@ -681,7 +681,7 @@ Core/BFF 연동과 장애 시험은 구현·운영 공개 전 별도 검증한�
 <a id="m0-d03-drive"></a>
 ## M0-D03 — Google Drive DB 백업 목표 계약
 
-설계일·공식 사양 확인일: 2026-09-26. **현행 run-backup.py/r2-transfer.cjs는 R2 full dump이며 아래 설계는 미구현**이다. 주기는 03:30·15:30 KST, DB backup의 기한은 snapshot 생성 시각+7×24시간, 순서는 logical dump→age 암호화→SHA-256 manifest를 유지한다. 이미지/첨부 binary는 R2에만 둔다.
+설계일·공식 사양 확인일: 2026-09-26. 설계 당시 실행기는 R2 full dump였다. 2026-09-27에는 `deploy/backup`의 선택 dump/Drive/R2·복원·만료/알림 코드와 실행 도구를 구현해 로컬 검증했다. [항목별 근거](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)를 따르며 실제 계정·설치·전환은 미실행이다. 주기는 03:30·15:30 KST, DB backup의 기한은 snapshot 생성 시각+7×24시간, 순서는 logical dump→age 암호화→SHA-256 manifest를 유지한다. 이미지/첨부 binary는 R2에만 둔다.
 
 ### 계정·인증의 적용 조건
 
@@ -740,7 +740,7 @@ Discord는 기존 사용자 전용 채널로 장애 종류, backupId, stage, 마
 
 실연동 입력: 계정 종류/용량·폴더/drive ID·OAuth 프로젝트와 secret 보관 경로·age recipient/사용자 복구키 보관 확인·Discord secret 위치와 채널 수신 확인. 사용자 담당, 단계1~2 직전에 필요하며 실값은 문서에 쓰지 않는다.
 
-수용 시험: D03-T1 계정별 최소 권한/바깥 파일 거부, D03-T2 중단/응답 유실/동일ID 재시도, D03-T3 401·권한 회수·429·용량 부족, D03-T4 일곱 날 경계·새 backup 실패 중 만료/타 파일 보호, D03-T5 독립 다운로드·hash 오염·격리 복원과 D01-T7, D03-T6 R2 유지→Drive 전환→R2 복귀 및 Discord 실수신. 모두 후속 OPS-03/04 시험이며 이번에 실행하지 않았다.
+수용 시험: D03-T1 계정별 최소 권한/바깥 파일 거부, D03-T2 중단/응답 유실/동일ID 재시도, D03-T3 401·권한 회수·429·용량 부족, D03-T4 일곱 날 경계·새 backup 실패 중 만료/타 파일 보호, D03-T5 독립 다운로드·hash 오염·격리 복원과 D01-T7, D03-T6 R2 유지→Drive 전환→R2 복귀 및 Discord 실수신. 로컬 분기는9/27 합성adapter·실제 PG/age로 검증했다. 실제 계정·독립 다운로드·Discord 실수신은 후속 OPS-03/04 인수다.
 
 <a id="m0-d04-roles"></a>
 ## M0-D04 — 최소 운영 권한 매핑
@@ -759,7 +759,7 @@ Discord는 기존 사용자 전용 채널로 장애 종류, backupId, stage, 마
 | batch machine | batch 결과/queue·runtime 쓰기, mailbox 제한 함수 | 사람 계정 대체 불가 | content/검수 일반 DML·공개 R2·Drive 없음 |
 | retention / backup machine | 각각 D01 회수 / D03 읽기·암호화 전송만 | 사람 계정 대체 불가 | 서로의 secret·OS 로그인·schema 변경 권한 없음 |
 
-현재 `identity.ts`는 active operatorId→HMAC actor, `auth.guard.ts`는 service token·actor 형식만 검사한다. OWNER/EDITOR 구분은 **미구현**이다. 최소 변경은 기존 operator 파일에 role을 추가하고 BFF가 외부 role header를 제거한 뒤 `X-Blariyo-Admin-Role`을 내부에서만 생성하는 것이다. Core는 service token 검증 뒤 해당 role과 operation allowlist를 모두 검사한다. role 누락·알 수 없는 값은 거부하고 기존 항목을 OWNER로 암묵 승격하지 않는다. Core port를 공개하지 않으며 BFF header만으로 SSH/DB/Drive 권한을 얻지 못한다.
+2026-09-27 로컬 구현: `identity.ts`는 요청마다 active operator registry와 OWNER/EDITOR를 읽고 HMAC actor를 만든다. BFF는 외부 role/service header를 전달하지 않고 `X-Blariyo-Admin-Role`을 내부에서만 생성한다. Core는 service token·actor·role과 operation allowlist를 검사한다. role 누락·알 수 없는 값은 거부하고 기존 항목을 OWNER로 암묵 승격하지 않는다. 합성 RS256/JWKS를 거친 실제 BFF의 active 회수·위조 거부는 [브라우저 시험](../../tests/browser/admin-roles.test.ts)으로 검증했다. Core port를 공개하지 않으며 BFF header만으로 SSH/DB/Drive 권한을 얻지 못한다. 실제 두 계정 Access/MFA·외부 ACL은 [운영 인계](../operations/m0-operation-handoff.md)의 별도 인수다.
 
 사용자가 설정한 두 operator의 identity/ID는 `(미정)` 실연동 입력이다. 기존 operatorId 재사용·공용 로그인·서버 token 공유 금지. 회수 시 Access 허용 목록과 active=false를 함께 반영하며 BFF는 요청마다 활성 상태를 확인한다. 이미 열린 화면·오래된 cookie로 mutation을 시도해도 다음 요청이 403이어야 한다. 서비스 자격증명은 사람 계정과 별도 rotation한다.
 

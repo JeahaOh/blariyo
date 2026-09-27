@@ -48,6 +48,11 @@ export class TypeOrmMigrationsRepository extends MigrationsRepository {
      EXECUTE format('GRANT USAGE,SELECT ON SEQUENCE collect.%I TO ${role}',t);
    END IF;
  END LOOP;
+ FOREACH t IN ARRAY ARRAY['collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()'] LOOP
+   IF to_regprocedure(t) IS NOT NULL THEN
+     EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO ${role}',t);
+   END IF;
+ END LOOP;
  END $grant$;
  REVOKE ALL ON ops.schema_migration FROM ${role};
  GRANT EXECUTE ON FUNCTION ops.is_schema_ready(TEXT) TO ${role}`);

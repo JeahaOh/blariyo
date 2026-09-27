@@ -17,6 +17,9 @@ import org.springframework.stereotype.Repository;
 public final class BatchStore {
   private final DataSource dataSource;
   public BatchStore(DataSource dataSource) { this.dataSource = dataSource; }
+  public void reserveRequest(String source,int limit,long interval,java.util.function.LongConsumer sleeper,Runnable beforeSend) {
+    new DirectRequestBudget(this,source,limit,sleeper).reserve(interval,beforeSend);
+  }
   private final ThreadLocal<SourceLock> activeLock = new ThreadLocal<>();
   public Connection connection() throws SQLException {
     var lock = activeLock.get();
@@ -45,8 +48,13 @@ public final class BatchStore {
   public SourceLock lockSource(String source) {
     if (activeLock.get() != null) throw new CollectorFailure(409,"BATCH_SOURCE_BUSY");
     Connection connection=null;
+    boolean sharedFence=false;
     try {
       connection=dataSource.getConnection();
+      try(var statement=connection.createStatement();var result=statement.executeQuery("SELECT collect.lock_collection_writer()")) {
+        result.next();if(!result.getBoolean(1))throw new CollectorFailure(503,"RETENTION_RESTORE_BUSY");
+        sharedFence=true;
+      }
       try(var statement=connection.prepareStatement("SELECT pg_try_advisory_lock(hashtextextended(?,0))")) {
         statement.setString(1,"collector-source:"+source);
         try(var result=statement.executeQuery()) {
@@ -57,6 +65,8 @@ public final class BatchStore {
       activeLock.set(lock);
       return lock;
     }catch(SQLException|RuntimeException e) {
+      if(connection!=null && sharedFence)try(var unlock=connection.createStatement()) { unlock.execute("SELECT collect.unlock_collection_writer()"); }
+        catch(SQLException ignored){try{connection.abort(Runnable::run);}catch(SQLException ignoredAbort){}}
       if(connection!=null)try{connection.close();}catch(SQLException ignored){}
       if(e instanceof CollectorFailure failure)throw failure;
       throw new CollectorFailure(503,"BATCH_DB_UNAVAILABLE");
@@ -75,17 +85,29 @@ public final class BatchStore {
       try(var statement=connection.prepareStatement("SELECT pg_advisory_unlock(hashtextextended(?,0))")) {
         statement.setString(1,"collector-source:"+source);statement.execute();
       }catch(SQLException e){try{connection.abort(Runnable::run);}catch(SQLException ignored){} }
-      finally{try{connection.close();}catch(SQLException ignored){}}
+      finally{
+        try(var unlock=connection.createStatement()){unlock.execute("SELECT collect.unlock_collection_writer()");}
+        catch(SQLException ignored){try{connection.abort(Runnable::run);}catch(SQLException ignoredAbort){}}
+        try{connection.close();}catch(SQLException ignored){}
+      }
     }
   }
   public UUID queueManual(String source,String postKey,String url) {
     return new BatchQueueStore(this).enqueue(source,postKey,url);
+  }
+  public boolean retentionBacklog() {
+    try(var c=connection();var query=c.createStatement();var result=query.executeQuery("SELECT collect.retention_backlog()")) {
+      result.next();return result.getBoolean(1);
+    } catch(SQLException e) { throw new CollectorFailure(503,"BATCH_DB_UNAVAILABLE"); }
   }
   public void media(UUID item,int position,String kind,String remote,String objectKey,byte[] sha256,String mime,long byteSize){try(var c=connection();var s=c.prepareStatement("INSERT INTO collect.batch_media(id,item_id,position,kind,remote_url,object_key,sha256,mime_type,byte_size) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(item_id,position) DO NOTHING")){s.setObject(1,UUID.randomUUID());s.setObject(2,item);s.setInt(3,position);s.setString(4,kind);s.setString(5,remote);s.setString(6,objectKey);s.setBytes(7,sha256);s.setString(8,mime);s.setLong(9,byteSize);s.executeUpdate();}catch(SQLException e){throw new CollectorFailure(503,"BATCH_DB_WRITE_FAILED");}}
   public UUID begin(String source, String chart, String mode, int pages, int items, long interval, Instant since) {
     UUID id=UUID.randomUUID();
     try (var c=connection(); var s=c.prepareStatement("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,since_at,interval_ms) VALUES(?,?,?,?,?,?,?,?,?)")) {
       c.setAutoCommit(false);
+      try(var check=c.createStatement();var result=check.executeQuery("SELECT collect.retention_backlog()")) {
+        result.next();if(result.getBoolean(1))throw new CollectorFailure(503,"BATCH_RETENTION_BACKLOG");
+      }
       ensureSource(c, source, "config");
       // The caller holds the source session lock, so remaining RUNNING runs lost their owner.
       try(var abandoned=c.prepareStatement("UPDATE collect.batch_run SET state='FAILED',finished_at=now(),checkpoint=checkpoint || '{\"reason\":\"BATCH_OWNER_LOST\"}'::jsonb,version=version+1 WHERE source_key=? AND state='RUNNING'")) {
@@ -111,7 +133,29 @@ public final class BatchStore {
     } catch(SQLException e) { if("23505".equals(e.getSQLState())) return null; throw new CollectorFailure(503,"BATCH_DB_WRITE_FAILED"); }
   }
   public UUID claim(UUID run,String source,String postKey,String url) {
+    try(var c=connection();var s=c.prepareStatement("SELECT collect.lookup_dedup(?,?,?)")) {
+      s.setString(1,source);s.setString(2,postKey);s.setString(3,url);
+      try(var result=s.executeQuery()){result.next();if(result.getObject(1)!=null)return null;}
+    }catch(SQLException error){
+      if("23505".equals(error.getSQLState()))throw new CollectorFailure(409,"DEDUP_IDENTITY_CONFLICT");
+      throw new CollectorFailure(503,"BATCH_DB_UNAVAILABLE");
+    }
     return item(run,source,postKey,url,"FETCHING",null,"[]","[]","[]",null);
+  }
+  /** Every object PUT is fenced before and after I/O; final row commits are fenced by PostgreSQL. */
+  public void assertLive(UUID item) {
+    try(var c=connection();var s=c.prepareStatement("SELECT collect.assert_item_live(?)")) {
+      s.setObject(1,item);s.execute();
+    }catch(SQLException error){
+      if("P0001".equals(error.getSQLState()))throw new CollectorFailure(410,"BATCH_ITEM_EXPIRED");
+      if("P0002".equals(error.getSQLState()))throw new CollectorFailure(404,"BATCH_ITEM_NOT_FOUND");
+      throw new CollectorFailure(503,"BATCH_DB_UNAVAILABLE");
+    }
+  }
+  public void assertRunLive(UUID run) {
+    try(var c=connection();var query=c.prepareStatement("SELECT collect.assert_run_payload_live(?)")) {
+      query.setObject(1,run);query.execute();
+    } catch(SQLException error) { throw new CollectorFailure(410,"BATCH_ITEM_EXPIRED"); }
   }
   public void parsed(UUID item,String canonical,String title,String blocks,String attachments,String sns) {
     try(var c=connection();var s=c.prepareStatement("""

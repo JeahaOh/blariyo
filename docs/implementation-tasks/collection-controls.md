@@ -44,3 +44,10 @@
 COL-04는 D01-T1~T7을 전부 수행한다. 검수 중 만료도 접근을 차단하며 진행 중이라는 이유로 기간을 연장하지 않는다. 참조 보호는 API의 독립 content 사본을 지킨다는 뜻이며 batch 원본을 무기한 남기지 않는다. 부수 report·correction snapshot·receipt·로컬 파일·복원 경로까지 canary와 DB/object readback을 남긴다. 삭제 전에 OPS-03의 선택 백업 검증·기존 full snapshot 대체를 선행한다.
 
 COL-03은 [S1~S5](../planning/content-collection/source-collection-policy.md#m0-admission)·[현재 증거표](../planning/content-collection/reference-site-validation.md#m0-evidence-20260926)를 사용한다. 17개 로컬 저장과4개 실패 상태 증거는 현재 운영 통과가 아니다. 운영 가동 목록의 읽기 전용 관측과 편입 후보 판정을 나누고, 통과한 source/방식/config/SHA만 활성화 인수 대상으로 전달한다. 세 출처 재분석은 대기, PGR21 추가 금지다.
+
+## 2026-09-27 로컬 검증과 실제 인수 경계
+
+- COL-01/02: 공통 robots/Crawl-delay·PG 일일 quota·redirect 통제 코드와 전체 Collector289 tests(실DB readback18), 실패/skip0. 실제 HTTP loopback의12초 Crawl-delay·금지 경로 요청0·재시작 quota와0/3/4 redirect 경계를 포함한다.
+- COL-04: 제한 회수 worker·만료 API/preview·사본 보호·선택 backup/복원은 단계별 로컬 PASS. [D01-T1~T7 항목별 감사](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)에 경계/경합·timeout/crash·모든 부수 사본·복원 후 실제 DUPLICATE까지 연결했다. 실제 제한 자원의 삭제 인수는 별도다.
+- COL-03: 21 parser fixture 회귀와 과거 실제 증거를 구분한다. [S1~S5 인계 양식](../operations/m0-operation-handoff.md#col-03--출처별-s1s5-영수증)을 준비했으며 이번 goal의 실제 source 요청은0이다. 현재 운영 적용 목록을 fixture 결과로 늘리지 않는다.
+- 상세 명령/환경/기준 source는 [실행 기록](../../worklog/2026-09-27/m0-implementation/README.md)을 따른다.

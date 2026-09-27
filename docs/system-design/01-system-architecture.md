@@ -85,7 +85,7 @@ batch 결과 조회, 검수와 초안 승격·공개를 담당하며 외부 사�
 `GENERAL_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로 구분한다.
 
 direct는 글마다 Core API에 결과를 제출하지 않는다. CLI·Discord는 batch queue/저장 경로를 사용하고,
-Web URL 입력은 [M0-D02](#m0-d02-delivery)의 API 소유 mailbox pull로 설계 확정했으며 구현은 잔여다. source 설정은 runtime 읽기 전용 조회로 제한한다. 기존 `/admin/collect`와 collector 중계는
+Web URL 입력은 [M0-D02](#m0-d02-delivery)의 API 소유 mailbox pull로 구현·로컬 검증했다(9/27). 실제 장비·운영 인수는 남아 있다. source 설정은 runtime 읽기 전용 조회로 제한한다. 기존 `/admin/collect`와 collector 중계는
 legacy 호환 경로로 남아 있으며 현행 [제품 경계](../planning/content-collection/README.md#12-현행-direct와-legacy의-적용-경계)를 따른다.
 로컬·운영 데이터 이전과 다른 PC에서 실행한 신규 수집의 증거를 구분한다.
 
@@ -454,7 +454,7 @@ Spring Batch·Quartz -> 운영자 PC의 전용 PostgreSQL 18 (`batch`·`quartz`�
 <a id="m0-d02-delivery"></a>
 ## M0-D02 — Web URL 입력 전달 선택
 
-2026-09-26 목표 설계이며 source·실연동 완료가 아니다. API/Web 외부 원문 fetch 금지와 batch queue/item 소유권을 유지한다.
+2026-09-26 확정 설계를 9/27 API V010·Collector V008~V010, BFF/입력 UI로 구현하고 D02-T1~T6을 로컬 검증했다. [완료 감사](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)와 [실제 인수](../operations/m0-operation-handoff.md)를 구분한다. API/Web 외부 원문 fetch 금지와 batch queue/item 소유권을 유지한다.
 
 | 대안 | 장점 | 운영 비용·제약 | 선택 |
 | --- | --- | --- | --- |

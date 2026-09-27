@@ -45,7 +45,7 @@
 
 ## 실행·기간·완료 정책
 
-- 구현 한계: direct는 robots/Crawl-delay·영속 일일 요청 상한을 아직 연결하지 않았다. legacy 기능이나 개발 승인 플래그로 이를 충족했다고 보지 않는다. [필수 보완](../../system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)은 운영 활성화 전 gate다.
+- 요청 통제: 9/27 direct의 공통 robots/Crawl-delay·영속 일일 한도·redirect gate를 구현하고 로컬 검증 중이다. [구현 계약](../../system-design/07-spring-collector-design.md#col-0102-direct-요청-통제-보완--2026-09-27)을 따르며, 합성 시험은 실제 source의 S1 허용 판정을 대신하지 않는다. 명시적 일일 한도가 없는 예제 설정은 실행하지 않는다.
 - chart를 생략하면 `defaultChart`를 사용한다. 일반 목록에 `--chart hot`을 강제로 적용하지 않는다.
 - `maxPages`, `maxItems`, `requestIntervalMs`는 source별 상한·최소 간격이다. 이번 표본 검증은 최대5개 고유 상세 URL이며 한도 초과·접근 차단을 성공으로 바꾸지 않는다.
 - `--since`는 확인된 게시 시각을 대상으로 검사한다. `datePolicy=INCLUDE_UNKNOWN`은 시각 미확인 글도 수량 제한 내에서 처리하고 `unknownDates`를 기록하므로 엄격한 24시간 보장은 아니다. `REQUIRE_KNOWN`은 시각 미확인 글을 수집 완료 결과로 채택하지 않고 `SKIPPED_POLICY`와 제외 사유를 남긴다. parse 전에 확보한 원문 HTML은 진단용으로 보존하며 미디어는 다운로드하지 않는다. 기간 제외 수는 `skippedByDate`다.

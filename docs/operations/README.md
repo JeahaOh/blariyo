@@ -3,6 +3,8 @@
 현재 운영 상태와 환경·배포·백업·복구 절차를 찾는 진입점이다. 실행 도구는 [deploy](../../deploy/)에 둔다.
 
 - [현재 운영 상태](current-status.md): 실제 서버에서 확인한 결과와 미검증 사항.
+
+- [M0 운영 인계](m0-operation-handoff.md): 로컬 구현 이후 실제 계정·장비·백업/회수·출처·7일 관찰. 결정과 잔여 순서는 [로드맵](../roadmap.md)을 따른다.
 - [배포 정책](deployment-policy.md), [배포 실행서](deployment-runbook.md): 최종 SHA CI·백업·호환성·승인 배포.
 - [환경 설정](environment-configuration.md), [운영자 준비](owner-setup-checklist.md), [인프라 검토](infrastructure-review-brief.md).
 - [Docker 실행](docker.md), [운영 명령](../../deploy/operations/README.md), [백업·복원](../../deploy/backup/README.md).

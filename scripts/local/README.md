@@ -1,5 +1,10 @@
 # 지속적인 로컬 개발 서버
 
+2026-09-27 문서 점검: 아래 `prepare-batch-review.mjs --apply`의 batch 권한 목록과 migration 출력은
+V006/V008 시점으로 남아 있다. 최신 migration 실행 후 신규 함수 권한을 제거하므로 mailbox·quota 등
+새 direct 실행 준비에는 [권한 정렬 후속](../../docs/implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)이 먼저 필요하다.
+이 문서의 예전 준비 성공 기록을 API010/Collector010의 준비 완료로 사용하지 않는다. 기존 개발 DB에서 확인을 위해 재실행하지 않았다.
+
 프로젝트 루트에서 Node 24.18.0을 사용한다. 운영 설정·운영 DB를 사용하지 않는다.
 
 ```sh
@@ -218,7 +223,7 @@ collect 수집/검수/queue/confirmation/정정 이력 12테이블의 전체 행
 
 ### Collector V003/V004 적용과 실행 소유권
 
-`prepare-batch-review --apply`는 백업 후 Collector V006까지와 API V008 migration을 명시적으로 적용한다.
+`prepare-batch-review --apply`는 백업 후 빌드된 Collector/API migration을 실행한다. 고정된 V006/V008 출력과 구 batch 권한 목록은 위 후속 작업 대상이며 실제 적용 버전은 ledger로 확인해야 한다.
 Collector JAR를 먼저 빌드하고 실행 중인 batch가 없는 상태에서 적용한다. 자동 서버 시작은 migration을 실행하지 않는다.
 PostgreSQL은 직접 연결하거나 session pooling을 사용한다. transaction pooling은 source session 잠금을 보장하지 못하므로 지원하지 않는다.
 잠금을 얻은 연결이 끊기면 해당 실행은 새 연결로 쓰기를 이어가지 않는다. 다음 실행이 이전 RUNNING을

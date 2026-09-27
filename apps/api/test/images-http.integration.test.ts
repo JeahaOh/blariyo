@@ -38,7 +38,7 @@ await test('Nest image authentication, multipart validation, storage and discard
     await app.close();
     await rm(directory, { recursive: true, force: true });
   });
-  const headers = { 'X-Blariyo-Service-Token': token, 'X-Blariyo-Admin-Actor': actor };
+  const headers = { 'X-Blariyo-Service-Token': token, 'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor': actor };
   const png = await sharp({ create: { width: 10, height: 10, channels: 3, background: 'red' } })
     .png()
     .toBuffer();

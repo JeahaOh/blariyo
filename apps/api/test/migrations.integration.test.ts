@@ -2,21 +2,23 @@ import 'reflect-metadata';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { requiredRow } from '../dist/persistence/rows.js';
 import { migrationContext } from '../dist/commands/migrate.js';
 import { MigrationsService } from '../dist/commands/migrations.service.js';
 import { createDataSource, DatabaseContext } from '../dist/persistence/database.js';
 import { TypeOrmMigrationsRepository } from '../dist/persistence/migrations.repository.js';
 import { TypeOrmHealthRepository } from '../dist/persistence/health.repository.js';
+import { legacyMigrations } from './legacy-migration-fixture.js';
 const url = process.env.TEST_NEST_DATABASE_URL;
 if (!url) throw new Error('TEST_NEST_DATABASE_URL required');
 await test('TypeORM migration preserves SQL ledger, all down/up scripts and restricted application readiness', async (t) => {
-  const app = await migrationContext(url),
-    service = app.get(MigrationsService);
+  const app = await migrationContext(url);
   const source = await createDataSource(url).initialize(),
     db = new DatabaseContext(source),
     health = new TypeOrmHealthRepository(db),
-    repo = new TypeOrmMigrationsRepository(db);
+    repo = new TypeOrmMigrationsRepository(db),
+    service = legacyMigrations(db);
   t.after(async () => {
     await app.close();
     await source.destroy();
@@ -172,4 +174,29 @@ await test('TypeORM migration preserves SQL ledger, all down/up scripts and rest
     "UPDATE ops.schema_migration SET checksum_sha256=decode(repeat('00',32),'hex') WHERE version='V002'"
   );
   await assert.rejects(service.migrate(), /checksum/);
+});
+
+await test('additive V009/V010 refuse destructive rollback and preserve exact ledgers', async () => {
+  const source = await createDataSource(url).initialize();
+  const db = new DatabaseContext(source), repo = new TypeOrmMigrationsRepository(db);
+  const app = await migrationContext(url), service = app.get(MigrationsService);
+  try {
+    // Restore only the intentionally corrupted fixture checksum from the preceding assertion.
+    await source.query("UPDATE ops.schema_migration SET checksum_sha256=$1 WHERE version='V002'",
+      [await repo.checksum('V002__meme.sql')]);
+    for (const version of ['V009', 'V010']) {
+      const script = (await repo.scripts()).find(entry => entry.version === version);
+      assert.ok(script);
+      await source.transaction(async manager => {
+        await manager.query(await readFile(new URL(`../migrations/${script.filename}`, import.meta.url), 'utf8'));
+        await manager.query('INSERT INTO ops.schema_migration VALUES($1,$2,$3,now(),0)', [script.version,script.filename,script.checksum]);
+      });
+      const before: unknown = await source.query('SELECT * FROM ops.schema_migration ORDER BY version');
+      await assert.rejects(service.migrate('down'), version === 'V009'
+        ? /RETENTION_ROLLBACK_REQUIRES_READ_ONLY_HANDOFF/ : /DIRECT_MAILBOX_ROLLBACK_REQUIRES_READ_ONLY_HANDOFF/);
+      assert.deepEqual(await source.query('SELECT * FROM ops.schema_migration ORDER BY version'), before);
+    }
+    await service.migrate();
+    assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V010') ready")).ready, true);
+  } finally { await app.close(); await source.destroy(); }
 });

@@ -11,14 +11,21 @@ public final class BatchQueueStore {
   private final BatchStore store;
   public BatchQueueStore(BatchStore store){this.store=store;}
   private static CollectorFailure database(){return new CollectorFailure(503,"BATCH_QUEUE_DB_FAILED");}
+  private static void pending(ResultSet row)throws SQLException {
+    if(row.getBoolean("expired"))throw new CollectorFailure(409,"CONFIRMATION_EXPIRED");
+    if(row.getTimestamp("cancelled_at")!=null)throw new CollectorFailure(409,"CONFIRMATION_CANCELLED");
+  }
   public Confirmation prepare(String trigger,String actor,String channel,String source,String postKey,String url) {
     try(var c=store.connection()) {
+      UUID replay=receipt(c,trigger);
+      if(replay!=null)return new Confirmation(null,null,null,null,replay);
       try(var q=c.prepareStatement("INSERT INTO collect.batch_confirmation(id,trigger_hmac,actor_hmac,channel_hmac,source_key,source_post_key,canonical_url) VALUES(?,?,?,?,?,?,?) ON CONFLICT(trigger_hmac) DO NOTHING")) {
         q.setObject(1,UUID.randomUUID());q.setString(2,trigger);q.setString(3,actor);q.setString(4,channel);q.setString(5,source);q.setString(6,postKey);q.setString(7,url);q.executeUpdate();
       }
-      try(var q=c.prepareStatement("SELECT * FROM collect.batch_confirmation WHERE trigger_hmac=?")) {
+      try(var q=c.prepareStatement("SELECT *,expires_at<=clock_timestamp() AS expired FROM collect.batch_confirmation WHERE trigger_hmac=?")) {
         q.setString(1,trigger);try(var r=q.executeQuery()){if(!r.next())throw database();
           authorize(r,actor,channel);
+          pending(r);
           if(!source.equals(r.getString("source_key"))||!postKey.equals(r.getString("source_post_key"))||!url.equals(r.getString("canonical_url")))
             throw new CollectorFailure(409,"IDEMPOTENCY_CONFLICT");
           return confirmation(r);
@@ -26,27 +33,43 @@ public final class BatchQueueStore {
       }
     }catch(SQLException e){throw database();}
   }
-  public Confirmation confirmation(UUID id,String actor,String channel) {
-    try(var c=store.connection();var q=c.prepareStatement("SELECT * FROM collect.batch_confirmation WHERE id=?")) {
-      q.setObject(1,id);try(var r=q.executeQuery()){if(!r.next())throw new CollectorFailure(409,"CONFIRMATION_EXPIRED");authorize(r,actor,channel);return confirmation(r);}
+  public Confirmation confirmation(UUID id,String actor,String channel,String replayHmac) {
+    try(var c=store.connection();var q=c.prepareStatement("SELECT *,expires_at<=clock_timestamp() AS expired FROM collect.batch_confirmation WHERE id=?")) {
+      UUID replay=receipt(c,replayHmac);if(replay!=null)return new Confirmation(id,null,null,null,replay);
+      q.setObject(1,id);try(var r=q.executeQuery()){
+        if(!r.next()) {
+          replay=receipt(c,replayHmac);if(replay!=null)return new Confirmation(id,null,null,null,replay);
+          throw new CollectorFailure(409,"CONFIRMATION_EXPIRED");
+        }
+        authorize(r,actor,channel);pending(r);return confirmation(r);
+      }
     }catch(SQLException e){throw database();}
   }
-  public UUID confirm(UUID id,String actor,String channel) {
+  private static UUID receipt(Connection c,String hmac)throws SQLException {
+    try(var q=c.prepareStatement("SELECT request_id FROM collect.batch_confirmation_receipt WHERE trigger_hmac=? AND expires_at>clock_timestamp()")) {
+      q.setString(1,hmac);try(var r=q.executeQuery()){return r.next()?(UUID)r.getObject(1):null;}
+    }
+  }
+  public UUID confirm(UUID id,String actor,String channel,String replayHmac) {
     try(var c=store.connection()) {
       c.setAutoCommit(false);
       try {
+        try(var lock=c.prepareStatement("SELECT pg_advisory_xact_lock(hashtextextended(?,0))")) {
+          lock.setString(1,"batch-confirmation:"+id);lock.execute();
+        }
+        UUID replay=receipt(c,replayHmac);if(replay!=null){c.commit();return replay;}
         UUID request;
         try(var q=c.prepareStatement("SELECT *,expires_at<=now() AS expired FROM collect.batch_confirmation WHERE id=? FOR UPDATE")) {
           q.setObject(1,id);try(var r=q.executeQuery()) {
             if(!r.next())throw new CollectorFailure(409,"CONFIRMATION_EXPIRED");authorize(r,actor,channel);
             request=(UUID)r.getObject("request_id");
             if(request!=null){c.commit();return request;}
-            if(r.getBoolean("expired"))throw new CollectorFailure(409,"CONFIRMATION_EXPIRED");
+            pending(r);
             request=enqueue(c,r.getString("source_key"),r.getString("source_post_key"),r.getString("canonical_url"));
           }
         }
-        try(var q=c.prepareStatement("UPDATE collect.batch_confirmation SET request_id=?,version=version+1 WHERE id=? AND request_id IS NULL")) {
-          q.setObject(1,request);q.setObject(2,id);if(q.executeUpdate()!=1)throw new CollectorFailure(409,"CONFIRMATION_CONFLICT");
+        try(var q=c.prepareStatement("SELECT collect.complete_confirmation(?,?,?,?,?)")) {
+          q.setObject(1,id);q.setString(2,actor);q.setString(3,channel);q.setString(4,replayHmac);q.setObject(5,request);q.execute();
         }
         c.commit();return request;
       }catch(SQLException|RuntimeException e){c.rollback();throw e;}
@@ -56,15 +79,28 @@ public final class BatchQueueStore {
     try(var c=store.connection()){c.setAutoCommit(false);try{UUID id=enqueue(c,source,postKey,url);c.commit();return id;}catch(SQLException|RuntimeException e){c.rollback();throw e;}}
     catch(SQLException e){throw database();}
   }
+  public void cancel(UUID id,String actor,String channel,String replayHmac) {
+    try(var c=store.connection();var q=c.prepareStatement("SELECT collect.cancel_confirmation(?,?,?,?)")) {
+      q.setObject(1,id);q.setString(2,actor);q.setString(3,channel);q.setString(4,replayHmac);q.execute();
+    }catch(SQLException e){
+      String detail=e.getMessage();
+      for(String code:List.of("CONFIRMATION_FORBIDDEN","CONFIRMATION_EXPIRED","CONFIRMATION_ALREADY_CONFIRMED"))
+        if(detail!=null&&detail.contains(code))throw new CollectorFailure(code.equals("CONFIRMATION_FORBIDDEN")?403:409,code);
+      throw database();
+    }
+  }
   private UUID enqueue(Connection c,String source,String postKey,String url) throws SQLException {
+    return enqueue(c,source,postKey,url,null);
+  }
+  UUID enqueue(Connection c,String source,String postKey,String url,Timestamp requestedAt) throws SQLException {
     try(var q=c.prepareStatement("INSERT INTO collect.batch_source(source_key,host,policy_version,enabled) VALUES(?,?,'discord',true) ON CONFLICT(source_key) DO NOTHING")) {
       q.setString(1,source);q.setString(2,java.net.URI.create(url).getHost());q.executeUpdate();
     }
     UUID id=UUID.randomUUID();
-    try(var q=c.prepareStatement("INSERT INTO collect.batch_queue(id,source_key,source_post_key,canonical_url,canonical_url_hash) VALUES(?,?,?,?,?) ON CONFLICT DO NOTHING RETURNING id")) {
-      q.setObject(1,id);q.setString(2,source);q.setString(3,postKey);q.setString(4,url);q.setBytes(5,BatchStore.sha(url));try(var r=q.executeQuery()){if(r.next())return (UUID)r.getObject(1);}
+    try(var q=c.prepareStatement("INSERT INTO collect.batch_queue(id,source_key,source_post_key,canonical_url,canonical_url_hash,created_at) VALUES(?,?,?,?,?,COALESCE(?::timestamptz,clock_timestamp())) ON CONFLICT DO NOTHING RETURNING id")) {
+      q.setObject(1,id);q.setString(2,source);q.setString(3,postKey);q.setString(4,url);q.setBytes(5,BatchStore.sha(url));q.setTimestamp(6,requestedAt);try(var r=q.executeQuery()){if(r.next())return (UUID)r.getObject(1);}
     }
-    try(var q=c.prepareStatement("SELECT * FROM collect.batch_queue WHERE source_key=? AND (source_post_key=? OR canonical_url_hash=?) ORDER BY created_at DESC,id DESC LIMIT 1 FOR SHARE")) {
+    try(var q=c.prepareStatement("SELECT * FROM collect.batch_queue WHERE source_key=? AND state IN ('QUEUED','RUNNING') AND (source_post_key=? OR canonical_url_hash=?) ORDER BY created_at DESC,id DESC LIMIT 1 FOR SHARE")) {
       q.setString(1,source);q.setString(2,postKey);q.setBytes(3,BatchStore.sha(url));try(var r=q.executeQuery()) {
         if(!r.next()||!postKey.equals(r.getString("source_post_key"))||!url.equals(r.getString("canonical_url")))throw new CollectorFailure(409,"BATCH_QUEUE_IDENTITY_CONFLICT");
         return (UUID)r.getObject("id");
@@ -72,6 +108,8 @@ public final class BatchQueueStore {
     }
   }
   public List<String> readySources() {
+    try(var c=store.connection();var q=c.createStatement()){q.execute("SELECT collect.cleanup_input_receipts()");}
+    catch(SQLException e){throw database();}
     try(var c=store.connection();var q=c.createStatement();var r=q.executeQuery("SELECT q.source_key FROM collect.batch_queue q WHERE q.state='RUNNING' OR (q.state='QUEUED' AND q.next_attempt_at<=now() AND NOT EXISTS (SELECT 1 FROM collect.batch_queue stopped WHERE stopped.source_key=q.source_key AND stopped.error_code IN ('SOURCE_ACCESS_BLOCKED','SOURCE_NOT_ALLOWED','SOURCE_RATE_LIMITED') AND stopped.updated_at>now()-interval '15 minutes')) GROUP BY q.source_key ORDER BY min(q.created_at) LIMIT 100")) {
       var result=new ArrayList<String>();while(r.next())result.add(r.getString(1));return result;
     }catch(SQLException e){throw database();}

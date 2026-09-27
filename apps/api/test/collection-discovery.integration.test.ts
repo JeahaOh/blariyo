@@ -5,21 +5,21 @@ import { readFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { resolve } from 'node:path';
-import { createDataSource } from '../dist/persistence/database.js';
+import { createDataSource, DatabaseContext } from '../dist/persistence/database.js';
 import { migrationContext } from '../dist/commands/migrate.js';
 import { MigrationsService } from '../dist/commands/migrations.service.js';
 import { createNestApplication } from '../dist/bootstrap/application.js';
 import { CollectionOperationsService } from '../dist/features/collection/collection-operations.service.js';
 import { requiredRow } from '../dist/persistence/rows.js';
+import { legacyMigrations } from './legacy-migration-fixture.js';
 
 const execute = promisify(execFile);
 await test('Discovery: migration, shared quota, post-key dedup and Java parser -> Core -> DB readback', async (t) => {
   const database = process.env.TEST_NEST_DATABASE_URL;
   assert.ok(database);
-  const migration = await migrationContext(database);
-  try { await migration.get(MigrationsService).migrate(); } finally { await migration.close(); }
   const db = await createDataSource(database).initialize();
   t.after(() => db.destroy());
+  await legacyMigrations(new DatabaseContext(db)).migrate();
   const bearer = randomBytes(32).toString('hex');
   const app = await createNestApplication({ databaseUrl: database, localMedia: true,
     serviceToken: randomBytes(32).toString('hex'), collectManualUrlEnabled: true, collectContractMode: 'SPRING_V2',

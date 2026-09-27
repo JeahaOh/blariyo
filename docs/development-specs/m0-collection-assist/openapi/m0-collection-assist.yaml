@@ -3,7 +3,7 @@ info:
   title: Blariyo M0 Collection Assist
   version: 0.2.0
   description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public
-    Core routes remain unchanged. New M0-D02 operations are planned and are not yet synchronized to runtime packages/contracts.
+    Core routes remain unchanged. New M0-D02 operations are implemented locally and synchronized with runtime packages/contracts. Production acceptance remains pending.
 paths:
   /api/v1/admin/collect/sources:
     get:
@@ -3193,11 +3193,7 @@ paths:
         "409":
           $ref: "#/components/responses/CollectionFailure"
         "410":
-          description: Planned M0-D01 expiry rejection BATCH_ITEM_EXPIRED; payload uses CollectionFailure.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/CollectionFailure/content/application~1json/schema"
+          $ref: "#/components/responses/CollectionFailure"
         "413":
           $ref: "#/components/responses/CollectionFailure"
         "415":
@@ -3271,11 +3267,7 @@ paths:
         "409":
           $ref: "#/components/responses/CollectionFailure"
         "410":
-          description: Planned M0-D01 expiry rejection BATCH_ITEM_EXPIRED; payload uses CollectionFailure.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/CollectionFailure/content/application~1json/schema"
+          $ref: "#/components/responses/CollectionFailure"
         "413":
           $ref: "#/components/responses/CollectionFailure"
         "415":
@@ -3349,11 +3341,7 @@ paths:
         "409":
           $ref: "#/components/responses/CollectionFailure"
         "410":
-          description: Planned M0-D01 expiry rejection BATCH_ITEM_EXPIRED; payload uses CollectionFailure.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/CollectionFailure/content/application~1json/schema"
+          $ref: "#/components/responses/CollectionFailure"
         "413":
           $ref: "#/components/responses/CollectionFailure"
         "415":
@@ -3420,11 +3408,7 @@ paths:
         "409":
           $ref: "#/components/responses/CollectionFailure"
         "410":
-          description: Planned M0-D01 expiry rejection BATCH_ITEM_EXPIRED; payload uses CollectionFailure.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/CollectionFailure/content/application~1json/schema"
+          $ref: "#/components/responses/CollectionFailure"
         "413":
           $ref: "#/components/responses/CollectionFailure"
         "415":
@@ -3439,8 +3423,8 @@ paths:
       operationId: createDirectCollectionRequest
       tags:
         - collection-assist
-      description: M0-D02 target design; application implementation and runtime contract sync pending.
-      x-implementation-status: planned
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      x-implementation-status: implemented-local
       x-admin-roles:
         - OWNER
         - EDITOR
@@ -3521,8 +3505,8 @@ paths:
       operationId: getDirectCollectionRequest
       tags:
         - collection-assist
-      description: M0-D02 target design; application implementation and runtime contract sync pending.
-      x-implementation-status: planned
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      x-implementation-status: implemented-local
       x-admin-roles:
         - OWNER
         - EDITOR
@@ -3586,8 +3570,8 @@ paths:
       operationId: retryDirectCollectionRequest
       tags:
         - collection-assist
-      description: M0-D02 target design; application implementation and runtime contract sync pending.
-      x-implementation-status: planned
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      x-implementation-status: implemented-local
       x-admin-roles:
         - OWNER
         - EDITOR
@@ -3660,8 +3644,8 @@ paths:
       operationId: listRuntimeCollectionSources
       tags:
         - collection-assist
-      description: M0-D02 target design; application implementation and runtime contract sync pending.
-      x-implementation-status: planned
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      x-implementation-status: implemented-local
       x-admin-roles:
         - OWNER
         - EDITOR
@@ -3735,7 +3719,7 @@ components:
     BatchRetention:
       type: object
       additionalProperties: false
-      x-implementation-status: planned
+      x-implementation-status: implemented-local
       properties:
         collectedAt:
           type: string

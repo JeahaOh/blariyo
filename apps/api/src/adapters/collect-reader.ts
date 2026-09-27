@@ -9,8 +9,9 @@ function validate(key:string,maxBytes:number) {
 }
 export class LocalCollectReader extends CollectReader {
   constructor(private readonly root:string){super();}
-  async read(key:string,maxBytes:number){
+  async read(key:string,maxBytes:number,signal?:AbortSignal){
     validate(key,maxBytes);
+    signal?.throwIfAborted();
     const base=await realpath(this.root),target=await realpath(resolve(base,key));
     if(!target.startsWith(base+sep))throw Error('COLLECT_OBJECT_INVALID');
     const file=await open(target,'r');
@@ -18,7 +19,8 @@ export class LocalCollectReader extends CollectReader {
       const stat=await file.stat();
       if(!stat.isFile()||stat.size>maxBytes)throw Error('COLLECT_OBJECT_TOO_LARGE');
       const bytes=Buffer.alloc(stat.size);let offset=0;
-      while(offset<bytes.length){const part=await file.read(bytes,offset,bytes.length-offset,offset);if(!part.bytesRead)throw Error('COLLECT_OBJECT_TRUNCATED');offset+=part.bytesRead;}
+      while(offset<bytes.length){signal?.throwIfAborted();const part=await file.read(bytes,offset,Math.min(65536,bytes.length-offset),offset);if(!part.bytesRead)throw Error('COLLECT_OBJECT_TRUNCATED');offset+=part.bytesRead;}
+      signal?.throwIfAborted();
       return bytes;
     }finally{await file.close();}
   }
@@ -34,15 +36,18 @@ export class S3CollectReader extends CollectReader {
     this.client=new S3Client({endpoint,region:'auto',forcePathStyle:true,credentials:{accessKeyId,secretAccessKey},maxAttempts:2});
   }
   onApplicationShutdown(){this.client.destroy();}
-  async read(key:string,maxBytes:number){
+  async read(key:string,maxBytes:number,signal?:AbortSignal){
     validate(key,maxBytes);
-    const object=await this.client.send(new GetObjectCommand({Bucket:this.bucket,Key:key}),{abortSignal:AbortSignal.timeout(30000)});
+    const abortSignal=signal?AbortSignal.any([signal,AbortSignal.timeout(30000)]):AbortSignal.timeout(30000);
+    const object=await this.client.send(new GetObjectCommand({Bucket:this.bucket,Key:key}),{abortSignal});
     if(!object.Body)throw Error('COLLECT_OBJECT_MISSING');
     // SDK body streaming with an enforced bound, independent of an untrusted Content-Length.
     const stream=object.Body.transformToWebStream(),reader=stream.getReader();
     const chunks:Uint8Array[]=[];let size=0;
-    try{for(;;){const part=await reader.read();if(part.done)break;const chunk:unknown=part.value;if(!(chunk instanceof Uint8Array))throw Error('COLLECT_OBJECT_INVALID');size+=chunk.byteLength;if(size>maxBytes)throw Error('COLLECT_OBJECT_TOO_LARGE');chunks.push(chunk);}}
-    finally{await reader.cancel();}
+    const cancel=()=>{void reader.cancel().catch(()=>{});};
+    abortSignal.addEventListener('abort',cancel,{once:true});
+    try{for(;;){abortSignal.throwIfAborted();const part=await reader.read();abortSignal.throwIfAborted();if(part.done)break;const chunk:unknown=part.value;if(!(chunk instanceof Uint8Array))throw Error('COLLECT_OBJECT_INVALID');size+=chunk.byteLength;if(size>maxBytes)throw Error('COLLECT_OBJECT_TOO_LARGE');chunks.push(chunk);}}
+    finally{abortSignal.removeEventListener('abort',cancel);await reader.cancel();}
     return Buffer.concat(chunks);
   }
 }

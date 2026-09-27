@@ -1,4 +1,5 @@
 import { randomUUID, createHash } from 'node:crypto';
+import type { H3Event } from 'h3';
 import {
   matchOperation,
   validateRequest,
@@ -7,7 +8,7 @@ import {
   projectResponse,
 } from '@blariyo/contracts';
 const viewLimits = new Map<string, { count: number; expires: number }>();
-export default defineEventHandler(async (event) => {
+export async function proxyCoreRequest(event: H3Event, directAlias = false) {
   const requestId = randomUUID(),
     config = useRuntimeConfig(event);
   setHeader(event, 'X-Request-Id', requestId);
@@ -21,13 +22,17 @@ export default defineEventHandler(async (event) => {
     };
   };
   try {
-    const url = getRequestURL(event),
-      operation = matchOperation(event.method, url.pathname);
+    const url = getRequestURL(event);
+    if (directAlias) url.pathname = url.pathname.replace(/^\/api\/admin\/collect\//, '/api/v1/admin/collect/');
+    const operation = matchOperation(event.method, url.pathname);
     if (!operation) return error(404, 'POST_NOT_FOUND');
     const batchReview = /^\/api\/v1\/admin\/collect\/batch-items(?:\/|$)/.test(url.pathname);
+    const directInput = /^\/api\/v1\/admin\/collect\/(requests|runtime-sources)(?:\/|$)/.test(url.pathname);
+    if (directInput && !config.collectDirectInputEnabled) return error(404, 'COLLECTION_REQUEST_NOT_FOUND');
+    if (directAlias && !directInput) return error(404, 'COLLECTION_REQUEST_NOT_FOUND');
     if (batchReview && !config.collectBatchReviewEnabled) return error(404, 'BATCH_ITEM_NOT_FOUND');
     if (
-      !batchReview && url.pathname.startsWith('/api/v1/admin/collect/') &&
+      !batchReview && !directInput && url.pathname.startsWith('/api/v1/admin/collect/') &&
       !config.collectManualUrlEnabled &&
       !config.collectDiscordCommandEnabled
     )
@@ -37,7 +42,10 @@ export default defineEventHandler(async (event) => {
     const headers: Record<string, string> = {};
     if (url.pathname.startsWith('/api/v1/admin/')) {
       try {
-        headers['X-Blariyo-Admin-Actor'] = await adminIdentity(event);
+        const identity = await adminIdentity(event);
+        headers['X-Blariyo-Admin-Actor'] = identity.actor;
+        // Forward only the verified registry role, never a client supplied role header.
+        headers['X-Blariyo-Admin-Role'] = identity.role;
       } catch (e: unknown) {
         return error(
           errorStatus(e) === 403 ? 403 : 401,
@@ -89,7 +97,8 @@ export default defineEventHandler(async (event) => {
     let body: unknown;
     if (!multipart) {
       try {
-        body = raw ? normalizeInput(JSON.parse(raw.toString())) : undefined;
+        const parsed: unknown = raw ? JSON.parse(raw.toString()) : undefined;
+        body = operation.operationId === 'createDirectCollectionRequest' ? parsed : normalizeInput(parsed);
       } catch {
         return error(400, 'VALIDATION_FAILED');
       }
@@ -133,7 +142,7 @@ export default defineEventHandler(async (event) => {
     setHeader(event, 'Cache-Control', response.headers.get('cache-control') || 'no-store');
     const retryAfter = response.headers.get('retry-after');
     if (retryAfter !== null) event.node.res.setHeader('Retry-After', retryAfter);
-    if (output && response.ok && event.method === 'GET') {
+    if (output && response.ok && event.method === 'GET' && !url.pathname.startsWith('/api/v1/admin/')) {
       const etag =
         '"' +
         createHash('sha256')
@@ -152,4 +161,5 @@ export default defineEventHandler(async (event) => {
   } catch {
     return error(503, 'DEPENDENCY_UNAVAILABLE');
   }
-});
+}
+export default defineEventHandler(event => proxyCoreRequest(event));

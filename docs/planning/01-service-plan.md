@@ -258,7 +258,7 @@ JavaScript key·CSP host는 배포 환경 properties/config로 관리한다.
 
 | 경로 | 시작과 저장 | 활성화 단계·기본값 |
 | --- | --- | --- |
-| Discord·운영자 URL 지정 | 상세 URL 한 건을 확인한 batch가 공통 상세 parser로 처리하고 수집 DB/object에 직접 저장한다. Web URL 입력은 [API mailbox pull 목표 계약](../system-design/01-system-architecture.md#m0-d02-delivery)으로 확정했으며 구현은 잔여다. 기존 URL 화면은 legacy 후보 방식이다 | `M0 수집 보조`, 단계 전 비활성 |
+| Discord·운영자 URL 지정 | 상세 URL 한 건을 확인한 batch가 공통 상세 parser로 처리하고 수집 DB/object에 직접 저장한다. Web URL 입력은 [API mailbox pull 계약](../system-design/01-system-architecture.md#m0-d02-delivery)으로 구현·로컬 검증했다(9/27). `/admin/batch`가 direct 입력을 제공하며 기존 `/admin/collect`는 legacy다. 실제 장비·출처·운영 인수는 남아 있다 | `M0 수집 보조`, 단계 전 비활성 |
 | 사용 결정 출처 목록 수집 | 허용된 HOT/GENERAL 목록에서 새 URL을 발견하고 같은 상세 처리·검수 경로로 연결한다. DETAIL_ONLY·차단 출처는 목록을 호출하지 않는다 | `M0 자동 수집`, 전역·출처별 기본 비활성 |
 
 API·Web은 외부 원문을 fetch하지 않는다. batch는 글마다 API에 결과를 제출하지 않으며 content 게시글을

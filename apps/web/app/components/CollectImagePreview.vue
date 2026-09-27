@@ -1,7 +1,18 @@
 <script setup lang="ts">
-const props = defineProps<{ src: string; alt: string; sourceUrl: string }>();
+import { apiError } from '~~/shared/api-types';
+const props = defineProps<{ src: string; alt: string; sourceUrl: string; statusPath?: string }>();
+const emit = defineEmits<{ expired: [] }>();
 const failed = ref(false);
-watch(() => props.src, () => { failed.value = false; });
+let check: AbortController | undefined;
+watch(() => props.src, () => { check?.abort(); failed.value = false; });
+onUnmounted(() => check?.abort());
+async function failure() {
+  failed.value = true;
+  if (!props.statusPath) return;
+  check?.abort(); const current = new AbortController(); check = current;
+  try { await $fetch(props.statusPath, { retry: 0, signal: current.signal }); }
+  catch (error) { if (!current.signal.aborted && apiError(error).code === 'BATCH_ITEM_EXPIRED') emit('expired'); }
+}
 </script>
 <template>
   <div v-if="failed" class="preview-failure" role="status">
@@ -9,7 +20,7 @@ watch(() => props.src, () => { failed.value = false; });
     <a :href="sourceUrl" target="_blank" rel="noopener noreferrer">원문에서 확인 ↗</a>
     <button type="button" @click="failed = false">다시 불러오기</button>
   </div>
-  <img v-else :src="src" :alt="alt" loading="lazy" @error="failed = true" />
+  <img v-else :src="src" :alt="alt" loading="lazy" @error="failure" />
 </template>
 <style scoped>
 .preview-failure{border:1px solid #a65b20;padding:12px;margin:16px 0}.preview-failure button{margin-left:12px}

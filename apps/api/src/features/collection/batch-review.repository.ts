@@ -7,7 +7,7 @@ export interface BatchMedia {
 }
 export interface BatchReceipt {hash:Buffer;status:number;data:unknown}
 export abstract class BatchReviewRepository {
-  abstract list(page:number,source?:string,state?:string,reviewStatus?:string):Promise<{items:BatchResultRow[];total:number}>;
+  abstract list(page:number,source?:string,state?:string,reviewStatus?:string):Promise<{items:{item:BatchResultRow;review:Review|null}[];total:number}>;
   abstract item(id:string):Promise<BatchResultRow|null>;
   abstract media(id:string):Promise<BatchMedia[]>;
   abstract review(id:string):Promise<Review|null>;

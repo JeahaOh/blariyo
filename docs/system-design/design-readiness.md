@@ -1,6 +1,6 @@
 # 현행 설계 준비 상태
 
-- 갱신: 2026-09-24 문서 대조. M0 구현·운영 증거는 9월 23일 기록 기준이며 서버·DB를 새로 조회하지 않았다. M1·M1.5는 후속 설계 상태를 유지하며 현재 구현 부재와 계약 정합성을 다시 대조했다.
+- 갱신: 2026-09-27 M0 로컬 구현·검증·잔여 인수 대조. 운영 관측은 각 기록일 기준이며 서버·DB를 이번에 재조회하지 않았다. M1·M1.5는 후속 설계 상태를 유지한다.
 - 상태: R01~R10 설계 보완·주 검수는 과거 완료 기록이며, M0 구현·운영은 부분 완료다. 설계 확정·구현 수용·production 공개 승인은 별도로 판정한다.
 - 적용: 현재 planning·legal·system-design·development-specs의 설계 상태 색인
 
@@ -17,16 +17,16 @@ branch·commit·source·migration·test·build·runtime을 다시 조회해 판�
 | 범위 | 설계 기준선 | 구현 수용 | production 공개 승인 |
 | --- | --- | --- | --- |
 | M0 Core | 조건부 확정 가능. 공개 짤·수동 운영·정책·복구 계약을 개발 입력으로 사용 가능 | 주요 구현과 로컬 검증·API/Web 배포·DB 반영 증거는 [요구사항 C01~C16](../development-specs/requirements-status.md)을 따른다. 실제 운영자 사용성·업무 인수는 남아 있다 | 공개 배포는 9월 23일 관측됐다. [법무 색인](../legal/README.md#출시-차단-항목)의 9월 20일 입력·발행·백업 복원 기록과 잔여 운영 조건을 구분한다. 실제 MFA 업무·알림·복귀/재부팅 확인은 남아 있으며 배포 기록만으로 전체 운영 수용을 승인하지 않는다 |
-| M0 수집 보조 | [수집 설계](07-spring-collector-design.md)의 legacy/direct 계약을 구분한다. 검수 후 원문·본문·이미지·첨부 7일, 미검수 28일, 중복 방지 최소 식별자 무기한·검증된 출처만 M0 결정은 [수집 기획](../planning/content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다. [M0-D01/D02](../implementation-tasks/README.md#m0-design-handoff) 기술 계약은 확정, 회수/입력 구현·고지는 잔여 | [요구사항 A01~A08](../development-specs/requirements-status.md) 기준 부분 완료. direct 검수 구현·로컬 검증과 관리자 URL/Discord의 새 경로 연결·실연동을 구분한다 | 9월 23일 관리자 batch 검수 활성 관측. 실제 MFA 검수 인수와 보존·고지 조건 충족을 뜻하지 않는다. URL·Discord 접수는 비활성이고 출처별 허용 범위·법무·운영 수용이 필요하다 |
-| M0 자동 수집 | [수집 기획](../planning/content-collection/README.md)·[수집 설계](07-spring-collector-design.md)에 목록/상세 분리·상한·재시도 계약이 있다. 출처별 활성화와 direct 보존·고지는 별도 조건이다 | [요구사항 B01~B08](../development-specs/requirements-status.md) 기준 I 6 / P 1 / U 1(주요 구현 확인 / 부분 구현 / 대응 구현 미확인). 목록 탐색·상세 처리·저장 구현이 있으며, 17출처 로컬 검증 기록과 4출처 차단·보존/회수 미구현을 구분한다. 전체 수용 완료는 아니다 | 자동 수집 실행은 비활성. 출처별 사용 결정·direct 보존/고지·실연동·운영 수용 조건을 충족하기 전 활성화하지 않는다 |
+| M0 수집 보조 | [수집 설계](07-spring-collector-design.md)의 legacy/direct 계약을 구분한다. 검수 후 원문·본문·이미지·첨부 7일, 미검수 28일, 중복 방지 최소 식별자 무기한·검증된 출처만 M0 결정은 [수집 기획](../planning/content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다. [M0-D01/D02](../implementation-tasks/README.md#m0-design-handoff) 기술 계약은 확정, 회수/입력 구현·로컬 검증 완료(9/27), 실제 장비·고지 인수 잔여 | [요구사항 A01~A08](../development-specs/requirements-status.md) 기준 부분 완료. direct 검수 구현·로컬 검증과 관리자 URL/Discord의 새 경로 연결·실연동을 구분한다 | 9월 23일 관리자 batch 검수 활성 관측. 실제 MFA 검수 인수와 보존·고지 조건 충족을 뜻하지 않는다. URL·Discord 접수는 비활성이고 출처별 허용 범위·법무·운영 수용이 필요하다 |
+| M0 자동 수집 | [수집 기획](../planning/content-collection/README.md)·[수집 설계](07-spring-collector-design.md)에 목록/상세 분리·상한·재시도 계약이 있다. 출처별 활성화와 direct 보존·고지는 별도 조건이다 | [요구사항 B01~B08](../development-specs/requirements-status.md) 기준 I 7 / P 1 / U 0(주요 구현 확인 / 부분 구현 / 대응 구현 미확인). 목록 탐색·상세 처리·저장 구현이 있으며, 17출처 로컬 검증 기록과 4출처 차단/미검증을 구분한다. 보존/회수와 요청 통제는9/27 로컬 검증했고 실제 운영 인수는 남아 있다. 전체 수용 완료는 아니다 | 자동 수집 실행은 비활성. 출처별 사용 결정·direct 보존/고지·실연동·운영 수용 조건을 충족하기 전 활성화하지 않는다 |
 | M1 회원 | 조건부 확정 가능. 직접 입력 생년월일 원문 미보관, TERMS·SIGNUP_PRIVACY, 계정·연동·탈퇴 계약을 개발 입력으로 사용 가능 | 미검증. provider·DB 경쟁·cookie·탈퇴 worker·복원 시험 필요 | 차단. 실제 provider 앱·callback·secret, 동의 전문 운영값, 연령·보존·국외이전 법무 검토 필요 |
 | M1.5 익게 | 조건부 확정 가능. 글 단위 이름, 탈퇴 KEEP, ACTIVE 제재 predicate, Unicode code point 계약을 개발 입력으로 사용 가능 | 미검증. API·DB 제약·동시성·worker·UI·관리자 수용 시험 필요 | 차단. M1 gate, 약관 시행, 신고·ledger 보존 근거, 이의제기 실값·운영 수용 필요 |
 | GA4·광고·제휴 | 비활성 경계와 기능별 gate만 확정 | 해당 기능 구현 뒤 별도 검증 | 기능별 실값·동의·계약을 갖추기 전 비활성. M0 Core 공개 전체를 차단하지 않음 |
 
 `조건부 확정 가능`은 주 검수에서 해당 계약을 개발 입력으로 사용할 수 있다고 판정했다는 뜻이다.
-9월 24일 코드 대조에서 direct robots/Crawl-delay·영속 일일 budget·redirect 상한,
-legacy API/DB 1000/40블록 차이를 확인했다. [수집 설계](07-spring-collector-design.md)와
-[로드맵 P1-01/06](../roadmap.md#3-p1--수집-보조자동-수집-마감)의 구현 보완 조건이며 현재 수집 수용 완료가 아니다.
+9월 24일에 발견한 direct robots/Crawl-delay·영속 일일 budget·redirect 차이는9/27 구현·로컬 검증했다.
+legacy API/DB 1000/40블록 차이는 CON-01 재활성화 시 조건부 잔여다. [수집 설계](07-spring-collector-design.md)와
+[운영 인계](../operations/m0-operation-handoff.md)의 실제 장비·출처·고지·운영 수용은 별도로 남아 있다.
 요구사항의 I 판정도 현재 테스트·화면·운영 인수 완료를 뜻하지 않는다. 전체 진행은 [현재 상태](../status.md),
 마지막 운영 관측은 [운영 상태](../operations/current-status.md), 남은 수용 조건은 [로드맵](../roadmap.md)을 따른다.
 Git으로 고정했는지, 구현을 수용했는지, production 공개를 승인했는지는 각각 별도 상태다. 과거 기준선

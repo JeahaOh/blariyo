@@ -1,0 +1,99 @@
+{
+  "at": "2026-09-30T22:36:58.051532+09:00",
+  "bundle": ".local-data/git-backups/remote-cleanup-20260930/before-cleanup.bundle",
+  "bytes": 10398339,
+  "sha256": "adb76f889b7d83f2b43ba1b9d38f2f2fdb38ad80383f0fb832e2747c5a8fb65a",
+  "bundleVerify": true,
+  "bareRestore": ".local-data/git-backups/remote-cleanup-20260930/restore-check.git",
+  "restoredFsck": true,
+  "commitTreeReadback": [
+    {
+      "branch": "develop",
+      "commit": "1ad626c92dd418f31827d17ccbb9f3580f58447f",
+      "tree": "0021530306fc53486c52a3974a6219f9b4a3580d"
+    },
+    {
+      "branch": "docs/git-governance-design-archive",
+      "commit": "20c7863150bd071e32d20507d5a48c004430c0e6",
+      "tree": "822d702e9a8b731a290f4fa3d69c76a362363da0"
+    },
+    {
+      "branch": "feature/DPL-00-nightly-deploy-design",
+      "commit": "edb54b9a8c3f4a2775151e2309241be186fae4ab",
+      "tree": "f49e95b733d6a6b422e279a90642644c7f365b5f"
+    },
+    {
+      "branch": "feature/HARN-06-git-governance-bootstrap",
+      "commit": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+      "tree": "83f158682dd7eeb9f7893ce282c209f99d2b12b5"
+    },
+    {
+      "branch": "feature/HARN-06-governance-registration",
+      "commit": "ada24744af144b7a3d72df3e029e1845594dc33c",
+      "tree": "3a1ced2292c26b27054ce88bce6fd4f4ac87354a"
+    },
+    {
+      "branch": "feature/HARN-07-release-fixture-clock",
+      "commit": "6a431358db73b9c59be4125fa0749beb014e7acd",
+      "tree": "d98fd5025c06a23c8b68d1588f1e2c82aae23a90"
+    },
+    {
+      "branch": "feature/HARN-08-cleanup-review",
+      "commit": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+      "tree": "2b88ae4dd2bc73843c7b4a75e08cce7775e57373"
+    },
+    {
+      "branch": "feature/HARN-08-harness-review",
+      "commit": "f782c0be80763f279cd11fb261bfc825cadf9b6d",
+      "tree": "89d8a0bc3e08936fb72410d6c578ccb9a3fd89e6"
+    },
+    {
+      "branch": "feature/HARN-08-legacy-main-review",
+      "commit": "df7482704c7867712c12028d1a69e59bfd662acc",
+      "tree": "cddbd40d1f7307cc32fa39d0a9ddbd23312fc9a5"
+    },
+    {
+      "branch": "feature/HARN-08-policy-review",
+      "commit": "8a72c9ae3e09460718de61065810a95594cd891c",
+      "tree": "2b1470113bbedcc646c73351a8477c07a706c425"
+    },
+    {
+      "branch": "feature/HARN-09-browser-retry",
+      "commit": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "tree": "0021530306fc53486c52a3974a6219f9b4a3580d"
+    },
+    {
+      "branch": "feature/HARN-09-ci-diagnostics",
+      "commit": "299ea62ab8eb3e00d4471fc82930137fc5026dc0",
+      "tree": "eed0e2f15496234ccf9e0a465e65c4a4b2a41159"
+    },
+    {
+      "branch": "feature/discord-env-setup",
+      "commit": "7bede4485321bc2adc9b68b2c25cefb17eb44808",
+      "tree": "8fadc66b1bf35496c54d26580c4cbb12ff6892bc"
+    },
+    {
+      "branch": "feature/m0-core",
+      "commit": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+      "tree": "90fefef29f1a883ab71793857ea26ce243fd617c"
+    },
+    {
+      "branch": "feature/m0-core-web",
+      "commit": "c48f0845133cafea1c046eb26bec7e040d781ca6",
+      "tree": "6163e44d8626ddd85cd6c5a85c1bc63697540aaa"
+    },
+    {
+      "branch": "main",
+      "commit": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "tree": "9dae6e605a5afd84d3412967194ede1e2b18e4dd"
+    },
+    {
+      "branch": "release",
+      "commit": "d8ef8764540b3381e4f20588bb1a375a5a09f134",
+      "tree": "c4a973501390aa988ce56259bc08172e2ce98d03"
+    }
+  ],
+  "all17Verified": true,
+  "uncommittedWorktreeNotInBundle": true,
+  "restoreMethod": "Bundle contains refs/remotes/origin/*; explicitly fetched into refs/heads/* in bare restore before17-ref readback. Initial bare clone did not import remote-tracking refs, so it was not accepted as a successful restore."
+}

@@ -2,12 +2,12 @@
 
 - 문서 갱신: 2026-09-27. [사용자 결정·입력](roadmap.md#5-추가로-확정할-항목) → [잔여 작업](roadmap.md#1-다음-시작점) 순으로 확인한다. 로컬 구현과 운영 인수의 오래된 상태 표기를 동기화했고 [갱신 검증](../worklog/2026-09-27/m0-status-refresh/README.md)에 범위를 기록한다.
 
-- 후속 구현 발견: [로컬 준비 도구의 최신 DB 권한·ledger 출력 정렬](implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)이 필요하다. 앱/격리 시험 결과와 별개이며 이번에는 source를 수정하거나 기존 개발 DB에서 도구를 재실행하지 않았다.
+- 개발 데이터 부분 적재 완료: [로컬 준비 도구의 최신 DB 권한·ledger 출력 정렬](implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)을 보완하고 격리 권한 시험과 개발 DB API010/Collector010 적용을 확인했다. 사용자 요청에 따라 21개 사이트를 판정해 5개 사이트의 신규 31건·이미지 70개를 개발 서버에 공개했다. 16개 사이트는 차단/실패이며 기존 글 75건을 보존했다. [실행 결과](../worklog/2026-09-27/dev-21-site-publish/README.md).
 
 - 2026-09-27 M0 로컬 코드: UX-01~06·보존/회수·mailbox/4개API/입력UI·robots/quota/redirect·선택백업/Drive 도구·OWNER/EDITOR를 구현했다. API010/Collector010이며 운영 migration을 적용했다는 뜻이 아니다.
 - 로컬 검증: API 실DB30 files/130 tests·서비스35·Collector289·공통34 PASS, 실제5역할73table/16sequence 복원·PG18/age 선택복원53보존/17제외·과거full008/006→010/010·Docker API/Web PASS. 실제 Chromium52와 범위·자원 감사까지 통과해 로컬 구현·검증·운영 인계를 완료했다. 상세는 [완료 조건 감사](../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)에서 판정한다.
-- 다음 실제 작업: [운영 인계](operations/m0-operation-handoff.md)의 계정/장비·허용 출처·법무·비운영 대상 입력을 확인한 뒤 별도 승인된 범위로 인수한다. 현재 브랜치는 `feature/m0-design-completion`, HEAD `71ed8efe`; 새 변경은 미커밋이며 stage/push/배포 없음.
-- 범위 경계: GA4·광고·legacy 기본 OFF, 실제 source 요청·Drive/R2/Discord 전송·운영 삭제·설치 미실행. 실제 두 운영자/Access·출처 S1~S5·Core7일과 CON-01 조건부 항목은 남아 있다.
+- 다음 실제 작업: [운영 인계](operations/m0-operation-handoff.md)의 계정/장비·허용 출처·법무·비운영 대상 입력을 확인한 뒤 별도 승인된 범위로 인수한다. 현재 브랜치는 `feature/m0-design-completion`, 구현 문서 커밋 `f1fc07d` 이후 개발 데이터 적재 보완은 미커밋이며 push/배포 없음.
+- 범위 경계: GA4·광고·legacy 기본 OFF. 사용자 승인된 개발 데이터 수집 요청은 별도 실행했고 Drive/R2/Discord 전송·운영 삭제·설치는 미실행. 실제 두 운영자/Access·출처 S1~S5·Core7일과 CON-01 조건부 항목은 남아 있다.
 
 - **전체 판정: 부분 완료. 9월 26일 공개 HTTP에서 robots·사이트맵·일부 noindex와 GTM HTML 삽입을 확인했다. 실제 운영자 인수와 수집 실연동·계약은 남아 있다.**
 - 마지막 공개 HTTP 점검: 2026-09-26 소스·정본 대조 및 16:39 KST 이후 공개 GET. 현재 서버 image digest·DB·백업·원격 CI는 재조회하지 않았다. SHA `5c581c2` 배포와 DB·콘텐츠 전수 검증은 9월 23일 증거로 유지한다. [운영 상태](operations/current-status.md)와 [오늘 점검 근거](../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md)를 따른다.

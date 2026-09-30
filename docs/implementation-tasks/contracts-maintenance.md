@@ -29,8 +29,8 @@ CON-02의4개 API/BFF/UI·mailbox/lease/runtime·Java/API golden34·SQL 예외�
 
 ### 로컬 준비 도구 후속 — 2026-09-27 문서 대조
 
-- 상태: **구현 보완 필요**, CON-02 후속·O05/P1-03과 연결. 앱/API 시험 통과와 별도로 발견한 개발 환경 준비 경로다.
-- 근거: [prepare-batch-review](../../scripts/local/prepare-batch-review.mjs)는 migration을 현행 코드로 실행한 뒤 batch 함수 권한을 전부 회수하고 `assert_source_owner`/`assert_run_owner` 두 함수만 재허용한다. table 허용 목록도 V006 시점이며 출력은 `API V008 / Collector V006`으로 고정돼 있다.
-- 영향: 신규 budget·mailbox·runtime/retention 관련 함수·테이블 권한을 준비하지 못한다. [DirectRequestBudget](../../apps/collector/src/main/java/com/blariyo/collector/run/DirectRequestBudget.java)가 요구하는 `reserve_batch_request` 등이 누락돼 최신 direct 실행 준비 완료로 사용할 수 없다. 실제 이 도구 재실행/실패 재현은 이번 문서 작업에서 하지 않았다.
-- 작업: [현행 권한 계약](../../deploy/postgresql/apply-privileges.sql)을 로컬 역할에 명시적으로 매핑하고 실제 ledger를 출력하도록 정렬한다. 제한 역할과 콘텐츠 보호를 유지하며 소유자 계정 실행으로 우회하지 않는다.
-- 완료 증거: 기존 개발 DB와 분리한 시험 대상에서 도구 적용→실제 ledger/권한 readback→제한 batch 역할의 quota/mailbox/runtime 허용 및 content/검수 쓰기 거부. [로컬 실행서](../../scripts/local/README.md)와 환경 안내를 함께 갱신한다.
+- 상태: **로컬 보완·검증 완료**. CON-02 후속·O05/P1-03의 개발 준비 경로를 보완했다. 운영 장비 적용은 별도다.
+- 변경: [prepare-batch-review](../../scripts/local/prepare-batch-review.mjs)의 archive 검증·실제 migration ledger 출력, API→Collector 적용 순서와 [batch 권한 모듈](../../scripts/local/batch-privileges.mjs)을 현행 권한 계약에 정렬했다.
+- 격리 증거: [권한 시험](../../scripts/local/batch-privileges.test.mjs)이 새 임시 DB에서 API/Collector V010 적용, 권한 적용 2회, 제한 batch 역할의 quota 차감/대기·mailbox·runtime 허용, content/검수/정정 이력 접근 및 item 삭제 거부를 확인했다. 시험 DB는 회수했다.
+- 개발 적용: 실제 개발 DB API010/Collector010, 기존 media 711개 hash/크기 검증과 제한 역할 수집·API 검수·공개를 확인했다. 소유자 계정으로 수집하지 않는다.
+- 근거: [개발 수집 작업 기록](../../worklog/2026-09-27/dev-21-site-publish/README.md). [로컬 실행서](../../scripts/local/README.md)·[환경 안내](../operations/environment-configuration.md)를 함께 갱신했다.

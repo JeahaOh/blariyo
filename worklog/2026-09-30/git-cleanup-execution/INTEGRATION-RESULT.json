@@ -1,0 +1,45 @@
+{
+  "at": "2026-09-30T21:50:02.452589+09:00",
+  "deletedLocal": {
+    "feature/ai-workflow-design": "92f1e04efed540e802ab046c650f56c6359da0e5",
+    "feature/git-local-guards": "bb19c486f3cafa847bd34828a699382c6d5bd0b6",
+    "backup/main-before-release-pick-20260930": "e51f1b501f7cc327da279102dd69eac2f4c554db",
+    "backup/release-before-chronological-pick-20260930": "2126c053b35f2e2b4e45a8496e259ac211812772",
+    "backup/release-before-main-rebase-20260930": "bb19c486f3cafa847bd34828a699382c6d5bd0b6"
+  },
+  "restoration": "Verified complete bundle plus bare restore commit/tree readback",
+  "deferred": "feature/m0-design-completion local/remote preserved for concurrent uncommitted favicon work",
+  "integrationCommit": "53873d06806bf3e75356d581a16cf3efe3d19887",
+  "validatedTree": "738cbe7ac98605e5e3dbf3caf38cf65ecf57b076",
+  "remoteReadback": {
+    "refs/heads/develop": "1ad626c92dd418f31827d17ccbb9f3580f58447f",
+    "refs/heads/docs/git-governance-design-archive": "20c7863150bd071e32d20507d5a48c004430c0e6",
+    "refs/heads/feature/DPL-00-nightly-deploy-design": "edb54b9a8c3f4a2775151e2309241be186fae4ab",
+    "refs/heads/feature/HARN-06-git-governance-bootstrap": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+    "refs/heads/feature/HARN-06-governance-registration": "ada24744af144b7a3d72df3e029e1845594dc33c",
+    "refs/heads/feature/HARN-07-release-fixture-clock": "6a431358db73b9c59be4125fa0749beb014e7acd",
+    "refs/heads/feature/HARN-08-cleanup-review": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+    "refs/heads/feature/HARN-08-harness-review": "f782c0be80763f279cd11fb261bfc825cadf9b6d",
+    "refs/heads/feature/HARN-08-legacy-main-review": "df7482704c7867712c12028d1a69e59bfd662acc",
+    "refs/heads/feature/HARN-08-policy-review": "8a72c9ae3e09460718de61065810a95594cd891c",
+    "refs/heads/feature/HARN-09-browser-retry": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+    "refs/heads/feature/HARN-09-ci-diagnostics": "299ea62ab8eb3e00d4471fc82930137fc5026dc0",
+    "refs/heads/feature/discord-env-setup": "7bede4485321bc2adc9b68b2c25cefb17eb44808",
+    "refs/heads/feature/m0-core": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+    "refs/heads/feature/m0-core-web": "c48f0845133cafea1c046eb26bec7e040d781ca6",
+    "refs/heads/feature/m0-design-completion": "578c0581ae7db6207a5f864dcca6485ad3eb47d6",
+    "refs/heads/main": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "refs/heads/release": "53873d06806bf3e75356d581a16cf3efe3d19887"
+  },
+  "deletedRemote": {
+    "planning-design-only": "0ade2e4815e74af68d337f73bd10877da28cce2f"
+  },
+  "localBranchesBeforeCloseout": 4,
+  "remoteBranches": 18,
+  "otherWorktreeFilesUnchanged": 88,
+  "concurrentFaviconFilesUnchanged": 8,
+  "mainUnchanged": true,
+  "integrationWorktreeCleanup": "pending after closeout push",
+  "rootCheckout": "feature/m0-design-completion preserved with8 concurrent dirty files; no stash/reset/switch",
+  "taskDatabaseContainerRemoved": true
+}

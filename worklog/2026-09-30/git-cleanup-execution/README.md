@@ -1,7 +1,7 @@
 # Git 통합·원격 동기화·종료 브랜치 정리 실행
 
 - 요청: [확정 계획](../git-cleanup-plan/README.md)을 진행. 사용자의 실행 지시는 계획의 commit·merge·일반 release push·확인된 종료 브랜치 삭제 범위를 포함한다.
-- 담당: Codex / 상태: 진행 / 작업일: 2026-09-30 KST.
+- 담당: Codex / 상태: 통합·동기화 종료, 새 파비콘 작업과 현재 feature 마감은 보류 / 작업일: 2026-09-30 KST.
 - 기본 작업 폴더: `/Volumes/MicroVault/iCloudDrive/git/private/blariyo`, 시작 feature/m0-design-completion@578c058.
 - 변경 범위: 승인된 계획의 GIT-01~06, docs/status.md·docs/roadmap.md의 Git 현황, 격리 release 병합/검증/기록. main·별도 m0-core worktree·고유 원격14개·열린 governance PR은 보존한다.
 - 별도 m0-core 미커밋88개는 SHA-256 기준선으로 보호한다. 원격PR8개를 GitHub 로그인 화면에서 읽기 전용 확인했으며 삭제 후보의 연결 여부를 별도로 검사한다.
@@ -42,3 +42,13 @@
 - [관리자 검수390px](artifacts/batch-review-390.png), [직접 입력390px](artifacts/direct-input-390.png), [공유320px](artifacts/public-share-320.png)를 저장·시각 확인했다. 초기 중복 메뉴가 제거됐고 가로 넘침 검증도 통과했다.
 - Markdown 상대 경로1224개 누락0, 기존 법무 placeholder 제거0, historical worklog 원문 삭제0, SQL/생성 계약 checksum과 OpenAPI 정본/복사본 동일성을 확인했다.
 - 이 시점은 로컬 병합 후보의 검증 완료다. merge commit·원격 readback·종료 브랜치 처리는 후속 마감 기록으로 구분한다.
+
+## 원격 반영·브랜치 정리 결과
+
+- 통합 commit **`53873d06806bf3e75356d581a16cf3efe3d19887`**, tree `738cbe7ac98605e5e3dbf3caf38cf65ecf57b076`. 검증 후 stage tree와 commit tree가 같다. 부모는 날짜순 release `0545759`와 feature `da3a96e`다.
+- 일반 `git push origin release:release` 완료. 서버 직접 SHA와 local/origin release 동일, ahead/behind0/0. main은 local/origin 모두 `8af7244`로 유지했다. main 승격·운영 배포·실제 외부 수집은 없다.
+- 삭제: 로컬 `feature/ai-workflow-design`, `feature/git-local-guards`, 기존 backup3개(총5); 원격 `planning-design-only`1개. 원격 삭제는 기대 SHA를 명시한 lease로 다른 변경을 보호했다. release 강제 push는 하지 않았다.
+- 삭제 전 로컬2개는 통합 release의 조상임을 확인했고 backup3개는 bundle SHA·별도 bare 복구 commit/tree로 다시 확인했다. 원격 planning branch는 main 조상이고 head/base 열린PR0이었다.
+- 유지: main/release, feature/m0-core의 별도 worktree와 dirty88개, 나머지 고유 원격14개, 현재 feature/m0-design-completion local/remote. 기존 PR8개는 그대로다. 작업용 임시 PostgreSQL container는 소유 ID·label 대조 후 제거했다.
+- 실행 중 새로 생긴 Gemini 파비콘8파일은 SHA-256 불변이다. 사용자 범위 답변 전에는 임의 커밋·통합·이동하지 않는다. 이에 따라 root feature 삭제와 root release 전환/clean 마감은 보류한다. 이 예외를 전체 clean으로 보고하지 않는다.
+- [상세 결과](INTEGRATION-RESULT.json), [검증한 source subtree](VALIDATED-SOURCE-TREES.json)를 따른다. 이 마감 문서는 검증한 source를 바꾸지 않는 별도 feature→release 경로로 반영한다. 최종 release tip에는 마감 기록 커밋/병합이 더해질 수 있다.

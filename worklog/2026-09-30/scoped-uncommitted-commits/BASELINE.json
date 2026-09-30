@@ -1,0 +1,126 @@
+{
+  "startedAt": "2026-09-30T21:06:28.548429+09:00",
+  "branch": "feature/m0-design-completion",
+  "head": "c49d27fd1a6dd5a29df8165648fc912990563364",
+  "main": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+  "release": "054575928df7bd7e8f8a630c1234d7b3d054969c",
+  "originMain": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+  "originRelease": "6b91402f11df5c08c0147bab14fd2df7c681cbd8",
+  "indexDiff": "",
+  "visibleFileCount": 35,
+  "explicitEvidenceLogs": [
+    "worklog/2026-09-30/release-cherry-pick-main-restore/api-build.log",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/root-tests.log",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/git-hooks.log"
+  ],
+  "files": {
+    "worklog/2026-09-27/m0-implementation-plan/README.md": "799464a0d8262d008b6d4fb823595ca6a7db342e537b31f33529391235c8ed72",
+    "worklog/2026-09-27/m0-next-step/README.md": "93fdb1779a65e9809d638e860ecdeb3d32d357ee67eff163957d476c851dfeca",
+    "docs/implementation-tasks/contracts-maintenance.md": "df3bb6e6a1132c2525c7d8fd4067c09feb5ace1307ee1c55c82346ebb32da3e0",
+    "docs/operations/environment-configuration.md": "d9be506ba88ccdfc910bbd7bc793ffb7d0c63b98865cd3503b2aa83860bc6400",
+    "docs/status.md": "48b16c2f414797fcc5e7e95249b967ed380afda23d5091246b36a485339fb96f",
+    "scripts/local/README.md": "686b920979c9a9c013f4ebd024b14712f1b9765ba04cab3f5fa5eeccebb27ac1",
+    "scripts/local/prepare-batch-review.mjs": "80d3d84acc6850a52966be671ac447d5848df74fc48b0da52f9edee8a6e1778e",
+    "scripts/local/batch-privileges.mjs": "7e7b81c54ec43cb6a63f6504ed943f9288b3cfec55e7133c6e825ffea57aa565",
+    "scripts/local/batch-privileges.test.mjs": "bea2fb47dab8bf329c7386587fcbe1ba836784da5f92b1ec82af6e376b520714",
+    "worklog/2026-09-27/dev-21-site-publish/DOCUMENT-LINK-AUDIT.json": "6f6b9c1711b2544c4e71301f39deb08d264d3cc3c6d7c281a3f99917643321f1",
+    "worklog/2026-09-27/dev-21-site-publish/FILES.sha256": "e01d51046a10d71cda5304b30248b9eff03d56b5fa6c15d17caf8457fc43efe5",
+    "worklog/2026-09-27/dev-21-site-publish/README.md": "59540a78856698fae7ea02fe69fc8b941259291c1cf24f7f55e57d6815c5fc46",
+    "worklog/2026-09-27/dev-21-site-publish/RESULTS.json": "b8ca3eb7339a6eb4894c1f42ae5dd6f3afb2a8a3e4e6966dd03dd6dea4cc74c8",
+    "worklog/2026-09-28/uncommitted-status/README.md": "3ff30b40ba18a6c4c84acd486ade39d9f91db5fc09f3f5a884c3031d1bbc99db",
+    "worklog/2026-09-30/project-health-review/EVIDENCE-MATCH.json": "76c4bc89d30bf346bc5e7503eac23cac3a2f697383ae68b95647976de01324f8",
+    "worklog/2026-09-30/project-health-review/LINK-CHECK.json": "82e07790c307a196573df88bfd5048a2044d2fe223efe60035c91ce8d2309c1d",
+    "worklog/2026-09-30/project-health-review/PUBLIC-HTTP.json": "8cbdfde1ed399dd1a2f1e7a985f3bf4fe8c7c965b7df3deb6b0978b6a6f4bb22",
+    "worklog/2026-09-30/project-health-review/README.md": "80740e59d0f5846f707a69907d5acae883adb4725b81e470557dea7c2ffe2d22",
+    "worklog/2026-09-30/project-health-review/VERIFICATION.json": "e96eee193ee51b59781cc879574470e37932a72312526836a05c60da9a3d0ea7",
+    "worklog/2026-09-30/release-rebase-and-next-plan/BASELINE.json": "8612036c83822e7b3f703e2c23b419e5635d462e2aa5999602f7ff507ddec0ea",
+    "worklog/2026-09-30/release-rebase-and-next-plan/BRANCH-OPTIONS.json": "5086fd0eea86a7f3f453fb7bd9813e9a9b8fab155b01f771b807881048a5bf24",
+    "worklog/2026-09-30/release-rebase-and-next-plan/DOCUMENT-UPDATE-PLAN.md": "d5f0b89ecbe28aa46c5f458d02e92ed8bac9d1692ca2e40eb662dbe6f8a60e71",
+    "worklog/2026-09-30/release-rebase-and-next-plan/INTEGRATION-PREVIEW.json": "9bd066ca515459a45f149a8ddb877df0755ae044d6e0fd969f9a59785eae8e65",
+    "worklog/2026-09-30/release-rebase-and-next-plan/PROGRESS-PLAN.md": "5f5efcd686592e2ba9b0c0829561ebed9b290874fc72bcc83d3a5db809a58145",
+    "worklog/2026-09-30/release-rebase-and-next-plan/README.md": "add52fa42d8ced6cdf4afdd88312784fad83d250b32633fb651c4c8605fb480f",
+    "worklog/2026-09-30/release-rebase-and-next-plan/REBASE-VERIFICATION.json": "c956cc9f2b61ed0eff1e70d338fdb653378fc6aabbc3c3797594989c16adbf81",
+    "worklog/2026-09-30/release-rebase-and-next-plan/REMOTE-RECONCILE-PREVIEW.json": "4b2a3d3c638ee35340cae8f9c7edd57309bc2ed0873e32f4fc4001c4858985ee",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/BASELINE.json": "dc4b155a9f4737518f644d5915128455e01acafc4ffc74f21e7592f260eecde6",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/CANDIDATE-VERIFICATION.json": "d286b83488e2d4aab63dcb020fe4e59b888dfaf6b246804a656a0b83ef84fa6a",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/FINAL-VERIFICATION.json": "c30b5f84da8a88ca0b11ade9acad76e4c58c0b8fccf74e60f9c0a15a28713cbd",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/PICK-MAPPING.json": "168a2c6b464addbbcd4a09311b20b373efe537e25f29cab028c076bce1282c5c",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/PICK-ORDER.json": "43bceef33d7e87f9bef7ac1eb1ce66aa46a89bb887e374a995e59346cde04bcc",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/README.md": "54b5b675624c5d6bc1d7eaeb3a3f37aa854228c85f1cc7f54e6a0110e9085d9c",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/REF-RESULTS.json": "e7e8b235d7f3c93a0e2597743fd7fd09e205cf3d20a73fb6bc548d8e0c61b385",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/TEST-RESULTS.json": "e04b71952eae93e9929eebc0c1fb2492bac18aa6da4954d25aadfc0022f21df3",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/api-build.log": "aa8b0576adebe1b7f6dbf260426564ab5817dee19472fe2e74de38cf90b3aba6",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/root-tests.log": "02694c5aad05d85fe656cb9269217a71031257d497dd41e8e8371a817954fc4c",
+    "worklog/2026-09-30/release-cherry-pick-main-restore/git-hooks.log": "956e0f6782e95597e850ed486b4bd625185fc8db648863f6cd6c64a4327b42cc"
+  },
+  "groups": [
+    {
+      "message": "docs(worklog): preserve M0 planning and handoff notes",
+      "files": [
+        "worklog/2026-09-27/m0-implementation-plan/README.md",
+        "worklog/2026-09-27/m0-next-step/README.md"
+      ]
+    },
+    {
+      "message": "fix(local): align batch preparation with current privileges",
+      "files": [
+        "docs/implementation-tasks/contracts-maintenance.md",
+        "docs/operations/environment-configuration.md",
+        "docs/status.md",
+        "scripts/local/README.md",
+        "scripts/local/prepare-batch-review.mjs",
+        "scripts/local/batch-privileges.mjs",
+        "scripts/local/batch-privileges.test.mjs",
+        "worklog/2026-09-27/dev-21-site-publish/DOCUMENT-LINK-AUDIT.json",
+        "worklog/2026-09-27/dev-21-site-publish/FILES.sha256",
+        "worklog/2026-09-27/dev-21-site-publish/README.md",
+        "worklog/2026-09-27/dev-21-site-publish/RESULTS.json"
+      ]
+    },
+    {
+      "message": "docs(worklog): record uncommitted change audit",
+      "files": [
+        "worklog/2026-09-28/uncommitted-status/README.md"
+      ]
+    },
+    {
+      "message": "docs(audit): record project health review",
+      "files": [
+        "worklog/2026-09-30/project-health-review/EVIDENCE-MATCH.json",
+        "worklog/2026-09-30/project-health-review/LINK-CHECK.json",
+        "worklog/2026-09-30/project-health-review/PUBLIC-HTTP.json",
+        "worklog/2026-09-30/project-health-review/README.md",
+        "worklog/2026-09-30/project-health-review/VERIFICATION.json"
+      ]
+    },
+    {
+      "message": "docs(plan): record release integration and documentation plans",
+      "files": [
+        "worklog/2026-09-30/release-rebase-and-next-plan/BASELINE.json",
+        "worklog/2026-09-30/release-rebase-and-next-plan/BRANCH-OPTIONS.json",
+        "worklog/2026-09-30/release-rebase-and-next-plan/DOCUMENT-UPDATE-PLAN.md",
+        "worklog/2026-09-30/release-rebase-and-next-plan/INTEGRATION-PREVIEW.json",
+        "worklog/2026-09-30/release-rebase-and-next-plan/PROGRESS-PLAN.md",
+        "worklog/2026-09-30/release-rebase-and-next-plan/README.md",
+        "worklog/2026-09-30/release-rebase-and-next-plan/REBASE-VERIFICATION.json",
+        "worklog/2026-09-30/release-rebase-and-next-plan/REMOTE-RECONCILE-PREVIEW.json"
+      ]
+    },
+    {
+      "message": "docs(git): record chronological release picks and main restore",
+      "files": [
+        "worklog/2026-09-30/release-cherry-pick-main-restore/BASELINE.json",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/CANDIDATE-VERIFICATION.json",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/FINAL-VERIFICATION.json",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/PICK-MAPPING.json",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/PICK-ORDER.json",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/README.md",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/REF-RESULTS.json",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/TEST-RESULTS.json",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/api-build.log",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/root-tests.log",
+        "worklog/2026-09-30/release-cherry-pick-main-restore/git-hooks.log"
+      ]
+    }
+  ]
+}

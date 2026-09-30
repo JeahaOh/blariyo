@@ -1,0 +1,14 @@
+[
+  {
+    "file": "worklog/2026-09-30/release-cherry-pick-main-restore/api-build.log",
+    "beforeSha256": "aa8b0576adebe1b7f6dbf260426564ab5817dee19472fe2e74de38cf90b3aba6",
+    "afterSha256": "769e8ed93e4d04fd38756ecf182299034e859c59b5cbc0c7206b95ccada4fa71",
+    "change": "strip trailing whitespace and extra blank EOF only; output tokens unchanged"
+  },
+  {
+    "file": "worklog/2026-09-30/release-cherry-pick-main-restore/root-tests.log",
+    "beforeSha256": "02694c5aad05d85fe656cb9269217a71031257d497dd41e8e8371a817954fc4c",
+    "afterSha256": "f7870cbb28d49601afb42818a28b643c737d8bdf7112582af9d1bdcde336d434",
+    "change": "strip trailing whitespace and extra blank EOF only; output tokens unchanged"
+  }
+]

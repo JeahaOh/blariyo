@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-09-30T22:09:16.899941+09:00",
+  "node": "24.18.0",
+  "faviconCommit": "3f353888006f12fec75c1a86ebe837fa56870fac",
+  "checks": [
+    {
+      "name": "Web build and cache regression",
+      "command": "npm run test:web-cache",
+      "exitCode": 0,
+      "testsPassed": 4,
+      "rawLocalLog": ".local-data/git-backups/favicon-20260930/web-build-cache.log",
+      "sha256": "2876ff3c34e32681415cfb391023f8aa4f0f7676aa4b5be1b5a55dcea5bb7c0a"
+    },
+    {
+      "name": "Web types",
+      "command": "npm run typecheck:web",
+      "exitCode": 0,
+      "testsPassed": null,
+      "rawLocalLog": ".local-data/git-backups/favicon-20260930/web-typecheck.log",
+      "sha256": "02c74c28e6c9fb84128a94dd0308f217780531a5def1c0d2f11d09bd399f9b73"
+    },
+    {
+      "name": "Web lint",
+      "command": "npm run lint -w @blariyo/web",
+      "exitCode": 0,
+      "testsPassed": null,
+      "rawLocalLog": ".local-data/git-backups/favicon-20260930/web-lint.log",
+      "sha256": "e90ed68646191c03a52f2c399d5687587d711055d991ea27f1ebbd9883ec9009"
+    }
+  ],
+  "hookInstallCheck": "PASS",
+  "runtimeCheck": "RUNTIME-CHECK.json",
+  "browserVisual": {
+    "browser": "Chrome",
+    "url": "http://127.0.0.1:62577/favicon.svg",
+    "result": "Teal bubble mark, light border and dark B displayed; screenshot inspected in tool output. PNG512 inspected separately."
+  },
+  "priorFullRegression": "Not rerun: API/Collector/browser functional source unchanged from 53873d0 validated source trees. Current checks are limited to favicon/Nuxt build and HTTP behavior."
+}

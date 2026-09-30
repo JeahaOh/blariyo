@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-09-30T22:09:16.899941+09:00",
+  "deletedLocal": {
+    "feature/m0-design-completion": "da3a96e2a2db660da1de60aea1d597a15714a13a"
+  },
+  "deletedRemote": {
+    "feature/m0-design-completion": "578c0581ae7db6207a5f864dcca6485ad3eb47d6"
+  },
+  "authorization": "Prior user-approved Git cleanup plan; favicon work subsequently transferred by explicit user request.",
+  "remoteDeletion": "Specific expected-SHA lease; existing release contains both deleted tips.",
+  "prCheck": {
+    "method": "Authenticated GitHub browser search; head and base each Open (0), No pull requests matched.",
+    "headUrl": "https://github.com/JeahaOh/blariyo/pulls?q=is%3Apr+state%3Aopen+head%3Afeature%2Fm0-design-completion",
+    "baseUrl": "https://github.com/JeahaOh/blariyo/pulls?q=is%3Apr+state%3Aopen+base%3Afeature%2Fm0-design-completion"
+  },
+  "preserved": "feature/m0-core worktree 88 dirty files and other14 remote branches; main unchanged"
+}

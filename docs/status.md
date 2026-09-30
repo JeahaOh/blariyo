@@ -11,7 +11,7 @@
 
 - **전체 판정: 부분 완료. 9월 25일 `8af7244` 앱 배포·GTM 실제 로딩과 9월 26일 공개 HTTP에서 robots·사이트맵·일부 noindex와 GTM HTML 삽입을 확인했다. 실제 운영자 인수와 수집 실연동·계약은 남아 있다.**
 - 마지막 공개 HTTP 점검: 2026-09-26 소스·정본 대조 및 16:39 KST 이후 공개 GET. 현재 서버 image digest·DB·백업·원격 CI는 재조회하지 않았다. DB·콘텐츠 전수 검증은 9월 23일, 최근 앱 배포·GTM 로딩은 [9월 25일 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)으로 구분한다. [운영 상태](operations/current-status.md)와 [오늘 점검 근거](../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md)를 따른다.
-- Git 확인: 2026-09-30 통합 `53873d0`을 일반 push했고 local/origin release 동일·이력 차이0/0을 서버 조회로 확인했다. local/origin main은 `8af7244` 유지. 마감 기록과 종료 브랜치 정리는 [실행 결과](../worklog/2026-09-30/git-cleanup-execution/README.md)를 따른다. 실행 중 추가된 별도 파비콘8파일과 현재 feature 마감은 보류했으며 전체 작업 폴더 clean을 뜻하지 않는다. [9/26 기록](../worklog/2026-09-26/m0-progress-audit/STATUS-SYNC.md)은 당시 증거로 유지한다.
+- Git 확인: 2026-09-30 통합 `53873d0`을 일반 push했고 local/origin release 동일·이력 차이0/0을 서버 조회로 확인했다. local/origin main은 `8af7244` 유지. 마감 기록과 종료 브랜치 정리는 [실행 결과](../worklog/2026-09-30/git-cleanup-execution/README.md)를 따른다. 별도 파비콘8파일은 `feature/brand-favicon@3f35388`에 보존했고 Web/HTTP 검증과 기존 작업의 유실 재검토를 완료했다. 기존 feature 마감·최종 release 반영 절차는 [후속 기록](../worklog/2026-09-30/favicon-release-preservation/README.md)을 따른다. 별도 m0-core의 미커밋88파일은 보존한다. [9/26 기록](../worklog/2026-09-26/m0-progress-audit/STATUS-SYNC.md)은 당시 증거로 유지한다.
 - 과거 전체 goal의 `blocked` 기록은 당시 선행 조건 판단이다. 현재 도구 상태나 기능 폐기를 뜻하지 않는다.
 - 상세 실행 순서는 [잔여 과정](roadmap.md), 실제 커밋 식별자는 [진행 보관·커밋 기록](../worklog/2026-09-23/progress-checkpoint.md)을 따른다.
 - 9/26 최종 결정: 운영 DB 백업만 Google Drive로 전환하고 공개 전·공개 이미지/첨부는 기존 R2를 유지한다. [백업 전환 조건](planning/02-infra-plan.md#6-데이터와-저장소-원칙)의 실제 계정·운영 전환은 잔여다. 로컬 전환 도구·실제 age/격리DB 복원은 위9/27 증거를 따른다. 에펨코리아·뽐뿌·유튜브 커뮤니티 [재분석 task](../worklog/2026-09-26/collection-source-reanalysis/README.md)는 생성 완료·분석 대기다.
@@ -36,8 +36,8 @@
 - [개발 명세 §13](development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)에 첫 수동 이벤트
   9개·필드·발생 조건·동의 version3·직접 GA4 단일 전송·BigQuery 일별 저장과 기본 집계를 확정했다.
 - 기획·API/아키텍처/보안 설계·법무 편집 초안을 동기화했다. 운영 법무 값과 원시·집계 보관·비용은 미정이다.
-- 신규 콘텐츠 키·확장 계측·OpenAPI/타입·v3 구현, GTM 동일 목적지 태그 중지, GA4/BQ 콘솔 설정·실제 수신·배포는 미실행이다.
-  기존 4개 이벤트 소스·GTM 삽입 테스트의 성공을 확장 기능 완료로 승계하지 않는다.
+- 콘텐츠 키·확장 계측·OpenAPI/타입·동의v3는 [9/25 구현 기록](../worklog/2026-09-25/analytics-v1/RESULTS.md)의 범위로 구현됐으며, 9/30 release 통합에서 동의 오류 복구·공유 결과 처리와 함께 로컬 회귀 검증했다.
+- GTM 동일 목적지 태그 중지, GA4/BQ 콘솔 설정·실제 수신·확장 버전 운영 배포는 미실행이다. 로컬 구현·시험을 운영 수집 활성화 완료로 승계하지 않는다.
 
 ## Google Tag Manager — 2026-09-25 운영 반영
 

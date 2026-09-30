@@ -1,0 +1,47 @@
+{
+  "observedAt": "2026-09-30T19:39:13+09:00",
+  "node": "24.18.0",
+  "head": "c49d27fd1a6dd5a29df8165648fc912990563364",
+  "checks": {
+    "npm test": {
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0
+    },
+    "npm run typecheck:scripts": "PASS",
+    "npm run typecheck:tests": "PASS",
+    "node scripts/git-hooks.mjs check": "PASS",
+    "git diff --check": "PASS at close"
+  },
+  "warnings": [
+    "Vue AdminNavigation component resolution and anonymous render warnings in root test fixture"
+  ],
+  "baseline": {
+    "files": 14,
+    "changed": [],
+    "headUnchanged": true,
+    "indexUnchanged": true,
+    "onlyNewFiles": [
+      "worklog/2026-09-30/project-health-review/EVIDENCE-MATCH.json",
+      "worklog/2026-09-30/project-health-review/LINK-CHECK.json",
+      "worklog/2026-09-30/project-health-review/PUBLIC-HTTP.json",
+      "worklog/2026-09-30/project-health-review/README.md",
+      "worklog/2026-09-30/project-health-review/VERIFICATION.json"
+    ]
+  },
+  "remoteRefs": {
+    "main": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "release": "6b91402f11df5c08c0147bab14fd2df7c681cbd8",
+    "feature/m0-design-completion": null
+  },
+  "notExecuted": [
+    "full API/Web build",
+    "database integration",
+    "Collector full tests",
+    "browser",
+    "Docker",
+    "production admin/DB/object/backup readback",
+    "remote CI readback"
+  ],
+  "auditRecordLinks": "PASS"
+}

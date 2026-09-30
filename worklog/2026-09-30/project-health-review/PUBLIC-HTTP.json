@@ -1,0 +1,56 @@
+{
+  "observedAt": "2026-09-30T19:37:25+09:00",
+  "scope": "unauthenticated GET only; no admin, database or deployment observation",
+  "results": [
+    {
+      "path": "/meme",
+      "status": 200,
+      "contentType": "text/html;charset=utf-8",
+      "robots": null,
+      "gtmPresent": true,
+      "ga4Disabled": true,
+      "postLinks": 20
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "robots": null,
+      "appAdminRule": true,
+      "sitemapDeclared": true
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml; charset=utf-8",
+      "robots": null,
+      "locCount": 2
+    },
+    {
+      "path": "/sitemap-pages.xml",
+      "status": 200,
+      "contentType": "application/xml; charset=utf-8",
+      "robots": null,
+      "locCount": 3
+    },
+    {
+      "path": "/sitemap-posts-0.xml",
+      "status": 200,
+      "contentType": "application/xml; charset=utf-8",
+      "robots": null,
+      "locCount": 74
+    },
+    {
+      "path": "/api/v1/boards",
+      "status": 200,
+      "contentType": "application/json",
+      "robots": "noindex"
+    },
+    {
+      "path": "/health/live",
+      "status": 200,
+      "contentType": "application/json",
+      "robots": "noindex"
+    }
+  ]
+}

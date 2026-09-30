@@ -1,0 +1,69 @@
+{
+  "at": "2026-09-30T22:36:18.772988+09:00",
+  "method": "Authenticated GitHub UI: entire open list8 and each head/base inspected. PR3 visibly Merged into develop at1ad626c.",
+  "open": [
+    {
+      "number": 1,
+      "state": "open",
+      "head": "feature/HARN-06-governance-registration",
+      "base": "develop",
+      "url": "https://github.com/JeahaOh/blariyo/pull/1"
+    },
+    {
+      "number": 2,
+      "state": "draft",
+      "head": "feature/HARN-06-git-governance-bootstrap",
+      "base": "develop",
+      "url": "https://github.com/JeahaOh/blariyo/pull/2"
+    },
+    {
+      "number": 4,
+      "state": "draft",
+      "head": "feature/HARN-08-legacy-main-review",
+      "base": "develop",
+      "url": "https://github.com/JeahaOh/blariyo/pull/4"
+    },
+    {
+      "number": 5,
+      "state": "draft",
+      "head": "feature/HARN-08-policy-review",
+      "base": "feature/HARN-08-legacy-main-review",
+      "url": "https://github.com/JeahaOh/blariyo/pull/5"
+    },
+    {
+      "number": 6,
+      "state": "draft",
+      "head": "feature/HARN-08-cleanup-review",
+      "base": "feature/HARN-08-policy-review",
+      "url": "https://github.com/JeahaOh/blariyo/pull/6"
+    },
+    {
+      "number": 7,
+      "state": "draft",
+      "head": "feature/HARN-08-harness-review",
+      "base": "feature/HARN-08-cleanup-review",
+      "url": "https://github.com/JeahaOh/blariyo/pull/7"
+    },
+    {
+      "number": 8,
+      "state": "draft",
+      "head": "feature/HARN-09-ci-diagnostics",
+      "base": "feature/HARN-08-harness-review",
+      "url": "https://github.com/JeahaOh/blariyo/pull/8"
+    },
+    {
+      "number": 9,
+      "state": "draft",
+      "head": "feature/HARN-07-release-fixture-clock",
+      "base": "feature/HARN-09-ci-diagnostics",
+      "url": "https://github.com/JeahaOh/blariyo/pull/9"
+    }
+  ],
+  "merged": {
+    "number": 3,
+    "head": "feature/HARN-09-browser-retry",
+    "base": "develop",
+    "merge": "1ad626c92dd418f31827d17ccbb9f3580f58447f"
+  },
+  "candidateOpenHeadOrBase": 0
+}

@@ -1,0 +1,240 @@
+{
+  "at": "2026-09-30T22:36:18.772988+09:00",
+  "branches": [
+    {
+      "branch": "develop",
+      "sha": "1ad626c92dd418f31827d17ccbb9f3580f58447f",
+      "notInReleaseCommitCount": 2,
+      "containedInRemoteHeads": [
+        "feature/HARN-07-release-fixture-clock",
+        "feature/HARN-08-cleanup-review",
+        "feature/HARN-08-harness-review",
+        "feature/HARN-08-legacy-main-review",
+        "feature/HARN-08-policy-review",
+        "feature/HARN-09-ci-diagnostics"
+      ],
+      "openPullRequests": [
+        1,
+        2,
+        4
+      ],
+      "decision": "keep",
+      "reason": "Open PR head or base; unique review and dependency context preserved."
+    },
+    {
+      "branch": "docs/git-governance-design-archive",
+      "sha": "20c7863150bd071e32d20507d5a48c004430c0e6",
+      "notInReleaseCommitCount": 1,
+      "containedInRemoteHeads": [],
+      "openPullRequests": [],
+      "decision": "delete-after-preservation",
+      "reason": "Archive-only purpose documented by its README; unique three documents are preserved byte-for-byte by a remote tag, not treated as integrated.",
+      "archiveTag": "archive/2026-09-30/git-governance-design"
+    },
+    {
+      "branch": "feature/DPL-00-nightly-deploy-design",
+      "sha": "edb54b9a8c3f4a2775151e2309241be186fae4ab",
+      "notInReleaseCommitCount": 1,
+      "containedInRemoteHeads": [],
+      "openPullRequests": [],
+      "decision": "keep",
+      "reason": "Unintegrated substantive work: nightly design15 paths or Discord setup/backup records5 paths. No discard decision."
+    },
+    {
+      "branch": "feature/HARN-06-git-governance-bootstrap",
+      "sha": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+      "notInReleaseCommitCount": 2,
+      "containedInRemoteHeads": [],
+      "openPullRequests": [
+        2
+      ],
+      "decision": "keep",
+      "reason": "Open PR head or base; unique review and dependency context preserved."
+    },
+    {
+      "branch": "feature/HARN-06-governance-registration",
+      "sha": "ada24744af144b7a3d72df3e029e1845594dc33c",
+      "notInReleaseCommitCount": 1,
+      "containedInRemoteHeads": [
+        "feature/HARN-06-git-governance-bootstrap"
+      ],
+      "openPullRequests": [
+        1
+      ],
+      "decision": "keep",
+      "reason": "Open PR head or base; unique review and dependency context preserved."
+    },
+    {
+      "branch": "feature/HARN-07-release-fixture-clock",
+      "sha": "6a431358db73b9c59be4125fa0749beb014e7acd",
+      "notInReleaseCommitCount": 30,
+      "containedInRemoteHeads": [],
+      "openPullRequests": [
+        9
+      ],
+      "decision": "keep",
+      "reason": "Open PR head or base; unique review and dependency context preserved."
+    },
+    {
+      "branch": "feature/HARN-08-cleanup-review",
+      "sha": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+      "notInReleaseCommitCount": 19,
+      "containedInRemoteHeads": [
+        "feature/HARN-07-release-fixture-clock",
+        "feature/HARN-08-harness-review",
+        "feature/HARN-09-ci-diagnostics"
+      ],
+      "openPullRequests": [
+        6,
+        7
+      ],
+      "decision": "keep",
+      "reason": "Open PR head or base; unique review and dependency context preserved."
+    },
+    {
+      "branch": "feature/HARN-08-harness-review",
+      "sha": "f782c0be80763f279cd11fb261bfc825cadf9b6d",
+      "notInReleaseCommitCount": 22,
+      "containedInRemoteHeads": [
+        "feature/HARN-07-release-fixture-clock",
+        "feature/HARN-09-ci-diagnostics"
+      ],
+      "openPullRequests": [
+        7,
+        8
+      ],
+      "decision": "keep",
+      "reason": "Open PR head or base; unique review and dependency context preserved."
+    },
+    {
+      "branch": "feature/HARN-08-legacy-main-review",
+      "sha": "df7482704c7867712c12028d1a69e59bfd662acc",
+      "notInReleaseCommitCount": 11,
+      "containedInRemoteHeads": [
+        "feature/HARN-07-release-fixture-clock",
+        "feature/HARN-08-cleanup-review",
+        "feature/HARN-08-harness-review",
+        "feature/HARN-08-policy-review",
+        "feature/HARN-09-ci-diagnostics"
+      ],
+      "openPullRequests": [
+        4,
+        5
+      ],
+      "decision": "keep",
+      "reason": "Open PR head or base; unique review and dependency context preserved."
+    },
+    {
+      "branch": "feature/HARN-08-policy-review",
+      "sha": "8a72c9ae3e09460718de61065810a95594cd891c",
+      "notInReleaseCommitCount": 13,
+      "containedInRemoteHeads": [
+        "feature/HARN-07-release-fixture-clock",
+        "feature/HARN-08-cleanup-review",
+        "feature/HARN-08-harness-review",
+        "feature/HARN-09-ci-diagnostics"
+      ],
+      "openPullRequests": [
+        5,
+        6
+      ],
+      "decision": "keep",
+      "reason": "Open PR head or base; unique review and dependency context preserved."
+    },
+    {
+      "branch": "feature/HARN-09-browser-retry",
+      "sha": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "notInReleaseCommitCount": 1,
+      "containedInRemoteHeads": [
+        "develop",
+        "feature/HARN-07-release-fixture-clock",
+        "feature/HARN-08-cleanup-review",
+        "feature/HARN-08-harness-review",
+        "feature/HARN-08-legacy-main-review",
+        "feature/HARN-08-policy-review",
+        "feature/HARN-09-ci-diagnostics"
+      ],
+      "openPullRequests": [],
+      "decision": "delete-after-preservation",
+      "reason": "PR3 merged; tip is an ancestor of retained develop and six retained PR branches.",
+      "archiveTag": null
+    },
+    {
+      "branch": "feature/HARN-09-ci-diagnostics",
+      "sha": "299ea62ab8eb3e00d4471fc82930137fc5026dc0",
+      "notInReleaseCommitCount": 26,
+      "containedInRemoteHeads": [
+        "feature/HARN-07-release-fixture-clock"
+      ],
+      "openPullRequests": [
+        8,
+        9
+      ],
+      "decision": "keep",
+      "reason": "Open PR head or base; unique review and dependency context preserved."
+    },
+    {
+      "branch": "feature/discord-env-setup",
+      "sha": "7bede4485321bc2adc9b68b2c25cefb17eb44808",
+      "notInReleaseCommitCount": 2,
+      "containedInRemoteHeads": [],
+      "openPullRequests": [],
+      "decision": "keep",
+      "reason": "Unintegrated substantive work: nightly design15 paths or Discord setup/backup records5 paths. No discard decision."
+    },
+    {
+      "branch": "feature/m0-core",
+      "sha": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+      "notInReleaseCommitCount": 4,
+      "containedInRemoteHeads": [],
+      "openPullRequests": [],
+      "decision": "keep",
+      "reason": "Separate worktree with88 unchanged dirty files."
+    },
+    {
+      "branch": "feature/m0-core-web",
+      "sha": "c48f0845133cafea1c046eb26bec7e040d781ca6",
+      "notInReleaseCommitCount": 1,
+      "containedInRemoteHeads": [],
+      "openPullRequests": [],
+      "decision": "delete-after-preservation",
+      "reason": "Retired pre-September7 Express prototype, superseded by the documented new development; preserve exact original commit by remote tag.",
+      "archiveTag": "archive/2026-09-30/m0-core-web"
+    },
+    {
+      "branch": "main",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "notInReleaseCommitCount": 0,
+      "containedInRemoteHeads": [
+        "develop",
+        "docs/git-governance-design-archive",
+        "feature/DPL-00-nightly-deploy-design",
+        "feature/HARN-06-git-governance-bootstrap",
+        "feature/HARN-06-governance-registration",
+        "feature/HARN-07-release-fixture-clock",
+        "feature/HARN-08-cleanup-review",
+        "feature/HARN-08-harness-review",
+        "feature/HARN-08-legacy-main-review",
+        "feature/HARN-08-policy-review",
+        "feature/HARN-09-browser-retry",
+        "feature/HARN-09-ci-diagnostics",
+        "feature/discord-env-setup",
+        "release"
+      ],
+      "openPullRequests": [],
+      "decision": "keep",
+      "reason": "Permanent branch under current workflow."
+    },
+    {
+      "branch": "release",
+      "sha": "d8ef8764540b3381e4f20588bb1a375a5a09f134",
+      "notInReleaseCommitCount": 0,
+      "containedInRemoteHeads": [],
+      "openPullRequests": [],
+      "decision": "keep",
+      "reason": "Permanent branch under current workflow."
+    }
+  ],
+  "deleteCount": 3,
+  "keepCount": 14
+}

@@ -1,0 +1,19 @@
+{
+  "completedAt": "2026-09-30T20:29:12.475324+09:00",
+  "main": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+  "release": "054575928df7bd7e8f8a630c1234d7b3d054969c",
+  "remote": {
+    "refs/heads/main": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "refs/heads/release": "6b91402f11df5c08c0147bab14fd2df7c681cbd8"
+  },
+  "mainEqualsOriginMain": true,
+  "releaseAheadOfMain": 14,
+  "mainAheadOfRelease": 0,
+  "entireReleaseTreePreserved": true,
+  "refsUpdatedAtomically": true,
+  "backupMain": "backup/main-before-release-pick-20260930",
+  "backupRelease": "backup/release-before-chronological-pick-20260930",
+  "rootHead": "c49d27fd1a6dd5a29df8165648fc912990563364",
+  "rootBranch": "feature/m0-design-completion",
+  "remotePush": false
+}

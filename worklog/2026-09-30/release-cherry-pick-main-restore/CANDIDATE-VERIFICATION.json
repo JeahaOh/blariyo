@@ -1,0 +1,19 @@
+{
+  "time": "2026-09-30T20:27:23.965059+09:00",
+  "candidate": "054575928df7bd7e8f8a630c1234d7b3d054969c",
+  "candidateTree": "5d9cc2679e12fc580fee10d7e128281725303207",
+  "previousRelease": "2126c053b35f2e2b4e45a8496e259ac211812772",
+  "entireTreeIdentical": true,
+  "commitCount": 14,
+  "authorDatesChronological": true,
+  "originalAuthorsAndDatesPreserved": true,
+  "sourceShaTrackedAll": true,
+  "singleParentAll": true,
+  "emptyHistoricalMergeRecord": [
+    "2424edf85254e8a8502bad244e48f09b9d54d067"
+  ],
+  "candidateClean": true,
+  "rootHeadAndIndexUnchanged": true,
+  "existingFilesPreserved": 27,
+  "mainReleaseNotYetMoved": true
+}

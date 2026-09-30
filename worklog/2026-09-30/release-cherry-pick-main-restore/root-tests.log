@@ -1,0 +1,54 @@
+
+> test
+> node --test tests/*.test.ts
+
+[Vue warn]: Property "batchItemId" was accessed during render but is not defined on instance.
+  at <App>
+[Vue warn]: Property "batchItemId" was accessed during render but is not defined on instance.
+  at <App>
+[Vue warn]: Property "batchItemId" was accessed during render but is not defined on instance.
+  at <App>
+[Vue warn]: Property "batchItemId" was accessed during render but is not defined on instance.
+  at <App>
+✔ actual admin template renders scheduled immediate action and escaped per-file feedback (30.8545ms)
+✔ Nest TypeScript runtime has acyclic imports and SQL/ORM remains inside persistence (95.700166ms)
+✔ Collector feature packages have no cycles or reverse dependencies into triggers (59.47575ms)
+✔ Collector site modules keep identity, list and detail separate without IO or cross-site dependencies (22.30125ms)
+✔ Web uses contracts and HTTP instead of importing another app implementation (28.885417ms)
+✔ identity fixture verifies signature, expiry, issuer, audience and allowlist (24.711375ms)
+✔ operator registry grants only active exact identities and rejects ambiguous configuration (47.176ms)
+✔ BFF response projection removes unexpected private fields at every level (3.608959ms)
+✔ Collector verification accepts only loopback admin databases and decodes credentials (1.1625ms)
+✔ Collector verification rejects missing, partial and skipped JUnit results (10.401459ms)
+✔ consent expiration, corrupted state, withdrawal, no external adapter before grant (4.93825ms)
+✔ SSR summary preserves graphemes, normalizes whitespace and never pads (8.480709ms)
+✔ analytics-v1 keeps only declared event fields and drops invalid values (0.722333ms)
+✔ late analytics load and error callbacks cannot cancel a newer consent generation (0.276083ms)
+✔ analytics sends one page view per navigation and keeps a later route revisit (0.158ms)
+✔ analytics waits for a delayed script with only the latest route page view (0.148875ms)
+✔ migration SQL stays immutable and explicit contract evolution matches canonical specs (39.789416ms)
+✔ implementation OpenAPI is identical to the canonical input (10.742667ms)
+✔ sitemaps use canonical URLs, stable ID ranges, real modification times and no fake index dates (1.529292ms)
+✔ XML escapes URLs, bounds output and rejects empty chunks and invalid canonical origins (12.063167ms)
+✔ cache coalesces simultaneous requests, expires at five minutes and retries failures (0.326042ms)
+✔ cache bounds concurrent generation, entries and retained bytes (0.57675ms)
+✔ YouTube watch, share, Shorts, live and privacy-enhanced URLs preserve ID and time (1.082125ms)
+✔ Instagram post/reel and TikTok video/photo URLs strip tracking and retain long IDs as strings (0.321542ms)
+✔ untrusted or malformed addresses never become executable embeds (0.109416ms)
+✔ projection preserves article text/images and source data; only standalone SNS URLs become embeds (0.871959ms)
+✔ YouTube error categories do not call network or embed restrictions a deletion (0.074334ms)
+✔ TikTok messages require the exact iframe window, official origin and typed payload (0.116375ms)
+✔ upload feedback maps all failed indices to original file names and keeps gate failures common (1.230625ms)
+✔ X reference keeps the exact large ID and strips tracking only from a recognized post URL (0.759709ms)
+✔ URLs cannot inject hostnames, credentials, markup, or arbitrary text into an embed (0.188416ms)
+✔ captured author, exact post reference and images become one lossless fallback card (0.202417ms)
+✔ an unrelated author or bare URL does not swallow adjacent article text or attachments (0.116458ms)
+✔ multiple captured posts stay separate and preserve their order (0.0775ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 388.494958

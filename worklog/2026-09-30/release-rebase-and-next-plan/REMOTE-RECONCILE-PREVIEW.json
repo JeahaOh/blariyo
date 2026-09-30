@@ -1,0 +1,15 @@
+{
+  "operation": "future merge origin/release into rebased release",
+  "exit": 1,
+  "conflictFiles": [
+    "AGENTS.md",
+    "docs/ai/README.md",
+    "docs/ai/git-workflow.md",
+    "docs/ai/harness.md",
+    "docs/operations/current-status.md",
+    "docs/status.md",
+    "worklog/2026-09-26/ai-workflow-design/DECISIONS.md"
+  ],
+  "resultTreeSameAsRelease": false,
+  "executed": false
+}

@@ -21,7 +21,7 @@
 | 순서·우선순위 | 잔여 task | 착수 입력·담당 | 완료 증거 |
 | --- | --- | --- | --- |
 | 0 · 완료 | CON-02 후속/O05: 로컬 개발 준비 도구 권한·상태 출력 정렬 | 로컬 보완 `3c3902b`; 운영 적용은 별도 | [후속 작업](implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)의 최신 권한·ledger·격리 DB 허용/거부 검증 완료. 운영 인수는 아래 잔여로 유지 |
-| 1 · 통합 완료 | feature→release 통합·검증·원격 동기화 | `53873d0` 일반 push·서버 readback 완료 | [통합 결과](../worklog/2026-09-30/git-cleanup-execution/README.md):22개 충돌 해결·회귀 통과·원격 일치. 별도 파비콘 변경8파일 및 현재 feature 마감은 보류. image digest·배포는 후속 범위 |
+| 1 · 통합 완료 | feature→release 통합·검증·원격 동기화 | `53873d0` 일반 push·서버 readback 완료 | [통합 결과](../worklog/2026-09-30/git-cleanup-execution/README.md):22개 충돌 해결·회귀 통과·원격 일치. 별도 파비콘8파일은 `3f35388`에 보존·검증했고 기존 feature는 정리했다. [유실 재검토·후속 반영](../worklog/2026-09-30/favicon-release-preservation/README.md)을 따른다. image digest·배포는 후속 범위 |
 | 2 · P0 | OPS-01/02: 사람의 반복 업무·실제 Access/MFA 인수 | 사용자(OWNER)·역할별 시험 계정/콘텐츠·시간 | 인수12개 시나리오/10~20건 업무의 소요·혼동·재작업, OWNER/EDITOR 허용·거부·기존 세션 회수 |
 | 3 · P0 | P0-05/OPS-02/03: 운영 상태 재조회·새 후보 반영·복귀 | 운영 접근·적용 범위/시간 / 사용자+개발자 | 현재 SHA/digest/ledger/flag/timer, 최근18시간 내 백업·격리 복원, API009/010·Collector007~010/권한·호환 복귀·실제 재부팅 |
 | 4 · P1 | OPS-04/P1-03/04/07: 실제 장비·원격 DB/R2·Discord | QD-05/06의 장비·사설 경로·제한 계정 | DB/object byte/hash readback, 권한 거부, 재시작·24시간 만료, Discord 취소/중복/권한·실수신. 지원 OS별 증거 분리 |

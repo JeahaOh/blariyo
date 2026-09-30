@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path d="M 140 16 H 372 A 124 124 0 0 1 496 140 V 425 A 71 71 0 0 1 425 496 H 140 A 124 124 0 0 1 16 372 V 140 A 124 124 0 0 1 140 16 Z"
+        fill="#00a19b" stroke="#f9f9f9" stroke-width="36" stroke-linejoin="round"/>
+  <text x="256" y="335" fill="#262626" font-family="-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', Pretendard, 'Noto Sans KR', sans-serif" font-size="228" font-weight="900" text-anchor="middle">B</text>
+</svg>

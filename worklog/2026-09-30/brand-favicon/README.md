@@ -1,0 +1,23 @@
+# 블라리요 브랜드 마크 기반 파비콘 생성 및 등록
+
+- 요청: brand-mark 기반 favicon.ico 및 png 생성 요청
+- 담당: Gemini / 상태: 종료 / 갱신: 2026-09-30T21:35:30+09:00
+- 작업 폴더·브랜치: `/Volumes/MicroVault/iCloudDrive/git/private/blariyo` / `feature/m0-design-completion`
+- 생성 및 수정 경로:
+  - `apps/web/public/favicon.ico`: 48x48, 32x32, 16x16 멀티 해상도 ICO
+  - `apps/web/public/favicon.png`: 512x512 고해상도 PNG
+  - `apps/web/public/favicon-32x32.png`: 32x32 표준 탭 PNG
+  - `apps/web/public/favicon-16x16.png`: 16x16 레거시/작은 탭 PNG
+  - `apps/web/public/apple-touch-icon.png`: 180x180 모바일/애플 터치 아이콘 PNG
+  - `apps/web/public/favicon.svg`: 모던 브라우저용 벡터 SVG
+  - `apps/web/nuxt.config.ts`: `app.head.link`에 파비콘 및 애플 터치 아이콘 등록
+- 디자인 스펙 반영:
+  - 배경: `--brand` (`#00A19B`)
+  - 테두리: `--paper` (`#F9F9F9`, 비례 스케일)
+  - 모서리 곡률: `7px 7px 4px 7px` 비례 비율 (말풍선 모티프의 비대칭 라운딩)
+  - 텍스트: `B` (`#262626`, bold/black 900)
+- 검증:
+  - `magick identify apps/web/public/favicon.ico`: 48x48, 32x32, 16x16 확인 완료
+  - `npm run typecheck:web`: Nuxt TypeScript 검증 통과 (2725ms)
+  - `npm run test:web-cache`: 빌드 및 웹 캐시 테스트 통과 (Node 24 환경)
+- 잔여 사항: 커밋 요청 없음(G08 준수, 미커밋 보존).

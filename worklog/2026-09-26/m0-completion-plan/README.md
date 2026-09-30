@@ -2,6 +2,8 @@
 
 > 최신 사용자 결정은 [§12 보존·M0 범위·운영 권한](#retention-scope-roles-20260926)을 따른다. §1~11의 미정·권장안·변경 범위는 각 작성 시점의 기록이며, 후속 결정과 연결된 정본을 적용한다.
 
+> 후속 진행: [M0-D01~D06 설계 완료](../m0-design-completion/README.md)와 [개발 착수 확인](../m0-design-completion/DEVELOPMENT-READINESS.md). 아래 작성 당시 상태·증거는 보존하며, 설계 완료와 구현·운영 인수는 구분한다.
+
 ## 1. 요청·작업 범위
 
 - 요청: 앞서 검토한 M0 잔여 구현 계획을 `worklog/YYYY-MM-DD/<주제영역>/`에 문서화한다.
@@ -498,3 +500,40 @@ DB dump 안의 본문·metadata는 DB 백업의 일부이며 이미지·첨부 b
 - 커밋 메시지: `docs(m0): finalize completion plan and operating decisions`.
 - 이 기록을 포함하는 실제 커밋의 성공 여부·식별자는 `git log -1 -- worklog/2026-09-26/m0-completion-plan/README.md`로 확인한다. 커밋 후 파일 목록·부모 SHA·작업 폴더 상태를 재확인한다.
 - 원격 push·release 병합·배포·제품 테스트·외부 연동은 이번 요청 범위에 포함하지 않는다.
+
+## 16. 설계 보완 작업 목록·goal 요청문 작성 — 2026-09-26
+
+- 요청: 할 작업을 정리하고 이 폴더에 해당 작업의 goal 실행 요청문을 작성한다.
+- 담당: Codex. 작업 폴더: `/Volumes/MicroVault/iCloudDrive/git/private/blariyo`.
+- 시작 기준: `feature/git-local-guards@bb19c486f3cafa847bd34828a699382c6d5bd0b6`. 작업 폴더와 index에 변경 없음. 앞선 문서 작업과 같은 위치에서 이어 작성한다.
+- 변경 경로: 이 기록과 아래 신규 문서 2개. 기존 정본·개발 명세·source·Git 지침은 수정하지 않는다.
+- 상태: 종료 — 작업 목록·goal 요청문 작성과 문서 검사 완료. 갱신: 2026-09-26 22:58 KST.
+- 산출물:
+  - [설계 보완 작업 목록](DESIGN-TASKS.md): 보존·삭제, Web 입력 전달, Drive 백업, 운영 권한, 출처 편입 근거, 정합성·구현 인계의 6개 작업. 선행 조건·대상 정본·산출물·완료 조건을 연결한다.
+  - [goal 실행 요청문](DESIGN-GOAL-PROMPT.md): 확정 정책, 수행 범위, 자율 진행 기준, 문서 검증과 종료 조건을 포함한 재사용 요청문.
+- 범위 판단: M0 기본 설계는 이미 있다. 최근 정책 변경 반영과 기존 미결 기술 계약 보완을 다음 goal로 정의하며, M0 전체 신규 설계나 구현 목표로 확대하지 않는다.
+- 현재 완료 대상은 목록·요청문 작성이다. D01~D06 설계 보완, 애플리케이션 구현, 외부 연동·운영 인수는 이 요청에서 실행하지 않는다.
+- 검증: 신규 문서 전체와 이 추가 기록의 로컬 링크 33개(그중 anchor 참조 5개), 누락 0개. 기존 README 내용 보존, 신규 문서의 코드 블록 짝·공백 검사, `git diff --check` 통과. 확정 정책과 설계/구현/운영 경계를 대조했다.
+- 변경은 지정 폴더의 Markdown 3개에 한정한다. 브랜치·HEAD를 유지하고 index는 비어 있다. goal 등록·실행, 제품 테스트, stage·commit·push는 수행하지 않았다.
+
+## 17. goal 실행 제어 규칙 추가 — 2026-09-26
+
+- 요청: Scope Lock·Done Criteria·Retry Budget·Progress Guard·Hard Stop의 5개 규칙을 추가한다.
+- 담당: Codex. 작업 폴더: `/Volumes/MicroVault/iCloudDrive/git/private/blariyo`.
+- 시작 기준: `feature/git-local-guards@bb19c486`. §16에서 작성한 미커밋 문서 3개를 이어 수정하며 index는 비어 있다.
+- 변경 경로: `DESIGN-GOAL-PROMPT.md`, `DESIGN-TASKS.md`, 이 기록. 기존 M0 정책·설계 작업 범위는 유지한다.
+- 상태: 종료 — 규칙 반영과 기존 진행 지시의 충돌 검사 완료. 갱신: 2026-09-26 23:08 KST.
+- 반영: 동일 문제는 최초 시도 포함 최대 2회, 2회 연속 무진전이면 중단, goal 전체 완료·blocked·사용자 판단 필요 시 자동 continuation 없이 종료하도록 명시한다.
+- 정합성: 기존 요청문의 사용자 판단 대기 중 독립 작업을 계속하라는 문구를 종료 지시로 변경한다. 이미 후속 입력으로 분리한 장비·계정값과 현재 설계에서 새 판단이 필요한 충돌을 구분한다.
+- 검증: 두 문서의 5개 규칙 반영·충돌 문구 제거·코드 블록 짝·공백 검사와 `git diff --check` 통과. 기존 커밋의 README 이력은 보존했고 지정 문서 3개 외 변경 없음, 브랜치·HEAD 유지·빈 index를 확인했다.
+- goal 실행·stage·commit·push는 수행하지 않았다.
+
+## 18. M0 설계 보완 feature 브랜치 생성 — 2026-09-26
+
+- 요청: `feature/m0-design-completion` 브랜치를 만든다.
+- 담당: Codex. 작업 폴더: `/Volumes/MicroVault/iCloudDrive/git/private/blariyo`.
+- 출발 기준: 로컬 `release@bb19c486f3cafa847bd34828a699382c6d5bd0b6`. 시작 시 이 폴더의 미커밋 문서 3개와 빈 index를 확인했다.
+- 결과: `git switch -c feature/m0-design-completion release`로 생성·전환 완료. HEAD는 출발 커밋과 동일하다.
+- 변경 경로: 브랜치 생성·전환과 이 기록 추가. 상태: 종료. 갱신: 2026-09-26 23:18 KST.
+- 검증: 직전 `npm run hooks:check` 통과. 전환 전후 기존 문서 3개의 SHA-256 일치·빈 index를 확인했으며, 이 기록만 후속 추가한다.
+- 설계 goal·구현·stage·commit·push는 실행하지 않았다.

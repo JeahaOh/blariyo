@@ -20,7 +20,7 @@ const response = await fetch(base + '/api/v1/admin/posts', {
   method: 'POST',
   headers: {
     'X-Blariyo-Service-Token': process.env.SERVICE_TOKEN || '',
-    'X-Blariyo-Admin-Actor': 'admin:v1:' + 'a'.repeat(43),
+    'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor': 'admin:v1:' + 'a'.repeat(43),
     'Content-Type': 'application/json',
     'Idempotency-Key': randomUUID(),
   },

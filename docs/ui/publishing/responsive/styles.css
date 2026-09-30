@@ -182,7 +182,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   left: 8px;
   height: 3px;
   border-radius: 3px 3px 0 0;
-  background: var(--accent);
+  background: var(--brand);
   content: "";
 }
 

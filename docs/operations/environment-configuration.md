@@ -115,13 +115,19 @@ batch 수집 결과는 바로 공개 게시글이 아니다. 운영 또는 로�
 
 ## 9. Core 연결과 direct batch 검수의 실행 경계
 
+9/27 현행 앱/계약은 API010·Collector010이다. 아래9/23 운영 관측과 구 권한 설명은 당시 기준선이다.
+새 mailbox·runtime·retention·quota 권한은 [현행 권한 SQL](../../deploy/postgresql/apply-privileges.sql)·
+[회수 전용 역할](../../deploy/postgresql/create-retention-role.sql)을 따르며 실제 적용은 [운영 인계](m0-operation-handoff.md)로 검증한다.
+`prepare-batch-review --apply`의 최신 batch 권한·ledger 출력은 9/27 개발 데이터 적재에서 보완했다.
+[실행 기록](../../worklog/2026-09-27/dev-21-site-publish/README.md)은 격리 권한 시험과 개발 DB 적용 증거이며 운영 인수와 구분한다.
+
 - Web의 `NUXT_CORE_ORIGIN`은 API 내부 주소다. Docker 예시는 `http://api:3100`, 같은 컴퓨터의 직접 실행은 `http://127.0.0.1:3100`이다. Web 공개 주소로 설정하면 자기 자신을 호출하므로 사용하지 않는다.
 - dev/stage/prod 예시는 Docker 서비스 간 연결을 전제로 API `HOST=0.0.0.0`을 사용한다. 컨테이너 안의 `127.0.0.1`은 다른 Web 컨테이너에서 접근할 수 없다. API 포트를 공개 host에 publish하지 않고 내부 네트워크로 연결한다. 같은 컴퓨터에서 직접 실행할 때는 `HOST=127.0.0.1`과 `NUXT_CORE_ORIGIN=http://127.0.0.1:3100`을 함께 사용한다. 이는 예시 설정이며 운영 Compose 적용 증거가 아니다.
 - API `SERVICE_TOKEN`과 Web `NUXT_SERVICE_TOKEN`에는 같은 비밀을 주입한다. 예시 값 자체로 실행하지 않는다.
 - API는 자기 PostgreSQL 연결에서 `collect.batch_*`를 조회한다. API와 batch 프로세스는 분리하지만 **현재 구현은 같은 PostgreSQL database**를 사용한다. 원격 batch의 DB host는 VPN/사설망을 통해 같은 DB에 도달하는 주소여야 한다. DB를 공개 인터넷에 열라는 의미가 아니다.
 - API role: batch 소유 7개 테이블은 SELECT만, `collect.batch_review`/`collect.batch_review_request`와 `content.*`는 API 소유다. batch role에는 API 검수·content 테이블 쓰기 권한을 주지 않는다.
 - API의 `COLLECT_READER_S3_*`는 batch bucket의 `collect/media/*` GET 전용 자격증명이다. API public/private 저장 자격증명 및 batch writer와 구분한다. local에서는 `COLLECT_READER_DIRECTORY`가 batch object root를 가리킨다.
-- API V008, Collector V006 migration, DB role과 object 접근권한 검증 후 `COLLECT_BATCH_REVIEW_ENABLED`와 `NUXT_COLLECT_BATCH_REVIEW_ENABLED`를 함께 true로 설정한다. 기본 예시는 false다. 시작만으로 검수·승격·발행하지 않는다.
+- 현재 후보 API V010/Collector V010 migration·기존 ledger 보존, DB role과 object 접근권한 및 고지/운영 조건 검증 후 `COLLECT_BATCH_REVIEW_ENABLED`와 `NUXT_COLLECT_BATCH_REVIEW_ENABLED`를 함께 true로 설정한다. 기본 예시는 false다. 시작만으로 검수·승격·발행하지 않는다.
 - 격리 DB 통합 테스트의 조회 → REVIEWING → APPROVED → DRAFT → 별도 발행 → 숨김 → 재발행 기록과
   [9월 23일 운영 DB 반영](../../worklog/2026-09-23/release/production-db-promotion.md)을 구분한다. 운영에는
   API V008·Collector V006과 batch 검수 flag가 반영됐고 내부 service 조회·private R2 미리보기를 확인했다.
@@ -129,7 +135,7 @@ batch 수집 결과는 바로 공개 게시글이 아니다. 운영 또는 로�
 
 Collector V003은 source session 잠금과 같은 DB 연결에서 쓰기를 실행한다. batch DB endpoint에는
 transaction pooling을 사용하지 않는다. migration은 batch 실행을 멈추고 백업한 뒤 적용한다.
-로컬 `prepare-batch-review --apply`는 Collector V006/API V008과 제한 role을 함께 준비한다.
+로컬 `prepare-batch-review --apply`는 archive 검증 후 API→Collector 순서로 적용하고 `migrationVersions`에 실제 ledger를 출력한다. API010/Collector010 개발 적용과 신규 quota/mailbox/runtime 권한 및 content/검수 쓰기 거부를 확인했다. 실제 실행 전 현재 Collector JAR와 API build를 준비한다.
 
 ## Discord direct queue 설정
 

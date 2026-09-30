@@ -31,7 +31,7 @@ class DirectBatchRunnerReadbackTests {
     config.setPassword(System.getenv().getOrDefault("COLLECTOR_READBACK_DATABASE_PASSWORD",""));config.setMaximumPoolSize(3);
     try(var ds=new HikariDataSource(config)) {
       com.blariyo.collector.ops.MigrationMain.migrate(jdbc,config.getUsername(),config.getPassword());
-      var store=new BatchStore(ds);String key=Long.toString(System.nanoTime());
+      var store=TestSourceControls.store(ds);String key=Long.toString(System.nanoTime());
       var fail=new java.util.concurrent.atomic.AtomicBoolean(true);
       var base=transport(key);
       SourceTransport network=new SourceTransport(){
@@ -45,7 +45,7 @@ class DirectBatchRunnerReadbackTests {
         }
       };
       var objects=new BatchObjectStore.Local(root.toString());
-      var runner=new DirectBatchRunner(network,store,objects,ignored->{});
+      var runner=new DirectBatchRunner(TestSourceControls.allowRobots(network),store,objects,ignored->{});
       var options=new DirectBatchRunner.Options("arcalive","hot",1,1,Duration.ofHours(24),10000,true);
       var failed=runner.run(source(key),options);assertEquals("BLOCKED",failed.state());assertEquals(1,failed.failures());
       java.util.UUID item;
@@ -79,7 +79,7 @@ class DirectBatchRunnerReadbackTests {
         crashed=store.item(run,"arcalive",crashKey,"https://arca.live/b/live/"+crashKey,"FETCHING","incomplete","[]","[]",null);
         store.raw(crashed,"collect/raw/abandoned/test.html");
       }
-      var recovered=new DirectBatchRunner(transport(crashKey),store,objects,ignored->{}).run(source(crashKey),options);
+      var recovered=new DirectBatchRunner(TestSourceControls.allowRobots(transport(crashKey)),store,objects,ignored->{}).run(source(crashKey),options);
       assertEquals(1,recovered.fetched());
       try(var c=ds.getConnection();var s=c.prepareStatement("SELECT state FROM collect.batch_item WHERE id=?")) {s.setObject(1,crashed);try(var row=s.executeQuery()){assertTrue(row.next());assertEquals("FETCHED",row.getString(1));}}
     }
@@ -98,9 +98,8 @@ class DirectBatchRunnerReadbackTests {
 
       String postKey = Long.toString(System.currentTimeMillis());
       var source = source(postKey);
-      var report = new DirectBatchRunner(
-          transport(postKey),
-          new BatchStore(dataSource),
+      var report = new DirectBatchRunner(TestSourceControls.allowRobots(transport(postKey)),
+          TestSourceControls.store(dataSource),
           new BatchObjectStore.Local(objectRoot.toString()),
           ignored -> {})
           .run(source, new DirectBatchRunner.Options("arcalive", "hot", 1, 1, Duration.ofHours(24), 10000, true));
@@ -149,7 +148,7 @@ class DirectBatchRunnerReadbackTests {
   }
 
   private static SourceRegistry.Source source(String postKey) {
-    return new SourceRegistry(Json.tree(Map.of("arcalive", Map.ofEntries(
+    return TestSourceControls.registry(Json.tree(Map.of("arcalive", Map.ofEntries(
         Map.entry("host", "arca.live"),
         Map.entry("approved", true),
         Map.entry("batchApproved", true),

@@ -33,6 +33,7 @@ sudo journalctl -u blariyo-backup.service -n 10 --no-pager
 AppArmor는 비활성화하지 않고 전용 설정과 socket 경로만 허용했다.
 
 백업 설치·복구 안내는 [backup README](../backup/README.md)를 따른다.
+direct 원문 회수의 로컬 구현·별도 계정·적용 gate·timer 초안은 [보존 작업 인계](collect-retention.md)를 따른다. 현재 운영에 설치·활성화한 결과가 아니다.
 실패 알림의 이메일·메신저 자동 전송과 장기간 외부 가용성 관찰은 아직 구성하지 않았다.
 현재 상태·journal 확인은 자동 알림을 대신하지 않는다.
 

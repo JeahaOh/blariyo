@@ -28,6 +28,7 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    collectDirectInputEnabled: false,
     collectBatchReviewEnabled: false,
     collectManualUrlEnabled: false,
     collectDiscordCommandEnabled: false,
@@ -36,6 +37,7 @@ export default defineNuxtConfig({
     adminAuthMode: 'access',
     localAdminToken: '',
     localAdminLoginEnabled: false,
+    localAdminRole: 'OWNER',
     serviceToken: '',
     actorSecret: '',
     accessIssuer: '',

@@ -2,7 +2,7 @@
 const route = useRoute();
 const requestFetch = useRequestFetch();
 const { data: features } = await useAsyncData('admin-features', () =>
-  requestFetch<{ batchReview: boolean }>('/api/admin/features').catch(() => null)
+  requestFetch<{ batchReview: boolean; directInput: boolean }>('/api/admin/features').catch(() => null)
 );
 </script>
 <template>
@@ -11,7 +11,7 @@ const { data: features } = await useAsyncData('admin-features', () =>
       >게시글 관리</NuxtLink
     >
     <NuxtLink
-      v-if="features?.batchReview"
+      v-if="features?.batchReview || features?.directInput"
       to="/admin/batch"
       :aria-current="route.path === '/admin/batch' ? 'page' : undefined"
       >수집 결과 검수</NuxtLink

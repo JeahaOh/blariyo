@@ -115,7 +115,7 @@ await test(
       { name: 'BLARIYO_ADMIN_SESSION', value: f.adminToken, url: f.origin },
     ]);
     const response = await context.request.get(f.origin + '/api/admin/features');
-    assert.deepEqual(await response.json(), { batchReview: false });
+    assert.deepEqual(await response.json(), { batchReview: false, directInput: false });
     assert.equal(response.headers()['cache-control'], 'private, no-store');
     await page.goto(f.origin + '/admin');
     await expect(

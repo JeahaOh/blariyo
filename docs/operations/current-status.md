@@ -65,7 +65,7 @@
 | 부팅 | 서비스·timer enabled/active | 실제 VM 재부팅 시험 |
 | 보안 보강 | 기존 JS 9개 쿼리 무관 캐시·Cloudflare 비용/DDoS 알림 유지. 9/25 공개 HTML/JSON 404·Web 직접 JSON 404 no-store, 새 JS/CSS 10개 원래 URL·쿼리 변형 해시·immutable 확인 | 새 자산의 쿼리 무관 규칙·구 탭 보존·다른 4xx/5xx·장기 관찰 미검증. [후속 기록](security-protection-status.md) |
 
-위 공개·DB 수량은 **9월 23일 관측값**이며, 새 발행·수정에 따라 달라질 수 있다. 수집 항목은 당시 108건(FETCHED 104·FAILED 2·BLOCKED 1·SKIPPED_POLICY 1)이다. 관리자 batch 검수 API/Web flag는 당시 `true`였고, 내부 service의 108건 조회·16개 출처 이미지 미리보기를 확인했다. 실제 MFA 세션의 관리자 조작은 별도 인수 대상이다. URL 접수·Discord 접수·자동 수집은 활성화하지 않았다. direct raw/media/report/queue 보존·고지 계약(QD-04)은 미정이며, batch 검수 활성화만으로 계약이나 운영 인수가 완료된 것은 아니다.
+위 공개·DB 수량은 **9월 23일 관측값**이며, 새 발행·수정에 따라 달라질 수 있다. 수집 항목은 당시 108건(FETCHED 104·FAILED 2·BLOCKED 1·SKIPPED_POLICY 1)이다. 관리자 batch 검수 API/Web flag는 당시 `true`였고, 내부 service의 108건 조회·16개 출처 이미지 미리보기를 확인했다. 실제 MFA 세션의 관리자 조작은 별도 인수 대상이다. URL 접수·Discord 접수·자동 수집은 활성화하지 않았다. 당시 미정이던 direct raw/media/report/queue 보존 계약(QD-04)은9/26 확정·9/27 로컬 구현됐으나 실제 고지·운영 회수 인수는 남아 있다. batch 검수 활성화만으로 계약이나 운영 인수가 완료된 것은 아니다.
 
 9월 23일 DB 반영 뒤 **9월 20일 구 API는 V008에서 readiness 503**이었다. 당시 확인한 V008 호환 Core release는 `5c581c2`다. 이후 공개 응답 반영이 확인됐으므로 이를 현재의 직전 release로 단정하지 않는다. 실제 rollback은 시험하지 않았으며 DB 전체 복구는 별도 결정이다. 다음 배포·복귀 전 [배포 실행서](deployment-runbook.md)에서 현재 release·ledger·설정·이미지·최신 백업과 복귀 후보의 호환성을 다시 대조한다.
 

@@ -1,0 +1,15 @@
+{
+  "manifestCounts": {
+    "worklog/2026-09-27/m0-implementation/FINAL-FILES.sha256": 231,
+    "worklog/2026-09-27/m0-status-refresh/FILES.sha256": 28,
+    "worklog/2026-09-27/dev-21-site-publish/FILES.sha256": 10
+  },
+  "mergedPaths": 255,
+  "sourcePaths": 189,
+  "missing": [],
+  "mismatch": [],
+  "requirements": {
+    "I": 32,
+    "P": 8
+  }
+}

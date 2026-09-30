@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { generateKeyPair, SignJWT } from 'jose';
-import { verifyAccessIdentity } from '../apps/web/server/utils/access.mjs';
+import { verifyAccessIdentity, verifyAccessOperator } from '../apps/web/server/utils/access.mjs';
 import {
   matchOperation,
   projectResponse,
@@ -22,9 +22,11 @@ await test('identity fixture verifies signature, expiry, issuer, audience and al
     issuer: 'https://identity.example.invalid',
     audience: 'fixture',
     key: publicKey,
-    operators: [{ identity: 'fixture-subject', operatorId: 'stable-local-operator', active: true }],
+    operators: [{ identity: 'fixture-subject', operatorId: 'stable-local-operator', role: 'OWNER', active: true }],
   };
   assert.equal(await verifyAccessIdentity(token, config), 'stable-local-operator');
+  assert.deepEqual(await verifyAccessOperator(token, config), { operatorId: 'stable-local-operator', role: 'OWNER' });
+  assert.deepEqual(await verifyAccessOperator(token, { ...config, operators: [{ ...config.operators[0], role: 'EDITOR' }] }), { operatorId: 'stable-local-operator', role: 'EDITOR' });
   await assert.rejects(verifyAccessIdentity(token, { ...config, issuer: 'https://wrong.invalid' }));
   await assert.rejects(verifyAccessIdentity(token, { ...config, audience: 'wrong' }));
   await assert.rejects(
@@ -45,7 +47,7 @@ await test('operator registry grants only active exact identities and rejects am
   const { privateKey, publicKey } = await generateKeyPair('RS256');
   const issuer = 'https://identity.example.invalid';
   const audience = 'fixture';
-  const entry = { identity: 'fixture-subject', operatorId: 'stable-local-operator', active: true };
+  const entry = { identity: 'fixture-subject', operatorId: 'stable-local-operator', role: 'OWNER', active: true };
   const tokenFor = (subject: string) =>
     new SignJWT({ email: 'owner@example.invalid' })
       .setProtectedHeader({ alg: 'RS256' })
@@ -65,6 +67,9 @@ await test('operator registry grants only active exact identities and rejects am
     {},
     { 'fixture-subject': entry.operatorId },
     [null],
+    [{ ...entry, role: undefined }],
+    [{ ...entry, role: 'ADMIN' }],
+    [entry, { ...entry, identity: 'other-identity' }],
     [[entry]],
     [{ ...entry, active: 'true' }],
     [{ identity: entry.identity, operatorId: entry.operatorId }],
@@ -83,13 +88,13 @@ await test('operator registry grants only active exact identities and rejects am
   await assert.rejects(check(await tokenFor('constructor'), [entry]), denied);
   await assert.rejects(check(token, [{ ...entry, identity: 'owner@example.invalid' }]), denied);
   assert.equal(
-    await check(token, [entry, { ...entry, identity: 'former-subject', active: false }]),
+    await check(token, [entry, { ...entry, identity: 'former-subject', operatorId: 'former-operator', active: false }]),
     entry.operatorId
   );
   await assert.rejects(
     check(await tokenFor('former-subject'), [
       entry,
-      { ...entry, identity: 'former-subject', active: false },
+      { ...entry, identity: 'former-subject', operatorId: 'former-operator', active: false },
     ]),
     denied
   );

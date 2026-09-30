@@ -62,10 +62,21 @@ export class OutboxService {
       await this.storage.delete('public', text(task.payload, 'publicStorageKey'));
       await this.cache.purge([text(task.payload, 'publicUrl')]);
     }
-    if (task.type === 'OBJECT_DELETE_PRIVATE')
+    let stagedId:string|null=null;
+    if(task.type==='OBJECT_DELETE_PRIVATE'&&typeof task.payload.sourceExpiresAt==='string'){
+      const state=await this.work.transaction(async()=>{
+        const image=await this.images.byPrivateKey(text(task.payload,'privateStorageKey'),true);
+        if(image?.postId)return {remove:false,id:null};
+        if(image?.status==='STAGED')await this.images.markPrivateDelete(image.id,this.actor);
+        return {remove:true,id:image?.id??null};
+      });
+      deleteObject=state.remove;stagedId=state.id;
+    }
+    if (task.type === 'OBJECT_DELETE_PRIVATE'&&deleteObject)
       await this.storage.delete('private', text(task.payload, 'privateStorageKey'));
     await this.work.transaction(async () => {
       if (!(await this.repository.owns(task, true))) return;
+      if(stagedId)await this.images.transitionStatus(stagedId,'PRIVATE_DELETE_PENDING','DELETED',this.actor);
       if (task.aggregateType === 'IMAGE' && task.aggregateId) {
         if (task.type === 'OBJECT_DELETE_PUBLIC' && !task.payload.compensation)
           await this.images.transitionStatus(

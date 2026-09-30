@@ -1,0 +1,241 @@
+{
+  "checkedAt": "2026-09-30T21:20:30+09:00",
+  "scope": "plan only; no ref/index/worktree mutations",
+  "root": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+  "branch": "feature/m0-design-completion",
+  "head": "578c0581ae7db6207a5f864dcca6485ad3eb47d6",
+  "existingUntrackedFilesSha256": {
+    "worklog/2026-09-30/origin-main-check/README.md": "90907788b7c768fd391cfd8ce26fbdefd2eeb45e12c10b5ac8b58f5456d52752",
+    "worklog/2026-09-30/release-origin-comparison/COMPARISON.json": "9a4b2b17add8fd984497ddae564e38d4ffafd4f16abbe51c8abc98df3b4bb693",
+    "worklog/2026-09-30/release-origin-comparison/README.md": "9502e7478506585ac8e30d0885c6d113c36c4e92a302984a79390126458d1661"
+  },
+  "localBranches": [
+    {
+      "ref": "backup/main-before-release-pick-20260930",
+      "sha": "e51f1b501f7cc327da279102dd69eac2f4c554db"
+    },
+    {
+      "ref": "backup/release-before-chronological-pick-20260930",
+      "sha": "2126c053b35f2e2b4e45a8496e259ac211812772"
+    },
+    {
+      "ref": "backup/release-before-main-rebase-20260930",
+      "sha": "bb19c486f3cafa847bd34828a699382c6d5bd0b6"
+    },
+    {
+      "ref": "feature/ai-workflow-design",
+      "sha": "92f1e04efed540e802ab046c650f56c6359da0e5"
+    },
+    {
+      "ref": "feature/git-local-guards",
+      "sha": "bb19c486f3cafa847bd34828a699382c6d5bd0b6"
+    },
+    {
+      "ref": "feature/m0-core",
+      "sha": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727"
+    },
+    {
+      "ref": "feature/m0-design-completion",
+      "sha": "578c0581ae7db6207a5f864dcca6485ad3eb47d6"
+    },
+    {
+      "ref": "main",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+    },
+    {
+      "ref": "release",
+      "sha": "054575928df7bd7e8f8a630c1234d7b3d054969c"
+    }
+  ],
+  "remoteBranches": [
+    {
+      "name": "develop",
+      "sha": "1ad626c92dd418f31827d17ccbb9f3580f58447f",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 2
+    },
+    {
+      "name": "docs/git-governance-design-archive",
+      "sha": "20c7863150bd071e32d20507d5a48c004430c0e6",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 1
+    },
+    {
+      "name": "feature/DPL-00-nightly-deploy-design",
+      "sha": "edb54b9a8c3f4a2775151e2309241be186fae4ab",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 1
+    },
+    {
+      "name": "feature/HARN-06-git-governance-bootstrap",
+      "sha": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 2
+    },
+    {
+      "name": "feature/HARN-06-governance-registration",
+      "sha": "ada24744af144b7a3d72df3e029e1845594dc33c",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 1
+    },
+    {
+      "name": "feature/HARN-07-release-fixture-clock",
+      "sha": "6a431358db73b9c59be4125fa0749beb014e7acd",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 30
+    },
+    {
+      "name": "feature/HARN-08-cleanup-review",
+      "sha": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 19
+    },
+    {
+      "name": "feature/HARN-08-harness-review",
+      "sha": "f782c0be80763f279cd11fb261bfc825cadf9b6d",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 22
+    },
+    {
+      "name": "feature/HARN-08-legacy-main-review",
+      "sha": "df7482704c7867712c12028d1a69e59bfd662acc",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 11
+    },
+    {
+      "name": "feature/HARN-08-policy-review",
+      "sha": "8a72c9ae3e09460718de61065810a95594cd891c",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 13
+    },
+    {
+      "name": "feature/HARN-09-browser-retry",
+      "sha": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 1
+    },
+    {
+      "name": "feature/HARN-09-ci-diagnostics",
+      "sha": "299ea62ab8eb3e00d4471fc82930137fc5026dc0",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 26
+    },
+    {
+      "name": "feature/discord-env-setup",
+      "sha": "7bede4485321bc2adc9b68b2c25cefb17eb44808",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 2
+    },
+    {
+      "name": "feature/m0-core",
+      "sha": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 4
+    },
+    {
+      "name": "feature/m0-core-web",
+      "sha": "c48f0845133cafea1c046eb26bec7e040d781ca6",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": false,
+      "commitsOutsideFeature": 1
+    },
+    {
+      "name": "feature/m0-design-completion",
+      "sha": "578c0581ae7db6207a5f864dcca6485ad3eb47d6",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": true,
+      "commitsOutsideFeature": 0
+    },
+    {
+      "name": "main",
+      "sha": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "inMain": true,
+      "inRelease": true,
+      "inFeature": true,
+      "commitsOutsideFeature": 0
+    },
+    {
+      "name": "planning-design-only",
+      "sha": "0ade2e4815e74af68d337f73bd10877da28cce2f",
+      "inMain": true,
+      "inRelease": true,
+      "inFeature": true,
+      "commitsOutsideFeature": 0
+    },
+    {
+      "name": "release",
+      "sha": "6b91402f11df5c08c0147bab14fd2df7c681cbd8",
+      "inMain": false,
+      "inRelease": false,
+      "inFeature": true,
+      "commitsOutsideFeature": 0
+    }
+  ],
+  "remoteBranchCount": 19,
+  "remoteTipsOutsideCurrentFeature": [
+    "develop",
+    "docs/git-governance-design-archive",
+    "feature/DPL-00-nightly-deploy-design",
+    "feature/HARN-06-git-governance-bootstrap",
+    "feature/HARN-06-governance-registration",
+    "feature/HARN-07-release-fixture-clock",
+    "feature/HARN-08-cleanup-review",
+    "feature/HARN-08-harness-review",
+    "feature/HARN-08-legacy-main-review",
+    "feature/HARN-08-policy-review",
+    "feature/HARN-09-browser-retry",
+    "feature/HARN-09-ci-diagnostics",
+    "feature/discord-env-setup",
+    "feature/m0-core",
+    "feature/m0-core-web"
+  ],
+  "otherWorktree": {
+    "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+    "branch": "feature/m0-core",
+    "head": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+    "modifiedFiles": 20,
+    "untrackedFiles": 68,
+    "status": "## feature/m0-core...origin/feature/m0-core\n M .dockerignore\n M README.md\n M apps/api/src/app.mjs\n M apps/api/src/collection-routes.mjs\n M apps/api/src/collection.mjs\n M apps/api/src/db.mjs\n M apps/api/src/migrate.mjs\n M apps/web/app/pages/admin-collect.vue\n M apps/web/server/api/collector/v1/[...path].ts\n M docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md\n M docs/development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml\n M docs/system-design/07-spring-collector-design.md\n M packages/contracts/openapi/m0-collection-assist.yaml\n M packages/contracts/src/collection-api.d.ts\n M packages/contracts/src/schema.mjs\n M scripts/test-docker.mjs\n M scripts/test-integration.mjs\n M tests/constraints.test.mjs\n M tests/core-isolation.test.mjs\n M tests/helpers/browser-fixture.mjs\n?? apps/api/migrations/V005__spring_collection.down.sql\n?? apps/api/migrations/V005__spring_collection.sql\n?? apps/api/src/collection-transition.mjs\n?? apps/api/src/collection-v2.mjs\n?? apps/collector/\n?? docs/implementation/\n?? tests/browser/collector-events.test.mjs\n?? tests/collection-v2.test.mjs\n?? tests/spring/",
+    "action": "preserve; do not merge, switch, stash, delete or reset"
+  },
+  "worktrees": "worktree /Volumes/MicroVault/iCloudDrive/git/private/blariyo\nHEAD 578c0581ae7db6207a5f864dcca6485ad3eb47d6\nbranch refs/heads/feature/m0-design-completion\n\nworktree /Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core\nHEAD a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727\nbranch refs/heads/feature/m0-core",
+  "localReleaseOnlyCommitIds": 14,
+  "originReleaseOnlyCommitIds": 4,
+  "featureCommitsAfterOriginalLocalRelease": 11,
+  "remotePruneDryRun": "no stale tracking refs reported",
+  "hooksCheck": "PASS",
+  "openPrCheck": {
+    "status": "not verified",
+    "reason": "gh CLI not installed; check authenticated GitHub GUI before branch deletion"
+  }
+}

@@ -27,7 +27,7 @@ function summaryIs(value: unknown): value is BatchSummary {
 function url(value: string) { try { return new URL(value).href; } catch { fail(409, 'BATCH_CONTENT_INVALID'); } }
 function snapshot(item: BatchResultRow, media: BatchMedia[]) {
   // Processing diagnostics are not part of the original-content review snapshot.
-  const reviewedItem=Object.fromEntries(Object.entries(item).filter(([key])=>!['failure_code','skip_reason'].includes(key)));
+  const reviewedItem=Object.fromEntries(Object.entries(item).filter(([key])=>!['failure_code','skip_reason','collected_at','review_finalized_at','expires_at','retention_state','accessDeadline'].includes(key)));
   return collectionDigest({ item: reviewedItem, media: media.map(m => ({ ...m, hash: m.hash?.toString('hex') ?? null })) });
 }
 function uniqueConflict(error: unknown) {
@@ -52,9 +52,12 @@ export class BatchReviewService {
       : { status: 'UNREVIEWED' as const, lockVersion: 0, itemVersion: Number(item.version), postId: null };
   }
   private summary(item: BatchResultRow, review: Review | null): BatchSummary {
+    if(performance.now()>=item.accessDeadline)fail(410,'BATCH_ITEM_EXPIRED');
     const value = { itemId: item.id, sourceKey: item.source_key, sourcePostKey: item.source_post_key,
       canonicalUrl: url(item.canonical_url), state: item.state, version: Number(item.version), title: item.title,
       failureCode: item.failure_code, skipReason: item.skip_reason,
+      retention: { collectedAt: item.collected_at, reviewFinalizedAt: item.review_finalized_at,
+        expiresAt: item.expires_at, retentionState: item.retention_state },
       review: this.reviewDto(item, review) };
     if (!summaryIs(value)) fail(409, 'BATCH_CONTENT_INVALID');
     return value;
@@ -73,29 +76,35 @@ export class BatchReviewService {
       return { item: this.dto(item, await this.repository.review(id), await this.repository.media(id)) };
     }, { isolation: 'REPEATABLE READ', readOnly: true });
   }
-  private async mediaBytes(media: BatchMedia) {
+  private async mediaBytes(media: BatchMedia, deadline: number) {
     if (!media.key || !media.hash || !media.size || media.size > COLLECTED_FILE_BYTES) fail(409, 'BATCH_MEDIA_INCOMPLETE');
     let bytes: Buffer;
-    try { bytes = await this.reader.read(media.key, COLLECTED_FILE_BYTES); } catch { fail(503, 'DEPENDENCY_UNAVAILABLE'); }
+    const remaining=deadline-performance.now();
+    if(remaining<=0)fail(410,'BATCH_ITEM_EXPIRED');
+    const signal=AbortSignal.timeout(Math.min(30000,Math.ceil(remaining)));
+    try { bytes = await this.reader.read(media.key, COLLECTED_FILE_BYTES,signal); }
+    catch { if(performance.now()>=deadline)fail(410,'BATCH_ITEM_EXPIRED');fail(503, 'DEPENDENCY_UNAVAILABLE'); }
+    if(performance.now()>=deadline)fail(410,'BATCH_ITEM_EXPIRED');
     if (bytes.length !== media.size || !createHash('sha256').update(bytes).digest().equals(media.hash)) fail(409, 'BATCH_MEDIA_CHECKSUM_MISMATCH');
     return bytes;
   }
   async preview(id: string, position: number) {
-    const media = await this.work.transaction(async () => {
-      await this.row(id);
+    const {media,item} = await this.work.transaction(async () => {
+      const item=await this.row(id);
       const media = (await this.repository.media(id)).find(m => m.position === position && m.kind === 'IMAGE');
       if (!media) fail(404, 'BATCH_MEDIA_NOT_FOUND');
-      return media;
+      return {media,item};
     }, { isolation: 'REPEATABLE READ', readOnly: true });
-    const images = await validateCollectedImage(await this.mediaBytes(media));
+    const images = await validateCollectedImage(await this.mediaBytes(media,item.accessDeadline));
+    await this.row(id);
     const image = images[0];
     if (!image) fail(415, 'UNSUPPORTED_MEDIA_TYPE');
-    return { bytes: image.bytes, mime: image.mime };
+    return { bytes: image.bytes, mime: image.mime, deadline: item.accessDeadline };
   }
   async list(page: number, source?: string, state?: string, reviewStatus?: string) {
     return this.work.transaction(async () => {
-      const result = await this.repository.list(page, source, state, reviewStatus), items = [];
-      for (const row of result.items) items.push(this.summary(row, await this.repository.review(row.id)));
+      const result = await this.repository.list(page, source, state, reviewStatus);
+      const items=result.items.map(({item,review})=>this.summary(item,review));
       return { items, page, totalItems: result.total, totalPages: Math.max(1, Math.ceil(result.total / 20)) };
     }, { isolation: 'REPEATABLE READ', readOnly: true });
   }
@@ -103,9 +112,11 @@ export class BatchReviewService {
     run: () => Promise<{ status: number; data: unknown }>) {
     const scope = `batch:${operation}:${id}`, hash = collectionDigest(body);
     return this.work.lock(`batch-request:${actor}:${scope}:${key}`, async () => {
+      const item=await this.row(id);
       const receipt = await this.repository.receipt(actor, scope, key);
       if (receipt) {
         if (!receipt.hash.equals(hash)) fail(409, 'IDEMPOTENCY_CONFLICT');
+        if(performance.now()>=item.accessDeadline)fail(410,'BATCH_ITEM_EXPIRED');
         return { status: receipt.status, data: receipt.data };
       }
       return this.work.lock(`batch-review:${id}`, run);
@@ -169,7 +180,9 @@ export class BatchReviewService {
         try {
           for (const m of imageMedia) {
             checkDeadline();
-            const result = await this.images.uploadCollected(await this.mediaBytes(m), actor, remainingBytes), image = result.items[0];
+            await this.row(id);
+            const result = await this.images.uploadCollected(await this.mediaBytes(m,item.accessDeadline), actor, remainingBytes,
+              {expiresAt:item.expires_at,deadline:item.accessDeadline}), image = result.items[0];
             if (!image) throw Error('MISSING_UPLOADED_IMAGE');
             remainingBytes -= image.byteSize;
             prepared.push(image.imageId); uploaded.set(m.position, image.imageId);

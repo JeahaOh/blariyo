@@ -178,10 +178,7 @@ await test(
           assert.match(dialog.message(), /저장하지 않은 변경/);
           await dialog.dismiss();
         });
-        await page
-          .getByRole('navigation', { name: '관리 메뉴' })
-          .getByRole('link', { name: '공개 목록' })
-          .click();
+        await page.getByRole('link', { name: '공개 사이트 보기' }).click();
         await expect(page).toHaveURL(fixture.origin + '/admin');
         await expect(title).toHaveValue('내가 편집한 제목');
         const unload = page.waitForEvent('dialog');

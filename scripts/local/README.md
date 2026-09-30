@@ -1,5 +1,12 @@
 # 지속적인 로컬 개발 서버
 
+2026-09-27 개발 수집 준비: `prepare-batch-review.mjs --apply`는 백업 archive 확인 후
+API→Collector 순서로 migration을 적용하고 실제 ledger를 출력한다. 최신 batch 권한은
+[로컬 권한 모듈](batch-privileges.mjs)에 매핑하며, [격리 DB 검증](batch-privileges.test.mjs)에서
+quota·mailbox·runtime 허용과 Core/검수 쓰기 거부를 확인했다.
+[개발 수집 실행 기록](../../worklog/2026-09-27/dev-21-site-publish/README.md)을 따른다.
+운영 적용 증거는 아니다.
+
 프로젝트 루트에서 Node 24.18.0을 사용한다. 운영 설정·운영 DB를 사용하지 않는다.
 
 ```sh
@@ -171,8 +178,8 @@ node scripts/local/start-development.mjs
 `.local-data/collector-objects`를 고정해 사용하며 API를 호출하지 않는다.
 
 ```sh
-node scripts/local/run-batch.mjs batch --source yuldo --chart latest --max-pages 1 --max-items 1 --since 24h --dry-run
-node scripts/local/run-batch.mjs batch --source yuldo --chart latest --max-pages 1 --max-items 1 --since 24h --write-db
+COLLECTOR_SOURCE_CONFIG=/absolute/path/to/local-sources.json node scripts/local/run-batch.mjs batch --source yuldo --chart latest --max-pages 1 --max-items 1 --since 24h --dry-run
+COLLECTOR_SOURCE_CONFIG=/absolute/path/to/local-sources.json node scripts/local/run-batch.mjs batch --source yuldo --chart latest --max-pages 1 --max-items 1 --since 24h --write-db
 node scripts/local/batch-review.mjs list yuldo
 node scripts/local/batch-review.mjs detail ITEM_UUID
 node scripts/local/batch-review.mjs review ITEM_UUID --item-version=N --lock-version=0 --decision=REVIEWING --key=UNIQUE_REVIEW_KEY
@@ -192,6 +199,12 @@ PowerShell도 위 `node scripts/local/*.mjs` 명령을 사용하고 Gradle 빌�
 
 ### 실행 중 재빌드와 이미지 검수
 
+source 예제에는 일일 한도가 없으므로 그대로 실행하지 않는다. 실제 로컬 실행 설정은
+`COLLECTOR_SOURCE_CONFIG`에 지정하고 `dailyRequestLimit`·`enabled`·연락처 UA를 명시한다.
+요청 간격은 최소 10000ms이며 robots·상세·이미지·첨부·재시도도 출처별 일일 quota에 포함된다.
+이번 개발 데이터 적재는 사용자 지정 사이트당 최대 10건, 300 HTTP 요청/일을 적용했다.
+이 값은 운영 허용값이나 운영 활성화 결정이 아니다.
+
 `run-batch.mjs`는 실행마다 현재 Collector JAR의 비공개 사본을 만들고 종료 시 해당 사본만 회수한다.
 따라서 다른 터미널에서 bootJar를 다시 빌드해도 실행 중인 Spring nested JAR가 교체되지 않는다.
 Web도 시작 시 빌드 사본을 사용하므로 새 소스 반영에는 이 저장소의 로컬 서버 재시작이 필요하다.
@@ -204,22 +217,13 @@ Web도 시작 시 빌드 사본을 사용하므로 새 소스 반영에는 이 �
 `--since 24h`와 `datePolicy=INCLUDE_UNKNOWN`의 조합은 시각 미확인 글을 포함하므로 report의
 unknownDates/skippedByDate도 확인한다. 엄격한 기간 검증에는 REQUIRE_KNOWN을 사용한다.
 
-로컬 dry-run 무쓰기 검증(다른 collector 실행이 없을 때):
-
-```sh
-node scripts/local/verify-dry-run.mjs yuldo
-node scripts/local/verify-dry-run.mjs inven https://www.inven.co.kr/board/black/3584/51253
-```
-
-collect 수집/검수/queue/confirmation/정정 이력 12테이블의 전체 행 해시와 collect object 전체파일 해시를 전후 대조한다.
-실제목록/상세 요청은 발생하며 결과는 `.local-data/verification/dry-run-yuldo.json`이다.
-선택적인 두 번째 인자가 있으면 목록 batch 대신 `collect-url --dry-run`을 실행하고
-결과를 `dry-run-{source}-detail.json`에 저장한다. URL은 공개 HTTPS 상세 URL이어야 한다.
-이 검증은 DB와 object 무쓰기를 확인하며 네트워크 요청이나 진단 보고서 파일 생성까지 금지하는 뜻은 아니다.
+로컬 dry-run은 원문 row/object를 저장하지 않지만 현행 direct는 요청 전에 DB quota를 예약한다.
+기존 `verify-dry-run.mjs`의 12테이블 비교는 quota 테이블을 포함하지 않으므로 전체 DB 무쓰기 증거가 아니다.
+이 과거 보조 스크립트를 현행 direct의 무쓰기 판정으로 사용하지 않는다. 실제 실행에는 위 명시적 source 설정과 제한 DB 역할이 필요하다.
 
 ### Collector V003/V004 적용과 실행 소유권
 
-`prepare-batch-review --apply`는 백업 후 Collector V006까지와 API V008 migration을 명시적으로 적용한다.
+`prepare-batch-review --apply`는 백업과 `pg_restore --list` 확인 후 빌드된 API→Collector migration을 실행한다. 출력의 `migrationVersions`는 실제 DB ledger이며 batch 권한·기존 media hash도 확인한다.
 Collector JAR를 먼저 빌드하고 실행 중인 batch가 없는 상태에서 적용한다. 자동 서버 시작은 migration을 실행하지 않는다.
 PostgreSQL은 직접 연결하거나 session pooling을 사용한다. transaction pooling은 source session 잠금을 보장하지 못하므로 지원하지 않는다.
 잠금을 얻은 연결이 끊기면 해당 실행은 새 연결로 쓰기를 이어가지 않는다. 다음 실행이 이전 RUNNING을

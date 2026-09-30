@@ -57,7 +57,8 @@ export class ContractPipe implements PipeTransform<unknown, RequestInput> {
     if (!operation) fail(404, 'POST_NOT_FOUND');
     const query = record(fields.query);
     const headers = record(fields.headers);
-    const body = normalizeInput(fields.body);
+    // Direct request digests bind the submitted URL string; URL normalization must not erase ports or aliases first.
+    const body = operation.operationId === 'createDirectCollectionRequest' ? fields.body : normalizeInput(fields.body);
     if (!validateRequest(operation, { query, headers, body: fields.hasBody ? body : undefined }))
       fail(400, 'VALIDATION_FAILED');
     if (fields.maintenance && fields.method !== 'GET')

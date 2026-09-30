@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
   setHeader(event, 'Cache-Control', 'private, no-store');
   await adminIdentity(event);
-  return { batchReview: Boolean(useRuntimeConfig(event).collectBatchReviewEnabled) };
+  const config = useRuntimeConfig(event);
+  return { batchReview: Boolean(config.collectBatchReviewEnabled), directInput: Boolean(config.collectDirectInputEnabled) };
 });

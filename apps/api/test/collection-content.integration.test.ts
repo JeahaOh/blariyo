@@ -64,7 +64,7 @@ await test('Original content: HTTP result, PostgreSQL readback and transactional
         headers: {
           ...(machine
             ? { authorization: 'Bearer ' + bearer }
-            : { 'X-Blariyo-Service-Token': token, 'X-Blariyo-Admin-Actor': actor }),
+            : { 'X-Blariyo-Service-Token': token, 'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor': actor }),
           ...(body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
           'Idempotency-Key': key,
           ...extra,

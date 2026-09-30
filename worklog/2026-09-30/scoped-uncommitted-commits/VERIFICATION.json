@@ -1,0 +1,29 @@
+{
+  "verifiedAt": "2026-09-30T21:08:56+09:00",
+  "taskCommits": 6,
+  "taskFilesCommitted": 38,
+  "sourceAndExistingDocumentsUnchanged": true,
+  "evidenceWhitespaceOnlyNormalizations": 2,
+  "allExpectedBlobsMatch": true,
+  "trackedWorkingTreeCleanBeforeCloseout": true,
+  "onlyUntrackedBeforeCloseout": "this task record directory",
+  "main": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+  "release": "054575928df7bd7e8f8a630c1234d7b3d054969c",
+  "mainReleaseAndOriginTrackingRefsUnchanged": true,
+  "diffCheck": "PASS",
+  "apiBuild": "PASS",
+  "batchPrivilegeTests": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "rootTests": {
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0
+  },
+  "hooksCheck": "PASS",
+  "push": "not performed",
+  "merge": "not performed",
+  "deployment": "not performed"
+}

@@ -2,7 +2,7 @@
 const route = useRoute();
 const requestFetch = useRequestFetch();
 const { data: features } = await useAsyncData('workspace-admin-features', () =>
-  requestFetch<{ batchReview: boolean }>('/api/admin/features').catch(() => null)
+  requestFetch<{ batchReview: boolean; directInput: boolean }>('/api/admin/features').catch(() => null)
 );
 const { data: session } = await useAsyncData(
   'workspace-admin-session',
@@ -34,7 +34,7 @@ const sessionUrl = computed(() => '/admin/login?returnTo=' + encodeURIComponent(
           ><span aria-hidden="true">▤</span> 게시글 관리</NuxtLink
         >
         <NuxtLink
-          v-if="features?.batchReview"
+          v-if="features?.batchReview || features?.directInput"
           to="/admin/batch"
           :aria-current="route.path === '/admin/batch' ? 'page' : undefined"
           ><span aria-hidden="true">◎</span> 수집 결과 검수</NuxtLink

@@ -16,8 +16,17 @@ function isFilters(value: unknown): value is Filters {
 }
 const requestFetch = useRequestFetch();
 const route = useRoute();
+const { data: features } = await useAsyncData('admin-features', () =>
+  requestFetch<{ batchReview: boolean; directInput: boolean }>('/api/admin/features').catch(
+    () => null
+  )
+);
+if (!features.value?.batchReview && !features.value?.directInput)
+  throw createError({ statusCode: 404, message: '수집 기능을 사용할 수 없습니다.' });
 const { data: listing, error } = await useAsyncData('batch-review-list', () =>
-  requestFetch<ApiResponse<'listBatchItems'>>('/api/v1/admin/collect/batch-items')
+  features.value?.batchReview
+    ? requestFetch<ApiResponse<'listBatchItems'>>('/api/v1/admin/collect/batch-items')
+    : Promise.resolve(null)
 );
 if (error.value)
   throw createError({
@@ -35,6 +44,47 @@ const busy = ref(false),
 const appliedFilters = ref<Filters>({ source: '', state: '', reviewStatus: '' });
 const selected = ref<ApiResponse<'getBatchItem'>['data']['item'] | null>(null);
 const mobileDetail = ref(false);
+const expiredPostId = ref<number | null>(null);
+function expireOriginal() {
+  const expiredItemId = selected.value?.itemId;
+  expiredPostId.value = selected.value?.review.postId ?? null;
+  selected.value = null;
+  title.value = '';
+  pending.value = null;
+  if (listing.value) {
+    const before = listing.value.data.items.length;
+    listing.value.data.items = listing.value.data.items.filter(
+      (item) => item.itemId !== expiredItemId && Date.parse(item.retention.expiresAt) > Date.now()
+    );
+    listing.value.data.totalItems = Math.max(
+      0,
+      listing.value.data.totalItems - before + listing.value.data.items.length
+    );
+    listing.value.data.totalPages = Math.max(1, Math.ceil(listing.value.data.totalItems / 20));
+  }
+  message.value = '원문 보관 기한이 지나 본문과 미리보기를 닫았습니다.';
+  void fetchList(page.value, appliedFilters.value).catch(() => {
+    listError.value = '만료 원문을 닫았습니다. 목록을 다시 조회해 주세요.';
+  });
+}
+let expiryTimer: ReturnType<typeof setTimeout> | undefined;
+watch(
+  () => selected.value?.retention.expiresAt,
+  (deadline) => {
+    clearTimeout(expiryTimer);
+    if (!deadline || !import.meta.client) return;
+    const expire = () => {
+      const remaining = Date.parse(deadline) - Date.now();
+      if (remaining > 0) {
+        expiryTimer = setTimeout(expire, Math.min(2147483647, remaining));
+        return;
+      }
+      expireOriginal();
+    };
+    expire();
+  }
+);
+onUnmounted(() => clearTimeout(expiryTimer));
 const pending = ref<{
   itemId: string;
   path: string;
@@ -129,6 +179,7 @@ async function open(id: string) {
   if (locked.value) return;
   busy.value = true;
   message.value = '';
+  expiredPostId.value = null;
   try {
     selected.value = (
       await $fetch<ApiResponse<'getBatchItem'>>(`/api/v1/admin/collect/batch-items/${id}`, {
@@ -139,8 +190,13 @@ async function open(id: string) {
     mobileDetail.value = true;
     await nextTick();
     document.querySelector<HTMLElement>('.batch-detail h2')?.focus();
-  } catch {
-    message.value = '상세를 불러오지 못했습니다. 수집 결과와 본문 형식을 확인해 주세요.';
+  } catch (error) {
+    selected.value = null;
+    title.value = '';
+    message.value =
+      apiError(error).code === 'BATCH_ITEM_EXPIRED'
+        ? '원문 보관 기한이 지나 본문과 미리보기를 닫았습니다.'
+        : '상세를 불러오지 못했습니다. 수집 결과와 본문 형식을 확인해 주세요.';
   } finally {
     busy.value = false;
   }
@@ -197,6 +253,10 @@ async function executePending() {
     }
   } catch (error) {
     const code = apiError(error).code;
+    if (code === 'BATCH_ITEM_EXPIRED') {
+      expireOriginal();
+      return;
+    }
     const definitive =
       code &&
       [
@@ -244,6 +304,7 @@ onMounted(() => window.addEventListener('beforeunload', beforeUnload));
 onUnmounted(() => window.removeEventListener('beforeunload', beforeUnload));
 onBeforeRouteLeave(() => !locked.value);
 onMounted(async () => {
+  if (!features.value?.batchReview) return;
   let saved: { page?: number; filters?: Filters; selectedItemId?: string } = {};
   try {
     const stored: unknown = JSON.parse(sessionStorage.getItem(stateStorageKey) || '{}') as unknown;
@@ -297,211 +358,226 @@ onMounted(async () => {
       </div>
       <span class="batch-count">총 {{ listing?.data.totalItems || 0 }}건</span>
     </div>
-    <form class="batch-toolbar" @submit.prevent="refresh(1, true)">
-      <label>출처 <input v-model="source" :disabled="locked" placeholder="예: theqoo" /></label>
-      <label
-        ><span id="batch-state-label">수집 상태</span
-        ><select aria-labelledby="batch-state-label" v-model="state" :disabled="locked">
-          <option value="">전체</option>
-          <option v-for="(label, key) in collectionLabels" :key="key" :value="key">
-            {{ label }}
-          </option>
-        </select></label
-      >
-      <label
-        ><span id="batch-review-label">검수 상태</span
-        ><select aria-labelledby="batch-review-label" v-model="reviewStatus" :disabled="locked">
-          <option value="">전체</option>
-          <option v-for="(label, key) in labels" :key="key" :value="key">{{ label }}</option>
-        </select></label
-      >
-      <button :disabled="locked">조회</button>
-    </form>
-    <p role="status">{{ message }}</p>
-    <div v-if="pending" role="alert">
-      <p>처리 결과 확인이 끝날 때까지 이 화면을 유지해 주세요.</p>
-      <NuxtLink :to="reauthUrl" target="_blank" rel="noopener">새 탭에서 다시 인증</NuxtLink>
-      <button :disabled="busy" @click="executePending">처리 결과 다시 확인</button>
-    </div>
-    <div v-if="listError" role="alert">
-      <p>{{ listError }}</p>
-      <button :disabled="locked" @click="refresh()">목록 다시 조회</button>
-    </div>
-    <div class="batch-split">
-      <section class="batch-panel batch-list-panel" aria-label="수집 결과 목록">
-        <div class="batch-panel-heading">
-          <span>수집 항목</span
-          ><small>{{ page }} / {{ listing?.data.totalPages || 1 }} 페이지</small>
-        </div>
-        <p v-if="!listing?.data.items.length" class="batch-empty">
-          조건에 맞는 수집 결과가 없습니다.
-        </p>
-        <ul class="batch-list">
-          <li
-            v-for="item in listing?.data.items"
-            :key="item.itemId"
-            :class="{ 'is-selected': selected?.itemId === item.itemId }"
-          >
-            <button
-              type="button"
-              :data-item-id="item.itemId"
-              :disabled="locked"
-              @click="open(item.itemId)"
-            >
-              {{ item.title || '제목 없음' }}
-            </button>
-            <span
-              >{{ sourceLabels[item.sourceKey] || item.sourceKey }} ·
-              {{ collectionLabels[item.state] || item.state }} · {{ labels[item.review.status]
-              }}{{ item.review.postId ? ` · 게시글 ${item.review.postId}` : '' }}</span
-            >
-          </li>
-        </ul>
-        <nav class="batch-pagination" aria-label="수집 결과 페이지">
-          <button :disabled="locked || page <= 1" @click="refresh(page - 1)">이전</button
-          ><span>{{ page }} / {{ listing?.data.totalPages }}</span
-          ><button
-            :disabled="locked || page >= (listing?.data.totalPages || 1)"
-            @click="refresh(page + 1)"
-          >
-            다음
-          </button>
-        </nav>
-      </section>
-      <section
-        class="batch-panel batch-detail-panel"
-        :class="{
-          'is-mobile-hidden': !selected || !mobileDetail,
-          'is-mobile-active': selected && mobileDetail,
-        }"
-        aria-label="수집 결과 상세"
-      >
-        <button class="batch-mobile-back" type="button" @click="backToList">← 목록으로</button>
-        <div v-if="!selected" class="batch-detail-placeholder">
-          <span>01 / 항목 선택</span>
-          <h2>검수할 수집 항목을 선택하세요</h2>
-          <p>선택한 글의 원문과 첨부, 처리 상태를 여기서 확인할 수 있습니다.</p>
-        </div>
-        <template v-else>
+    <NuxtLink v-if="expiredPostId" :to="{ path: '/admin', query: { postId: expiredPostId } }"
+      >보존된 게시글 사본 열기</NuxtLink
+    >
+    <DirectCollectionInput
+      v-if="features?.directInput"
+      :review-enabled="features.batchReview"
+      @collected="open"
+    />
+    <template v-if="features?.batchReview">
+      <form class="batch-toolbar" @submit.prevent="refresh(1, true)">
+        <label>출처 <input v-model="source" :disabled="locked" placeholder="예: theqoo" /></label>
+        <label
+          ><span id="batch-state-label">수집 상태</span
+          ><select aria-labelledby="batch-state-label" v-model="state" :disabled="locked">
+            <option value="">전체</option>
+            <option v-for="(label, key) in collectionLabels" :key="key" :value="key">
+              {{ label }}
+            </option>
+          </select></label
+        >
+        <label
+          ><span id="batch-review-label">검수 상태</span
+          ><select aria-labelledby="batch-review-label" v-model="reviewStatus" :disabled="locked">
+            <option value="">전체</option>
+            <option v-for="(label, key) in labels" :key="key" :value="key">{{ label }}</option>
+          </select></label
+        >
+        <button :disabled="locked">조회</button>
+      </form>
+      <p role="status">{{ message }}</p>
+      <div v-if="pending" role="alert">
+        <p>처리 결과 확인이 끝날 때까지 이 화면을 유지해 주세요.</p>
+        <NuxtLink :to="reauthUrl" target="_blank" rel="noopener">새 탭에서 다시 인증</NuxtLink>
+        <button :disabled="busy" @click="executePending">처리 결과 다시 확인</button>
+      </div>
+      <div v-if="listError" role="alert">
+        <p>{{ listError }}</p>
+        <button :disabled="locked" @click="refresh()">목록 다시 조회</button>
+      </div>
+      <div class="batch-split">
+        <section class="batch-panel batch-list-panel" aria-label="수집 결과 목록">
           <div class="batch-panel-heading">
-            <span>원문 및 검수</span
-            ><small>{{ selected.sourceKey }} · {{ labels[selected.review.status] }}</small>
+            <span>수집 항목</span
+            ><small>{{ page }} / {{ listing?.data.totalPages || 1 }} 페이지</small>
           </div>
-          <div class="batch-detail">
-            <h2 tabindex="-1">{{ selected.title || '제목을 가져오지 못한 글' }}</h2>
-            <a :href="selected.canonicalUrl" target="_blank" rel="noopener noreferrer"
-              >원문 확인 ↗</a
+          <p v-if="!listing?.data.items.length" class="batch-empty">
+            조건에 맞는 수집 결과가 없습니다.
+          </p>
+          <ul class="batch-list">
+            <li
+              v-for="item in listing?.data.items"
+              :key="item.itemId"
+              :class="{ 'is-selected': selected?.itemId === item.itemId }"
             >
-            <p>
-              {{ collectionLabels[selected.state] || selected.state }} ·
-              {{ labels[selected.review.status] }}
-            </p>
-            <ol class="batch-workflow" aria-label="원문 검수부터 발행까지">
-              <li :class="{ complete: flowStep > 1, current: flowStep === 1 }">원문 확인</li>
-              <li :class="{ complete: flowStep > 2, current: flowStep === 2 }">검수</li>
-              <li :class="{ complete: flowStep > 3, current: flowStep === 3 }">초안 작성</li>
-              <li :class="{ current: flowStep === 4 }">편집·발행</li>
-            </ol>
-            <p v-if="selected.failureCode" role="status">
-              수집하지 못했습니다. 원문 상태를 확인해 주세요. ({{ selected.failureCode }})
-            </p>
-            <p v-if="selected.skipReason === 'SOURCE_DATE_UNKNOWN'">
-              작성 시각을 확인할 수 없어 기간 조건에 따라 제외했습니다.
-            </p>
-            <p v-else-if="selected.skipReason === 'SOURCE_OUTSIDE_WINDOW'">
-              설정한 수집 기간에 포함되지 않아 제외했습니다.
-            </p>
-            <div class="actions">
               <button
-                :class="{
-                  'batch-action-primary':
-                    selected.review.status === 'UNREVIEWED' ||
-                    selected.review.status === 'REJECTED',
-                }"
-                :disabled="locked || selected.state !== 'FETCHED' || !!selected.review.postId"
-                @click="decide('REVIEWING')"
+                type="button"
+                :data-item-id="item.itemId"
+                :disabled="locked"
+                @click="open(item.itemId)"
               >
-                검수 시작 / 다시 검수
+                {{ item.title || '제목 없음' }}
               </button>
-              <button
-                :class="{ 'batch-action-primary': selected.review.status === 'REVIEWING' }"
-                :disabled="
-                  locked ||
-                  selected.state !== 'FETCHED' ||
-                  selected.review.status !== 'REVIEWING' ||
-                  !!selected.review.postId
-                "
-                @click="decide('REJECTED')"
+              <span
+                >{{ sourceLabels[item.sourceKey] || item.sourceKey }} ·
+                {{ collectionLabels[item.state] || item.state }} · {{ labels[item.review.status]
+                }}{{ item.review.postId ? ` · 게시글 ${item.review.postId}` : '' }}</span
               >
-                반려
-              </button>
-              <button
-                :disabled="
-                  locked ||
-                  selected.state !== 'FETCHED' ||
-                  selected.review.status !== 'REVIEWING' ||
-                  !!selected.review.postId
-                "
-                @click="decide('APPROVED')"
-              >
-                승인
-              </button>
-            </div>
-            <label
-              >초안 제목
-              <input v-model="title" maxlength="200" :disabled="locked || !!selected.review.postId"
-            /></label>
-            <button
-              class="batch-action-primary"
-              :disabled="
-                locked ||
-                selected.state !== 'FETCHED' ||
-                selected.review.status !== 'APPROVED' ||
-                !!selected.review.postId ||
-                !title.trim()
-              "
-              @click="decide('DRAFT')"
+            </li>
+          </ul>
+          <nav class="batch-pagination" aria-label="수집 결과 페이지">
+            <button :disabled="locked || page <= 1" @click="refresh(page - 1)">이전</button
+            ><span>{{ page }} / {{ listing?.data.totalPages }}</span
+            ><button
+              :disabled="locked || page >= (listing?.data.totalPages || 1)"
+              @click="refresh(page + 1)"
             >
-              게시글 초안 만들기
+              다음
             </button>
-            <p v-if="selected.review.postId">
-              연결된 게시글: {{ selected.review.postId }} ·
-              <NuxtLink
-                :to="{
-                  path: '/admin',
-                  query: { postId: selected.review.postId, batchItemId: selected.itemId },
-                }"
-                @click="rememberContext"
-                >게시글 관리에서 열기</NuxtLink
-              >
-            </p>
-            <div class="original-body">
-              <template v-for="(block, index) in selected.bodyBlocks" :key="index">
-                <p v-if="block.type === 'TEXT'">{{ block.text }}</p>
-                <CollectImagePreview
-                  v-else-if="block.type === 'IMAGE'"
-                  :src="`/api/v1/admin/collect/batch-items/${selected.itemId}/media/${block.imagePosition}/preview`"
-                  :alt="block.alt || `수집 이미지 ${block.imagePosition}`"
-                  :source-url="selected.canonicalUrl"
-                />
-                <p v-else>
-                  <a :href="block.url" target="_blank" rel="noopener noreferrer">{{
-                    block.label || block.url
-                  }}</a>
-                </p>
-              </template>
-            </div>
-            <h3 v-if="selected.attachments.length">첨부 원문 링크</h3>
-            <ul>
-              <li v-for="attachment in selected.attachments" :key="attachment.position">
-                <a :href="attachment.remoteUrl" target="_blank" rel="noopener noreferrer">{{
-                  attachment.label || attachment.remoteUrl
-                }}</a>
-              </li>
-            </ul>
+          </nav>
+        </section>
+        <section
+          class="batch-panel batch-detail-panel"
+          :class="{
+            'is-mobile-hidden': !selected || !mobileDetail,
+            'is-mobile-active': selected && mobileDetail,
+          }"
+          aria-label="수집 결과 상세"
+        >
+          <button class="batch-mobile-back" type="button" @click="backToList">← 목록으로</button>
+          <div v-if="!selected" class="batch-detail-placeholder">
+            <span>01 / 항목 선택</span>
+            <h2>검수할 수집 항목을 선택하세요</h2>
+            <p>선택한 글의 원문과 첨부, 처리 상태를 여기서 확인할 수 있습니다.</p>
           </div>
-        </template>
-      </section>
-    </div>
+          <template v-else>
+            <div class="batch-panel-heading">
+              <span>원문 및 검수</span
+              ><small>{{ selected.sourceKey }} · {{ labels[selected.review.status] }}</small>
+            </div>
+            <div class="batch-detail">
+              <h2 tabindex="-1">{{ selected.title || '제목을 가져오지 못한 글' }}</h2>
+              <a :href="selected.canonicalUrl" target="_blank" rel="noopener noreferrer"
+                >원문 확인 ↗</a
+              >
+              <p>
+                {{ collectionLabels[selected.state] || selected.state }} ·
+                {{ labels[selected.review.status] }}
+              </p>
+              <ol class="batch-workflow" aria-label="원문 검수부터 발행까지">
+                <li :class="{ complete: flowStep > 1, current: flowStep === 1 }">원문 확인</li>
+                <li :class="{ complete: flowStep > 2, current: flowStep === 2 }">검수</li>
+                <li :class="{ complete: flowStep > 3, current: flowStep === 3 }">초안 작성</li>
+                <li :class="{ current: flowStep === 4 }">편집·발행</li>
+              </ol>
+              <p v-if="selected.failureCode" role="status">
+                수집하지 못했습니다. 원문 상태를 확인해 주세요. ({{ selected.failureCode }})
+              </p>
+              <p v-if="selected.skipReason === 'SOURCE_DATE_UNKNOWN'">
+                작성 시각을 확인할 수 없어 기간 조건에 따라 제외했습니다.
+              </p>
+              <p v-else-if="selected.skipReason === 'SOURCE_OUTSIDE_WINDOW'">
+                설정한 수집 기간에 포함되지 않아 제외했습니다.
+              </p>
+              <div class="actions">
+                <button
+                  :class="{
+                    'batch-action-primary':
+                      selected.review.status === 'UNREVIEWED' ||
+                      selected.review.status === 'REJECTED',
+                  }"
+                  :disabled="locked || selected.state !== 'FETCHED' || !!selected.review.postId"
+                  @click="decide('REVIEWING')"
+                >
+                  검수 시작 / 다시 검수
+                </button>
+                <button
+                  :class="{ 'batch-action-primary': selected.review.status === 'REVIEWING' }"
+                  :disabled="
+                    locked ||
+                    selected.state !== 'FETCHED' ||
+                    selected.review.status !== 'REVIEWING' ||
+                    !!selected.review.postId
+                  "
+                  @click="decide('REJECTED')"
+                >
+                  반려
+                </button>
+                <button
+                  :disabled="
+                    locked ||
+                    selected.state !== 'FETCHED' ||
+                    selected.review.status !== 'REVIEWING' ||
+                    !!selected.review.postId
+                  "
+                  @click="decide('APPROVED')"
+                >
+                  승인
+                </button>
+              </div>
+              <label
+                >초안 제목
+                <input
+                  v-model="title"
+                  maxlength="200"
+                  :disabled="locked || !!selected.review.postId"
+              /></label>
+              <button
+                class="batch-action-primary"
+                :disabled="
+                  locked ||
+                  selected.state !== 'FETCHED' ||
+                  selected.review.status !== 'APPROVED' ||
+                  !!selected.review.postId ||
+                  !title.trim()
+                "
+                @click="decide('DRAFT')"
+              >
+                게시글 초안 만들기
+              </button>
+              <p v-if="selected.review.postId">
+                연결된 게시글: {{ selected.review.postId }} ·
+                <NuxtLink
+                  :to="{
+                    path: '/admin',
+                    query: { postId: selected.review.postId, batchItemId: selected.itemId },
+                  }"
+                  @click="rememberContext"
+                  >게시글 관리에서 열기</NuxtLink
+                >
+              </p>
+              <div class="original-body">
+                <template v-for="(block, index) in selected.bodyBlocks" :key="index">
+                  <p v-if="block.type === 'TEXT'">{{ block.text }}</p>
+                  <CollectImagePreview
+                    v-else-if="block.type === 'IMAGE'"
+                    :src="`/api/v1/admin/collect/batch-items/${selected.itemId}/media/${block.imagePosition}/preview`"
+                    :alt="block.alt || `수집 이미지 ${block.imagePosition}`"
+                    :source-url="selected.canonicalUrl"
+                    :status-path="`/api/v1/admin/collect/batch-items/${selected.itemId}`"
+                    @expired="expireOriginal"
+                  />
+                  <p v-else>
+                    <a :href="block.url" target="_blank" rel="noopener noreferrer">{{
+                      block.label || block.url
+                    }}</a>
+                  </p>
+                </template>
+              </div>
+              <h3 v-if="selected.attachments.length">첨부 원문 링크</h3>
+              <ul>
+                <li v-for="attachment in selected.attachments" :key="attachment.position">
+                  <a :href="attachment.remoteUrl" target="_blank" rel="noopener noreferrer">{{
+                    attachment.label || attachment.remoteUrl
+                  }}</a>
+                </li>
+              </ul>
+            </div>
+          </template>
+        </section>
+      </div>
+    </template>
   </main>
 </template>

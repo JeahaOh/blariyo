@@ -8,7 +8,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Instant;
 import java.util.*;
 
-/** Read-only public-site evidence capture. No DB/object-store credentials or publication. */
+/** Source evidence capture. Only direct request quota is written; no content/object publication. */
 public final class SiteProbeMain {
   public static void main(String[] args) {
     var report=new LinkedHashMap<String,Object>();
@@ -32,8 +32,18 @@ public final class SiteProbeMain {
           return response;
         }
       };
-      var requests=new SourceRequests(observed,millis->{try{Thread.sleep(millis);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new CollectorFailure(503,"BATCH_INTERRUPTED");}},source.config().path("requestIntervalMs").asLong(10000));
-      var response=requests.fetch(url,source.policy(),30*1024*1024);
+      String settings=System.getenv("COLLECTOR_CONFIG_FILE");
+      if(settings!=null&&!settings.isBlank())com.blariyo.collector.config.OperatorSettings.load(settings);
+      var config=new com.zaxxer.hikari.HikariConfig();
+      config.setJdbcUrl(com.blariyo.collector.config.OperatorSettings.url());
+      config.setUsername(com.blariyo.collector.config.OperatorSettings.user());
+      config.setPassword(com.blariyo.collector.config.OperatorSettings.password());config.setMaximumPoolSize(2);
+      PinnedHttp.Response response;
+      try(var db=new com.zaxxer.hikari.HikariDataSource(config)) {
+        var store=new BatchStore(db);
+        var requests=SourceRequests.controlled(observed,millis->{try{Thread.sleep(millis);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new CollectorFailure(503,"BATCH_INTERRUPTED");}},source.config().path("requestIntervalMs").asLong(10000),source,store,()->{});
+        try(var lease=store.lockSource(source.key())){response=requests.fetch(url,source.policy(),30*1024*1024);}
+      }
       report.put("httpStatus",response.status());
       Path root=Path.of(".local-data/site-probes",source.key());Files.createDirectories(root);
       Path file=root.resolve(System.currentTimeMillis()+"-"+mode+".html");

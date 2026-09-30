@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { randomUUID } from 'node:crypto';
+import { performance } from 'node:perf_hooks';
+import { Readable } from 'node:stream';
 import { map, type Observable } from 'rxjs';
 import { validateResponse } from '@blariyo/contracts';
 import { ApiError } from '../shared/errors.js';
@@ -34,7 +36,8 @@ export class BinaryResult {
     readonly bytes: Buffer,
     readonly mime: string,
     readonly cache = 'private, no-store',
-    readonly nosniff = true
+    readonly nosniff = true,
+    readonly deadline?: number
   ) {}
 }
 @Injectable()
@@ -49,12 +52,23 @@ export class EnvelopeInterceptor implements NestInterceptor<unknown, unknown> {
           return result.data;
         }
         if (result instanceof BinaryResult) {
+          if(result.deadline!==undefined&&performance.now()>=result.deadline)throw new ApiError(410,'BATCH_ITEM_EXPIRED');
           response.status(200).set({
             'Cache-Control': result.cache,
             'Content-Type': result.mime,
             ...(result.nosniff ? { 'X-Content-Type-Options': 'nosniff' } : {}),
           });
-          return new StreamableFile(result.bytes);
+          if(result.deadline===undefined)return new StreamableFile(result.bytes);
+          const deadline=result.deadline;
+          const stream=Readable.from((async function*(){
+            for(let offset=0;offset<result.bytes.length;offset+=65536){
+              if(performance.now()>=deadline)throw new ApiError(410,'BATCH_ITEM_EXPIRED');
+              yield result.bytes.subarray(offset,offset+65536);
+            }
+          })());
+          const timeout=setTimeout(()=>{stream.destroy();response.destroy();},Math.max(1,Math.min(2147483647,deadline-performance.now())));
+          timeout.unref();response.once('close',()=>clearTimeout(timeout));
+          return new StreamableFile(stream);
         }
         if (!(result instanceof HttpResult)) return result;
         response.status(result.status).setHeader('Cache-Control', result.cache);
@@ -90,6 +104,10 @@ export class CoreExceptionFilter implements ExceptionFilter<unknown> {
     if (error instanceof ApiError) {
       status = error.status;
       code = error.code;
+    } else if (errorCode==='P0001' && message==='BATCH_ITEM_EXPIRED') {
+      status=410;code='BATCH_ITEM_EXPIRED';
+    } else if (errorCode==='P0002' && message==='BATCH_ITEM_NOT_FOUND') {
+      status=404;code='BATCH_ITEM_NOT_FOUND';
     } else if (type === 'entity.too.large') {
       status = 413;
       code = 'REQUEST_TOO_LARGE';

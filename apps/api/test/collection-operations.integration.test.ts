@@ -42,7 +42,7 @@ await test('Nest collection transition, administrator events and built CLI prese
   const root = await app.getUrl();
   const headers = {
     'X-Blariyo-Service-Token': token,
-    'X-Blariyo-Admin-Actor': 'admin:v1:' + randomBytes(32).toString('base64url'),
+    'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor': 'admin:v1:' + randomBytes(32).toString('base64url'),
     'Idempotency-Key': randomUUID(),
     'Content-Type': 'application/json',
   };

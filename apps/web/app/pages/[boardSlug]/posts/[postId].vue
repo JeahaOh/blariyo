@@ -17,6 +17,10 @@ if (!data.value)
 const post = data.value.data.post;
 const bodyBlocks = socialDisplayBlocks(post.blocks);
 const context = ref(data.value.data.context);
+const listLoading = ref(false),
+  listError = ref(false),
+  requestedPage = ref(context.value.listPage);
+const shareBusy = ref(false);
 const sharing = ref(false),
   feedback = ref(''),
   shareDialog = ref<HTMLDialogElement | null>(null),
@@ -56,6 +60,7 @@ const recordShareResult = (
 function openShare() {
   if (sharing.value) return;
   $analytics?.send('share_open', analyticsBase());
+  feedback.value = '';
   sharing.value = true;
   void nextTick(() => shareDialog.value?.showModal());
 }
@@ -106,6 +111,8 @@ function shareX() {
 }
 const brand = useRuntimeConfig().public;
 const summary = description(post.blocks, brand.homeOgDescription);
+const firstImage = post.blocks.find((block) => block.type === 'IMAGE')?.image;
+const shareImageUrl = firstImage?.url || new URL('/og/blariyo-default.png', post.shareUrl).href;
 useSeoMeta({
   title: `${post.title} · ${brand.siteName}`,
   description: summary,
@@ -117,12 +124,12 @@ useSeoMeta({
   twitterTitle: post.title,
   twitterDescription: summary,
   twitterCard: 'summary_large_image',
-  ogImage:
-    post.blocks.find((b) => b.type === 'IMAGE')?.image.url ||
-    new URL('/og/blariyo-default.png', post.shareUrl).href,
-  twitterImage:
-    post.blocks.find((b) => b.type === 'IMAGE')?.image.url ||
-    new URL('/og/blariyo-default.png', post.shareUrl).href,
+  ogImage: shareImageUrl,
+  ogImageAlt: firstImage?.alt,
+  ogImageWidth: firstImage?.width,
+  ogImageHeight: firstImage?.height,
+  twitterImage: shareImageUrl,
+  twitterImageAlt: firstImage?.alt,
 });
 useHead({ link: [{ rel: 'canonical', href: post.shareUrl }] });
 if (import.meta.server) useResponseHeader('Cache-Control').value = 'no-store';
@@ -283,7 +290,10 @@ onBeforeUnmount(() => {
 });
 async function changePage(page: number) {
   const fromPage = context.value.listPage;
-  if (page === fromPage) return;
+  if (listLoading.value || page === fromPage) return;
+  requestedPage.value = page;
+  listLoading.value = true;
+  listError.value = false;
   const requestGeneration = ++listRequestGeneration;
   try {
     const result = await $fetch<ApiResponse<'listPosts'>>(
@@ -311,8 +321,9 @@ async function changePage(page: number) {
         list_instance_key: detailListInstanceKey,
       });
   } catch {
-    if (requestGeneration === listRequestGeneration)
-      feedback.value = '목록을 불러오지 못했습니다. 다시 시도해 주세요.';
+    if (requestGeneration === listRequestGeneration) listError.value = true;
+  } finally {
+    if (requestGeneration === listRequestGeneration) listLoading.value = false;
   }
 }
 async function copy(parentAttemptKey?: string) {
@@ -334,6 +345,9 @@ async function copy(parentAttemptKey?: string) {
   }
 }
 async function share() {
+  if (shareBusy.value) return;
+  shareBusy.value = true;
+  feedback.value = '';
   const attemptKey = makeKey();
   const viewToken = $analytics?.captureView?.();
   $analytics?.send('share', {
@@ -345,9 +359,11 @@ async function share() {
     if (navigator.share) {
       await navigator.share({ title: post.title, url: post.shareUrl });
       recordShareResult('native', attemptKey, 'browser_resolved', viewToken);
+      feedback.value = '공유했습니다.';
     } else {
       recordShareResult('native', attemptKey, 'unavailable', viewToken);
       await copy(attemptKey);
+      feedback.value = '브라우저 공유를 지원하지 않습니다. ' + feedback.value;
     }
   } catch (e) {
     recordShareResult(
@@ -356,8 +372,12 @@ async function share() {
       e instanceof Error && e.name === 'AbortError' ? 'cancelled' : 'failed',
       viewToken
     );
-    if (!(e instanceof Error) || e.name !== 'AbortError')
-      feedback.value = '공유하지 못했습니다. 링크 복사를 이용해 주세요.';
+    feedback.value =
+      e instanceof Error && e.name === 'AbortError'
+        ? '공유를 취소했습니다.'
+        : '공유하지 못했습니다. 링크 복사를 이용해 주세요.';
+  } finally {
+    shareBusy.value = false;
   }
 }
 </script>
@@ -429,11 +449,23 @@ async function share() {
       <h2>{{ post.board.displayName }}</h2>
       <NuxtLink :to="`/${post.board.slug}`">목록으로</NuxtLink>
     </div>
-    <PostList
-      v-bind="context"
-      list-area="detail_footer"
-      @instance-change="detailListInstanceKey = $event"
-    /><PageNumbers :page="context.listPage" :total="context.totalPages" @change="changePage" />
+    <section aria-label="같은 게시판 목록" :aria-busy="listLoading">
+      <p v-if="listLoading" role="status">목록을 불러오는 중입니다.</p>
+      <div v-if="listError" role="alert">
+        <p>목록을 불러오지 못했습니다.</p>
+        <button :disabled="listLoading" @click="changePage(requestedPage)">목록 다시 시도</button>
+      </div>
+      <PostList
+        v-bind="context"
+        list-area="detail_footer"
+        @instance-change="detailListInstanceKey = $event"
+      /><PageNumbers
+        :page="context.listPage"
+        :total="context.totalPages"
+        :disabled="listLoading"
+        @change="changePage"
+      />
+    </section>
     <dialog
       ref="shareDialog"
       class="share-dialog"
@@ -444,7 +476,8 @@ async function share() {
       <button class="dialog-close" @click="closeShare">닫기</button>
       <h2>공유하기</h2>
       <div class="share-options">
-        <button @click="() => copy()">링크 복사</button><button @click="share">브라우저 공유</button
+        <button :disabled="shareBusy" @click="() => copy()">링크 복사</button
+        ><button :disabled="shareBusy" @click="share">브라우저 공유</button
         ><button v-if="kakao" @click="shareKakao">카카오톡</button
         ><a
           @click="shareX()"

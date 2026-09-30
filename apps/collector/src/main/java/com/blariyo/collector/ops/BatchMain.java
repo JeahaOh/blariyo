@@ -65,7 +65,7 @@ public final class BatchMain {
     source.policy();
     com.zaxxer.hikari.HikariDataSource datasource = null;
     boolean write = flags.contains("--write-db");
-    if (write) {
+    {
       var hikari = new com.zaxxer.hikari.HikariConfig();
       hikari.setJdbcUrl(OperatorSettings.url()); hikari.setUsername(OperatorSettings.user()); hikari.setPassword(OperatorSettings.password());
       hikari.setMaximumPoolSize(2); datasource = new com.zaxxer.hikari.HikariDataSource(hikari);
@@ -81,6 +81,7 @@ public final class BatchMain {
 
   public static void main(String[] args) {
     try {
+      if (args.length > 0 && args[0].equals("retention")) { RetentionMain.execute(args); return; }
       if (args.length > 0 && Set.of("queue","discord").contains(args[0])) { QueueMain.execute(args); return; }
       if (args.length > 0 && args[0].equals("collect-url")) { collectUrl(args); return; }
       var options = options(args);
@@ -99,7 +100,7 @@ public final class BatchMain {
       }
       // Resolve dependencies lazily: a blocked source never accesses credentials or opens sockets.
       com.zaxxer.hikari.HikariDataSource datasource = null;
-      if (options.writeDb()) {
+      {
         var hikari = new com.zaxxer.hikari.HikariConfig();
         hikari.setJdbcUrl(OperatorSettings.url()); hikari.setUsername(OperatorSettings.user()); hikari.setPassword(OperatorSettings.password());
         hikari.setMaximumPoolSize(2); datasource = new com.zaxxer.hikari.HikariDataSource(hikari);

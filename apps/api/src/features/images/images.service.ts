@@ -1,11 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { performance } from 'node:perf_hooks';
 import { Storage } from '../../shared/storage.js';
 import { UnitOfWork } from '../../shared/unit-of-work.js';
 import { OutboxRepository } from '../../operations/outbox.repository.js';
 import { ImagesRepository } from './images.repository.js';
 import { validateImages, validateCollectedImage, COLLECTED_TOTAL_BYTES, type ImageFile, type ValidatedImage } from './image-validation.js';
-import { fail, validId } from '../../shared/errors.js';
+import { ApiError, fail, validId } from '../../shared/errors.js';
 @Injectable()
 export class ImagesService {
   constructor(
@@ -17,12 +18,12 @@ export class ImagesService {
   async upload(files: ImageFile[], actor: string) {
     return this.store(await validateImages(files), actor);
   }
-  async uploadCollected(bytes: Buffer, actor: string, remainingBytes = COLLECTED_TOTAL_BYTES) {
+  async uploadCollected(bytes: Buffer, actor: string, remainingBytes = COLLECTED_TOTAL_BYTES, source?: {expiresAt:string;deadline:number}) {
     const validated = await validateCollectedImage(bytes);
     if (validated.reduce((sum, image) => sum + image.bytes.length, 0) > remainingBytes) fail(413, 'UPLOAD_TOO_LARGE');
-    return this.store(validated, actor);
+    return this.store(validated, actor,source);
   }
-  private async store(validated: ValidatedImage[], actor: string) {
+  private async store(validated: ValidatedImage[], actor: string, source?: {expiresAt:string;deadline:number}) {
     const stored: string[] = [],
       requestId = randomUUID(),
       createdAt = new Date().toISOString();
@@ -32,8 +33,16 @@ export class ImagesService {
     }));
     try {
       for (const image of images) {
+        if(source){
+          if(performance.now()>=source.deadline)fail(410,'BATCH_ITEM_EXPIRED');
+          // Persist cleanup intent before PUT, including the crash-before-image-row case.
+          await this.work.transaction(()=>this.outbox.enqueue({type:'OBJECT_DELETE_PRIVATE',aggregateType:'STORAGE_OBJECT',
+            aggregateId:null,actor,sourceExpiresAt:source.expiresAt,
+            payload:{privateStorageKey:image.key,objectCreatedAt:createdAt,sourceExpiresAt:source.expiresAt,cleanupReason:'COLLECT_STAGING'}}));
+        }
         stored.push(image.key);
         await this.storage.put('private', image.key, image.bytes);
+        if(source&&performance.now()>=source.deadline)fail(410,'BATCH_ITEM_EXPIRED');
       }
       return await this.work.transaction(async () => {
         const items = [];
@@ -42,6 +51,7 @@ export class ImagesService {
             ...image,
             byteSize: image.bytes.length,
             actor,
+            ...(source?{sourceExpiresAt:source.expiresAt}:{}),
           });
           items.push({
             imageId: Number(id),
@@ -55,7 +65,7 @@ export class ImagesService {
         }
         return { items };
       });
-    } catch {
+    } catch(error) {
       for (const key of stored) {
         try {
           await this.storage.delete('private', key);
@@ -70,6 +80,7 @@ export class ImagesService {
                   privateStorageKey: key,
                   objectCreatedAt: createdAt,
                   cleanupReason: 'UPLOAD_ROLLBACK',
+                  ...(source?{sourceExpiresAt:source.expiresAt}:{}),
                 },
                 actor,
               })
@@ -77,6 +88,7 @@ export class ImagesService {
             .catch(() => {});
         }
       }
+      if(error instanceof ApiError)throw error;
       fail(503, 'DEPENDENCY_UNAVAILABLE');
     }
   }

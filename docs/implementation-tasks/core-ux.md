@@ -1,6 +1,6 @@
 # Core 화면 마감 task
 
-현재 정적 대조로 발견한 P0 화면 수용 잔여다. 각 task는 해당 명세의 완료 조건을 먼저 확인하고 실제 브라우저에서 회귀를 검증한다. 분석 문서만으로 장애를 재현했다고 간주하지 않는다.
+정적 대조로 발견했던 P0 화면 수용 항목이다. 각 task는 해당 명세의 완료 조건을 먼저 확인하고 실제 브라우저에서 회귀를 검증한다. 분석 문서만으로 장애를 재현했다고 간주하지 않는다.
 
 ## UX-01 정책 이력 변경 후 본문 위치
 
@@ -43,3 +43,18 @@
 - **선행:** 2026-09-26 사용자 결정으로 현재 앱 청록 유지 확정. `planning/07-color-palette.md`의 기준을 따른다.
 - **범위:** 앱 스타일과 관련 화면/정적 검토물의 일치.
 - **완료 증거:** 청록 기준의 색상 토큰 참조와 대표 해상도 화면 비교. 색상 결정만으로 CSS·정적 검토물 정렬이나 브라우저 검증을 완료 처리하지 않는다.
+
+## 2026-09-27 로컬 완료 증거
+
+UX-01~06의 코드·로컬 검증은 완료했다. [진행 기록](../../worklog/2026-09-27/m0-implementation/README.md)의 HEAD+미커밋 source 기준이며 원격 반영·배포·Google/공유 provider 실제 수신 증거가 아니다.
+
+| ID | 구현과 실행 증거 |
+| --- | --- |
+| UX-01 | PolicyViewer 선택 본문 도착 후 heading 초점/상단, 70문단·320px·modal/direct route [시험](../../tests/browser/public-ux.test.ts) |
+| UX-02 | 공개 상세 첫 IMAGE alt/크기 SSR: [Core](../../tests/browser/core.test.ts), IMAGE 없음 fallback: [공개 UX](../../tests/browser/public-ux.test.ts) |
+| UX-03 | 목록 page2의 heading 초점·aria-live·접근성 트리: 공개 UX 시험 |
+| UX-04 | 하단503→재시도·중복 요청 방지·본문 유지, 공유4상태: 공개 UX 시험 |
+| UX-05 | 읽기 차단/JSON/schema·삭제 throw/무시·철회 저장 실패/재시도·기본 OFF: [오류 시험](../../tests/browser/consent-errors.test.ts), [기존 동의](../../tests/browser/consent.test.ts) 8 PASS, [단위](../../tests/consent.test.ts) 6 PASS |
+| UX-06 | 앱 CSS border/정적 CSS ::after 모두 rgb(0,161,155), 320/768/1280px 넘침 없음·화면 비교: 공개 UX 시험 |
+
+Web 타입/lint/build 및 tests 타입/lint PASS. 대표 캡처를 직접 확인했다. 외부 script는 정확한 테스트 URL의 로컬 대역만 허용하고 기타 외부 요청0을 검증했다.

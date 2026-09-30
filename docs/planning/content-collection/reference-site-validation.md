@@ -135,3 +135,37 @@ Discord Gateway E2E는 `apps/collector/ops/discord-e2e-checklist.md`와 `apps/co
 ## 2026-09-23 batch rough edge
 
 MLBPark hot batch run `58deb42d-1763-4fbe-b2b7-702c8e95535e`에서 media fetch 실패가 item insert 이후 발생해 run은 `PARTIAL`인데 일부 `collect.batch_item.state=FETCHED` row가 남는 현상을 확인했다. 이후 runner 저장 순서를 `FETCHING` claim → raw 저장 → media 저장 → `FETCHED` 완료 전이로 보정했고, Yuldo 재실행 run `e2957b9d-5989-45d1-a6f5-f7bf73ff6cab`에서 duplicates 1, fetched 2, raw object 2개로 중복 raw orphan이 생기지 않음을 확인했다. 기존 rough-edge run의 과거 row는 증거로 보존한다.
+
+
+<a id="m0-evidence-20260926"></a>
+## M0-D05 현재 증거표 — 2026-09-26 문서 대조
+
+편입 판정은 [S1~S5](source-collection-policy.md#m0-admission)를 따른다. 아래 L은 [9/23 지속 로컬 증거](../../../apps/collector/ops/reports/local-attachment-and-browser-2026-09-23.md#21개-출처별-현재-증거), B는 [9/23 차단 근거](../../../apps/collector/ops/reports/observed-fixtures-2026-09-23.md)다. L 환경은 로컬 PostgreSQL 5439·로컬 object·Web3000/Core3100이며 보고서가 exact 실행 SHA를 기록하지 않아 **대상 SHA 미확인**이다. 현재 source 대조 기준은 bb19c48이나 이를 과거 시험 SHA로 대입하지 않는다. L 수치는 글/이미지/FILE/SNS 순서, 이번 재실행 결과가 아니다.
+
+| 출처 | 증거·내용 | 미충족 gate·추가 표본 | M0 판정 |
+| --- | --- | --- | --- |
+| arcalive | L 7/17/0/0, 관측 목록·상세 | S1/S5, 첨부/SNS 해당 여부 | 후보 |
+| bobaedream | L 4/10/0/0 | S1/S5, 첨부/SNS 해당 여부 | 후보 |
+| clien | L 4/0/0/1 | S1/S5, 이미지 포함 표본 또는 N/A | 후보 |
+| dcinside | L 5/175/0/0, 초기 실패와 구분 | S1/S5, 다중 이미지·애니메이션 | 후보 |
+| dmitory | L 10/14/0/8 | S1/S5, 첨부 해당 여부 | 후보 |
+| dogdrip | L 4/14/0/0 | S1/S5, 후속 접근 관측 시각 유지 | 후보 |
+| etoland | L 4/1/0/1 | S1/S5, 공지 제외·경로 정규화 | 후보 |
+| goodgag | L 9/10/0/0 | S1/S5, 첨부/SNS 해당 여부 | 후보 |
+| humoruniv | L 6/18/0/0 | S1/S5, 혼합 본문·모바일 구조 | 후보 |
+| instiz | L 5/19/0/0 | S1/S5, 첨부/SNS 해당 여부 | 후보 |
+| inven | L 5/12/2/1, ZIP2 readback·정식 승격 | S1/S5, ZIP 검증은 악성코드 검사 아님 | 후보 |
+| mlbpark | L 5/2/0/0, 초기 PARTIAL 이후 | S1/S5, media 부분 실패 회귀 | 후보 |
+| natepann | L 5/10/0/0 | S1/S5, 초기 text-only와 구분 | 후보 |
+| ruliweb | L 5/12/0/0 | S1/S5, 첨부/SNS 해당 여부 | 후보 |
+| theqoo | L 5/4/0/0 | S1/S5, alias/redirect·원문 무절단 | 후보 |
+| todayhumor | L 7/37/0/1 | S1/S5, table/no identity | 후보 |
+| yuldo | L 14/25/0/9, 중복 orphan 회귀 | S1/S5, 첨부 해당 여부 | 후보 |
+| fmkorea | B HTTP430/보안 페이지, 실패 readback | S1~S5 성공 없음; 재분석 task 대기 | 차단 후보 |
+| ppomppu | B 302→403, 실패 readback | S1~S5 성공 없음; 재분석 task 대기 | 차단 후보 |
+| youtube-community | B HTTP200·본문 renderer 없음 | S2~S5 성공 없음; 재분석 task 대기 | 미검증 후보 |
+| pgr21 | B Anubis challenge, 상세 전용 | S1~S5 성공 없음; 별도 보류, 재분석 task 편입 금지 | 차단 후보 |
+
+17개 L의 S2/S3/S4는 당시 로컬 표본 범위만 입증한다. SHA·통제·원격 역할/실운영 인수 부족 때문에 현재 운영 통과로 올리지 않는다. [9/23 운영 데이터 반영](../../../worklog/2026-09-23/release/production-db-promotion.md)의 5c581c2·108 item·74 post·308 image는 기존 자료 이전/조회 증거이며 source별 현재 fetch/요청 통제 통과가 아니다. 실제 활성 출처 목록은 OPS-04에서 read-only config/hash 조회부터 별도로 기록한다.
+
+후속 COL-03 receipt는 source/방식, adapter·config hash, 실행 SHA, 시각/OS/DB/object 환경, run/item ID, S1~S5별 결과·N/A 이유·원문 대조/해시·오류·승인자를 담는다. 동일 출처의 오래된 성공·다른 환경·새 실패를 합쳐 한 PASS로 만들지 않는다. 정상 운영 출처만 실제 적용 목록에 기록하고 나머지 후보는 별도 유지한다. 이번 문서 대조에서는 새 HTTP·DB/object 요청을 보내지 않았다.

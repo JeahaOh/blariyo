@@ -33,6 +33,28 @@ OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는
 - 수집 운영 활성화 전 [P1-06](../roadmap.md#3-p1--수집-보조자동-수집-마감)에서 direct 단건·목록·queue의
   공통 통제와 실패 시 외부 요청 차단을 검증한다. 이번 검토는 정적 코드 대조이며 네트워크 호출·코드 수정은 하지 않았다.
 
+## COL-01/02 direct 요청 통제 보완 — 2026-09-27
+
+구현 중인 후속 계약이다. 위 9월 24일 대조는 당시 증거이며 현재 구현·검증은
+[실행 기록](../../worklog/2026-09-27/m0-implementation/README.md)을 따른다.
+
+- 단건·목록·queue·출처 probe의 실제 HTTP는 같은 robots/요청 budget gate를 거친다.
+  dry-run도 네트워크 요청은 한도에서 차감하므로 batch DB 연결이 필요하다. 콘텐츠·object는 저장하지 않는다.
+- 명시적인 `dailyRequestLimit`(1~1000000)과 `requestIntervalMs`(기본10000, 10000~3600000), 승인된 source 설정을 사용한다.
+  누락·비활성·DB 장애·permit 불확실 상태에서 요청하지 않는다. 예제 파일에 임의 한도를 넣어 활성화하지 않는다.
+- 출처 및 허용된 미디어 origin 각각의 robots를 확인한다. robots 조회 자체도 원래 source의 한도에 포함한다.
+  확인 불가·금지일 때 대상 본문/미디어는 요청하지 않는다. Crawl-delay와 설정 간격 중 큰 값을 적용한다.
+- Collector V010의 `collect.batch_request_budget`은 source별 현재 KST 날짜·요청 수·다음 허용 시각만 보관한다.
+  batch는 `reserve_batch_request` 제한 함수로만 예약하며 원문/URL/개인정보는 저장하지 않는다.
+  row lock과 DB 시각으로 재시작·동시 실행·날짜 변경을 처리하고 자정에도 이전 간격을 유지한다.
+  2초 permit의 만료 또는 자정 이후에는 보내지 않는다. 사용 여부가 불확실한 예약은 환불하지 않는다.
+  이 최소 집계는 선택 백업에 포함한다. 복원 뒤에는 collector restore gate를 닫고 다음 KST 날짜 시작 전까지
+  direct permit을 발급하지 않는다. snapshot 이후 잃어버린 당일 요청 수를 다시 소비하지 않으며, 다음 날에도
+  운영자가 D01 정리/인수를 마쳐 gate를 해제하기 전에는 수집하지 않는다.
+- robots·목록·상세·redirect 각 hop·이미지·첨부 및 각 재시도마다 같은 source의 예약을 소비한다.
+  redirect는 최초 host를 유지하며 최대3회만 따라간다. 순환·다른 host·네 번째 목적지·안전 DNS 검사 실패는 송신 전에 차단한다.
+- 로컬 검증은 합성 transport와 격리 PostgreSQL을 사용한다. 실제 출처 허용·운영 편입을 뜻하지 않는다.
+
 ## Direct batch Discord 대기열 계약 (2026-09-23)
 
 현행 direct batch의 Discord 입력은 아래 계약을 따른다. 이 문서의 Core 후보·spool·Spring Batch 설명은 legacy 호환 경로이며 이 대기열에 적용하지 않는다.
@@ -765,11 +787,11 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 - max-pages 1~10, max-items 1~100, since 1h~720h, interval 최소 10초·최대 1시간. 출처 설정이 더 엄격하면 낮출 수 없다.
   게시 시각 미확인은 INCLUDE_UNKNOWN/REQUIRE_KNOWN에 따라 포함·제외하고 report에 구분한다.
   다음 페이지는 실제 목록의 허용 pagination 링크만 따른다.
-- robots·Crawl-delay·일일 budget은 위 미충족 통제에 따라 보완이 필요하다. 현행 direct의 재시도·redirect·site stop은
+- robots·Crawl-delay·일일 budget은 위 9월 27일 COL-01/02 계약에 따라 공통 요청기에 연결한다. 현행 direct의 재시도·redirect·site stop은
   `SourceRequests`와 뒤의 9월 23일 구현 계약을 따른다. legacy의 목록 redirect 전면 차단을 direct 구현으로 표시하지 않는다.
 - legacy 목록 요청만 Core 전역 source budget에서 예약한다. `discovery:true` 예약은 candidateId/lockVersion 없이
   ROBOTS/LIST/REDIRECT만 허용하고, V007의 `source_discovery_policy.enabled`를 확인한다. 후보는 LIST_CRAWL로 생성한다.
-  현행 direct는 이 Core API를 호출하지 않는다. direct 소유 일일 상한을 구현하기 전 제한이 보장된 것으로 표시하지 않는다.
+  현행 direct는 이 Core API를 호출하지 않으며 Collector V010의 batch 소유 제한 예약 함수를 사용한다. 로컬 검증과 실제 출처 인수는 구분한다.
 - 재수집 기본 skip. update는 기존 승인/반려 후보를 덮어쓰지 않는 version·검수 계약을 추가한 뒤 제공하며,
   미구현 update 옵션을 성공으로 받지 않는다. canonical과 source post key가 다른 게시물을 합치면 안 된다.
 - 본문 이미지는 `img[src]`, `data-src`, `data-original`, `data-original-src`, `data-lazy-src`,
@@ -965,3 +987,7 @@ REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 s
 - 정제 출력의 프레임수·크기·지연·반복을 원본과 대조한다. 컨테이너 구조 검사는 전체 프레임 디코딩을 대체하지 않는다. 테스트에서 각 프레임 픽셀 해시도 원본과 대조한다.
 - 원본 readback과 공개 이미지 readback도 같은 분할 디코딩 한도를 사용한다. 실제 원본을 모두 읽지 않고 검사 기대값만 바꿔 성공시키지 않는다. 일반 정적 이미지와 작은 애니메이션의 기존 처리 경로는 유지한다.
 - 근거: [sharp의 page/pages와 animated 처리](https://sharp.pixelplumbing.com/api-constructor/), [GIF89a 구조](https://www.w3.org/Graphics/GIF/spec-gif89a.txt), [WebP RIFF 구조](https://developers.google.com/speed/webp/docs/riff_container).
+
+## 2026-09-26 M0 보완 계약의 적용 순서
+
+[보존 D01](02-data-model.md#m0-d01-retention)은 기존 완료 불변/DELETE 거부를 유지하면서 전용 만료 함수·회수 역할을 추가하는 목표 설계다. [입력 D02](01-system-architecture.md#m0-d02-delivery)는 API mailbox를 batch가 pull하며 기존 Discord queue를 재사용한다. collector가 글마다 Core API에 결과를 제출하는 legacy 방식으로 되돌리지 않는다. source runtime snapshot/heartbeat·receipt는 batch 소유이며 API는 안전 view만 조회한다. 기존 V001~V006 적용 SQL은 변경하지 않고 후속 migration·호환성 시험으로 전달한다. 구현·활성화 상태는 [인계표](../implementation-tasks/README.md#m0-design-handoff)를 따른다.

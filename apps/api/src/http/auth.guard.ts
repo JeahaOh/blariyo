@@ -9,6 +9,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { matchOperation } from '@blariyo/contracts';
 import { fail } from '../shared/errors.js';
 import type { CoreRequest } from './contracts.js';
+import { permitsAdminOperation } from './admin-permissions.js';
 export const HTTP_OPTIONS = Symbol('HTTP_OPTIONS');
 export interface HttpOptions {
   localMedia?: boolean;
@@ -22,7 +23,8 @@ export class AdminGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<CoreRequest>();
     // Express also dispatches HEAD to GET handlers. The public contract accepts only explicit methods.
     const path = request.originalUrl.split('?')[0] ?? request.originalUrl;
-    if (!matchOperation(request.method, path))
+    const operation = matchOperation(request.method, path);
+    if (!operation)
       fail(
         404,
         /^\/api\/v1\/admin\/collect(?:\/|$)/.test(path) ? 'CANDIDATE_NOT_FOUND' : 'POST_NOT_FOUND'
@@ -38,6 +40,8 @@ export class AdminGuard implements CanActivate {
       fail(401, 'ADMIN_AUTH_REQUIRED');
     const actor = request.get('X-Blariyo-Admin-Actor') ?? '';
     if (!/^admin:v[1-9][0-9]*:[A-Za-z0-9_-]{43}$/.test(actor)) fail(403, 'ADMIN_FORBIDDEN');
+    const role = request.get('X-Blariyo-Admin-Role') ?? '';
+    if (!permitsAdminOperation(role, operation.operationId)) fail(403, 'ADMIN_FORBIDDEN');
     request.actor = actor;
     return true;
   }

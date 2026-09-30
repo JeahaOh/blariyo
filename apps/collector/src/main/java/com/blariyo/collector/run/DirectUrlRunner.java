@@ -46,14 +46,16 @@ public final class DirectUrlRunner {
     int fetched=0,duplicates=0;
     String phase="CLAIM";
     var failureDetail=new LinkedHashMap<String,Object>();
-    requests=new SourceRequests(transport,sleeper,options.intervalMs());
     BatchStore.SourceLock lease=null;
     try {
-      if(options.writeDb()&&!sourceLocked)lease=store.lockSource(source.key());
+      if(!options.writeDb())requests=SourceRequests.controlled(transport,sleeper,options.intervalMs(),source,store,()->{});
+      if(!sourceLocked)lease=store.lockSource(source.key());
       if(options.writeDb()) {
         store.registerSource(source.key(),source.config().path("host").asText());
         run=store.begin(source.key(),sourceLocked?"discord":"manual","WRITE_DB",1,1,options.intervalMs(),null);runStarted=true;
         started.accept(run);
+        UUID activeRun=run;
+        requests=SourceRequests.controlled(transport,sleeper,options.intervalMs(),source,store,()->store.assertRunLive(activeRun));
       }
       var policy=source.policy();
       URI detail=policy.allow(source.canonical(options.url()));
@@ -68,7 +70,9 @@ public final class DirectUrlRunner {
         byte[] html=fetchBytes(detail,policy,30*1024*1024);
         if(options.writeDb()) {
           phase="RAW";
-          var raw=objects.put("collect/raw/"+run+"/"+objectName(postKey)+".html",html,"text/html");store.raw(item,raw.objectKey());failureDetail.put("rawObjectKey",raw.objectKey());
+          store.assertLive(item);
+          var raw=objects.put("collect/raw/"+run+"/"+item+".html",html,"text/html");
+          store.assertLive(item);store.raw(item,raw.objectKey());failureDetail.put("rawObjectKey",raw.objectKey());
         }
         phase="PARSE";
         JsonNode result=policy.extract(html,detail);
@@ -109,7 +113,9 @@ public final class DirectUrlRunner {
 
   private void finish(UUID run, Report report, Map<String, Object> checkpoint) {
     String reportKey = "collect/report/" + run + ".jsonl";
+    store.assertRunLive(run);
     objects.put(reportKey, (Json.tree(report).toString() + "\n").getBytes(StandardCharsets.UTF_8), "application/jsonl");
+    store.assertRunLive(run);
     store.finish(run, report.state(), checkpoint, reportKey, BatchStore.sha(Json.tree(report).toString() + "\n"));
   }
   private byte[] fetchBytes(URI url, SourcePolicy policy, int maximum) { return fetch(url, policy, maximum).bytes(); }
@@ -129,7 +135,9 @@ public final class DirectUrlRunner {
     String contentType = requireImage ? SourceImageType.detect(response.bytes(), response.contentType()) : response.contentType();
     if (requireImage && !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) throw new CollectorFailure(415, "SOURCE_NOT_IMAGE");
     String key = "collect/media/" + run + "/" + item + "/" + position;
+    store.assertLive(item);
     var object = objects.put(key, response.bytes(), contentType);
+    store.assertLive(item);
     store.media(item, position, kind, remote.toString(), object.objectKey(), object.sha256(), object.contentType(), object.bytes());
   }
   private PinnedHttp.Response fetchAsset(URI remote, SourcePolicy policy) {

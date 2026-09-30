@@ -62,7 +62,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE blariyo_migrator IN SCHEMA content,legal GRANT
 DO $$
 DECLARE t text;
 BEGIN
-  FOREACH t IN ARRAY ARRAY['source','candidate','candidate_image','collector_receipt','source_request_budget','source_request_reservation','collector_operational_event','source_discovery_policy','batch_review','batch_review_request'] LOOP
+  FOREACH t IN ARRAY ARRAY['source','candidate','candidate_image','collector_receipt','source_request_budget','source_request_reservation','collector_operational_event','source_discovery_policy','batch_review','batch_review_request','web_collection_request','web_collection_request_key'] LOOP
     IF to_regclass('collect.'||t) IS NOT NULL THEN
       EXECUTE format('GRANT SELECT,INSERT,UPDATE,DELETE ON collect.%I TO blariyo_app',t);
     END IF;
@@ -72,25 +72,58 @@ BEGIN
       EXECUTE format('GRANT USAGE,SELECT ON SEQUENCE collect.%I TO blariyo_app',t);
     END IF;
   END LOOP;
-  FOREACH t IN ARRAY ARRAY['batch_source','batch_run','batch_item','batch_media','batch_failure','batch_report','batch_checkpoint'] LOOP
+  FOREACH t IN ARRAY ARRAY['batch_source','batch_run','batch_item','batch_media','batch_failure','batch_report','batch_checkpoint','batch_retention','batch_dedup_key','batch_input_projection','batch_runtime_projection'] LOOP
     IF to_regclass('collect.'||t) IS NOT NULL THEN
       EXECUTE format('GRANT SELECT ON collect.%I TO blariyo_app',t);
     END IF;
   END LOOP;
+  FOREACH t IN ARRAY ARRAY['collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()'] LOOP
+    IF to_regprocedure(t) IS NOT NULL THEN
+      EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO blariyo_app',t);
+    END IF;
+  END LOOP;
   IF EXISTS(SELECT 1 FROM pg_roles WHERE rolname='blariyo_batch') THEN
     GRANT USAGE ON SCHEMA collect TO blariyo_batch;
-    FOREACH t IN ARRAY ARRAY['batch_source','batch_run','batch_item','batch_media','batch_failure','batch_report','batch_checkpoint','batch_queue','batch_confirmation'] LOOP
+    FOREACH t IN ARRAY ARRAY['batch_source','batch_run','batch_item','batch_media','batch_failure','batch_report','batch_checkpoint','batch_queue','batch_confirmation','batch_input_receipt','batch_source_runtime'] LOOP
       IF to_regclass('collect.'||t) IS NOT NULL THEN
         EXECUTE format('GRANT SELECT,INSERT,UPDATE ON collect.%I TO blariyo_batch',t);
       END IF;
     END LOOP;
+    IF to_regclass('collect.batch_confirmation_receipt') IS NOT NULL THEN
+      GRANT SELECT ON collect.batch_confirmation_receipt TO blariyo_batch;
+    END IF;
+    IF to_regclass('collect.batch_source_runtime') IS NOT NULL THEN
+      GRANT DELETE ON collect.batch_source_runtime TO blariyo_batch;
+      GRANT SELECT ON collect.batch_runtime_projection TO blariyo_batch;
+    END IF;
     -- Only media replacement needs DELETE; lifecycle rows remain immutable.
     IF to_regclass('collect.batch_media') IS NOT NULL THEN
       GRANT DELETE ON collect.batch_media TO blariyo_batch;
     END IF;
-    FOREACH t IN ARRAY ARRAY['collect.assert_source_owner(text)','collect.assert_run_owner(uuid)'] LOOP
+    FOREACH t IN ARRAY ARRAY['collect.assert_source_owner(text)','collect.assert_run_owner(uuid)','collect.assert_item_live(uuid)','collect.lookup_dedup(text,text,text)','collect.purge_authorized(text,uuid)','collect.retention_backlog()','collect.assert_run_payload_live(uuid)','collect.complete_confirmation(uuid,text,text,text,uuid)','collect.cancel_confirmation(uuid,text,text,text)','collect.lock_collection_writer()','collect.unlock_collection_writer()','collect.claim_web_requests(integer)','collect.ack_web_request(uuid,uuid)','collect.cleanup_input_receipts()','collect.web_retry_accessible(uuid)','collect.reserve_batch_request(text,integer,bigint)'] LOOP
       IF to_regprocedure(t) IS NOT NULL THEN
         EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO blariyo_batch',t);
+      END IF;
+    END LOOP;
+  END IF;
+  IF EXISTS(SELECT 1 FROM pg_roles WHERE rolname='blariyo_collect_retention') THEN
+    FOR t IN SELECT nspname FROM pg_namespace WHERE nspname IN ('content','legal','ops','collect','collector','batch','quartz') LOOP
+      EXECUTE format('REVOKE ALL ON SCHEMA %I FROM blariyo_collect_retention',t);
+      EXECUTE format('REVOKE ALL ON ALL TABLES IN SCHEMA %I FROM blariyo_collect_retention',t);
+      EXECUTE format('REVOKE ALL ON ALL SEQUENCES IN SCHEMA %I FROM blariyo_collect_retention',t);
+      EXECUTE format('REVOKE ALL ON ALL FUNCTIONS IN SCHEMA %I FROM blariyo_collect_retention',t);
+      EXECUTE format('ALTER DEFAULT PRIVILEGES FOR ROLE blariyo_migrator IN SCHEMA %I REVOKE ALL ON TABLES FROM blariyo_collect_retention',t);
+      EXECUTE format('ALTER DEFAULT PRIVILEGES FOR ROLE blariyo_migrator IN SCHEMA %I REVOKE ALL ON SEQUENCES FROM blariyo_collect_retention',t);
+      EXECUTE format('ALTER DEFAULT PRIVILEGES FOR ROLE blariyo_migrator IN SCHEMA %I REVOKE ALL ON FUNCTIONS FROM blariyo_collect_retention',t);
+    END LOOP;
+    GRANT USAGE ON SCHEMA collect TO blariyo_collect_retention;
+    FOREACH t IN ARRAY ARRAY['collect.claim_retention(uuid,integer)','collect.heartbeat_retention(uuid,uuid,bigint)',
+      'collect.retention_objects(uuid,uuid,bigint)','collect.record_purge_inventory(uuid,uuid,bigint,text)',
+      'collect.record_purge_result(uuid,uuid,bigint,text,boolean,text)','collect.fail_retention(uuid,uuid,bigint)',
+      'collect.finish_retention(uuid,uuid,bigint)','collect.observe_retention_object(text,boolean)',
+      'collect.cleanup_retention_ledger()','collect.cleanup_retention_metadata()','collect.prepare_expired_run_retention()','collect.retention_preview()','collect.lock_retention_restore()','collect.unlock_retention_restore()'] LOOP
+      IF to_regprocedure(t) IS NOT NULL THEN
+        EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO blariyo_collect_retention',t);
       END IF;
     END LOOP;
   END IF;

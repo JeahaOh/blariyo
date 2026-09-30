@@ -46,7 +46,7 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | 수집 콘텐츠를 통한 저장형 공격 | 제목·본문 TEXT escape, raw HTML은 비공개 collect object로 격리하고 화면에서 렌더하지 않음. 이미지 승격 시 magic byte·decode·metadata 제거·재인코딩, 익명 collect/private 접근 거부 |
 | secret 유출 | 저장소·image·log 제외, provider별 최소 권한 key |
 | 숨김 콘텐츠 cache 잔존 | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store |
-| VM·disk 소실 | R2 암호화 DB backup, image 원본 R2 저장 |
+| VM·disk 소실 | 현행 R2 / 목표 Drive 선택 암호화 DB backup, image 원본 R2 저장 |
 | 무료 계정 정지·capacity 부족 | provider-neutral Compose, Lightsail 전환 runbook |
 | 분석 데이터 재식별 | GA4 User-ID 미사용, 회원·소셜 식별자·본문·수집 후보 정보 전송 금지 |
 | dependency 변조 | lockfile 추적, `npm ci`, image digest 고정, 주기 audit |
@@ -499,7 +499,7 @@ pg_dump --format=custom --no-owner --no-acl
 - backup bucket은 public domain을 연결하지 않는다.
 - M0는 검증된 새 업로드 뒤 `db/daily/`의 엄격한 파일명 규칙과 R2 수정 시각으로 7일 지난 archive·manifest만 삭제한다. 다른 prefix는 건드리지 않는다. 자동 실행 실패가 장기화되면 기간을 넘길 수 있으므로 timer 결과와 최신 백업 시각을 확인한다.
 
-VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간주하지 않는다.
+VM snapshot은 과거 보조 수단 설명이다. direct 원문을 포함한 DB volume/snapshot을 새 백업 경로로 사용하지 않으며 M0-D03의 선택 dump를 적용한다. 기존 snapshot·수동 dump·장애 volume에 raw 사본이 있는지는 전환 inventory에 포함하고 검증된 대체·기한 회수한다. snapshot만으로 RPO를 충족했다고 간주하지 않는다.
 
 ## 10. 복구 절차
 
@@ -554,7 +554,7 @@ VM snapshot은 보조 수단이다. snapshot만으로 RPO를 충족했다고 간
   2026-09-23 운영 DB·콘텐츠 반영 후에는 기존 direct 결과의 **관리자 batch 검수 flag만** API/Web에서
   true로 확인됐다([당시 운영 상태](../operations/current-status.md)). URL·Discord 접수와 자동 수집은
   비활성이며, 실제 MFA 검수 조작과 direct raw/media/report/queue 보존·고지 조건(§4)은 별도다.
-- direct 수집 보조 활성화 시에만 Discord 확인/queue·출처·전용 DB/object 권한·보존/고지 gate 확인. Web URL 전달 계약은 별도 미정이며 collector 중계·preview gate는 legacy 경로에만 적용
+- direct 수집 보조 활성화 시에만 Discord 확인/queue·출처·전용 DB/object 권한·보존/고지 gate 확인. Web URL 전달은 M0-D02의 확정 mailbox 목표 계약이며 collector 중계·preview gate는 legacy 경로에만 적용
 - M0 자동 수집 활성화 시에만 별도 목록·feed·scheduler gate 확인
 
 현재 `.gitignore`는 `package-lock.json`을 제외하지 않지만 `yarn.lock`은 제외한다. npm을 표준
@@ -693,3 +693,94 @@ Core 중계·quota·spool 계약이다. 현재 source·migration·API·격리 �
 실제 출처·robots·이용 조건, Discord App, 운영 계정·설치 경로, Keychain·launchd·PostgreSQL 복구,
 Core/BFF 연동과 장애 시험은 구현·운영 공개 전 별도 검증한다. collector 장애는 공개 읽기·관리자 수동
 발행·백업의 ready 조건이 아니다.
+
+
+<a id="m0-d03-drive"></a>
+## M0-D03 — Google Drive DB 백업 목표 계약
+
+설계일·공식 사양 확인일: 2026-09-26. 설계 당시 실행기는 R2 full dump였다. 2026-09-27에는 `deploy/backup`의 선택 dump/Drive/R2·복원·만료/알림 코드와 실행 도구를 구현해 로컬 검증했다. [항목별 근거](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)를 따르며 실제 계정·설치·전환은 미실행이다. 주기는 03:30·15:30 KST, DB backup의 기한은 snapshot 생성 시각+7×24시간, 순서는 logical dump→age 암호화→SHA-256 manifest를 유지한다. 이미지/첨부 binary는 R2에만 둔다.
+
+### 계정·인증의 적용 조건
+
+| 실제 계정 | 채택 방식·조건 | 실연동 전 사용자 확인 |
+| --- | --- | --- |
+| 개인 Google/My Drive 또는 Workspace My Drive | 사용자 OAuth offline refresh token, `drive.file`, 앱이 만든 비공개 전용 폴더와 파일만 관리 | Drive API 프로젝트·OAuth client·redirect·동의 상태·실제 용량, 재인증 담당 |
+| 사용자가 관리하는 Workspace Shared Drive | 전용 Shared Drive의 서비스 계정. 회원/폴더·파일 생성/읽기/영구삭제 capability를 확인하고 그 drive 밖 권한은 주지 않음. 서비스 계정 소유 My Drive는 사용하지 않음 | 조직 정책·전용 drive ID·권한·용량·사용자 복구 접근. 영구 삭제에 필요한 organizer 권한은 해당 전용 drive로 한정 |
+| 위 조건을 만족하지 못함 | Drive 전환 차단, 정상 R2 백업 유지. 계정/권한 해결 뒤 같은 계약으로 재시험 | 계정 종류는 `(미정)`, 용량·ID를 예시로 확정하지 않음 |
+
+기본은 사용자 OAuth다. Shared Drive 조건이 실제 확인된 경우에만 서비스 계정 경로를 적용한다. 광범위한 domain-wide delegation은 도입하지 않는다. 개인 계정의 폴더를 서비스 계정에 공유하는 것만으로 저장 용량 문제가 해결된다고 가정하지 않는다. [공유 드라이브/서비스 계정](https://developers.google.com/workspace/drive/api/guides/about-shareddrives), [scope](https://developers.google.com/workspace/drive/api/guides/api-specific-auth).
+
+offline 동의로 refresh token을 확보하고 만료 access token은 갱신한다. 401은 갱신 1회 후 실패 처리, invalid_grant·권한 회수는 재로그인 루프 대신 사용자 재인증과 경보다. 외부 Testing OAuth 앱의 refresh token은 보통 7일 만료이므로 이를 장기 무인 운전 조건으로 수용하지 않는다. token/client secret·resumable session URI는 서버 사용자 전용 0600 secret store에만 두고 보고서/로그에 출력하지 않는다. age 복구 private key는 사용자 오프라인/암호 관리자에 별도 보관하고 서버에는 public recipient만 둔다. [offline 갱신](https://developers.google.com/identity/protocols/oauth2/web-server), [token 만료 조건](https://developers.google.com/identity/protocols/oauth2).
+
+### 백업에 넣을 데이터와 삭제 기한
+
+선택은 **direct 일시 자료의 table data 제외**다. full dump를 7일 더 보관하거나 복원 시에만 삭제하는 대안은 원본 보존기간을 실제로 연장하므로 채택하지 않는다. 행별 암호화 키 파기는 별도 key 관리 시스템·복구 의존성이 커 M0에 도입하지 않는다.
+
+- 포함: 전체 schema/함수·migration ledger, 기존 content/legal/ops 데이터(기존 보존 계약), 영구 `batch_dedup_key`, API 소유 `post_collection_origin`, 원문 없는 batch_retention·batch_purge_object와 source 설정/요청 통제의 안전 metadata. 복원 뒤 기준 시각이 지난 안전 ledger도 D01대로 정리한다.
+- 제외(table schema는 포함): batch_item/media/run/report/checkpoint/failure/confirmation/queue/media_correction, batch_review/review_request, web_collection_request/web_collection_request_key, batch_input_receipt, batch_source_runtime의 **데이터**. 본문·전체 URL·snapshot·actor·receipt가 다른 JSON/outbox/audit 열에 복제되지 않는지 canary 검사를 선행한다. 데이터 제외 목록은 정확한 schema.table allowlist로 version 관리하고 새 collect 테이블이 생기면 분류 전 backup을 실패시킨다.
+- 기존 legacy 후보 데이터는 기존 정책대로 유지하되 direct 원문을 legacy 테이블로 복사해 제외를 우회하지 않는다. 신규 FK가 제외 테이블을 참조하면 data-only 제외로 끝내지 않고 복구 모형을 먼저 갱신한다. 현행 review→content 참조는 content를 삭제할 이유가 아니다.
+- 이는 운영 게시글·이미지 사본 복구를 유지하지만 **미검수 direct 원문/대기 요청의 장애 복구를 보장하지 않는 선택**이다. 복원 시 자동 재수집하지 않는다. 운영자가 해당 손실 범위와 dedup에 의한 재접수 거부를 OPS-03에서 인수한다. 기한 전 raw까지 백업해야 한다는 새 요구가 있으면 별도 정책 결정으로 다룬다.
+- 로컬 spool도 같은 암호화된 선택 dump만 저장한다. 실패 사본을 다음 성공까지 무기한 두는 현행 동작은 목표 계약에서 제거하고 snapshot+7일, 미완료 upload+24시간 중 해당 기한에 삭제한다. 평문 dump 파일을 디스크에 만들지 않는다.
+
+### 업로드·식별·완료
+
+1. 실행별 잠금을 얻고 `backupId UUID`, snapshotAt/expiresAt, schema ledger hash, dumpProfileVersion과 exact 제외 테이블 목록을 고정한다. 기존 배포/수동 backup과 같은 lock을 사용한다. 주기 중복 실행은 새 backup을 만들지 않는다.
+2. `pg_dump -Fc --no-owner --no-acl`에 검증된 제외 옵션을 적용해 age로 pipe한다. 암호문 SHA-256·byte size를 계산한다. 폴더 ID·drive ID·OAuth client identity를 고정하고 이름으로 파일을 식별하지 않는다.
+3. archive와 manifest에 서로 다른 사전 생성 file ID를 예약해 0600 local journal에 기록한다. appProperties는 backupId, artifactKind, schemaVersion만; URL/개인정보 없음. 동일 backupId 재시도는 같은 ID·암호문으로 하며 이미 있으면 hash·size·parent를 대조한다. 불일치는 덮어쓰기 금지·충돌 경보다. [사전 file ID](https://developers.google.com/workspace/drive/api/guides/create-file), [custom properties](https://developers.google.com/workspace/drive/api/guides/properties).
+4. archive는 resumable upload, chunk는 8MiB(256KiB 배수). session URI를 보관하고 중단 뒤 서버 offset을 조회해 이어 보낸다. session 404/만료이면 동일 file ID의 완료 파일 존재를 먼저 확인하고 없을 때 새 session. 308은 진행이며 성공 아님. manifest는 archive 실제 다운로드·SHA-256 확인 뒤 마지막에 올린다. Drive native 문서 형식으로 변환하지 않는다. [resumable 사양](https://developers.google.com/workspace/drive/api/guides/manage-uploads).
+5. manifest에는 backupId, archive file ID·SHA-256·size, snapshotAt/expiresAt, PostgreSQL major, API/Collector ledger hashes, dumpProfileVersion, excluded tables, age recipient fingerprint를 넣는다. 다운로드 검증 결과를 별도 receipt로 남기며 secret·원문 row는 넣지 않는다.
+6. 성공은 dump/age·두 file의 실제 다운로드·manifest 관계·암호문 hash·권한 검사까지 끝난 상태다. 원격 metadata checksum만으로 성공시키지 않는다. 월간 및 전환/배포 gate의 **격리 복원 성공**은 별도 receipt이며 단순 업로드 성공과 구분한다.
+
+### 실패·만료·Discord
+
+| 실패 | 처리·성공 판정 |
+| --- | --- |
+| network·429·일시 5xx | Retry-After 우선, 그 외 1/2/4/8/16/32초+jitter 최대 6회/실행 예산30분. 파일/session 재조회 후 같은 ID로 이어가기; 완료 못 하면 FAILED |
+| 403 quota/storage/permission | 사유별 구분. rate limit만 backoff, 용량 부족·권한 거부는 즉시 실패·사용자 조치. 7일 안의 정상 backup을 공간 확보용으로 조기 삭제하지 않음 |
+| dump/age·hash·manifest 불일치 | 새 사본을 정상 목록에 넣지 않음, 불완전 artifact 회수. 이전 정상 사본도 자기 expiresAt까지만 유지 |
+| 만료 삭제 실패 | 삭제 지연 자체를 장애로 기록·알림. 백업 성공 실패와 별개 timer가 매시간 exact file ID·parent·backupId·expiresAt을 대조해 재시도. 타 파일·폴더 재귀 삭제 금지 |
+| 인증 장애 | 유효 credential 경로만 사용, 재인증은 사용자. 인증 불능 중 원격 삭제를 완료로 기록하지 않음 |
+| Discord 실패 | backup 결과는 별도로 확정하고 알림 실패를 로컬 상태에 기록·재시도. 메시지 전송 실패로 backup을 중복 생성하지 않음 |
+
+archive/manifest는 snapshotAt+7일에 **영구 삭제 API**로 제거하며 휴지통 이동으로 파기 완료 처리하지 않는다. Shared Drive는 삭제 권한·supportsAllDrives를 검증한다. 새 backup 성공을 만료 삭제의 선행 조건으로 두지 않는다. 성공/실패 양쪽 로컬·원격 사본의 초과 보존을 관찰한다. provider 내부 복제본의 즉시 물리 파기를 보장했다는 고지는 하지 않는다. [영구 삭제 API](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/delete), [오류 구분](https://developers.google.com/workspace/drive/api/guides/handle-errors).
+
+Discord는 기존 사용자 전용 채널로 장애 종류, backupId, stage, 마지막 성공 시각·경과 시간, 안전 errorCode, 재시도 결과만 보낸다. 문서/본문/Drive file 링크/token/계정 식별값은 보내지 않는다. incident key=(job,stage,errorCode), 최초1회·지속6시간마다1회·회복1회로 제한한다. 전송은 1/5/30분 재시도 후 다음 주기, 영수증을 받아도 실수신 인수와 구분한다. 최신 정상 backup 18시간 초과·파기 지연은 즉시 경보다. 사용자만 참여 중이라는 보고는 연결/실수신 증거가 아니다.
+
+### 독립 복원·전환·되돌리기
+
+- 복구에는 현재 시각이 snapshotAt+7일 전인 검증된 backup만 선택하며 만료된 archive를 예외 복구 경로로 쓰지 않는다. 별도 사용자 복구 환경에서 Drive의 file ID로 archive/manifest를 다시 내려받는다(업로드 프로세스 캐시 재사용 금지). SHA-256·size·manifest 연결을 확인하고 오프라인 age key로 스트리밍 복호화한다. 빈 격리 PostgreSQL 18에 single transaction restore하고 역할은 별도 provisioning한다. 장애로 분리한 이전 DB volume과 수동 dump도 원문 잔존 inventory에 포함하며 보존 예외로 방치하지 않는다.
+- API/Collector migration ledger·content 수량/본문·정책 hash·영구 중복 키·최소 승격 연결을 snapshot 기준과 비교한다. direct 원문 canary가 없는지 검사한다. 외부 fetch/cron/공개를 닫은 상태에서 D01 만료/삭제 ledger·R2 inventory를 적용하고 참조·미노출·재수집 방지를 검증한 뒤에만 서비스 재개한다.
+- 단계1: **R2에서 선택 dump의 다운로드·격리 복원을 먼저 검증**하고 기존 full-dump 생성기를 교체한다. 기존 정상 백업 경로는 계속 동작한다. 보관 중인 7일 snapshot 각각은 사용자 복구키로 격리 복원→direct data 제외 재dump→age→동일 snapshotAt/expiresAt의 검증된 대체본을 만든 뒤 원본 archive·로컬 사본을 제거한다. 만료를 새 업로드 시각으로 초기화하지 않는다. 이미 만료된 원본 사본은 정책 위반 잔여로 즉시 회수 대상이며 예외를 부여하지 않는다.
+- 단계2: 같은 선택 dump를 Drive에 병행 전송하고 독립 다운로드/해시/복원, token 갱신·권한 회수·용량 부족·Discord 수신·만료 삭제를 시험한다. 모두 통과 전 R2 정상 백업을 중단하지 않는다. 2회 연속 정기 Drive 성공과 최근18시간 내 복원 receipt를 전환 인수 증거로 남긴다.
+- 단계3: 사용자만 Drive를 주 경로로 전환하고 R2 새 업로드를 중지한다. 기존 R2 선택 사본은 원래7일 기한에 정리한다. 7일 관찰은 실제 날짜로 수행한다.
+- 복귀: Drive 장애/검증 실패면 동일 dump profile로 R2 전송 재개. Drive 파일·기존 R2 파일의 원래 기한은 유지한다. raw 포함 full dump·무기한 실패 spool로 돌아가지 않는다. 두 경로 모두 불능이면 장애·RPO 초과를 보고하고 Core 데이터를 임의 초기화하지 않는다.
+
+실연동 입력: 계정 종류/용량·폴더/drive ID·OAuth 프로젝트와 secret 보관 경로·age recipient/사용자 복구키 보관 확인·Discord secret 위치와 채널 수신 확인. 사용자 담당, 단계1~2 직전에 필요하며 실값은 문서에 쓰지 않는다.
+
+수용 시험: D03-T1 계정별 최소 권한/바깥 파일 거부, D03-T2 중단/응답 유실/동일ID 재시도, D03-T3 401·권한 회수·429·용량 부족, D03-T4 일곱 날 경계·새 backup 실패 중 만료/타 파일 보호, D03-T5 독립 다운로드·hash 오염·격리 복원과 D01-T7, D03-T6 R2 유지→Drive 전환→R2 복귀 및 Discord 실수신. 로컬 분기는9/27 합성adapter·실제 PG/age로 검증했다. 실제 계정·독립 다운로드·Discord 실수신은 후속 OPS-03/04 인수다.
+
+<a id="m0-d04-roles"></a>
+## M0-D04 — 최소 운영 권한 매핑
+
+기술 role은 사용자 `OWNER`, 친구 `EDITOR`, 각 서비스의 전용 machine identity다. 범용 RBAC나 권한 관리 화면을 추가하지 않는다. 게시물 업무에는 원문 접수·검수·초안 승격이 포함되며 설정 조회는 비밀 없는 읽기만 허용한다.
+
+| 행동 | OWNER | EDITOR | 통제 위치·서비스 |
+| --- | --- | --- | --- |
+| 글 작성/수정·이미지 업로드/preview·예약/발행/숨김/제거 | 허용 | 허용 | Access/MFA→BFF 활성 operator→Core AdminGuard·버전 검사. R2 key는 API만 사용 |
+| direct URL 접수·조회·재시도·검수/반려·초안 승격 | 허용 | 허용 | 같은 인증+해당 feature flag, D01 만료/사본 검사. batch만 fetch |
+| 실제 source 설정·실행 상태 안전 조회 | 허용 | 허용 | GET runtime-sources allowlist. source 수정 API는 direct에 없음 |
+| source 파일 편집·수집 가동·계정 등록/회수·정책 시행 command | 허용 | 거부 | 사용자 전용 SSH/배포 파일. EDITOR가 legacy source PATCH에 직접 접근해도 403 또는 기능OFF 404 |
+| 서버/DB 관리·migration·R2 console·Drive 다운로드·복구 | 허용 | 거부 | OS/DB/Cloud/Drive 계정 ACL. 앱 세션으로 관리 credential을 발급하지 않음 |
+| Discord 장애 수신·설정 | 사용자 채널 | 필수 아님 | 친구 초대·봇 관리권 부여 불필요 |
+| API machine | content·API 요청/검수 쓰기, batch 안전 조회·제한 함수 | 사람 계정 대체 불가 | batch queue/confirmation 직접 DML·외부 원문 fetch·Drive/서버 권한 없음 |
+| batch machine | batch 결과/queue·runtime 쓰기, mailbox 제한 함수 | 사람 계정 대체 불가 | content/검수 일반 DML·공개 R2·Drive 없음 |
+| retention / backup machine | 각각 D01 회수 / D03 읽기·암호화 전송만 | 사람 계정 대체 불가 | 서로의 secret·OS 로그인·schema 변경 권한 없음 |
+
+2026-09-27 로컬 구현: `identity.ts`는 요청마다 active operator registry와 OWNER/EDITOR를 읽고 HMAC actor를 만든다. BFF는 외부 role/service header를 전달하지 않고 `X-Blariyo-Admin-Role`을 내부에서만 생성한다. Core는 service token·actor·role과 operation allowlist를 검사한다. role 누락·알 수 없는 값은 거부하고 기존 항목을 OWNER로 암묵 승격하지 않는다. 합성 RS256/JWKS를 거친 실제 BFF의 active 회수·위조 거부는 [브라우저 시험](../../tests/browser/admin-roles.test.ts)으로 검증했다. Core port를 공개하지 않으며 BFF header만으로 SSH/DB/Drive 권한을 얻지 못한다. 실제 두 계정 Access/MFA·외부 ACL은 [운영 인계](../operations/m0-operation-handoff.md)의 별도 인수다.
+
+사용자가 설정한 두 operator의 identity/ID는 `(미정)` 실연동 입력이다. 기존 operatorId 재사용·공용 로그인·서버 token 공유 금지. 회수 시 Access 허용 목록과 active=false를 함께 반영하며 BFF는 요청마다 활성 상태를 확인한다. 이미 열린 화면·오래된 cookie로 mutation을 시도해도 다음 요청이 403이어야 한다. 서비스 자격증명은 사람 계정과 별도 rotation한다.
+
+D04-T1 두 운영자의 Core·검수 허용, D04-T2 EDITOR의 직접 legacy PATCH/설정/서버·DB·R2·Drive 거부, D04-T3 클라이언트 role 위조·Core 직접 접근 거부, D04-T4 active 회수 후 기존 세션 거부, D04-T5 batch/API/retention/backup 교차 권한 거부, D04-T6 친구 이미지 업무에 storage credential 미노출. 메뉴 숨김과 별개로 API·DB GRANT·object/Drive ACL·실제 두 계정 인수를 OPS-01~04에서 확인한다.
+
+
+D04 선택·복귀 근거: 앱 기능별 새 권한 편집 UI/범용 정책 엔진 대신 기존 operator allowlist의 두 role과 명시적 operation allowlist를 선택한다. 두 사람의 게시물 협업을 유지하면서 관리 계정 credential 분리로 서버/백업 경계를 강제할 수 있다. role 배포는 Core의 선택 gate 지원→BFF role 전달·registry 검증→실제 두 계정 거부 시험→Core role 필수 gate 순서다. gate 필수화 뒤 이전 BFF로 복귀하면 관리자 쓰기를 닫고 사용자만 점검하며 역할 없는 요청을 OWNER로 허용하지 않는다. 공개 읽기·예약 worker는 별도 machine 경계로 유지한다.

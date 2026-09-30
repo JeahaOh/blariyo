@@ -63,7 +63,7 @@ Core API의 내부 route는 외부 호환 계약으로
 M1 소셜 인증·회원 endpoint는 이 문서의 범위가 아니다.
 수집 endpoint는 별도 `M0 수집 보조` OpenAPI에 정의되어 있다. 위 `sources`/`candidates`는 legacy 경로이고,
 현행 direct 결과 API는 아래 §5-2의 `batch-items`다. 단건·목록 수집은 별도 batch CLI/queue가 source policy에
-따라 실행한다. 현행 Discord 확인→queue는 legacy 후보 접수와 다르며 Web URL 입력의 direct 전달은 미정이다.
+따라 실행한다. 현행 Discord 확인→queue는 legacy 후보 접수와 다르며 Web URL 입력의 direct 전달은 [M0-D02](#m0-d02-api)의 mailbox pull로 구현·로컬 검증했다(9/27). 실제 장비·외부 서비스 인수는 남아 있다.
 API는 외부 사이트를 fetch하지 않는다. flag·운영 인수 상태는 [현재 상태](../operations/current-status.md)를 따른다.
 
 ### 사이트맵 응답
@@ -565,7 +565,7 @@ cutover, quota·execution fencing과 멱등 만료 뒤 digest 조정의 단일 �
 | `lastErrorCode`, `disabledReasonCode` | 일반화 코드 또는 null, 비활성 사유는 데이터 모델 enum |
 | `updatedAt` | 최근 수정의 UTC ISO 8601 시각 |
 
-`PATCH /api/v1/admin/collect/sources/:sourceId`는 현재 양의 정수 `lockVersion`과 수정할 필드 한 개 이상을
+`PATCH /api/v1/admin/collect/sources/:sourceId`의 M0-D04 권한은 OWNER만이며 EDITOR는403이다. 9/27 BFF/Core operation guard와 로컬 허용·거부 시험을 완료했고 실제 두 운영자의 Access 인수는 남아 있다. 이 API는 legacy 설정만 변경한다. 현재 양의 정수 `lockVersion`과 수정할 필드 한 개 이상을
 받는다. 수정 가능 필드는 `isActive`, `fetchMode`, `listUrl`, `parserType`, `isListCrawlEnabled`,
 `robotsAllowed`, `requestIntervalMs`, `dailyFetchLimit`뿐이다. 타입은 위 표를 따르며 누락은 기존 값 유지다.
 `host`, `baseUrl`, 이름·감사값·확인 시각과 알 수 없는 필드의 입력은 `400 VALIDATION_FAILED`다.
@@ -716,7 +716,7 @@ URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하�
   queue를 수정하지 않는다. 승격 시 수집 이미지를 private Core staging에 복사·검증하며 외부 출처를 fetch하지 않는다.
 - 중복 원문·stale version·검수 중 원문 변경·미디어 누락/hash 불일치를 거부한다. 성공한 draft는 201과
   `itemId/postId/status=DRAFT/lockVersion/reviewLockVersion`을 반환하며 자동 공개하지 않는다.
-- 로컬 구현·격리 검증과 실제 운영자 MFA/원격 object 인수는 구분한다. 보존/고지·URL 입력 계약은
+- 로컬 구현·격리 검증과 실제 운영자 MFA/원격 object 인수는 구분한다. 보존·URL 입력의 M0-D01/D02는9/27 구현·로컬 검증했다. 실제 장비·고지·운영 인수는
   [roadmap P1](../roadmap.md#3-p1--수집-보조자동-수집-마감)에 남아 있다.
 
 ## 6. 상태 코드와 오류 코드
@@ -892,3 +892,39 @@ result·후보 상세·초안 승격에 적용한다. 기존 §5-1의 metadata �
 정확한 DTO는 [수집 OpenAPI](../development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml)를 따른다.
 legacy API/OpenAPI의 1000블록과 V006 DB의 40블록 차이는 [데이터 모델](02-data-model.md#원문-수집-후보-확장-2026-09-20)의 미해결 항목이다.
 로컬 URL 입력은 서비스 서버가 아닌 수집 PC의 `POST /local/v1/candidates`이며 서비스에 새 공개 scraper endpoint를 추가하지 않는다.
+
+
+<a id="m0-d02-api"></a>
+## M0-D02 — direct 입력·상태·출처 조회 API (목표 설계)
+
+기존 `/collect/candidates`·`/collect/sources` 변경 API는 legacy다. 아래 신규 route는9/27 구현·로컬 검증했고 기본 비활성이다. 실제 운영 인수 전 활성화하지 않으며 기존 route를 자동 활성화하지 않는다. Core path는 아래 표, BFF는 `/api/admin/collect/...`로 동일 suffix를 명시적으로 매핑한다. 공통 AdminSession, service token·actor, CSRF, `success/data/meta.requestId` 및 CollectionFailure envelope를 사용한다. sourceKey는 숫자 legacy sourceId와 다르다.
+
+| Method/Core path | operationId | 입력·정상 응답 |
+| --- | --- | --- |
+| POST `/api/v1/admin/collect/requests` | createDirectCollectionRequest | Idempotency-Key + `{url}`(HTTPS·2048자), 202 DirectCollectionRequest envelope; 영구 중복도 동일 envelope의 DUPLICATE이며 fetch 없음 |
+| GET `/api/v1/admin/collect/requests/{requestId}` | getDirectCollectionRequest | UUID, 200 DirectCollectionRequest; 로그인 운영자는 게시물 협업 범위에서 공동 조회 |
+| POST `/api/v1/admin/collect/requests/{requestId}/retry` | retryDirectCollectionRequest | Idempotency-Key + `{expectedVersion}`. retryable FAILED만 새 요청으로 202, previousRequestId 연결 |
+| GET `/api/v1/admin/collect/runtime-sources` | listRuntimeCollectionSources | query/body 없음, sourceKey 순서의 runtime snapshot과 상태를 200 반환 |
+
+DirectCollectionRequest는 requestId, previousRequestId(nullable), sourceKey, state, requestedAt, acceptBefore, updatedAt, version, itemId(nullable), errorCode(nullable), retryable, configFreshness를 반환한다. 원문 URL·queue ID·DB 주소·actor는 응답하지 않는다. state와 만료·재시도는 [데이터 모델](02-data-model.md#m0-d02-input-model)을 따른다. PENDING/ACCEPTED/RUNNING은 진행이고 SUCCEEDED만 수집 완료다. DUPLICATE는 원문 재수집 없음, EXPIRED는 요청 미처리 종료이며 원문 만료와 구분한다.
+
+runtime source는 sourceKey, configVersion(nullable SHA-256), loadedAt/observedAt(nullable), freshness(CURRENT/STALE/ABSENT/CONFLICT), enabled, blockedReason(nullable code), collectionPolicy, allowedHosts, requestIntervalMs, dailyRequestLimit, maxPages/maxItems, mediaLimits 및 normalizationVersion을 노출한다. ABSENT에서는 적용값을 null로 보내며 예제 파일 값으로 채우지 않는다. 등록 source 목록과 실행 중 설정을 구별하고 configured=true만으로 enabled=true를 만들지 않는다. runtime 조회 실패는 503이며 200 빈 목록은 등록 출처 0개일 때만 사용한다.
+
+| 조건 | HTTP / 오류 |
+| --- | --- |
+| 인증 없음 / 회수된 운영자·권한 밖 행위 | 401 ADMIN_AUTH_REQUIRED / 403 ADMIN_FORBIDDEN |
+| 잘못된 URL·body·키 / 미지원 source / 비활성 source | 400 VALIDATION_FAILED / 422 SOURCE_UNSUPPORTED / 409 SOURCE_DISABLED |
+| 존재하지 않는 UUID / 이미 정리된 요청 | 404 COLLECTION_REQUEST_NOT_FOUND (존재 여부 누출 방지) |
+| 같은 key 다른 body / 처리 중 같은 key | 409 IDEMPOTENCY_CONFLICT / IDEMPOTENCY_IN_PROGRESS |
+| 버전 충돌·retry 불가·영구 중복 재시도 | 409 REQUEST_VERSION_CONFLICT / REQUEST_RETRY_NOT_ALLOWED |
+| 서로 다른 dedup 행 충돌 | 409 DEDUP_IDENTITY_CONFLICT |
+| DB/설정 snapshot 충돌·기능 OFF | 503 COLLECTION_UNAVAILABLE (기능 OFF는 기존 미등록 route 404 가능) |
+| 요청 제한 초과 | 429 RATE_LIMITED, Retry-After. 운영자당 접수 10건/분·전체 60건/분, 중복 응답 복구 GET은 별도 제한 |
+| 만료 item의 상세/preview/검수/승격 | 410 BATCH_ITEM_EXPIRED. raw/이미지를 대신 fetch하지 않음 |
+
+초기 요청에서 API는 URL 문법·안전 host·저장된 registry 버전의 식별 규칙만 검증한다. DNS/robots/redirect·원문 HTTP는 batch가 실행 직전에 검사한다. 잘못된 URL이면 mailbox도 만들지 않는다. browser가 전달한 sourceKey·state·권한은 신뢰하지 않는다. GET은 저장 상태만 읽고 refresh·재분석·외부 요청을 실행하지 않는다.
+
+[OpenAPI](../development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml)의 신규4개 operation은 `x-implementation-status: implemented-local`이다. 9/27 실행용 `packages/contracts` 사본·생성 타입·controller/guard/BFF/UI를 동기화하고 계약 생성·API/DB·브라우저 시험을 완료했다. 실제 운영 endpoint 활성화와 운영자 인수는 별도다.
+
+
+D01의 목표 응답 확장: BatchItemSummary/BatchItem에 `retention={collectedAt,reviewFinalizedAt,expiresAt,retentionState}`를 추가한다. 목록은 LIVE이면서 현재 시각<expiresAt인 항목만 조회하고 total에도 같은 조건을 쓴다. 만료 item의 전체 URL·제목·본문을 '만료 목록'에 남기지 않는다. 상세/preview/검수/승격은 lifecycle가 남아 있으면410, 정리 후404다. 성공 영수증 재생도 이 접근 기한을 우회하지 않으며 이미 생성된 content 초안 결과는 원문 없이 postId만 반환할 수 있다. UI는 마지막 원문 preview를 폐기하고 독립 게시글 링크만 유지한다.

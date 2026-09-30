@@ -11,7 +11,8 @@ await test('Footer rights inquiry and contrasting shell', { timeout: 90000 }, as
   });
   const browser = await launchBrowser();
   t.after(() => browser.close());
-  const page = await browser.newPage();
+  const context = await browser.newContext();
+  const page = await context.newPage();
   t.after(() => page.close());
   const alerts: string[] = [];
   page.on('dialog', async (dialog) => {

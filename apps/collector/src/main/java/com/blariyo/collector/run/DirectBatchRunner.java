@@ -25,16 +25,20 @@ public final class DirectBatchRunner {
     UUID run=UUID.randomUUID();
     boolean runStarted=false;
     int pages=0,discovered=0,fetched=0,duplicates=0,failures=0,siteFailures=0,unknownDates=0,skippedByDate=0;var errors=new ArrayList<String>();var seen=new HashSet<String>();var visited=new HashSet<URI>();
-    requests=new SourceRequests(transport,sleeper,o.intervalMs());
     BatchStore.SourceLock lease=null;
     try {
-      if(o.writeDb())lease=store.lockSource(source.key());
       var policy=source.policy();var adapter=source.adapter();String chart=source.config().path("charts").path(o.chart()).asText();
       if(!source.config().path("batchApproved").asBoolean(false))throw new CollectorFailure(403,"BATCH_NOT_APPROVED");
       if(o.maxPages()>source.config().path("maxPages").asInt(2)||o.maxItems()>source.config().path("maxItems").asInt(20)
           ||o.intervalMs()<source.config().path("requestIntervalMs").asLong(10000))throw new CollectorFailure(400,"SOURCE_LIMIT_EXCEEDED");
       if(chart.isBlank()||!source.config().path("chartVerified").asBoolean(false))throw new CollectorFailure(403,"CHART_UNVERIFIED");
+      requests=SourceRequests.controlled(transport,sleeper,o.intervalMs(),source,store,()->{});
+      lease=store.lockSource(source.key());
       if(o.writeDb()){store.registerSource(source.key(),source.config().path("host").asText());run=store.begin(source.key(),o.chart(),"WRITE_DB",o.maxPages(),o.maxItems(),o.intervalMs(),Instant.now().minus(o.since()));runStarted=true;}
+      if(o.writeDb()) {
+        UUID activeRun=run;
+        requests=SourceRequests.controlled(transport,sleeper,o.intervalMs(),source,store,()->store.assertRunLive(activeRun));
+      }
       URI next=policy.allow(chart);Instant cutoff=Instant.now().minus(o.since());
       while(next!=null&&pages<o.maxPages()&&discovered<o.maxItems()){
         if(!visited.add(next))throw new CollectorFailure(422,"PAGINATION_LOOP");
@@ -59,8 +63,10 @@ public final class DirectBatchRunner {
             phase="FETCH";
             byte[] html=fetchBytes(detail,policy,30*1024*1024);
             if(o.writeDb()) {
-              phase="RAW";String rawKey="collect/raw/"+run+"/"+objectName(key)+".html";
-              var raw=objects.put(rawKey,html,"text/html");store.raw(item,raw.objectKey());failureDetail.put("rawObjectKey",raw.objectKey());
+              phase="RAW";String rawKey="collect/raw/"+run+"/"+item+".html";
+              store.assertLive(item);
+              var raw=objects.put(rawKey,html,"text/html");
+              store.assertLive(item);store.raw(item,raw.objectKey());failureDetail.put("rawObjectKey",raw.objectKey());
             }
             phase="PARSE";
             JsonNode result=adapter.detail(html,detail,policy);
@@ -106,13 +112,13 @@ public final class DirectBatchRunner {
       }
       String state=failures>0?(fetched==0?"FAILED":"PARTIAL"):(o.writeDb()?"COMPLETED":"COMPLETED");
       var report = new Report(run,source.key(),state,pages,discovered,fetched,duplicates,failures,unknownDates,skippedByDate,List.copyOf(errors));
-      if(o.writeDb()){String reportKey="collect/report/"+run+".jsonl";objects.put(reportKey,reportBytes(report),"application/jsonl");store.finish(run,state,Map.of("pages",pages,"items",discovered,"fetched",fetched,"unknownDates",unknownDates,"skippedByDate",skippedByDate),reportKey,BatchStore.sha(new String(reportBytes(report),StandardCharsets.UTF_8)));}
+      if(o.writeDb()){String reportKey="collect/report/"+run+".jsonl";store.assertRunLive(run);objects.put(reportKey,reportBytes(report),"application/jsonl");store.assertRunLive(run);store.finish(run,state,Map.of("pages",pages,"items",discovered,"fetched",fetched,"unknownDates",unknownDates,"skippedByDate",skippedByDate),reportKey,BatchStore.sha(new String(reportBytes(report),StandardCharsets.UTF_8)));}
       return report;
     }catch(CollectorFailure e){
       if(failures==0){failures=1;if(runStarted)store.failItem(run,null,"LIST",e.getMessage());}
       if(errors.isEmpty()||!errors.getLast().equals(e.getMessage()))errors.add(e.getMessage());
       var report = new Report(run,source.key(),e.status()==403?"BLOCKED":"FAILED",pages,discovered,fetched,duplicates,failures,unknownDates,skippedByDate,List.copyOf(errors));
-      if(runStarted){String reportKey="collect/report/"+run+".jsonl";objects.put(reportKey,reportBytes(report),"application/jsonl");store.finish(run,report.state(),Map.of("pages",pages,"items",discovered,"fetched",fetched,"unknownDates",unknownDates,"skippedByDate",skippedByDate,"reason",e.getMessage()),reportKey,BatchStore.sha(new String(reportBytes(report),StandardCharsets.UTF_8)));}
+      if(runStarted){String reportKey="collect/report/"+run+".jsonl";store.assertRunLive(run);objects.put(reportKey,reportBytes(report),"application/jsonl");store.assertRunLive(run);store.finish(run,report.state(),Map.of("pages",pages,"items",discovered,"fetched",fetched,"unknownDates",unknownDates,"skippedByDate",skippedByDate,"reason",e.getMessage()),reportKey,BatchStore.sha(new String(reportBytes(report),StandardCharsets.UTF_8)));}
       return report;
     } finally { if(lease!=null)lease.close(); }
   }
@@ -157,7 +163,9 @@ public final class DirectBatchRunner {
     String contentType=requireImage?SourceImageType.detect(response.bytes(),response.contentType()):response.contentType();
     if(requireImage&&!contentType.toLowerCase(Locale.ROOT).startsWith("image/"))throw new CollectorFailure(415,"SOURCE_NOT_IMAGE");
     String key="collect/media/"+run+"/"+item+"/"+position;
+    store.assertLive(item);
     var object=objects.put(key,response.bytes(),contentType);
+    store.assertLive(item);
     store.media(item,position,kind,remote.toString(),object.objectKey(),object.sha256(),object.contentType(),object.bytes());
   }
 }

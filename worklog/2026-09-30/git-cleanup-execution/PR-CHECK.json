@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-09-30T21:36:56.144759+09:00",
+  "method": "Authenticated GitHub browser UI; visible Open (0) and No pull requests matched your search for each query",
+  "queries": [
+    {
+      "query": "head:feature/m0-design-completion",
+      "open": 0,
+      "url": "https://github.com/JeahaOh/blariyo/pulls?q=is%3Apr+state%3Aopen+head%3Afeature%2Fm0-design-completion"
+    },
+    {
+      "query": "base:feature/m0-design-completion",
+      "open": 0,
+      "url": "https://github.com/JeahaOh/blariyo/pulls?q=is%3Apr+state%3Aopen+base%3Afeature%2Fm0-design-completion"
+    },
+    {
+      "query": "head:planning-design-only",
+      "open": 0,
+      "url": "https://github.com/JeahaOh/blariyo/pulls?q=is%3Apr+state%3Aopen+head%3Aplanning-design-only"
+    },
+    {
+      "query": "base:planning-design-only",
+      "open": 0,
+      "url": "https://github.com/JeahaOh/blariyo/pulls?q=is%3Apr+state%3Aopen+base%3Aplanning-design-only"
+    }
+  ],
+  "otherOpenPRsPreserved": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ]
+}

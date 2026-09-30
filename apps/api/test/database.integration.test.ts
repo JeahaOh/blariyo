@@ -48,7 +48,7 @@ await test('TypeORM maps all SQL columns without changing schema and coordinates
   assert.equal(source.options.synchronize, false);
   assert.equal(source.options.migrationsRun, false);
   const columns = before.filter((row) => row.kind === 'column');
-  assert.equal(source.entityMetadatas.length, 20);
+  assert.equal(source.entityMetadatas.length, 23);
   assert.equal(
     source.entityMetadatas.reduce((n, m) => n + m.columns.length, 0),
     columns.length
@@ -74,7 +74,7 @@ await test('TypeORM maps all SQL columns without changing schema and coordinates
       concat(rn.nspname, '.', rc.relname) AS target,
       string_agg(ra.attname, ',' ORDER BY k.position) AS references,
       bool_or(NOT a.attnotnull) AS nullable,
-      CASE con.confdeltype WHEN 'a' THEN 'NO ACTION' WHEN 'r' THEN 'RESTRICT' WHEN 'n' THEN 'SET NULL' ELSE con.confdeltype::text END AS delete_action,
+      CASE con.confdeltype WHEN 'a' THEN 'NO ACTION' WHEN 'r' THEN 'RESTRICT' WHEN 'n' THEN 'SET NULL' WHEN 'c' THEN 'CASCADE' ELSE con.confdeltype::text END AS delete_action,
       CASE con.confupdtype WHEN 'a' THEN 'NO ACTION' WHEN 'r' THEN 'RESTRICT' WHEN 'n' THEN 'SET NULL' ELSE con.confupdtype::text END AS update_action
     FROM pg_constraint con
     JOIN pg_class c ON c.oid=con.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace
@@ -117,7 +117,7 @@ await test('TypeORM maps all SQL columns without changing schema and coordinates
         .getMany();
     }
   }
-  assert.equal(foreignKeys.length, 17);
+  assert.equal(foreignKeys.length, 19);
   assert.equal(mapped.length, foreignKeys.length);
   assert.deepEqual(
     mapped.map((row) => JSON.stringify(row)).sort(),

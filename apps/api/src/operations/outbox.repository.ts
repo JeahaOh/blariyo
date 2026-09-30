@@ -5,6 +5,7 @@ export interface OutboxMessage {
   payload: Record<string, unknown>;
   actor: string;
   delay?: number;
+  sourceExpiresAt?: string;
 }
 export interface OutboxTask {
   id: string;

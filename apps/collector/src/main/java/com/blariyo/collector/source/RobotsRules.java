@@ -25,13 +25,17 @@ public final class RobotsRules {
       if (key.equals("user-agent")) {
         if (group == null || group.directives) { group = new Group(); groups.add(group); }
         if (!value.isBlank()) group.agents.add(value.toLowerCase(Locale.ROOT));
-        valid = true;
+        if(!value.isBlank())valid = true;
       } else if (group != null) {
         group.directives = true;
         if (Set.of("allow", "disallow").contains(key) && !value.isBlank())
           group.rules.add(new Rule(key.equals("allow"), value));
         if (key.equals("crawl-delay")) {
-          try { group.delay = Math.max(group.delay, (long) Math.ceil(Double.parseDouble(value) * 1000)); }
+          try {
+            double seconds=Double.parseDouble(value);
+            if(!Double.isFinite(seconds)||seconds<0){valid=false;return;}
+            group.delay = Math.max(group.delay, (long) Math.ceil(seconds * 1000));
+          }
           catch (NumberFormatException e) { valid = false; return; }
         }
       }
@@ -67,4 +71,5 @@ public final class RobotsRules {
     return allowed;
   }
   public long delayMillis(String agent) { return applicable(agent).stream().mapToLong(g -> g.delay).max().orElse(0); }
+  public boolean valid(){return valid;}
 }

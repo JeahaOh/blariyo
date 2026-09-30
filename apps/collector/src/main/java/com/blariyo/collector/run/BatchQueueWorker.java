@@ -21,6 +21,7 @@ public final class BatchQueueWorker {
   }
   public Result once() { return once(null); }
   public Result once(String sourceFilter) {
+    if(store.retentionBacklog())throw new CollectorFailure(503,"BATCH_RETENTION_BACKLOG");
     for(String source:queue.readySources()) {
       if(sourceFilter!=null&&!sourceFilter.equals(source))continue;
       BatchStore.SourceLock lease;

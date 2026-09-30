@@ -1,0 +1,5 @@
+
+> hooks:check
+> node scripts/git-hooks.mjs check
+
+Git hook 설치 상태 확인 완료: /Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/blariyo-hooks

@@ -1,0 +1,65 @@
+{
+  "verifiedAt": "2026-09-30T20:16:34+09:00",
+  "oldRelease": "bb19c486f3cafa847bd34828a699382c6d5bd0b6",
+  "newRelease": "2126c053b35f2e2b4e45a8496e259ac211812772",
+  "main": "e51f1b501f7cc327da279102dd69eac2f4c554db",
+  "mainMissingFromRelease": 0,
+  "mainToReleaseUniqueCounts": [
+    "0",
+    "6"
+  ],
+  "remoteReleaseUniqueCounts": [
+    "4",
+    "14"
+  ],
+  "conflictResolvedFiles": [
+    "docs/ai/git-workflow.md",
+    "docs/status.md",
+    "docs/operations/current-status.md",
+    "docs/roadmap.md"
+  ],
+  "runtimeSameAsMain": true,
+  "preservedDatedWorklogFiles": {
+    "oldRelease": 324,
+    "main": 204
+  },
+  "unchangedRootFiles": 19,
+  "rootHeadAndIndexUnchanged": true,
+  "rebaseWorktreeClean": true,
+  "tests": {
+    "apiBuild": "PASS",
+    "common": {
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0
+    },
+    "firstCommonAttempt": "30 passed, 1 failed: missing API dist in fresh worktree; built API and reran",
+    "hooksCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "notRun": [
+      "full Web build",
+      "browser",
+      "database integration",
+      "Collector",
+      "Docker",
+      "remote CI",
+      "production readback"
+    ]
+  },
+  "links": {
+    "files": 4,
+    "checked": 120,
+    "missing": [],
+    "anchors": "not checked"
+  },
+  "npmWarnings": [
+    "glob/eslint deprecated",
+    "esbuild/fsevents/sharp installation scripts pending by existing npm allow-scripts policy; policy unchanged"
+  ],
+  "pushOrDeployment": false,
+  "taskWorktreeRemoved": true,
+  "planLinks": {
+    "checked": 13,
+    "missing": []
+  }
+}

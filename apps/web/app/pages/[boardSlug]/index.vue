@@ -2,6 +2,14 @@
 import type { ApiResponse } from '~~/shared/api-types';
 const route = useRoute();
 const { $analytics } = useNuxtApp();
+const listHeading = ref<HTMLHeadingElement | null>(null);
+let focusResults = false;
+watch(
+  () => route.query.page,
+  () => {
+    focusResults = true;
+  }
+);
 const { data, error, status, refresh } = await useFetch<ApiResponse<'listPosts'>>(
   () => `/api/v1/boards/${String(route.params.boardSlug)}/posts`,
   { query: computed(() => ({ page: route.query.page || 1 })) }
@@ -11,6 +19,18 @@ if (error.value)
     statusCode: error.value.statusCode || 503,
     statusMessage: '게시판을 불러올 수 없습니다.',
   });
+watch([data, status], async () => {
+  if (
+    !focusResults ||
+    status.value !== 'success' ||
+    data.value?.meta.page !== Number(route.query.page || 1)
+  )
+    return;
+  focusResults = false;
+  await nextTick();
+  listHeading.value?.focus({ preventScroll: true });
+  listHeading.value?.scrollIntoView({ block: 'start', behavior: 'instant' });
+});
 const brand = useRuntimeConfig().public;
 const canonical = computed(
   () => new URL('/' + String(route.params.boardSlug), brand.siteOrigin).href
@@ -46,10 +66,12 @@ function changePage(page: number) {
   <main class="board-page">
     <div class="list-heading">
       <div>
-        <h1>{{ data?.data.board.displayName }}</h1>
+        <h1 ref="listHeading" tabindex="-1" style="scroll-margin-top: 72px">
+          {{ data?.data.board.displayName }}
+        </h1>
         <p>{{ brand.homeTagline }}</p>
       </div>
-      <p v-if="data" class="list-summary">최신순 · {{ data.meta.page }}쪽</p>
+      <p v-if="data" class="list-summary" aria-live="polite">최신순 · {{ data.meta.page }}쪽</p>
     </div>
     <ListSkeleton v-if="status === 'pending'" />
     <section v-else-if="error" class="empty" role="alert">

@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
   title: Blariyo M0 Collection Assist
-  version: 0.1.0
+  version: 0.2.0
   description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public
-    Core routes remain unchanged.
+    Core routes remain unchanged. New M0-D02 operations are implemented locally and synchronized with runtime packages/contracts. Production acceptance remains pending.
 paths:
   /api/v1/admin/collect/sources:
     get:
@@ -73,6 +73,8 @@ paths:
   /api/v1/admin/collect/sources/{sourceId}:
     patch:
       operationId: updateCollectionSource
+      x-admin-roles: [OWNER]
+      x-role-contract-status: planned
       tags:
         - collection-assist
       security:
@@ -3190,6 +3192,8 @@ paths:
           $ref: "#/components/responses/CollectionFailure"
         "409":
           $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
         "413":
           $ref: "#/components/responses/CollectionFailure"
         "415":
@@ -3261,6 +3265,8 @@ paths:
         "404":
           $ref: "#/components/responses/CollectionFailure"
         "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
           $ref: "#/components/responses/CollectionFailure"
         "413":
           $ref: "#/components/responses/CollectionFailure"
@@ -3334,6 +3340,8 @@ paths:
           $ref: "#/components/responses/CollectionFailure"
         "409":
           $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
         "413":
           $ref: "#/components/responses/CollectionFailure"
         "415":
@@ -3399,6 +3407,8 @@ paths:
           $ref: "#/components/responses/CollectionFailure"
         "409":
           $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
         "413":
           $ref: "#/components/responses/CollectionFailure"
         "415":
@@ -3408,6 +3418,294 @@ paths:
         "503":
           $ref: "#/components/responses/CollectionFailure"
       summary: Read a validated collected image for authenticated review
+  /api/v1/admin/collect/requests:
+    post:
+      operationId: createDirectCollectionRequest
+      tags:
+        - collection-assist
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      x-implementation-status: implemented-local
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      security:
+        - AdminSession: []
+      parameters:
+        - &a2
+          in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                url:
+                  type: string
+                  minLength: 1
+                  maxLength: 2048
+                  format: uri
+                  pattern: ^https://
+              required:
+                - url
+      responses:
+        "202":
+          description: Stored request or read-only snapshot; acceptance does not prove external collection.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/DirectCollectionRequest"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "422":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/requests/{requestId}:
+    get:
+      operationId: getDirectCollectionRequest
+      tags:
+        - collection-assist
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      x-implementation-status: implemented-local
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      security:
+        - AdminSession: []
+      parameters:
+        - &a1
+          in: path
+          name: requestId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Stored request or read-only snapshot; acceptance does not prove external collection.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/DirectCollectionRequest"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "422":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/requests/{requestId}/retry:
+    post:
+      operationId: retryDirectCollectionRequest
+      tags:
+        - collection-assist
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      x-implementation-status: implemented-local
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      security:
+        - AdminSession: []
+      parameters:
+        - *a1
+        - *a2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                expectedVersion:
+                  type: integer
+                  minimum: 0
+                  maximum: 9007199254740991
+              required:
+                - expectedVersion
+      responses:
+        "202":
+          description: Stored request or read-only snapshot; acceptance does not prove external collection.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/DirectCollectionRequest"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "422":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/runtime-sources:
+    get:
+      operationId: listRuntimeCollectionSources
+      tags:
+        - collection-assist
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      x-implementation-status: implemented-local
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      security:
+        - AdminSession: []
+      parameters: []
+      responses:
+        "200":
+          description: Stored request or read-only snapshot; acceptance does not prove external collection.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/DirectRuntimeSource"
+                        maxItems: 10000
+                    required:
+                      - items
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "422":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
 components:
   securitySchemes:
     CollectorToken:
@@ -3418,6 +3716,218 @@ components:
       in: cookie
       name: BLARIYO_ADMIN_SESSION
   schemas:
+    BatchRetention:
+      type: object
+      additionalProperties: false
+      x-implementation-status: implemented-local
+      properties:
+        collectedAt:
+          type: string
+          format: date-time
+        reviewFinalizedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        retentionState:
+          type: string
+          enum:
+            - LIVE
+            - PURGE_PENDING
+            - PURGE_FAILED
+            - PURGED
+      required:
+        - collectedAt
+        - reviewFinalizedAt
+        - expiresAt
+        - retentionState
+    DirectCollectionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        requestId: &a1
+          type: string
+          format: uuid
+        previousRequestId:
+          anyOf:
+            - *a1
+            - type: "null"
+        sourceKey:
+          type: string
+          minLength: 1
+          maxLength: 80
+        state:
+          type: string
+          enum:
+            - PENDING
+            - ACCEPTED
+            - RUNNING
+            - SUCCEEDED
+            - FAILED
+            - BLOCKED
+            - EXPIRED
+            - DUPLICATE
+        requestedAt: &a2
+          type: string
+          format: date-time
+        acceptBefore: *a2
+        updatedAt: *a2
+        version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        itemId:
+          anyOf:
+            - *a1
+            - type: "null"
+        errorCode:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[A-Z][A-Z0-9_]*$
+            - type: "null"
+        retryable:
+          type: boolean
+        configFreshness: &a3
+          type: string
+          enum:
+            - CURRENT
+            - STALE
+            - ABSENT
+            - CONFLICT
+      required:
+        - requestId
+        - previousRequestId
+        - sourceKey
+        - state
+        - requestedAt
+        - acceptBefore
+        - updatedAt
+        - version
+        - itemId
+        - errorCode
+        - retryable
+        - configFreshness
+    DirectRuntimeSource:
+      type: object
+      additionalProperties: false
+      properties:
+        sourceKey:
+          type: string
+          minLength: 1
+          maxLength: 80
+        configVersion:
+          anyOf:
+            - type: string
+              pattern: ^[a-f0-9]{64}$
+            - type: "null"
+        loadedAt:
+          anyOf:
+            - *a2
+            - type: "null"
+        observedAt:
+          anyOf:
+            - *a2
+            - type: "null"
+        freshness: *a3
+        enabled:
+          anyOf:
+            - type: boolean
+            - type: "null"
+        blockedReason:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 100
+            - type: "null"
+        collectionPolicy:
+          anyOf:
+            - type: string
+              enum:
+                - HOT_LIST
+                - GENERAL_LIST
+                - DETAIL_ONLY
+                - BLOCKED
+                - UNVERIFIED
+            - type: "null"
+        allowedHosts:
+          anyOf:
+            - type: array
+              items:
+                type: string
+                minLength: 1
+                maxLength: 255
+              maxItems: 100
+            - type: "null"
+        requestIntervalMs:
+          anyOf:
+            - type: integer
+              minimum: 10000
+            - type: "null"
+        dailyRequestLimit:
+          anyOf:
+            - type: integer
+              minimum: 1
+            - type: "null"
+        maxPages:
+          anyOf:
+            - type: integer
+              minimum: 1
+              maximum: 10
+            - type: "null"
+        maxItems:
+          anyOf:
+            - type: integer
+              minimum: 1
+              maximum: 100
+            - type: "null"
+        mediaLimits:
+          anyOf:
+            - type: object
+              additionalProperties: false
+              properties:
+                maxImages:
+                  type: integer
+                  minimum: 1
+                  maximum: 200
+                maxFileBytes:
+                  type: integer
+                  minimum: 1
+                  maximum: 31457280
+                maxTotalBytes:
+                  type: integer
+                  minimum: 1
+                  maximum: 157286400
+              required:
+                - maxImages
+                - maxFileBytes
+                - maxTotalBytes
+            - type: "null"
+        normalizationVersion:
+          anyOf:
+            - type: integer
+              minimum: 1
+            - type: "null"
+      required:
+        - sourceKey
+        - configVersion
+        - loadedAt
+        - observedAt
+        - freshness
+        - enabled
+        - blockedReason
+        - collectionPolicy
+        - allowedHosts
+        - requestIntervalMs
+        - dailyRequestLimit
+        - maxPages
+        - maxItems
+        - mediaLimits
+        - normalizationVersion
     CollectionSource:
       type: object
       additionalProperties: false
@@ -3816,6 +4326,8 @@ components:
       type: object
       additionalProperties: false
       properties:
+        retention:
+          $ref: "#/components/schemas/BatchRetention"
         itemId:
           type: string
           format: uuid
@@ -3863,6 +4375,7 @@ components:
         review:
           $ref: "#/components/schemas/BatchReview"
       required:
+        - retention
         - itemId
         - sourceKey
         - sourcePostKey
@@ -3877,6 +4390,8 @@ components:
       type: object
       additionalProperties: false
       properties:
+        retention:
+          $ref: "#/components/schemas/BatchRetention"
         itemId: &a2
           type: string
           format: uuid
@@ -3986,6 +4501,7 @@ components:
               - byteSize
           maxItems: 1000
       required:
+        - retention
         - itemId
         - sourceKey
         - sourcePostKey

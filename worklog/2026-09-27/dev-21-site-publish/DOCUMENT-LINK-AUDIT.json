@@ -1,0 +1,328 @@
+{
+  "files": [
+    "docs/status.md",
+    "docs/implementation-tasks/contracts-maintenance.md",
+    "docs/operations/environment-configuration.md",
+    "scripts/local/README.md",
+    "worklog/2026-09-27/dev-21-site-publish/README.md"
+  ],
+  "checked": 63,
+  "missing": 0,
+  "references": [
+    {
+      "file": "docs/status.md",
+      "target": "roadmap.md#5-추가로-확정할-항목",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "roadmap.md#1-다음-시작점",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-27/m0-status-refresh/README.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-27/dev-21-site-publish/README.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "operations/m0-operation-handoff.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "operations/current-status.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-26/m0-progress-audit/STATUS-SYNC.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "roadmap.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-23/progress-checkpoint.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "planning/02-infra-plan.md#6-데이터와-저장소-원칙",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-26/collection-source-reanalysis/README.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-25/google-tag-manager/RESULTS.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "operations/current-status.md#공개-http-후속-확인--2026-09-26",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "system-design/05-security-operations.md#사이트맵-자동-생성",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../apps/api/test/sitemap.service.test.ts",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../apps/api/test/sitemap-http.integration.test.ts",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../tests/sitemap.test.ts",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "operations/current-status.md#공개-http-후속-확인--2026-09-26",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-23/admin-core/FIX-RESULTS.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-23/collector-site-modules/RESULTS.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-23/collector-ci/RESULTS.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-23/batch-review-ui/RESULTS.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-23/release/candidate.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-23/release/production-deployment-5c581c2.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-23/release/production-db-promotion.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-23/progress-checkpoint.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "development-specs/requirements-status.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "roadmap.md#1-다음-시작점",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "implementation-tasks/README.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "testing/operator-acceptance.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "operations/deployment-runbook.md",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "implementation-tasks/README.md#m0-design-handoff",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-26/m0-completion-plan/README.md#retention-scope-roles-20260926",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "implementation-tasks/README.md#m0-design-handoff",
+      "exists": true
+    },
+    {
+      "file": "docs/status.md",
+      "target": "../worklog/2026-09-26/m0-design-completion/README.md",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../system-design/03-api-design.md#m0-d02-api",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../system-design/02-data-model.md#m0-d02-input-model",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../operations/m0-operation-handoff.md",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../../scripts/local/prepare-batch-review.mjs",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../../scripts/local/batch-privileges.mjs",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../../scripts/local/batch-privileges.test.mjs",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../../worklog/2026-09-27/dev-21-site-publish/README.md",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../../scripts/local/README.md",
+      "exists": true
+    },
+    {
+      "file": "docs/implementation-tasks/contracts-maintenance.md",
+      "target": "../operations/environment-configuration.md",
+      "exists": true
+    },
+    {
+      "file": "docs/operations/environment-configuration.md",
+      "target": "../system-design/07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약",
+      "exists": true
+    },
+    {
+      "file": "docs/operations/environment-configuration.md",
+      "target": "../../deploy/postgresql/apply-privileges.sql",
+      "exists": true
+    },
+    {
+      "file": "docs/operations/environment-configuration.md",
+      "target": "../../deploy/postgresql/create-retention-role.sql",
+      "exists": true
+    },
+    {
+      "file": "docs/operations/environment-configuration.md",
+      "target": "m0-operation-handoff.md",
+      "exists": true
+    },
+    {
+      "file": "docs/operations/environment-configuration.md",
+      "target": "../../worklog/2026-09-27/dev-21-site-publish/README.md",
+      "exists": true
+    },
+    {
+      "file": "docs/operations/environment-configuration.md",
+      "target": "../../worklog/2026-09-23/release/production-db-promotion.md",
+      "exists": true
+    },
+    {
+      "file": "docs/operations/environment-configuration.md",
+      "target": "../../apps/collector/ops/README.md#direct-discord-queue-v005",
+      "exists": true
+    },
+    {
+      "file": "docs/operations/environment-configuration.md",
+      "target": "../../scripts/local/README.md#과거-수집-이미지-mime-정정-v006",
+      "exists": true
+    },
+    {
+      "file": "scripts/local/README.md",
+      "target": "batch-privileges.mjs",
+      "exists": true
+    },
+    {
+      "file": "scripts/local/README.md",
+      "target": "batch-privileges.test.mjs",
+      "exists": true
+    },
+    {
+      "file": "scripts/local/README.md",
+      "target": "../../worklog/2026-09-27/dev-21-site-publish/README.md",
+      "exists": true
+    },
+    {
+      "file": "scripts/local/README.md",
+      "target": "../../docs/system-design/07-spring-collector-design.md#2026-09-23-다중-이미지와-수집-용량-계약",
+      "exists": true
+    },
+    {
+      "file": "worklog/2026-09-27/dev-21-site-publish/README.md",
+      "target": "RESULTS.json",
+      "exists": true
+    }
+  ]
+}

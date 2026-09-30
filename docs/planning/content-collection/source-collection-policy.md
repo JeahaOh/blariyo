@@ -45,7 +45,7 @@
 
 ## 실행·기간·완료 정책
 
-- 구현 한계: direct는 robots/Crawl-delay·영속 일일 요청 상한을 아직 연결하지 않았다. legacy 기능이나 개발 승인 플래그로 이를 충족했다고 보지 않는다. [필수 보완](../../system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)은 운영 활성화 전 gate다.
+- 요청 통제: 9/27 direct의 공통 robots/Crawl-delay·영속 일일 한도·redirect gate를 구현하고 로컬 검증 중이다. [구현 계약](../../system-design/07-spring-collector-design.md#col-0102-direct-요청-통제-보완--2026-09-27)을 따르며, 합성 시험은 실제 source의 S1 허용 판정을 대신하지 않는다. 명시적 일일 한도가 없는 예제 설정은 실행하지 않는다.
 - chart를 생략하면 `defaultChart`를 사용한다. 일반 목록에 `--chart hot`을 강제로 적용하지 않는다.
 - `maxPages`, `maxItems`, `requestIntervalMs`는 source별 상한·최소 간격이다. 이번 표본 검증은 최대5개 고유 상세 URL이며 한도 초과·접근 차단을 성공으로 바꾸지 않는다.
 - `--since`는 확인된 게시 시각을 대상으로 검사한다. `datePolicy=INCLUDE_UNKNOWN`은 시각 미확인 글도 수량 제한 내에서 처리하고 `unknownDates`를 기록하므로 엄격한 24시간 보장은 아니다. `REQUIRE_KNOWN`은 시각 미확인 글을 수집 완료 결과로 채택하지 않고 `SKIPPED_POLICY`와 제외 사유를 남긴다. parse 전에 확보한 원문 HTML은 진단용으로 보존하며 미디어는 다운로드하지 않는다. 기간 제외 수는 `skippedByDate`다.
@@ -58,3 +58,21 @@
 
 세부 parser·과거 실행 증거는 [출처별 검증표](reference-site-validation.md), 현재 목표별 진행은
 [batch 고도화 진행 기록](../../../worklog/2026-09-23/batch-고도화/PROGRESS.md)을 따른다.
+
+
+<a id="m0-admission"></a>
+## M0 출처 편입 기준 — M0-D05
+
+기준일: 2026-09-26. 출처+수집 방식+adapter/config version+시험 SHA 단위로 아래 증거를 모두 연결한 경우만 M0 적용 목록에 편입한다. adapter 존재나 예제 approved 플래그는 승인 증거가 아니다. 실제 운영 가동 목록은 이번에 조회하지 않았다.
+
+| gate | 필요한 증거 | 실패/누락 처리 |
+| --- | --- | --- |
+| S1 허용/통제 | 공개 접근·robots/정책·UA 연락·간격/일일 budget·redirect/DNS 제한, 차단 시 무요청 | 후보 유지, 우회 금지 |
+| S2 발견/원문 | HOT/GENERAL은 목록→실제 상세가 같은 실행으로 연결; DETAIL_ONLY는 검증된 상세 URL | 목록만·synthetic fixture만으로 통과 불가 |
+| S3 내용 보존 | 실제 원문의 순서·본문·이미지·해당되는 첨부·외부 링크/SNS 대조, 한도 초과 무절단 | 실제 없는 콘텐츠 종류는 N/A 근거와 fixture 경계검사; 존재하는 누락은 실패 |
+| S4 저장/복구 | 제한 DB/object 역할에서 bytes/hash/size·raw/media/report readback, 부분 실패/중복/재시작 | 로컬 저장과 원격 인수를 분리 |
+| S5 운영 수용 | 선택 장비·실제 config/권한, D01 보존/복원·법무 gate, 운영자 검수·수집 알림과 오류 수신 | 현재 SHA·시각·환경·담당이 없는 과거 증거는 보충 필요 |
+
+활성화 직전 7일 이내 실제 표본과 현재 배포/config SHA를 대조한다. parser/정책/출처 구조 변경 또는 차단 관측 시 해당 source를 후보로 되돌리고 영향 gate만 재검증한다. 샘플은 목록2페이지 이내·상세최대5개(실제 더 적으면 근거), 첨부/SNS가 없으면 억지 수집을 확대하지 않는다. 이 수치는 future 시험 상한이며 기존 source별 더 낮은 한도·robots가 우선한다.
+
+현재 문서 증거로 **M0 편입 확정을 입증한 출처는 0개**다. 이는 실제 운영 설정이 전부 OFF라는 조회 결과가 아니다. 17개는 로컬 성공 이력이 있는 후보, 4개는 차단/미검증 후속 후보다. [현재 증거표](reference-site-validation.md#m0-evidence-20260926)의 부족분을 COL-01/02/03/04·OPS-04에서 보완한다. COL-REANALYZE-01의 에펨코리아·뽐뿌·유튜브 커뮤니티는 대기 유지하며 PGR21을 그 task에 추가하지 않는다. 이번에는 사이트 요청·재수집을 실행하지 않는다.

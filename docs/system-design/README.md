@@ -2,7 +2,7 @@
 
 - 문서 상태: M0 현행 기술 계약과 M1·M1.5 확장 계약 · 구현·운영 수용 별도
 - 최초 기준일: 2026-09-02
-- 문서 대조일: 2026-09-24 (실행 증거는 각 관측일 기준)
+- 문서 대조일: 2026-09-27 M0 구현·잔여 상태 동기화 (실행 증거는 각 관측일 기준)
 - 상위 기획: [서비스 기획서](../planning/01-service-plan.md)
 - 수집 상위 기획: [콘텐츠 수집 기획](../planning/content-collection/README.md)
 - 화면 상위 정본: [화면 설계](../planning/03-screen-design.md)
@@ -29,6 +29,8 @@
 [요구사항 대조표](../development-specs/requirements-status.md), 9월 23일 API/Web·DB 배포 관측은
 [운영 상태](../operations/current-status.md), 검증 명령은 [루트 README](../../README.md#검증)를 따른다.
 과거 9월 8일 미구현 판정을 현행 상태로 사용하지 않는다.
+
+9/27 D01~D04·UX·direct 요청 통제의 로컬 구현/검증과 실제 운영 인수를 분리했다. 최신 [잔여 작업](../roadmap.md#1-다음-시작점)에는 별도로 발견한 공용 로컬 준비 도구 권한 정렬도 포함한다.
 
 - 개발 입력: planning → system-design → 기능 명세와 docs OpenAPI.
 - 첫 구현 범위: M0 Core와 별도 실행 컴퓨터의 M0 수집 보조·자동 수집 확장. 수집은 독립 gate로 관리하고 M1 기능과 분리한다.

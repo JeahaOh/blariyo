@@ -29,6 +29,7 @@ export class TypeOrmImagesRepository extends ImagesRepository {
   async create(image: NewImage) {
     const result = await this.db.manager.createQueryBuilder().insert().into(ContentBoardPostImageEntity)
       .values({ private_storage_key: image.key, status: 'STAGED', content_sha256: image.hash, mime_type: image.mime,
+        source_expires_at: image.sourceExpiresAt ? new Date(image.sourceExpiresAt) : null,
         byte_size: image.byteSize, width: image.width, height: image.height, created_by: image.actor, created_at: () => 'now()', updated_by: image.actor, updated_at: () => 'now()' })
       .returning('id').execute();
     return decimalId(requiredRow(result.raw).id);
@@ -59,6 +60,10 @@ export class TypeOrmImagesRepository extends ImagesRepository {
       public_storage_key: key,
     });
     return row ? this.find(row.id) : null;
+  }
+  async byPrivateKey(key: string, lock = false): Promise<Image | null> {
+    const row=await this.db.manager.findOneBy(ContentBoardPostImageEntity,{private_storage_key:key});
+    return row?this.find(row.id,lock):null;
   }
   async transitionStatus(
     id: string,

@@ -1,5 +1,6 @@
 // Explicit, fixed-local migration and least-privilege setup. Startup itself never migrates.
 import pg from 'pg';
+import {grantLocalBatchPrivileges} from './batch-privileges.mjs';
 import assert from 'node:assert/strict';
 import {randomBytes,createHash} from 'node:crypto';
 import {mkdir,readFile,writeFile,open,readdir,stat,realpath} from 'node:fs/promises';
@@ -41,6 +42,14 @@ await mkdir('.local-data/backups',{recursive:true,mode:0o700});
 const backup=resolve('.local-data/backups',`before-batch-review-${Date.now()}.dump`),file=await open(backup,'wx',0o600);
 try{await processDone('docker',['exec','blariyo-m0-core-local-postgresql-1','pg_dump','-U','blariyo_local','-d','blariyo_local','-Fc'],file.fd);}finally{await file.close();}
 if((await stat(backup)).size<1000)throw Error('EMPTY_BACKUP');
+// Validate the archive catalog before changing the persistent development database.
+const archive=await open(backup,'r');
+try{
+  const check=spawn('docker',['exec','-i','blariyo-m0-core-local-postgresql-1','pg_restore','--list'],{stdio:[archive.fd,'ignore','pipe']});
+  check.stderr.resume();
+  const code=await new Promise((ok,no)=>{check.once('error',()=>no(Error('BACKUP_VERIFY_START_FAILED')));check.once('exit',ok);});
+  if(code!==0)throw Error('BACKUP_VERIFY_FAILED');
+}finally{await archive.close();}
 const importArgument=args.find(a=>a.startsWith('--import-root='));
 if(importArgument){const root=await realpath(importArgument.slice('--import-root='.length));for(const prefix of ['raw','media','report']){
   try{await copyTree(join(root,'collect',prefix),join(objectRoot,'collect',prefix));}catch(error){if(error.code!=='ENOENT')throw error;}
@@ -60,6 +69,10 @@ try{
     else{await admin.query(`CREATE ROLE ${role} LOGIN PASSWORD '${password}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS`);await admin.query(`COMMENT ON ROLE ${role} IS 'blariyo-local-batch-review-v1'`);}
   }
   await admin.query('COMMIT');
+  const migration=await migrationContext(target);
+  try{
+    // API owns creation of the collect schema on a fresh local database.
+    await migration.get(MigrationsService).migrate();
   const java=process.env.JAVA_HOME?join(process.env.JAVA_HOME,'bin',process.platform==='win32'?'java.exe':'java'):'java';
   const collector=spawn(java,['-Dloader.main=com.blariyo.collector.ops.MigrationMain','-cp',resolve('apps/collector/build/libs/blariyo-collector-0.1.0.jar'),
     'org.springframework.boot.loader.launch.PropertiesLauncher'],{stdio:['ignore','ignore','pipe'],env:{...process.env,
@@ -67,15 +80,10 @@ try{
   collector.stderr.resume();
   const collectorCode=await new Promise((ok,no)=>{collector.once('error',()=>no(Error('COLLECTOR_MIGRATION_START_FAILED')));collector.once('exit',ok);});
   if(collectorCode!==0)throw Error('COLLECTOR_MIGRATION_FAILED');
-  const migration=await migrationContext(target);
-  try{await migration.get(MigrationsService).migrate();await migration.get(MigrationsService).grantApplication(config.apiRole);}
-  finally{await migration.close();}
-  await admin.query(`GRANT CONNECT ON DATABASE blariyo_local TO ${config.apiRole},${config.batchRole};GRANT USAGE ON SCHEMA collect TO ${config.batchRole};
-    REVOKE ALL ON ALL TABLES IN SCHEMA collect FROM ${config.batchRole};
-    REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA collect FROM PUBLIC,${config.batchRole};
-    GRANT SELECT,INSERT,UPDATE ON collect.batch_source,collect.batch_run,collect.batch_item,collect.batch_media,collect.batch_failure,collect.batch_report,collect.batch_checkpoint,collect.batch_queue,collect.batch_confirmation TO ${config.batchRole};
-    GRANT DELETE ON collect.batch_media TO ${config.batchRole};
-    GRANT EXECUTE ON FUNCTION collect.assert_source_owner(text),collect.assert_run_owner(uuid) TO ${config.batchRole};`);
+    await migration.get(MigrationsService).grantApplication(config.apiRole);
+  }finally{await migration.close();}
+  await admin.query(`GRANT CONNECT ON DATABASE blariyo_local TO ${config.apiRole},${config.batchRole}`);
+  await grantLocalBatchPrivileges(admin, config.batchRole);
   const files=(await admin.query("SELECT object_key,encode(sha256,'hex') AS hash,byte_size FROM collect.batch_media WHERE object_key IS NOT NULL")).rows;
   for(const f of files){
     if(!/^collect\/media\/[a-zA-Z0-9._/-]+$/.test(f.object_key)||f.object_key.split('/').includes('..'))throw Error('BAD_OBJECT_KEY');
@@ -90,9 +98,18 @@ try{
       await denied(client,'SELECT * FROM collect.batch_media_correction');
       assert.equal((await client.query("SELECT has_function_privilege(current_user,'collect.correct_batch_media_mime(uuid,uuid,text,text,bytea,bigint,bigint,bigint,text)','EXECUTE') AS ok")).rows[0].ok,false);
       if(role===config.apiRole){await denied(client,'SELECT * FROM collect.batch_confirmation');await denied(client,'SELECT * FROM collect.batch_queue');await denied(client,'UPDATE collect.batch_item SET version=version WHERE false');await client.query('UPDATE collect.batch_review SET lock_version=lock_version WHERE false');}
-      else{await denied(client,'UPDATE content.board_post SET title=title WHERE false');await denied(client,'UPDATE collect.batch_review SET lock_version=lock_version WHERE false');await client.query('UPDATE collect.batch_item SET version=version WHERE false');}
+      else{
+        await denied(client,'UPDATE content.board_post SET title=title WHERE false');
+        await denied(client,'UPDATE collect.batch_review SET lock_version=lock_version WHERE false');
+        await client.query('UPDATE collect.batch_item SET version=version WHERE false');
+        await client.query('SELECT * FROM collect.batch_runtime_projection LIMIT 0');
+        for(const signature of ['collect.reserve_batch_request(text,integer,bigint)','collect.claim_web_requests(integer)','collect.ack_web_request(uuid,uuid)','collect.lookup_dedup(text,text,text)','collect.assert_item_live(uuid)']){
+          assert.equal((await client.query('SELECT has_function_privilege(current_user,$1,\'EXECUTE\') AS ok',[signature])).rows[0].ok,true);
+        }
+      }
     }finally{await client.end();}
   }
-  console.log(JSON.stringify({migration:'API V008 / Collector V006',roles:'api-read-batch / batch-write-own-only',objectsVerified:files.length,backup:backup.replace(resolve('.')+'/',''),configuration:'.local-data/development/batch-config.json'}));
+  const migrationVersions={api:(await admin.query('SELECT version FROM ops.schema_migration ORDER BY version')).rows.map(r=>r.version),collector:(await admin.query('SELECT version FROM collector.schema_migration ORDER BY version')).rows.map(r=>r.version)};
+  console.log(JSON.stringify({migrationVersions,roles:'api-read-batch / batch-write-own-only',objectsVerified:files.length,backup:backup.replace(resolve('.')+'/',''),backupCatalogVerified:true,configuration:'.local-data/development/batch-config.json'}));
 }catch(error){await admin.query('ROLLBACK');console.error(typeof error.code==='string'?error.code:'LOCAL_PREPARE_FAILED');process.exitCode=1;}
 finally{await admin.end();}

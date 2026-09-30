@@ -1,4 +1,5 @@
 import { BatchReviewModule } from './features/collection/batch-review.module.js';
+import { DirectRequestModule } from './features/collection/direct-request.module.js';
 import { CollectReader } from './shared/collect-reader.js';
 import { DisabledCollectReader } from './adapters/collect-reader.js';
 import type { CollectionOptions } from './features/collection/collection-admin.guard.js';
@@ -43,6 +44,7 @@ export class AppModule {
       module: AppModule,
       imports: [
         collection,
+        DirectRequestModule.register(persistence,options),
         BatchReviewModule.register(persistence, images, posts, options.collectReader ?? new DisabledCollectReader(), options),
         HealthModule.register(persistence, options),
         PoliciesModule.register(persistence),

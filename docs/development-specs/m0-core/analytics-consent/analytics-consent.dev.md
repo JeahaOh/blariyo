@@ -30,11 +30,14 @@
 - [단위 테스트](../../../../tests/consent.test.ts)와 [브라우저 테스트](../../../../tests/browser/consent.test.ts)가 있다.
   브라우저 테스트는 Google script를 로컬 응답으로 대체하고 다른 외부 요청은 차단한다.
   저장·철회·안전한 필드·route 재방문 검증이며 실제 Google 수신·보관·자동 측정을 증명하지 않는다.
-- 이전 검증 증거는 [요구사항 C15](../../requirements-status.md)에서 추적한다. 이번 문서 검토는
-  테스트를 재실행하지 않았다. 아래 미검증은 별도 표시가 없으면 **현재 환경의 수용 검증 잔여**다.
-- 남은 구현 차이: cookie 삭제 예외는 전송을 중단하지만 이용자에게 삭제 실패를 알리는 경로가 없다.
-  잘못된 JSON/schema를 읽을 때도 선택을 다시 받지만 읽기 실패 안내는 없다. 아래 실패 안내 요구는
-  유지하며 GA4 활성화 전에 감지 가능한 실패·안내·검증 범위를 맞춘다. C15의 주요 구현과 별개인 잔여다.
+- 2026-09-27 UX-05: 읽기 차단·JSON/schema 오류를 안내하고, cookie 삭제 예외와 쓰기가 무시된 뒤
+  남아 있는 접근 가능한 `_ga*`를 감지한다. 분석 전송을 중단한 상태로 설정 화면의 재시도를 제공한다.
+  선택 저장 실패 시 마지막 시도 값을 유지해 철회 재시도가 이전 허용으로 되돌아가지 않는다.
+- [오류 브라우저 시험](../../../../tests/browser/consent-errors.test.ts)과 기존 동의 시험8개, 단위6개 PASS.
+  실제 Chromium의 읽기/쓰기/삭제 예외·삭제 무시·재시도·GA4 OFF를 확인했다. Google script는 로컬 대역이며
+  실제 Google 수신·자동 측정·속성 보관은 미검증이다. JS가 볼 수 없는 타 경로/HttpOnly 쿠키 삭제를 보장하지 않는다.
+- 단계별 증거는 [구현 기록](../../../../worklog/2026-09-27/m0-implementation/README.md)과
+  [요구사항 C15](../../requirements-status.md)를 따른다. GA4 기본 OFF와 실제 활성화 전 인수 조건은 유지한다.
 
 ## 2. 목표와 대상 milestone
 
@@ -392,7 +395,7 @@ GA4 활성 gate는 차단 상태다. banner 구현·로컬 대체 tag 테스트�
 - 계약 상태: `작성 완료`
 
 - 입력 근거: [화면 설계 §10](../../../planning/03-screen-design.md), [쿠키 안내](../../../legal/cookie-settings.md), [퍼블리싱 동의 저장 비교물](../../../ui/publishing/responsive/app.js)
-- 미검증: actual modal/direct route·storage test
+- 로컬 증거: modal/direct route·storage 및 감지 가능한 cookie 삭제 실패는 2026-09-27 브라우저 시험을 따른다. 실제 Google 수신은 별도 인수다.
 
 #### 목적·route·milestone
 

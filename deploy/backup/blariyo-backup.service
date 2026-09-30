@@ -1,0 +1,8 @@
+[Unit]
+Description=Blariyo selective encrypted database backup
+After=blariyo-application.service network-online.target
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/python3 /opt/blariyo/backup/run-backup.py scheduled
+TimeoutStartSec=2160

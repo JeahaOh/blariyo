@@ -6,12 +6,12 @@
 
 - 2026-09-27 M0 로컬 코드: UX-01~06·보존/회수·mailbox/4개API/입력UI·robots/quota/redirect·선택백업/Drive 도구·OWNER/EDITOR를 구현했다. API010/Collector010이며 운영 migration을 적용했다는 뜻이 아니다.
 - 로컬 검증: API 실DB30 files/130 tests·서비스35·Collector289·공통34 PASS, 실제5역할73table/16sequence 복원·PG18/age 선택복원53보존/17제외·과거full008/006→010/010·Docker API/Web PASS. 실제 Chromium52와 범위·자원 감사까지 통과해 로컬 구현·검증·운영 인계를 완료했다. 상세는 [완료 조건 감사](../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)에서 판정한다.
-- 다음 실제 작업: [운영 인계](operations/m0-operation-handoff.md)의 계정/장비·허용 출처·법무·비운영 대상 입력을 확인한 뒤 별도 승인된 범위로 인수한다. M0 구현은 `f1fc07d`, 개발 데이터 적재 보완은 `3c3902b`에 커밋됐다. 9/30 원격 feature `578c058` 반영을 확인했으며 release 통합·검증·동기화는 [Git 정리 실행 기록](../worklog/2026-09-30/git-cleanup-execution/README.md)을 따른다. 운영 배포 완료를 뜻하지 않는다.
+- 다음 실제 작업: [운영 인계](operations/m0-operation-handoff.md)의 계정/장비·허용 출처·법무·비운영 대상 입력을 확인한 뒤 별도 승인된 범위로 인수한다. M0 구현은 `f1fc07d`, 개발 데이터 적재 보완은 `3c3902b`에 커밋됐다. 9/30 원격 feature `578c058` 반영을 확인했으며 release 통합·검증·원격 반영은 `53873d0`에서 완료했다. [Git 정리 실행 기록](../worklog/2026-09-30/git-cleanup-execution/README.md)을 따른다. 운영 배포 완료를 뜻하지 않는다.
 - 범위 경계: GA4·광고·legacy 기본 OFF. 사용자 승인된 개발 데이터 수집 요청은 별도 실행했고 Drive/R2/Discord 전송·운영 삭제·설치는 미실행. 실제 운영 담당은 사용자(OWNER)다. OWNER/EDITOR 역할의 Access 허용·거부·회수 검증, 출처 S1~S5·Core7일과 CON-01 조건부 항목은 남아 있다.
 
 - **전체 판정: 부분 완료. 9월 25일 `8af7244` 앱 배포·GTM 실제 로딩과 9월 26일 공개 HTTP에서 robots·사이트맵·일부 noindex와 GTM HTML 삽입을 확인했다. 실제 운영자 인수와 수집 실연동·계약은 남아 있다.**
 - 마지막 공개 HTTP 점검: 2026-09-26 소스·정본 대조 및 16:39 KST 이후 공개 GET. 현재 서버 image digest·DB·백업·원격 CI는 재조회하지 않았다. DB·콘텐츠 전수 검증은 9월 23일, 최근 앱 배포·GTM 로딩은 [9월 25일 기록](../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)으로 구분한다. [운영 상태](operations/current-status.md)와 [오늘 점검 근거](../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md)를 따른다.
-- Git 확인: 2026-09-30 통합 시작 기준 local/origin main은 `8af7244`, local release는 `0545759`, origin/release는 `6b91402`, local/origin feature는 `578c058`이다. 최신 반영·검증·정리 결과는 [실행 기록](../worklog/2026-09-30/git-cleanup-execution/README.md)을 따른다. [9/26 동기화 기록](../worklog/2026-09-26/m0-progress-audit/STATUS-SYNC.md)은 당시 증거로 유지한다.
+- Git 확인: 2026-09-30 통합 `53873d0`을 일반 push했고 local/origin release 동일·이력 차이0/0을 서버 조회로 확인했다. local/origin main은 `8af7244` 유지. 마감 기록과 종료 브랜치 정리는 [실행 결과](../worklog/2026-09-30/git-cleanup-execution/README.md)를 따른다. 실행 중 추가된 별도 파비콘8파일과 현재 feature 마감은 보류했으며 전체 작업 폴더 clean을 뜻하지 않는다. [9/26 기록](../worklog/2026-09-26/m0-progress-audit/STATUS-SYNC.md)은 당시 증거로 유지한다.
 - 과거 전체 goal의 `blocked` 기록은 당시 선행 조건 판단이다. 현재 도구 상태나 기능 폐기를 뜻하지 않는다.
 - 상세 실행 순서는 [잔여 과정](roadmap.md), 실제 커밋 식별자는 [진행 보관·커밋 기록](../worklog/2026-09-23/progress-checkpoint.md)을 따른다.
 - 9/26 최종 결정: 운영 DB 백업만 Google Drive로 전환하고 공개 전·공개 이미지/첨부는 기존 R2를 유지한다. [백업 전환 조건](planning/02-infra-plan.md#6-데이터와-저장소-원칙)의 실제 계정·운영 전환은 잔여다. 로컬 전환 도구·실제 age/격리DB 복원은 위9/27 증거를 따른다. 에펨코리아·뽐뿌·유튜브 커뮤니티 [재분석 task](../worklog/2026-09-26/collection-source-reanalysis/README.md)는 생성 완료·분석 대기다.

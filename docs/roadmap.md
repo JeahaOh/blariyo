@@ -3,7 +3,7 @@
 - 2026-09-27 로컬 구현: UX-01~06, D01~D04, COL-01/02 및 CON-02의 코드·계약·추가migration·운영 도구를 반영했다. 검수1/20건의 SQL은 모두5회이며 신규 입력/회수 기능은 기본 OFF다.
 - 실행 결과와 최종 판정: [완료 조건 감사](../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md), [현재 상태](status.md), [17개 task](implementation-tasks/README.md).
 - 남은 실제 인수: [운영 인계](operations/m0-operation-handoff.md)의 OWNER/EDITOR Access/MFA, 장비·사설 DB/R2 경로, Drive/Discord 실연동·18시간 이내 복구 증거, source별 S1~S5·고지, Core 운영7일. CON-01은 재활성화 결정 전 조건부다.
-- 다음 승인된 배포는 현재 미커밋 후보의 SHA/digest·migration/권한·선택백업·복귀를 새로 검증한다. 기존 R2 정상 백업을 Drive 실제 인수 전에 중단하지 않는다.
+- 다음 승인된 배포는 통합·검증을 마친 release 후보의 SHA/digest·migration/권한·선택백업·복귀를 새로 검증한다. 기존 R2 정상 백업을 Drive 실제 인수 전에 중단하지 않는다.
 
 - 기준: [9/23 마지막 운영 관측](operations/current-status.md), [요구사항 40개](development-specs/requirements-status.md). 2026-09-24 문서 갱신에서는 서버·DB·CI를 재조회하지 않았다. 단계·요구사항 ID와 미완료 조건을 유지하고 과거 실행 결과는 worklog에 보존한다.
 - 목표: **Core 관리자와 운영 흐름을 먼저 마감해 콘텐츠 운영을 시작하고, 수집 기능은 운영과 병행해 검증 후 활성화한다.**
@@ -15,14 +15,14 @@
 
 ## 1. 다음 시작점
 
-2026-09-27 현재의 잔여 실행 목록이다. 기존 ID를 유지하며 로컬 완료 항목을 다시 구현하지 않는다.
+2026-09-30 Git 반영과 로컬 준비 도구 보완을 반영한 잔여 실행 목록이다. 기존 ID를 유지하며 로컬 완료 항목을 다시 구현하지 않는다.
 아래 순서는 의존성 기준이고 운영자 인수·계정 준비는 병행할 수 있다. 정확한 설치/백업/회수 순서는 [운영 인계](operations/m0-operation-handoff.md#인수-순서와-중단-시-조치)를 따른다.
 
 | 순서·우선순위 | 잔여 task | 착수 입력·담당 | 완료 증거 |
 | --- | --- | --- | --- |
-| 0 · P1 | CON-02 후속/O05: 로컬 개발 준비 도구 권한·상태 출력 정렬 | 개발자, 별도 시험 DB | [후속 작업](implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)의 최신 함수/table 최소 권한·실제 ledger 출력·허용/거부 readback. 해당 도구 사용 전 |
-| 1 · P0 | 변경 검토·커밋·배포 후보 준비 | 작업 범위별 Git 반영 요청 / 개발자 | 범위 분리 diff, 후보 commit SHA·검사·image digest. 현재 구현은 미커밋 |
-| 2 · P0 | OPS-01/02: 사람의 반복 업무·실제 Access/MFA 인수 | 두 운영자·시험 콘텐츠·시간 | 인수12개 시나리오/10~20건 업무의 소요·혼동·재작업, OWNER/EDITOR 허용·거부·기존 세션 회수 |
+| 0 · 완료 | CON-02 후속/O05: 로컬 개발 준비 도구 권한·상태 출력 정렬 | 로컬 보완 `3c3902b`; 운영 적용은 별도 | [후속 작업](implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)의 최신 권한·ledger·격리 DB 허용/거부 검증 완료. 운영 인수는 아래 잔여로 유지 |
+| 1 · P0 | feature→release 통합·검증·원격 동기화 | 사용자 승인된 Git 정리 / 개발자 | 구현과 후속 보완은 커밋됨. [통합 실행](../worklog/2026-09-30/git-cleanup-execution/README.md)의 충돌 해결·후보 SHA·검사·원격 일치. image digest·배포는 후속 범위 |
+| 2 · P0 | OPS-01/02: 사람의 반복 업무·실제 Access/MFA 인수 | 사용자(OWNER)·역할별 시험 계정/콘텐츠·시간 | 인수12개 시나리오/10~20건 업무의 소요·혼동·재작업, OWNER/EDITOR 허용·거부·기존 세션 회수 |
 | 3 · P0 | P0-05/OPS-02/03: 운영 상태 재조회·새 후보 반영·복귀 | 운영 접근·적용 범위/시간 / 사용자+개발자 | 현재 SHA/digest/ledger/flag/timer, 최근18시간 내 백업·격리 복원, API009/010·Collector007~010/권한·호환 복귀·실제 재부팅 |
 | 4 · P1 | OPS-04/P1-03/04/07: 실제 장비·원격 DB/R2·Discord | QD-05/06의 장비·사설 경로·제한 계정 | DB/object byte/hash readback, 권한 거부, 재시작·24시간 만료, Discord 취소/중복/권한·실수신. 지원 OS별 증거 분리 |
 | 5 · P0/P1 | OPS-03/COL-04: 선택 백업·Drive 전환·보존 회수 | Drive·R2·age 복구·비운영 삭제 대상 / 사용자 | R2 선택 대체본·기존 full 처리, Drive 정기2회 성공·독립 복원·만료/알림·R2 복귀, 제한 회수와 content 사본 보호. 실제 수집 회수 활성 전 필수 |

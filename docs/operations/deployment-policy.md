@@ -91,6 +91,13 @@ V008에서 현재 `8af7244`와 직전 `5c581c2` 앱을 확인했다. 이번 배�
 파괴적인 DB 변경은 호환 단계로 나누고, 불가피한 경우 점검 시간을 별도로 잡는다.
 구 이미지·사전 dump는 다음 배포의 복귀 가능 여부를 확인하기 전까지 정리하지 않는다.
 
+운영 배포가 성공하면 배포된 Git 커밋에 annotated tag를 남긴다. tag 이름은
+`prod/YYYY-MM-DD-HHMM-KST-<shortsha>` 형식을 사용한다. 같은 커밋을 단순 재시작한 경우에는 새 tag를
+만들지 않고, 다른 image digest·DB migration·설정 묶음이 운영 반영된 경우에만 새 tag를 만든다.
+tag 메시지에는 release 경로, API/Web image digest, API·Collector ledger, 백업 확인과 smoke 결과를 적는다.
+tag push는 배포 push와 별도 권한으로 처리하며, tag가 있다는 사실만으로 관리자 MFA·업로드·예약 등
+운영자 인수 완료를 뜻하지 않는다.
+
 자동 CD는 서버가 승인된 manifest를 가져오는 방식이 다음 후보다. 고정 IP 미사용 결정을 유지하고,
 GitHub runner IP 전체에 SSH를 개방하거나 운영 VM에 PR용 self-hosted runner를 두지 않는다.
 현재 SSH helper에는 최초 대상 정보가 고정된 부분이 있다. 9/25 서버·저장소 부팅 helper를

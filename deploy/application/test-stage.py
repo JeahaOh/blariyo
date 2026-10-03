@@ -28,7 +28,8 @@ class StageTest(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.archive = b'fixture archive bytes'
         self.files = {'api.env': b'NODE_ENV=production\n', 'web.env': b'NODE_ENV=production\n', 'compose.yaml': b'fixture compose',
-                      'secrets/app-password': b'a' * 64 + b'\n', 'secrets/admin-operators.json': b'[{"active":true}]',
+                      'secrets/app-password': b'a' * 64 + b'\n',
+                      'secrets/admin-operators.json': b'[{"identity":"11111111-1111-4111-8111-111111111111","operatorId":"test-operator","role":"OWNER","active":true}]',
                       'bundle.json': json.dumps({'schemaVersion': 1, 'kind': 'runtime-inputs-only', 'productionReady': False,
                                                'serverSecretUid': 1000, 'serverSecretGid': 1000}).encode()}
         self.payload = {'schemaVersion': 1, 'expectedHostname': 'fixture-host', 'archiveSha256': server.digest(self.archive),
@@ -129,7 +130,7 @@ def docker_probe():
         return result.stdout
     run(['docker', 'volume', 'create', volume])
     try:
-        code = "const fs=require('fs');fs.writeFileSync('/probe/app-password','a'.repeat(64)+'\\n',{mode:384});fs.writeFileSync('/probe/admin-operators.json',JSON.stringify([{active:true}]),{mode:384});for(const f of ['app-password','admin-operators.json'])fs.chownSync('/probe/'+f,1000,1000)"
+        code = "const fs=require('fs');fs.writeFileSync('/probe/app-password','a'.repeat(64)+'\\n',{mode:384});fs.writeFileSync('/probe/admin-operators.json',JSON.stringify([{identity:'11111111-1111-4111-8111-111111111111',operatorId:'test-operator',role:'OWNER',active:true}]),{mode:384});for(const f of ['app-password','admin-operators.json'])fs.chownSync('/probe/'+f,1000,1000)"
         run(['docker', 'run', '--rm', '--network', 'none', '--user', '0:0', '--mount', 'type=volume,src=' + volume + ',dst=/probe', '--entrypoint', 'node', api, '-e', code])
         with tempfile.TemporaryDirectory(prefix='blariyo-stage-compose-') as temp:
             directory = Path(temp)

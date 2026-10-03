@@ -191,6 +191,10 @@ API V008·Collector V006이 적용됐다. V008에서 9월 20일 구 API의 readi
    가능하다. 이 한계를 해소하기 전에는 무중단이라고 보고하지 않는다.
 9. [배포 성공 기준](#배포-성공-기준)으로 최종 검사한다. 부팅 경로 갱신·timer 재개·캐시 대조 후의
    판정이며, 미실행 항목이 있으면 배포 실행 결과와 미검증 인수를 구분해 기록한다.
+10. 배포 성공 기준을 통과하면 배포된 main 커밋에 annotated tag를 남긴다. 형식은
+    `prod/YYYY-MM-DD-HHMM-KST-<shortsha>`다. tag 메시지에는 release 경로, API/Web image digest,
+    API·Collector ledger, 백업 확인과 smoke 결과를 적는다. tag push는 별도 권한으로 수행한다.
+    main 변경 없이 현재 release만 재시작한 경우에는 새 tag를 만들지 않는다.
 
 ### 앱 교체 직후 기본 동작 검사
 

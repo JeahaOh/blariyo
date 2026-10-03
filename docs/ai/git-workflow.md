@@ -29,6 +29,9 @@ main HEAD가 실제 운영 버전이라는 뜻은 아니다. 실제 배포 여�
 5. PR의 head/base가 바뀌면 기존 결과를 새 후보의 검증으로 재사용하지 않는다. 충돌 해결로 내용이 바뀌면 관련 검사를 다시 수행한다.
 6. main 반영 후 실제 main SHA를 확인한다. 배포할 때 해당 SHA의 검증·이미지 digest·실행 결과를 확인하며,
    배포는 별도 요청·절차를 따른다. 기존 CI의 유지·확장을 브랜치 보호 도입의 필수 조건으로 삼지 않는다.
+   운영 배포가 성공하면 [배포 정책](../operations/deployment-policy.md)에 따라 배포된 커밋에
+   `prod/YYYY-MM-DD-HHMM-KST-<shortsha>` annotated tag를 남긴다. main 병합, 운영 배포, tag push는
+   서로 다른 권한과 완료 상태다.
 
 main에는 로컬 직접 commit·push, `gh pr merge`·병합 API·자동 병합을 사용하지 않는다.
 GUI로 실행한다는 사실도 병합 권한을 대신하지 않으며, AI의 실행 범위는 매번 받은 사용자 요청을 따른다.

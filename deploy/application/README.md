@@ -33,7 +33,7 @@ node deploy/application/prepare-runtime-config.cjs --create
 | `api.env` | production Core, app DB 파일 경로, private/public R2 키, 캐시 삭제 키, 내부 서비스 키, 공개 연락처 |
 | `web.env` | production Web, Access issuer·AUD, 운영자 파일 경로, 서비스 키·actor 키, 공개 연락처·확정 카피 |
 | `secrets/app-password` | app 역할 비밀번호만 복사 |
-| `secrets/admin-operators.json` | identity·operatorId·active만 복사 |
+| `secrets/admin-operators.json` | Cloudflare Access JWT `sub` 값, 즉 get-identity 응답의 `user_uuid`·operatorId·role·active만 복사 |
 | `compose.yaml` | [앱 계층 Compose](compose.yaml) 사본. API/Web만 정의하며 image 지정은 필수 |
 | `bundle.json` | 마지막에 기록하는 입력 준비 표시. `productionReady: false`; image·gateway 미포함 |
 

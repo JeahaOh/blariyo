@@ -83,7 +83,8 @@ async function prepare(directory = defaultDirectory, create = false) {
   if (!path.isAbsolute(operatorsFile)) fail('OPERATOR_PATH_INVALID');
   const operators = JSON.parse(readPrivate(operatorsFile));
   const { parseAdminOperators } = await import(pathToFileURL(path.join(repo, 'apps/web/server/utils/access.mjs')));
-  if (!parseAdminOperators(operators).size || !operators.every(o => /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(o.identity))) fail('OPERATOR_MAPPING_INVALID');
+  const accessIdentity = value => /^[a-f0-9]{32}$/i.test(value) || /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(value);
+  if (!parseAdminOperators(operators).size || !operators.every(o => accessIdentity(o.identity))) fail('OPERATOR_MAPPING_INVALID');
   const passwordFile = path.join(directory, 'db-secrets/app-password');
   const password = readPrivate(passwordFile).replace(/\r?\n$/, '');
   if (!/^[a-f0-9]{64}$/.test(password)) fail('APP_DB_PASSWORD_INVALID');
@@ -136,7 +137,7 @@ async function prepare(directory = defaultDirectory, create = false) {
   const files = {
     'api.env': rawEnv(api), 'web.env': rawEnv(web),
     'secrets/app-password': password + '\n',
-    'secrets/admin-operators.json': JSON.stringify(operators.map(({ identity, operatorId, active }) => ({ identity, operatorId, active })), null, 2) + '\n',
+    'secrets/admin-operators.json': JSON.stringify(operators.map(({ identity, operatorId, role, active }) => ({ identity, operatorId, role, active })), null, 2) + '\n',
     'compose.yaml': fs.readFileSync(path.join(__dirname, 'compose.yaml'), 'utf8'),
     'bundle.json': JSON.stringify({ schemaVersion: 1, kind: 'runtime-inputs-only',
       productionReady: false, imagesIncluded: false, gatewayIncluded: false,

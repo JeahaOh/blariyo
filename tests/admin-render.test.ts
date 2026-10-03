@@ -78,6 +78,9 @@ await test('actual admin template renders scheduled immediate action and escaped
         save() {},
         action() {},
         scheduleSlot() {},
+        scheduleAfter() {},
+        openDateTimePicker() {},
+        copyPostId() {},
       }),
     });
     app.component('PageNumbers', { render: () => null });
@@ -87,6 +90,8 @@ await test('actual admin template renders scheduled immediate action and escaped
   const scheduled = await render('SCHEDULED');
   assert.match(scheduled, />\s*즉시 발행\s*<\/button>/);
   assert.match(scheduled, /예약 취소/);
+  assert.match(scheduled, /글 1 ·/);
+  assert.match(scheduled, /글 번호 복사/);
   assert.doesNotMatch(scheduled, /07:30 KST/);
   assert.match(scheduled, /&lt;broken&gt;\.gif: 파일 크기가 10MiB/);
   assert.match(scheduled, /role="alert"/);

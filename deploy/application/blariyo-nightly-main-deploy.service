@@ -1,0 +1,10 @@
+[Unit]
+Description=Deploy Blariyo main branch if a new verified image exists
+After=network-online.target docker.service blariyo-backup.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/python3 /opt/blariyo/application/nightly-main-deploy-server.py
+TimeoutStartSec=3600

@@ -123,6 +123,26 @@
 - 미검증:
   - 운영 반영 전이므로 `/admin` 실제 고해상도 업로드 실패 문구는 아직 운영에서 재확인하지 않았다.
 
+## 2026-10-03 14:00 KST 운영 반영
+
+- main SHA: `b2a74352709693f17dd3a318d9ad185ba53d4d31`
+- release: `/opt/blariyo/application/release-b2a7435-main-nightly-20261003T045949Z`
+- API image: `ghcr.io/jeahaoh/blariyo-api@sha256:e488add277205b968ea6c3efeb9885ce1eeb7dd0d2292c2316332481a7f698f9`
+- Web image: `ghcr.io/jeahaoh/blariyo-web@sha256:2ef7f1840c520dc1b0f2a21c7afc04cf6d54baf46bdc58cee06251e7f151b93d`
+- 배포 방식: 서버 `blariyo-nightly-main-deploy.service` 수동 1회 실행.
+- 이전 release: `/opt/blariyo/application/release-31be83b-main-nightly-20261003T034353Z`
+- 확인:
+  - API/Web container `running healthy`
+  - `/health/live` 200
+  - `/meme` 200
+  - `blariyo-publish.timer`, `blariyo-outbox.timer`, `blariyo-cleanup.timer`, `blariyo-nightly-main-deploy.timer` active/enabled
+  - local annotated tag 생성: `prod/2026-10-03-1400-KST-b2a7435`
+- 미검증:
+  - 운영자 브라우저에서 고해상도 이미지 실패 문구 표시 여부.
+  - 관리자 글 번호 표시·복사 버튼의 실제 사용성.
+  - 예약 입력 UX의 실제 운영자 수용.
+  - tag push.
+
 ## 다음
 
 - 사용자 조작 후 글 제목 또는 공개 URL, 화면 결과, 실패 문구 여부를 기록한다.

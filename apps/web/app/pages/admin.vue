@@ -92,6 +92,13 @@ function scheduleSlot(hour: number, minute: number) {
   if (+time < Date.now() + 60000) time = new Date(+time + 86400000);
   scheduled.value = new Date(+time + 9 * 3600000).toISOString().slice(0, 16);
 }
+function scheduleAfter(minutes: number) {
+  scheduled.value = new Date(Date.now() + minutes * 60000 + 9 * 3600000).toISOString().slice(0, 16);
+}
+function openDateTimePicker(event: Event) {
+  const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void };
+  input.showPicker?.();
+}
 const fresh = (): EditorState => ({
   boardSlug: 'meme',
   title: '',
@@ -720,10 +727,15 @@ onBeforeRouteLeave(
           <template v-if="editor.status === 'DRAFT'"
             ><button :disabled="locked" @click="scheduleSlot(7, 30)">07:30 KST</button
             ><button :disabled="locked" @click="scheduleSlot(17, 30)">17:30 KST</button
+            ><button :disabled="locked" @click="scheduleAfter(5)">+5분</button
+            ><button :disabled="locked" @click="scheduleAfter(10)">+10분</button
+            ><button :disabled="locked" @click="scheduleAfter(30)">+30분</button
             ><label
               >예약 시각 (KST)<input
                 type="datetime-local"
                 v-model="scheduled"
+                @click="openDateTimePicker"
+                @focus="openDateTimePicker"
                 :disabled="locked" /></label
             ><button :disabled="locked || dirty" @click="action('schedule')">예약</button></template
           ><button

@@ -29,11 +29,17 @@
 
 ## 검증
 
+- 2026-10-03 12:01 KST 기준 `feature/nightly-main-deploy -> release` 로컬 병합 완료.
+- `python3 deploy/application/test-nightly-main-deploy.py`: 통과.
+- `python3 -m py_compile deploy/application/nightly-main-deploy-server.py deploy/application/test-nightly-main-deploy.py`: 통과.
+- `npm run hooks:check`: 통과.
+- `git diff --check origin/release..HEAD`: 통과.
+- `git push origin release`: 실패. SSH 별칭 `github.com-JeahaOh`가 `Permission denied (publickey)`로 인증되지 않았다.
 - 아직 운영 서버에 설치하거나 timer를 활성화하지 않았다.
-- 후속으로 로컬 테스트, lint/문서 검사, release 통합, PR 준비, 실제 배포 절차가 필요하다.
 
 ## 잔여
 
+- GitHub SSH 인증 복구 후 `release` push.
 - `release -> main` PR 생성 및 GitHub 웹 GUI 병합.
 - main push 후 CI `verify`, `collector`, `images` 성공과 image digest 확인.
 - 운영 서버의 현재 release/digest/DB ledger/timer/백업 상태 읽기 전용 재조회.

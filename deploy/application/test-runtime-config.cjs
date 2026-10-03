@@ -23,7 +23,7 @@ async function run() {
     write('public-contact.json', JSON.stringify(contacts));
     write('db-secrets/app-password', hex('a') + '\n');
     // No migration/backup password files: assembling runtime must not read them.
-    write('admin-operators.json', JSON.stringify([{ identity: '11111111-1111-4111-8111-111111111111', operatorId: 'test-operator', role: 'OWNER', active: true }]));
+    write('admin-operators.json', JSON.stringify([{ identity: '11111111111111111111111111111111', operatorId: 'test-operator', role: 'OWNER', active: true }]));
     write('cloudflare-access.env', `NUXT_ADMIN_AUTH_MODE=access\nNUXT_ACCESS_ISSUER=https://fixture-team.cloudflareaccess.com\nNUXT_ACCESS_AUDIENCE=${hex('b')}\n`);
     write('internal-auth.env', `SERVICE_TOKEN='${hex('c')}'\nNUXT_SERVICE_TOKEN='${hex('c')}'\nNUXT_ACTOR_SECRET='${hex('d')}'\n`);
     const r2 = `R2_ENDPOINT=https://${'e'.repeat(32)}.r2.cloudflarestorage.com\n` +
@@ -43,6 +43,7 @@ async function run() {
     for (const file of files) assert.equal(fs.statSync(path.join(first.destination, file)).mode & 0o777, 0o600);
     const parseRaw = value => Object.fromEntries(value.trimEnd().split('\n').map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]));
     const api = parseRaw(snapshot['api.env']); const web = parseRaw(snapshot['web.env']);
+    assert.deepEqual(JSON.parse(snapshot['secrets/admin-operators.json']), [{ identity: '11111111111111111111111111111111', operatorId: 'test-operator', role: 'OWNER', active: true }]);
     assert.deepEqual(JSON.parse(api.LEGAL_CONFIG), contacts);
     assert.equal(web.NUXT_PUBLIC_OPERATOR_DISPLAY_NAME, contacts.operatorDisplayName);
     assert.equal(api.SERVICE_TOKEN, web.NUXT_SERVICE_TOKEN);

@@ -354,7 +354,7 @@ D01~D04 로컬 코드·격리 검증은 완료됐으며 아래 표는 실제 계
 | 사용자: Drive 계정 종류·실제 남은 용량 | OPS-03 인증 연결 전 | [D03 계정별 방식](../system-design/05-security-operations.md#m0-d03-drive) 적용. 사용 용량이14개 정기 사본+전송/검증 임시공간을 수용하는지 실제 archive 크기로 계산 |
 | 사용자: OAuth client/동의 상태·전용 folder 또는 Shared Drive의 ID/권한 | Drive 비운영 업로드 전 | 사용자 OAuth drive.file 기본, Shared Drive는 조건 충족 시 서비스 계정. 파일 생성/다운로드/영구삭제·바깥 파일 거부 확인 |
 | 사용자: age 복구키 별도 보관·복구 접근 | 기존 full backup 대체·독립 복원 전 | 서버에 private key 상시 보관 금지, 사용자 환경에서 복원·재암호화, snapshot 시각·기한 유지 |
-| 사용자: 두 operator identity/ID·OWNER/EDITOR 매핑 | OPS-01/02 권한 인수 전 | 기존 등록값 재사용/회수 대조, 친구 관리 자원 접근 거부; 원문 identity를 기록에 남기지 않음 |
+| 사용자: 두 operator identity/ID·OWNER/EDITOR 매핑 | OPS-01/02 권한 인수 전 | 앱의 `identity`는 Cloudflare Access JWT `sub`이며 get-identity 응답의 `user_uuid`를 사용한다. 기존 등록값 재사용/회수 대조, 친구 관리 자원 접근 거부; 원문 identity를 기록에 남기지 않음 |
 | 사용자: Discord credential 보관·채널 연결/수신 확인 | OPS-03/04 장애 알림 시험 전 | 채널 생성·사용자만 참여는 사용자 보고. 실제 실패/회복 알림 수신 증거 필요, 친구 초대 불필요 |
 | 사용자+개발자: 비운영 DB/R2/Drive 시험 영역·제한 역할 | 쓰기/삭제 인수 전 | 영역·회수 대상 manifest 확인, 운영 자원 암묵 선택 금지 |
 | 사용자+법무 검토: Drive 실제 계약/국외이전·direct 고지 시행 | 해당 전환/수집 활성화 전 | [미발행 추가안](../legal/privacy-policy.md#direct-수집의-처리보존-추가안--qd-04-미확정), 기존 발행본 자동 변경 금지 |

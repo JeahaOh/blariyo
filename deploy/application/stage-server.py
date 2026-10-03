@@ -109,7 +109,7 @@ def probe(directory, identities):
     for role, filename in [('api', 'app-password'), ('web', 'admin-operators.json')]:
         target = '/run/secrets/' + filename
         script = "const fs=require('fs');const p=" + json.dumps(target) + ";const s=fs.statSync(p);if(process.getuid()!==1000||s.uid!==1000||s.gid!==1000||(s.mode&511)!==384)process.exit(2);const v=fs.readFileSync(p,'utf8');"
-        script += "if(!/^[a-f0-9]{64}\\n?$/.test(v))process.exit(3);" if role == 'api' else "if(!Array.isArray(JSON.parse(v))||!JSON.parse(v).some(x=>x.active===true))process.exit(3);"
+        script += "if(!/^[a-f0-9]{64}\\n?$/.test(v))process.exit(3);" if role == 'api' else "const operators=JSON.parse(v);if(!Array.isArray(operators)||!operators.some(x=>x&&x.active===true&&(x.role==='OWNER'||x.role==='EDITOR')&&typeof x.identity==='string'&&typeof x.operatorId==='string'))process.exit(3);"
         # The image's normal server command is replaced with this read-only offline probe.
         run(['docker', 'run', '--rm', '--pull', 'never', '--platform', 'linux/amd64', '--network', 'none', '--user', '1000:1000',
              '--memory', '128m', '--memory-swap', '128m', '--pids-limit', '32', '--read-only', '--cap-drop', 'ALL',

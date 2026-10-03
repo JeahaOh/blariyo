@@ -28,6 +28,9 @@
   - 설치 후 1회 실행 결과: 현재 release가 main과 같아 `NOOP current release already matches main`
 - 후속 보정: main 변경이 없으면 현재 release의 API/Web을 재시작하고 공개 smoke를 확인하도록 변경했다.
   - 서버 설치본 갱신 후 1회 실행 결과: `RESTARTED current release for unchanged main 31be83ba83bd0f6b251772400e743c2bd31fb378`
+- 후속 운영 규칙: 운영 배포 성공 커밋에는 annotated tag를 남긴다.
+  - 형식: `prod/YYYY-MM-DD-HHMM-KST-<shortsha>`
+  - main 변경 없이 같은 release만 재시작한 경우에는 새 tag를 만들지 않는다.
 
 ## 운영 중 발견·조치
 
@@ -53,6 +56,7 @@
 - 로컬:
   - `python3 deploy/application/test-nightly-main-deploy.py` 통과
   - `git diff --check` 통과
+  - 배포 tag 규칙 문서화 후 `git diff --check` 통과
 
 ## 미검증·잔여
 

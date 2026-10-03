@@ -99,6 +99,15 @@ function openDateTimePicker(event: Event) {
   const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void };
   input.showPicker?.();
 }
+async function copyPostId() {
+  if (!editor.value.postId) return;
+  try {
+    await navigator.clipboard.writeText(String(editor.value.postId));
+    message.value = `게시글 ${editor.value.postId}번을 복사했습니다.`;
+  } catch {
+    message.value = `게시글 번호는 ${editor.value.postId}번입니다.`;
+  }
+}
 const fresh = (): EditorState => ({
   boardSlug: 'meme',
   title: '',
@@ -487,7 +496,7 @@ onBeforeRouteLeave(
       내 입력은 그대로 보존되어 있습니다. 필요한 내용을 복사한 뒤 ‘최신 내용 확인’을 선택하세요.
       변경을 버리기 전 다시 확인합니다.
     </p>
-    <ul v-if="uploadErrors.length" role="alert">
+    <ul v-if="uploadErrors.length" role="alert" aria-live="assertive" class="upload-errors">
       <li v-for="failure in uploadErrors" :key="failure.index">
         {{ failure.name }}: {{ failure.reason }}
       </li>
@@ -536,7 +545,9 @@ onBeforeRouteLeave(
             :disabled="locked"
           >
             {{ item.title
-            }}<small>{{ stateLabel(item.status) }} · {{ boardName(item.boardSlug) }}</small
+            }}<small
+              >글 {{ item.postId }} · {{ stateLabel(item.status) }} ·
+              {{ boardName(item.boardSlug) }}</small
             ><small>수정 {{ kst(item.updatedAt) }}</small></button
           ><PageNumbers
             v-if="search"
@@ -552,6 +563,7 @@ onBeforeRouteLeave(
           {{ editor.postId ? '게시글 편집' : '새 초안 작성' }}
         </h2>
         <p class="save-state">
+          <span v-if="editor.postId">글 {{ editor.postId }} · </span>
           {{ stateLabel(editor.status) }} ·
           {{
             dirty ? '저장하지 않은 변경' : editor.postId ? '저장됨' : '작성 후 초안을 저장해 주세요'
@@ -578,6 +590,9 @@ onBeforeRouteLeave(
         </NuxtLink>
         <button v-if="editor.postId" @click="load(editor.postId)" :disabled="locked">
           최신 내용 확인
+        </button>
+        <button v-if="editor.postId" type="button" @click="copyPostId" :disabled="locked">
+          글 번호 복사
         </button>
         <p v-if="!boards?.data.items.length" role="alert">
           게시판 정보를 불러오지 못했습니다.

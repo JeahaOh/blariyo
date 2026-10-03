@@ -22,6 +22,11 @@ await test('upload feedback maps all failed indices to original file names and k
   assert.ok(result.details[1]);
   assert.match(result.details[1].reason, /읽을 수 없/);
   assert.match(result.message, /전체 파일/);
+  assert.match(
+    uploadError({ code: 'UPLOAD_TOO_LARGE', fields: [{ field: 'files[1]', reason: 'decodeLimit' }] }, files)
+      .details[0]?.reason || '',
+    /40MP/
+  );
   assert.deepEqual(uploadError({ code: 'UPLOAD_TOO_LARGE' }, files).details, []);
   assert.match(uploadError({ code: 'UPLOAD_TOO_LARGE' }, files).message, /100MiB/);
   assert.deepEqual(

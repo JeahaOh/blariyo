@@ -22,6 +22,7 @@ STATE = APP_ROOT / 'nightly-main-state.json'
 LOCK = Path('/run/blariyo-nightly-main-deploy.lock')
 DEFAULT_REPO = 'https://github.com/JeahaOh/blariyo.git'
 DEFAULT_IMAGE_PREFIX = 'ghcr.io/jeahaoh/blariyo'
+DEFAULT_PUBLIC_BASE_URL = 'https://blariyo.com'
 SHA_RE = re.compile(r'^[0-9a-f]{40}$')
 
 
@@ -117,6 +118,20 @@ def copy_release(source, target, api_ref, web_ref, sha):
     }
     (target / 'nightly-main-release.json').write_text(json.dumps(marker, indent=2, sort_keys=True) + '\n')
     os.chmod(target / 'nightly-main-release.json', 0o600)
+    harden_release_permissions(target)
+
+
+def harden_release_permissions(release):
+    for name in ('images.env', 'api.env', 'web.env', 'nightly-main-release.json'):
+        path = release / name
+        if path.exists():
+            os.chmod(path, 0o600)
+    for name in ('app-password', 'admin-operators.json'):
+        path = release / 'secrets' / name
+        if path.exists():
+            if os.geteuid() == 0:
+                os.chown(path, 1000, 1000)
+            os.chmod(path, 0o600)
 
 
 def compose(release):
@@ -138,6 +153,13 @@ def start_release(release):
         run(compose(release) + ['up', '-d', '--no-deps', '--wait', '--wait-timeout', '180', service], timeout=300)
 
 
+def restart_release(release):
+    run(compose(release) + ['config', '--quiet'], timeout=60)
+    run(compose(release) + ['restart', 'api', 'web'], timeout=300)
+    for service in ('api', 'web'):
+        run(compose(release) + ['up', '-d', '--no-deps', '--wait', '--wait-timeout', '180', service], timeout=300)
+
+
 def update_start_helper(release):
     text = OPS_START.read_text()
     next_text = re.sub(r"release-[A-Za-z0-9._-]+", release.name, text, count=1)
@@ -150,10 +172,13 @@ def update_start_helper(release):
     return backup
 
 
-def smoke():
+def smoke(public_base_url):
     run(['docker', 'inspect', 'blariyo-app-api-1', 'blariyo-app-web-1'], timeout=60)
-    run(['curl', '-fsS', 'http://127.0.0.1:3000/health/live'], timeout=30)
-    run(['curl', '-fsS', 'http://127.0.0.1:3000/meme'], timeout=30)
+    base = public_base_url.rstrip('/')
+    if not re.fullmatch(r'https://[A-Za-z0-9.-]+(?::[0-9]+)?(?:/[A-Za-z0-9._~:/?#\[\]@!$&\'()*+,;=%-]*)?', base):
+        raise RuntimeError('PUBLIC_BASE_URL_INVALID')
+    run(['curl', '-fsS', '-o', '/dev/null', base + '/health/live'], timeout=30)
+    run(['curl', '-fsS', '-o', '/dev/null', base + '/meme'], timeout=30)
 
 
 def write_state(data):
@@ -174,21 +199,32 @@ def main():
         env = read_env(APP_ROOT / 'nightly-main.env')
         repo = env.get('BLARIYO_MAIN_REPO', DEFAULT_REPO)
         image_prefix = env.get('BLARIYO_IMAGE_PREFIX', DEFAULT_IMAGE_PREFIX)
+        public_base_url = env.get('BLARIYO_PUBLIC_BASE_URL', DEFAULT_PUBLIC_BASE_URL)
         current = read_current_release()
         current_sha = sha_from_release(current)
         target_sha = remote_main_sha(repo)
         if current_sha and target_sha.startswith(current_sha):
-            log('NOOP current release already matches main ' + target_sha)
+            restart_release(current)
+            run(['systemctl', 'restart', 'blariyo-publish.timer', 'blariyo-outbox.timer', 'blariyo-cleanup.timer'], timeout=60)
+            smoke(public_base_url)
+            write_state({
+                'restartedAt': datetime.now(timezone.utc).isoformat(timespec='seconds'),
+                'mainSha': target_sha,
+                'releasePath': str(current),
+                'reason': 'main-unchanged',
+            })
+            log('RESTARTED current release for unchanged main ' + target_sha)
             return
         target = APP_ROOT / ('release-' + target_sha[:7] + '-main-nightly-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'))
         api_ref = image_digest(f'{image_prefix}-api:{target_sha}')
         web_ref = image_digest(f'{image_prefix}-web:{target_sha}')
         ensure_fresh_backup()
         copy_release(current, target, api_ref, web_ref, target_sha)
+        harden_release_permissions(target)
         start_release(target)
         helper_backup = update_start_helper(target)
         run(['systemctl', 'restart', 'blariyo-publish.timer', 'blariyo-outbox.timer', 'blariyo-cleanup.timer'], timeout=60)
-        smoke()
+        smoke(public_base_url)
         write_state({
             'deployedAt': datetime.now(timezone.utc).isoformat(timespec='seconds'),
             'mainSha': target_sha,

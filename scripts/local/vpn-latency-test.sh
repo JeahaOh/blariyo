@@ -4,7 +4,7 @@ set -u
 usage() {
   cat <<'USAGE'
 Usage:
-  scripts/local/vpn-latency-test.sh [--label vpn-on|vpn-off|name] [--runs N] [--out-dir DIR]
+  scripts/local/vpn-latency-test.sh [--label vpn-on|vpn-off|name] [--runs N] [--out-dir DIR] [--no-codex]
 
 Examples:
   scripts/local/vpn-latency-test.sh --label vpn-off --runs 3
@@ -16,16 +16,20 @@ What it records:
   - summary.tsv with elapsed time and HTTP timings.
   - command/*.log files with raw command output.
   - env.txt with local network context, without secrets.
+  - codex exec "1+1" latency when the codex CLI is available.
 
 Notes:
   - This script does not change the repository, server, or Git remote.
   - It uses read-only network checks where possible.
+  - The codex check measures local Codex CLI round-trip time, not this chat UI rendering time.
 USAGE
 }
 
 LABEL="manual"
 RUNS=3
 OUT_DIR=".tmp/vpn-tests"
+MEASURE_CODEX=1
+CODEX_PROMPT='Answer with only the number: 1+1'
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -42,6 +46,15 @@ while [[ $# -gt 0 ]]; do
     --out-dir)
       [[ $# -ge 2 ]] || { echo "missing value for --out-dir" >&2; exit 2; }
       OUT_DIR="$2"
+      shift 2
+      ;;
+    --no-codex)
+      MEASURE_CODEX=0
+      shift
+      ;;
+    --codex-prompt)
+      [[ $# -ge 2 ]] || { echo "missing value for --codex-prompt" >&2; exit 2; }
+      CODEX_PROMPT="$2"
       shift 2
       ;;
     -h|--help)
@@ -172,6 +185,46 @@ record_curl() {
     "$seq" "$name" "$status" "$http_code" "$remote_ip" "$connect" "$tls" "$starttransfer" "$total" "$log_file" >> "$summary_file"
 }
 
+record_codex() {
+  local seq="$1"
+  local log_file="${command_dir}/${seq}-codex-1plus1.log"
+  local answer_file="${command_dir}/${seq}-codex-1plus1.answer.txt"
+  local start_ns end_ns ms status answer
+
+  if ! command -v codex >/dev/null 2>&1; then
+    echo "codex command not found" > "$log_file"
+    printf 'codex\t%s\tcodex-1plus1\t127\t0\t\t\t\t\t\t\t%s\n' "$seq" "$log_file" >> "$summary_file"
+    return
+  fi
+
+  start_ns="$(now_ns)"
+  codex --no-daemon exec \
+    --ephemeral \
+    --ignore-rules \
+    --skip-git-repo-check \
+    --output-last-message "$answer_file" \
+    "$CODEX_PROMPT" > "$log_file" 2>&1
+  status=$?
+  end_ns="$(now_ns)"
+  ms="$(elapsed_ms "$start_ns" "$end_ns")"
+
+  answer=""
+  if [[ -f "$answer_file" ]]; then
+    answer="$(tr '\n\t' '  ' < "$answer_file" | sed 's/[[:space:]][[:space:]]*/ /g' | cut -c 1-80)"
+  fi
+
+  {
+    echo
+    echo "[codex-test]"
+    echo "prompt=${CODEX_PROMPT}"
+    echo "status=${status}"
+    echo "elapsed_ms=${ms}"
+    echo "answer=${answer}"
+  } >> "$log_file"
+
+  printf 'codex\t%s\tcodex-1plus1\t%s\t%s\t\t\t\t\t\t\t%s\n' "$seq" "$status" "$ms" "$log_file" >> "$summary_file"
+}
+
 write_env
 
 {
@@ -198,6 +251,10 @@ for ((i = 1; i <= RUNS; i += 1)); do
   record_curl "$i" "openai" "https://openai.com/"
 
   record_cmd "$i" "git-ls-remote-main" git ls-remote --heads origin main
+
+  if [[ "$MEASURE_CODEX" -eq 1 ]]; then
+    record_codex "$i"
+  fi
 done
 
 echo

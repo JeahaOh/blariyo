@@ -61,6 +61,8 @@ export async function verifyAccessOperator(assertion, { issuer, audience, key, o
     requiredClaims: ['exp', 'sub', 'iat'],
   });
   const registry = parseAdminOperators(operators);
+  // Cloudflare Access uses the JWT subject as the stable app identity.
+  // In get-identity output this corresponds to user_uuid, not email or id.
   const operator = typeof payload.sub === 'string' ? registry.get(payload.sub) : undefined;
   if (!operator) {
     const error = Object.assign(new Error('ADMIN_FORBIDDEN'), { statusCode: 403 });

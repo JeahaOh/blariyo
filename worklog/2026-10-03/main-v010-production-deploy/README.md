@@ -37,12 +37,21 @@
 - 새 API image가 `ANALYTICS_CONTENT_KEY_SECRET`과 V010 DB 상태를 요구했다.
 - 복사된 release secret이 root 소유면 uid 1000 컨테이너가 읽지 못해 `DB_PASSWORD_FILE_INVALID`가 발생했다.
 - 자동배포 script의 기존 smoke는 host `127.0.0.1:3000`을 사용했지만 운영 compose는 host port를 열지 않는다.
+- `/admin` 접근 시 운영자 권한 없음이 표시됐다. 원인은 운영 `admin-operators.json`에 최신 Web이 요구하는
+  `role` 필드가 빠져 있어 운영자 registry 검증이 fail-closed로 403을 반환한 것이다.
+- `role` 보정 뒤에도 403이 유지됐다. 추가 원인은 운영자 파일의 `identity`가 앱이 검증하는
+  Cloudflare Access JWT `sub`와 달랐기 때문이었다. 현재 구성에서 `sub`는
+  `/cdn-cgi/access/get-identity` 응답의 `user_uuid`와 일치했다.
 - 조치:
   - Collector V007~V010을 `collector.schema_migration` checksum과 함께 한 트랜잭션으로 적용.
   - API V009~V010을 새 API image migration command로 적용.
   - `deploy/postgresql/apply-privileges.sql` 재적용.
   - `deploy/application/nightly-main-deploy-server.py`에서 copied secret 권한을 고정하고 공개 HTTPS smoke로 변경.
   - main 변경 없음 분기에서 API/Web restart, health wait, 공개 smoke, state 기록을 수행하도록 변경.
+  - 운영 `admin-operators.json`을 백업한 뒤 활성 운영자에 `role: OWNER`를 추가했다.
+  - 운영 `admin-operators.json`을 다시 백업한 뒤 활성 운영자의 `identity`를 현재 Cloudflare Access `user_uuid`로 교체했다.
+  - `prepare-runtime-config.cjs`와 stage 검증에서 `role`을 보존·검사하도록 보정했다.
+  - 설정 준비 도구가 Cloudflare Access `user_uuid` 형식인 UUID와 Access `id` 형식인 32자 hex를 모두 허용하도록 보정했다.
 
 ## 검증
 
@@ -53,10 +62,14 @@
   - `blariyo-publish.timer`, `blariyo-outbox.timer`, `blariyo-cleanup.timer` active
   - `blariyo-nightly-main-deploy.timer` enable/active
   - `blariyo-nightly-main-deploy.service` 후속 실행 성공, API/Web 재시작 후 `healthy`
+  - 운영자 파일 보정 후 활성 운영자 1명, `role=OWNER`, `active=true` 확인
+  - 운영자 identity 교체 후 hash 대조 기록. 원문 identity는 worklog에 남기지 않음
 - 로컬:
   - `python3 deploy/application/test-nightly-main-deploy.py` 통과
   - `git diff --check` 통과
   - 배포 tag 규칙 문서화 후 `git diff --check` 통과
+  - `node` 스키마 보존 검사에서 `admin-operators.json`의 `role` 출력 확인
+  - `python3 deploy/application/test-stage.py` 통과
 
 ## 미검증·잔여
 

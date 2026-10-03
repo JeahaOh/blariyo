@@ -8,7 +8,7 @@ import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { createServer } from 'node:net';
 import { once } from 'node:events';
 import { randomBytes, createHash } from 'node:crypto';
-import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile, rename } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { Readable } from 'node:stream';
@@ -30,15 +30,25 @@ export async function browserFixture(
     collection = false,
     spring = false,
     batchReview = false,
+    localAdminLogin = true,
+    directInput = false,
     rightsEmail = '',
     contactEmail = '',
+    adminRole = 'OWNER',
+    policyParagraphs = 1,
+    accessAuth,
   }: {
     analytics?: boolean;
     collection?: boolean;
     spring?: boolean;
     batchReview?: boolean;
+    localAdminLogin?: boolean;
+    directInput?: boolean;
     rightsEmail?: string;
     contactEmail?: string;
+    adminRole?: 'OWNER' | 'EDITOR';
+    policyParagraphs?: number;
+    accessAuth?: { issuer: string; audience: string; operators: unknown };
   } = {}
 ) {
   const base = process.env.TEST_DATABASE_ADMIN_URL;
@@ -114,8 +124,24 @@ export async function browserFixture(
     await migration.close();
   }
   directory = await mkdtemp(join(tmpdir(), 'blariyo-browser-'));
+  const operatorsPath = join(directory, 'operators.json');
+  async function setOperators(operators: unknown) {
+    if (!accessAuth) throw new Error('Access fixture is not enabled');
+    await writeFile(operatorsPath + '.next', JSON.stringify(operators), { mode: 0o600 });
+    await rename(operatorsPath + '.next', operatorsPath);
+  }
+  if (accessAuth) await setOperators(accessAuth.operators);
   const collectRoot = join(directory, 'batch');
-  if (batchReview) {
+  if (directInput) {
+    await mkdir(collectRoot, { recursive: true });
+    for (const version of ['002', '003', '004', '005', '006', '007', '008', '009']) {
+      await source.transaction(async (manager) => {
+        await manager.query(
+          await readFile(`apps/collector/src/main/resources/db/collector-v${version}.sql`, 'utf8')
+        );
+      });
+    }
+  } else if (batchReview) {
     await mkdir(collectRoot, { recursive: true });
     await source.query(
       await readFile('apps/collector/src/main/resources/db/collector-v002.sql', 'utf8')
@@ -128,6 +154,11 @@ export async function browserFixture(
     await source.transaction((manager) =>
       manager.query(lifecycle.slice(0, lifecycle.indexOf('CREATE OR REPLACE FUNCTION')))
     );
+    await source.transaction(async (manager) => {
+      await manager.query(
+        await readFile('apps/collector/src/main/resources/db/collector-v007.sql', 'utf8')
+      );
+    });
   }
   const storage = localStorage(directory);
   let failStorage = false;
@@ -159,6 +190,7 @@ export async function browserFixture(
     collectManualUrlEnabled: collection,
     collectDiscordCommandEnabled: collection,
     collectBatchReviewEnabled: batchReview,
+    collectDirectInputEnabled: directInput,
     ...(batchReview ? { collectReader: new LocalCollectReader(collectRoot) } : {}),
     collectContractMode: spring ? 'SPRING_V2' : 'LEGACY_V1',
     ...(spring ? { collectorKeySecret: randomBytes(32).toString('hex') } : {}),
@@ -185,8 +217,13 @@ export async function browserFixture(
       NITRO_PORT: String(webPort),
       NUXT_PUBLIC_SITE_ORIGIN: origin,
       NUXT_CORE_ORIGIN: await app.getUrl(),
-      NUXT_ADMIN_AUTH_MODE: 'local',
+      NUXT_ADMIN_AUTH_MODE: accessAuth ? 'access' : 'local',
+      NUXT_ACCESS_ISSUER: accessAuth?.issuer ?? '',
+      NUXT_ACCESS_AUDIENCE: accessAuth?.audience ?? '',
+      NUXT_ADMIN_OPERATORS_FILE: operatorsPath,
+      NUXT_LOCAL_ADMIN_LOGIN_ENABLED: String(localAdminLogin),
       NUXT_LOCAL_ADMIN_TOKEN: adminToken,
+      NUXT_LOCAL_ADMIN_ROLE: adminRole,
       NUXT_SERVICE_TOKEN: serviceToken,
       NUXT_ACTOR_SECRET: randomBytes(32).toString('hex'),
       NUXT_PUBLIC_GA4_ENABLED: String(analytics),
@@ -199,6 +236,7 @@ export async function browserFixture(
       NUXT_COLLECT_MANUAL_URL_ENABLED: String(collection),
       NUXT_COLLECT_DISCORD_COMMAND_ENABLED: String(collection),
       NUXT_COLLECT_BATCH_REVIEW_ENABLED: String(batchReview),
+      NUXT_COLLECT_DIRECT_INPUT_ENABLED: String(directInput),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -227,7 +265,10 @@ export async function browserFixture(
         type,
         version,
         title: `${type} 로컬 테스트 정책`,
-        body: `<p>${version}: 출시용이 아닌 로컬 테스트 본문</p>`,
+        body: Array.from(
+          { length: policyParagraphs },
+          (_, paragraph) => `<p>${version}: 출시용이 아닌 로컬 테스트 본문 ${paragraph + 1}</p>`
+        ).join(''),
         effectiveAt: new Date(Date.now() - (2 - index) * 60000).toISOString(),
       };
       await app.get(PoliciesService).publish({ ...artifact, checksum: artifactChecksum(artifact) });
@@ -242,6 +283,7 @@ export async function browserFixture(
     posts,
     adminToken,
     collectorToken,
+    setOperators,
     failStorage(value: boolean) {
       failStorage = value;
     },

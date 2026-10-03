@@ -10,6 +10,9 @@
     "packages/*"
   ],
   "scripts": {
+    "hooks:install": "node scripts/git-hooks.mjs install",
+    "hooks:check": "node scripts/git-hooks.mjs check",
+    "test:git-hooks": "node --test scripts/git-hooks.test.mjs",
     "dev:web": "npm run dev -w @blariyo/web",
     "dev:api": "npm run dev -w @blariyo/api",
     "build": "npm run contracts:generate && npm run build -w @blariyo/api && npm run build -w @blariyo/web",
@@ -22,6 +25,7 @@
     "policies:publish": "node apps/api/dist/commands/command.js policies:publish",
     "test:integration": "npm run test:nest",
     "test:browser": "npm run build && node --test --test-concurrency=1 tests/browser/*.test.ts",
+    "test:browser:docker": "node scripts/local/playwright-tests.mjs",
     "test:web-cache": "npm run build -w @blariyo/web && node --test tests/http/web-cache.test.ts",
     "test:docker": "node scripts/test-docker.ts",
     "test:database-roles": "npm run build -w @blariyo/api && apps/collector/gradlew -p apps/collector testClasses fixtureClasspath && node scripts/test-database-roles.ts",
@@ -29,6 +33,8 @@
     "collection:transition": "node apps/api/dist/commands/collection-transition.js",
     "test:fixtures": "node scripts/prepare-collector-fixtures.mjs",
     "test:collector": "node scripts/test-collector-readback.mjs",
+    "test:backup": "node --test deploy/backup/test-drive.mjs deploy/backup/test-backup-jobs.mjs deploy/operations/test-collect-retention.mjs && python3 -B deploy/backup/test-runner.py",
+    "test:direct-identity": "npm run build -w @blariyo/api && apps/collector/gradlew -p apps/collector testClasses fixtureClasspath && node scripts/test-direct-identity.mjs",
     "test:nest": "npm run test:fixtures && npm run build && npm run build:test -w @blariyo/api && node scripts/test-nest-integration.ts",
     "typecheck:scripts": "tsc -p scripts/tsconfig.json",
     "lint:scripts": "eslint --config scripts/eslint.config.mjs scripts/**/*.ts",

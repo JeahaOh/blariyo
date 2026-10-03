@@ -17,12 +17,50 @@ if (!data.value)
 const post = data.value.data.post;
 const bodyBlocks = socialDisplayBlocks(post.blocks);
 const context = ref(data.value.data.context);
+const listLoading = ref(false),
+  listError = ref(false),
+  requestedPage = ref(context.value.listPage);
+const shareBusy = ref(false);
 const sharing = ref(false),
   feedback = ref(''),
   shareDialog = ref<HTMLDialogElement | null>(null),
   kakao = shallowRef<Awaited<ReturnType<typeof loadKakao>>>(null);
 const { $analytics } = useNuxtApp();
+const initialPath = route.fullPath;
+const articleBody = ref<HTMLElement | null>(null);
+const depthMarkers = new Map<number, Element>();
+let pageActive = true;
+const analyticsBase = () => ({
+  page_content_key: post.analyticsContentKey,
+  board_slug: post.board.slug,
+});
+const makeKey = () =>
+  globalThis.crypto?.randomUUID?.() ||
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+  });
+const canTrackPage = () => pageActive && route.fullPath === initialPath;
+const recordShareResult = (
+  method: 'copy' | 'native' | 'kakao' | 'x',
+  attemptKey: string,
+  outcome: 'copied' | 'browser_resolved' | 'cancelled' | 'failed' | 'unavailable' | 'handoff',
+  viewToken?: { isCurrent: () => boolean } | null,
+  parentAttemptKey?: string
+) => {
+  if (!canTrackPage() || !viewToken?.isCurrent()) return;
+  $analytics?.send('share_result', {
+    ...analyticsBase(),
+    share_method: method,
+    share_attempt_key: attemptKey,
+    share_outcome: outcome,
+    ...(parentAttemptKey ? { parent_attempt_key: parentAttemptKey } : {}),
+  });
+};
 function openShare() {
+  if (sharing.value) return;
+  $analytics?.send('share_open', analyticsBase());
+  feedback.value = '';
   sharing.value = true;
   void nextTick(() => shareDialog.value?.showModal());
 }
@@ -31,9 +69,19 @@ function closeShare() {
   shareDialog.value?.close();
 }
 function shareKakao() {
+  const attemptKey = makeKey();
+  const viewToken = $analytics?.captureView?.();
+  $analytics?.send('share', {
+    ...analyticsBase(),
+    share_method: 'kakao',
+    share_attempt_key: attemptKey,
+  });
   try {
-    if (!kakao.value) throw new Error('Kakao SDK unavailable');
-    $analytics?.send('share', { share_method: 'kakao', board_slug: post.board.slug });
+    if (!kakao.value) {
+      recordShareResult('kakao', attemptKey, 'unavailable', viewToken);
+      feedback.value = '카카오톡 공유를 열지 못했습니다. 링크 복사를 이용해 주세요.';
+      return;
+    }
     kakao.value.Share.sendDefault({
       objectType: 'feed',
       content: {
@@ -45,12 +93,26 @@ function shareKakao() {
         link: { mobileWebUrl: post.shareUrl, webUrl: post.shareUrl },
       },
     });
+    recordShareResult('kakao', attemptKey, 'handoff', viewToken);
   } catch {
+    recordShareResult('kakao', attemptKey, 'failed', viewToken);
     feedback.value = '카카오톡 공유를 열지 못했습니다. 링크 복사를 이용해 주세요.';
   }
 }
+function shareX() {
+  const attemptKey = makeKey();
+  const viewToken = $analytics?.captureView?.();
+  $analytics?.send('share', {
+    ...analyticsBase(),
+    share_method: 'x',
+    share_attempt_key: attemptKey,
+  });
+  recordShareResult('x', attemptKey, 'handoff', viewToken);
+}
 const brand = useRuntimeConfig().public;
 const summary = description(post.blocks, brand.homeOgDescription);
+const firstImage = post.blocks.find((block) => block.type === 'IMAGE')?.image;
+const shareImageUrl = firstImage?.url || new URL('/og/blariyo-default.png', post.shareUrl).href;
 useSeoMeta({
   title: `${post.title} · ${brand.siteName}`,
   description: summary,
@@ -62,15 +124,123 @@ useSeoMeta({
   twitterTitle: post.title,
   twitterDescription: summary,
   twitterCard: 'summary_large_image',
-  ogImage:
-    post.blocks.find((b) => b.type === 'IMAGE')?.image.url ||
-    new URL('/og/blariyo-default.png', post.shareUrl).href,
-  twitterImage:
-    post.blocks.find((b) => b.type === 'IMAGE')?.image.url ||
-    new URL('/og/blariyo-default.png', post.shareUrl).href,
+  ogImage: shareImageUrl,
+  ogImageAlt: firstImage?.alt,
+  ogImageWidth: firstImage?.width,
+  ogImageHeight: firstImage?.height,
+  twitterImage: shareImageUrl,
+  twitterImageAlt: firstImage?.alt,
 });
 useHead({ link: [{ rel: 'canonical', href: post.shareUrl }] });
 if (import.meta.server) useResponseHeader('Cache-Control').value = 'no-store';
+const sentDepths = new Set<number>();
+const markerTimers = new Map<number, ReturnType<typeof setTimeout>>();
+let depthObserver: IntersectionObserver | undefined;
+let articleObserver: IntersectionObserver | undefined;
+let bodyResizeObserver: ResizeObserver | undefined;
+let activeTimer: ReturnType<typeof setInterval> | undefined;
+let articleIntersectsViewport = false;
+let activeSince: number | null = null;
+let activeMilliseconds = 0;
+let detailListInstanceKey = '';
+let listRequestGeneration = 0;
+const setDepthMarkerRef = (level: number, element: Element | null) => {
+  if (element) depthMarkers.set(level, element);
+  else depthMarkers.delete(level);
+};
+function stopMarkerTimers() {
+  markerTimers.forEach((timer) => clearTimeout(timer));
+  markerTimers.clear();
+}
+function observeDepthMarkers() {
+  depthObserver?.disconnect();
+  stopMarkerTimers();
+  if (!('IntersectionObserver' in window) || document.visibilityState !== 'visible') return;
+  depthObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!(entry.target instanceof HTMLElement)) continue;
+        const level = Number(entry.target.dataset.depth);
+        if (!entry.isIntersecting || sentDepths.has(level)) {
+          const timer = markerTimers.get(level);
+          if (timer) clearTimeout(timer);
+          markerTimers.delete(level);
+          continue;
+        }
+        if (!markerTimers.has(level))
+          markerTimers.set(
+            level,
+            setTimeout(() => {
+              markerTimers.delete(level);
+              if (
+                document.visibilityState === 'visible' &&
+                $analytics?.isReady?.() &&
+                $analytics.send('scroll', {
+                  page_content_key: post.analyticsContentKey,
+                  depth_percent: level,
+                })
+              )
+                sentDepths.add(level);
+            }, 1000)
+          );
+      }
+    },
+    { threshold: 0.5 }
+  );
+  for (const marker of depthMarkers.values()) depthObserver.observe(marker);
+}
+function emitEngagement(flushReason: 'interval' | 'hidden' | 'blur' | 'navigation' | 'pagehide') {
+  if (activeMilliseconds <= 0) return;
+  const activeMs = Math.min(60000, Math.floor(activeMilliseconds));
+  activeMilliseconds = 0;
+  $analytics?.send('content_engagement', {
+    page_content_key: post.analyticsContentKey,
+    active_ms: activeMs,
+    flush_reason: flushReason,
+  });
+}
+function updateEngagement(
+  flushReason?: 'interval' | 'hidden' | 'blur' | 'navigation' | 'pagehide'
+) {
+  const now = performance.now();
+  if (activeSince !== null) {
+    const elapsed = now - activeSince;
+    if (elapsed >= 0 && elapsed <= 60000) activeMilliseconds += elapsed;
+    activeSince = null;
+  }
+  const shouldCount =
+    pageActive &&
+    route.fullPath === initialPath &&
+    articleIntersectsViewport &&
+    document.visibilityState === 'visible' &&
+    document.hasFocus() &&
+    $analytics?.isReady?.() === true;
+  if (shouldCount) activeSince = now;
+  if (flushReason && (!shouldCount || activeMilliseconds >= 15000)) emitEngagement(flushReason);
+  else if (!shouldCount && activeMilliseconds > 0) emitEngagement(flushReason || 'hidden');
+  else if (shouldCount && activeMilliseconds >= 15000) emitEngagement('interval');
+}
+function updateArticleIntersection() {
+  const rect = articleBody.value?.getBoundingClientRect();
+  articleIntersectsViewport = !!rect && rect.bottom > 0 && rect.top < window.innerHeight;
+  updateEngagement(articleIntersectsViewport ? undefined : 'hidden');
+}
+function onVisibilityChange() {
+  if (document.visibilityState === 'hidden') {
+    observeDepthMarkers();
+    updateEngagement('hidden');
+  } else {
+    observeDepthMarkers();
+    updateArticleIntersection();
+  }
+}
+function onWindowBlur() {
+  updateEngagement('blur');
+}
+function onAnalyticsReady() {
+  observeDepthMarkers();
+  updateArticleIntersection();
+}
 onMounted(() => {
   void loadKakao(brand, window, document).then((value) => {
     kakao.value = value;
@@ -79,26 +249,58 @@ onMounted(() => {
     method: 'POST',
     retry: 0,
   }).catch(() => {});
+  void nextTick(() => {
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        observeDepthMarkers();
+        if (articleBody.value && 'IntersectionObserver' in window) {
+          articleObserver = new IntersectionObserver((entries) => {
+            articleIntersectsViewport = entries.some((entry) => entry.isIntersecting);
+            updateEngagement(articleIntersectsViewport ? undefined : 'hidden');
+          });
+          articleObserver.observe(articleBody.value);
+          bodyResizeObserver = new ResizeObserver(observeDepthMarkers);
+          bodyResizeObserver.observe(articleBody.value);
+        } else updateArticleIntersection();
+      })
+    );
+  });
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  window.addEventListener('blariyo-analytics-ready', onAnalyticsReady);
+  window.addEventListener('blur', onWindowBlur);
+  window.addEventListener('focus', updateArticleIntersection);
+  window.addEventListener('scroll', updateArticleIntersection, { passive: true });
+  window.addEventListener('pagehide', () => updateEngagement('pagehide'), { once: true });
+  activeTimer = setInterval(() => updateEngagement('interval'), 1000);
 });
-const depths = new Set();
-function trackScroll() {
-  const maximum = document.documentElement.scrollHeight - innerHeight;
-  const percentage = maximum > 0 ? (scrollY / maximum) * 100 : 100;
-  for (const level of [25, 50, 75, 100])
-    if (percentage >= level && !depths.has(level)) {
-      depths.add(level);
-      $analytics?.send('scroll', { page_type: 'detail', scroll_depth_bucket: String(level) });
-    }
-}
-onMounted(() => window.addEventListener('scroll', trackScroll, { passive: true }));
-onUnmounted(() => window.removeEventListener('scroll', trackScroll));
+onBeforeUnmount(() => {
+  pageActive = false;
+  updateEngagement('navigation');
+  listRequestGeneration++;
+  if (activeTimer) clearInterval(activeTimer);
+  depthObserver?.disconnect();
+  articleObserver?.disconnect();
+  bodyResizeObserver?.disconnect();
+  stopMarkerTimers();
+  document.removeEventListener('visibilitychange', onVisibilityChange);
+  window.removeEventListener('blariyo-analytics-ready', onAnalyticsReady);
+  window.removeEventListener('blur', onWindowBlur);
+  window.removeEventListener('focus', updateArticleIntersection);
+  window.removeEventListener('scroll', updateArticleIntersection);
+});
 async function changePage(page: number) {
+  const fromPage = context.value.listPage;
+  if (listLoading.value || page === fromPage) return;
+  requestedPage.value = page;
+  listLoading.value = true;
+  listError.value = false;
+  const requestGeneration = ++listRequestGeneration;
   try {
     const result = await $fetch<ApiResponse<'listPosts'>>(
       `/api/v1/boards/${post.board.slug}/posts`,
-      { query: { page } }
+      { query: { page }, retry: 0 }
     );
-    if (result.meta.pageSize !== 20) throw new Error('Unexpected list page size');
+    if (requestGeneration !== listRequestGeneration || result.meta.pageSize !== 20) return;
     const mark = (items: PostListItem[]) =>
       items.map((item) => ({ ...item, ...(item.postId === post.postId ? { current: true } : {}) }));
     context.value = {
@@ -109,27 +311,73 @@ async function changePage(page: number) {
       listPage: page,
       pageSize: result.meta.pageSize,
     };
+    await nextTick();
+    if (requestGeneration !== listRequestGeneration || page === fromPage) return;
+    if (detailListInstanceKey)
+      $analytics?.send('list_page_change', {
+        list_area: 'detail_footer',
+        from_list_page: fromPage,
+        to_list_page: page,
+        list_instance_key: detailListInstanceKey,
+      });
   } catch {
-    feedback.value = '목록을 불러오지 못했습니다. 다시 시도해 주세요.';
+    if (requestGeneration === listRequestGeneration) listError.value = true;
+  } finally {
+    if (requestGeneration === listRequestGeneration) listLoading.value = false;
   }
 }
-async function copy() {
-  $analytics?.send('share', { share_method: 'copy', board_slug: post.board.slug });
+async function copy(parentAttemptKey?: string) {
+  const attemptKey = makeKey();
+  const viewToken = $analytics?.captureView?.();
+  $analytics?.send('share', {
+    ...analyticsBase(),
+    share_method: 'copy',
+    share_attempt_key: attemptKey,
+    ...(parentAttemptKey ? { parent_attempt_key: parentAttemptKey } : {}),
+  });
   try {
     await navigator.clipboard.writeText(post.shareUrl);
+    recordShareResult('copy', attemptKey, 'copied', viewToken, parentAttemptKey);
     feedback.value = '링크를 복사했습니다.';
   } catch {
+    recordShareResult('copy', attemptKey, 'failed', viewToken, parentAttemptKey);
     feedback.value = `주소를 복사해 주세요: ${post.shareUrl}`;
   }
 }
 async function share() {
-  $analytics?.send('share', { share_method: 'native', board_slug: post.board.slug });
+  if (shareBusy.value) return;
+  shareBusy.value = true;
+  feedback.value = '';
+  const attemptKey = makeKey();
+  const viewToken = $analytics?.captureView?.();
+  $analytics?.send('share', {
+    ...analyticsBase(),
+    share_method: 'native',
+    share_attempt_key: attemptKey,
+  });
   try {
-    if (navigator.share) await navigator.share({ title: post.title, url: post.shareUrl });
-    else await copy();
+    if (navigator.share) {
+      await navigator.share({ title: post.title, url: post.shareUrl });
+      recordShareResult('native', attemptKey, 'browser_resolved', viewToken);
+      feedback.value = '공유했습니다.';
+    } else {
+      recordShareResult('native', attemptKey, 'unavailable', viewToken);
+      await copy(attemptKey);
+      feedback.value = '브라우저 공유를 지원하지 않습니다. ' + feedback.value;
+    }
   } catch (e) {
-    if (!(e instanceof Error) || e.name !== 'AbortError')
-      feedback.value = '공유하지 못했습니다. 링크 복사를 이용해 주세요.';
+    recordShareResult(
+      'native',
+      attemptKey,
+      e instanceof Error && e.name === 'AbortError' ? 'cancelled' : 'failed',
+      viewToken
+    );
+    feedback.value =
+      e instanceof Error && e.name === 'AbortError'
+        ? '공유를 취소했습니다.'
+        : '공유하지 못했습니다. 링크 복사를 이용해 주세요.';
+  } finally {
+    shareBusy.value = false;
   }
 }
 </script>
@@ -166,7 +414,7 @@ async function share() {
           }}</time>
         </p>
       </div>
-      <div class="article-body">
+      <div ref="articleBody" class="article-body">
         <template v-for="(block, i) in bodyBlocks" :key="i"
           ><p v-if="block.kind === 'TEXT'" class="body-text"><LinkedText :text="block.text" /></p>
           <XPost v-else-if="block.kind === 'X'" :card="block" />
@@ -186,17 +434,38 @@ async function share() {
             post.source.name
           }}</a>
         </p>
+        <span
+          v-for="level in [25, 50, 75, 100]"
+          :key="level"
+          :ref="(element) => setDepthMarkerRef(level, element as Element | null)"
+          class="analytics-depth-marker"
+          :data-depth="level"
+          :style="{ top: `${level}%` }"
+          aria-hidden="true"
+        />
       </div>
     </article>
     <div class="section-heading">
       <h2>{{ post.board.displayName }}</h2>
       <NuxtLink :to="`/${post.board.slug}`">목록으로</NuxtLink>
     </div>
-    <PostList v-bind="context" /><PageNumbers
-      :page="context.listPage"
-      :total="context.totalPages"
-      @change="changePage"
-    />
+    <section aria-label="같은 게시판 목록" :aria-busy="listLoading">
+      <p v-if="listLoading" role="status">목록을 불러오는 중입니다.</p>
+      <div v-if="listError" role="alert">
+        <p>목록을 불러오지 못했습니다.</p>
+        <button :disabled="listLoading" @click="changePage(requestedPage)">목록 다시 시도</button>
+      </div>
+      <PostList
+        v-bind="context"
+        list-area="detail_footer"
+        @instance-change="detailListInstanceKey = $event"
+      /><PageNumbers
+        :page="context.listPage"
+        :total="context.totalPages"
+        :disabled="listLoading"
+        @change="changePage"
+      />
+    </section>
     <dialog
       ref="shareDialog"
       class="share-dialog"
@@ -207,10 +476,11 @@ async function share() {
       <button class="dialog-close" @click="closeShare">닫기</button>
       <h2>공유하기</h2>
       <div class="share-options">
-        <button @click="copy">링크 복사</button><button @click="share">브라우저 공유</button
+        <button :disabled="shareBusy" @click="() => copy()">링크 복사</button
+        ><button :disabled="shareBusy" @click="share">브라우저 공유</button
         ><button v-if="kakao" @click="shareKakao">카카오톡</button
         ><a
-          @click="$analytics?.send('share', { share_method: 'x', board_slug: post.board.slug })"
+          @click="shareX()"
           :href="`https://twitter.com/intent/tweet?url=${encodeURIComponent(post.shareUrl)}`"
           target="_blank"
           rel="noopener noreferrer"

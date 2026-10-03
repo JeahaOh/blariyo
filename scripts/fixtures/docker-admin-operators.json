@@ -1,1 +1,1 @@
-[{ "identity": "docker-fixture-subject", "operatorId": "docker-fixture-operator", "active": true }]
+[{ "identity": "docker-fixture-subject", "operatorId": "docker-fixture-operator", "role": "OWNER", "active": true }]

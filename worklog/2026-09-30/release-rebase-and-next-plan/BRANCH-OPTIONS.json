@@ -1,0 +1,31 @@
+{
+  "currentRelease": "2126c053b35f2e2b4e45a8496e259ac211812772",
+  "main": "e51f1b501f7cc327da279102dd69eac2f4c554db",
+  "oldRelease": "bb19c486f3cafa847bd34828a699382c6d5bd0b6",
+  "missingMainCommitsBefore": [
+    "4605399 docs(analytics): define GA4 v1 events and delivery contract",
+    "f920954 ops: record verified GTM production deployment",
+    "945b746 docs: sync GTM production deployment status",
+    "21b8828 docs: add git workflow harness design and plan",
+    "8389eee feat(analytics): implement GA4 event collection v1",
+    "62f6fe5 docs(worklog): record GA4 analytics v1 verification",
+    "6e05314 feat(admin): improve local access and collection review UX",
+    "e51f1b5 docs(worklog): record hot collection results"
+  ],
+  "featureOnlyAfterOldRelease": [
+    "5ab6dc1 docs: complete M0 design contracts and handoff",
+    "71ed8ef docs: add M0 implementation tasks and goal prompt",
+    "f1fc07d feat(m0): implement retention, direct intake and operational handoff",
+    "c49d27f docs: 배치 구성과 게시판 캐시 검토안 기록"
+  ],
+  "oldReleaseMainMergePreview": {
+    "executed": false,
+    "exit": 1,
+    "conflicts": [
+      "docs/ai/git-workflow.md",
+      "docs/operations/current-status.md",
+      "docs/roadmap.md",
+      "docs/status.md"
+    ]
+  }
+}

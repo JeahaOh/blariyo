@@ -3,7 +3,10 @@ export default defineNuxtPlugin((nuxt) => {
   const config = useRuntimeConfig().public,
     route = useRoute(),
     consent = useConsent();
-  const pageView = () => runtime.pageView(route.fullPath, route.path);
+  const pageView = () =>
+    runtime.pageView(route.fullPath, route.path, {
+      list_page: /^\/[^/]+$/.test(route.path) ? Number(route.query.page || 1) : undefined,
+    });
   consent.refresh();
   const runtime = analyticsRuntime<HTMLScriptElement>({
     window,
@@ -13,26 +16,27 @@ export default defineNuxtPlugin((nuxt) => {
     measurementId: config.ga4MeasurementId,
     origin: config.siteOrigin,
     getPath: () => route.path,
+    onCookieFailure: consent.setCookieFailure,
+    onConsentInvalid: consent.setReadFailure,
   });
-  window.addEventListener('blariyo-consent-change', (event: Event) => {
-    const detail: unknown = event instanceof CustomEvent ? event.detail : undefined;
-    runtime.setStorageFailed(
-      typeof detail === 'object' &&
-        detail !== null &&
-        'storageFailed' in detail &&
-        detail.storageFailed === true
-    );
+  window.addEventListener('blariyo-consent-change', () => {
+    runtime.setStorageFailed(consent.storageFailed.value);
+    pageView();
+  });
+  window.addEventListener('blariyo-consent-retry', () => {
+    runtime.stop();
+    runtime.setStorageFailed(consent.storageFailed.value);
     pageView();
   });
   window.addEventListener('storage', () => {
     consent.refresh();
-    runtime.sync();
+    runtime.setStorageFailed(consent.storageFailed.value);
     pageView();
   });
   nuxt.hook('page:finish', () => {
     runtime.sync();
     pageView();
   });
-  runtime.sync();
+  runtime.setStorageFailed(consent.storageFailed.value);
   return { provide: { analytics: runtime } };
 });

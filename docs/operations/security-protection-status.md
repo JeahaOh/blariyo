@@ -2,7 +2,7 @@
 
 - 세션 전체 작업·실패/정정·파일 트리·배포 준비 중단점: [종합 기록](../../worklog/2026-09-20/security-cost-protection/TASK.md).
 
-- 마지막 운영 확인: **2026-09-23 앱 배포 후 공개 HTML/JSON 404와 Web 직접 JSON 404의 `no-store`를 확인했다.** [배포 기록](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)과 [현재 운영 상태](current-status.md)를 따른다. 9월 24일 이 문서 갱신에서는 운영 서버·콘솔을 재조회하지 않았다.
+- 마지막 앱 응답 확인: **9/25 `8af7244` 배포 후 공개 HTML/JSON 404·Web 직접 JSON 404의 no-store와 JS/CSS 10개 원래 URL·쿼리 변형 해시·immutable를 확인했다.** [배포 기록](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)을 따른다. 관리 콘솔 설정·알림의 신규 검증은 아니다.
 - 판정: 게이트웨이 오류 캐시 금지와 앱 원본 JSON 오류 보완은 운영 응답까지 확인했다. Cloudflare 새 JS/CSS 규칙, AWS 예산·MFA, 알림 실제 수신, 정상 이용자·공유 IP, 구 탭 자산과 장기 관찰은 미검증이다.
 - 아래 §1~§7과 §9~§10의 작업·미실행 서술은 **2026-09-20 당시 기록**이다. 당시 앱 배포 대기·공개 글 0건을 현행 상태로 읽지 않는다. 후속 결과는 각 절에서 날짜와 함께 연결한다.
 - 9월 20일 사용자 범위에서는 브라우저·Cloudflare/AWS 관리 API 추가 작업을 진행하지 않았다. 완료·남은 일은 §7, 다음 배포와 별도 관리 설정은 §8을 따른다.
@@ -256,7 +256,7 @@ python3 scripts/verify-static-cache.py --inventory /private/tmp/blariyo-security
 | JS 9개 쿼리 무관 캐시·Cloudflare 비용/DDoS 알림 | 운영 적용 기록 있음, 유지 | 앱 재배포 불필요. 새 JS 파일명은 기존 9개 규칙에 자동 포함되지 않아 별도 캐시 검토 필요 |
 | 게이트웨이 오류 `no-store` | 운영 적용·검증 완료, 유지 | 앱 image 밖의 Nginx 설정. 앱 배포 때 기존 설정을 보존하고 공개 HTML/JSON 오류 헤더를 재검사 |
 | 정상 이용 시 제한 완화 기준 | 문서 반영 | 앞으로 제한 규칙을 도입·조정할 때 사용. 다음 배포에 차단 기능을 자동 추가하지 않음 |
-| 앱 원본 JSON 오류의 `no-store` | 9/20 소스·로컬 build/회귀 검사 완료. 9/23 SHA `5c581c2` 운영 배포 후 Web 직접 JSON 404와 공개 HTML/JSON 404 `no-store` 확인 | [9/23 배포 기록](../../worklog/2026-09-23/release/production-deployment-5c581c2.md)의 범위. 다음 배포의 오류 응답은 후보별 재검사 |
+| 앱 원본 JSON 오류의 `no-store` | 9/20 소스·로컬 보완, 9/23 운영 반영 후 9/25 `8af7244`의 Web 직접·공개 HTML/JSON 404에서 재확인 | [9/25 배포 기록](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)의 범위. 다음 후보별 재검사 |
 | JS/CSS 경로 캐시 전환·AWS 예산 등 | 미적용, 별도 관리 접근 필요 | 앱 배포와 독립된 설정 작업. 앱 배포를 기다릴 필요는 없지만 현재 허용 범위 밖이므로 보류 |
 | 새 요청 횟수·봇 제한 | 미적용 | 정상 시나리오·모의 계산·대표 관찰 후 별도 적용. 임의 수치로 다음 앱 배포에 포함하지 않음 |
 

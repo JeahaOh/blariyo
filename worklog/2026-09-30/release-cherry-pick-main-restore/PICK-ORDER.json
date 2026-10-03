@@ -1,0 +1,100 @@
+[
+  {
+    "old": "46053992f93a4fc83fe769787d1aad818e8e9d33",
+    "authorDate": "2026-09-25T01:47:31+09:00",
+    "committerDate": "2026-09-25T01:47:31+09:00",
+    "parents": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "subject": "docs(analytics): define GA4 v1 events and delivery contract"
+  },
+  {
+    "old": "f920954862fb4fbf8bf15608d996670030fd1f7b",
+    "authorDate": "2026-09-25T08:45:59+09:00",
+    "committerDate": "2026-09-25T08:45:59+09:00",
+    "parents": "46053992f93a4fc83fe769787d1aad818e8e9d33",
+    "subject": "ops: record verified GTM production deployment"
+  },
+  {
+    "old": "945b7462eaf2c7effdb810718f77cd3149c07911",
+    "authorDate": "2026-09-25T08:51:45+09:00",
+    "committerDate": "2026-09-25T08:51:45+09:00",
+    "parents": "f920954862fb4fbf8bf15608d996670030fd1f7b",
+    "subject": "docs: sync GTM production deployment status"
+  },
+  {
+    "old": "21b8828d07e059fc93b23caf81d0ecf97957cb15",
+    "authorDate": "2026-09-25T08:59:36+09:00",
+    "committerDate": "2026-09-25T08:59:36+09:00",
+    "parents": "945b7462eaf2c7effdb810718f77cd3149c07911",
+    "subject": "docs: add git workflow harness design and plan"
+  },
+  {
+    "old": "8389eeee11a2f01af36843b2d94a350b10363b5b",
+    "authorDate": "2026-09-25T09:53:47+09:00",
+    "committerDate": "2026-09-25T09:53:47+09:00",
+    "parents": "21b8828d07e059fc93b23caf81d0ecf97957cb15",
+    "subject": "feat(analytics): implement GA4 event collection v1"
+  },
+  {
+    "old": "62f6fe5d7727e1c040c87537b5a7ba9a570de4e2",
+    "authorDate": "2026-09-25T10:17:35+09:00",
+    "committerDate": "2026-09-25T10:17:35+09:00",
+    "parents": "8389eeee11a2f01af36843b2d94a350b10363b5b",
+    "subject": "docs(worklog): record GA4 analytics v1 verification"
+  },
+  {
+    "old": "6e053140b5367ebabb61e5c476dcb128304ef1cb",
+    "authorDate": "2026-09-25T10:24:21+09:00",
+    "committerDate": "2026-09-25T10:24:21+09:00",
+    "parents": "62f6fe5d7727e1c040c87537b5a7ba9a570de4e2",
+    "subject": "feat(admin): improve local access and collection review UX"
+  },
+  {
+    "old": "e51f1b501f7cc327da279102dd69eac2f4c554db",
+    "authorDate": "2026-09-25T10:24:56+09:00",
+    "committerDate": "2026-09-25T10:24:56+09:00",
+    "parents": "6e053140b5367ebabb61e5c476dcb128304ef1cb",
+    "subject": "docs(worklog): record hot collection results"
+  },
+  {
+    "old": "02c041a680df1fc1a7318ed4c1fff8c1e7663837",
+    "authorDate": "2026-09-26T16:15:18+09:00",
+    "committerDate": "2026-09-26T16:37:27+09:00",
+    "parents": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "subject": "docs(worklog): organize governance archive and cleanup records"
+  },
+  {
+    "old": "e2a6240a238085c1c22107acdd36650419a3f3a6",
+    "authorDate": "2026-09-26T16:50:14+09:00",
+    "committerDate": "2026-09-26T16:50:14+09:00",
+    "parents": "02c041a680df1fc1a7318ed4c1fff8c1e7663837",
+    "subject": "docs: M0 진척과 운영 현황 갱신"
+  },
+  {
+    "old": "92f1e04efed540e802ab046c650f56c6359da0e5",
+    "authorDate": "2026-09-26T19:13:34+09:00",
+    "committerDate": "2026-09-26T19:13:34+09:00",
+    "parents": "e2a6240a238085c1c22107acdd36650419a3f3a6",
+    "subject": "docs(ai): finalize branch strategy and shared agent rules"
+  },
+  {
+    "old": "6b91402f11df5c08c0147bab14fd2df7c681cbd8",
+    "authorDate": "2026-09-26T19:21:33+09:00",
+    "committerDate": "2026-09-26T19:21:33+09:00",
+    "parents": "e2a6240a238085c1c22107acdd36650419a3f3a6 92f1e04efed540e802ab046c650f56c6359da0e5",
+    "subject": "merge: apply AI workflow rules to release"
+  },
+  {
+    "old": "7788ac6a35bf2551b35cde2f9c3f500e4acb3975",
+    "authorDate": "2026-09-26T20:18:04+09:00",
+    "committerDate": "2026-09-26T20:18:04+09:00",
+    "parents": "6b91402f11df5c08c0147bab14fd2df7c681cbd8",
+    "subject": "chore(git): add local branch guards for GitHub Free"
+  },
+  {
+    "old": "bb19c486f3cafa847bd34828a699382c6d5bd0b6",
+    "authorDate": "2026-09-26T21:26:59+09:00",
+    "committerDate": "2026-09-26T21:26:59+09:00",
+    "parents": "7788ac6a35bf2551b35cde2f9c3f500e4acb3975",
+    "subject": "docs(m0): finalize completion plan and operating decisions"
+  }
+]

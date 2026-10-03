@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { LocalCollectReader } from '../apps/api/dist/adapters/collect-reader.js';
 import { BatchReviewService } from '../apps/api/dist/features/collection/batch-review.service.js';
+import { DirectRequestService } from '../apps/api/dist/features/collection/direct-request.service.js';
 import type { DataSource } from 'typeorm';
 import { createDataSource } from '../apps/api/dist/persistence/database.js';
 import { rows } from '../apps/api/dist/persistence/rows.js';
@@ -23,7 +24,7 @@ import { localStorage } from '../apps/api/dist/adapters/storage.js';
 const name = `blariyo-roles-${randomBytes(6).toString('hex')}`;
 const directory = await mkdtemp(join(tmpdir(), 'blariyo-roles-'));
 const deployment = fileURLToPath(new URL('../deploy/postgresql/', import.meta.url));
-const secrets = { batch: randomBytes(32).toString('hex'), app: randomBytes(32).toString('hex'), migrator: randomBytes(32).toString('hex'), backup: randomBytes(32).toString('hex') };
+const secrets = { retention: randomBytes(32).toString('hex'), batch: randomBytes(32).toString('hex'), app: randomBytes(32).toString('hex'), migrator: randomBytes(32).toString('hex'), backup: randomBytes(32).toString('hex') };
 type Role = keyof typeof secrets;
 const connections: DataSource[] = [];
 let created = false;
@@ -56,7 +57,7 @@ async function denied(source: DataSource, sql: string, code = '42501') {
 }
 
 try {
-  for (const role of ['app', 'migrator', 'backup', 'batch'] as const) {
+  for (const role of ['app', 'migrator', 'backup', 'batch', 'retention'] as const) {
     await writeFile(join(directory, `${role}-password`), secrets[role], { mode: 0o600, flag: 'wx' });
   }
   await writeFile(join(directory, 'bootstrap-password'), randomBytes(32).toString('hex'), { mode: 0o600, flag: 'wx' });
@@ -79,7 +80,7 @@ try {
   assert.ok(ready);
   const port = /^127\.0\.0\.1:(\d+)\s*$/.exec((await docker(['port', name, '5432/tcp'])).toString())?.[1];
   assert.ok(port);
-  const url = (role: Role) => `postgresql://blariyo_${role}:${secrets[role]}@127.0.0.1:${port}/blariyo`;
+  const url = (role: Role) => `postgresql://${role==='retention'?'blariyo_collect_retention':'blariyo_'+role}:${secrets[role]}@127.0.0.1:${port}/blariyo`;
   const setup = () => command('python3', [join(deployment, 'create-roles.py'), '--container', name, '--secrets-dir', directory]);
 
   stage = 'role creation and SCRAM authentication';
@@ -90,20 +91,22 @@ try {
   await writeFile(join(directory, 'batch-password'), secrets.batch, {mode:0o600});
   await batchSetup();
   await assert.rejects(batchSetup);
+  const retentionSetup=()=>command('python3',[join(deployment,'create-roles.py'),'--container',name,'--secrets-dir',directory,'--retention-only']);
+  await retentionSetup();await assert.rejects(retentionSetup);
   for (const secret of Object.values(secrets)) assert.ok(!setupOutput.includes(secret));
-  for (const role of ['app', 'migrator', 'backup', 'batch'] as const) connections.push(await createDataSource(url(role)).initialize());
-  const [app, migrator, backup, batch] = connections;
-  assert.ok(app && migrator && backup && batch);
-  const roleFlags = rows(await migrator.query("SELECT rolname FROM pg_roles WHERE rolname IN ('blariyo_app','blariyo_migrator','blariyo_backup','blariyo_batch') AND (rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication OR rolbypassrls)"));
+  for (const role of ['app', 'migrator', 'backup', 'batch', 'retention'] as const) connections.push(await createDataSource(url(role)).initialize());
+  const [app, migrator, backup, batch, retention] = connections;
+  assert.ok(app && migrator && backup && batch && retention);
+  const roleFlags = rows(await migrator.query("SELECT rolname FROM pg_roles WHERE rolname IN ('blariyo_app','blariyo_migrator','blariyo_backup','blariyo_batch','blariyo_collect_retention') AND (rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication OR rolbypassrls)"));
   assert.equal(roleFlags.length, 0);
-  assert.equal((await admin("SELECT count(*) FROM pg_authid WHERE rolname LIKE 'blariyo_%' AND rolpassword LIKE 'SCRAM-SHA-256$%'" )).toString().trim(), '4');
+  assert.equal((await admin("SELECT count(*) FROM pg_authid WHERE rolname LIKE 'blariyo_%' AND rolpassword LIKE 'SCRAM-SHA-256$%'" )).toString().trim(), '5');
   await assert.rejects(() => createDataSource(url('app').replace(secrets.app, randomBytes(32).toString('hex'))).initialize(), deniedCode('28P01'));
   await assert.rejects(() => createDataSource(`postgresql://postgres:wrong@127.0.0.1:${port}/blariyo`).initialize(), deniedCode('28000'));
   await assert.rejects(() => createDataSource(url('app').replace('/blariyo', '/postgres')).initialize(), deniedCode('28000'));
   await assert.rejects(setup);
   const freshApp = await createDataSource(url('app')).initialize();
   await freshApp.destroy();
-  console.log('PASS 역할 4개 · SCRAM 접속 · 잘못된 비밀번호/관리자 TCP/다른 DB 차단 · 재실행 덮어쓰기 차단');
+  console.log('PASS 역할 5개 · SCRAM 접속 · 잘못된 비밀번호/관리자 TCP/다른 DB 차단 · 재실행 덮어쓰기 차단');
 
   stage = 'real migrations and explicit privileges';
   const migration = await migrationContext(url('migrator'));
@@ -118,10 +121,10 @@ try {
   await command(java, ['-cp', classpath, 'com.blariyo.collector.ops.MigrationMain'], undefined, collectorEnv('migrator'));
   await migrator.query(grants);
   await migrator.query(grants);
-  assert.equal(rows(await migrator.query('SELECT count(*)::int AS count FROM ops.schema_migration'))[0]?.count, 8);
+  assert.equal(rows(await migrator.query('SELECT count(*)::int AS count FROM ops.schema_migration'))[0]?.count, 10);
   assert.deepEqual(rows(await migrator.query('SELECT version FROM collector.schema_migration ORDER BY version')).map(row=>row.version),
-    ['V001','V002','V003','V004','V005','V006']);
-  assert.equal(rows(await app.query("SELECT ops.is_schema_ready('V008') AS ready"))[0]?.ready, true);
+    ['V001','V002','V003','V004','V005','V006','V007','V008','V009','V010']);
+  assert.equal(rows(await app.query("SELECT ops.is_schema_ready('V010') AS ready"))[0]?.ready, true);
   assert.equal(rows(await app.query('SHOW timezone'))[0]?.TimeZone, 'UTC');
   await denied(app, 'SELECT * FROM ops.schema_migration');
   await denied(app, 'UPDATE ops.schema_migration SET duration_ms=0');
@@ -134,6 +137,17 @@ try {
   await writeFile(join(directory, 'fixture.png'), await sharp({create:{width:8,height:8,channels:3,background:'#00a19b'}}).png().toBuffer());
   await command(java, ['-cp', classpath, 'com.blariyo.collector.run.BatchRoleFixtureMain'], undefined, collectorEnv('batch'));
   stage = 'batch result DB/object assertions';
+  assert.equal(rows(await migrator.query("SELECT request_count FROM collect.batch_request_budget WHERE source_key='theqoo'"))[0]?.request_count,5);
+  for(const connection of [app,batch,retention]) {
+    await denied(connection,'SELECT * FROM collect.batch_request_budget');
+    await denied(connection,'UPDATE collect.batch_request_budget SET request_count=0');
+  }
+  for(const connection of [app,retention])await denied(connection,"SELECT * FROM collect.reserve_batch_request('forbidden',10,10000)");
+  const cancelId=randomUUID(),cancelHash='c'.repeat(64);
+  await batch.query("INSERT INTO collect.batch_confirmation(id,trigger_hmac,actor_hmac,channel_hmac,source_key,source_post_key,canonical_url) VALUES($1,$2,$2,$2,'fixture','cancel','https://example.invalid/cancel')",[cancelId,cancelHash]);
+  await batch.query('SELECT collect.cancel_confirmation($1,$2,$2,$2)',[cancelId,cancelHash]);
+  assert.equal(rows(await migrator.query('SELECT canonical_url IS NULL AND cancelled_at IS NOT NULL AS cancelled FROM collect.batch_confirmation WHERE id=$1',[cancelId]))[0]?.cancelled,true);
+  for(const connection of [app,retention,backup])await denied(connection,`SELECT collect.cancel_confirmation('${cancelId}','${cancelHash}','${cancelHash}','${cancelHash}')`);
   const collected = rows(await app.query("SELECT id,state,body_blocks,sns_links,raw_object_key FROM collect.batch_item"));
   assert.equal(collected.length, 1); assert.equal(collected[0]?.state, 'FETCHED');
   const itemId = String(collected[0]?.id);
@@ -161,15 +175,33 @@ try {
   await denied(app, "SELECT collect.assert_source_owner('theqoo')");
   await denied(batch, 'CREATE TABLE collect.__forbidden(id integer)');
   await denied(batch, 'SET ROLE blariyo_app');
+  for(const relation of ['batch_input_receipt','batch_source_runtime'])await denied(app,`SELECT * FROM collect.${relation}`);
+  for(const relation of ['batch_input_projection','batch_runtime_projection'])await app.query(`SELECT * FROM collect.${relation}`);
+  for(const role of [batch,retention])for(const relation of ['web_collection_request','web_collection_request_key'])await denied(role,`SELECT * FROM collect.${relation}`);
+  await denied(app,'SELECT * FROM collect.claim_web_requests(20)');
+  await batch.query('SELECT collect.cleanup_input_receipts()');
   console.log('PASS 별도 Java batch 계정 수집·중복 skip·본문/image/file/SNS·raw/media/report/checkpoint readback · API/batch 경계');
 
   stage = 'application draft/publish and trigger execution';
   const storage = localStorage(join(directory, 'media'));
   const application = await createNestApplication({ databaseUrl: url('app'), storage,
-    collectBatchReviewEnabled: true, collectReader: new LocalCollectReader(join(directory,'collect')) });
+    collectBatchReviewEnabled: true, collectDirectInputEnabled: true, collectReader: new LocalCollectReader(join(directory,'collect')) });
   try {
     const posts = application.get(PostsService);
     const review = application.get(BatchReviewService), actor = 'admin:v1:'+randomBytes(32).toString('base64url');
+    await batch.query("INSERT INTO collect.batch_source(source_key,host,policy_version,enabled,identity_parser) VALUES('role-mailbox','www.dogdrip.net','fixture',true,'DOGDRIP')");
+    const direct=application.get(DirectRequestService);
+    const accepted=await direct.create('https://www.dogdrip.net/12345',actor,randomUUID());
+    assert.equal(accepted.state,'PENDING');assert.equal(accepted.version,0);
+    await denied(app,`DELETE FROM collect.web_collection_request WHERE id='${accepted.requestId}'`);
+    await batch.transaction(async manager=>{
+      const claim=rows(await manager.query('SELECT * FROM collect.claim_web_requests(20)'))[0];assert.ok(claim);
+      assert.equal(rows(await manager.query('SELECT collect.web_retry_accessible($1) live',[accepted.requestId]))[0]?.live,true);
+      await manager.query("INSERT INTO collect.batch_input_receipt(request_id,state,error_code) VALUES($1,'BLOCKED','SOURCE_DISABLED')",[accepted.requestId]);
+      await manager.query('SELECT collect.ack_web_request($1,$2)',[accepted.requestId,claim.lease_token]);
+    });
+    assert.equal((await direct.get(accepted.requestId)).state,'BLOCKED');
+    assert.equal((await direct.runtime()).items.find(value=>value.sourceKey==='role-mailbox')?.freshness,'ABSENT');
     for (const decision of ['REVIEWING','APPROVED'] as const) {
       const {item} = await review.detail(itemId);
       await review.review(itemId,{decision,itemVersion:item.version,lockVersion:item.review.lockVersion},actor,randomUUID());
@@ -192,21 +224,49 @@ try {
   } finally { await application.close(); }
   await app.query("UPDATE content.board SET display_name=display_name WHERE slug='meme'");
   await denied(app, "UPDATE content.board SET slug='forbidden' WHERE slug='meme'", '23514');
-  console.log('PASS 실제 API V001–V008 / Collector V001–V006 migration · 권한 재적용 · 앱 draft/publish · trigger 유지 · DDL/ledger/역할 전환 차단');
+  console.log('PASS 실제 API V001–V010 / Collector V001–V010 migration · D02 앱 접수/batch ack/안전 조회 · 앱 draft/publish · trigger 유지 · DDL/ledger/역할 전환 차단');
+
+  stage = 'dedicated retention capabilities and real CLI readback';
+  for(const sql of ['SELECT * FROM content.board_post','SELECT * FROM legal.policy_version','SELECT * FROM collect.batch_item',
+    'DELETE FROM collect.batch_item','UPDATE collect.batch_retention_control SET selective_backup_verified=true',
+    "SELECT collect.purge_authorized('batch_item',gen_random_uuid())",'SET ROLE blariyo_migrator'])await denied(retention,sql);
+  for(const source of [app,batch]) {
+    await denied(source,'SELECT * FROM collect.claim_retention(gen_random_uuid(),1)');
+    await denied(source,'DELETE FROM collect.batch_retention');
+    await denied(source,'UPDATE collect.batch_dedup_key SET source_key=source_key');
+  }
+  const retentionEnv={...process.env,COLLECTOR_RETENTION_DB_URL:`jdbc:postgresql://127.0.0.1:${port}/blariyo`,
+    COLLECTOR_RETENTION_DB_USER:'blariyo_collect_retention',COLLECTOR_RETENTION_DB_PASSWORD:secrets.retention,
+    COLLECTOR_RETENTION_OBJECT_DIRECTORY:join(directory,'collect')};
+  const preview=await command(java,['-cp',classpath,'com.blariyo.collector.ops.BatchMain','retention','--dry-run'],undefined,retentionEnv);
+  assert.match(preview.toString(),/"backupGate":false/);
+  await assert.rejects(()=>command(java,['-cp',classpath,'com.blariyo.collector.ops.BatchMain','retention','--once','--write-db'],undefined,retentionEnv));
+  const privateBefore=await storage.inventory('private');
+  const privateHashes=await Promise.all(privateBefore.map(async object=>createHash('sha256').update(await storage.get('private',object.key)).digest('hex')));
+  // Synthetic acceptance gate in an isolated DB only, not a production backup receipt.
+  await migrator.query("UPDATE collect.batch_retention_control SET selective_backup_verified=true,backup_receipt_hash=sha256('role fixture'::bytea)");
+  await migrator.query('UPDATE collect.batch_retention SET expires_at=clock_timestamp() WHERE item_id=$1',[itemId]);
+  const purged=await command(java,['-cp',classpath,'com.blariyo.collector.ops.BatchMain','retention','--once','--write-db'],undefined,retentionEnv);
+  assert.match(purged.toString(),/"purged":1/);assert.match(purged.toString(),/"failed":0/);
+  assert.equal(rows(await app.query('SELECT count(*)::int n FROM collect.batch_item WHERE id=$1',[itemId]))[0]?.n,0);
+  assert.ok(rows(await app.query('SELECT dedup_id FROM collect.batch_retention WHERE item_id=$1',[itemId]))[0]?.dedup_id);
+  assert.deepEqual(await storage.inventory('private'),privateBefore);
+  assert.deepEqual(await Promise.all(privateBefore.map(async object=>createHash('sha256').update(await storage.get('private',object.key)).digest('hex'))),privateHashes);
+  console.log('PASS retention 전용 역할·교차 접근 거부·dry-run/backup gate·실제 CLI 삭제·게시글 사본 보존');
 
   stage = 'future objects and backup read-only ACL';
   await migrator.query('CREATE TABLE content.__role_probe(id bigint GENERATED ALWAYS AS IDENTITY, value text); CREATE TABLE ops.__role_probe(id integer); CREATE TABLE collect.__role_probe(id bigint GENERATED ALWAYS AS IDENTITY)');
   await app.query("INSERT INTO content.__role_probe(value) VALUES ('before'); UPDATE content.__role_probe SET value='after'");
   assert.equal(rows(await app.query('SELECT * FROM content.__role_probe'))[0]?.value, 'after');
   await app.query("INSERT INTO content.__role_probe(value) VALUES ('delete'); DELETE FROM content.__role_probe WHERE value='delete'");
-  for (const source of [app,batch]) {
+  for (const source of [app,batch,retention]) {
     await denied(source, 'SELECT * FROM collect.__role_probe');
     await denied(source, "SELECT nextval('collect.__role_probe_id_seq')");
   }
   await migrator.query(grants);
   const regrant = await migrationContext(url('migrator'));
   try { await regrant.get(MigrationsService).grantApplication('blariyo_app'); } finally { await regrant.close(); }
-  for (const source of [app,batch]) await denied(source,'SELECT * FROM collect.__role_probe');
+  for (const source of [app,batch,retention]) await denied(source,'SELECT * FROM collect.__role_probe');
   await backup.query('SELECT * FROM collect.__role_probe');
   await denied(app, 'SELECT * FROM ops.__role_probe');
   await backup.query('SELECT * FROM ops.__role_probe');

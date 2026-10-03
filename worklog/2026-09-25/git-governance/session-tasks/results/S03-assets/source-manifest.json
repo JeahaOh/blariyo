@@ -1,0 +1,17 @@
+{
+  "files": [
+    {
+      "path": "scripts/git-checks/check.mjs",
+      "sha256": "f58bcb03b51a8e11561946572da215bdc6cac8660262b34c0951b4757bd7413e"
+    },
+    {
+      "path": "scripts/git-checks/README.md",
+      "sha256": "e7c9e8c8d03cab65b6981d175a36a379077a3a8b1f850d36f0c1f76721d81263"
+    },
+    {
+      "path": "tests/git-checks.test.mjs",
+      "sha256": "58718fc64c66c3b110c04acc8bdad7da1b260a8dc505ad5fcbb32eee8ab5ea74"
+    }
+  ],
+  "diffSha256": "b7def43a4e5955ae2e46216c96ddbfa4291c0e797d073aa46ae5abe95cf0204c"
+}

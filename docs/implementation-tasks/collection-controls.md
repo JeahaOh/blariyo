@@ -21,17 +21,33 @@
 ## COL-03 source별 표본·차단 조건 검증
 
 - **우선순위:** P1.
-- **목표:** 미검증 17개 출처의 실제 허용 표본과 차단/미확인 4개 출처의 재개 조건을 구분한다.
+- **목표:** 검증된 출처만 M0 적용 목록으로 확정하고, 차단·미확인 출처는 후속 후보로 분리한다. 기존 21개 구현 목록의 전부 통과를 M0 완료 조건으로 강제하지 않는다.
 - **선행:** 비운영 시험 대상·실행 PC 결정(QD-05/06), 공개 접근과 robots 정책 확인.
 - **범위:** 본문/첨부 표본, since/skip, 오류·차단·빈 본문 및 source별 현재 지원 상태.
-- **완료 증거:** 출처별 원문·미디어 대조표와 통과/실패/미검증 결과. 차단 출처를 우회하지 않음.
+- **완료 증거:** M0 적용 출처별 허용 범위·원문/미디어·DB/object 재조회·운영 수용 증거와 제외/보류 사유. 기존 17개 개발 저장 이력은 운영 검증을 대신하지 않는다. 세 출처 재분석 task는 보류를 유지하며 차단 출처를 우회하지 않는다.
 
 ## COL-04 direct 보존·회수 구현 및 실증
 
 - **우선순위:** P1, 상시 수집 활성화 차단 조건.
 - **목표:** raw/media/report/queue 보존과 orphan 정리를 안전하게 재실행 가능하게 한다.
-- **선행:** QD-04 기간·승격 후 원본·실패 유예·감사 기준 확정, migration 및 삭제 권한 검토.
+- **선행:** QD-04의 검수 원본 7일·미검수 28일·중복 방지 최소 식별자 무기한 정책에 맞춘 [M0-D01 확정 기술 계약](../system-design/02-data-model.md#m0-d01-retention), 새 migration 및 삭제 권한 검토.
 - **범위:** dry-run manifest, 보호 대상, batch 소유 삭제, 부분 실패 복구와 멱등성.
 - **완료 증거:** 비운영 대상 dry-run→승인된 제한 삭제→DB/object readback, 참조·진행·검수 자료 보호 음성 시험.
 
-QD-04의 값은 `(미정)`이다. 결정을 대신 추정해 구현하지 않는다.
+2026-09-26 최종 결정: 이미지·첨부·원문 HTML·본문은 검수 완료·반려 후 7일 삭제, 미검수 자료는 수집일부터 28일 보관,
+중복 방지용 최소 식별자는 무기한 보관한다. 기술 계약은 [수집 기획](../planning/content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다.
+검수 완료·반려 시각 전달, 7일/28일 경계, 승격/재검수 경쟁, 원격 파일 삭제·백업 복원 후 삭제 재적용과 원본 삭제 후 중복 판정 유지를 검사한다.
+
+
+### M0-D01/D05 구현·수용 연결
+
+COL-04는 D01-T1~T7을 전부 수행한다. 검수 중 만료도 접근을 차단하며 진행 중이라는 이유로 기간을 연장하지 않는다. 참조 보호는 API의 독립 content 사본을 지킨다는 뜻이며 batch 원본을 무기한 남기지 않는다. 부수 report·correction snapshot·receipt·로컬 파일·복원 경로까지 canary와 DB/object readback을 남긴다. 삭제 전에 OPS-03의 선택 백업 검증·기존 full snapshot 대체를 선행한다.
+
+COL-03은 [S1~S5](../planning/content-collection/source-collection-policy.md#m0-admission)·[현재 증거표](../planning/content-collection/reference-site-validation.md#m0-evidence-20260926)를 사용한다. 17개 로컬 저장과4개 실패 상태 증거는 현재 운영 통과가 아니다. 운영 가동 목록의 읽기 전용 관측과 편입 후보 판정을 나누고, 통과한 source/방식/config/SHA만 활성화 인수 대상으로 전달한다. 세 출처 재분석은 대기, PGR21 추가 금지다.
+
+## 2026-09-27 로컬 검증과 실제 인수 경계
+
+- COL-01/02: 공통 robots/Crawl-delay·PG 일일 quota·redirect 통제 코드와 전체 Collector289 tests(실DB readback18), 실패/skip0. 실제 HTTP loopback의12초 Crawl-delay·금지 경로 요청0·재시작 quota와0/3/4 redirect 경계를 포함한다.
+- COL-04: 제한 회수 worker·만료 API/preview·사본 보호·선택 backup/복원은 단계별 로컬 PASS. [D01-T1~T7 항목별 감사](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)에 경계/경합·timeout/crash·모든 부수 사본·복원 후 실제 DUPLICATE까지 연결했다. 실제 제한 자원의 삭제 인수는 별도다.
+- COL-03: 21 parser fixture 회귀와 과거 실제 증거를 구분한다. [S1~S5 인계 양식](../operations/m0-operation-handoff.md#col-03--출처별-s1s5-영수증)을 준비했으며 이번 goal의 실제 source 요청은0이다. 현재 운영 적용 목록을 fixture 결과로 늘리지 않는다.
+- 상세 명령/환경/기준 source는 [실행 기록](../../worklog/2026-09-27/m0-implementation/README.md)을 따른다.

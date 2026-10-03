@@ -1,0 +1,18 @@
+{
+  "node": "v24.18.0",
+  "yamlParse": "PASS",
+  "internalRefs": 309,
+  "operations": 29,
+  "existingOperationsPreserved": 25,
+  "planned": [
+    "createDirectCollectionRequest",
+    "getDirectCollectionRequest",
+    "retryDirectCollectionRequest",
+    "listRuntimeCollectionSources"
+  ],
+  "plannedExpiryResponses": 4,
+  "stateEnumAndRetentionFields": "PASS",
+  "openapiTypescript": "PASS in memory; no source writes",
+  "generatedTypeCharacters": 86367,
+  "runtimeCopies": "INTENTIONALLY NOT SYNCHRONIZED; source excluded; CON-02 handoff"
+}

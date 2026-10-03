@@ -1,0 +1,688 @@
+{
+  "verifiedAt": "2026-09-27T09:26:25.274Z",
+  "scope": {
+    "developmentOnly": true,
+    "maxItemsPerSource": 10,
+    "maxSources": 21,
+    "dailyRequestsPerSource": 300,
+    "intervalMs": 10000,
+    "datePolicy": "INCLUDE_UNKNOWN",
+    "since": "24h (unknown dates included)"
+  },
+  "total": {
+    "sources": 21,
+    "sourcesWithPublications": 5,
+    "newPublished": 31,
+    "newPublicImages": 70,
+    "duplicates": 5,
+    "skippedByDate": 1,
+    "failureEvents": 20,
+    "requests": 153,
+    "existingPostsPreserved": true,
+    "postStatusCounts": [
+      {
+        "status": "DRAFT",
+        "count": 1
+      },
+      {
+        "status": "HIDDEN_REVIEW",
+        "count": 2
+      },
+      {
+        "status": "PUBLISHED",
+        "count": 103
+      }
+    ]
+  },
+  "rows": [
+    {
+      "source": "arcalive",
+      "runId": "dfeb01a8-941c-4a81-98b1-b3c184a4bbd3",
+      "startedAt": "2026-09-27T01:54:34.621Z",
+      "finishedAt": "2026-09-27T01:55:23.617Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 1,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 4,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 1,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "bobaedream",
+      "runId": "b1ee5cdc-9fa7-4a0e-95ae-d92300eb821d",
+      "startedAt": "2026-09-27T01:54:34.619Z",
+      "finishedAt": "2026-09-27T01:55:23.647Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 1,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 1,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 4,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 1,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "clien",
+      "runId": "072cbbbf-13cb-4fc4-a4d2-1376e642b3e1",
+      "startedAt": "2026-09-27T01:54:34.620Z",
+      "finishedAt": "2026-09-27T01:55:23.154Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 2,
+      "fetched": 1,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 1,
+      "failureEvents": 1,
+      "codes": [
+        "SOURCE_NOT_ALLOWED"
+      ],
+      "requests": 4,
+      "published": 1,
+      "images": 0,
+      "postIds": [
+        113
+      ],
+      "readback": {
+        "pass": true,
+        "items": 2,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "dcinside",
+      "runId": "1f8b2292-f745-4958-8ce3-9da14f12b063",
+      "startedAt": "2026-09-27T01:54:34.622Z",
+      "finishedAt": "2026-09-27T01:55:25.269Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 6,
+      "fetched": 0,
+      "duplicates": 5,
+      "skippedByDate": 0,
+      "unknownDates": 1,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 4,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 1,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "dmitory",
+      "runId": "ed1b38f3-a2ea-4a65-8f56-acf2bef94fd0",
+      "startedAt": "2026-09-27T01:54:34.623Z",
+      "finishedAt": "2026-09-27T02:00:01.100Z",
+      "state": "COMPLETED",
+      "runStored": true,
+      "discovered": 10,
+      "fetched": 10,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 10,
+      "failureEvents": 0,
+      "codes": [],
+      "requests": 27,
+      "published": 10,
+      "images": 14,
+      "postIds": [
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125
+      ],
+      "readback": {
+        "pass": true,
+        "items": 10,
+        "media": 14,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "dogdrip",
+      "runId": "1d9dcd57-22b0-40ae-b165-432aa3f1114f",
+      "startedAt": "2026-09-27T01:55:23.155Z",
+      "finishedAt": "2026-09-27T01:55:48.801Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 0,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "SOURCE_ACCESS_BLOCKED"
+      ],
+      "requests": 2,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 0,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "etoland",
+      "runId": "974bda51-9cc1-46f6-8bb0-685e1c358c6f",
+      "startedAt": "2026-09-27T01:55:23.619Z",
+      "finishedAt": "2026-09-27T01:55:36.749Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 0,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_DISALLOWED"
+      ],
+      "requests": 1,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 0,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "fmkorea",
+      "runId": "12f219fc-cbbb-4289-b867-7db26072199d",
+      "startedAt": "2026-09-27T01:55:23.647Z",
+      "finishedAt": "2026-09-27T01:55:25.869Z",
+      "state": "BLOCKED",
+      "runStored": false,
+      "discovered": 0,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "CHART_UNVERIFIED"
+      ],
+      "requests": 0,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": "preflight rejection; no DB run or HTTP"
+    },
+    {
+      "source": "goodgag",
+      "runId": "e0075a5c-b9e0-4b32-a839-7c74ee23aa93",
+      "startedAt": "2026-09-27T01:55:25.269Z",
+      "finishedAt": "2026-09-27T01:56:13.279Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 1,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 1,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 4,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 1,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "humoruniv",
+      "runId": "39905785-bea8-458c-aaeb-9eb96e10f062",
+      "startedAt": "2026-09-27T01:55:25.869Z",
+      "finishedAt": "2026-09-27T01:56:13.935Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 1,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 1,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 4,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 1,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "instiz",
+      "runId": "bb2002e4-2bc3-4593-9e28-071e0021e6ea",
+      "startedAt": "2026-09-27T01:55:36.749Z",
+      "finishedAt": "2026-09-27T01:55:48.702Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 0,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 1,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 0,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "inven",
+      "runId": "7bc24b0d-1e12-4506-9342-4c6bd4536d5d",
+      "startedAt": "2026-09-27T01:55:48.702Z",
+      "finishedAt": "2026-09-27T02:04:01.446Z",
+      "state": "PARTIAL",
+      "runStored": true,
+      "discovered": 10,
+      "fetched": 9,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "PARSE_FAILED"
+      ],
+      "requests": 41,
+      "published": 9,
+      "images": 28,
+      "postIds": [
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134
+      ],
+      "readback": {
+        "pass": true,
+        "items": 10,
+        "media": 28,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "mlbpark",
+      "runId": "0616e256-bbb1-4d8e-8621-e5e0eb216d8d",
+      "startedAt": "2026-09-27T01:55:48.801Z",
+      "finishedAt": "2026-09-27T01:56:01.088Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 0,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_DISALLOWED"
+      ],
+      "requests": 1,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 0,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "natepann",
+      "runId": "3e09da37-fd22-4a2e-820f-0f51dcdb783c",
+      "startedAt": "2026-09-27T01:56:01.089Z",
+      "finishedAt": "2026-09-27T01:56:12.967Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 0,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_DISALLOWED"
+      ],
+      "requests": 1,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 0,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "pgr21",
+      "runId": "e1595ec6-1641-43a7-86b5-e36938637597",
+      "startedAt": "2026-09-27T01:56:12.968Z",
+      "finishedAt": "2026-09-27T01:56:24.907Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 1,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 1,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 1,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "ppomppu",
+      "runId": "d010356a-ad0d-4a91-a231-6e4f4c4f6408",
+      "startedAt": "2026-09-27T01:56:13.280Z",
+      "finishedAt": "2026-09-27T01:56:14.647Z",
+      "state": "BLOCKED",
+      "runStored": false,
+      "discovered": 0,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "CHART_UNVERIFIED"
+      ],
+      "requests": 0,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": "preflight rejection; no DB run or HTTP"
+    },
+    {
+      "source": "ruliweb",
+      "runId": "d75d125b-89fa-491b-8cd0-e2a33305f424",
+      "startedAt": "2026-09-27T01:56:13.936Z",
+      "finishedAt": "2026-09-27T02:04:50.316Z",
+      "state": "PARTIAL",
+      "runStored": true,
+      "discovered": 10,
+      "fetched": 9,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 9,
+      "failureEvents": 1,
+      "codes": [
+        "SOURCE_GONE"
+      ],
+      "requests": 43,
+      "published": 9,
+      "images": 28,
+      "postIds": [
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143
+      ],
+      "readback": {
+        "pass": true,
+        "items": 10,
+        "media": 28,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "theqoo",
+      "runId": "dd5632a2-607a-4ffe-8995-dfe2387e8371",
+      "startedAt": "2026-09-27T01:56:14.647Z",
+      "finishedAt": "2026-09-27T01:56:26.594Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 0,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 1,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 0,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "todayhumor",
+      "runId": "65bc2a98-f314-4cfa-9982-b4c49c699d80",
+      "startedAt": "2026-09-27T01:56:24.908Z",
+      "finishedAt": "2026-09-27T01:56:37.014Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 0,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 1,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 0,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "youtube-community",
+      "runId": "aa66b67e-d8a3-4037-bfd1-ab562e57cadc",
+      "startedAt": "2026-09-27T01:56:37.015Z",
+      "finishedAt": "2026-09-27T01:57:01.441Z",
+      "state": "FAILED",
+      "runStored": true,
+      "discovered": 1,
+      "fetched": 0,
+      "duplicates": 0,
+      "skippedByDate": 0,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "PARSE_FAILED"
+      ],
+      "requests": 2,
+      "published": 0,
+      "images": 0,
+      "postIds": [],
+      "readback": {
+        "pass": true,
+        "items": 1,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    },
+    {
+      "source": "yuldo",
+      "runId": "7927087e-7653-402a-92b7-9af41a7ccd19",
+      "startedAt": "2026-09-27T01:56:26.594Z",
+      "finishedAt": "2026-09-27T01:57:50.254Z",
+      "state": "BLOCKED",
+      "runStored": true,
+      "discovered": 4,
+      "fetched": 2,
+      "duplicates": 0,
+      "skippedByDate": 1,
+      "unknownDates": 0,
+      "failureEvents": 1,
+      "codes": [
+        "ROBOTS_UNVERIFIED"
+      ],
+      "requests": 7,
+      "published": 2,
+      "images": 0,
+      "postIds": [
+        114,
+        115
+      ],
+      "readback": {
+        "pass": true,
+        "items": 4,
+        "media": 0,
+        "reportMatches": true,
+        "ledgerMatches": true
+      }
+    }
+  ],
+  "verification": {
+    "allNewPostsHttp200": true,
+    "allNewPublicImagesHashSizePass": true,
+    "sourceImageOrderHashVerified": true,
+    "browserSamples": [
+      {
+        "source": "clien",
+        "postId": 113,
+        "imagesLoaded": 0,
+        "headingVisible": true
+      },
+      {
+        "source": "yuldo",
+        "postId": 114,
+        "imagesLoaded": 0,
+        "headingVisible": true
+      },
+      {
+        "source": "inven",
+        "postId": 130,
+        "imagesLoaded": 9,
+        "headingVisible": true
+      },
+      {
+        "source": "ruliweb",
+        "postId": 141,
+        "imagesLoaded": 12,
+        "headingVisible": true
+      },
+      {
+        "source": "dmitory",
+        "postId": 122,
+        "imagesLoaded": 8,
+        "headingVisible": true
+      }
+    ],
+    "pageErrors": 0,
+    "externalEmbeds": "not evaluated; browser fixture blocks remote providers"
+  }
+}

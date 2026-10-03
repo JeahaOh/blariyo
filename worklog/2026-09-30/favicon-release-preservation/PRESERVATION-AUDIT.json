@@ -1,0 +1,613 @@
+{
+  "at": "2026-09-30T22:05:25.009444+09:00",
+  "releaseBeforeFavicon": "ad5bc788915eee41a182114c1c0e4f5542829816",
+  "otherWorktree": {
+    "count": 88,
+    "hashMismatches": [],
+    "headMatches": true,
+    "statusMatches": true
+  },
+  "faviconOriginalFiles": {
+    "apps/web/public/apple-touch-icon.png": true,
+    "apps/web/public/favicon-16x16.png": true,
+    "apps/web/public/favicon-32x32.png": true,
+    "apps/web/public/favicon.ico": true,
+    "apps/web/public/favicon.png": true,
+    "apps/web/public/favicon.svg": true,
+    "worklog/2026-09-30/brand-favicon/README.md": true
+  },
+  "previousUncommittedFiles": [
+    {
+      "path": "worklog/2026-09-27/m0-implementation-plan/README.md",
+      "originalHashCommittedAt": "ef6d7efb443414173ae0dad07a948cd26809032b",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-27/m0-next-step/README.md",
+      "originalHashCommittedAt": "ef6d7efb443414173ae0dad07a948cd26809032b",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "docs/implementation-tasks/contracts-maintenance.md",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "docs/operations/environment-configuration.md",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "docs/status.md",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": false
+    },
+    {
+      "path": "scripts/local/README.md",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": false
+    },
+    {
+      "path": "scripts/local/prepare-batch-review.mjs",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "scripts/local/batch-privileges.mjs",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "scripts/local/batch-privileges.test.mjs",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-27/dev-21-site-publish/DOCUMENT-LINK-AUDIT.json",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-27/dev-21-site-publish/FILES.sha256",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-27/dev-21-site-publish/README.md",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-27/dev-21-site-publish/RESULTS.json",
+      "originalHashCommittedAt": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-28/uncommitted-status/README.md",
+      "originalHashCommittedAt": "6f33b7ede9f5a176b35c66f8995fad0fcb1250ad",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/project-health-review/EVIDENCE-MATCH.json",
+      "originalHashCommittedAt": "bebe75725f53cf758ba6be760f5417e2d8cf8005",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/project-health-review/LINK-CHECK.json",
+      "originalHashCommittedAt": "bebe75725f53cf758ba6be760f5417e2d8cf8005",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/project-health-review/PUBLIC-HTTP.json",
+      "originalHashCommittedAt": "bebe75725f53cf758ba6be760f5417e2d8cf8005",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/project-health-review/README.md",
+      "originalHashCommittedAt": "bebe75725f53cf758ba6be760f5417e2d8cf8005",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/project-health-review/VERIFICATION.json",
+      "originalHashCommittedAt": "bebe75725f53cf758ba6be760f5417e2d8cf8005",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-rebase-and-next-plan/BASELINE.json",
+      "originalHashCommittedAt": "9a1274cb3e7734af161f89dba2fa68a4b0553d4f",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-rebase-and-next-plan/BRANCH-OPTIONS.json",
+      "originalHashCommittedAt": "9a1274cb3e7734af161f89dba2fa68a4b0553d4f",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-rebase-and-next-plan/DOCUMENT-UPDATE-PLAN.md",
+      "originalHashCommittedAt": "9a1274cb3e7734af161f89dba2fa68a4b0553d4f",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-rebase-and-next-plan/INTEGRATION-PREVIEW.json",
+      "originalHashCommittedAt": "9a1274cb3e7734af161f89dba2fa68a4b0553d4f",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-rebase-and-next-plan/PROGRESS-PLAN.md",
+      "originalHashCommittedAt": "9a1274cb3e7734af161f89dba2fa68a4b0553d4f",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-rebase-and-next-plan/README.md",
+      "originalHashCommittedAt": "9a1274cb3e7734af161f89dba2fa68a4b0553d4f",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-rebase-and-next-plan/REBASE-VERIFICATION.json",
+      "originalHashCommittedAt": "9a1274cb3e7734af161f89dba2fa68a4b0553d4f",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-rebase-and-next-plan/REMOTE-RECONCILE-PREVIEW.json",
+      "originalHashCommittedAt": "9a1274cb3e7734af161f89dba2fa68a4b0553d4f",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/BASELINE.json",
+      "originalHashCommittedAt": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/CANDIDATE-VERIFICATION.json",
+      "originalHashCommittedAt": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/FINAL-VERIFICATION.json",
+      "originalHashCommittedAt": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/PICK-MAPPING.json",
+      "originalHashCommittedAt": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/PICK-ORDER.json",
+      "originalHashCommittedAt": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/README.md",
+      "originalHashCommittedAt": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/REF-RESULTS.json",
+      "originalHashCommittedAt": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/TEST-RESULTS.json",
+      "originalHashCommittedAt": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+      "stillPresent": true,
+      "currentExact": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/api-build.log",
+      "originalHashCommittedAt": null,
+      "stillPresent": true,
+      "currentExact": false,
+      "documentedWhitespaceNormalization": {
+        "file": "worklog/2026-09-30/release-cherry-pick-main-restore/api-build.log",
+        "beforeSha256": "aa8b0576adebe1b7f6dbf260426564ab5817dee19472fe2e74de38cf90b3aba6",
+        "afterSha256": "769e8ed93e4d04fd38756ecf182299034e859c59b5cbc0c7206b95ccada4fa71",
+        "change": "strip trailing whitespace and extra blank EOF only; output tokens unchanged"
+      },
+      "normalizedHashStillMatches": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/root-tests.log",
+      "originalHashCommittedAt": null,
+      "stillPresent": true,
+      "currentExact": false,
+      "documentedWhitespaceNormalization": {
+        "file": "worklog/2026-09-30/release-cherry-pick-main-restore/root-tests.log",
+        "beforeSha256": "02694c5aad05d85fe656cb9269217a71031257d497dd41e8e8371a817954fc4c",
+        "afterSha256": "f7870cbb28d49601afb42818a28b643c737d8bdf7112582af9d1bdcde336d434",
+        "change": "strip trailing whitespace and extra blank EOF only; output tokens unchanged"
+      },
+      "normalizedHashStillMatches": true
+    },
+    {
+      "path": "worklog/2026-09-30/release-cherry-pick-main-restore/git-hooks.log",
+      "originalHashCommittedAt": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+      "stillPresent": true,
+      "currentExact": true
+    }
+  ],
+  "cherryPicks": [
+    {
+      "old": "46053992f93a4fc83fe769787d1aad818e8e9d33",
+      "new": "bfda10c0176ce52429711bd8fcc693723f03a3e0",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "f920954862fb4fbf8bf15608d996670030fd1f7b",
+      "new": "5f3a6a5ab78bd543abb86c2f8abb2d964a39f8e0",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "945b7462eaf2c7effdb810718f77cd3149c07911",
+      "new": "452810d9f85cc346e9c765ed6eac98d7ee61fd10",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "21b8828d07e059fc93b23caf81d0ecf97957cb15",
+      "new": "1a67669de79012fa8368ba0690e465c593a59efa",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "8389eeee11a2f01af36843b2d94a350b10363b5b",
+      "new": "f3fb1e5e6f1b69800172c7142b4bf19c0af8d19b",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "62f6fe5d7727e1c040c87537b5a7ba9a570de4e2",
+      "new": "5ddc26355e9305a86a6192f4507a279db3a548f2",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "6e053140b5367ebabb61e5c476dcb128304ef1cb",
+      "new": "ae6efb86dd3ec14ae5b54445fdec6b02b6bc7931",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "e51f1b501f7cc327da279102dd69eac2f4c554db",
+      "new": "25022b139ce174a6d3cde52cba01dbfd3a17212b",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "02c041a680df1fc1a7318ed4c1fff8c1e7663837",
+      "new": "d5c248f558dc25bfd485148186aa72648bd3fe47",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "e2a6240a238085c1c22107acdd36650419a3f3a6",
+      "new": "8fdc2e1c29b5accfb69ec306edc8f8d3f610f695",
+      "included": true,
+      "patchEquivalent": false,
+      "resolutionSource": "69c6139: status/operations evidence merge",
+      "originalMerge": false
+    },
+    {
+      "old": "92f1e04efed540e802ab046c650f56c6359da0e5",
+      "new": "a4c48d33cacc4dd929e5d0f9c55e332e3ce8e293",
+      "included": true,
+      "patchEquivalent": false,
+      "resolutionSource": "f9743f5: git-workflow resolution",
+      "originalMerge": false
+    },
+    {
+      "old": "6b91402f11df5c08c0147bab14fd2df7c681cbd8",
+      "new": "2424edf85254e8a8502bad244e48f09b9d54d067",
+      "included": true,
+      "patchEquivalent": false,
+      "resolutionSource": null,
+      "originalMerge": true
+    },
+    {
+      "old": "7788ac6a35bf2551b35cde2f9c3f500e4acb3975",
+      "new": "fa55c4004a2562a1ff6f4a42759d5e75fe859949",
+      "included": true,
+      "patchEquivalent": true,
+      "resolutionSource": null,
+      "originalMerge": false
+    },
+    {
+      "old": "bb19c486f3cafa847bd34828a699382c6d5bd0b6",
+      "new": "054575928df7bd7e8f8a630c1234d7b3d054969c",
+      "included": true,
+      "patchEquivalent": false,
+      "resolutionSource": "2126c053: roadmap evidence merge",
+      "originalMerge": false
+    }
+  ],
+  "cherryPickFirstParentOrderMatches": true,
+  "authorDatesAscending": true,
+  "featureOriginalIncluded": true,
+  "mainMatches": true,
+  "integration": {
+    "classification": {
+      "both-identical": 1143,
+      "feature-only": 290,
+      "both-changed": 27,
+      "release-only": 44
+    },
+    "reviewRequired": [
+      {
+        "path": "apps/web/app/components/AdminWorkspace.vue",
+        "category": "release-only",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Direct input-only feature remains visible alongside batch review; no original navigation path removed."
+      },
+      {
+        "path": "apps/web/app/pages/[boardSlug]/index.vue",
+        "category": "both-changed",
+        "syntheticMergeExit": 1,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Analytics retained, M0 result focus and aria-live additions retained."
+      },
+      {
+        "path": "apps/web/app/pages/[boardSlug]/posts/[postId].vue",
+        "category": "both-changed",
+        "syntheticMergeExit": 6,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Analytics view/share attempt tracking retained with list retry, share busy/feedback and image metadata."
+      },
+      {
+        "path": "apps/web/app/pages/admin-batch.vue",
+        "category": "both-changed",
+        "syntheticMergeExit": 5,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Release split workspace/navigation and reauth recovery combined with direct input, expiry and failed-detail clearing. Legacy duplicate navigation replaced by AdminWorkspace."
+      },
+      {
+        "path": "apps/web/app/utils/consent.mjs",
+        "category": "both-changed",
+        "syntheticMergeExit": 1,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Version3 analytics_v1 events retained with read-invalid and cookie-deletion failure callbacks."
+      },
+      {
+        "path": "apps/web/nuxt.config.ts",
+        "category": "both-changed",
+        "syntheticMergeExit": 1,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Both loginEnabled false and OWNER role/direct-input defaults retained, with admin stylesheet."
+      },
+      {
+        "path": "docs/development-specs/requirements-status.md",
+        "category": "both-changed",
+        "syntheticMergeExit": 1,
+        "matchesSynthetic": false,
+        "reviewConclusion": "New M0 local evidence added; operating acceptance and live external evidence remain incomplete."
+      },
+      {
+        "path": "docs/migration/contract-evolution.json",
+        "category": "both-changed",
+        "syntheticMergeExit": 1,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Both source contract changes retained; current contract and migration hashes read back."
+      },
+      {
+        "path": "docs/roadmap.md",
+        "category": "both-changed",
+        "syntheticMergeExit": 3,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Operating evidence from release and M0 local completion from feature retained, Git progress updated."
+      },
+      {
+        "path": "docs/status.md",
+        "category": "both-changed",
+        "syntheticMergeExit": 3,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Both histories retained; stale analytics implementation sentence predates this merge, addressed in this follow-up."
+      },
+      {
+        "path": "packages/contracts/src/schema.mjs",
+        "category": "both-changed",
+        "syntheticMergeExit": 1,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Generated combined analytics content-key and D01/D02 contracts; manifest hash matches."
+      },
+      {
+        "path": "tests/browser/admin-recovery.test.ts",
+        "category": "both-identical",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Only navigation locator changed to the new public site link; same unsaved-edit assertions retained."
+      },
+      {
+        "path": "tests/browser/batch-expiry.test.ts",
+        "category": "feature-only",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Only screenshot output changed from historical worklog artifacts to test-results/browser; assertions unchanged."
+      },
+      {
+        "path": "tests/browser/consent-errors.test.ts",
+        "category": "feature-only",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Only screenshot output changed from historical worklog artifacts to test-results/browser; assertions unchanged."
+      },
+      {
+        "path": "tests/browser/direct-input.test.ts",
+        "category": "feature-only",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Only screenshot output changed from historical worklog artifacts to test-results/browser; assertions unchanged."
+      },
+      {
+        "path": "tests/browser/public-ux.test.ts",
+        "category": "feature-only",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Only screenshot output changed from historical worklog artifacts to test-results/browser; assertions unchanged."
+      },
+      {
+        "path": "tests/consent.test.ts",
+        "category": "both-changed",
+        "syntheticMergeExit": 1,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Both analytics event allowlist and storage/cookie failure scenarios retained; valid fixture updated to v3 analytics_v1, old v2 rejection test retained."
+      },
+      {
+        "path": "tests/helpers/browser-fixture.ts",
+        "category": "both-changed",
+        "syntheticMergeExit": 3,
+        "matchesSynthetic": false,
+        "reviewConclusion": "Release analytics content-key and login toggle combined with feature direct-input/roles/Access and retention fixtures."
+      },
+      {
+        "path": "worklog/2026-09-30/git-cleanup-execution/BACKUP-VERIFICATION.json",
+        "category": "both-identical",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Integration-owned evidence addition or completion update; no prior historical file removed."
+      },
+      {
+        "path": "worklog/2026-09-30/git-cleanup-execution/CONCURRENT-CHANGE.json",
+        "category": "both-identical",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Integration-owned evidence addition or completion update; no prior historical file removed."
+      },
+      {
+        "path": "worklog/2026-09-30/git-cleanup-execution/PR-CHECK.json",
+        "category": "both-identical",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Integration-owned evidence addition or completion update; no prior historical file removed."
+      },
+      {
+        "path": "worklog/2026-09-30/git-cleanup-execution/README.md",
+        "category": "feature-only",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Integration-owned evidence addition or completion update; no prior historical file removed."
+      },
+      {
+        "path": "worklog/2026-09-30/git-cleanup-execution/VALIDATED-SOURCE-TREES.json",
+        "category": "both-identical",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Integration-owned evidence addition or completion update; no prior historical file removed."
+      },
+      {
+        "path": "worklog/2026-09-30/git-cleanup-execution/VALIDATION.json",
+        "category": "both-identical",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Integration-owned evidence addition or completion update; no prior historical file removed."
+      },
+      {
+        "path": "worklog/2026-09-30/git-cleanup-execution/artifacts/batch-review-390.png",
+        "category": "both-identical",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Integration-owned evidence addition or completion update; no prior historical file removed."
+      },
+      {
+        "path": "worklog/2026-09-30/git-cleanup-execution/artifacts/direct-input-390.png",
+        "category": "both-identical",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Integration-owned evidence addition or completion update; no prior historical file removed."
+      },
+      {
+        "path": "worklog/2026-09-30/git-cleanup-execution/artifacts/public-share-320.png",
+        "category": "both-identical",
+        "kind": "differs-from-source",
+        "reviewConclusion": "Integration-owned evidence addition or completion update; no prior historical file removed."
+      }
+    ],
+    "pathsDeletedFromEitherParent": [],
+    "docsCloseoutChanges": [
+      "docs/roadmap.md",
+      "docs/status.md",
+      "worklog/2026-09-30/git-cleanup-execution/INTEGRATION-RESULT.json",
+      "worklog/2026-09-30/git-cleanup-execution/README.md"
+    ]
+  },
+  "validatedSourceTrees": {
+    "releaseBase": "054575928df7bd7e8f8a630c1234d7b3d054969c",
+    "mergedFeature": "da3a96e2a2db660da1de60aea1d597a15714a13a",
+    "sourceTrees": {
+      "apps": "a4c2cccb350b475efaaddc00e6b079b7beac9cc6",
+      "packages": "0c1858056cc184533814c72ea55a13828939cc45",
+      "scripts": "ccbe6188fba5055631e3cbe3e050500d13c2703c",
+      "tests": "c4324efc5203b5623e23c9ef4e4024bca36428a7",
+      "deploy": "67bf67e40adb411bb1d7e48c8f6df8f38830810d"
+    }
+  },
+  "faviconTrackedSourceDiff": [
+    "apps/web/nuxt.config.ts"
+  ],
+  "originalBundle": {
+    "sha256": "c1c1b148e3ded014dc24a9af813768f9394925d179e5713a3efce1eee9cf0cee",
+    "verify": true,
+    "baselineRefCount": 29,
+    "missingCommitOrTree": [],
+    "restoredFsck": true
+  },
+  "previousDirtyPreservationResult": {
+    "files": 38,
+    "originalBytesFoundInAncestry": 36,
+    "documentedWhitespaceOnlyNormalization": 2,
+    "unexplained": 0
+  },
+  "priorValidatedSourceTreesStillMatch": {
+    "apps": true,
+    "packages": true,
+    "scripts": true,
+    "tests": true,
+    "deploy": true
+  },
+  "cherryPickCandidateEqualsPreReorderTree": true,
+  "contractAndMigrationHashReadback": {
+    "contracts": 5,
+    "migrations": 19,
+    "allMatch": true
+  },
+  "result": "No unexplained loss found within compared Git history, file contents and prior dirty-file baselines. This does not constitute production runtime acceptance."
+}

@@ -341,6 +341,7 @@ export interface components {
         };
         PostListItem: {
             postId: number;
+            analyticsContentKey: string;
             title: string;
             viewCount: number;
             authorLabel: string;
@@ -355,6 +356,7 @@ export interface components {
         };
         PublicPost: {
             postId: number;
+            analyticsContentKey: string;
             board: components["schemas"]["BoardSummary"];
             title: string;
             authorLabel: string;

@@ -20,7 +20,7 @@ public final class BatchRoleFixtureMain {
     config.setPassword(OperatorSettings.password());
     config.setMaximumPoolSize(2);
     byte[] image = Files.readAllBytes(Path.of(System.getenv("ROLE_FIXTURE_IMAGE")));
-    var source = new SourceRegistry(Json.tree(Map.of("theqoo", Map.ofEntries(
+    var source = TestSourceControls.registry(Json.tree(Map.of("theqoo", Map.ofEntries(
         Map.entry("host", "theqoo.net"), Map.entry("approved", true),
         Map.entry("blockedReason", ""), Map.entry("parser", "THEQOO"),
         Map.entry("pathPrefixes", List.of("/hot/")), Map.entry("userAgent", "role-test contact-fixture"),
@@ -41,7 +41,7 @@ public final class BatchRoleFixtureMain {
       }
     };
     try (var db = new HikariDataSource(config)) {
-      var runner = new DirectUrlRunner(transport, new BatchStore(db), BatchObjectStore.fromEnvironment(), ignored -> {});
+      var runner = new DirectUrlRunner(TestSourceControls.allowRobots(transport), new BatchStore(db), BatchObjectStore.fromEnvironment(), millis -> { try { Thread.sleep(millis); } catch (InterruptedException error) { Thread.currentThread().interrupt(); throw new IllegalStateException(error); } });
       var options = new DirectUrlRunner.Options("theqoo", "https://theqoo.net/hot/1234567890", 10000, true);
       var first = runner.run(source, options);
       if (!first.state().equals("COMPLETED") || first.fetched()!=1) throw new IllegalStateException("ROLE_FIXTURE_"+first.state()+"_"+String.join("_",first.errors()));

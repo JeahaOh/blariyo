@@ -59,7 +59,11 @@ await test('long original body and Unicode source survive the public contract wi
   const original: PublishedBlock[] = Array.from({length: 57}, (_, index) => ({type: 'TEXT', text: `원문 ${index}`}));
   repository.blocks = async () => original;
   const service = new PublicService(repository, new MemoryWork());
-  const data = detailDto(await service.detail('meme', '21'), {siteOrigin: 'http://localhost:3000', imageOrigin: 'http://localhost:3000/media'});
+  const data = detailDto(await service.detail('meme', '21'), {
+    siteOrigin: 'http://localhost:3000',
+    imageOrigin: 'http://localhost:3000/media',
+    analyticsContentKeySecret: 'local-test-analytics-secret-32-bytes',
+  });
   const operation = matchOperation('GET', '/api/v1/boards/meme/posts/21');
   assert.ok(operation);
   assert.equal(validateResponse(operation, 200, {success: true, data, meta: {requestId: '00000000-0000-4000-8000-000000000000'}}), true);

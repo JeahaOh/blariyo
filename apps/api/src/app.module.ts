@@ -1,4 +1,5 @@
 import { BatchReviewModule } from './features/collection/batch-review.module.js';
+import { DirectRequestModule } from './features/collection/direct-request.module.js';
 import { CollectReader } from './shared/collect-reader.js';
 import { DisabledCollectReader } from './adapters/collect-reader.js';
 import type { CollectionOptions } from './features/collection/collection-admin.guard.js';
@@ -22,6 +23,7 @@ export interface ApplicationOptions extends CollectionOptions {
   collectDiscordCommandEnabled?: boolean;
   siteOrigin?: string;
   imageOrigin?: string;
+  analyticsContentKeySecret?: string;
   storage?: Storage;
   cache?: EdgeCache;
   serviceToken?: string;
@@ -42,12 +44,15 @@ export class AppModule {
       module: AppModule,
       imports: [
         collection,
+        DirectRequestModule.register(persistence,options),
         BatchReviewModule.register(persistence, images, posts, options.collectReader ?? new DisabledCollectReader(), options),
         HealthModule.register(persistence, options),
         PoliciesModule.register(persistence),
         PublicModule.register(persistence, {
           siteOrigin: options.siteOrigin ?? 'http://localhost:3000',
           imageOrigin: options.imageOrigin ?? 'http://localhost:3000/media',
+          analyticsContentKeySecret:
+            options.analyticsContentKeySecret ?? 'local-development-analytics-secret-32b',
         }),
         images,
         posts,

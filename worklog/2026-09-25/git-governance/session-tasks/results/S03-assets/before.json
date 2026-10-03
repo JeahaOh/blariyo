@@ -1,0 +1,1621 @@
+{
+  "observedAt": "2026-09-26T15:18:03.854157+09:00",
+  "worktrees": [
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "head": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+      "branch": "refs/heads/develop",
+      "files": [
+        {
+          "path": ".githooks/commit-msg",
+          "xy": "??",
+          "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376"
+        },
+        {
+          "path": ".githooks/post-commit",
+          "xy": "??",
+          "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55"
+        },
+        {
+          "path": ".githooks/pre-commit",
+          "xy": "??",
+          "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee"
+        },
+        {
+          "path": ".githooks/pre-push",
+          "xy": "??",
+          "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2"
+        },
+        {
+          "path": ".harness/policy.json",
+          "xy": "??",
+          "sha256": "7369b49f06a9ca855b8eb6c9f23bfb7ad6fb18cc642ea3ea1b5dee31ab4b900a"
+        },
+        {
+          "path": ".harness/tasks/HARN-06.json",
+          "xy": "??",
+          "sha256": "46b0f4a03213aa109d1c0bee98d30e737c2f2177ffd26a8bf96ce207e6dfb2e8"
+        },
+        {
+          "path": ".harness/tasks/HARN-07.json",
+          "xy": "??",
+          "sha256": "3eb22dda1f8800c62fb0b81ba8b8c6ebeccb1a32633f645fb856e06bad975bf4"
+        },
+        {
+          "path": ".markdownlint-cli2.jsonc",
+          "xy": "??",
+          "sha256": "fc2cf138a55d123b2f56f0864f3566cd13e17dd5a626707d6ec914f4f9837be2"
+        },
+        {
+          "path": ".prettierignore",
+          "xy": "??",
+          "sha256": "94ec4dcd79ab174a092c40f2ac43a8aeab0a9c745a4f074384a0361683504aca"
+        },
+        {
+          "path": ".quality/baseline.candidate.json",
+          "xy": "??",
+          "sha256": "3fb6a1979dbeb1bfbfd8df87b323ebef0b0d09084e77f377d988fcb731a81213"
+        },
+        {
+          "path": ".quality/requirements.txt",
+          "xy": "??",
+          "sha256": "f797a89a8ee790434c33cc77a2c68bf8a97e70bf47175d3b591827357330b146"
+        },
+        {
+          "path": ".ruff.toml",
+          "xy": "??",
+          "sha256": "b1060c540fc65d1876702e14be708eea1c156225e8dd21d30ce7fcff24a6876c"
+        },
+        {
+          "path": ".sqlfluff",
+          "xy": "??",
+          "sha256": "45feced7469e9c625916b602b2ea636eb06b32c77f46152bfdf64ddf80c5434f"
+        },
+        {
+          "path": ".stylelintrc.json",
+          "xy": "??",
+          "sha256": "d9b05cf4b96793e3ddc674b3ba636f5efe9fd2fc7257360ba3ec83c376677010"
+        },
+        {
+          "path": "apps/api/src/commands/migration-checksum-compatibility.ts",
+          "xy": "??",
+          "sha256": "2fef6692c4031b8639974d3aa034befe3741be2995354697f26097ddd26ab195"
+        },
+        {
+          "path": "apps/collector/config/checkstyle/checkstyle.xml",
+          "xy": "??",
+          "sha256": "b2124e79fd9cde935e49aca7e417d29c3aaeb2a62397ef88d6c289ad500fe513"
+        },
+        {
+          "path": "scripts/content/migration-checksum.mjs",
+          "xy": "??",
+          "sha256": "99a64922d58d82ca126bf684c8bf1164c7ec2fac203f1d3f5689a6c016a57fbf"
+        },
+        {
+          "path": "scripts/harness/branches.mjs",
+          "xy": "??",
+          "sha256": "7928d1cb3f5ef06cf914b2903b3565ad7b69d695c5e671ec100251ff524f3171"
+        },
+        {
+          "path": "scripts/harness/check.mjs",
+          "xy": "??",
+          "sha256": "ed9057c08ea40a7f434ee2bba9e922a53d8d642f02043ec12550a2f4c7be95ba"
+        },
+        {
+          "path": "scripts/harness/ci-context.mjs",
+          "xy": "??",
+          "sha256": "b72d22e265bef8f7dbf0f2b0fa1f4b396268bcc0598a5d956fdf0db4c3fb3da0"
+        },
+        {
+          "path": "scripts/harness/cli.mjs",
+          "xy": "??",
+          "sha256": "65eeb5cf8f759a411bfde7298d7ee0d8ae89b3e9108a6c9a2e3eae9ec89fccea"
+        },
+        {
+          "path": "scripts/harness/git.mjs",
+          "xy": "??",
+          "sha256": "725c0a04baac9b21a66600fa91b1d16c12f5e68effe06e3ca379b25620de9923"
+        },
+        {
+          "path": "scripts/harness/hooks.mjs",
+          "xy": "??",
+          "sha256": "7b0f89fe94b0cc9fc5c6f15b30dff742310a30188479b0a2eb91ce939f328a9b"
+        },
+        {
+          "path": "scripts/harness/job-receipt.mjs",
+          "xy": "??",
+          "sha256": "7e09a1355d46206785856f12c7cba18eda3a9c9b9a42ab3559cd517cbb58e77e"
+        },
+        {
+          "path": "scripts/harness/lease_lock.py",
+          "xy": "??",
+          "sha256": "e8825a5d7cd31672b9cf77e7b7551de73ee577413790168b053444eff8819d92"
+        },
+        {
+          "path": "scripts/harness/leases.mjs",
+          "xy": "??",
+          "sha256": "84ee74fa7fdf13d435776fb45858fca12bbfb36495a3f21b90007333a919bc15"
+        },
+        {
+          "path": "scripts/harness/merge-back.mjs",
+          "xy": "??",
+          "sha256": "a893fb035406423c2b12a7cbc4f5041c97e760bc0506558ae8b87be4da3f1152"
+        },
+        {
+          "path": "scripts/harness/release.mjs",
+          "xy": "??",
+          "sha256": "dbc0783fb4a7f5d14e97322b55e003ed51962aae1fdae06b1bd44df328e39b16"
+        },
+        {
+          "path": "scripts/harness/restore-scope.mjs",
+          "xy": "??",
+          "sha256": "f840cff58672ab5bb9d6a02781eb3274f835c1fab0f6907ab93e88673b253203"
+        },
+        {
+          "path": "scripts/harness/run-tests.mjs",
+          "xy": "??",
+          "sha256": "15584d22e385401f46845dee282ab2326f4400cc7e223a13826b089166278503"
+        },
+        {
+          "path": "scripts/harness/secrets.mjs",
+          "xy": "??",
+          "sha256": "ed399db0f291d9931d6518b5d4f42fbbdfdea0f1e2253e0821c4e38d8d14f2ec"
+        },
+        {
+          "path": "scripts/harness/tap.mjs",
+          "xy": "??",
+          "sha256": "2779e7c8ed5c07f5b960e461028cd0aac67fbb9fb4f6a157271f68b93a523fcb"
+        },
+        {
+          "path": "scripts/harness/verify.mjs",
+          "xy": "??",
+          "sha256": "6df5ac8259766da15e03aca27b1d1d827bdde2fb34d767ead48442e810656dfc"
+        },
+        {
+          "path": "scripts/quality/eslint.config.mjs",
+          "xy": "??",
+          "sha256": "106b7e508a89a6b77e437c6e205527e75fc89c3d117813abf2f78b0e542030a5"
+        },
+        {
+          "path": "scripts/quality/lint-all.mjs",
+          "xy": "??",
+          "sha256": "24a8753fd89ea9d33c5134f2dc63925a3f8079294d309df24c9ece2910e4151a"
+        },
+        {
+          "path": "scripts/quality/lint-contracts.mjs",
+          "xy": "??",
+          "sha256": "1c788de4ba461c54c0a3d1e18a47a3de8cb937f1b2c3b3160ca768994c4b922e"
+        },
+        {
+          "path": "scripts/quality/lint-debt.mjs",
+          "xy": "??",
+          "sha256": "97e245288589e3415c2ecfc2357bc9a2fa73e8d059916c72a169b9fdf33a6405"
+        },
+        {
+          "path": "scripts/quality/setup-native-tools.mjs",
+          "xy": "??",
+          "sha256": "83d88076a91c8b6b6f3e8e92e94ef1af2402ca62df69453d6bed23e5a0c1f2b8"
+        },
+        {
+          "path": "scripts/test-collector-restore.mjs",
+          "xy": "??",
+          "sha256": "358e0080bc8f5e15c45b3b587051d791ec6b33ee6a8e97b082e59056d3d99cfa"
+        },
+        {
+          "path": "tests/harness/branches.test.mjs",
+          "xy": "??",
+          "sha256": "b7404c7a0fe62daaa09a56481237df98f34bb4906204b613da63f9a0acd46026"
+        },
+        {
+          "path": "tests/harness/ci-context.test.mjs",
+          "xy": "??",
+          "sha256": "5ce15227aca0ec6b090f49ed89bb5d5931f0a15385122349208e88f0a9a54412"
+        },
+        {
+          "path": "tests/harness/ci-workflow.test.mjs",
+          "xy": "??",
+          "sha256": "35fc688490e2f6983195dc3e4a1c3ee05732c0bad4c42da5d41291cb7a62e555"
+        },
+        {
+          "path": "tests/harness/hooks.test.mjs",
+          "xy": "??",
+          "sha256": "ed597a2b1f5473e91d07759a9f3e157f80816fcd5dc93dfdeefe9702c5ecfa94"
+        },
+        {
+          "path": "tests/harness/job-receipt.test.mjs",
+          "xy": "??",
+          "sha256": "4e7955fd561c8d6cf69f6f8cb8f92b484f0784b98d6556c17f6575c1e182799d"
+        },
+        {
+          "path": "tests/harness/leases.test.mjs",
+          "xy": "??",
+          "sha256": "127050f77f31e4d3d87b3b5fac03d44a25b817119293d837049860e5292b8d99"
+        },
+        {
+          "path": "tests/harness/merge-back.test.mjs",
+          "xy": "??",
+          "sha256": "4266f6a034ef22cdf13f85e2edb968c0915d0199e3bd53e4e8bd85a5aebee3e2"
+        },
+        {
+          "path": "tests/harness/release.test.mjs",
+          "xy": "??",
+          "sha256": "89a20d4422ef0ae3ade0bd5cc5172c58d83f58ae2ea029f3df6dca6452497404"
+        },
+        {
+          "path": "tests/harness/restore-scope.test.mjs",
+          "xy": "??",
+          "sha256": "3879fd9924c0c4297f7229c68df122ee8322143de42094893a6b8b832f7b0b56"
+        },
+        {
+          "path": "tests/harness/verify.test.mjs",
+          "xy": "??",
+          "sha256": "70c68ae9bffcb028154642b3934510b6f0bad12989ce1e1064528d1e8165d72b"
+        },
+        {
+          "path": "tests/quality/lint-debt.test.mjs",
+          "xy": "??",
+          "sha256": "e33a8c1fa550deb3d08eb9edd02e413761972a2d8064f2b743fa801170bfcd81"
+        },
+        {
+          "path": "tests/quality/lint-tools.test.mjs",
+          "xy": "??",
+          "sha256": "70c5cc0244fdfa24a3620ec080aaa99989f3082a1aea38108deea05499578429"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/BRANCH-TRANSITION-INVENTORY.md",
+          "xy": "??",
+          "sha256": "141330db3106ab587ceaf2e7d44e67a30c595c777fbbbd68545f96e9c82f446b"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/DEVELOP-BOOTSTRAP-DECISION.md",
+          "xy": "??",
+          "sha256": "67e865935af09ba5f45b66300ba6c1fa082e0d16591a7f7aecff29731eb06db4"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/LINT-CANDIDATE-REVIEW.md",
+          "xy": "??",
+          "sha256": "b817e7cbd99717be93c959142ce6b4fe59227539665a8ac64cb3dcd9932617e5"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/README.md",
+          "xy": "??",
+          "sha256": "62b5ce2bf2914b477389dc8674d4054f1257600955972fba5b949f8d54b69fbc"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/REQUEST.md",
+          "xy": "??",
+          "sha256": "b35c4a24f843828cb2b948718ada5371c4639d8fa8de46ba3d7fe7bbc7ba943e"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/RESULT.md",
+          "xy": "??",
+          "sha256": "00c6118f7b3f2131d7181598aaee0322ec5fdb2d811121ddc0a1c4de86b62369"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/ASSETS.md",
+          "xy": "??",
+          "sha256": "b242bf2ca5447d459f0366423db4f3416e248cfd42b9f12b252283b30e314304"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/FILES.md",
+          "xy": "??",
+          "sha256": "61e9469ce5b6a3d6b666411bd31bd74641c7005a36f1e64e63589ad6e49cbd39"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/README.md",
+          "xy": "??",
+          "sha256": "c66140f143d2899f7a042a2293c10c0f0a9eeacbda19a861da0d5ea61b0e4a77"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/inventory.json",
+          "xy": "??",
+          "sha256": "1979d7af0a3b80d7dc5022759ef037a6bc8cd4d7f775df4319af288e35879b0c"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/verification.json",
+          "xy": "??",
+          "sha256": "844584760ec43ef709ace8156415a8e7cd86a8a2db68bcf6840c869d6b83ff72"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/.gitignore",
+          "xy": "??",
+          "sha256": "c0844c7670c89257f8f01e2f81a011a8cf7cfd6582860b465b05682b895bb0a3"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/README.md",
+          "xy": "??",
+          "sha256": "bafb310f722a31a4de0f5a96766c65ad1db509011abdc7502aeddad750803577"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/RESTORE.md",
+          "xy": "??",
+          "sha256": "f40891400d399b021aba34620c7051f64c569200aac7df0cab0769da3edf4c65"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/SHA256SUMS",
+          "xy": "??",
+          "sha256": "13066a104f836e9f4bdc7146593543f10b323ea71658eab03c9b1fae3ca10b7e"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/after.json",
+          "xy": "??",
+          "sha256": "719dde02a84501133f79e733fd24c1e3368c49d5258ae1a3348093ab0c123329"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/before.json",
+          "xy": "??",
+          "sha256": "1261a1038f1f5d0a0b86d549196ef7bfa400b56ae4915d62d2682940bea5f58a"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/final-check.json",
+          "xy": "??",
+          "sha256": "b519d5c5eb997f8eca33a4c582a8a22bea062868ccc795ba12122aa19ef5e5c4"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/fixtures.json",
+          "xy": "??",
+          "sha256": "921087b7b26ae153ce1ab9c28b2424040b4efe5121697934a5c998c052ced89f"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/inventory-delta.json",
+          "xy": "??",
+          "sha256": "e99d7af463697fbeeda5031ba6b3e0c4939cd23dbafb051763b1f9c8044625c6"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/remote.json",
+          "xy": "??",
+          "sha256": "81e5f8a95b0725b852eb7e75ce34bcf6510264ce2e446f54ea6ecc48f3736910"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/restore-readback.json",
+          "xy": "??",
+          "sha256": "6d4d75a656b0780a1ca4789db0f0e0b91178a4383d52e3f07f7b35c26477136e"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/source-file-manifest.json",
+          "xy": "??",
+          "sha256": "679070e792964679902fedb9c5f8e31e8da609bcc887f17afe0ce253f0b7356a"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/verification.json",
+          "xy": "??",
+          "sha256": "ffdc8fbe8ad51cf984c32334dfcff6d850a5ecb1ac333c16d10d32ac5af43db6"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/PLAN.md",
+          "xy": "??",
+          "sha256": "780aaaf2fd07665a522d33dee488daed48dfc4ff8dd47b348bc9d5e9d7f551aa"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/README.md",
+          "xy": "??",
+          "sha256": "8c48f2b40904c2d08df66e91fdbdbb00e2196982eb4744a428e9a3784f119c3d"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/REQUEST.md",
+          "xy": "??",
+          "sha256": "56cb553d312debf11471b28161306ccfc02fcef1678e54e21c60d78e38c1d347"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/T1.md",
+          "xy": "??",
+          "sha256": "2eb80cb36ce8fac092f52f544ca5b839a6c0bc151ea7e47d3a45ab0fe2a2fa7a"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/baseline.json",
+          "xy": "??",
+          "sha256": "0d7f5f0bb0e400bb18209918fb92b67b47c9dee47ed713508254c8f749cf5acf"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/input-ancestry.json",
+          "xy": "??",
+          "sha256": "4a98ea756927fc602573ccb148b944a101c2ff29cca24149e7e9ed82414d4cc3"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/input-history-scan.json",
+          "xy": "??",
+          "sha256": "a868f57d71f6e2a5527459c8c767b2ec80d3ccc23e37c64752bc7d81a832e46c"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/pre-commit-boundary.json",
+          "xy": "??",
+          "sha256": "196f9d4c65c7b066b121270df0a2c3422ef1d8e5ec9237e4feac3a31c0fd0928"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/refs-difference.txt",
+          "xy": "??",
+          "sha256": "5f3f9166511b51bd364c1990d58d8550b642d303043510faaa7883688cca2376"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/evidence/selector.patch",
+          "xy": "??",
+          "sha256": "e7d2c84997e5bde1dd142157f0301f3998eb7c151bbb338122362fe1ec120495"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/manifest.json",
+          "xy": "??",
+          "sha256": "f032b02610d0079af761d2c4ed89a23e875388236f0cb2a22936e7c114fca774"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/rollback-before.json",
+          "xy": "??",
+          "sha256": "53d3c940f4e64eaee152e1b4f416be9ec29e0c0d6d149feb5b426bb2188953d7"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/archive/2026-09-26-t0-t1-cancelled/rollback-result.json",
+          "xy": "??",
+          "sha256": "752f389526c0fc3a258fa03f610635ddacaa2765fe4bb3fb9040d6c7cb6bd34b"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/README.md",
+          "xy": "??",
+          "sha256": "c75bfc5c4e01a82d99f9189edf140f16a799e89fe2e06e39d4ef71f843646b7e"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/RESULT-TEMPLATE.md",
+          "xy": "??",
+          "sha256": "ab1063c24314f8615be236f8c7d05253bcd8e857e8b95e9bd4187da516d7ce2d"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S01-git-assets.md",
+          "xy": "??",
+          "sha256": "aed63e04677bc47b8fb3a7ba813e1fd7a205829e398125ffdb82299bcf7ea3d0"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S02-product-preservation.md",
+          "xy": "??",
+          "sha256": "a363d3a7011b9d1756340acf5e80bf78ab69b8e615a8ed9473439571391688f3"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S03-hooks-secrets.md",
+          "xy": "??",
+          "sha256": "7097decbd9fea79039885513dba092d9818f87287bbbb5bf18af09643aeb8bc1"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S04-lint-tooling.md",
+          "xy": "??",
+          "sha256": "64b149fc9341c776e381d96e6d09734c9a02891fe7520951039e290a8096151b"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S05-architecture.md",
+          "xy": "??",
+          "sha256": "04099322ff994eadd253242bae845f08c0c71bc5e022ef8e4cc61dca3ecd4fe7"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S06-mixed-cleanup.md",
+          "xy": "??",
+          "sha256": "fc594184a381d2022979eacc7c92e05e6ab666025e550ceb71b44bd03bd189f7"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S07-migration-checksum.md",
+          "xy": "??",
+          "sha256": "65d7658f0510129c0ed16c901f860659582b385b50015d118cf236ca11f097cf"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S08-database-restore.md",
+          "xy": "??",
+          "sha256": "28c0b19401439544addb87cc4ea433a462e95b2d3789504368d7bf2d5157c1c0"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S09-harness-policy-release.md",
+          "xy": "??",
+          "sha256": "97130730cb8e72f23e555781b30062998dec5360c29a18607adf5d108c6d8952"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S10-ci-integration.md",
+          "xy": "??",
+          "sha256": "bfcdfd7c34a438c019a7ad76e3991af8fdeff75a99e1250fe38cae55ca6ac7b7"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/S11-docs-closeout.md",
+          "xy": "??",
+          "sha256": "b90534e5087efa2dbe77aa4ac5e0294e17b2164e00a45973e43508e0571a9d75"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S01-RESULT.md",
+          "xy": "??",
+          "sha256": "4e459c902cb8d0a75192cdb6eba852209ed38f7ae5d6979c91d86cdc9da9f9a7"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-RESULT.md",
+          "xy": "??",
+          "sha256": "22d54d06f2887e343ea92ba909ddae7ac742fac8a47b9ab990cf485b8ff51cf5"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/.gitignore",
+          "xy": "??",
+          "sha256": "2cef15520acfad68627ce037de28055124d05a657a568ee35b44289f7b694983"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/FIXTURE-PROTECTION.md",
+          "xy": "??",
+          "sha256": "40bbf1f1c3bb7eb6c128688838626cc3137db47b0e70d54d8836b539a55e9559"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/PRODUCT-PROTECTION.md",
+          "xy": "??",
+          "sha256": "982c27a681d2dd23c9bde03827ed398b283bdbb6302e5f0da32924a39d00485a"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/README.md",
+          "xy": "??",
+          "sha256": "497de8d66fe178dd19f1a74f5a14b4da26b85cf29ff906505f96999e036921ef"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/SHA256SUMS",
+          "xy": "??",
+          "sha256": "7d316a97ffee574a1116a72dab618a8ef79453bf11d17991b57b1ddc44421c82"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/browser-pr3-preserved.patch",
+          "xy": "??",
+          "sha256": "8d5aa8c1982b1dad26939fd63f4ed296621f8c78c046adb7e0ca43574feb914e"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/browser-selector.patch",
+          "xy": "??",
+          "sha256": "1eb8725a5cba143c471cc0dd2c62fe9e381d05286443df60b503d5e426e3c357"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/browser-verification.json",
+          "xy": "??",
+          "sha256": "c4ee138ea4e1274b9bbecd7c4c2891dbaed1567c3057777f42610bfce8f4b99e"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/browser-workflow.json",
+          "xy": "??",
+          "sha256": "2f2ee0350f23c020cb772fcc756663b4e140a25a0f847cbb248239583b49bfa1"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/checks.json",
+          "xy": "??",
+          "sha256": "1536002fe6706a9c7b68b0d7633da1b906d2186509af2a23641d60a5f12fb4e6"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/commits.json",
+          "xy": "??",
+          "sha256": "f8539ca50c25e39058ad5ce6ceba8e931dec937f29490fea8be6c68458e81cf3"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/final-verification.json",
+          "xy": "??",
+          "sha256": "676e9cb22f5494d1969ffdcdee6f8e2a65752fa669e03e27aabd2f0d44cf49e3"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/fixtures-provenance.json",
+          "xy": "??",
+          "sha256": "cf1e906a873c4c57fcd85590bf0afb4275b44a25615561df9595b4462db7f573"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/handoff.json",
+          "xy": "??",
+          "sha256": "4e8e3670fedcb2460c88321b956eead1ce6e40280b5f55582d7e6266d892ff32"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/inputs-s01-delta.json",
+          "xy": "??",
+          "sha256": "f7d43356e13d97399abb27d7fd991dd465ba318c56be560b3423b94432ea91c5"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/inputs.json",
+          "xy": "??",
+          "sha256": "d64a0d4250a864ee3d089448fa122c30bb1b81424b93092c11810d372828691f"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/preservation-verification.json",
+          "xy": "??",
+          "sha256": "cc0c589eaae094a423602a23c2fedd70ff40bccf39538bfe0b88121fd14eb873"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/product-patch-verification.json",
+          "xy": "??",
+          "sha256": "ed0f528023e52cbc0e29020b46ca022551b9420d992aa86db0eccbf8116a490c"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/product-paths.json",
+          "xy": "??",
+          "sha256": "6b70b3c9eed2a5bbd34d5576ce1686979b801843840ff799684e784d0849dba2"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/product-preservation.patch",
+          "xy": "??",
+          "sha256": "c1da1cd66035bb4206374f7973337656452ac060e6f8eddd5c6bb6c2f852aad7"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/remote-readback.json",
+          "xy": "??",
+          "sha256": "01e3dea3156673d132672af1d9f432293fce9509397d8f158b09ea20604accf0"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/screenshots.json",
+          "xy": "??",
+          "sha256": "b7c25ef78032883af9c45f1044d2597fba609318cd946cf5e82dfe050946cdb7"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/screenshots/editor-1280.png",
+          "xy": "??",
+          "sha256": "2ee6eb23151c81947c49b1ed4331451c365ef104d101eb070077a4d85596abb8"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/screenshots/editor-320.png",
+          "xy": "??",
+          "sha256": "b41ff72c1eb03cfdbb6b532468100ae106284e0270c86833b426af0821063341"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/screenshots/editor-390.png",
+          "xy": "??",
+          "sha256": "c4c098bdcb30be9d5f49d8d8edde09854ae0be68a8b037ad52641aa717254a93"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/screenshots/editor-768.png",
+          "xy": "??",
+          "sha256": "f688410aefffc8fb5add1dc4b45310de2293ec166d99d6556ce5446f62034e68"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/screenshots/list-320.png",
+          "xy": "??",
+          "sha256": "124d80d14a29c28ac65311785268a6ea949719bcf1809b8d96a9dcdc51ba0348"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/results/S02-assets/screenshots/list-390.png",
+          "xy": "??",
+          "sha256": "ff3b41e74784139926a87ff0cb7f2aa32c9c1d2a5a0a42e8a2543979c91f7ca5"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/tasks.json",
+          "xy": "??",
+          "sha256": "edf5393932856b763a4cef519bc755a8c4a7993bfaa69ce727e5c07fb2acf3f1"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/session-tasks/verification.json",
+          "xy": "??",
+          "sha256": "24fd57f9ea3d6c7ecf1045c00583016c0fd024918f7ba990d1cd94f51ac90893"
+        }
+      ],
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review",
+      "head": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+      "branch": "refs/heads/feature/HARN-09-browser-retry",
+      "files": [],
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+      "head": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+      "branch": "refs/heads/feature/HARN-06-git-governance-bootstrap",
+      "files": [],
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+      "head": "6a431358db73b9c59be4125fa0749beb014e7acd",
+      "branch": "refs/heads/feature/HARN-07-release-fixture-clock",
+      "files": [],
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+      "head": "a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+      "branch": "refs/heads/feature/m0-core",
+      "files": [
+        {
+          "path": ".dockerignore",
+          "xy": " M",
+          "sha256": "69079cc2b8deb34162c1b6e969372175a5e9004930a5b0feb4cd4db555b615cd"
+        },
+        {
+          "path": "README.md",
+          "xy": " M",
+          "sha256": "cd6999a15ee0182c847b344cc91e1efede8f1b374a9b4a5507ef820ae83ff88a"
+        },
+        {
+          "path": "apps/api/src/app.mjs",
+          "xy": " M",
+          "sha256": "98528a0ce4ce0a0109bef707af53370638ede5b0c2d12368205c3ce73b14ce4d"
+        },
+        {
+          "path": "apps/api/src/collection-routes.mjs",
+          "xy": " M",
+          "sha256": "0e5c55d7a9cd1eb22da8a32ff5f15a4d3cdf3a5ed668aef98ecf5b9855f36504"
+        },
+        {
+          "path": "apps/api/src/collection.mjs",
+          "xy": " M",
+          "sha256": "b8de64042f571e648bce88136c8559063ee2a181793d4e0b216c93a0d7821d05"
+        },
+        {
+          "path": "apps/api/src/db.mjs",
+          "xy": " M",
+          "sha256": "45142ac844dc5864a1b08900fc68cfc9909fc1abd99c728ba05207a2a99f231b"
+        },
+        {
+          "path": "apps/api/src/migrate.mjs",
+          "xy": " M",
+          "sha256": "5a1e35e6c006929b188cd614f1f7c236498792b22499cc2df263281cfcfa165c"
+        },
+        {
+          "path": "apps/web/app/pages/admin-collect.vue",
+          "xy": " M",
+          "sha256": "e3ade1de910d72f7132d1225aeb34fd1e5e0a39c2e594fa2771c44fd350f02d2"
+        },
+        {
+          "path": "apps/web/server/api/collector/v1/[...path].ts",
+          "xy": " M",
+          "sha256": "ed1e3e2238da0760da43d8f5fa635a847c94b146d0ffbae51e1ce44fc6b95e7b"
+        },
+        {
+          "path": "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+          "xy": " M",
+          "sha256": "5c08900e4c35dde505645ddfd85e41592a753e2578c94457101b4e43c21ca046"
+        },
+        {
+          "path": "docs/development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml",
+          "xy": " M",
+          "sha256": "9f31e550f30a7f80c119b7ed0e553e22bb60211507a51a4a8faecabfa976be17"
+        },
+        {
+          "path": "docs/system-design/07-spring-collector-design.md",
+          "xy": " M",
+          "sha256": "cab352e9feeef09cf3c52d35226a040a76012102b19961e21672d55a566256cf"
+        },
+        {
+          "path": "packages/contracts/openapi/m0-collection-assist.yaml",
+          "xy": " M",
+          "sha256": "9f31e550f30a7f80c119b7ed0e553e22bb60211507a51a4a8faecabfa976be17"
+        },
+        {
+          "path": "packages/contracts/src/collection-api.d.ts",
+          "xy": " M",
+          "sha256": "03dcac61af757e7d58f52fd02b79e80b5a0cd4cdf1eadcb134fc50eb4930b1f5"
+        },
+        {
+          "path": "packages/contracts/src/schema.mjs",
+          "xy": " M",
+          "sha256": "e43249c0dc4d11da8ef9c00b9c5f97a35b644f8bced633134493b9e15aedc8c4"
+        },
+        {
+          "path": "scripts/test-docker.mjs",
+          "xy": " M",
+          "sha256": "181b0b15256f002a07f994321ba8ea2b7a1799da7ecde4b4bc6c294c05c97531"
+        },
+        {
+          "path": "scripts/test-integration.mjs",
+          "xy": " M",
+          "sha256": "7e16dc65da3e8fcd9dc54f5c5b242c4063d28e777cabc84f6d86c19c800d6dfe"
+        },
+        {
+          "path": "tests/constraints.test.mjs",
+          "xy": " M",
+          "sha256": "54f4928c57e28549d0763580ba4eae68c1797fd2a1e8ae38982a375d15f20400"
+        },
+        {
+          "path": "tests/core-isolation.test.mjs",
+          "xy": " M",
+          "sha256": "93994952650e67b16b30d38f73307d00c35e76561f6814a3895f6337a6649d32"
+        },
+        {
+          "path": "tests/helpers/browser-fixture.mjs",
+          "xy": " M",
+          "sha256": "4cb5dafb6510eafd1a0c9545e478908218b42118fb1b861d682a82dca2a31451"
+        },
+        {
+          "path": "apps/api/migrations/V005__spring_collection.down.sql",
+          "xy": "??",
+          "sha256": "d252a678271212f18b8877b313037116aec06720dea743b38abac78efbb066c2"
+        },
+        {
+          "path": "apps/api/migrations/V005__spring_collection.sql",
+          "xy": "??",
+          "sha256": "f2b1eec3d575bc27f58368eb1f1a6d5c902db2bd7052f6b70ff5a49ed96b8afb"
+        },
+        {
+          "path": "apps/api/src/collection-transition.mjs",
+          "xy": "??",
+          "sha256": "ed76e1689f54f76b66b82868ddf7db5ea440f7db25d16debf684e71b3581f560"
+        },
+        {
+          "path": "apps/api/src/collection-v2.mjs",
+          "xy": "??",
+          "sha256": "638aeef1f625f3d6c12e1cc87383618be3b1fc7621993c259705ad2161dc0ae6"
+        },
+        {
+          "path": "apps/collector/.gitignore",
+          "xy": "??",
+          "sha256": "0fbccec92849c8347f8e162c5c0a2876b82a9b8b2772320170e75d899dd7c99d"
+        },
+        {
+          "path": "apps/collector/build.gradle.kts",
+          "xy": "??",
+          "sha256": "55a495a4f4da37c7f8dcaa9ba04838bcbe71776e85ff06d521742182250c445a"
+        },
+        {
+          "path": "apps/collector/gradle.lockfile",
+          "xy": "??",
+          "sha256": "4bf1d1f2d256ab360ddb35392f5932f3f892ae146017ed2a66e4ab610ea56cef"
+        },
+        {
+          "path": "apps/collector/gradle/wrapper/gradle-wrapper.jar",
+          "xy": "??",
+          "sha256": "55243ef57851f12b070ad14f7f5bb8302daceeebc5bce5ece5fa6edb23e1145c"
+        },
+        {
+          "path": "apps/collector/gradle/wrapper/gradle-wrapper.properties",
+          "xy": "??",
+          "sha256": "5689676b853a52fb04ac6a62d9e49872247f47c61b115f85c5377eb61cb586f9"
+        },
+        {
+          "path": "apps/collector/gradlew",
+          "xy": "??",
+          "sha256": "5434a5b0657cbc767c4486551fe223f12a10eaa61017fd4c68382dc6e0810da8"
+        },
+        {
+          "path": "apps/collector/gradlew.bat",
+          "xy": "??",
+          "sha256": "fedad02c18e266ec094995a5751b7fe1eb6e74f66bf75db64fae2e50eb22c234"
+        },
+        {
+          "path": "apps/collector/ops/README.md",
+          "xy": "??",
+          "sha256": "308ef000ee3f8bde7bb2deff1058f99bf9915a8b52b9662c8e6a6a78c3390d3c"
+        },
+        {
+          "path": "apps/collector/ops/render-launchd.py",
+          "xy": "??",
+          "sha256": "f1eafd8ccd2fd3063292c1e7488d3a86ff6addac457b5377f8b4182bed357d80"
+        },
+        {
+          "path": "apps/collector/ops/test-render-launchd.py",
+          "xy": "??",
+          "sha256": "a1b29248460b3dbaf53273fbfe327f39b3cce6044581dce248c072c0a2e48a6d"
+        },
+        {
+          "path": "apps/collector/settings.gradle.kts",
+          "xy": "??",
+          "sha256": "11dbbc633b4eccee1ee3a4d42a7d0fcff9e3938aa3139315f17940a51d5959c8"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/BackupMain.java",
+          "xy": "??",
+          "sha256": "28a72b28668cae352d653b55d2efec14d5a9f2a3726862b2e6d7cd6b0ef30834"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/BatchRuntime.java",
+          "xy": "??",
+          "sha256": "6b85ef10d3dc933eeb003aebc53806ad22926b8ec0b7f969f6d3b9ea3a0ae4fa"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectionPipeline.java",
+          "xy": "??",
+          "sha256": "0d34e78fcb569555e3fecfc17cc06004b92bd30415b73bde190a31a1096b57ed"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorApplication.java",
+          "xy": "??",
+          "sha256": "a8dc8f63410039c8ebc38b184bbf525f9152a5c6b8669ed5acac9ed1b3ce59a6"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorFailure.java",
+          "xy": "??",
+          "sha256": "e5486ef7b0522d204643640166266e7bc69758ab22bcfdc9f9f86385b188a160"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorHealth.java",
+          "xy": "??",
+          "sha256": "241ecafa4239235b0f04ba1cdcc3d693a5476ea21804ffbf16a686a81afaf054"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorMetrics.java",
+          "xy": "??",
+          "sha256": "70c93a4109c9e9c02f11bdd09c40e01af5d576114a95fbf26ca3d8a6ed120ad2"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorRunService.java",
+          "xy": "??",
+          "sha256": "d9679be7fead4e62fa8a3940d18c9fa136aa8d30d7a3730c95aa195a6db875e5"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CollectorTelemetry.java",
+          "xy": "??",
+          "sha256": "429fe9a7122216a4c9064b0e21bd5066d6ef984d162bb8a2990a5d1168e27311"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/CoreClient.java",
+          "xy": "??",
+          "sha256": "908d1fb8a2a90fbd3a9b5e131642e6e7dcc989a7cc9ea8cde7e0454970f10dcf"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/DataSourceConfiguration.java",
+          "xy": "??",
+          "sha256": "8d696fc8c5c0b77b8b29968c36b0e4d7356a064bbb0c34b4de67a4eb4baf64f3"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/DiscordGateway.java",
+          "xy": "??",
+          "sha256": "ca7742643a3ea6807e98b5c8a3f32be3c7b29eaea2bfeaa6c28f6305050b2fcf"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/DiscordPolicy.java",
+          "xy": "??",
+          "sha256": "84704a049cc005307dcaeeb15ed1f41e7717374b6fd1908d92cefcab3c7a2bc0"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/EncryptedSpool.java",
+          "xy": "??",
+          "sha256": "a854613e1b69f42c39d6aa128773aa2f35ec961d211559058d09f9113a18c5b9"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/ExpiredRecovery.java",
+          "xy": "??",
+          "sha256": "121fa10513b496fc70f1b3267839823fc041444b9c0d033b20f08843b2d5a8a5"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/JobControlMain.java",
+          "xy": "??",
+          "sha256": "35f85d854561d7e8ef9b1970fe7628af4eb02dd0119628dc26c846ebc5d08ac6"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/Json.java",
+          "xy": "??",
+          "sha256": "f4efd3b4cc2db15af750d60d14ff8001d32c3d535cc12972026ff7464f187cc1"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/LocalController.java",
+          "xy": "??",
+          "sha256": "4af2458c85c26613aff6f13b69a96ea986b325e6119b06a0d50790b9dd14fd79"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/LocalSecurity.java",
+          "xy": "??",
+          "sha256": "832be9874b0a4d7225bbaf5a4bb1d84e1c3bee2e576f5118636786111ed04551"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/MetadataRetention.java",
+          "xy": "??",
+          "sha256": "0f5039763d554acd55dec63d757dbc05e390642bc8f5beee4297421e5cc1336c"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/MigrationMain.java",
+          "xy": "??",
+          "sha256": "e8a175f75fbd4581f739fa668acb62864f9eb8cb7f229fef6de29864162ec878"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/NotificationWorker.java",
+          "xy": "??",
+          "sha256": "7208f4dddc8de07f1f241e76be9f4eb9ea78b7fbd9eaa268ef1add10124c732a"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/OperationalEventOutbox.java",
+          "xy": "??",
+          "sha256": "9f8267b7aa6885b269b8d7daac03f3d33ffb84d98ab2b7321ad3a3cd7c7f7506"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/OperatorSettings.java",
+          "xy": "??",
+          "sha256": "5d967aeee2777b09183aa7c64f9ba6503d8fc610212ab7d3bf0fb54f3eea6e02"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/PinnedHttp.java",
+          "xy": "??",
+          "sha256": "cf46837df61400ece758dedb37a8a11db252b71e75c2501c5e6611a3e660300d"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/QuartzConfiguration.java",
+          "xy": "??",
+          "sha256": "b8c1a0789ac5a644f074d141fd2ed6d9d9a2f2e98cfbfdf9759b60c753307ff8"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/RunRepository.java",
+          "xy": "??",
+          "sha256": "688507e7bbcd7464aa1001560e24cf140248794d9053b8d0e6ada79953d847fb"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/Secrets.java",
+          "xy": "??",
+          "sha256": "d79264b4f34233886462e1621e2601cde6cd6658cc9a7a56ac69535455162193"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/ShutdownGate.java",
+          "xy": "??",
+          "sha256": "06f004b04e2b80183d455945c26b1e26f992f913394b1b0eb82523247bda6a30"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/SourcePolicy.java",
+          "xy": "??",
+          "sha256": "a1874149168d1cb4b00bd9774647fb887ba98b1db9199e7b0871777401399cbc"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/SourceTransport.java",
+          "xy": "??",
+          "sha256": "bc392e637fbbc468243fe48447f6ef98341827b626855c6db32bb252b39d60d5"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/SpoolCleanup.java",
+          "xy": "??",
+          "sha256": "01fb92c3c034fb7f4c3fb5bddedd9e391a08cd3420f927f37ff8b76b639baade"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/StartupChecks.java",
+          "xy": "??",
+          "sha256": "672629566bdabb5fe771a9f8fe734a394f7b25e9f7c837a316c33db7e38ae769"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/StateStore.java",
+          "xy": "??",
+          "sha256": "ab7e19fa308d3955c028b6ff7d2e0e3b37c0039564d1f331a4ba0655b7759a35"
+        },
+        {
+          "path": "apps/collector/src/main/java/com/blariyo/collector/TransportConfiguration.java",
+          "xy": "??",
+          "sha256": "320e86f0f9b66dbae410b3ddd47e106fda67f9054dabaeb5c2d21bfe1a204c53"
+        },
+        {
+          "path": "apps/collector/src/main/resources/application.properties",
+          "xy": "??",
+          "sha256": "7021d5571c0ff0202df8c1110a8b9af3ce007ff29761d226295b83efc5cd359d"
+        },
+        {
+          "path": "apps/collector/src/main/resources/db/collector-v001.sql",
+          "xy": "??",
+          "sha256": "8e8b1d776ece931932b425b0993c15a08a744af5d58010db5f55d80341b81464"
+        },
+        {
+          "path": "apps/collector/src/test/java/com/blariyo/collector/CoreObservationTests.java",
+          "xy": "??",
+          "sha256": "04bdbb7820ebfb88e43c4f024e6932393529258fbf018a1d35932414f6f6f744"
+        },
+        {
+          "path": "apps/collector/src/test/java/com/blariyo/collector/FixtureApplication.java",
+          "xy": "??",
+          "sha256": "4ed7563bc8cd692e50417025996623b6b679c7730c0dc1efe3c3f266c61f96fd"
+        },
+        {
+          "path": "apps/collector/src/test/java/com/blariyo/collector/FixtureControls.java",
+          "xy": "??",
+          "sha256": "aeedba02c98092490dac1cbaf3fd906bbe20ecfa378a13eef49f934c46b5aed1"
+        },
+        {
+          "path": "apps/collector/src/test/java/com/blariyo/collector/FixtureStepCrash.java",
+          "xy": "??",
+          "sha256": "dd5da7eead2327b68646e51a48a5355825fa62d1ecd19053129f6f4d914407fb"
+        },
+        {
+          "path": "apps/collector/src/test/java/com/blariyo/collector/PinnedHttpTests.java",
+          "xy": "??",
+          "sha256": "800f60b29e8e83913505ebdfb96b0091ba8360a13d01a536253d38fbe696fead"
+        },
+        {
+          "path": "apps/collector/src/test/java/com/blariyo/collector/SecurityTests.java",
+          "xy": "??",
+          "sha256": "1401785bc6d32fd1fc9470f85d5093add116721c1c1aaca73e1b849b2edbc5cb"
+        },
+        {
+          "path": "docs/implementation/m0-completion/acceptance.md",
+          "xy": "??",
+          "sha256": "1013807ce9168e9c646c6ac540c6324948eb31ae6d5e6530a7fc22f9ccb4f6cc"
+        },
+        {
+          "path": "docs/implementation/m0-completion/evidence.md",
+          "xy": "??",
+          "sha256": "e69ac902308e4281443311a5f2de4b8565de4286458417586d7b4e45fb45bcf6"
+        },
+        {
+          "path": "docs/implementation/m0-completion/operations-observation.md",
+          "xy": "??",
+          "sha256": "4958d696b80f6f67cb5e4721ac45e383a2637817cb49190b429bf774138426b9"
+        },
+        {
+          "path": "tests/browser/collector-events.test.mjs",
+          "xy": "??",
+          "sha256": "4d0a397135d7aabadb2cf753c6feae792ea5902412f5162f8af16d814daa5537"
+        },
+        {
+          "path": "tests/collection-v2.test.mjs",
+          "xy": "??",
+          "sha256": "e4ebf91e296f4901f7cf36cd35a5e3a77ae6f4c75f8deed00f9fc8ea996c60da"
+        },
+        {
+          "path": "tests/spring/control.test.mjs",
+          "xy": "??",
+          "sha256": "2f7927fc85800697fb9469dc34a6bec5f1761f50645f681e2c70c3b5233b4e89"
+        },
+        {
+          "path": "tests/spring/fencing.test.mjs",
+          "xy": "??",
+          "sha256": "a839dcae66316f45e28a57be4b191d79dd17f88298f8a73c18f51f42af432e86"
+        },
+        {
+          "path": "tests/spring/preview.test.mjs",
+          "xy": "??",
+          "sha256": "185c643543ccb32c695958bdfd0aec1fdb97ec3bed247d3ae6a26e392ffcfe89"
+        },
+        {
+          "path": "tests/spring/runtime.test.mjs",
+          "xy": "??",
+          "sha256": "85d1b9c86c3704e11b341089b6a69d02167c9aca1581ca6f3b9820f03841527a"
+        },
+        {
+          "path": "tests/spring/step-boundaries.test.mjs",
+          "xy": "??",
+          "sha256": "15355bbcdf6393dd6f91a8498896c5b2c5c15c509c9b5b57b635eabb189c7e04"
+        }
+      ],
+      "diffSha256": "fb8b9f96712918d0cfc5548f6e7bf6b24120e1d5e540e30de9de7f9c4e2acd7e",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "head": "5957492429b668377bede866c90f878b43225785",
+      "branch": "refs/heads/feature/HARN-08-stash-recovery",
+      "files": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "xy": " M",
+          "sha256": "42c30c533706d93b0a81819918c03472bf26bb99e9e02555d94a9a96e459566c"
+        },
+        {
+          "path": "docs/ai/git-workflow.md",
+          "xy": " M",
+          "sha256": "1ecdafe2563b3f470a47b21a2f781921a1ab6edcb6e855adf715a516b6db3c20"
+        },
+        {
+          "path": "docs/ai/harness-implementation-plan.md",
+          "xy": " M",
+          "sha256": "1e0a8731dc77fd139ad4e3eddf2f252e158ad80e240e14a41cb596ac9dc64d66"
+        },
+        {
+          "path": "docs/roadmap.md",
+          "xy": " M",
+          "sha256": "6db241c54247dc65252dd4e038b90169254df170af38e5bbfc9ad74635ab17e3"
+        },
+        {
+          "path": "docs/status.md",
+          "xy": " M",
+          "sha256": "87e97b1c57e64ca54db5738552568211c0b42cd028639f0d9c98c36ba5db15b4"
+        },
+        {
+          "path": "tests/browser/admin-workflow.test.ts",
+          "xy": " M",
+          "sha256": "54f25844d1cfece69a92e0758ca10501736f554d05c30ea58652b475f9584d8b"
+        },
+        {
+          "path": "tests/harness/ci-workflow.test.mjs",
+          "xy": " M",
+          "sha256": "cb7717a38763c225cba3db4e082965f6c5f757a53573984b51cfe02eda0a7d98"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/STASH-RECOVERY.md",
+          "xy": " M",
+          "sha256": "a0275d5aeb802d0ce00dfcc69efc19fc1e40fdd29d6e075f2a89ce272244348b"
+        },
+        {
+          "path": ".harness/tasks/HARN-09.json",
+          "xy": "??",
+          "sha256": "cc94d0114f1644210f05242b7e399d55abfac54caecbc43626ac89932924c9cc"
+        },
+        {
+          "path": "worklog/2026-09-25/git-governance/CI-RECOVERY.md",
+          "xy": "??",
+          "sha256": "b233f9a2c04b897a42aac71a54c95aef3b5b40aa9c9addad229163e07e93e790"
+        }
+      ],
+      "diffSha256": "0b14ae92626040901c073e8bbc3bb84f51a80059f1f9be2d647419c19317320a",
+      "stagedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "refs": [
+    "refs/codex/turn-diffs/captures/1790392051596/f51508d0-444b-4cff-beb3-a2323647c938/base b7fbd9fea6eedeb718bf2e1948c70a119bd8cdec",
+    "refs/codex/turn-diffs/captures/1790395511642/0fdde8b7-6ee3-49d2-82c0-67f790ffa915/base 36f69e0fbf32cdd41fe741a1760ea03e3bfbaa94",
+    "refs/codex/turn-diffs/captures/1790402116215/665d086d-b9ea-4012-9a0e-1805e309f179/base 3bd34f6824f4e6459cdd24fc4fa3282708e8c7be",
+    "refs/codex/turn-diffs/captures/1790403410400/6fb8aa6f-e17a-44c5-af5c-bff18c442dfe/base b8cfbde2edaca23b1c5ef49cb8c81b30d83cc383",
+    "refs/codex/turn-diffs/checkpoints/a751673902b0e57d97f84d5b177e00fc/6086514186a1ed81f953e7fecb11b81e/1790402060957/15e37e59-3ea0-4fa3-9d4a-88b795398ca6 3bd34f6824f4e6459cdd24fc4fa3282708e8c7be",
+    "refs/codex/turn-diffs/checkpoints/ddf04511f7141a21f295496fea02ac00/99d1a525ccb22205eadac54928d10c56/1790396158910/e5e5729c-2d27-419c-9be2-c9575dafc5ae 4bb982efb8b1d81f905bec88c7ce1fa24aa4c84a",
+    "refs/codex/turn-diffs/checkpoints/fa62fe16fa90030720812a373660294b/b0cb72d1900a55d8f8a249155f68790e/1790403403896/ebea643d-23b1-42c7-87dc-f092b11495be b8cfbde2edaca23b1c5ef49cb8c81b30d83cc383",
+    "refs/heads/develop 8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "refs/heads/feature/HARN-06-git-governance-bootstrap f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+    "refs/heads/feature/HARN-06-governance-registration ada24744af144b7a3d72df3e029e1845594dc33c",
+    "refs/heads/feature/HARN-07-release-fixture-clock 6a431358db73b9c59be4125fa0749beb014e7acd",
+    "refs/heads/feature/HARN-08-cleanup-review a1a4802c75c0048345778ad11ae2af39b9315fd7",
+    "refs/heads/feature/HARN-08-harness-review f782c0be80763f279cd11fb261bfc825cadf9b6d",
+    "refs/heads/feature/HARN-08-legacy-main-review df7482704c7867712c12028d1a69e59bfd662acc",
+    "refs/heads/feature/HARN-08-policy-review 8a72c9ae3e09460718de61065810a95594cd891c",
+    "refs/heads/feature/HARN-08-stash-recovery 5957492429b668377bede866c90f878b43225785",
+    "refs/heads/feature/HARN-09-browser-retry 2b61c4ca038adea80069f0d020019199b4c1e53c",
+    "refs/heads/feature/HARN-09-ci-diagnostics 299ea62ab8eb3e00d4471fc82930137fc5026dc0",
+    "refs/heads/feature/m0-core a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+    "refs/heads/main e51f1b501f7cc327da279102dd69eac2f4c554db",
+    "refs/heads/office 0dde53881c85629f62bbceade5408ec6177a0e8c",
+    "refs/heads/planning-design-only 3e8935b6541e204a7bf2a1a4b3d68c5c0d5d8854",
+    "refs/heads/release 8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "refs/remotes/fixprep/harness 85796f2667a7a9e0f220e7cefd1c025c33f86e2c",
+    "refs/remotes/origin/HEAD 8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "refs/remotes/origin/develop 8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "refs/remotes/origin/feature/DPL-00-nightly-deploy-design edb54b9a8c3f4a2775151e2309241be186fae4ab",
+    "refs/remotes/origin/feature/HARN-06-git-governance-bootstrap f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+    "refs/remotes/origin/feature/HARN-06-governance-registration ada24744af144b7a3d72df3e029e1845594dc33c",
+    "refs/remotes/origin/feature/HARN-07-release-fixture-clock 6a431358db73b9c59be4125fa0749beb014e7acd",
+    "refs/remotes/origin/feature/HARN-08-cleanup-review a1a4802c75c0048345778ad11ae2af39b9315fd7",
+    "refs/remotes/origin/feature/HARN-08-harness-review f782c0be80763f279cd11fb261bfc825cadf9b6d",
+    "refs/remotes/origin/feature/HARN-08-legacy-main-review df7482704c7867712c12028d1a69e59bfd662acc",
+    "refs/remotes/origin/feature/HARN-08-policy-review 8a72c9ae3e09460718de61065810a95594cd891c",
+    "refs/remotes/origin/feature/HARN-09-browser-retry 2b61c4ca038adea80069f0d020019199b4c1e53c",
+    "refs/remotes/origin/feature/HARN-09-ci-diagnostics 299ea62ab8eb3e00d4471fc82930137fc5026dc0",
+    "refs/remotes/origin/feature/discord-env-setup 7bede4485321bc2adc9b68b2c25cefb17eb44808",
+    "refs/remotes/origin/feature/m0-core a273f3c853fe0cf8260e3c7eb9daa2cfd1b02727",
+    "refs/remotes/origin/feature/m0-core-web c48f0845133cafea1c046eb26bec7e040d781ca6",
+    "refs/remotes/origin/main 8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "refs/remotes/origin/planning-design-only 0ade2e4815e74af68d337f73bd10877da28cce2f",
+    "refs/remotes/origin/release 8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "refs/stash c373dac4ad6584e663ad958d1c9d64767dc48605"
+  ],
+  "hookConfigurations": [
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "gitdir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git",
+      "configPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/config.worktree",
+      "effectiveBefore": "worktree\tfile:.git/config.worktree\t/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks",
+      "metadata": {
+        "schemaVersion": 1,
+        "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+        "gitDir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git",
+        "installedPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks",
+        "previousPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+        "hooks": {
+          "pre-commit": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+          "commit-msg": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+          "post-commit": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+          "pre-push": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2"
+        }
+      },
+      "restore": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review",
+      "gitdir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review",
+      "configPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/config.worktree",
+      "effectiveBefore": "",
+      "metadata": null,
+      "restore": false
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+      "gitdir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance",
+      "configPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/config.worktree",
+      "effectiveBefore": "worktree\tfile:/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/config.worktree\t/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks",
+      "metadata": {
+        "schemaVersion": 1,
+        "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+        "gitDir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance",
+        "installedPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks",
+        "previousPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+        "hooks": {
+          "pre-commit": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+          "commit-msg": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+          "post-commit": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+          "pre-push": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2"
+        }
+      },
+      "restore": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+      "gitdir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery",
+      "configPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/config.worktree",
+      "effectiveBefore": "worktree\tfile:/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/config.worktree\t/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks",
+      "metadata": {
+        "schemaVersion": 1,
+        "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+        "gitDir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery",
+        "installedPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks",
+        "previousPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+        "hooks": {
+          "pre-commit": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+          "commit-msg": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+          "post-commit": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+          "pre-push": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2"
+        }
+      },
+      "restore": true
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+      "gitdir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-m0-core",
+      "configPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-m0-core/config.worktree",
+      "effectiveBefore": "",
+      "metadata": null,
+      "restore": false
+    },
+    {
+      "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "gitdir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery",
+      "configPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/config.worktree",
+      "effectiveBefore": "worktree\tfile:/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/config.worktree\t/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks",
+      "metadata": {
+        "schemaVersion": 1,
+        "worktree": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+        "gitDir": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery",
+        "installedPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks",
+        "previousPath": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks",
+        "hooks": {
+          "pre-commit": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+          "commit-msg": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+          "post-commit": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+          "pre-push": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2"
+        }
+      },
+      "restore": true
+    }
+  ],
+  "backupManifest": [
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/config.worktree",
+      "archive": "private/config.worktree",
+      "sha256": "f798d080d54e67c4e3ba7e0a7e23890ef15d6647fb61ebd49d89d825407f0a68",
+      "mode": "0o644"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks.json",
+      "archive": "private/harness-hooks.json",
+      "sha256": "365b1269030b0dee05426a0cf89106ddba9f15a13ddddf344555ef488acf1119",
+      "mode": "0o600"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-post-commit.jsonl",
+      "archive": "private/harness-post-commit.jsonl",
+      "sha256": "f9ff79e9cfca40fc32b791ead87fb9d36e8955cf43650bf8e0c0f4cf21e93c6b",
+      "mode": "0o600"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks/commit-msg",
+      "archive": "private/harness-hooks/commit-msg",
+      "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks/post-commit",
+      "archive": "private/harness-hooks/post-commit",
+      "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks/pre-commit",
+      "archive": "private/harness-hooks/pre-commit",
+      "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks/pre-push",
+      "archive": "private/harness-hooks/pre-push",
+      "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/config.worktree",
+      "archive": "private/worktrees/blariyo-ci-browser-review/config.worktree",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o644"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/config.worktree",
+      "archive": "private/worktrees/blariyo-git-governance/config.worktree",
+      "sha256": "c49e13fe5252dfc954c276a5962623e7dbaba8ebd5c37cb0aecc08dd0ff852fc",
+      "mode": "0o644"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks.json",
+      "archive": "private/worktrees/blariyo-git-governance/harness-hooks.json",
+      "sha256": "1c683cebdd3ef1731ebd403cc0ea1e629b0ea85ed41070a3b937bfc1c5fc2223",
+      "mode": "0o600"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-post-commit.jsonl",
+      "archive": "private/worktrees/blariyo-git-governance/harness-post-commit.jsonl",
+      "sha256": "75513df77f5e80288642d36cdbcc25f23179d4895b716c4921542038a60abbf2",
+      "mode": "0o600"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks/commit-msg",
+      "archive": "private/worktrees/blariyo-git-governance/harness-hooks/commit-msg",
+      "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks/post-commit",
+      "archive": "private/worktrees/blariyo-git-governance/harness-hooks/post-commit",
+      "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks/pre-commit",
+      "archive": "private/worktrees/blariyo-git-governance/harness-hooks/pre-commit",
+      "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks/pre-push",
+      "archive": "private/worktrees/blariyo-git-governance/harness-hooks/pre-push",
+      "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/config.worktree",
+      "archive": "private/worktrees/blariyo-governance-delivery/config.worktree",
+      "sha256": "410837f9f1048de7b7211ceca14fce4fdedcada65cf5a5f250c3323d43bd2626",
+      "mode": "0o644"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks.json",
+      "archive": "private/worktrees/blariyo-governance-delivery/harness-hooks.json",
+      "sha256": "c5f96eab0a775d3bd49442147b19477d9cca4f9fd54207a6c93b5bd5b757e3ff",
+      "mode": "0o600"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-post-commit.jsonl",
+      "archive": "private/worktrees/blariyo-governance-delivery/harness-post-commit.jsonl",
+      "sha256": "7d32906ba2789370835a7eb25b6fa3b39e18f2d13533026fd7f2589fdcbba05f",
+      "mode": "0o600"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks/commit-msg",
+      "archive": "private/worktrees/blariyo-governance-delivery/harness-hooks/commit-msg",
+      "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks/post-commit",
+      "archive": "private/worktrees/blariyo-governance-delivery/harness-hooks/post-commit",
+      "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks/pre-commit",
+      "archive": "private/worktrees/blariyo-governance-delivery/harness-hooks/pre-commit",
+      "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks/pre-push",
+      "archive": "private/worktrees/blariyo-governance-delivery/harness-hooks/pre-push",
+      "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/config.worktree",
+      "archive": "private/worktrees/blariyo-stash-recovery/config.worktree",
+      "sha256": "81a2a3814568ace8bf02f261a8917aea93939b930d3356f90c94d11e2f5dad19",
+      "mode": "0o644"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks.json",
+      "archive": "private/worktrees/blariyo-stash-recovery/harness-hooks.json",
+      "sha256": "12070dbf6af6e54326cf49d2d73fe8890f1742e4e34ba80bdaf43e8a8e58c31b",
+      "mode": "0o600"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-post-commit.jsonl",
+      "archive": "private/worktrees/blariyo-stash-recovery/harness-post-commit.jsonl",
+      "sha256": "4ad5acb35cb062af8c0edb1a51d94a61834493787a2e82609468ca58d2c87540",
+      "mode": "0o600"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks/commit-msg",
+      "archive": "private/worktrees/blariyo-stash-recovery/harness-hooks/commit-msg",
+      "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks/post-commit",
+      "archive": "private/worktrees/blariyo-stash-recovery/harness-hooks/post-commit",
+      "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks/pre-commit",
+      "archive": "private/worktrees/blariyo-stash-recovery/harness-hooks/pre-commit",
+      "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks/pre-push",
+      "archive": "private/worktrees/blariyo-stash-recovery/harness-hooks/pre-push",
+      "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2",
+      "mode": "0o755"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/config",
+      "archive": "private/config",
+      "sha256": "79d1dbb43fcae252c6af15b32f54836068a8e8a63880b8feedaca5577392e83a",
+      "mode": "0o600"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/applypatch-msg.sample",
+      "archive": "private/hooks/applypatch-msg.sample",
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/commit-msg.sample",
+      "archive": "private/hooks/commit-msg.sample",
+      "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/fsmonitor-watchman.sample",
+      "archive": "private/hooks/fsmonitor-watchman.sample",
+      "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/post-update.sample",
+      "archive": "private/hooks/post-update.sample",
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/pre-applypatch.sample",
+      "archive": "private/hooks/pre-applypatch.sample",
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/pre-commit.sample",
+      "archive": "private/hooks/pre-commit.sample",
+      "sha256": "57185b7b9f05239d7ab52db045f5b89eb31348d7b2177eab214f5eb872e1971b",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/pre-merge-commit.sample",
+      "archive": "private/hooks/pre-merge-commit.sample",
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/pre-push.sample",
+      "archive": "private/hooks/pre-push.sample",
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/pre-rebase.sample",
+      "archive": "private/hooks/pre-rebase.sample",
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/pre-receive.sample",
+      "archive": "private/hooks/pre-receive.sample",
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/prepare-commit-msg.sample",
+      "archive": "private/hooks/prepare-commit-msg.sample",
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/push-to-checkout.sample",
+      "archive": "private/hooks/push-to-checkout.sample",
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/sendemail-validate.sample",
+      "archive": "private/hooks/sendemail-validate.sample",
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92",
+      "mode": "0o700"
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/hooks/update.sample",
+      "archive": "private/hooks/update.sample",
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106",
+      "mode": "0o700"
+    }
+  ],
+  "matchesS01Backup": true
+}

@@ -28,16 +28,16 @@ class BatchQueueReadbackTests {
     String jdbc=System.getenv("COLLECTOR_READBACK_DATABASE_URL");Assumptions.assumeTrue(jdbc!=null&&!jdbc.isBlank());
     var config=new HikariConfig();config.setJdbcUrl(jdbc);config.setMaximumPoolSize(8);
     config.setUsername(System.getenv().getOrDefault("COLLECTOR_READBACK_DATABASE_USER","blariyo_local"));config.setPassword(System.getenv().getOrDefault("COLLECTOR_READBACK_DATABASE_PASSWORD",""));
-    MigrationMain.migrate(jdbc,config.getUsername(),config.getPassword());db=new HikariDataSource(config);store=new BatchStore(db);queue=new BatchQueueStore(store);
+    MigrationMain.migrate(jdbc,config.getUsername(),config.getPassword());db=new HikariDataSource(config);store=TestSourceControls.store(db);queue=new BatchQueueStore(store);
   }
   @AfterEach void close(){if(db!=null)db.close();}
-  SourceRegistry registry(boolean approved) {return new SourceRegistry(Json.tree(Map.of(source,Map.of("host","arca.live","approved",approved,"parser","ARCALIVE","pathPrefixes",List.of("/"),"userAgent","fixture contact.invalid"))));}
+  SourceRegistry registry(boolean approved) {return TestSourceControls.registry(Json.tree(Map.of(source,Map.of("host","arca.live","approved",approved,"parser","ARCALIVE","pathPrefixes",List.of("/"),"userAgent","fixture contact.invalid"))));}
   BatchDiscordIntake intake(Supplier<SourceRegistry> sources){return new BatchDiscordIntake(queue,sources,v->HexFormat.of().formatHex(BatchStore.sha(v)));}
   static String body(){return "<title>Queue fixture</title><div class='article-view'><div class='article-content'><p>Whole original body</p><img src='https://arca.live/image.png'><a href='https://arca.live/file.pdf'>attached file</a><a href='https://x.com/example/status/12345'>SNS source</a></div></div>";}
   static PinnedHttp.Response html(String text){return new PinnedHttp.Response(200,"text/html",Map.of(),text.getBytes(StandardCharsets.UTF_8));}
   static SourceTransport network(Function<URI,PinnedHttp.Response> get){return new SourceTransport(){public void validate(URI u){}public PinnedHttp.Response get(URI u,int max,String agent){return get.apply(u);}};}
   static PinnedHttp.Response good(URI u){if(u.getPath().endsWith(".png"))return new PinnedHttp.Response(200,"image/png",Map.of(),Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII="));if(u.getPath().endsWith(".pdf"))return new PinnedHttp.Response(200,"application/pdf",Map.of(),"%PDF-1.4 fixture".getBytes(StandardCharsets.UTF_8));return html(body());}
-  BatchQueueWorker worker(SourceTransport transport){return new BatchQueueWorker(store,()->registry(true),transport,new BatchObjectStore.Local(root.toString()),x->{});}
+  BatchQueueWorker worker(SourceTransport transport){return new BatchQueueWorker(store,()->registry(true),TestSourceControls.allowRobots(transport),new BatchObjectStore.Local(root.toString()),x->{});}
   String scalar(String sql)throws Exception{try(var c=db.getConnection();var q=c.createStatement();var r=q.executeQuery(sql)){assertTrue(r.next());return r.getString(1);}}
   void sql(String sql)throws Exception{try(var c=db.getConnection();var q=c.createStatement()){q.execute(sql);}}
   void awaitReady(UUID id)throws Exception {
@@ -70,7 +70,7 @@ class BatchQueueReadbackTests {
       assertNull(scalar("SELECT request_id FROM collect.batch_confirmation WHERE id='"+c.id()+"'"));
     }finally{sql("DROP TRIGGER "+function+" ON collect.batch_confirmation; DROP FUNCTION collect."+function+"()");}
     UUID id=intake.confirm(c.id(),"actor","channel");assertEquals(id,intake.confirm(c.id(),"actor","channel"));
-    var stopped=new BatchQueueWorker(store,()->registry(false),network(u->{throw new AssertionError("policy revoked before worker");}),new BatchObjectStore.Local(root.toString()),x->{}).once(source);
+    var stopped=new BatchQueueWorker(store,()->registry(false),TestSourceControls.allowRobots(network(u->{throw new AssertionError("policy revoked before worker");})),new BatchObjectStore.Local(root.toString()),x->{}).once(source);
     assertEquals("BLOCKED",stopped.outcome());
     assertEquals("SOURCE_NOT_ALLOWED",scalar("SELECT error_code FROM collect.batch_queue WHERE id='"+id+"'"));
   }
@@ -81,7 +81,35 @@ class BatchQueueReadbackTests {
     assertEquals("0",scalar("SELECT count(*) FROM collect.batch_queue WHERE source_key='"+source+"'"));
     try(var conn=db.getConnection();var q=conn.prepareStatement("INSERT INTO collect.batch_confirmation(id,trigger_hmac,actor_hmac,channel_hmac,source_key,source_post_key,canonical_url,expires_at) VALUES(?,?,?,?,?,?,?,now()-interval '1 minute')")){
       UUID id=UUID.randomUUID();String hash="a".repeat(64);q.setObject(1,id);q.setString(2,HexFormat.of().formatHex(BatchStore.sha(id.toString())));q.setString(3,hash);q.setString(4,hash);q.setString(5,source);q.setString(6,postKey);q.setString(7,url);q.executeUpdate();
-      assertEquals("CONFIRMATION_EXPIRED",assertThrows(CollectorFailure.class,()->queue.confirm(id,hash,hash)).getMessage());
+      assertEquals("CONFIRMATION_EXPIRED",assertThrows(CollectorFailure.class,()->queue.confirm(id,hash,hash,"b".repeat(64))).getMessage());
+    }
+  }
+  @Test void cancellationIsAuthorizedIdempotentAndScrubsOriginalBeforeAnyFetch() throws Exception {
+    var intake=intake(()->registry(true));var c=intake.prepare("cancel","actor","channel",url);
+    assertEquals("CONFIRMATION_FORBIDDEN",assertThrows(CollectorFailure.class,()->intake.cancel(c.id(),"wrong","channel")).getMessage());
+    assertEquals("CONFIRMATION_FORBIDDEN",assertThrows(CollectorFailure.class,()->intake.cancel(c.id(),"actor","wrong")).getMessage());
+    intake.cancel(c.id(),"actor","channel");intake.cancel(c.id(),"actor","channel");
+    assertEquals("CONFIRMATION_CANCELLED",assertThrows(CollectorFailure.class,()->intake.confirm(c.id(),"actor","channel")).getMessage());
+    assertEquals("CONFIRMATION_CANCELLED",assertThrows(CollectorFailure.class,()->intake.prepare("cancel","actor","channel",url)).getMessage());
+    assertEquals("true",scalar("SELECT (cancelled_at IS NOT NULL AND canonical_url IS NULL AND source_post_key IS NULL AND source_key IS NULL)::text FROM collect.batch_confirmation WHERE id='"+c.id()+"'"));
+    assertEquals("0",scalar("SELECT count(*) FROM collect.batch_queue WHERE source_key='"+source+"'"));
+    assertEquals("IDLE",worker(network(u->{throw new AssertionError("cancelled request fetched");})).once(source).outcome());
+  }
+  @Test void cancelAndConfirmSerializeWithoutCancellingAnAlreadyQueuedRequest() throws Exception {
+    var intake=intake(()->registry(true));var c=intake.prepare("cancel-race","actor","channel",url);
+    var start=new CountDownLatch(1);
+    try(var threads=Executors.newFixedThreadPool(2)) {
+      var confirm=threads.submit(()->{start.await();try{return intake.confirm(c.id(),"actor","channel").toString();}catch(CollectorFailure e){return e.getMessage();}});
+      var cancel=threads.submit(()->{start.await();try{intake.cancel(c.id(),"actor","channel");return "CANCELLED";}catch(CollectorFailure e){return e.getMessage();}});
+      start.countDown();String confirmed=confirm.get(10,TimeUnit.SECONDS),cancelled=cancel.get(10,TimeUnit.SECONDS);
+      if(cancelled.equals("CANCELLED")) {
+        assertEquals("CONFIRMATION_CANCELLED",confirmed);
+        assertEquals("0",scalar("SELECT count(*) FROM collect.batch_queue WHERE source_key='"+source+"'"));
+      } else {
+        assertEquals("CONFIRMATION_ALREADY_CONFIRMED",cancelled);assertDoesNotThrow(()->UUID.fromString(confirmed));
+        assertEquals("1",scalar("SELECT count(*) FROM collect.batch_queue WHERE source_key='"+source+"'"));
+        assertEquals("COMPLETED",worker(network(BatchQueueReadbackTests::good)).once(source).outcome());
+      }
     }
   }
   @Test void queueStoresWholeBodyImageFileSnsAndReportsAndDuplicateDoesNotFetch() throws Exception {
@@ -122,7 +150,7 @@ class BatchQueueReadbackTests {
     awaitReady(request);
     try(var lease=store.lockSource(source)) {
       var claimed=queue.claim(queue.next(source));
-      var completed=new DirectUrlRunner(network(BatchQueueReadbackTests::good),store,new BatchObjectStore.Local(root.toString()),x->{})
+      var completed=new DirectUrlRunner(TestSourceControls.allowRobots(network(BatchQueueReadbackTests::good)),store,new BatchObjectStore.Local(root.toString()),x->{})
           .runQueued(registry(true).key(source),new DirectUrlRunner.Options(source,url,10000,true),id->queue.attach(request,id));
       assertNotEquals(run,completed.runId());assertEquals(2,claimed.attempts());
       // Simulate loss after run commit, before request result commit.

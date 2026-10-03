@@ -26,7 +26,7 @@ await test('HTTP method, parser, authentication and maintenance boundaries prese
   const serviceToken = randomBytes(32).toString('hex');
   const auth = {
     'X-Blariyo-Service-Token': serviceToken,
-    'X-Blariyo-Admin-Actor': 'admin:v1:' + randomBytes(32).toString('base64url'),
+    'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor': 'admin:v1:' + randomBytes(32).toString('base64url'),
   };
   const app = await createNestApplication({
     databaseUrl,
@@ -84,7 +84,7 @@ await test('HTTP method, parser, authentication and maintenance boundaries prese
       await error('/api/v1/admin/posts', 'GET', 401, 'ADMIN_AUTH_REQUIRED');
       await error('/api/v1/admin/posts', 'GET', 403, 'ADMIN_FORBIDDEN', {
         ...auth,
-        'X-Blariyo-Admin-Actor': 'raw-subject',
+        'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor': 'raw-subject',
       });
       await error('/api/v1/admin/collect/sources', 'GET', 401, 'ADMIN_AUTH_REQUIRED');
       await error('/internal/collect/status', 'GET', 401, 'COLLECTOR_AUTH_REQUIRED');

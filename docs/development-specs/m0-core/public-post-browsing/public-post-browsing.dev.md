@@ -184,7 +184,7 @@ context의 page size는 20이다. 게시판 문맥 없는 상세 alias는 제공
 
 ### 게시글 조회 수 증가 API
 
-- 계약 상태: `작성 완료` (구현 잔여·인수는 별도)
+- 계약 상태: `작성 완료` (로컬 구현 근거는 요구사항 대조표, 실제 운영 인수는 별도)
 
 - 입력 근거: [API 설계 §3 조회 수](../../../system-design/03-api-design.md), [분석·광고 계획 §3](../../../planning/04-analytics-ad-plan.md)
 - 검증 경계: OpenAPI·source와 기존 테스트/실행 기록이 있다. 이번 문서 대조에서 contract·runtime·성능 시험을 재실행하지 않았다.
@@ -488,7 +488,7 @@ JavaScript key, CSP host는 properties/config로 관리하며 실제 값은 `(�
 
 ### 게시글 상세 열람
 
-- 계약 상태: `작성 완료` (구현 잔여·인수는 별도)
+- 계약 상태: `작성 완료` (로컬 구현 근거는 요구사항 대조표, 실제 운영 인수는 별도)
 
 - 입력 근거: [화면 설계 §6](../../../planning/03-screen-design.md), [상세 API](#api-get-post), [조회 수 API](#api-increment-post-view)
 - 미검증: SSR·조회 수 호출 lifecycle·cache purge integration
@@ -727,8 +727,19 @@ JavaScript key, CSP host의 실제 값과 개발자 콘솔 Web domain 등록은 
 
 ## 13. 2026-09-24 소스 대조와 남은 수용 조건
 
+아래는 당시 차이이며 UX-02~04는 다음 §14의 2026-09-27 로컬 구현·검증으로 해소했다.
+
 - 공개 API는 `PublicService`·공개 DTO, 화면은 `pages/[boardSlug]/index.vue`와 `posts/[postId].vue`에 구현돼 있다. direct 수집 글도 공개 승격 뒤 같은 DTO/화면을 사용한다. 수집 실행·검수 권한은 이 명세 범위 밖이다.
 - **공유 이미지 metadata:** 상세 `useSeoMeta`에는 이미지 URL이 있지만 `og:image:alt`, `og:image:width`, `og:image:height`, `twitter:image:alt`가 없다. 본문 IMAGE의 alt·크기 표시와 SSR metadata 계약을 구분하고, 첫 IMAGE 유무별 HTML 회귀 검사로 보완한다.
 - **목록 초점:** page 변경은 `navigateTo`로 query를 갱신하지만 목록 heading으로 명시적으로 초점을 옮기는 처리는 없다. 키보드·스크린리더 인수와 함께 구현을 확인한다.
 - **부분 실패/공유 안내:** 상세 하단 목록 실패는 피드백 문구와 기존 page 버튼 재선택으로 복구한다. 별도 영역 내 재시도 버튼은 없다. 브라우저 기본 공유 성공·사용자 취소에는 별도 피드백을 설정하지 않는다. 명세의 실패/성공/취소 안내 수용 조건을 전부 통과한 것으로 기록하지 않는다.
 - 위 차이는 소스에서 확인한 잔여이며 이번에 브라우저 장애·공유 provider 실패를 재현한 결과가 아니다. 카카오 실제 운영 활성화와 CDN 전체 검증도 별도다.
+
+## 14. 2026-09-27 UX-02~04 로컬 검증
+
+- 첫 IMAGE가 있으면 SSR에 OG/Twitter alt와 OG width/height를 제공한다. 없으면 확정 fallback URL을 사용하고 존재하지 않는 원본 이미지 alt/크기를 만들지 않는다.
+- 목록 page 응답이 갱신된 뒤 heading에 초점·스크롤을 옮기며 페이지 요약의 aria-live 안내를 유지한다.
+- 상세 본문은 하단 목록 조회 실패 때 유지하고 해당 영역에 재시도를 제공한다. 진행 중 pagination을 막아 중복 요청을 방지한다.
+- 기본 공유 성공·취소·실패·미지원 결과를 각각 안내한다. 실제 provider 전송이나 카카오 활성화는 이번 검증 범위가 아니다.
+- [기존 Core](../../../../tests/browser/core.test.ts)와 [공개 UX 브라우저](../../../../tests/browser/public-ux.test.ts)에서 IMAGE 유무 SSR·320px 초점/접근성 트리·부분 실패/재시도·합성 공유 상태를 확인했다.
+  Web 타입/lint/build와 테스트 타입/lint PASS. [실행 기록과 화면](../../../../worklog/2026-09-27/m0-implementation/README.md)을 따른다.

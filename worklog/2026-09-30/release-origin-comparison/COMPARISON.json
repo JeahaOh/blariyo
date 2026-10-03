@@ -1,0 +1,423 @@
+{
+  "checkedAt": "2026-09-30T21:14:10+09:00",
+  "remoteDirectQuery": {
+    "refs/heads/release": "6b91402f11df5c08c0147bab14fd2df7c681cbd8",
+    "refs/heads/main": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+  },
+  "refs": {
+    "release": "054575928df7bd7e8f8a630c1234d7b3d054969c",
+    "origin/release": "6b91402f11df5c08c0147bab14fd2df7c681cbd8",
+    "main": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+    "origin/main": "8af72449a7d56c9701efd0d73dc7d430a66f9610"
+  },
+  "originOnlyCommitIds": 4,
+  "localOnlyCommitIds": 14,
+  "changedFiles": 99,
+  "diffShortstat": "99 files changed, 5570 insertions(+), 554 deletions(-)",
+  "sameContent": false,
+  "localReleaseTree": "5d9cc2679e12fc580fee10d7e128281725303207",
+  "originReleaseTree": "d14bffa08bd7203dfb449e9b3921e2884d781278",
+  "sameAsLocalReleaseBeforeChronologicalPick": true,
+  "alreadyLocalOnlyBeforeReconstruction": [
+    "bb19c486f3cafa847bd34828a699382c6d5bd0b6 docs(m0): finalize completion plan and operating decisions",
+    "7788ac6a35bf2551b35cde2f9c3f500e4acb3975 chore(git): add local branch guards for GitHub Free"
+  ],
+  "files": [
+    {
+      "status": "A",
+      "path": ".githooks/guard.sh"
+    },
+    {
+      "status": "A",
+      "path": ".githooks/pre-commit"
+    },
+    {
+      "status": "A",
+      "path": ".githooks/pre-merge-commit"
+    },
+    {
+      "status": "A",
+      "path": ".githooks/pre-push"
+    },
+    {
+      "status": "M",
+      "path": "AGENTS.md"
+    },
+    {
+      "status": "M",
+      "path": "apps/api/src/app.module.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/api/src/features/public/public.controller.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/api/src/features/public/public.dto.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/api/src/main.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/api/test/public-http.integration.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/api/test/public.service.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/app/app.vue"
+    },
+    {
+      "status": "A",
+      "path": "apps/web/app/assets/css/admin.css"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/app/assets/css/main.css"
+    },
+    {
+      "status": "A",
+      "path": "apps/web/app/components/AdminWorkspace.vue"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/app/components/PostList.vue"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/app/pages/[boardSlug]/index.vue"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/app/pages/[boardSlug]/posts/[postId].vue"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/app/pages/admin-batch.vue"
+    },
+    {
+      "status": "A",
+      "path": "apps/web/app/pages/admin-login.vue"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/app/pages/admin.vue"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/app/plugins/analytics.client.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/app/utils/consent.mjs"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/nuxt.config.ts"
+    },
+    {
+      "status": "A",
+      "path": "apps/web/server/api/admin/local-session.delete.ts"
+    },
+    {
+      "status": "A",
+      "path": "apps/web/server/api/admin/local-session.post.ts"
+    },
+    {
+      "status": "A",
+      "path": "apps/web/server/api/admin/session.get.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/server/middleware/admin.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/server/plugins/production.ts"
+    },
+    {
+      "status": "A",
+      "path": "apps/web/server/utils/local-admin.ts"
+    },
+    {
+      "status": "A",
+      "path": "apps/web/shared/admin-return.ts"
+    },
+    {
+      "status": "M",
+      "path": "deploy/application/README.md"
+    },
+    {
+      "status": "M",
+      "path": "deploy/operations/start-application.py"
+    },
+    {
+      "status": "M",
+      "path": "docs/README.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/ai/README.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/ai/git-workflow.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/ai/harness-implementation-plan.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/ai/harness.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/development-specs/m0-core/admin-post-management/admin-post-management.dev.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/development-specs/m0-core/analytics-consent/analytics-consent.dev.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/development-specs/m0-core/openapi/m0-core.yaml"
+    },
+    {
+      "status": "M",
+      "path": "docs/development-specs/requirements-status.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation-tasks/collection-controls.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation-tasks/core-ux.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation-tasks/operations-acceptance.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/legal/README.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/legal/cookie-settings.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/legal/privacy-policy.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/migration/contract-evolution.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/operations/current-status.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/operations/deployment-policy.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/operations/deployment-runbook.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/operations/security-protection-status.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/planning/01-service-plan.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/planning/02-infra-plan.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/planning/03-screen-design.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/planning/04-analytics-ad-plan.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/planning/04-analytics-expansion-proposal.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/planning/05-benchmark-spec.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/planning/07-color-palette.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/planning/content-collection/README.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/planning/content-collection/source-collection-policy.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/roadmap.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/status.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/system-design/01-system-architecture.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/system-design/02-data-model.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/system-design/03-api-design.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/system-design/04-infrastructure-design.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/system-design/05-security-operations.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/system-design/design-readiness.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/local-playwright-docker.md"
+    },
+    {
+      "status": "M",
+      "path": "package.json"
+    },
+    {
+      "status": "M",
+      "path": "packages/contracts/openapi/m0-core.yaml"
+    },
+    {
+      "status": "M",
+      "path": "packages/contracts/src/api.d.ts"
+    },
+    {
+      "status": "M",
+      "path": "packages/contracts/src/schema.mjs"
+    },
+    {
+      "status": "A",
+      "path": "scripts/git-hooks.mjs"
+    },
+    {
+      "status": "A",
+      "path": "scripts/git-hooks.test.mjs"
+    },
+    {
+      "status": "M",
+      "path": "scripts/local/README.md"
+    },
+    {
+      "status": "M",
+      "path": "scripts/local/open-admin.mjs"
+    },
+    {
+      "status": "A",
+      "path": "scripts/local/playwright-tests.mjs"
+    },
+    {
+      "status": "M",
+      "path": "scripts/local/start-development.mjs"
+    },
+    {
+      "status": "M",
+      "path": "tests/browser/admin-workflow.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/browser/analytics-events.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/browser/batch-review.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/browser/consent.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/consent.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/helpers/browser-fixture.ts"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-25/admin-ux-rework/REQUEST.md"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-25/admin-ux-rework/TASKS.md"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-25/analytics-v1/RESULTS.md"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-25/hot-collection/RESULTS.md"
+    },
+    {
+      "status": "M",
+      "path": "worklog/2026-09-26/ai-workflow-design/DECISIONS.md"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-26/ai-workflow-design/GITHUB-FREE.md"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-26/ai-workflow-design/LOCAL-HOOKS.md"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-26/ai-workflow-design/RELEASE-DELIVERY.md"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-26/collection-source-reanalysis/README.md"
+    },
+    {
+      "status": "A",
+      "path": "worklog/2026-09-26/m0-completion-plan/README.md"
+    }
+  ]
+}

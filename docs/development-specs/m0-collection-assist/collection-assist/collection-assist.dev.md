@@ -5,9 +5,9 @@
 - 문서 상태: `조건부 설계 확정 가능(개발 입력) · 주 검수 완료`, 구현 수용·production 공개 승인 별도
 - milestone: `M0 수집 보조` (`m0-collection-assist`)
 - 기능: `collection-assist` — 로컬 collector 기반 Discord·운영자 URL 지정 후보 생성·검수·반려·초안 승격
-- 기준일: 2026-09-08, 현행/legacy 계약 정합성 갱신: 2026-09-24
+- 기준일: 2026-09-08, 현행/legacy 계약 정합성 갱신: 2026-09-24; M0-D01~D06 목표 계약 보완: 2026-09-26
 - 구현 판정: direct source·migration·OpenAPI와 격리 검증은 [요구사항 대조](../../requirements-status.md)의 현재 증거를 따른다. 실제 운영자·Access·원격 DB/object·Discord Gateway·출처 활성화·보존/고지는 별도 미검증이다.
-- 2026-09-24 추가 대조: direct 실행의 robots/Crawl-delay·영속 일일 budget 연결은 미구현이며 redirect 설계 3회와 구현 최대4회도 다르다. 본문의 통제 요구를 구현 완료로 읽지 않는다. [기술 근거와 보완 조건](../../../system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)을 운영 활성화 전에 충족해야 한다.
+- 2026-09-27 구현 대조: 9/24에 발견한 direct robots/Crawl-delay·영속 일일 budget·redirect 차이는 공통 경로에서 구현·로컬 검증했다. [기술 근거](../../../system-design/07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)를 따르며 실제 출처의 정책·장비·고지·운영 인수는 남아 있다.
 - legacy 원문 result는 API/OpenAPI 1000블록과 V006 DB CHECK 40블록이 다르다. [데이터 모델](../../../system-design/02-data-model.md#원문-수집-후보-확장-2026-09-20)의 미해결 차이를 P1-01에서 추적하며 legacy 재활성화 전에 검증한다.
 - 기존 구현 증거: Node/Core·Python collector 구현과 전환 전 로컬 검증 범위는 [main 병합 구현 상태 인계](../../../../worklog/2026-09-08/handoff/main-merge-implementation-status.md)를 따른다. 이 증거를 Spring 구현 완료로 해석하지 않는다.
 - 주요 근거:
@@ -28,12 +28,12 @@
 API·Web은 외부 원문 사이트를 fetch하지 않으며 batch는 글마다 API에 결과를 전송하지 않는다.
 아래 초기 candidate/metadata/preview 절은 legacy 호환 계약이다. 현행 direct batch에는 문서 후반의
 2026-09-21 자동 수집 확장과 2026-09-23 batch 고도화·Discord queue 계약을 적용한다.
-Web URL 입력의 direct 전달·source 변경 권한은 `(미정)`이다. 기존 URL 폼이 공통 batch queue에 연결됐다고 보지 않는다.
+Web URL 입력의 direct 전달은 API mailbox pull, source는 runtime 읽기 전용 조회로 [설계 확정](#m0-design-completion) 후 9/27 구현·로컬 검증했다. 새 입력 UI는 `/admin/batch`이며 기존 `/admin/collect` 폼은 legacy다. 실제 장비·운영 인수는 별도다.
 
 ## 3. 행위자와 진입 조건
 
 - 행위자: 외부 관리자 인증 allowlist를 통과한 운영자
-- 진입: direct 결과 검수 `/admin/batch`, 로컬 collector의 Discord `/collect url`. `/admin/collect`는 legacy 후보 경로이며 direct URL 입력 전달 계약은 별도 미정이다.
+- 진입: direct 결과 검수 `/admin/batch`, 로컬 collector의 Discord `/collect url`. `/admin/collect`는 legacy 후보 경로이며 direct URL 입력은 `/admin/batch`의 M0-D02 경로로 구현했다. 실제 활성화는 운영 인수 조건을 따른다.
 - 선행: `M0 Core`의 관리자 인증, 수동 초안·이미지·발행·숨김 흐름 검증
 - 출처 선행: 출처별 명세의 운영 위험 판정, `robots.txt`, 등록·활성 host, parser 방식 사용 결정
 
@@ -43,7 +43,7 @@ Web URL 입력의 direct 전달·source 변경 권한은 `(미정)`이다. 기�
 | --- | --- | --- |
 | direct 수집 보조 | 상세 URL 확인·공통 queue·원문/이미지/첨부/SNS의 비공개 저장 | CLI/Discord 코드와 실제 Gateway·다른 PC 실행을 구분 |
 | direct 검수 | `/admin/batch` 목록/상세·필터·인증 preview·검수 시작/승인/반려·선택 초안 편집 이동 | 로컬 브라우저·API 증거와 실제 운영자/Access/원격 object 인수 분리 |
-| Web URL 전달·source 변경 | API 외부 fetch·batch queue 무제한 쓰기 없이 입력 전달 | 소유권·전달 계약 미정, 구현 완료 아님 |
+| Web URL 전달·source 변경 | API 외부 fetch·batch queue 무제한 쓰기 없이 입력 전달 | M0-D02 구현·로컬 검증 완료, 실장비·운영 인수 잔여 |
 | legacy 후보 | 기존 `/admin/collect`·candidate·임시 preview·선택 이미지 승격 API 호환 | 아래 legacy 절에만 적용. direct source 설정이나 queue를 수정하지 않음 |
 | 자동 목록 수집 | 2026-09-21 확장의 허용 HOT/GENERAL 목록·pagination | source별 실제 검증·기능 활성화는 별도 |
 
@@ -59,12 +59,12 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 | 요구사항 | 계약·구현 근거 | 남은 수용 조건 |
 | --- | --- | --- |
 | API 외부 fetch 없이 batch가 직접 저장 | [direct 기술 설계](../../../system-design/07-spring-collector-design.md#2026-09-23-direct-batch-검수승격-구현-계약) | 실제 다른 PC·원격 제한 계정 |
-| Web URL 입력 전달·source 변경 권한 | [미정 경계](../../../roadmap.md#관리자-url-입력의-미정-경계) | QD-03 확정·구현, 기존 source UI와 direct 설정 분리 |
+| Web URL 입력 전달·source 변경 권한 | [확정 설계·구현 경계](../../../roadmap.md#관리자-url-입력의-미정-경계) | M0-D02 구현, 기존 source UI와 direct 설정 분리 |
 | 목록·출처/수집/검수 필터·private preview | OpenAPI `listBatchItems`, `getBatchItem`, `previewBatchImage` | 실제 운영자·Access·원격 object 인수 |
 | 검수·승인/반려와 snapshot/버전·멱등 | OpenAPI `reviewBatchItem`, 아래 Batch 검수 snapshot 계약 | 내용 변경·경합·인증 실패 수용 |
 | 승인→전체 본문과 검증된 이미지의 DRAFT | OpenAPI `promoteBatchItem`, 별도 Core 발행 명령 | 누락·중복·부분 실패·원격 private/public 경계 |
 | 본문·이미지·첨부/SNS 원문 보존 | 아래 2026-09-21/23 확장 계약 | 실제 표본과 fixture 분리, 차단 출처 유지 |
-| direct 원본·report·queue 보존 | [수집 기획의 적용 경계](../../../planning/content-collection/README.md#12-현행-direct와-legacy의-적용-경계) | 기간/승격 후 원본 미정, 자동 파기·고지 검증 |
+| direct 원본·report·queue 보존 | [수집 기획의 적용 경계](../../../planning/content-collection/README.md#12-현행-direct와-legacy의-적용-경계) | M0-D01 설계 확정, 자동 파기 구현·고지 검증 |
 | 기능별 OFF·운영 활성화 분리 | Core·수집 보조·자동 수집 gate | 로컬 통과만으로 활성화하지 않음 |
 
 ### 5.2 Legacy 후보 요구사항 — 기존 호환 경로
@@ -167,9 +167,9 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 - 확정: direct batch는 비공개 원문 object를 저장하고, API는 승격 시 검증된 private 사본을 만든다. 기존 legacy 후보만 임시 preview 계약을 적용한다.
 - 확정: Discord 연결 scraper는 운영자 로컬 컴퓨터에서 별도 프로세스로 실행하고 BE·FE runtime과 분리한다.
 - 결정/검증 필요: 출처별 실제 접근·parser·요청 간격·상한과 활성화 상태. 등록 또는 fixture 통과를 실제 수집 성공으로 대체하지 않는다.
-- legacy 출처 조회·수정은 [시스템 API](../../../system-design/03-api-design.md#수집-출처)를 따른다. direct Web 입력·source 변경 소유권은 별도 미정이다.
+- legacy 출처 조회·수정은 [시스템 API](../../../system-design/03-api-design.md#수집-출처)를 따른다. direct Web 입력·source 읽기 전용 조회 소유권은 아래 M0-D02에 확정하고 9/27 구현·로컬 검증했다. 실제 운영 설정·권한 인수는 남아 있다.
 - 차단: 출처별 운영 위험 판정·robots 확인 전 production 활성화 불가.
-- 미검증/미정: 실제 운영자·Access·원격 DB/object·Discord Gateway·지원 OS, direct 보존 기간과 고지/파기. 현재 로컬 구현·검사 증거는 요구사항 대조표로 추적한다.
+- 미검증/미정: 실제 운영자·Access·원격 DB/object·Discord Gateway·지원 OS, direct 고지·실제 파기 인수. 보존 기간은 최초 검수/반려 후7일·미검수28일로 확정됐다. 현재 로컬 구현·검사 증거는 요구사항 대조표로 추적한다.
 
 ## 12. 기능 계약 상세
 
@@ -1071,7 +1071,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
   Core 숫자 sourceId와 파일의 source key를 같은 값으로 가정하지 않는다.
 - batch CLI는 유효한 옵션·출처 정책 gate→robots→목록 parser→페이지/기간/글 수 제한→canonical/post key 중복 제거
   →상세 parser→`collect.batch_*`와 batch object store 저장 순으로 처리한다. `HOT_LIST`(hot)와 `GENERAL_LIST`(latest)의 검증된 목록을 조회하고,
-  `DETAIL_ONLY`는 상세 URL만 처리하며 `BLOCKED`·`UNVERIFIED`는 실행하지 않는다. dry-run은 DB와 object store를 쓰지 않는다.
+  `DETAIL_ONLY`는 상세 URL만 처리하며 `BLOCKED`·`UNVERIFIED`는 실행하지 않는다. dry-run은 콘텐츠·object를 저장하지 않고 batch DB 요청 quota만 기록한다. robots 조회도 같은 한도에 포함한다.
 - 21개 중 parser/fixture/robots/정책이 미확인인 출처는 blocked 코드로 보고한다.
   BLOCKED adapter에 OG metadata fallback을 제공하지 않는다. 파일 링크 보존과 binary 다운로드 성공을 구분한다.
 - 사진 후보는 lazy-load 속성(`data-src`, `data-original`, `data-original-src`, `data-lazy-src`), `srcset`/`data-srcset`,
@@ -1081,7 +1081,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - Hot/Top 목록은 공지/필독/운영 안내 row를 제외한다. 구조적 notice class·badge·제목 prefix를 기준으로 하며,
   일반 게시글 제목 중간의 단어만으로는 제외하지 않는다.
 - 수용: registry 오매핑, query robots, 반복 pagination, 0건/삭제/차단/빈 본문/이미지 없음/SNS-only,
-  중복·since·상한·간격·재시도·dry-run 무쓰기·DB readback·Discord 확인 전 무쓰기를 검사한다.
+  중복·since·상한·간격·재시도·dry-run 콘텐츠 무쓰기/요청 quota 기록·DB readback·Discord 확인 전 무쓰기를 검사한다.
   CLI exit 0은 해당 실행 계약 성공일 뿐 21개 전체 완료를 뜻하지 않는다.
 
 ### 사이트별 모듈 분리 수용 기준
@@ -1117,6 +1117,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 
 ### Direct 검수 화면과 실패 복구
 
+- 관리자 공통 작업 공간·목록/상세 분리·모바일 복귀·단계별 작업 표시는 [화면 설계](../../../planning/03-screen-design.md#직접-수집-결과-검수-화면-adminbatch)를 따른다. 선택 item은 검증한 `itemId` query로 다시 열 수 있다.
 - `/admin`과 `/admin/batch`의 관리 메뉴는 기존 Web batch 검수 flag가 켜졌을 때만 수집 결과 검수를 표시한다.
   인증된 `/api/admin/features`는 메뉴 표시용 boolean만 제공한다. Core/BFF의 실제 인증·feature gate는 독립 적용한다.
 - 목록 GET은 `source`, `state`, `reviewStatus`, `page`를 조합한다. 검수 행이 없는 item은 `UNREVIEWED`다.
@@ -1127,7 +1128,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - 검수·초안 생성은 중복 클릭을 막는다. 응답 유실 또는 저장 후 상세 조회 실패 시 요청 본문·키를 보존하고,
   401/403을 만나도 같은 요청으로 결과를 확인한다. 확인 전 입력·다른 글 선택·화면 이동을 잠근다.
   확정 충돌/중복 거부는 편집·재조회로 돌아갈 수 있으며 목록 갱신 실패가 확인된 저장 성공을 취소하지 않는다.
-- 초안 링크는 `/admin?postId=<id>`로 선택한 글을 바로 연다. 검수·승격으로 공개 상태나 public object를 만들지 않는다.
+- 초안 링크는 `/admin?postId=<id>&batchItemId=<uuid>`로 선택한 글을 바로 열고 원래 검수 상세로 돌아갈 수 있게 한다. 검수·승격으로 공개 상태나 public object를 만들지 않는다.
 - 이 화면은 batch가 이미 저장한 결과의 검수 경로다. legacy URL 접수와 source 수정 화면을 direct 메뉴에 연결하지 않는다.
   URL 전달·source 소유권 계약, 실제 Access·운영자 인수·원격 object 수용은 별도다.
 
@@ -1180,3 +1181,57 @@ Discord 확인은 batch 소유 confirmation/queue에 원자적으로 접수한�
 
 - `SourcePolicy.extract`의 사이트 adapter 결과에는 `attachmentCandidates`가 포함된다. `CollectionPipeline.result`는 결과를 그대로 복사해 제출하지만 legacy OpenAPI의 result는 `additionalProperties:false`이며 해당 필드를 허용하지 않는다. fixture bridge에서 빈 배열을 분리한 검사는 실제 pipeline의 계약 적합성을 대신하지 않는다.
 - legacy 재활성화 전에 첨부 처리 범위와 result DTO 변환을 정하고 실제 제출의 계약 검사를 보완한다. direct 저장의 첨부 보존 동작과 구분하며 원문·첨부를 임의 삭제해 성공 처리하지 않는다. 1000/40블록 차이와 함께 P1-01에 남긴다. 실제 요청은 이번 문서 검토에서 보내지 않았다.
+
+
+<a id="m0-design-completion"></a>
+## M0-D01~D04 보완 명세 — 목표 계약
+
+- 문서 상태: 9/27 로컬 구현·필수 통합 검증 완료. API V009/V010·Collector V007~V010·D01 회수/D02 입력/D03 선택백업/D04 역할을 코드에 연결했다. [실행 기록](../../../../worklog/2026-09-27/m0-implementation/README.md)의 최종 검증과 남은 실제 운영 인수를 구분한다. 공용 로컬 준비 도구의 권한 정렬은 [CON-02 후속](../../../implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)으로 남아 있다.
+- 정본: [D01 보존 모델](../../../system-design/02-data-model.md#m0-d01-retention), [D02 전달 선택](../../../system-design/01-system-architecture.md#m0-d02-delivery), [D02 API](../../../system-design/03-api-design.md#m0-d02-api), [D03 백업](../../../system-design/05-security-operations.md#m0-d03-drive), [D04 권한](../../../system-design/05-security-operations.md#m0-d04-roles).
+- 타입·필수 필드·enum은 [OpenAPI](../openapi/m0-collection-assist.yaml)의 DirectCollectionRequest/DirectRuntimeSource와 implemented-local operation 4개를 따른다. 이는 기본 OFF인 로컬 구현/계약 동기화 표시이며 전체 D02 인수 완료가 아니다. 기존 legacy API는 그대로이며 direct 연결의 근거로 사용하지 않는다.
+
+### API·처리 흐름
+
+1. OWNER/EDITOR가 URL을 확인하고 수집 요청 버튼을 누르면 BFF는 기존 관리자 인증/CSRF를 검증하고 createDirectCollectionRequest를 호출한다. 운영자가 입력을 확인한 이 동작으로 Web의 확인을 완료한다. 별도 Discord confirmation을 만들지 않는다.
+2. API는 입력 allowlist·현재 알려진 registry 규칙·영구 중복 키를 검증하고 mailbox를 저장한다. 202는 접수, 외부 fetch 완료가 아니다. source 설정 STALE/ABSENT는 수집기 확인 대기, CONFLICT는 거부다.
+3. batch는 기동 중 30초마다 claim→source 정책 재검사→자기 queue/receipt 기록→ack를 한 DB transaction으로 수행한다. Discord 기존 queue와 같은 중복/재시도 계약을 사용하며 API는 queue를 수정하지 않는다. crash 전후 동일 request가 두 queue를 만들지 않아야 한다.
+4. Web은 화면이 보일 때 5초 간격으로 getDirectCollectionRequest를 조회한다. 백그라운드/이탈 시 poll을 멈춘다. 24시간 deadline 이후 EXPIRED 표시, 자동 재접수 금지. 일시 조회 실패는 마지막 확인 상태/시각을 남긴다.
+5. SUCCEEDED만 item 상세로 연결한다. DUPLICATE는 기존 item이 있으면 열기, 만료돼 없으면 '이미 수집한 원문이며 보관 기간이 지났습니다'를 표시한다. FAILED 중 retryable인 경우에만 retryDirectCollectionRequest로 새 요청을 만들고 이전 실패 기록과 연결한다.
+6. 검수·preview·승격은 D01 시각/버전 검사에 참여한다. 최초 APPROVED/REJECTED 이후 재검수로 만료를 연장하지 않는다. 승격은 API private 사본·content 최소 원문 연결을 원자 저장하고 별도 발행을 기다린다.
+
+### 화면·상태와 API 대응
+
+새 관리자 프레임워크 없이 `/admin/batch`에 URL 입력·요청 상태·출처 설정 읽기 영역을 추가한다. legacy `/admin/collect/sources` 편집 화면을 연결하지 않는다. 색상은 기존 `#00A19B`, KST 시각 표기를 유지한다.
+
+| 화면 동작·상태 | API·표시·복구 |
+| --- | --- |
+| URL 입력·확인·요청 | createDirectCollectionRequest. HTTPS·2048자 client 보조 검증; 제출 중 중복 버튼 잠금 |
+| 접수 응답 유실·401/403 | 본문·멱등 키를 인증 회복까지 메모리에 유지하고 같은 요청으로 확인. URL을 localStorage/analytics에 저장하지 않음 |
+| PENDING/ACCEPTED/RUNNING | getDirectCollectionRequest. 접수/수집기 수락/수집 중을 구분하고 기한과 마지막 확인 시각 표시 |
+| SUCCEEDED/DUPLICATE | 검수 item 링크 또는 만료 안내. 상태 조회가 사라져도 자동 수집 재실행 금지 |
+| FAILED/BLOCKED/EXPIRED | 안전 사유·재시도 가능 여부 표시. blocked는 관리자 반복 클릭으로 우회하지 않음; expired 요청의 입력은 새 확인 후 접수 가능하나 영구 중복은 재수집하지 않음 |
+| 설정 조회 loading/empty/error | listRuntimeCollectionSources. 빈 등록 목록과 503을 구분, 재조회 GET만 수행 |
+| CURRENT/STALE/ABSENT/CONFLICT | 적용 version·loadedAt/observedAt 표시. 오래된 값에는 '마지막 관측값', ABSENT null에는 '실행 설정 미확인'. 예제 파일을 현재 설정으로 보여주지 않음 |
+| 만료 원문·검수 중 만료 | detail/preview/review/draft의 410을 처리해 원문 preview·버튼 제거, content 사본 링크만 유지. 브라우저 임시 object URL revoke·응답 캐시 no-store |
+| 권한 없음·feature OFF | 메뉴 숨김과 별도로 직접 API 거부. 운영자 입력과 저장 결과를 혼동하지 않음 |
+
+mobile은 입력→요청 상태→검수 순서로 표시하고 status는 aria-live polite, 오류 후 입력 focus·키보드 재시도를 제공한다. 화면 이탈 뒤 재조회는 requestId만 사용한다. 설정에는 편집 버튼·token·DB 주소·object key가 없다.
+
+### 구현 범위와 검증 인계
+
+- CON-02/P1-01: 새 API mailbox migration·제한 함수, batch poll/receipt/runtime projection, controller/BFF·OpenAPI 실행 사본과 생성 타입, 위 UI. raw SQL 예외 목록에 고정 함수/조회만 추가하고 무제한 권한을 만들지 않는다.
+- COL-04: 새 Collector lifecycle/dedup/report·API 최초 검수/최소 승격 연결 migration, 기한 guard, 별도 retention worker·inventory·제한 삭제 권한. 기존 SQL 수정 금지.
+- OPS-03: 선택 dump·Drive 전송/manifest·독립 복원·알림·R2 전환/복귀 구현. 실행 파일은 이번 명세 작업에서 만들지 않는다.
+- D04 role은 기존 operator registry/BFF/Core guard의 제한된 확장으로 구현하며 Core UX-01~04와 독립 진행 가능하다.
+
+| 시험 ID | 후속 검증·기대값 |
+| --- | --- |
+| D02-T1 | 같은 키 동시 2회·응답 유실·다른 키 같은 원문: request/queue 중복0, 같은 키 다른 body409 |
+| D02-T2 | poll claim/ack 전후 강제 종료·DB rollback·60초 lease 만료: late ack 거부, 새 owner 정확히1회 인수 |
+| D02-T3 | 장비 24시간 중단/재시작: EXPIRED는 fetch0, 기존 active request는 성공으로 임의 표시하지 않음 |
+| D02-T4 | STALE/ABSENT 표시·CONFLICT503·disabled409·batch 정책 변경 BLOCKED, source GET의 DB/object/외부 무쓰기 |
+| D02-T5 | 일시 실패 최대3회·영구 실패 재시도0·수동 retry version/키/중복·만료 원문 거부 |
+| D02-T6 | 실제 320/1280px·키보드·loading/empty/error·인증 회복·poll 중단·410 preview 회수 브라우저 인수 |
+| D01/D03/D04 | 각 정본의 T1~T7/T1~T6 및 역할 거부표 전체, content 사본과 원문·백업 경계를 별도 readback |
+
+검증 범위: 신규 migration·mailbox/lease/재시도·안전 설정·역할·브라우저·선택 복원의 로컬 단계별 결과는 실행 기록에 있다. 전체 통합, COL 요청 통제·UX 잔여와 실제 Drive/Discord·두 계정·장비 인수는 미완료다. 법무 발행/출시 차단은 유지하며 과거 source/fixture 통과를 현재 전체 구현 통과로 재사용하지 않는다.

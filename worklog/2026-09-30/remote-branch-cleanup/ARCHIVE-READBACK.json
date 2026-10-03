@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-30T22:37:15.118760+09:00",
+  "remoteTags": {
+    "docs/git-governance-design-archive": {
+      "tag": "archive/2026-09-30/git-governance-design",
+      "tagObject": "95eb5c0da0433dd1df995137fb44ea306e5b80a6",
+      "commit": "20c7863150bd071e32d20507d5a48c004430c0e6"
+    },
+    "feature/m0-core-web": {
+      "tag": "archive/2026-09-30/m0-core-web",
+      "tagObject": "676a2b60da73b3bf474c09c13dcb72fd6c057746",
+      "commit": "c48f0845133cafea1c046eb26bec7e040d781ca6"
+    }
+  },
+  "allMatch": true
+}

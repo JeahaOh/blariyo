@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
-"""Installs encrypted backup; keeps the recovery identity on the Mac, never logs it."""
-import os,json,subprocess,sys,re,stat
+"""Build a local reviewable bundle. The server installer separately requires --activate."""
+import argparse,json,sys
 from pathlib import Path
-REPO=Path('/Volumes/MicroVault/iCloudDrive/git/private/blariyo')
-NODE='/Users/zeaha/.nvm/versions/node/v24.18.0/bin/node'
-KEYDIR=Path('/Users/zeaha/task_list/.blariyo-recovery')
-os.umask(0o077);KEYDIR.mkdir(mode=0o700,exist_ok=True)
-assert not KEYDIR.is_symlink() and stat.S_IMODE(KEYDIR.stat().st_mode)==0o700
-key=KEYDIR/'postgres-age-identity.txt'
-if not key.exists():
- r=subprocess.run(['python3',str(REPO/'deploy/operations/remote.py'),str(REPO/'deploy/backup/age-keygen-server.py')],capture_output=True,check=True)
- assert b'AGE-SECRET-KEY-1' in r.stdout
- fd=os.open(key,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
- with os.fdopen(fd,'wb') as f:f.write(r.stdout)
-assert not key.is_symlink() and stat.S_IMODE(key.stat().st_mode)==0o600
-recipient=re.search(r'^# public key: (age1\w+)$',key.read_text(),re.M).group(1)
-script="const fs=require('fs');const c=require('/Users/zeaha/task_list/check-blariyo-r2.cjs').parseCredentials(fs.readFileSync(process.env.HOME+'/.config/blariyo/r2-credentials.env','utf8'));process.stdout.write(JSON.stringify({endpoint:c.R2_ENDPOINT,bucket:c.R2_BACKUP_BUCKET,accessKeyId:c.R2_BACKUP_ACCESS_KEY_ID,secretAccessKey:c.R2_BACKUP_SECRET_ACCESS_KEY}));"
-r=subprocess.run([NODE,'-e',script],capture_output=True,check=True)
-payload={'recipient':recipient,'r2':json.loads(r.stdout),'files':{n:(REPO/'deploy/backup'/n).read_text() for n in ['run-backup.py','r2-transfer.cjs']}}
-r=subprocess.run(['python3',str(REPO/'deploy/operations/remote.py'),str(REPO/'deploy/backup/install-server.py')],input=json.dumps(payload).encode(),capture_output=True)
-print(r.stdout.decode(),end='');assert r.returncode==0,'BACKUP_INSTALL_FAILED'
-print('복구키 보관:',key,'(600, 비밀값 비출력)')
+def main():
+ parser=argparse.ArgumentParser()
+ parser.add_argument('--restore-receipt',required=True)
+ parser.add_argument('--expected-hashes',required=True,help='Observed existing destination SHA-256 or null for each new file')
+ parser.add_argument('--output',required=True,help='Reviewable local JSON bundle; contains no credentials')
+ args=parser.parse_args()
+ base=Path(__file__).resolve().parent
+ names=['run-backup.py']+[f'blariyo-backup{s}.{k}' for s in ('','-expiry','-alerts') for k in ('service','timer')]
+ payload={'files':{name:(base/name).read_text() for name in names},'expectedHashes':json.loads(Path(args.expected_hashes).read_text()),
+          'selectiveRestoreReceipt':json.loads(Path(args.restore_receipt).read_text())}
+ if set(payload['expectedHashes'])!=set(names):raise ValueError('BACKUP_BASELINE_KEYS_INVALID')
+ with open(args.output,'x') as output:json.dump(payload,output,indent=2);output.write('\n')
+ print('BACKUP_INSTALL_BUNDLE_WRITTEN_NO_REMOTE_ACTION')
+if __name__=='__main__':
+ try:main()
+ except Exception:print('BACKUP_BUNDLE_FAILED',file=sys.stderr);sys.exit(1)

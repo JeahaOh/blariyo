@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-09-23",
+  "asOf": "2026-09-30",
   "specifications": [
     "docs/system-design/07-spring-collector-design.md",
     "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
@@ -9,23 +9,28 @@
   "amendedContracts": {
     "packages/contracts/openapi/m0-collection-assist.yaml": {
       "baselineSha256": "9f31e550f30a7f80c119b7ed0e553e22bb60211507a51a4a8faecabfa976be17",
-      "sha256": "79acc1527733b70d317d6b5f1af7cc6cdf96b4eab6186a7b8d81a27e5076e5a6",
-      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source. Adds optional state and reviewStatus filters for authenticated batch review pagination; no SQL migration changes."
+      "sha256": "90a1af9415b4ae33c589e059c14189f17c8d0fb931a685abe84fb12e79a0bad5",
+      "reason": "M0 D01 retention projection and 410 guards; D02 Web mailbox create/get/retry/runtime contracts, implemented-local operation status and generated response types. Implements the approved 2026-09-26 canonical design; existing applied migration checksums remain unchanged."
     },
     "packages/contracts/openapi/m0-core.yaml": {
       "baselineSha256": "d3744e62c7a4ce714d7b34be2b9c22f864794ba445e72153423f75706877de60",
-      "sha256": "6fca891507082f908bb9b4f0ed2d17f6823ff97eafcdd84fe59bb2fd0f28a73a",
-      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source."
+      "sha256": "9f07638132c59c70192597cb8271846f9c6fa74b961c0beffa2c326f64180b4d",
+      "reason": "Direct batch review/draft contracts plus analytics-v1 public content key. Canonical specifications are the source. Adds analyticsContentKey to public list and detail responses for GA4 events without SQL migration changes."
+    },
+    "packages/contracts/src/api.d.ts": {
+      "baselineSha256": "3e34875319f128bc3c8a60735c4042e6c2fdf2566039ee051cc37c190bd1927e",
+      "sha256": "340389a1f9f4b3f9cb4d177581d29626353418b014100641be5788c25bc11ddf",
+      "reason": "Direct batch review/draft contracts plus analytics-v1 public content key. Canonical specifications are the source. Adds analyticsContentKey to public list and detail responses for GA4 events without SQL migration changes."
     },
     "packages/contracts/src/collection-api.d.ts": {
       "baselineSha256": "03dcac61af757e7d58f52fd02b79e80b5a0cd4cdf1eadcb134fc50eb4930b1f5",
-      "sha256": "6598402cb6544aba3c58c4f1879e6b945e09b770686397e9fb31c4d43faa5bbc",
-      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source. Adds optional state and reviewStatus filters for authenticated batch review pagination; no SQL migration changes."
+      "sha256": "f1e32dda8dd01521cad96df3ae74a63b8513a2045890e2ca748a54079c639b8c",
+      "reason": "M0 D01 retention projection and 410 guards; D02 Web mailbox create/get/retry/runtime contracts, implemented-local operation status and generated response types. Implements the approved 2026-09-26 canonical design; existing applied migration checksums remain unchanged."
     },
     "packages/contracts/src/schema.mjs": {
       "baselineSha256": "e43249c0dc4d11da8ef9c00b9c5f97a35b644f8bced633134493b9e15aedc8c4",
-      "sha256": "77286a83a2126e4247621f0d5729ee9b2c42d1a461cc7869516ca2144976487e",
-      "reason": "Direct batch review/draft contracts; lossless original body and bounded 200-image galleries. Canonical specifications are the source. Adds optional state and reviewStatus filters for authenticated batch review pagination; no SQL migration changes."
+      "sha256": "d21573ae8c8ce39575210d829c2b775135cd1f6532d179ac3025d4e05d738298",
+      "reason": "Combined analytics-v1 public analyticsContentKey and M0 D01 retention/410 guards, D02 Web mailbox create/get/retry/runtime contracts. Canonical specifications are the source; existing applied migration checksums remain unchanged."
     }
   },
   "addedMigrations": {
@@ -39,6 +44,14 @@
     "apps/collector/src/main/resources/db/collector-v003.sql": "4c9ffece0d9a5d234aaaa637e6449d6de2d09228d06eb1a67aa72c1166a18e84",
     "apps/collector/src/main/resources/db/collector-v004.sql": "6a175550e3e978cfc305ce61ddfb6f78db44b53962d0b42d719a27118c51c79a",
     "apps/collector/src/main/resources/db/collector-v005.sql": "dc1eca00a275e9cfe2692acd53ce7334a37bd2d4e36ab5357d3fcc50e628fb3c",
-    "apps/collector/src/main/resources/db/collector-v006.sql": "667212ed76ebdc1adb4954676196ff0e48ebd412bdf6614f4ed0bdea084a3a9f"
+    "apps/collector/src/main/resources/db/collector-v006.sql": "667212ed76ebdc1adb4954676196ff0e48ebd412bdf6614f4ed0bdea084a3a9f",
+    "apps/api/migrations/V009__batch_retention.down.sql": "c4343b8550ee0ca6b9872598a5ac4ee5c34c806bcdbe7d4a9a00848006635382",
+    "apps/api/migrations/V009__batch_retention.sql": "2c9b1a6e4b829d44c70100b0b0b6741dc52405f1686a2f0cb9b3c06716ed9658",
+    "apps/api/migrations/V010__direct_request_mailbox.down.sql": "d59e012790bdde32cf25f1f0e4720575d6623df75fe8408beff24e6d3b62cd38",
+    "apps/api/migrations/V010__direct_request_mailbox.sql": "16e04cebfcfdd1a4e038997d9455a2b99d02f50c711da28a075c20a06976e151",
+    "apps/collector/src/main/resources/db/collector-v007.sql": "e30ac90a75fe887e26b30c182a016eec670d14f080d8fc874728a059e2ead3ae",
+    "apps/collector/src/main/resources/db/collector-v008.sql": "d117fd6418ad66672ff3f97e14bf9697e5cc88885ee8ffddf134a9b929e7c674",
+    "apps/collector/src/main/resources/db/collector-v009.sql": "4c69eeead9528fe37559740f0d1308bbf836a9e48154da80b1d74a9d072b2288",
+    "apps/collector/src/main/resources/db/collector-v010.sql": "88764830b6045d384e9d1e022a82e4efd5c2e53629bbed4ca3c17f2f41d6c298"
   }
 }

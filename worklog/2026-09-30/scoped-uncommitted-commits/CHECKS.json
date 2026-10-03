@@ -1,0 +1,71 @@
+[
+  {
+    "command": [
+      "node",
+      "--check",
+      "scripts/local/prepare-batch-review.mjs"
+    ],
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "command": [
+      "node",
+      "--check",
+      "scripts/local/batch-privileges.mjs"
+    ],
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "command": [
+      "node",
+      "--check",
+      "scripts/local/batch-privileges.test.mjs"
+    ],
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "hooks:check"
+    ],
+    "exitCode": 0,
+    "output": "\n> hooks:check\n> node scripts/git-hooks.mjs check\n\nGit hook 설치 상태 확인 완료: /Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/blariyo-hooks\n"
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "build",
+      "-w",
+      "@blariyo/api"
+    ],
+    "exitCode": 0,
+    "output": "\n> build\n> node build.ts\n\n"
+  },
+  {
+    "check": "collectorJarMigrationSql",
+    "matchedFiles": 10,
+    "exitCode": 0
+  },
+  {
+    "command": [
+      "node",
+      "--test",
+      "scripts/local/batch-privileges.test.mjs"
+    ],
+    "exitCode": 0,
+    "output": "✔ local batch privileges permit current intake and quota, deny Core/review writes (931.944209ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1671.272708\n"
+  },
+  {
+    "command": [
+      "npm",
+      "test"
+    ],
+    "exitCode": 0,
+    "output": "\n> test\n> node --test tests/*.test.ts\n\n[Vue warn]: Failed to resolve component: AdminNavigation\nIf this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. \n  at <App>\n[Vue warn]: Component <Anonymous> is missing template or render function. \n  at <Anonymous> \n  at <App>\n[Vue warn]: Failed to resolve component: AdminNavigation\nIf this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. \n  at <App>\n[Vue warn]: Component <Anonymous> is missing template or render function. \n  at <Anonymous> \n  at <App>\n[Vue warn]: Failed to resolve component: AdminNavigation\nIf this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. \n  at <App>\n[Vue warn]: Component <Anonymous> is missing template or render function. \n  at <Anonymous> \n  at <App>\n[Vue warn]: Failed to resolve component: AdminNavigation\nIf this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. \n  at <App>\n[Vue warn]: Component <Anonymous> is missing template or render function. \n  at <Anonymous> \n  at <App>\n✔ actual admin template renders scheduled immediate action and escaped per-file feedback (32.369958ms)\n✔ Nest TypeScript runtime has acyclic imports and SQL/ORM remains inside persistence (116.819667ms)\n✔ Collector feature packages have no cycles or reverse dependencies into triggers (29.1865ms)\n✔ Collector site modules keep identity, list and detail separate without IO or cross-site dependencies (22.226417ms)\n✔ Web uses contracts and HTTP instead of importing another app implementation (13.590458ms)\n✔ identity fixture verifies signature, expiry, issuer, audience and allowlist (31.365334ms)\n✔ operator registry grants only active exact identities and rejects ambiguous configuration (24.811292ms)\n✔ BFF response projection removes unexpected private fields at every level (4.143125ms)\n✔ Collector verification accepts only loopback admin databases and decodes credentials (0.934958ms)\n✔ Collector verification rejects missing, partial and skipped JUnit results (13.136458ms)\n✔ consent expiration, corrupted state, withdrawal, no external adapter before grant (3.409292ms)\n✔ SSR summary preserves graphemes, normalizes whitespace and never pads (7.829541ms)\n✔ consent read failures are reported; missing, expired and disabled storage are distinct (0.201667ms)\n✔ late analytics load and error callbacks cannot cancel a newer consent generation (0.761416ms)\n✔ analytics sends one page view per navigation and keeps a later route revisit (0.196209ms)\n✔ analytics waits for a delayed script with only the latest route page view (0.277625ms)\n✔ migration SQL stays immutable and explicit contract evolution matches canonical specs (15.574291ms)\n✔ implementation OpenAPI is identical to the canonical input (3.100041ms)\n✔ sitemaps use canonical URLs, stable ID ranges, real modification times and no fake index dates (1.365292ms)\n✔ XML escapes URLs, bounds output and rejects empty chunks and invalid canonical origins (12.689708ms)\n✔ cache coalesces simultaneous requests, expires at five minutes and retries failures (0.324ms)\n✔ cache bounds concurrent generation, entries and retained bytes (0.571458ms)\n✔ YouTube watch, share, Shorts, live and privacy-enhanced URLs preserve ID and time (1.043625ms)\n✔ Instagram post/reel and TikTok video/photo URLs strip tracking and retain long IDs as strings (0.207ms)\n✔ untrusted or malformed addresses never become executable embeds (0.104834ms)\n✔ projection preserves article text/images and source data; only standalone SNS URLs become embeds (0.697375ms)\n✔ YouTube error categories do not call network or embed restrictions a deletion (0.06825ms)\n✔ TikTok messages require the exact iframe window, official origin and typed payload (0.102916ms)\n✔ upload feedback maps all failed indices to original file names and keeps gate failures common (0.800208ms)\n✔ X reference keeps the exact large ID and strips tracking only from a recognized post URL (0.723792ms)\n✔ URLs cannot inject hostnames, credentials, markup, or arbitrary text into an embed (0.200166ms)\n✔ captured author, exact post reference and images become one lossless fallback card (0.533084ms)\n✔ an unrelated author or bare URL does not swallow adjacent article text or attachments (0.14375ms)\n✔ multiple captured posts stay separate and preserve their order (0.091541ms)\nℹ tests 34\nℹ suites 0\nℹ pass 34\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 487.774958\n"
+  }
+]

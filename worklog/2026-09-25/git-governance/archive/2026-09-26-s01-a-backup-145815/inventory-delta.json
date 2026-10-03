@@ -1,0 +1,88 @@
+{
+  "worktrees": [
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+      "headChanged": false,
+      "oldDirtyTracked": 0,
+      "oldUntracked": 70,
+      "dirtyTracked": 0,
+      "untracked": 90,
+      "addedPaths": [
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/ASSETS.md",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/FILES.md",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/README.md",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/inventory.json",
+        "worklog/2026-09-25/git-governance/archive/2026-09-26-full-inventory/verification.json",
+        "worklog/2026-09-25/git-governance/session-tasks/README.md",
+        "worklog/2026-09-25/git-governance/session-tasks/RESULT-TEMPLATE.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S01-git-assets.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S02-product-preservation.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S03-hooks-secrets.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S04-lint-tooling.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S05-architecture.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S06-mixed-cleanup.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S07-migration-checksum.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S08-database-restore.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S09-harness-policy-release.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S10-ci-integration.md",
+        "worklog/2026-09-25/git-governance/session-tasks/S11-docs-closeout.md",
+        "worklog/2026-09-25/git-governance/session-tasks/tasks.json",
+        "worklog/2026-09-25/git-governance/session-tasks/verification.json"
+      ],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review",
+      "headChanged": false,
+      "oldDirtyTracked": 0,
+      "oldUntracked": 0,
+      "dirtyTracked": 0,
+      "untracked": 0,
+      "addedPaths": [],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance",
+      "headChanged": false,
+      "oldDirtyTracked": 0,
+      "oldUntracked": 0,
+      "dirtyTracked": 0,
+      "untracked": 0,
+      "addedPaths": [],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery",
+      "headChanged": false,
+      "oldDirtyTracked": 0,
+      "oldUntracked": 0,
+      "dirtyTracked": 0,
+      "untracked": 0,
+      "addedPaths": [],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-m0-core",
+      "headChanged": false,
+      "oldDirtyTracked": 20,
+      "oldUntracked": 68,
+      "dirtyTracked": 20,
+      "untracked": 68,
+      "addedPaths": [],
+      "removedPaths": []
+    },
+    {
+      "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery",
+      "headChanged": false,
+      "oldDirtyTracked": 8,
+      "oldUntracked": 2,
+      "dirtyTracked": 8,
+      "untracked": 2,
+      "addedPaths": [],
+      "removedPaths": []
+    }
+  ],
+  "refsChanged": true,
+  "remoteBranchesChanged": false,
+  "prBaseHeadStateChanged": false
+}

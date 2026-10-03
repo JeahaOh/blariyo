@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-09-26T13:21:07.184744+09:00",
+  "status": "rollback-complete",
+  "testChangeRestored": true,
+  "temporaryWorktreeRemoved": true,
+  "temporaryEvidenceMoved": true,
+  "archivedFiles": 15,
+  "archiveHashesVerified": true,
+  "existingRootAndDeliveryChangesPreserved": true,
+  "existingBranchesAndStashPreserved": true,
+  "otherWorktreesPreserved": true,
+  "sharedAndDeliveryGitSettingsAndHooksPreserved": true,
+  "relativeDocumentLinksVerified": 5,
+  "sourceDocumentsRemovedAfterArchiveVerification": true,
+  "goalStatus": "paused",
+  "commitPushCiMergeExecutedByThisSession": false,
+  "rootStatus": "## develop...origin/develop\n?? .githooks/\n?? .harness/\n?? .markdownlint-cli2.jsonc\n?? .prettierignore\n?? .quality/\n?? .ruff.toml\n?? .sqlfluff\n?? .stylelintrc.json\n?? apps/api/src/commands/migration-checksum-compatibility.ts\n?? apps/collector/config/\n?? scripts/content/migration-checksum.mjs\n?? scripts/harness/\n?? scripts/quality/\n?? scripts/test-collector-restore.mjs\n?? tests/harness/\n?? tests/quality/\n?? worklog/2026-09-25/git-governance/\n",
+  "deliveryStatus": "## feature/HARN-07-release-fixture-clock...origin/feature/HARN-07-release-fixture-clock\n"
+}

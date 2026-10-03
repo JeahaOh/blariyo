@@ -1,0 +1,11 @@
+{
+  "releaseBase": "054575928df7bd7e8f8a630c1234d7b3d054969c",
+  "mergedFeature": "da3a96e2a2db660da1de60aea1d597a15714a13a",
+  "sourceTrees": {
+    "apps": "a4c2cccb350b475efaaddc00e6b079b7beac9cc6",
+    "packages": "0c1858056cc184533814c72ea55a13828939cc45",
+    "scripts": "ccbe6188fba5055631e3cbe3e050500d13c2703c",
+    "tests": "c4324efc5203b5623e23c9ef4e4024bca36428a7",
+    "deploy": "67bf67e40adb411bb1d7e48c8f6df8f38830810d"
+  }
+}

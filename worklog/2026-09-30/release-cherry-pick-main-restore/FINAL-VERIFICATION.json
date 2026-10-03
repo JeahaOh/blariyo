@@ -1,0 +1,18 @@
+{
+  "completedAt": "2026-09-30T20:30:07+09:00",
+  "status": "종료",
+  "rootHeadAndBranchUnchanged": true,
+  "rootIndexUnchanged": true,
+  "existingFilesPreserved": 27,
+  "outsideTaskNewChanges": [],
+  "localMainEqualsOriginMain": true,
+  "release": "054575928df7bd7e8f8a630c1234d7b3d054969c",
+  "originReleaseOnlyCommits": 4,
+  "localReleaseOnlyCommits": 14,
+  "temporaryWorktreeRemoved": true,
+  "temporaryCandidateBranchRemoved": true,
+  "backupsRetained": true,
+  "gitDiffCheck": "PASS",
+  "push": "not performed",
+  "deployment": "not performed"
+}

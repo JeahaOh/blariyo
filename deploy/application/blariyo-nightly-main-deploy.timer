@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Blariyo main branch for deployment at 03:00 KST
+
+[Timer]
+OnCalendar=*-*-* 18:00:00 UTC
+Persistent=false
+RandomizedDelaySec=120
+Unit=blariyo-nightly-main-deploy.service
+
+[Install]
+WantedBy=timers.target

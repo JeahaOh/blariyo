@@ -512,6 +512,8 @@ export class ContentBoardPostBlockEntity {
 export type ContentBoardPostBlockRow = ContentBoardPostBlockEntity;
 @Entity({ schema: 'content', name: 'board_post_image', synchronize: false })
 export class ContentBoardPostImageEntity {
+  @Column({ type: 'timestamptz', nullable: true, precision: 3 })
+  source_expires_at!: Date | null;
   @PrimaryGeneratedColumn('identity', { type: 'bigint', generatedIdentity: 'BY DEFAULT' })
   id!: string;
   @Column({ type: 'bigint', nullable: true })
@@ -786,7 +788,56 @@ export class CollectBatchReviewRequestEntity {
   @Column({ type: 'jsonb' }) response_data!: unknown;
   @Column({ type: 'timestamptz', precision: 3, default: () => 'now()' }) created_at!: Date;
 }
+@Entity({ schema: 'content', name: 'post_collection_origin', synchronize: false })
+export class ContentPostCollectionOriginEntity {
+  @PrimaryColumn({ type: 'bigint' }) post_id!: string;
+  @Column({ type: 'uuid', unique: true }) dedup_id!: string;
+  @ManyToOne(() => ContentBoardPostEntity, {
+    nullable: false, onDelete: 'NO ACTION', onUpdate: 'NO ACTION',
+    cascade: false, eager: false, lazy: false, persistence: false,
+    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+  })
+  @JoinColumn([{ name: 'post_id', referencedColumnName: 'id' }])
+  post?: Relation<ContentBoardPostEntity>;
+}
+@Entity({ schema: 'collect', name: 'web_collection_request', synchronize: false })
+export class CollectWebCollectionRequestEntity {
+  @PrimaryColumn({ type: 'uuid' }) id!: string;
+  @Column({ type: 'varchar', length: 100 }) actor!: string;
+  @Column({ type: 'varchar', length: 200 }) idempotency_key!: string;
+  @Column({ type: 'bytea' }) request_hash!: Buffer;
+  @Column({ type: 'varchar', length: 80 }) source_key!: string;
+  @Column({ type: 'text', nullable: true }) canonical_url!: string | null;
+  @Column({ type: 'bytea' }) canonical_hash!: Buffer;
+  @Column({ type: 'bytea' }) post_key_hash!: Buffer;
+  @Column({ type: 'smallint' }) normalization_version!: number;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'clock_timestamp()' }) requested_at!: Date;
+  @Column({ type: 'timestamptz', precision: 3 }) accept_before!: Date;
+  @Column({ type: 'uuid', nullable: true }) lease_token!: string | null;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) lease_until!: Date | null;
+  @Column({ type: 'uuid', nullable: true }) previous_request_id!: string | null;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) closed_at!: Date | null;
+  @Column({ type: 'varchar', length: 16, default: 'PENDING' }) state!: string;
+}
+@Entity({ schema: 'collect', name: 'web_collection_request_key', synchronize: false })
+export class CollectWebCollectionRequestKeyEntity {
+  @PrimaryColumn({ type: 'varchar', length: 100 }) actor!: string;
+  @PrimaryColumn({ type: 'varchar', length: 200 }) idempotency_key!: string;
+  @Column({ type: 'bytea' }) request_hash!: Buffer;
+  @Column({ type: 'uuid' }) request_id!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => "clock_timestamp()+interval '24 hours'" }) expires_at!: Date;
+  @ManyToOne(() => CollectWebCollectionRequestEntity, {
+    nullable: false, onDelete: 'CASCADE', onUpdate: 'NO ACTION',
+    cascade: false, eager: false, lazy: false, persistence: false,
+    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+  })
+  @JoinColumn([{ name: 'request_id', referencedColumnName: 'id' }])
+  request?: Relation<CollectWebCollectionRequestEntity>;
+}
 export const entities = [
+  ContentPostCollectionOriginEntity,
+  CollectWebCollectionRequestEntity,
+  CollectWebCollectionRequestKeyEntity,
   CollectSourceDiscoveryPolicyEntity,
   CollectBatchReviewEntity,
   CollectBatchReviewRequestEntity,

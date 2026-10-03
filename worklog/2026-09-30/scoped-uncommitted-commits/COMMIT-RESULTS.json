@@ -1,0 +1,88 @@
+[
+  {
+    "sha": "ef6d7efb443414173ae0dad07a948cd26809032b",
+    "message": "docs(worklog): preserve M0 planning and handoff notes",
+    "files": [
+      "worklog/2026-09-27/m0-implementation-plan/README.md",
+      "worklog/2026-09-27/m0-next-step/README.md"
+    ],
+    "stagedPatchSha256": "897e2b2376c406897b569cb28eba8830a52846e01db747ed8d99c2b5fb70f928",
+    "verifiedAt": "2026-09-30T21:07:51.737743+09:00"
+  },
+  {
+    "sha": "3c3902b0a30c14af585beb835f4440f5c48a5d58",
+    "message": "fix(local): align batch preparation with current privileges",
+    "files": [
+      "docs/implementation-tasks/contracts-maintenance.md",
+      "docs/operations/environment-configuration.md",
+      "docs/status.md",
+      "scripts/local/README.md",
+      "scripts/local/prepare-batch-review.mjs",
+      "scripts/local/batch-privileges.mjs",
+      "scripts/local/batch-privileges.test.mjs",
+      "worklog/2026-09-27/dev-21-site-publish/DOCUMENT-LINK-AUDIT.json",
+      "worklog/2026-09-27/dev-21-site-publish/FILES.sha256",
+      "worklog/2026-09-27/dev-21-site-publish/README.md",
+      "worklog/2026-09-27/dev-21-site-publish/RESULTS.json"
+    ],
+    "stagedPatchSha256": "c4fc70ffe7542d3327e3e7164e236afd6ace131a1fac8e6f5668d6e542a72f94",
+    "verifiedAt": "2026-09-30T21:07:52.090280+09:00"
+  },
+  {
+    "sha": "6f33b7ede9f5a176b35c66f8995fad0fcb1250ad",
+    "message": "docs(worklog): record uncommitted change audit",
+    "files": [
+      "worklog/2026-09-28/uncommitted-status/README.md"
+    ],
+    "stagedPatchSha256": "f59e70f7a7d53f7b966990df9e7e2d6e71dc78d6a0b43fc8926394160b4da995",
+    "verifiedAt": "2026-09-30T21:07:52.309789+09:00"
+  },
+  {
+    "sha": "bebe75725f53cf758ba6be760f5417e2d8cf8005",
+    "message": "docs(audit): record project health review",
+    "files": [
+      "worklog/2026-09-30/project-health-review/EVIDENCE-MATCH.json",
+      "worklog/2026-09-30/project-health-review/LINK-CHECK.json",
+      "worklog/2026-09-30/project-health-review/PUBLIC-HTTP.json",
+      "worklog/2026-09-30/project-health-review/README.md",
+      "worklog/2026-09-30/project-health-review/VERIFICATION.json"
+    ],
+    "stagedPatchSha256": "b2ab719552087e1f8f3348f25dd924f292b0e650cec875c8f5952b2b018c2dab",
+    "verifiedAt": "2026-09-30T21:07:52.569360+09:00"
+  },
+  {
+    "sha": "9a1274cb3e7734af161f89dba2fa68a4b0553d4f",
+    "message": "docs(plan): record release integration and documentation plans",
+    "files": [
+      "worklog/2026-09-30/release-rebase-and-next-plan/BASELINE.json",
+      "worklog/2026-09-30/release-rebase-and-next-plan/BRANCH-OPTIONS.json",
+      "worklog/2026-09-30/release-rebase-and-next-plan/DOCUMENT-UPDATE-PLAN.md",
+      "worklog/2026-09-30/release-rebase-and-next-plan/INTEGRATION-PREVIEW.json",
+      "worklog/2026-09-30/release-rebase-and-next-plan/PROGRESS-PLAN.md",
+      "worklog/2026-09-30/release-rebase-and-next-plan/README.md",
+      "worklog/2026-09-30/release-rebase-and-next-plan/REBASE-VERIFICATION.json",
+      "worklog/2026-09-30/release-rebase-and-next-plan/REMOTE-RECONCILE-PREVIEW.json"
+    ],
+    "stagedPatchSha256": "11ef978dde71d85509cac57a71c32d0bc8ac415b34a3b3e554cd318d713ab794",
+    "verifiedAt": "2026-09-30T21:07:52.862277+09:00"
+  },
+  {
+    "sha": "d1bd79f9b674013f989f4601de93e6a020f95a9c",
+    "message": "docs(git): record chronological release picks and main restore",
+    "files": [
+      "worklog/2026-09-30/release-cherry-pick-main-restore/BASELINE.json",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/CANDIDATE-VERIFICATION.json",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/FINAL-VERIFICATION.json",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/PICK-MAPPING.json",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/PICK-ORDER.json",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/README.md",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/REF-RESULTS.json",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/TEST-RESULTS.json",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/api-build.log",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/root-tests.log",
+      "worklog/2026-09-30/release-cherry-pick-main-restore/git-hooks.log"
+    ],
+    "stagedPatchSha256": "2857f6a76b6dad6817f3b3c260014e6c8bab13a68d816f05ab34b4a7a0b3c368",
+    "verifiedAt": "2026-09-30T21:08:15.751025+09:00"
+  }
+]

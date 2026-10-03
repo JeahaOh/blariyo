@@ -384,10 +384,130 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/collect/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending. */
+        post: operations["createDirectCollectionRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/requests/{requestId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending. */
+        get: operations["getDirectCollectionRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/requests/{requestId}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending. */
+        post: operations["retryDirectCollectionRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/runtime-sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending. */
+        get: operations["listRuntimeCollectionSources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        BatchRetention: {
+            /** Format: date-time */
+            collectedAt: string;
+            /** Format: date-time */
+            reviewFinalizedAt: string | null;
+            /** Format: date-time */
+            expiresAt: string;
+            /** @enum {string} */
+            retentionState: "LIVE" | "PURGE_PENDING" | "PURGE_FAILED" | "PURGED";
+        };
+        DirectCollectionRequest: {
+            /** Format: uuid */
+            requestId: string;
+            previousRequestId: string | null;
+            sourceKey: string;
+            /** @enum {string} */
+            state: "PENDING" | "ACCEPTED" | "RUNNING" | "SUCCEEDED" | "FAILED" | "BLOCKED" | "EXPIRED" | "DUPLICATE";
+            /** Format: date-time */
+            requestedAt: string;
+            /** Format: date-time */
+            acceptBefore: string;
+            /** Format: date-time */
+            updatedAt: string;
+            version: number;
+            itemId: string | null;
+            errorCode: string | null;
+            retryable: boolean;
+            /** @enum {string} */
+            configFreshness: "CURRENT" | "STALE" | "ABSENT" | "CONFLICT";
+        };
+        DirectRuntimeSource: {
+            sourceKey: string;
+            configVersion: string | null;
+            loadedAt: string | null;
+            observedAt: string | null;
+            /** @enum {string} */
+            freshness: "CURRENT" | "STALE" | "ABSENT" | "CONFLICT";
+            enabled: boolean | null;
+            blockedReason: string | null;
+            collectionPolicy: ("HOT_LIST" | "GENERAL_LIST" | "DETAIL_ONLY" | "BLOCKED" | "UNVERIFIED") | null;
+            allowedHosts: string[] | null;
+            requestIntervalMs: number | null;
+            dailyRequestLimit: number | null;
+            maxPages: number | null;
+            maxItems: number | null;
+            mediaLimits: {
+                maxImages: number;
+                maxFileBytes: number;
+                maxTotalBytes: number;
+            } | null;
+            normalizationVersion: number | null;
+        };
         CollectionSource: {
             sourceId: number;
             lockVersion: number;
@@ -488,6 +608,7 @@ export interface components {
             postId: number | null;
         };
         BatchItemSummary: {
+            retention: components["schemas"]["BatchRetention"];
             /** Format: uuid */
             itemId: string;
             sourceKey: string;
@@ -503,6 +624,7 @@ export interface components {
             review: components["schemas"]["BatchReview"];
         };
         BatchItem: {
+            retention: components["schemas"]["BatchRetention"];
             /** Format: uuid */
             itemId: string;
             sourceKey: string;
@@ -1920,6 +2042,7 @@ export interface operations {
             403: components["responses"]["CollectionFailure"];
             404: components["responses"]["CollectionFailure"];
             409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
             413: components["responses"]["CollectionFailure"];
             415: components["responses"]["CollectionFailure"];
             500: components["responses"]["CollectionFailure"];
@@ -1966,6 +2089,7 @@ export interface operations {
             403: components["responses"]["CollectionFailure"];
             404: components["responses"]["CollectionFailure"];
             409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
             413: components["responses"]["CollectionFailure"];
             415: components["responses"]["CollectionFailure"];
             500: components["responses"]["CollectionFailure"];
@@ -2010,6 +2134,7 @@ export interface operations {
             403: components["responses"]["CollectionFailure"];
             404: components["responses"]["CollectionFailure"];
             409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
             413: components["responses"]["CollectionFailure"];
             415: components["responses"]["CollectionFailure"];
             500: components["responses"]["CollectionFailure"];
@@ -2045,8 +2170,176 @@ export interface operations {
             403: components["responses"]["CollectionFailure"];
             404: components["responses"]["CollectionFailure"];
             409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
             413: components["responses"]["CollectionFailure"];
             415: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    createDirectCollectionRequest: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uri */
+                    url: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Stored request or read-only snapshot; acceptance does not prove external collection. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["DirectCollectionRequest"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            422: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    getDirectCollectionRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Stored request or read-only snapshot; acceptance does not prove external collection. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["DirectCollectionRequest"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            422: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    retryDirectCollectionRequest: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    expectedVersion: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Stored request or read-only snapshot; acceptance does not prove external collection. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["DirectCollectionRequest"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            422: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    listRuntimeCollectionSources: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Stored request or read-only snapshot; acceptance does not prove external collection. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: components["schemas"]["DirectRuntimeSource"][];
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            422: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
             500: components["responses"]["CollectionFailure"];
             503: components["responses"]["CollectionFailure"];
         };

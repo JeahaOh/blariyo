@@ -1,0 +1,1067 @@
+{
+  "observedAt": "2026-09-26T15:54:08.944696+09:00",
+  "root": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+  "worktreeNames": [
+    "blariyo-ci-browser-review",
+    "blariyo-git-governance",
+    "blariyo-governance-delivery",
+    "blariyo-stash-recovery"
+  ],
+  "rootUntrackedFiles": [
+    ".githooks/commit-msg",
+    ".githooks/post-commit",
+    ".githooks/pre-commit",
+    ".githooks/pre-push",
+    ".harness/policy.json",
+    ".harness/tasks/HARN-06.json",
+    ".harness/tasks/HARN-07.json",
+    ".markdownlint-cli2.jsonc",
+    ".prettierignore",
+    ".quality/baseline.candidate.json",
+    ".quality/requirements.txt",
+    ".ruff.toml",
+    ".sqlfluff",
+    ".stylelintrc.json",
+    "apps/api/src/commands/migration-checksum-compatibility.ts",
+    "apps/collector/config/checkstyle/checkstyle.xml",
+    "scripts/content/migration-checksum.mjs",
+    "scripts/harness/branches.mjs",
+    "scripts/harness/check.mjs",
+    "scripts/harness/ci-context.mjs",
+    "scripts/harness/cli.mjs",
+    "scripts/harness/git.mjs",
+    "scripts/harness/hooks.mjs",
+    "scripts/harness/job-receipt.mjs",
+    "scripts/harness/lease_lock.py",
+    "scripts/harness/leases.mjs",
+    "scripts/harness/merge-back.mjs",
+    "scripts/harness/release.mjs",
+    "scripts/harness/restore-scope.mjs",
+    "scripts/harness/run-tests.mjs",
+    "scripts/harness/secrets.mjs",
+    "scripts/harness/tap.mjs",
+    "scripts/harness/verify.mjs",
+    "scripts/quality/eslint.config.mjs",
+    "scripts/quality/lint-all.mjs",
+    "scripts/quality/lint-contracts.mjs",
+    "scripts/quality/lint-debt.mjs",
+    "scripts/quality/setup-native-tools.mjs",
+    "scripts/test-collector-restore.mjs",
+    "tests/harness/branches.test.mjs",
+    "tests/harness/ci-context.test.mjs",
+    "tests/harness/ci-workflow.test.mjs",
+    "tests/harness/hooks.test.mjs",
+    "tests/harness/job-receipt.test.mjs",
+    "tests/harness/leases.test.mjs",
+    "tests/harness/merge-back.test.mjs",
+    "tests/harness/release.test.mjs",
+    "tests/harness/restore-scope.test.mjs",
+    "tests/harness/verify.test.mjs",
+    "tests/quality/lint-debt.test.mjs",
+    "tests/quality/lint-tools.test.mjs"
+  ],
+  "localBranches": {
+    "refs/heads/feature/HARN-06-git-governance-bootstrap": "f376e3dd7a2a41d489d5e0e67b591d62fe151753",
+    "refs/heads/feature/HARN-06-governance-registration": "ada24744af144b7a3d72df3e029e1845594dc33c",
+    "refs/heads/feature/HARN-07-release-fixture-clock": "6a431358db73b9c59be4125fa0749beb014e7acd",
+    "refs/heads/feature/HARN-08-cleanup-review": "a1a4802c75c0048345778ad11ae2af39b9315fd7",
+    "refs/heads/feature/HARN-08-harness-review": "f782c0be80763f279cd11fb261bfc825cadf9b6d",
+    "refs/heads/feature/HARN-08-legacy-main-review": "df7482704c7867712c12028d1a69e59bfd662acc",
+    "refs/heads/feature/HARN-08-policy-review": "8a72c9ae3e09460718de61065810a95594cd891c",
+    "refs/heads/feature/HARN-08-stash-recovery": "5957492429b668377bede866c90f878b43225785",
+    "refs/heads/feature/HARN-09-browser-retry": "2b61c4ca038adea80069f0d020019199b4c1e53c",
+    "refs/heads/feature/HARN-09-ci-diagnostics": "299ea62ab8eb3e00d4471fc82930137fc5026dc0"
+  },
+  "stash": "c373dac4ad6584e663ad958d1c9d64767dc48605",
+  "obsoleteTrackingRef": {
+    "name": "refs/remotes/fixprep/harness",
+    "sha": "85796f2667a7a9e0f220e7cefd1c025c33f86e2c"
+  },
+  "inactiveRootMetadata": [
+    ".git/harness-hooks",
+    ".git/harness-hooks.json",
+    ".git/harness-post-commit.jsonl"
+  ],
+  "regenerableCaches": [
+    ".git/quality-tools",
+    ".git/quality-venv",
+    ".ruff_cache"
+  ],
+  "temporaryArchiveClone": "/private/tmp/blariyo-design-archive-weyic3mb",
+  "archiveRemoteBranch": "docs/git-governance-design-archive",
+  "archiveRemoteHead": "20c7863150bd071e32d20507d5a48c004430c0e6",
+  "backupBundleSha256": "53fd80869f224a392421bde410fecab9278a68cab407c6e422965e7248780738",
+  "backupVerifiedFiles": [
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.githooks/commit-msg",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.githooks/commit-msg",
+      "type": "file",
+      "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.githooks/post-commit",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.githooks/post-commit",
+      "type": "file",
+      "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+      "mode": "0o755",
+      "bytes": 120
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.githooks/pre-commit",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.githooks/pre-commit",
+      "type": "file",
+      "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.githooks/pre-push",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.githooks/pre-push",
+      "type": "file",
+      "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2",
+      "mode": "0o755",
+      "bytes": 117
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.harness/policy.json",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.harness/policy.json",
+      "type": "file",
+      "sha256": "7369b49f06a9ca855b8eb6c9f23bfb7ad6fb18cc642ea3ea1b5dee31ab4b900a",
+      "mode": "0o644",
+      "bytes": 1037
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.harness/tasks/HARN-06.json",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.harness/tasks/HARN-06.json",
+      "type": "file",
+      "sha256": "46b0f4a03213aa109d1c0bee98d30e737c2f2177ffd26a8bf96ce207e6dfb2e8",
+      "mode": "0o644",
+      "bytes": 1444
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.harness/tasks/HARN-07.json",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.harness/tasks/HARN-07.json",
+      "type": "file",
+      "sha256": "3eb22dda1f8800c62fb0b81ba8b8c6ebeccb1a32633f645fb856e06bad975bf4",
+      "mode": "0o644",
+      "bytes": 597
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.markdownlint-cli2.jsonc",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.markdownlint-cli2.jsonc",
+      "type": "file",
+      "sha256": "fc2cf138a55d123b2f56f0864f3566cd13e17dd5a626707d6ec914f4f9837be2",
+      "mode": "0o644",
+      "bytes": 391
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.prettierignore",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.prettierignore",
+      "type": "file",
+      "sha256": "94ec4dcd79ab174a092c40f2ac43a8aeab0a9c745a4f074384a0361683504aca",
+      "mode": "0o644",
+      "bytes": 675
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.quality/baseline.candidate.json",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.quality/baseline.candidate.json",
+      "type": "file",
+      "sha256": "3fb6a1979dbeb1bfbfd8df87b323ebef0b0d09084e77f377d988fcb731a81213",
+      "mode": "0o644",
+      "bytes": 704
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.quality/requirements.txt",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.quality/requirements.txt",
+      "type": "file",
+      "sha256": "f797a89a8ee790434c33cc77a2c68bf8a97e70bf47175d3b591827357330b146",
+      "mode": "0o644",
+      "bytes": 250
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.ruff.toml",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.ruff.toml",
+      "type": "file",
+      "sha256": "b1060c540fc65d1876702e14be708eea1c156225e8dd21d30ce7fcff24a6876c",
+      "mode": "0o644",
+      "bytes": 137
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.sqlfluff",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.sqlfluff",
+      "type": "file",
+      "sha256": "45feced7469e9c625916b602b2ea636eb06b32c77f46152bfdf64ddf80c5434f",
+      "mode": "0o644",
+      "bytes": 131
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.stylelintrc.json",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/.stylelintrc.json",
+      "type": "file",
+      "sha256": "d9b05cf4b96793e3ddc674b3ba636f5efe9fd2fc7257360ba3ec83c376677010",
+      "mode": "0o644",
+      "bytes": 129
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/api/src/commands/migration-checksum-compatibility.ts",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/apps/api/src/commands/migration-checksum-compatibility.ts",
+      "type": "file",
+      "sha256": "2fef6692c4031b8639974d3aa034befe3741be2995354697f26097ddd26ab195",
+      "mode": "0o644",
+      "bytes": 858
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/config/checkstyle/checkstyle.xml",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/apps/collector/config/checkstyle/checkstyle.xml",
+      "type": "file",
+      "sha256": "b2124e79fd9cde935e49aca7e417d29c3aaeb2a62397ef88d6c289ad500fe513",
+      "mode": "0o644",
+      "bytes": 452
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/content/migration-checksum.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/content/migration-checksum.mjs",
+      "type": "file",
+      "sha256": "99a64922d58d82ca126bf684c8bf1164c7ec2fac203f1d3f5689a6c016a57fbf",
+      "mode": "0o644",
+      "bytes": 244
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/branches.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/branches.mjs",
+      "type": "file",
+      "sha256": "7928d1cb3f5ef06cf914b2903b3565ad7b69d695c5e671ec100251ff524f3171",
+      "mode": "0o644",
+      "bytes": 8670
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/check.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/check.mjs",
+      "type": "file",
+      "sha256": "ed9057c08ea40a7f434ee2bba9e922a53d8d642f02043ec12550a2f4c7be95ba",
+      "mode": "0o644",
+      "bytes": 12592
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/ci-context.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/ci-context.mjs",
+      "type": "file",
+      "sha256": "b72d22e265bef8f7dbf0f2b0fa1f4b396268bcc0598a5d956fdf0db4c3fb3da0",
+      "mode": "0o644",
+      "bytes": 8954
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/cli.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/cli.mjs",
+      "type": "file",
+      "sha256": "65eeb5cf8f759a411bfde7298d7ee0d8ae89b3e9108a6c9a2e3eae9ec89fccea",
+      "mode": "0o644",
+      "bytes": 7945
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/git.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/git.mjs",
+      "type": "file",
+      "sha256": "725c0a04baac9b21a66600fa91b1d16c12f5e68effe06e3ca379b25620de9923",
+      "mode": "0o644",
+      "bytes": 860
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/hooks.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/hooks.mjs",
+      "type": "file",
+      "sha256": "7b0f89fe94b0cc9fc5c6f15b30dff742310a30188479b0a2eb91ce939f328a9b",
+      "mode": "0o644",
+      "bytes": 9751
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/job-receipt.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/job-receipt.mjs",
+      "type": "file",
+      "sha256": "7e09a1355d46206785856f12c7cba18eda3a9c9b9a42ab3559cd517cbb58e77e",
+      "mode": "0o644",
+      "bytes": 2400
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/lease_lock.py",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/lease_lock.py",
+      "type": "file",
+      "sha256": "e8825a5d7cd31672b9cf77e7b7551de73ee577413790168b053444eff8819d92",
+      "mode": "0o644",
+      "bytes": 3694
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/leases.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/leases.mjs",
+      "type": "file",
+      "sha256": "84ee74fa7fdf13d435776fb45858fca12bbfb36495a3f21b90007333a919bc15",
+      "mode": "0o644",
+      "bytes": 6752
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/merge-back.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/merge-back.mjs",
+      "type": "file",
+      "sha256": "a893fb035406423c2b12a7cbc4f5041c97e760bc0506558ae8b87be4da3f1152",
+      "mode": "0o644",
+      "bytes": 2673
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/release.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/release.mjs",
+      "type": "file",
+      "sha256": "dbc0783fb4a7f5d14e97322b55e003ed51962aae1fdae06b1bd44df328e39b16",
+      "mode": "0o644",
+      "bytes": 7992
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/restore-scope.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/restore-scope.mjs",
+      "type": "file",
+      "sha256": "f840cff58672ab5bb9d6a02781eb3274f835c1fab0f6907ab93e88673b253203",
+      "mode": "0o644",
+      "bytes": 2513
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/run-tests.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/run-tests.mjs",
+      "type": "file",
+      "sha256": "15584d22e385401f46845dee282ab2326f4400cc7e223a13826b089166278503",
+      "mode": "0o644",
+      "bytes": 1211
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/secrets.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/secrets.mjs",
+      "type": "file",
+      "sha256": "ed399db0f291d9931d6518b5d4f42fbbdfdea0f1e2253e0821c4e38d8d14f2ec",
+      "mode": "0o644",
+      "bytes": 458
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/tap.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/tap.mjs",
+      "type": "file",
+      "sha256": "2779e7c8ed5c07f5b960e461028cd0aac67fbb9fb4f6a157271f68b93a523fcb",
+      "mode": "0o644",
+      "bytes": 845
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/harness/verify.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/harness/verify.mjs",
+      "type": "file",
+      "sha256": "6df5ac8259766da15e03aca27b1d1d827bdde2fb34d767ead48442e810656dfc",
+      "mode": "0o644",
+      "bytes": 15655
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/quality/eslint.config.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/quality/eslint.config.mjs",
+      "type": "file",
+      "sha256": "106b7e508a89a6b77e437c6e205527e75fc89c3d117813abf2f78b0e542030a5",
+      "mode": "0o644",
+      "bytes": 321
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/quality/lint-all.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/quality/lint-all.mjs",
+      "type": "file",
+      "sha256": "24a8753fd89ea9d33c5134f2dc63925a3f8079294d309df24c9ece2910e4151a",
+      "mode": "0o644",
+      "bytes": 6301
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/quality/lint-contracts.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/quality/lint-contracts.mjs",
+      "type": "file",
+      "sha256": "1c788de4ba461c54c0a3d1e18a47a3de8cb937f1b2c3b3160ca768994c4b922e",
+      "mode": "0o644",
+      "bytes": 2186
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/quality/lint-debt.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/quality/lint-debt.mjs",
+      "type": "file",
+      "sha256": "97e245288589e3415c2ecfc2357bc9a2fa73e8d059916c72a169b9fdf33a6405",
+      "mode": "0o644",
+      "bytes": 13940
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/quality/setup-native-tools.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/quality/setup-native-tools.mjs",
+      "type": "file",
+      "sha256": "83d88076a91c8b6b6f3e8e92e94ef1af2402ca62df69453d6bed23e5a0c1f2b8",
+      "mode": "0o644",
+      "bytes": 3876
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/scripts/test-collector-restore.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/scripts/test-collector-restore.mjs",
+      "type": "file",
+      "sha256": "358e0080bc8f5e15c45b3b587051d791ec6b33ee6a8e97b082e59056d3d99cfa",
+      "mode": "0o644",
+      "bytes": 10856
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/branches.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/branches.test.mjs",
+      "type": "file",
+      "sha256": "b7404c7a0fe62daaa09a56481237df98f34bb4906204b613da63f9a0acd46026",
+      "mode": "0o644",
+      "bytes": 17538
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/ci-context.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/ci-context.test.mjs",
+      "type": "file",
+      "sha256": "5ce15227aca0ec6b090f49ed89bb5d5931f0a15385122349208e88f0a9a54412",
+      "mode": "0o644",
+      "bytes": 8543
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/ci-workflow.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/ci-workflow.test.mjs",
+      "type": "file",
+      "sha256": "35fc688490e2f6983195dc3e4a1c3ee05732c0bad4c42da5d41291cb7a62e555",
+      "mode": "0o644",
+      "bytes": 3226
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/hooks.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/hooks.test.mjs",
+      "type": "file",
+      "sha256": "ed597a2b1f5473e91d07759a9f3e157f80816fcd5dc93dfdeefe9702c5ecfa94",
+      "mode": "0o644",
+      "bytes": 23180
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/job-receipt.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/job-receipt.test.mjs",
+      "type": "file",
+      "sha256": "4e7955fd561c8d6cf69f6f8cb8f92b484f0784b98d6556c17f6575c1e182799d",
+      "mode": "0o644",
+      "bytes": 2876
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/leases.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/leases.test.mjs",
+      "type": "file",
+      "sha256": "127050f77f31e4d3d87b3b5fac03d44a25b817119293d837049860e5292b8d99",
+      "mode": "0o644",
+      "bytes": 3670
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/merge-back.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/merge-back.test.mjs",
+      "type": "file",
+      "sha256": "4266f6a034ef22cdf13f85e2edb968c0915d0199e3bd53e4e8bd85a5aebee3e2",
+      "mode": "0o644",
+      "bytes": 6833
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/release.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/release.test.mjs",
+      "type": "file",
+      "sha256": "89a20d4422ef0ae3ade0bd5cc5172c58d83f58ae2ea029f3df6dca6452497404",
+      "mode": "0o644",
+      "bytes": 13093
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/restore-scope.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/restore-scope.test.mjs",
+      "type": "file",
+      "sha256": "3879fd9924c0c4297f7229c68df122ee8322143de42094893a6b8b832f7b0b56",
+      "mode": "0o644",
+      "bytes": 3663
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/harness/verify.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/harness/verify.test.mjs",
+      "type": "file",
+      "sha256": "70c68ae9bffcb028154642b3934510b6f0bad12989ce1e1064528d1e8165d72b",
+      "mode": "0o644",
+      "bytes": 6519
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/quality/lint-debt.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/quality/lint-debt.test.mjs",
+      "type": "file",
+      "sha256": "e33a8c1fa550deb3d08eb9edd02e413761972a2d8064f2b743fa801170bfcd81",
+      "mode": "0o644",
+      "bytes": 7996
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/tests/quality/lint-tools.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo/files/tests/quality/lint-tools.test.mjs",
+      "type": "file",
+      "sha256": "70c5cc0244fdfa24a3620ec080aaa99989f3082a1aea38108deea05499578429",
+      "mode": "0o644",
+      "bytes": 8426
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/.github/workflows/ci.yml",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/.github/workflows/ci.yml",
+      "type": "file",
+      "sha256": "42c30c533706d93b0a81819918c03472bf26bb99e9e02555d94a9a96e459566c",
+      "mode": "0o644",
+      "bytes": 31434
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/docs/ai/git-workflow.md",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/docs/ai/git-workflow.md",
+      "type": "file",
+      "sha256": "1ecdafe2563b3f470a47b21a2f781921a1ab6edcb6e855adf715a516b6db3c20",
+      "mode": "0o644",
+      "bytes": 81419
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/docs/ai/harness-implementation-plan.md",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/docs/ai/harness-implementation-plan.md",
+      "type": "file",
+      "sha256": "1e0a8731dc77fd139ad4e3eddf2f252e158ad80e240e14a41cb596ac9dc64d66",
+      "mode": "0o644",
+      "bytes": 58898
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/docs/roadmap.md",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/docs/roadmap.md",
+      "type": "file",
+      "sha256": "6db241c54247dc65252dd4e038b90169254df170af38e5bbfc9ad74635ab17e3",
+      "mode": "0o644",
+      "bytes": 43797
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/docs/status.md",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/docs/status.md",
+      "type": "file",
+      "sha256": "87e97b1c57e64ca54db5738552568211c0b42cd028639f0d9c98c36ba5db15b4",
+      "mode": "0o644",
+      "bytes": 20847
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/tests/browser/admin-workflow.test.ts",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/tests/browser/admin-workflow.test.ts",
+      "type": "file",
+      "sha256": "54f25844d1cfece69a92e0758ca10501736f554d05c30ea58652b475f9584d8b",
+      "mode": "0o644",
+      "bytes": 17916
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/tests/harness/ci-workflow.test.mjs",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/tests/harness/ci-workflow.test.mjs",
+      "type": "file",
+      "sha256": "cb7717a38763c225cba3db4e082965f6c5f757a53573984b51cfe02eda0a7d98",
+      "mode": "0o644",
+      "bytes": 8941
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/worklog/2026-09-25/git-governance/STASH-RECOVERY.md",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/worklog/2026-09-25/git-governance/STASH-RECOVERY.md",
+      "type": "file",
+      "sha256": "a0275d5aeb802d0ce00dfcc69efc19fc1e40fdd29d6e075f2a89ce272244348b",
+      "mode": "0o644",
+      "bytes": 19297
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/.harness/tasks/HARN-09.json",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/.harness/tasks/HARN-09.json",
+      "type": "file",
+      "sha256": "cc94d0114f1644210f05242b7e399d55abfac54caecbc43626ac89932924c9cc",
+      "mode": "0o644",
+      "bytes": 723
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/worklog/2026-09-25/git-governance/CI-RECOVERY.md",
+      "backup": "worklog/2026-09-25/git-governance/archive/2026-09-26-s01-a-backup-145815/private/worktrees/blariyo-stash-recovery/files/worklog/2026-09-25/git-governance/CI-RECOVERY.md",
+      "type": "file",
+      "sha256": "b233f9a2c04b897a42aac71a54c95aef3b5b40aa9c9addad229163e07e93e790",
+      "mode": "0o644",
+      "bytes": 8404
+    }
+  ],
+  "metadataBackupFiles": [
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/config",
+      "backup": "private/git-metadata/config",
+      "type": "file",
+      "sha256": "79d1dbb43fcae252c6af15b32f54836068a8e8a63880b8feedaca5577392e83a",
+      "mode": "0o600",
+      "bytes": 1886
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/config.worktree",
+      "backup": "private/git-metadata/config.worktree",
+      "type": "file",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o644",
+      "bytes": 0
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks/commit-msg",
+      "backup": "private/git-metadata/harness-hooks/commit-msg",
+      "type": "file",
+      "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks/post-commit",
+      "backup": "private/git-metadata/harness-hooks/post-commit",
+      "type": "file",
+      "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+      "mode": "0o755",
+      "bytes": 120
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks/pre-commit",
+      "backup": "private/git-metadata/harness-hooks/pre-commit",
+      "type": "file",
+      "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks/pre-push",
+      "backup": "private/git-metadata/harness-hooks/pre-push",
+      "type": "file",
+      "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2",
+      "mode": "0o755",
+      "bytes": 117
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-hooks.json",
+      "backup": "private/git-metadata/harness-hooks.json",
+      "type": "file",
+      "sha256": "365b1269030b0dee05426a0cf89106ddba9f15a13ddddf344555ef488acf1119",
+      "mode": "0o600",
+      "bytes": 703
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/harness-post-commit.jsonl",
+      "backup": "private/git-metadata/harness-post-commit.jsonl",
+      "type": "file",
+      "sha256": "f9ff79e9cfca40fc32b791ead87fb9d36e8955cf43650bf8e0c0f4cf21e93c6b",
+      "mode": "0o600",
+      "bytes": 161
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/COMMIT_EDITMSG",
+      "backup": "private/git-metadata/worktrees/blariyo-ci-browser-review/COMMIT_EDITMSG",
+      "type": "file",
+      "sha256": "6cc791599f6a1278aee7a55b31a1709cb399584f18e365eef83b9ce68ece24c3",
+      "mode": "0o644",
+      "bytes": 121
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-ci-browser-review/HEAD",
+      "type": "file",
+      "sha256": "ca99ddba88d78b6b4611c9110db6b712169bc8df18d2d6d44a1902201b05a732",
+      "mode": "0o644",
+      "bytes": 46
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/ORIG_HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-ci-browser-review/ORIG_HEAD",
+      "type": "file",
+      "sha256": "d17a99e62f55698e58e2d306cf91303ef52a46afc2ccae2b3b236ab747c93fdd",
+      "mode": "0o644",
+      "bytes": 41
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/commondir",
+      "backup": "private/git-metadata/worktrees/blariyo-ci-browser-review/commondir",
+      "type": "file",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "mode": "0o644",
+      "bytes": 6
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/config.worktree",
+      "backup": "private/git-metadata/worktrees/blariyo-ci-browser-review/config.worktree",
+      "type": "file",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o644",
+      "bytes": 0
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/gitdir",
+      "backup": "private/git-metadata/worktrees/blariyo-ci-browser-review/gitdir",
+      "type": "file",
+      "sha256": "3302de4b84ecaa49a41f733b9853c4e006c8bc61bcb5fe643d655d7d57781318",
+      "mode": "0o644",
+      "bytes": 75
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/index",
+      "backup": "private/git-metadata/worktrees/blariyo-ci-browser-review/index",
+      "type": "file",
+      "sha256": "cc4fb36a9c54fe715c23bcf761cae7e44f2c1d11474658808728e89f05c33b5e",
+      "mode": "0o644",
+      "bytes": 152536
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-ci-browser-review/logs/HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-ci-browser-review/logs/HEAD",
+      "type": "file",
+      "sha256": "d0b279349078107f6c86b648518ed0c289c9e0b02ac3e2cd19f2a98ed3c7d3c2",
+      "mode": "0o644",
+      "bytes": 472
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/COMMIT_EDITMSG",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/COMMIT_EDITMSG",
+      "type": "file",
+      "sha256": "6491d5b4bc5c9a4a52c14fe3d9daeabeaadd2bc03e9e049923d95a853f554b9b",
+      "mode": "0o644",
+      "bytes": 340
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/FETCH_HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/FETCH_HEAD",
+      "type": "file",
+      "sha256": "88806457db8934732e24fe521c231dcf84697dbb02f8fe38947d6824b9c46f76",
+      "mode": "0o644",
+      "bytes": 962
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/HEAD",
+      "type": "file",
+      "sha256": "f3f3467d7dc5c5c35590936aac002a82353b227c04ca8be23276e1f8150557ef",
+      "mode": "0o644",
+      "bytes": 57
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/ORIG_HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/ORIG_HEAD",
+      "type": "file",
+      "sha256": "d17a99e62f55698e58e2d306cf91303ef52a46afc2ccae2b3b236ab747c93fdd",
+      "mode": "0o644",
+      "bytes": 41
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/commondir",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/commondir",
+      "type": "file",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "mode": "0o644",
+      "bytes": 6
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/config.worktree",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/config.worktree",
+      "type": "file",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o644",
+      "bytes": 0
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/gitdir",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/gitdir",
+      "type": "file",
+      "sha256": "3eb8b3860561a53150439b248ae95e2c9e7b0a03372c13de1f94f3f12ca49f85",
+      "mode": "0o644",
+      "bytes": 72
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks/commit-msg",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/harness-hooks/commit-msg",
+      "type": "file",
+      "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks/post-commit",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/harness-hooks/post-commit",
+      "type": "file",
+      "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+      "mode": "0o755",
+      "bytes": 120
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks/pre-commit",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/harness-hooks/pre-commit",
+      "type": "file",
+      "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks/pre-push",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/harness-hooks/pre-push",
+      "type": "file",
+      "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2",
+      "mode": "0o755",
+      "bytes": 117
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-hooks.json",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/harness-hooks.json",
+      "type": "file",
+      "sha256": "1c683cebdd3ef1731ebd403cc0ea1e629b0ea85ed41070a3b937bfc1c5fc2223",
+      "mode": "0o600",
+      "bytes": 784
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/harness-post-commit.jsonl",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/harness-post-commit.jsonl",
+      "type": "file",
+      "sha256": "75513df77f5e80288642d36cdbcc25f23179d4895b716c4921542038a60abbf2",
+      "mode": "0o600",
+      "bytes": 471
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/index",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/index",
+      "type": "file",
+      "sha256": "806a8a7bc52696d2f5a8a1197efa9827d3187c87bf0ffa86a2bf2a35d262e930",
+      "mode": "0o644",
+      "bytes": 158414
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-git-governance/logs/HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-git-governance/logs/HEAD",
+      "type": "file",
+      "sha256": "1dd694ee18e50e1ad8837a30273194aebdde671fa016fa68b37ba36b3d35d90a",
+      "mode": "0o644",
+      "bytes": 915
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/COMMIT_EDITMSG",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/COMMIT_EDITMSG",
+      "type": "file",
+      "sha256": "2e8fde2cabf66534ba250ea29eeb5ab2041c5818145fa7b7e5cef47000ad4a1f",
+      "mode": "0o644",
+      "bytes": 130
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/FETCH_HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/FETCH_HEAD",
+      "type": "file",
+      "sha256": "89aa2743cb6d79cf20ce3d79f575362dd20856fa4f4c244e638012369985dea2",
+      "mode": "0o644",
+      "bytes": 499
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/HEAD",
+      "type": "file",
+      "sha256": "772ee3e55871224bb11e01e8122cea46d50e5b41adee2647bff53e86c469457b",
+      "mode": "0o644",
+      "bytes": 54
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/ORIG_HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/ORIG_HEAD",
+      "type": "file",
+      "sha256": "80ff6b317f2acc62d36a31b99b7885bacab12d2ee7c7c43ac6db4b326cc5b49c",
+      "mode": "0o644",
+      "bytes": 41
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/commondir",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/commondir",
+      "type": "file",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "mode": "0o644",
+      "bytes": 6
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/config.worktree",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/config.worktree",
+      "type": "file",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o644",
+      "bytes": 0
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/gitdir",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/gitdir",
+      "type": "file",
+      "sha256": "736d4b8cc54424cd4e91e27547fc8d366294e37d22ea8c50416e0d05341686e0",
+      "mode": "0o644",
+      "bytes": 77
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks/commit-msg",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/harness-hooks/commit-msg",
+      "type": "file",
+      "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks/post-commit",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/harness-hooks/post-commit",
+      "type": "file",
+      "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+      "mode": "0o755",
+      "bytes": 120
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks/pre-commit",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/harness-hooks/pre-commit",
+      "type": "file",
+      "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks/pre-push",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/harness-hooks/pre-push",
+      "type": "file",
+      "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2",
+      "mode": "0o755",
+      "bytes": 117
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-hooks.json",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/harness-hooks.json",
+      "type": "file",
+      "sha256": "c5f96eab0a775d3bd49442147b19477d9cca4f9fd54207a6c93b5bd5b757e3ff",
+      "mode": "0o600",
+      "bytes": 799
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/harness-post-commit.jsonl",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/harness-post-commit.jsonl",
+      "type": "file",
+      "sha256": "7d32906ba2789370835a7eb25b6fa3b39e18f2d13533026fd7f2589fdcbba05f",
+      "mode": "0o600",
+      "bytes": 1829
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/index",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/index",
+      "type": "file",
+      "sha256": "96cf05381f0a1c70ee0204dfb40ef1046283f9e7481d27095ce3d01e01f714bc",
+      "mode": "0o644",
+      "bytes": 160812
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-governance-delivery/logs/HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-governance-delivery/logs/HEAD",
+      "type": "file",
+      "sha256": "30531ad415701bdf7610ae819095e782128aa42e3b1273a1bfa89d287788cacf",
+      "mode": "0o644",
+      "bytes": 5008
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/COMMIT_EDITMSG",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/COMMIT_EDITMSG",
+      "type": "file",
+      "sha256": "87df92a9ae2d287d58359bd44d7df6868c1c20f26071d88749419ef8160fe34c",
+      "mode": "0o644",
+      "bytes": 282
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/HEAD",
+      "type": "file",
+      "sha256": "e67e2fa49c2fc41c7725b02aa93108fe28d07cc1ba0f1f7cf14c60cb18880b0e",
+      "mode": "0o644",
+      "bytes": 47
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/ORIG_HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/ORIG_HEAD",
+      "type": "file",
+      "sha256": "bf0129d2fba2445a9ae2847cf0e707a0b2279e77ee92f7abce2aca53aa675b92",
+      "mode": "0o644",
+      "bytes": 41
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/commondir",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/commondir",
+      "type": "file",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "mode": "0o644",
+      "bytes": 6
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/config.worktree",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/config.worktree",
+      "type": "file",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o644",
+      "bytes": 0
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/gitdir",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/gitdir",
+      "type": "file",
+      "sha256": "89c62ec811a2ca68ce066fc1b3990f0b851068da4c97180f6123bd448389c50c",
+      "mode": "0o644",
+      "bytes": 72
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks/commit-msg",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/harness-hooks/commit-msg",
+      "type": "file",
+      "sha256": "9281c6b1d75106d05465f43d283c6a7507df073eddea8605ea2db54dcfb33376",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks/post-commit",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/harness-hooks/post-commit",
+      "type": "file",
+      "sha256": "22bd2ede4faaa7e59965d2a1b189c4d5e6925d6462ba1cd522af4684f25b1a55",
+      "mode": "0o755",
+      "bytes": 120
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks/pre-commit",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/harness-hooks/pre-commit",
+      "type": "file",
+      "sha256": "0e41a192aeb995db5d0466f2d2fcb8bf5bac09f0c0b850187b184da79e404dee",
+      "mode": "0o755",
+      "bytes": 119
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks/pre-push",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/harness-hooks/pre-push",
+      "type": "file",
+      "sha256": "48578515b6061cc2c5d8d4c84f61a698b2d743be05211691e94734c1e79f30c2",
+      "mode": "0o755",
+      "bytes": 117
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-hooks.json",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/harness-hooks.json",
+      "type": "file",
+      "sha256": "12070dbf6af6e54326cf49d2d73fe8890f1742e4e34ba80bdaf43e8a8e58c31b",
+      "mode": "0o600",
+      "bytes": 784
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/harness-post-commit.jsonl",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/harness-post-commit.jsonl",
+      "type": "file",
+      "sha256": "4ad5acb35cb062af8c0edb1a51d94a61834493787a2e82609468ca58d2c87540",
+      "mode": "0o600",
+      "bytes": 1582
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/index",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/index",
+      "type": "file",
+      "sha256": "8025b5d0d78e63c31bf7f61b1d209c032f0ab86a01bbc660e63ac08fcc91caa9",
+      "mode": "0o644",
+      "bytes": 160604
+    },
+    {
+      "source": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/.git/worktrees/blariyo-stash-recovery/logs/HEAD",
+      "backup": "private/git-metadata/worktrees/blariyo-stash-recovery/logs/HEAD",
+      "type": "file",
+      "sha256": "671150810a945875e7655cc669b11d4b9ce4fc61abd20eb6463c22650482a68b",
+      "mode": "0o644",
+      "bytes": 1680
+    }
+  ],
+  "remoteMutations": false
+}

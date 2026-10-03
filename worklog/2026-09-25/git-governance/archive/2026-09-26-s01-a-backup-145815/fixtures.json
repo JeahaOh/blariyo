@@ -1,0 +1,2305 @@
+[
+  {
+    "path": "apps/collector/src/test/resources/sites/arcalive.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "c73b5867d2760f745ac7f27f44d724afa915dcc6",
+        "sha256": "d0e0ccee4c03c6a80b815f2b9b92b32ccd26920fed1eda448b8d92b0804af114",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/arcalive.detail.html"
+      },
+      "stash": {
+        "blob": "01b3e5723accfcee662dbf29bb2393290aaef849",
+        "sha256": "ee4271534c9ab82d72c215ba9dea4d4b7b7b704e459e2fe97b4e945be340d894",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/arcalive.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/arcalive.detail.html",
+        "sha256": "d0e0ccee4c03c6a80b815f2b9b92b32ccd26920fed1eda448b8d92b0804af114",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/arcalive.detail.html",
+        "sha256": "d0e0ccee4c03c6a80b815f2b9b92b32ccd26920fed1eda448b8d92b0804af114",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/arcalive.detail.html",
+        "sha256": "d0e0ccee4c03c6a80b815f2b9b92b32ccd26920fed1eda448b8d92b0804af114",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/arcalive.detail.html",
+        "sha256": "d0e0ccee4c03c6a80b815f2b9b92b32ccd26920fed1eda448b8d92b0804af114",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/arcalive.detail.html",
+        "sha256": "d0e0ccee4c03c6a80b815f2b9b92b32ccd26920fed1eda448b8d92b0804af114",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/arcalive.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "9598ad51ba6e8b9bb51a67d33d3dc6abcee3b5c5",
+        "sha256": "1fe0ba3ad70a73de7bc72c5658d2ad0cf04b91b935ba903131ce5202d2adcad2",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/arcalive.list.html"
+      },
+      "stash": {
+        "blob": "37571c571eed9cdda85f06d0004143970edb7ed5",
+        "sha256": "9640f80a09b070a17c03d2d7ab6c3b29e84f79e39be84c42f704e41a0c3bd315",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/arcalive.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/arcalive.list.html",
+        "sha256": "1fe0ba3ad70a73de7bc72c5658d2ad0cf04b91b935ba903131ce5202d2adcad2",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/arcalive.list.html",
+        "sha256": "1fe0ba3ad70a73de7bc72c5658d2ad0cf04b91b935ba903131ce5202d2adcad2",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/arcalive.list.html",
+        "sha256": "1fe0ba3ad70a73de7bc72c5658d2ad0cf04b91b935ba903131ce5202d2adcad2",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/arcalive.list.html",
+        "sha256": "1fe0ba3ad70a73de7bc72c5658d2ad0cf04b91b935ba903131ce5202d2adcad2",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/arcalive.list.html",
+        "sha256": "1fe0ba3ad70a73de7bc72c5658d2ad0cf04b91b935ba903131ce5202d2adcad2",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/bobaedream.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "d2ea0c4703cdee35f559936b17b9a973e9ac33e0",
+        "sha256": "48e08d030c7205aa9ac9bb3963a60ca516407676aee6677cb76e402e09c9a28c",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/bobaedream.detail.html"
+      },
+      "stash": {
+        "blob": "6d06d570e98bc075a4c534616c65d3cc6a152376",
+        "sha256": "03a06ca459d5e9b7d906bc432bb6e739171fc78822311a78543a7dfc79eb827e",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/bobaedream.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/bobaedream.detail.html",
+        "sha256": "48e08d030c7205aa9ac9bb3963a60ca516407676aee6677cb76e402e09c9a28c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/bobaedream.detail.html",
+        "sha256": "48e08d030c7205aa9ac9bb3963a60ca516407676aee6677cb76e402e09c9a28c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/bobaedream.detail.html",
+        "sha256": "48e08d030c7205aa9ac9bb3963a60ca516407676aee6677cb76e402e09c9a28c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/bobaedream.detail.html",
+        "sha256": "48e08d030c7205aa9ac9bb3963a60ca516407676aee6677cb76e402e09c9a28c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/bobaedream.detail.html",
+        "sha256": "48e08d030c7205aa9ac9bb3963a60ca516407676aee6677cb76e402e09c9a28c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/bobaedream.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "75e9a6f7945406eda3468c7d5870a129b6c0e1ce",
+        "sha256": "08717da22481cee9e5ef6006767440cc4c2a809d80670e9194f45839c99b436b",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/bobaedream.list.html"
+      },
+      "stash": {
+        "blob": "0923c4d4eea33aeb8cf4ada433547286a51b4013",
+        "sha256": "efa33abd091bcc09c6df4002c78101c0f80b8502b289aa0196c08ef8bfde98eb",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/bobaedream.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/bobaedream.list.html",
+        "sha256": "08717da22481cee9e5ef6006767440cc4c2a809d80670e9194f45839c99b436b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/bobaedream.list.html",
+        "sha256": "08717da22481cee9e5ef6006767440cc4c2a809d80670e9194f45839c99b436b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/bobaedream.list.html",
+        "sha256": "08717da22481cee9e5ef6006767440cc4c2a809d80670e9194f45839c99b436b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/bobaedream.list.html",
+        "sha256": "08717da22481cee9e5ef6006767440cc4c2a809d80670e9194f45839c99b436b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/bobaedream.list.html",
+        "sha256": "08717da22481cee9e5ef6006767440cc4c2a809d80670e9194f45839c99b436b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/dcinside.dccon.observed.html",
+    "copies": {
+      "baseline": {
+        "blob": "4569febf504caa255ab63015e3c252a3e94874f7",
+        "sha256": "704bc5059d02ddd2db22841e112c445d4be9a3e4898dc3656f3b9fe0ad553673",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/dcinside.dccon.observed.html"
+      },
+      "stash": {
+        "blob": "a37786290f962f1e129e4bcc7b0fcf346897b11f",
+        "sha256": "fe67b2a9abcc9bf7c181069466f554c5eb858529adf9273b2a656a73b53cee97",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/dcinside.dccon.observed.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/dcinside.dccon.observed.html",
+        "sha256": "704bc5059d02ddd2db22841e112c445d4be9a3e4898dc3656f3b9fe0ad553673",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/dcinside.dccon.observed.html",
+        "sha256": "704bc5059d02ddd2db22841e112c445d4be9a3e4898dc3656f3b9fe0ad553673",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/dcinside.dccon.observed.html",
+        "sha256": "704bc5059d02ddd2db22841e112c445d4be9a3e4898dc3656f3b9fe0ad553673",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/dcinside.dccon.observed.html",
+        "sha256": "704bc5059d02ddd2db22841e112c445d4be9a3e4898dc3656f3b9fe0ad553673",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/dcinside.dccon.observed.html",
+        "sha256": "704bc5059d02ddd2db22841e112c445d4be9a3e4898dc3656f3b9fe0ad553673",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/dcinside.detail.observed.html",
+    "copies": {
+      "baseline": {
+        "blob": "eb53ecf1b621ec980d93a81c7534d55ffe7e36be",
+        "sha256": "9bb61e9404551a11a201538955518b8981fa14c72880161d9ce2664fad0d81bd",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/dcinside.detail.observed.html"
+      },
+      "stash": {
+        "blob": "4e83a1107109a6f20a3eedc37ae3bdbfe8a9738e",
+        "sha256": "492ed23218efd771e33bef319ddc8f476236d7a102bbd6d430766589e8b21793",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/dcinside.detail.observed.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/dcinside.detail.observed.html",
+        "sha256": "9bb61e9404551a11a201538955518b8981fa14c72880161d9ce2664fad0d81bd",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/dcinside.detail.observed.html",
+        "sha256": "9bb61e9404551a11a201538955518b8981fa14c72880161d9ce2664fad0d81bd",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/dcinside.detail.observed.html",
+        "sha256": "9bb61e9404551a11a201538955518b8981fa14c72880161d9ce2664fad0d81bd",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/dcinside.detail.observed.html",
+        "sha256": "9bb61e9404551a11a201538955518b8981fa14c72880161d9ce2664fad0d81bd",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/dcinside.detail.observed.html",
+        "sha256": "9bb61e9404551a11a201538955518b8981fa14c72880161d9ce2664fad0d81bd",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/dogdrip.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "f35f4e1d48f855f525267cc4e38e613eabcdf686",
+        "sha256": "db5e0cf8a5a12ed0737345f99c2242cb7105210beeefce66645afcb577aaaf06",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/dogdrip.detail.html"
+      },
+      "stash": {
+        "blob": "f5c93dea08a8373e06df08b8d2a38079ee7903bb",
+        "sha256": "c39a4e56053d3221bc64477300e8c3bf4dc555893214c837cb0d9e6b7799c7a2",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/dogdrip.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/dogdrip.detail.html",
+        "sha256": "db5e0cf8a5a12ed0737345f99c2242cb7105210beeefce66645afcb577aaaf06",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/dogdrip.detail.html",
+        "sha256": "db5e0cf8a5a12ed0737345f99c2242cb7105210beeefce66645afcb577aaaf06",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/dogdrip.detail.html",
+        "sha256": "db5e0cf8a5a12ed0737345f99c2242cb7105210beeefce66645afcb577aaaf06",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/dogdrip.detail.html",
+        "sha256": "db5e0cf8a5a12ed0737345f99c2242cb7105210beeefce66645afcb577aaaf06",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/dogdrip.detail.html",
+        "sha256": "db5e0cf8a5a12ed0737345f99c2242cb7105210beeefce66645afcb577aaaf06",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/dogdrip.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "7ec1d45f680676053f0caf82dc63c873173197ab",
+        "sha256": "5a4f77344091a958c65def81c43ef9cc5374fda2a519a3c97df44ac731bd0c70",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/dogdrip.list.html"
+      },
+      "stash": {
+        "blob": "8f8c5a532c3e4a87962e8c73b84e626316990099",
+        "sha256": "d0ca7bb32151a01622b83cd749724b8bd9e09ea81793f4443f45b63ca4012276",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/dogdrip.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/dogdrip.list.html",
+        "sha256": "5a4f77344091a958c65def81c43ef9cc5374fda2a519a3c97df44ac731bd0c70",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/dogdrip.list.html",
+        "sha256": "5a4f77344091a958c65def81c43ef9cc5374fda2a519a3c97df44ac731bd0c70",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/dogdrip.list.html",
+        "sha256": "5a4f77344091a958c65def81c43ef9cc5374fda2a519a3c97df44ac731bd0c70",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/dogdrip.list.html",
+        "sha256": "5a4f77344091a958c65def81c43ef9cc5374fda2a519a3c97df44ac731bd0c70",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/dogdrip.list.html",
+        "sha256": "5a4f77344091a958c65def81c43ef9cc5374fda2a519a3c97df44ac731bd0c70",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/etoland.list.observed.html",
+    "copies": {
+      "baseline": {
+        "blob": "3b4ad890d9d1a0b03b4e631ece549aa0ff1f09f8",
+        "sha256": "6dc3cffb6813652b78b97910d617dcd427e2b5b317a54e2f63887217c009a3dc",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/etoland.list.observed.html"
+      },
+      "stash": {
+        "blob": "1d09672e28b43c4974e8d860b0a11f4afe36aecd",
+        "sha256": "6739a36bd03e69533073b2ba098595632de8331b2a5a0b391d4718db1b70c37e",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/etoland.list.observed.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/etoland.list.observed.html",
+        "sha256": "6dc3cffb6813652b78b97910d617dcd427e2b5b317a54e2f63887217c009a3dc",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/etoland.list.observed.html",
+        "sha256": "6dc3cffb6813652b78b97910d617dcd427e2b5b317a54e2f63887217c009a3dc",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/etoland.list.observed.html",
+        "sha256": "6dc3cffb6813652b78b97910d617dcd427e2b5b317a54e2f63887217c009a3dc",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/etoland.list.observed.html",
+        "sha256": "6dc3cffb6813652b78b97910d617dcd427e2b5b317a54e2f63887217c009a3dc",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/etoland.list.observed.html",
+        "sha256": "6dc3cffb6813652b78b97910d617dcd427e2b5b317a54e2f63887217c009a3dc",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/inven.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "6b9b14758ab8b27dd0f861f05c2e82237f332898",
+        "sha256": "12d8ad8b8e88eaf0a4e9feab430d73261c09039cb8cc86e86c46fcaf8cde5104",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/inven.detail.html"
+      },
+      "stash": {
+        "blob": "968c553e0b1aa9bb3ac020ff3f258bc305931b73",
+        "sha256": "2f270db0482a58527d0c0dcdb174e0d44a0c62573e6e3cb2028e83e9b9588e7f",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/inven.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/inven.detail.html",
+        "sha256": "12d8ad8b8e88eaf0a4e9feab430d73261c09039cb8cc86e86c46fcaf8cde5104",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/inven.detail.html",
+        "sha256": "12d8ad8b8e88eaf0a4e9feab430d73261c09039cb8cc86e86c46fcaf8cde5104",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/inven.detail.html",
+        "sha256": "12d8ad8b8e88eaf0a4e9feab430d73261c09039cb8cc86e86c46fcaf8cde5104",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/inven.detail.html",
+        "sha256": "12d8ad8b8e88eaf0a4e9feab430d73261c09039cb8cc86e86c46fcaf8cde5104",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/inven.detail.html",
+        "sha256": "12d8ad8b8e88eaf0a4e9feab430d73261c09039cb8cc86e86c46fcaf8cde5104",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/inven.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "16df98512d1fba9e6b7910aabe1595c919081fea",
+        "sha256": "9b43403320c85b98049cac418e4b31430f1e29f1be4a114208d497e5980c8ce9",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/inven.list.html"
+      },
+      "stash": {
+        "blob": "2b17d918839417041e364f464602ada1733d5b80",
+        "sha256": "2166cd6fb9c248032982ff14810141c1b1fcd8d4826977e29fadfe29553f4c12",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/inven.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/inven.list.html",
+        "sha256": "9b43403320c85b98049cac418e4b31430f1e29f1be4a114208d497e5980c8ce9",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/inven.list.html",
+        "sha256": "9b43403320c85b98049cac418e4b31430f1e29f1be4a114208d497e5980c8ce9",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/inven.list.html",
+        "sha256": "9b43403320c85b98049cac418e4b31430f1e29f1be4a114208d497e5980c8ce9",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/inven.list.html",
+        "sha256": "9b43403320c85b98049cac418e4b31430f1e29f1be4a114208d497e5980c8ce9",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/inven.list.html",
+        "sha256": "9b43403320c85b98049cac418e4b31430f1e29f1be4a114208d497e5980c8ce9",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/arcalive.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "347b47a2eafe1e2df802a4cba7ec49696c40c41e",
+        "sha256": "9a6a15b463d0555930f2ba4376156f8cf56676b42f9eb24e4d3f623fd6372277",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/arcalive.detail.html"
+      },
+      "stash": {
+        "blob": "77fa2d5154ab629c27ac2ab9bb59f5c60d886c59",
+        "sha256": "a25c787eb8ec4b932bfd989c7d8496bc4a1f83670155921c8d1d47ffc7e985e8",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/arcalive.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/arcalive.detail.html",
+        "sha256": "9a6a15b463d0555930f2ba4376156f8cf56676b42f9eb24e4d3f623fd6372277",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/arcalive.detail.html",
+        "sha256": "9a6a15b463d0555930f2ba4376156f8cf56676b42f9eb24e4d3f623fd6372277",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/arcalive.detail.html",
+        "sha256": "9a6a15b463d0555930f2ba4376156f8cf56676b42f9eb24e4d3f623fd6372277",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/arcalive.detail.html",
+        "sha256": "9a6a15b463d0555930f2ba4376156f8cf56676b42f9eb24e4d3f623fd6372277",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/arcalive.detail.html",
+        "sha256": "9a6a15b463d0555930f2ba4376156f8cf56676b42f9eb24e4d3f623fd6372277",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/arcalive.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "8c7e81fe1076fd987f4f8794616d90a27cc1bd4a",
+        "sha256": "4b967abf2e7d4f0bef84eb51055c84833f3e88dce0497167c71acdedc1238b8d",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/arcalive.list.html"
+      },
+      "stash": {
+        "blob": "961d201f88df02f5ccc300738712a60cbedeaf11",
+        "sha256": "f1222723efdafff1b60bc621277e45627ba14dea03c2aaf82de8fc333256efff",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/arcalive.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/arcalive.list.html",
+        "sha256": "4b967abf2e7d4f0bef84eb51055c84833f3e88dce0497167c71acdedc1238b8d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/arcalive.list.html",
+        "sha256": "4b967abf2e7d4f0bef84eb51055c84833f3e88dce0497167c71acdedc1238b8d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/arcalive.list.html",
+        "sha256": "4b967abf2e7d4f0bef84eb51055c84833f3e88dce0497167c71acdedc1238b8d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/arcalive.list.html",
+        "sha256": "4b967abf2e7d4f0bef84eb51055c84833f3e88dce0497167c71acdedc1238b8d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/arcalive.list.html",
+        "sha256": "4b967abf2e7d4f0bef84eb51055c84833f3e88dce0497167c71acdedc1238b8d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/bobaedream.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "4827d3083ef38aeee3105bff5d0377aa59a4e104",
+        "sha256": "3825a403a3c8f11646618cc40cd7634a4f229ab716fd65b85778f63d0feec8a1",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/bobaedream.detail.html"
+      },
+      "stash": {
+        "blob": "9cd4a99f0210ebe20fc30b26ec758f1ed429bc06",
+        "sha256": "a3ba8f59ef722058c1501d8f8d8b2e5548dbe08941217358437c50854f53c046",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/bobaedream.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/bobaedream.detail.html",
+        "sha256": "3825a403a3c8f11646618cc40cd7634a4f229ab716fd65b85778f63d0feec8a1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/bobaedream.detail.html",
+        "sha256": "3825a403a3c8f11646618cc40cd7634a4f229ab716fd65b85778f63d0feec8a1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/bobaedream.detail.html",
+        "sha256": "3825a403a3c8f11646618cc40cd7634a4f229ab716fd65b85778f63d0feec8a1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/bobaedream.detail.html",
+        "sha256": "3825a403a3c8f11646618cc40cd7634a4f229ab716fd65b85778f63d0feec8a1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/bobaedream.detail.html",
+        "sha256": "3825a403a3c8f11646618cc40cd7634a4f229ab716fd65b85778f63d0feec8a1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/bobaedream.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "3aac42a7d9f2de1c0cec40caee2bde3e0d9d5413",
+        "sha256": "2c54d48edcca1deaecce18142b281a25e324ad1eca2b876294bb82274df135ad",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/bobaedream.list.html"
+      },
+      "stash": {
+        "blob": "f81c7949072503ce29ffbe55f8c1aa8a8cf10b71",
+        "sha256": "fbfa5417780ede5090490845c8ac0c8c1142e7289cf070121620752de21e9fe4",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/bobaedream.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/bobaedream.list.html",
+        "sha256": "2c54d48edcca1deaecce18142b281a25e324ad1eca2b876294bb82274df135ad",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/bobaedream.list.html",
+        "sha256": "2c54d48edcca1deaecce18142b281a25e324ad1eca2b876294bb82274df135ad",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/bobaedream.list.html",
+        "sha256": "2c54d48edcca1deaecce18142b281a25e324ad1eca2b876294bb82274df135ad",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/bobaedream.list.html",
+        "sha256": "2c54d48edcca1deaecce18142b281a25e324ad1eca2b876294bb82274df135ad",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/bobaedream.list.html",
+        "sha256": "2c54d48edcca1deaecce18142b281a25e324ad1eca2b876294bb82274df135ad",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/clien.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "d9d1fac1c16e0cd07604c4c9b5894c1d9713baed",
+        "sha256": "105b3710a55a627856b92888d82d56fb652b38835d947cc6c842d30717210ae7",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/clien.detail.html"
+      },
+      "stash": {
+        "blob": "8a9d323a0702f45734c843bfe21716b692d11717",
+        "sha256": "cb43b4a302737a315a3f3486425deef5c31e015b1eddc4a825f02f9c5cd206b5",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/clien.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/clien.detail.html",
+        "sha256": "105b3710a55a627856b92888d82d56fb652b38835d947cc6c842d30717210ae7",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/clien.detail.html",
+        "sha256": "105b3710a55a627856b92888d82d56fb652b38835d947cc6c842d30717210ae7",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/clien.detail.html",
+        "sha256": "105b3710a55a627856b92888d82d56fb652b38835d947cc6c842d30717210ae7",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/clien.detail.html",
+        "sha256": "105b3710a55a627856b92888d82d56fb652b38835d947cc6c842d30717210ae7",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/clien.detail.html",
+        "sha256": "105b3710a55a627856b92888d82d56fb652b38835d947cc6c842d30717210ae7",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/clien.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "46eff0f1a45251e246438fa05a7d68bb31c04249",
+        "sha256": "7a13c6a6374db4e1edfae96840e4ee58d14546969f8b9f3ec601537265589ead",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/clien.list.html"
+      },
+      "stash": {
+        "blob": "db9c98f24e65e8ff4d9c2b84812e35bafa969160",
+        "sha256": "541bc02f0ebd5d8678665753d49cdd047c9615c96629e44027af393ecd789d07",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/clien.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/clien.list.html",
+        "sha256": "7a13c6a6374db4e1edfae96840e4ee58d14546969f8b9f3ec601537265589ead",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/clien.list.html",
+        "sha256": "7a13c6a6374db4e1edfae96840e4ee58d14546969f8b9f3ec601537265589ead",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/clien.list.html",
+        "sha256": "7a13c6a6374db4e1edfae96840e4ee58d14546969f8b9f3ec601537265589ead",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/clien.list.html",
+        "sha256": "7a13c6a6374db4e1edfae96840e4ee58d14546969f8b9f3ec601537265589ead",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/clien.list.html",
+        "sha256": "7a13c6a6374db4e1edfae96840e4ee58d14546969f8b9f3ec601537265589ead",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/dcinside.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "f24e5c4ce1a5a903ff5ae5785377fe8d3e0b0b56",
+        "sha256": "474c28a1b18f08c609ccf9b8776e0fe9229fe472e1796307aa8990f79dcdb42d",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/dcinside.detail.html"
+      },
+      "stash": {
+        "blob": "f63c0855286f9d2ee34d59f23270984c04254a48",
+        "sha256": "7f8a5909fd7016d15341359ca7b3184f67b0c373a71bb55864d990daa09b03aa",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/dcinside.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/dcinside.detail.html",
+        "sha256": "474c28a1b18f08c609ccf9b8776e0fe9229fe472e1796307aa8990f79dcdb42d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/dcinside.detail.html",
+        "sha256": "474c28a1b18f08c609ccf9b8776e0fe9229fe472e1796307aa8990f79dcdb42d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/dcinside.detail.html",
+        "sha256": "474c28a1b18f08c609ccf9b8776e0fe9229fe472e1796307aa8990f79dcdb42d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/dcinside.detail.html",
+        "sha256": "474c28a1b18f08c609ccf9b8776e0fe9229fe472e1796307aa8990f79dcdb42d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/dcinside.detail.html",
+        "sha256": "474c28a1b18f08c609ccf9b8776e0fe9229fe472e1796307aa8990f79dcdb42d",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/dcinside.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "8fb6412f89417af471ef1c88a03a46816580050c",
+        "sha256": "25d453cf9b68e1a116cb23f07443dce68b1f9600642ab1b65fc7313daaa1d61a",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/dcinside.list.html"
+      },
+      "stash": {
+        "blob": "cee3197c80d7f7e2601f67f1e766e9a699826eff",
+        "sha256": "55e5f98d8182276543b68b6221e72ea245af0dcab67dac53da16e10eceefbf7f",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/dcinside.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/dcinside.list.html",
+        "sha256": "25d453cf9b68e1a116cb23f07443dce68b1f9600642ab1b65fc7313daaa1d61a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/dcinside.list.html",
+        "sha256": "25d453cf9b68e1a116cb23f07443dce68b1f9600642ab1b65fc7313daaa1d61a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/dcinside.list.html",
+        "sha256": "25d453cf9b68e1a116cb23f07443dce68b1f9600642ab1b65fc7313daaa1d61a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/dcinside.list.html",
+        "sha256": "25d453cf9b68e1a116cb23f07443dce68b1f9600642ab1b65fc7313daaa1d61a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/dcinside.list.html",
+        "sha256": "25d453cf9b68e1a116cb23f07443dce68b1f9600642ab1b65fc7313daaa1d61a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/dmitory.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "1e0323ad00f2ba222fc36f3b24e31c2025e0100a",
+        "sha256": "08d06af81f7b9dd8131d27c88ba7d9d09519a58a4e77562e9b488d435c9d935b",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/dmitory.detail.html"
+      },
+      "stash": {
+        "blob": "2b440b4b143fceb0f00595576c4be2a4828e6cbc",
+        "sha256": "6ee6883cb2771448368276ea24cd0f8982537b11a0f51fb8238c6291ffec5130",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/dmitory.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/dmitory.detail.html",
+        "sha256": "08d06af81f7b9dd8131d27c88ba7d9d09519a58a4e77562e9b488d435c9d935b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/dmitory.detail.html",
+        "sha256": "08d06af81f7b9dd8131d27c88ba7d9d09519a58a4e77562e9b488d435c9d935b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/dmitory.detail.html",
+        "sha256": "08d06af81f7b9dd8131d27c88ba7d9d09519a58a4e77562e9b488d435c9d935b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/dmitory.detail.html",
+        "sha256": "08d06af81f7b9dd8131d27c88ba7d9d09519a58a4e77562e9b488d435c9d935b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/dmitory.detail.html",
+        "sha256": "08d06af81f7b9dd8131d27c88ba7d9d09519a58a4e77562e9b488d435c9d935b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/dmitory.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "344ac710e1cb688504ac01d3b068f7a8e5015fff",
+        "sha256": "2f0668e645be9c989ade55b100d2b920b1772073cac756aa01217998e21a56ed",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/dmitory.list.html"
+      },
+      "stash": {
+        "blob": "bebd5138ce0ae243f05b93ef1047013949f163a0",
+        "sha256": "6a9dc7a28167e9059e3783a90e0a2e55c14ad5ac71673d1d3ad2267715b5fb66",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/dmitory.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/dmitory.list.html",
+        "sha256": "2f0668e645be9c989ade55b100d2b920b1772073cac756aa01217998e21a56ed",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/dmitory.list.html",
+        "sha256": "2f0668e645be9c989ade55b100d2b920b1772073cac756aa01217998e21a56ed",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/dmitory.list.html",
+        "sha256": "2f0668e645be9c989ade55b100d2b920b1772073cac756aa01217998e21a56ed",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/dmitory.list.html",
+        "sha256": "2f0668e645be9c989ade55b100d2b920b1772073cac756aa01217998e21a56ed",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/dmitory.list.html",
+        "sha256": "2f0668e645be9c989ade55b100d2b920b1772073cac756aa01217998e21a56ed",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/dogdrip.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "84fc188b682625b16fbea79efdabfd9db7b92080",
+        "sha256": "d45174f5631c1d434a726cd4f65b861fda4df897f99ff0e256e16abd76a36f48",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/dogdrip.detail.html"
+      },
+      "stash": {
+        "blob": "725ffaf2203c3d0497b27874c5785ad5f596bd1a",
+        "sha256": "b40654624a63403314847e0675a5da28aed76b2d531cdceee5d080b5975e56bf",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/dogdrip.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/dogdrip.detail.html",
+        "sha256": "d45174f5631c1d434a726cd4f65b861fda4df897f99ff0e256e16abd76a36f48",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/dogdrip.detail.html",
+        "sha256": "d45174f5631c1d434a726cd4f65b861fda4df897f99ff0e256e16abd76a36f48",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/dogdrip.detail.html",
+        "sha256": "d45174f5631c1d434a726cd4f65b861fda4df897f99ff0e256e16abd76a36f48",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/dogdrip.detail.html",
+        "sha256": "d45174f5631c1d434a726cd4f65b861fda4df897f99ff0e256e16abd76a36f48",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/dogdrip.detail.html",
+        "sha256": "d45174f5631c1d434a726cd4f65b861fda4df897f99ff0e256e16abd76a36f48",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/dogdrip.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "889d0bd314a85ce915f07ca3aa14e1141361fc5e",
+        "sha256": "dff3d36616cb880f4e541c73f0a824d79145dc488bb2e4ba5f9b35aa9cfb5e45",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/dogdrip.list.html"
+      },
+      "stash": {
+        "blob": "ff270051c92f255f8452b07948ee2e76f7c8c42b",
+        "sha256": "f042d509d27ad8de8c426456278b86acf8e61d2c502749d362cb9663148cb640",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/dogdrip.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/dogdrip.list.html",
+        "sha256": "dff3d36616cb880f4e541c73f0a824d79145dc488bb2e4ba5f9b35aa9cfb5e45",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/dogdrip.list.html",
+        "sha256": "dff3d36616cb880f4e541c73f0a824d79145dc488bb2e4ba5f9b35aa9cfb5e45",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/dogdrip.list.html",
+        "sha256": "dff3d36616cb880f4e541c73f0a824d79145dc488bb2e4ba5f9b35aa9cfb5e45",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/dogdrip.list.html",
+        "sha256": "dff3d36616cb880f4e541c73f0a824d79145dc488bb2e4ba5f9b35aa9cfb5e45",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/dogdrip.list.html",
+        "sha256": "dff3d36616cb880f4e541c73f0a824d79145dc488bb2e4ba5f9b35aa9cfb5e45",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/etoland.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "c6978f49465e3e7634f905149fc7bacbfe409ae3",
+        "sha256": "f9f01ac6f6dd28e64829298cd2e07b97dfb5f74e712959d5f98a31fb05f25296",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/etoland.detail.html"
+      },
+      "stash": {
+        "blob": "17341871dcd4a40064d698a1dcb67b5b4a475df6",
+        "sha256": "f784c0ed56869bca73b0f0a63db099db626ab5f505e724978b1e61ad940a72b4",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/etoland.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/etoland.detail.html",
+        "sha256": "f9f01ac6f6dd28e64829298cd2e07b97dfb5f74e712959d5f98a31fb05f25296",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/etoland.detail.html",
+        "sha256": "f9f01ac6f6dd28e64829298cd2e07b97dfb5f74e712959d5f98a31fb05f25296",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/etoland.detail.html",
+        "sha256": "f9f01ac6f6dd28e64829298cd2e07b97dfb5f74e712959d5f98a31fb05f25296",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/etoland.detail.html",
+        "sha256": "f9f01ac6f6dd28e64829298cd2e07b97dfb5f74e712959d5f98a31fb05f25296",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/etoland.detail.html",
+        "sha256": "f9f01ac6f6dd28e64829298cd2e07b97dfb5f74e712959d5f98a31fb05f25296",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/etoland.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "5dd6893ed3c713ab8ecb560ac4a6a78f68a69910",
+        "sha256": "03229c0ab0ef09e5655b06ca60529f74828de368614ab411b05bd2c1ea8b200f",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/etoland.list.html"
+      },
+      "stash": {
+        "blob": "2290603d78fbb43b4a146488a461cd9720381e4b",
+        "sha256": "557a69e23c219ddda54cd96935ca33cb2150be00273d51115792ca04cb51ac15",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/etoland.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/etoland.list.html",
+        "sha256": "03229c0ab0ef09e5655b06ca60529f74828de368614ab411b05bd2c1ea8b200f",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/etoland.list.html",
+        "sha256": "03229c0ab0ef09e5655b06ca60529f74828de368614ab411b05bd2c1ea8b200f",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/etoland.list.html",
+        "sha256": "03229c0ab0ef09e5655b06ca60529f74828de368614ab411b05bd2c1ea8b200f",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/etoland.list.html",
+        "sha256": "03229c0ab0ef09e5655b06ca60529f74828de368614ab411b05bd2c1ea8b200f",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/etoland.list.html",
+        "sha256": "03229c0ab0ef09e5655b06ca60529f74828de368614ab411b05bd2c1ea8b200f",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/goodgag.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "c149511595a042764f92b0eb338d71ff55da3834",
+        "sha256": "b0be138471b87da84d872bc2ca5c77554ad50149cd4f39ecd497f9eceb620584",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/goodgag.detail.html"
+      },
+      "stash": {
+        "blob": "0a1fc6fbb189aca081a9c59abdb51c31f4b66293",
+        "sha256": "18d2afbefa551018313985edc1b4a1c75ac3a20f09da5fbe3e8830c278d022b7",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/goodgag.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/goodgag.detail.html",
+        "sha256": "b0be138471b87da84d872bc2ca5c77554ad50149cd4f39ecd497f9eceb620584",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/goodgag.detail.html",
+        "sha256": "b0be138471b87da84d872bc2ca5c77554ad50149cd4f39ecd497f9eceb620584",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/goodgag.detail.html",
+        "sha256": "b0be138471b87da84d872bc2ca5c77554ad50149cd4f39ecd497f9eceb620584",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/goodgag.detail.html",
+        "sha256": "b0be138471b87da84d872bc2ca5c77554ad50149cd4f39ecd497f9eceb620584",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/goodgag.detail.html",
+        "sha256": "b0be138471b87da84d872bc2ca5c77554ad50149cd4f39ecd497f9eceb620584",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/goodgag.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "162e56e5c39c82d84aba24cdd21d49827315380a",
+        "sha256": "b58e8769c5d774b7412308744cc9cffb2dc73db8440275cdd23dfea2738b7647",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/goodgag.list.html"
+      },
+      "stash": {
+        "blob": "9e74ae585c61b8f07ab0f0398c4d0c473d541cef",
+        "sha256": "baf1ba11c634c3bd4206ce7cc23b9f3c26e63aa866946fae47cedeffc1739aa9",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/goodgag.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/goodgag.list.html",
+        "sha256": "b58e8769c5d774b7412308744cc9cffb2dc73db8440275cdd23dfea2738b7647",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/goodgag.list.html",
+        "sha256": "b58e8769c5d774b7412308744cc9cffb2dc73db8440275cdd23dfea2738b7647",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/goodgag.list.html",
+        "sha256": "b58e8769c5d774b7412308744cc9cffb2dc73db8440275cdd23dfea2738b7647",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/goodgag.list.html",
+        "sha256": "b58e8769c5d774b7412308744cc9cffb2dc73db8440275cdd23dfea2738b7647",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/goodgag.list.html",
+        "sha256": "b58e8769c5d774b7412308744cc9cffb2dc73db8440275cdd23dfea2738b7647",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/humoruniv.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "448a1aa4a7baf6d6c2b7bca83cde90e3c8535c34",
+        "sha256": "59c591b012444846f93e2b91067d372e0f6f58fc34d7d3e9cf0da87224600e66",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/humoruniv.detail.html"
+      },
+      "stash": {
+        "blob": "acf457c64c5aeec2b969bbb5a96292d19ada128e",
+        "sha256": "d41ecee1a045652611c6822082a2d9fdf76c8f8c02545f7cc9dcd30eab45f9d3",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/humoruniv.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/humoruniv.detail.html",
+        "sha256": "59c591b012444846f93e2b91067d372e0f6f58fc34d7d3e9cf0da87224600e66",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/humoruniv.detail.html",
+        "sha256": "59c591b012444846f93e2b91067d372e0f6f58fc34d7d3e9cf0da87224600e66",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/humoruniv.detail.html",
+        "sha256": "59c591b012444846f93e2b91067d372e0f6f58fc34d7d3e9cf0da87224600e66",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/humoruniv.detail.html",
+        "sha256": "59c591b012444846f93e2b91067d372e0f6f58fc34d7d3e9cf0da87224600e66",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/humoruniv.detail.html",
+        "sha256": "59c591b012444846f93e2b91067d372e0f6f58fc34d7d3e9cf0da87224600e66",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/humoruniv.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "ad35b6f50b5c1a00dcd95d1221a39610f8b4736e",
+        "sha256": "cfb7a2511c1b803bd19b0ea5170f299d26325fbd262759076b988afd60f8205b",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/humoruniv.list.html"
+      },
+      "stash": {
+        "blob": "7518262beba0cf9db221338f312039ab44938ddf",
+        "sha256": "341e4cafe8e71d39ece138af4f065fe19ec4db37496918306c1f34e222f0d785",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/humoruniv.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/humoruniv.list.html",
+        "sha256": "cfb7a2511c1b803bd19b0ea5170f299d26325fbd262759076b988afd60f8205b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/humoruniv.list.html",
+        "sha256": "cfb7a2511c1b803bd19b0ea5170f299d26325fbd262759076b988afd60f8205b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/humoruniv.list.html",
+        "sha256": "cfb7a2511c1b803bd19b0ea5170f299d26325fbd262759076b988afd60f8205b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/humoruniv.list.html",
+        "sha256": "cfb7a2511c1b803bd19b0ea5170f299d26325fbd262759076b988afd60f8205b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/humoruniv.list.html",
+        "sha256": "cfb7a2511c1b803bd19b0ea5170f299d26325fbd262759076b988afd60f8205b",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/instiz.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "aa33da66e656e87f1159aa3d2c6c2603cd972a16",
+        "sha256": "d79010e6503ab591ee91a27a17f85598cb843c3210b859806f3b106fb8daf316",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/instiz.detail.html"
+      },
+      "stash": {
+        "blob": "39220fb705f4f99fe666975a25c3851b12d607fa",
+        "sha256": "32d413e9e50fea934390233bf67a270770f8ed0120d6a4e5dd856b738c90bad1",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/instiz.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/instiz.detail.html",
+        "sha256": "d79010e6503ab591ee91a27a17f85598cb843c3210b859806f3b106fb8daf316",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/instiz.detail.html",
+        "sha256": "d79010e6503ab591ee91a27a17f85598cb843c3210b859806f3b106fb8daf316",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/instiz.detail.html",
+        "sha256": "d79010e6503ab591ee91a27a17f85598cb843c3210b859806f3b106fb8daf316",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/instiz.detail.html",
+        "sha256": "d79010e6503ab591ee91a27a17f85598cb843c3210b859806f3b106fb8daf316",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/instiz.detail.html",
+        "sha256": "d79010e6503ab591ee91a27a17f85598cb843c3210b859806f3b106fb8daf316",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/instiz.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "9aea22ad2bc32e839df70e04be7b44696bf35fbb",
+        "sha256": "dfbfaf573d7986e7db706a04eae0302f019426c020ed2c37de1ad22bd93a36b5",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/instiz.list.html"
+      },
+      "stash": {
+        "blob": "daa14e95be648a697dac4d951155c78807bc66c2",
+        "sha256": "5c59b859627ee0cbcc504b68d9e4dd2079dd0c846b750dbf142be1bc23bb6a6c",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/instiz.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/instiz.list.html",
+        "sha256": "dfbfaf573d7986e7db706a04eae0302f019426c020ed2c37de1ad22bd93a36b5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/instiz.list.html",
+        "sha256": "dfbfaf573d7986e7db706a04eae0302f019426c020ed2c37de1ad22bd93a36b5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/instiz.list.html",
+        "sha256": "dfbfaf573d7986e7db706a04eae0302f019426c020ed2c37de1ad22bd93a36b5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/instiz.list.html",
+        "sha256": "dfbfaf573d7986e7db706a04eae0302f019426c020ed2c37de1ad22bd93a36b5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/instiz.list.html",
+        "sha256": "dfbfaf573d7986e7db706a04eae0302f019426c020ed2c37de1ad22bd93a36b5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/inven.attachments-external.html",
+    "copies": {
+      "baseline": {
+        "blob": "064afe245cbb4355a706a6f962acc48c983bbc0b",
+        "sha256": "d9709c4e1c9508167672b9982215b08aedc5f725a7c838dde2d3f79b6c5589ef",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/inven.attachments-external.html"
+      },
+      "stash": {
+        "blob": "cd40079ccc98526904a215994d74d9e03ceaa96f",
+        "sha256": "98348d5494d091642ada972b09d1f7feeda3e1c3b1f71ceb93e93ec5ff82cb11",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/inven.attachments-external.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/inven.attachments-external.html",
+        "sha256": "d9709c4e1c9508167672b9982215b08aedc5f725a7c838dde2d3f79b6c5589ef",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/inven.attachments-external.html",
+        "sha256": "d9709c4e1c9508167672b9982215b08aedc5f725a7c838dde2d3f79b6c5589ef",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/inven.attachments-external.html",
+        "sha256": "d9709c4e1c9508167672b9982215b08aedc5f725a7c838dde2d3f79b6c5589ef",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/inven.attachments-external.html",
+        "sha256": "d9709c4e1c9508167672b9982215b08aedc5f725a7c838dde2d3f79b6c5589ef",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/inven.attachments-external.html",
+        "sha256": "d9709c4e1c9508167672b9982215b08aedc5f725a7c838dde2d3f79b6c5589ef",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html",
+    "copies": {
+      "baseline": {
+        "blob": "158cf486a5f20f41bef03329da685292826f1032",
+        "sha256": "db2f80fc5ba8c6e32ed2c77bf6f8abb1c75799072c421fdcfcc402203d3538cf",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html"
+      },
+      "stash": {
+        "blob": "8d67ded0fa1d079e779f20d4508f95924f3d0b48",
+        "sha256": "2bdfeee1ec0a8ce67fb36f8809b002c24e9125d5ffab3088d7a7f916b3c9e91f",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html",
+        "sha256": "db2f80fc5ba8c6e32ed2c77bf6f8abb1c75799072c421fdcfcc402203d3538cf",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html",
+        "sha256": "db2f80fc5ba8c6e32ed2c77bf6f8abb1c75799072c421fdcfcc402203d3538cf",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html",
+        "sha256": "db2f80fc5ba8c6e32ed2c77bf6f8abb1c75799072c421fdcfcc402203d3538cf",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html",
+        "sha256": "db2f80fc5ba8c6e32ed2c77bf6f8abb1c75799072c421fdcfcc402203d3538cf",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/inven.attachments-repeated.html",
+        "sha256": "db2f80fc5ba8c6e32ed2c77bf6f8abb1c75799072c421fdcfcc402203d3538cf",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/inven.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "47a00c2ea36b9f9c1879083c92abe0bc21f64dde",
+        "sha256": "49bcfc6b2e40b148adc28ca7f549bb3bb3706f4d5b49d16f841a235fd7aa2aea",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/inven.detail.html"
+      },
+      "stash": {
+        "blob": "e93933eff24c1b26b2949bc4721577e5b6dbda08",
+        "sha256": "93948afc41360e551b9250524fd8723705c7f84a6ac4133fcce50e866b93b4c2",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/inven.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/inven.detail.html",
+        "sha256": "49bcfc6b2e40b148adc28ca7f549bb3bb3706f4d5b49d16f841a235fd7aa2aea",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/inven.detail.html",
+        "sha256": "49bcfc6b2e40b148adc28ca7f549bb3bb3706f4d5b49d16f841a235fd7aa2aea",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/inven.detail.html",
+        "sha256": "49bcfc6b2e40b148adc28ca7f549bb3bb3706f4d5b49d16f841a235fd7aa2aea",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/inven.detail.html",
+        "sha256": "49bcfc6b2e40b148adc28ca7f549bb3bb3706f4d5b49d16f841a235fd7aa2aea",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/inven.detail.html",
+        "sha256": "49bcfc6b2e40b148adc28ca7f549bb3bb3706f4d5b49d16f841a235fd7aa2aea",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/inven.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "2ac9d5509354972d359e48d0aa5c43b6417d5e2b",
+        "sha256": "0f82fddc64b92cc7803b9120e43948a675e754a05135393a3adfc08ea9029823",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/inven.list.html"
+      },
+      "stash": {
+        "blob": "4082d3eb73198ce965df1e53f95cc2e56348692e",
+        "sha256": "5543f0f3146985edbeca492f19a9e289c6d4fccb218920ad51d5c06c7b6f1991",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/inven.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/inven.list.html",
+        "sha256": "0f82fddc64b92cc7803b9120e43948a675e754a05135393a3adfc08ea9029823",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/inven.list.html",
+        "sha256": "0f82fddc64b92cc7803b9120e43948a675e754a05135393a3adfc08ea9029823",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/inven.list.html",
+        "sha256": "0f82fddc64b92cc7803b9120e43948a675e754a05135393a3adfc08ea9029823",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/inven.list.html",
+        "sha256": "0f82fddc64b92cc7803b9120e43948a675e754a05135393a3adfc08ea9029823",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/inven.list.html",
+        "sha256": "0f82fddc64b92cc7803b9120e43948a675e754a05135393a3adfc08ea9029823",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/mlbpark.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "aeae4776e8d3c4164e6d501454ab50b5247c4be6",
+        "sha256": "c5a2c195c036d41277af1a63c75cae16d7698ac1e37d2e0f69009ca14cb243a6",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/mlbpark.detail.html"
+      },
+      "stash": {
+        "blob": "a66298b4538cf233530c317afe2c65652a85a4f0",
+        "sha256": "0330d99910226e7bb1ec3008379f960f99328e82d7446a7bdaa241654c647d60",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/mlbpark.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/mlbpark.detail.html",
+        "sha256": "c5a2c195c036d41277af1a63c75cae16d7698ac1e37d2e0f69009ca14cb243a6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/mlbpark.detail.html",
+        "sha256": "c5a2c195c036d41277af1a63c75cae16d7698ac1e37d2e0f69009ca14cb243a6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/mlbpark.detail.html",
+        "sha256": "c5a2c195c036d41277af1a63c75cae16d7698ac1e37d2e0f69009ca14cb243a6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/mlbpark.detail.html",
+        "sha256": "c5a2c195c036d41277af1a63c75cae16d7698ac1e37d2e0f69009ca14cb243a6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/mlbpark.detail.html",
+        "sha256": "c5a2c195c036d41277af1a63c75cae16d7698ac1e37d2e0f69009ca14cb243a6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/mlbpark.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "e3598e459572add9909cf87f282cb740ac70f8eb",
+        "sha256": "37c799f3d20c85377df25d57d259264c99461e03b2e4363237b6a7d56e526cf1",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/mlbpark.list.html"
+      },
+      "stash": {
+        "blob": "f7a02a06ca059caf67dd1c2ea1ef9669fa03ccd3",
+        "sha256": "dc77d63399735030e13163e2b8198d66e362af25ad4c38725f8aab80a8201c34",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/mlbpark.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/mlbpark.list.html",
+        "sha256": "37c799f3d20c85377df25d57d259264c99461e03b2e4363237b6a7d56e526cf1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/mlbpark.list.html",
+        "sha256": "37c799f3d20c85377df25d57d259264c99461e03b2e4363237b6a7d56e526cf1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/mlbpark.list.html",
+        "sha256": "37c799f3d20c85377df25d57d259264c99461e03b2e4363237b6a7d56e526cf1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/mlbpark.list.html",
+        "sha256": "37c799f3d20c85377df25d57d259264c99461e03b2e4363237b6a7d56e526cf1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/mlbpark.list.html",
+        "sha256": "37c799f3d20c85377df25d57d259264c99461e03b2e4363237b6a7d56e526cf1",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/natepann.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "c808de58cfef58fe6c0befe3a2d90b714cc76af5",
+        "sha256": "3293967af48538e6b44faf3ef8834fd9b87760f3bf23f832805126dfa41b59c6",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/natepann.detail.html"
+      },
+      "stash": {
+        "blob": "cfe4f354421d2cde0c8a04491a6ba5186f76b638",
+        "sha256": "c49fc021dbd2c444a6a39bdc4b981c27200745b19f6cf7898396279eeeac834e",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/natepann.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/natepann.detail.html",
+        "sha256": "3293967af48538e6b44faf3ef8834fd9b87760f3bf23f832805126dfa41b59c6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/natepann.detail.html",
+        "sha256": "3293967af48538e6b44faf3ef8834fd9b87760f3bf23f832805126dfa41b59c6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/natepann.detail.html",
+        "sha256": "3293967af48538e6b44faf3ef8834fd9b87760f3bf23f832805126dfa41b59c6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/natepann.detail.html",
+        "sha256": "3293967af48538e6b44faf3ef8834fd9b87760f3bf23f832805126dfa41b59c6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/natepann.detail.html",
+        "sha256": "3293967af48538e6b44faf3ef8834fd9b87760f3bf23f832805126dfa41b59c6",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/natepann.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "a35f20abedee3da55e31ecced6781ffa9e61217d",
+        "sha256": "1ee610824c796473a6d90bde9744a275ce45300da48ee57fc2de17ce8cb4dfa5",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/natepann.list.html"
+      },
+      "stash": {
+        "blob": "9e5ad7a51bf51cd00ec5c648a0b351d5cddd5b2f",
+        "sha256": "bebb91a14baf603db9435ea6b5438518fc4b2b07793c01baf48c3f9b7b710210",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/natepann.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/natepann.list.html",
+        "sha256": "1ee610824c796473a6d90bde9744a275ce45300da48ee57fc2de17ce8cb4dfa5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/natepann.list.html",
+        "sha256": "1ee610824c796473a6d90bde9744a275ce45300da48ee57fc2de17ce8cb4dfa5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/natepann.list.html",
+        "sha256": "1ee610824c796473a6d90bde9744a275ce45300da48ee57fc2de17ce8cb4dfa5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/natepann.list.html",
+        "sha256": "1ee610824c796473a6d90bde9744a275ce45300da48ee57fc2de17ce8cb4dfa5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/natepann.list.html",
+        "sha256": "1ee610824c796473a6d90bde9744a275ce45300da48ee57fc2de17ce8cb4dfa5",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/ruliweb.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "329ff1ab0eca5251560dc4dc6d00f3c05d1a0fa8",
+        "sha256": "2473da7ec1328f20db3a94a8f0e6919527aa01bb0c815c6fd4e615d84c542c08",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/ruliweb.detail.html"
+      },
+      "stash": {
+        "blob": "b10fe10eedeb879af3d6bd835bc0d88081bcaef3",
+        "sha256": "e88e65c4aed55892ee76826334296054d227d5871b73d1164e90b0e738b48923",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/ruliweb.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/ruliweb.detail.html",
+        "sha256": "2473da7ec1328f20db3a94a8f0e6919527aa01bb0c815c6fd4e615d84c542c08",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/ruliweb.detail.html",
+        "sha256": "2473da7ec1328f20db3a94a8f0e6919527aa01bb0c815c6fd4e615d84c542c08",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/ruliweb.detail.html",
+        "sha256": "2473da7ec1328f20db3a94a8f0e6919527aa01bb0c815c6fd4e615d84c542c08",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/ruliweb.detail.html",
+        "sha256": "2473da7ec1328f20db3a94a8f0e6919527aa01bb0c815c6fd4e615d84c542c08",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/ruliweb.detail.html",
+        "sha256": "2473da7ec1328f20db3a94a8f0e6919527aa01bb0c815c6fd4e615d84c542c08",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/ruliweb.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "e37ddbf357cca98f5a0e6e9de99cc9febf9f9446",
+        "sha256": "4bd75e3001c8851f95f26ce87c97fdf5d726f5a40a2c5b1b716c7185b08cf195",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/ruliweb.list.html"
+      },
+      "stash": {
+        "blob": "5f648394cc45177359b6a57d86fbf3ce84fbc3ad",
+        "sha256": "1fa0a999ea14bfcc8e4e1af6e99b8b567518a061bcadb9c4ecf72938b05b5e74",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/ruliweb.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/ruliweb.list.html",
+        "sha256": "4bd75e3001c8851f95f26ce87c97fdf5d726f5a40a2c5b1b716c7185b08cf195",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/ruliweb.list.html",
+        "sha256": "4bd75e3001c8851f95f26ce87c97fdf5d726f5a40a2c5b1b716c7185b08cf195",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/ruliweb.list.html",
+        "sha256": "4bd75e3001c8851f95f26ce87c97fdf5d726f5a40a2c5b1b716c7185b08cf195",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/ruliweb.list.html",
+        "sha256": "4bd75e3001c8851f95f26ce87c97fdf5d726f5a40a2c5b1b716c7185b08cf195",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/ruliweb.list.html",
+        "sha256": "4bd75e3001c8851f95f26ce87c97fdf5d726f5a40a2c5b1b716c7185b08cf195",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/theqoo.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "4ef59e9d0dfe41bf2d84260e78f196a1deeb7505",
+        "sha256": "9be4798149e9ff302f385d97453a9220e158354a70a8d9c46d97c575e6268cca",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/theqoo.detail.html"
+      },
+      "stash": {
+        "blob": "200be43716c31ee8d6dc08c75db429c3dcd1d8f4",
+        "sha256": "32f2035cd039564693c0cf6ea4da2051140dd8d554e8b1ebf4f258cd83e0aff6",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/theqoo.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/theqoo.detail.html",
+        "sha256": "9be4798149e9ff302f385d97453a9220e158354a70a8d9c46d97c575e6268cca",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/theqoo.detail.html",
+        "sha256": "9be4798149e9ff302f385d97453a9220e158354a70a8d9c46d97c575e6268cca",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/theqoo.detail.html",
+        "sha256": "9be4798149e9ff302f385d97453a9220e158354a70a8d9c46d97c575e6268cca",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/theqoo.detail.html",
+        "sha256": "9be4798149e9ff302f385d97453a9220e158354a70a8d9c46d97c575e6268cca",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/theqoo.detail.html",
+        "sha256": "9be4798149e9ff302f385d97453a9220e158354a70a8d9c46d97c575e6268cca",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/theqoo.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "45a45a6272c1421089144a7258956eac34874949",
+        "sha256": "776974a8260433101e2682b50031876a066fdc2daa7325e5f4968962bbc2a036",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/theqoo.list.html"
+      },
+      "stash": {
+        "blob": "2b1566331d8b12e1174cd63eafe1dddc774e615a",
+        "sha256": "4be9213185869f8ff708b580c065139a93f4dddde06cfd548938dcfe70fe5bc4",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/theqoo.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/theqoo.list.html",
+        "sha256": "776974a8260433101e2682b50031876a066fdc2daa7325e5f4968962bbc2a036",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/theqoo.list.html",
+        "sha256": "776974a8260433101e2682b50031876a066fdc2daa7325e5f4968962bbc2a036",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/theqoo.list.html",
+        "sha256": "776974a8260433101e2682b50031876a066fdc2daa7325e5f4968962bbc2a036",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/theqoo.list.html",
+        "sha256": "776974a8260433101e2682b50031876a066fdc2daa7325e5f4968962bbc2a036",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/theqoo.list.html",
+        "sha256": "776974a8260433101e2682b50031876a066fdc2daa7325e5f4968962bbc2a036",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/todayhumor.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "c10e9fdaed4884a058628e47f8b8963498f77e5c",
+        "sha256": "13b0f1131730209e4d702e4e3e00745d15a5360aeb5596825dbc6f98dce9c71a",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/todayhumor.detail.html"
+      },
+      "stash": {
+        "blob": "b34568399628f132a75bf7cbf513c94bc1f0be8e",
+        "sha256": "55f6464c1f7a6a36053b27898da2568599dccd8bb806b8784a85ca8d09c9aa02",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/todayhumor.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/todayhumor.detail.html",
+        "sha256": "13b0f1131730209e4d702e4e3e00745d15a5360aeb5596825dbc6f98dce9c71a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/todayhumor.detail.html",
+        "sha256": "13b0f1131730209e4d702e4e3e00745d15a5360aeb5596825dbc6f98dce9c71a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/todayhumor.detail.html",
+        "sha256": "13b0f1131730209e4d702e4e3e00745d15a5360aeb5596825dbc6f98dce9c71a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/todayhumor.detail.html",
+        "sha256": "13b0f1131730209e4d702e4e3e00745d15a5360aeb5596825dbc6f98dce9c71a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/todayhumor.detail.html",
+        "sha256": "13b0f1131730209e4d702e4e3e00745d15a5360aeb5596825dbc6f98dce9c71a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/todayhumor.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "765c5fc57c7b9cc96bc4564fb73fccc619a0c6d6",
+        "sha256": "a08a4db03ca6d2e0fc053d5196cf517de154a8fb27f053bef65a6f77406bb42a",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/todayhumor.list.html"
+      },
+      "stash": {
+        "blob": "d0732aabddc5c1e19fd2ac18573f38827a25de26",
+        "sha256": "2aa23d02d3e8e39914362e0689ab1bf644997b5e53fb56acb01e913aa76ef664",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/todayhumor.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/todayhumor.list.html",
+        "sha256": "a08a4db03ca6d2e0fc053d5196cf517de154a8fb27f053bef65a6f77406bb42a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/todayhumor.list.html",
+        "sha256": "a08a4db03ca6d2e0fc053d5196cf517de154a8fb27f053bef65a6f77406bb42a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/todayhumor.list.html",
+        "sha256": "a08a4db03ca6d2e0fc053d5196cf517de154a8fb27f053bef65a6f77406bb42a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/todayhumor.list.html",
+        "sha256": "a08a4db03ca6d2e0fc053d5196cf517de154a8fb27f053bef65a6f77406bb42a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/todayhumor.list.html",
+        "sha256": "a08a4db03ca6d2e0fc053d5196cf517de154a8fb27f053bef65a6f77406bb42a",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/yuldo.detail.html",
+    "copies": {
+      "baseline": {
+        "blob": "b9e991717e803a7e695e788248d8ae1d4b99c52d",
+        "sha256": "0af61f5de26fab9e826331486051009c6c3ee823e03d6d114d896746c8643c14",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/yuldo.detail.html"
+      },
+      "stash": {
+        "blob": "554ff505c1dd1d2396bbbce01247b52a405cbe1b",
+        "sha256": "23f8a2710bbf6f0aca8f707a68013d9a06b5b5faa0990eef87091c5ad2edc2a2",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/yuldo.detail.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/yuldo.detail.html",
+        "sha256": "0af61f5de26fab9e826331486051009c6c3ee823e03d6d114d896746c8643c14",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/yuldo.detail.html",
+        "sha256": "0af61f5de26fab9e826331486051009c6c3ee823e03d6d114d896746c8643c14",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/yuldo.detail.html",
+        "sha256": "0af61f5de26fab9e826331486051009c6c3ee823e03d6d114d896746c8643c14",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/yuldo.detail.html",
+        "sha256": "0af61f5de26fab9e826331486051009c6c3ee823e03d6d114d896746c8643c14",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/yuldo.detail.html",
+        "sha256": "0af61f5de26fab9e826331486051009c6c3ee823e03d6d114d896746c8643c14",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/observed/yuldo.list.html",
+    "copies": {
+      "baseline": {
+        "blob": "ae950c40e5cceea89dbc8f3e014462c765c595be",
+        "sha256": "09be0cc68771888921668fcd062ae77fb666b1979d5717bf66ab92e0edab0a6c",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/observed/yuldo.list.html"
+      },
+      "stash": {
+        "blob": "4556ad2c61c3c52393ba87e2da3c2f700b0b1f28",
+        "sha256": "0cdb7a6ae51c1feee8a5792094abcc89e574fcb1923d8d6c329dc15fc2bd8f12",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/observed/yuldo.list.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/observed/yuldo.list.html",
+        "sha256": "09be0cc68771888921668fcd062ae77fb666b1979d5717bf66ab92e0edab0a6c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/observed/yuldo.list.html",
+        "sha256": "09be0cc68771888921668fcd062ae77fb666b1979d5717bf66ab92e0edab0a6c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/observed/yuldo.list.html",
+        "sha256": "09be0cc68771888921668fcd062ae77fb666b1979d5717bf66ab92e0edab0a6c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/observed/yuldo.list.html",
+        "sha256": "09be0cc68771888921668fcd062ae77fb666b1979d5717bf66ab92e0edab0a6c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/observed/yuldo.list.html",
+        "sha256": "09be0cc68771888921668fcd062ae77fb666b1979d5717bf66ab92e0edab0a6c",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/theqoo.detail.observed.html",
+    "copies": {
+      "baseline": {
+        "blob": "db9a7df1f35742b09a40a4514db18d35213a7814",
+        "sha256": "4111a8af4c06b3ab7df9780171f3712b957588f88d90e7c32db894b79e308be0",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/theqoo.detail.observed.html"
+      },
+      "stash": {
+        "blob": "9b1eee81712e9aa1e31942b2b9f557c75505c6de",
+        "sha256": "12d76df76c2f8225186d5bf1c21f3b251b0fa2b459cd8615160e0ec26c06fa39",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/theqoo.detail.observed.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/theqoo.detail.observed.html",
+        "sha256": "4111a8af4c06b3ab7df9780171f3712b957588f88d90e7c32db894b79e308be0",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/theqoo.detail.observed.html",
+        "sha256": "4111a8af4c06b3ab7df9780171f3712b957588f88d90e7c32db894b79e308be0",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/theqoo.detail.observed.html",
+        "sha256": "4111a8af4c06b3ab7df9780171f3712b957588f88d90e7c32db894b79e308be0",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/theqoo.detail.observed.html",
+        "sha256": "4111a8af4c06b3ab7df9780171f3712b957588f88d90e7c32db894b79e308be0",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/theqoo.detail.observed.html",
+        "sha256": "4111a8af4c06b3ab7df9780171f3712b957588f88d90e7c32db894b79e308be0",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  },
+  {
+    "path": "apps/collector/src/test/resources/sites/todayhumor.gallery.observed.html",
+    "copies": {
+      "baseline": {
+        "blob": "348832bea8df3e7f536e9ef19971946bac35214b",
+        "sha256": "00af5658cdac16007266caf0f3e1c0a26adf3d0be36777b77fc9213a19f0ccc3",
+        "archive": "private/fixtures/baseline/apps/collector/src/test/resources/sites/todayhumor.gallery.observed.html"
+      },
+      "stash": {
+        "blob": "4b611150408434c35cc63e45104fa38efdd787c8",
+        "sha256": "08c57c9b618b1ee3d0990058bd93b9091b8431b3a2153a22190f98d2b4a50ae2",
+        "archive": "private/fixtures/stash/apps/collector/src/test/resources/sites/todayhumor.gallery.observed.html"
+      }
+    },
+    "workingCopies": [
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/src/test/resources/sites/todayhumor.gallery.observed.html",
+        "sha256": "00af5658cdac16007266caf0f3e1c0a26adf3d0be36777b77fc9213a19f0ccc3",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-ci-browser-review/apps/collector/src/test/resources/sites/todayhumor.gallery.observed.html",
+        "sha256": "00af5658cdac16007266caf0f3e1c0a26adf3d0be36777b77fc9213a19f0ccc3",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-git-governance/apps/collector/src/test/resources/sites/todayhumor.gallery.observed.html",
+        "sha256": "00af5658cdac16007266caf0f3e1c0a26adf3d0be36777b77fc9213a19f0ccc3",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-governance-delivery/apps/collector/src/test/resources/sites/todayhumor.gallery.observed.html",
+        "sha256": "00af5658cdac16007266caf0f3e1c0a26adf3d0be36777b77fc9213a19f0ccc3",
+        "matchesBaseline": true,
+        "matchesStash": false
+      },
+      {
+        "path": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo-stash-recovery/apps/collector/src/test/resources/sites/todayhumor.gallery.observed.html",
+        "sha256": "00af5658cdac16007266caf0f3e1c0a26adf3d0be36777b77fc9213a19f0ccc3",
+        "matchesBaseline": true,
+        "matchesStash": false
+      }
+    ]
+  }
+]

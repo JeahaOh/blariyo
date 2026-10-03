@@ -1,4 +1,12 @@
-# 암호화 PostgreSQL 원격 백업
+# 선택 백업 후속 구현 안내 — 2026-09-27
+
+새 로컬 구현과 실제 설치 전 입력·검증 순서는 [선택 백업 runbook](SELECTIVE-RUNBOOK.md)을 따른다.
+`run-backup.py`는 선택 backup 전용 이미지/공통 잠금으로 변경됐으며, 기존 full-dump 설치 방식과
+호환되지 않는다. 신규 installer bundle과 R2 선택 복원 receipt를 검증하기 전 서버 파일을 교체하지 않는다.
+현재 운영 설치·Drive/R2 전환·Discord 실수신은 수행하지 않았다. 아래 내용은 기존 format1/R2 도입의
+과거 운영 맥락이며 새 실행 명령의 기준이 아니다.
+
+## 기존 암호화 PostgreSQL 원격 백업 이력
 
 - DB: `blariyo_backup` 읽기 전용 역할. 앱·migrator 비밀번호를 사용하지 않는다.
 - R2: `blariyo-backup` 버킷 전용 S3 키만 주입. media 키·관리 API token 제외.

@@ -1,0 +1,307 @@
+{
+  "state": "PASSED",
+  "toolchain": {
+    "node": "24.18.0",
+    "java": "25"
+  },
+  "checks": [
+    {
+      "name": "api-test-build",
+      "command": [
+        "npm",
+        "run",
+        "build:test",
+        "-w",
+        "@blariyo/api"
+      ],
+      "code": 0,
+      "seconds": 1.7,
+      "log": "/private/tmp/blariyo-integration-api-test-build.log"
+    },
+    {
+      "name": "api-unit",
+      "command": [
+        "npm",
+        "run",
+        "test:unit",
+        "-w",
+        "@blariyo/api"
+      ],
+      "code": 0,
+      "seconds": 13.1,
+      "log": "/private/tmp/blariyo-integration-api-unit.log"
+    },
+    {
+      "name": "api-type",
+      "command": [
+        "npm",
+        "run",
+        "typecheck",
+        "-w",
+        "@blariyo/api"
+      ],
+      "code": 0,
+      "seconds": 1.7,
+      "log": "/private/tmp/blariyo-integration-api-type.log"
+    },
+    {
+      "name": "api-test-type",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:test",
+        "-w",
+        "@blariyo/api"
+      ],
+      "code": 0,
+      "seconds": 1.2,
+      "log": "/private/tmp/blariyo-integration-api-test-type.log"
+    },
+    {
+      "name": "api-dev-type",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:dev",
+        "-w",
+        "@blariyo/api"
+      ],
+      "code": 0,
+      "seconds": 0.5,
+      "log": "/private/tmp/blariyo-integration-api-dev-type.log"
+    },
+    {
+      "name": "web-type",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:web"
+      ],
+      "code": 0,
+      "seconds": 4.2,
+      "log": "/private/tmp/blariyo-integration-web-type.log"
+    },
+    {
+      "name": "tests-type",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:tests"
+      ],
+      "code": 0,
+      "seconds": 1.2,
+      "log": "/private/tmp/blariyo-integration-tests-type.log"
+    },
+    {
+      "name": "scripts-type",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:scripts"
+      ],
+      "code": 0,
+      "seconds": 0.8,
+      "log": "/private/tmp/blariyo-integration-scripts-type.log"
+    },
+    {
+      "name": "contracts-type",
+      "command": [
+        "npm",
+        "run",
+        "typecheck",
+        "-w",
+        "@blariyo/contracts"
+      ],
+      "code": 0,
+      "seconds": 0.5,
+      "log": "/private/tmp/blariyo-integration-contracts-type.log"
+    },
+    {
+      "name": "api-lint",
+      "command": [
+        "npm",
+        "run",
+        "lint",
+        "-w",
+        "@blariyo/api"
+      ],
+      "code": 0,
+      "seconds": 4.4,
+      "log": "/private/tmp/blariyo-integration-api-lint.log"
+    },
+    {
+      "name": "web-lint",
+      "command": [
+        "npm",
+        "run",
+        "lint",
+        "-w",
+        "@blariyo/web"
+      ],
+      "code": 0,
+      "seconds": 5.7,
+      "log": "/private/tmp/blariyo-integration-web-lint.log"
+    },
+    {
+      "name": "tests-lint",
+      "command": [
+        "npm",
+        "run",
+        "lint:tests"
+      ],
+      "code": 0,
+      "seconds": 2.2,
+      "log": "/private/tmp/blariyo-integration-tests-lint.log"
+    },
+    {
+      "name": "scripts-lint",
+      "command": [
+        "npm",
+        "run",
+        "lint:scripts"
+      ],
+      "code": 0,
+      "seconds": 1.3,
+      "log": "/private/tmp/blariyo-integration-scripts-lint.log"
+    },
+    {
+      "name": "contracts-lint",
+      "command": [
+        "npm",
+        "run",
+        "lint",
+        "-w",
+        "@blariyo/contracts"
+      ],
+      "code": 0,
+      "seconds": 1.0,
+      "log": "/private/tmp/blariyo-integration-contracts-lint.log"
+    },
+    {
+      "name": "hooks",
+      "command": [
+        "npm",
+        "run",
+        "hooks:check"
+      ],
+      "code": 0,
+      "seconds": 0.2,
+      "log": "/private/tmp/blariyo-integration-hooks.log"
+    },
+    {
+      "name": "hook-tests",
+      "command": [
+        "npm",
+        "run",
+        "test:git-hooks"
+      ],
+      "code": 0,
+      "seconds": 7.9,
+      "log": "/private/tmp/blariyo-integration-hook-tests.log"
+    },
+    {
+      "name": "backup-unit",
+      "command": [
+        "npm",
+        "run",
+        "test:backup"
+      ],
+      "code": 0,
+      "seconds": 0.7,
+      "log": "/private/tmp/blariyo-integration-backup-unit.log"
+    }
+  ],
+  "finalStatic": [
+    {
+      "name": "web-type-final",
+      "code": 0,
+      "log": "/private/tmp/blariyo-integration-web-type-final.log"
+    },
+    {
+      "name": "web-lint-final",
+      "code": 0,
+      "log": "/private/tmp/blariyo-integration-web-lint-final.log"
+    },
+    {
+      "name": "tests-type-final",
+      "code": 0,
+      "log": "/private/tmp/blariyo-integration-tests-type-final.log"
+    },
+    {
+      "name": "tests-lint-final",
+      "code": 0,
+      "log": "/private/tmp/blariyo-integration-tests-lint-final.log"
+    }
+  ],
+  "build": {
+    "initial": "PASS",
+    "finalWeb": "PASS"
+  },
+  "rootTests": {
+    "pass": 35,
+    "fail": 0,
+    "skip": 0
+  },
+  "apiServiceTests": {
+    "pass": 35,
+    "fail": 0,
+    "skip": 0
+  },
+  "collector": {
+    "state": "PASSED",
+    "suites": 80,
+    "tests": 289,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "readbackTests": 18
+  },
+  "apiIntegration": {
+    "files": 30,
+    "tests": 130,
+    "fail": 0,
+    "skip": 0,
+    "coverage": "First17 files passed with loopback5439 random databases; failed direct-mailbox plus remaining12 files passed with task-owned loopback55449 random databases",
+    "firstRun": "ISOLATED_MAILBOX_DATABASE_REQUIRED; safe guard unchanged"
+  },
+  "roles": {
+    "pass": true,
+    "roles": 5,
+    "restoredTables": 73,
+    "restoredSequences": 16
+  },
+  "localPrivileges": {
+    "pass": 1,
+    "fail": 0
+  },
+  "browser": {
+    "first": "BLOCKED: macOS Mach port sandbox denial",
+    "second": {
+      "tests": 54,
+      "pass": 44,
+      "fail": 10,
+      "skip": 0
+    },
+    "cause": "Old public navigation locator; duplicate batch navigation causing cascading auth recovery failures. Both resolved; targeted retest pending",
+    "final": {
+      "targetedTests": 23,
+      "pass": 23,
+      "fail": 0,
+      "skip": 0,
+      "files": [
+        "admin-recovery",
+        "batch-review",
+        "direct-input",
+        "batch-expiry",
+        "admin-roles"
+      ],
+      "coverage": "54 distinct tests passed across complete run and corrected affected-file rerun; no assertions skipped or weakened"
+    }
+  },
+  "links": {
+    "checked": 1224,
+    "missing": []
+  },
+  "history": "Original worklog lines preserved,39 followup lines added; applied SQL checksums unchanged",
+  "operatingEnvironment": "No production access/deployment or real source collection; loopback random DBs and task-owned ephemeral PostgreSQL"
+}

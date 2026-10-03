@@ -26,6 +26,7 @@
 - 진입: `/admin`
 - 선행: BFF `AdminIdentityProvider`, Core service token·actor, 활성 게시판, R2 private/public 분리
 - 외부 인증 장애는 관리자 작업만 중지하며 공개 목록·상세는 유지한다.
+- 개발 환경의 화면 로그인은 [로컬 개발 관리자 진입](../../../system-design/05-security-operations.md#로컬-개발-관리자-진입)을 따른다. 관리자 공통 레이아웃과 원문 검수↔초안 편집 연결은 [화면 설계](../../../planning/03-screen-design.md#관리자-게시글-화면)를 따른다.
 
 ## 4. 범위와 범위 밖
 
@@ -1139,3 +1140,10 @@ upload 실패 UX는 all-or-nothing, 요청 단위 gate `413`의 `fields` 없음,
 
 
 수집 초안의 원문 보존을 위해 게시글 편집 IMAGE 블록 상한은 200개다. 일반 업로드 요청의 10개/100MiB·파일당 10MiB 제한은 유지한다. direct batch 미디어 용량은 [수집 명세](../../m0-collection-assist/collection-assist/collection-assist.dev.md#2026-09-23-다중-이미지와-수집-용량-계약)를 따른다.
+
+
+## M0-D04 역할 인계 — 2026-09-26
+
+[권한 정본](../../../system-design/05-security-operations.md#m0-d04-roles)의 OWNER와 EDITOR는 이 명세의 글/이미지/예약/발행/숨김 업무를 모두 수행한다. 이미지 업로드·preview는 API 기능으로 제공하고 친구에게 R2/서버/DB/Drive credential을 배포하지 않는다. OWNER만 계정/설정·서버·백업 복구를 관리한다. 9/27 active operator registry에 필수 role을 추가했고 BFF 외부 role header 제거·Core service token/내부 role/operation allowlist를 구현·로컬 검증했다. 메뉴 숨김만으로 권한 적용을 완료 처리하지 않는다.
+
+OPS-01/02에서 두 계정의 정상 게시물 작업, EDITOR 직접 설정/legacy source PATCH/관리 자원 접근 거부, role 위조·active 회수 뒤 기존 session 거부, secret 미노출을 별도 기록한다(D04-T1~T6). [D04-T1~T6 로컬 증거](../../../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)가 있으며 실제 두 운영자 계정 인수는 별도로 남아 있다. 새 권한 화면·범용 프레임워크는 추가하지 않으며 기존 UX task를 이 설계 전체에 종속시키지 않는다.

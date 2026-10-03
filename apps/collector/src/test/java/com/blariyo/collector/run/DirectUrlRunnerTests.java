@@ -17,15 +17,15 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class DirectUrlRunnerTests {
-  @Test void dryRunParsesDetailOnlyTheqooWithoutStoreWrites() {
+  @Test void dryRunParsesDetailOnlyTheqooAndReservesQuotaWithoutContentWrites() {
     var transport = transport();
     var store = mock(BatchStore.class);
     var objects = mock(BatchObjectStore.class);
-    var report = new DirectUrlRunner(transport, store, objects, ignored -> {})
+    var report = new DirectUrlRunner(TestSourceControls.allowRobots(transport), store, objects, ignored -> {})
         .run(source(), new DirectUrlRunner.Options("theqoo", "https://theqoo.net/hot/1234567890", 10000, false));
     assertEquals("COMPLETED", report.state(), report.toString());
     assertEquals(1, report.fetched());
-    verifyNoInteractions(store, objects);
+    verifyNoInteractions(objects);verify(store,never()).begin(anyString(),anyString(),anyString(),anyInt(),anyInt(),anyLong(),any());verify(store,atLeastOnce()).reserveRequest(anyString(),anyInt(),anyLong(),any(),any());
   }
 
   @Test void writeDbStoresRawMediaAndReportForManualUrl() {
@@ -37,7 +37,7 @@ class DirectUrlRunnerTests {
     when(objects.put(anyString(), any(), anyString())).thenAnswer(invocation ->
         new BatchObjectStore.Record(invocation.getArgument(0), new byte[32], ((byte[]) invocation.getArgument(1)).length, invocation.getArgument(2)));
 
-    var report = new DirectUrlRunner(transport(), store, objects, ignored -> {})
+    var report = new DirectUrlRunner(TestSourceControls.allowRobots(transport()), store, objects, ignored -> {})
         .run(source(), new DirectUrlRunner.Options("theqoo", "https://theqoo.net/hot/1234567890", 10000, true));
 
     assertEquals("COMPLETED", report.state(), report.toString());
@@ -53,7 +53,7 @@ class DirectUrlRunnerTests {
   }
 
   private static SourceRegistry.Source source() {
-    return new SourceRegistry(Json.tree(Map.of("theqoo", Map.ofEntries(
+    return TestSourceControls.registry(Json.tree(Map.of("theqoo", Map.ofEntries(
         Map.entry("host", "theqoo.net"),
         Map.entry("approved", true),
         Map.entry("blockedReason", ""),

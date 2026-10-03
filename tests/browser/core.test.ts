@@ -146,6 +146,13 @@ await test(
         const publicPage = await context.newPage();
         publicPage.on('pageerror', (e) => errors.push(e.message));
         await publicPage.goto(fixture.origin + '/meme/posts/' + postId);
+        const ssr = await (await context.request.get(fixture.origin + '/meme/posts/' + postId)).text();
+        const social = await publicPage.evaluate((html) => {
+          const document = new DOMParser().parseFromString(html, 'text/html');
+          return ['og:image:alt', 'og:image:width', 'og:image:height', 'twitter:image:alt'].map((key) =>
+            document.querySelector(`meta[property="${key}"],meta[name="${key}"]`)?.getAttribute('content'));
+        }, ssr);
+        assert.deepEqual(social, ['청록색 테스트 이미지', '300', '180', '청록색 테스트 이미지']);
         await expect(publicPage.getByAltText('청록색 테스트 이미지')).toBeVisible();
         assert.equal(
           await publicPage

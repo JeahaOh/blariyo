@@ -25,7 +25,7 @@ try {
   if (mode === 'not-ready') {
     console.log(JSON.stringify({mode, readiness:503, writes:0}));
   } else {
-    const headers = {'X-Blariyo-Service-Token':serviceToken,'X-Blariyo-Admin-Actor':'admin:v1:'+'a'.repeat(43)};
+    const headers = {'X-Blariyo-Service-Token':serviceToken,'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor':'admin:v1:'+'a'.repeat(43)};
     async function request(path, body, method='POST') {
       const response = await fetch(origin+'/api/v1'+path, {
         method:body === undefined ? 'GET' : method,

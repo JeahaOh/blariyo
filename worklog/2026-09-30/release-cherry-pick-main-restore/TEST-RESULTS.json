@@ -1,0 +1,33 @@
+[
+  {
+    "name": "api-build",
+    "command": [
+      "npm",
+      "run",
+      "build",
+      "-w",
+      "@blariyo/api"
+    ],
+    "exitCode": 0,
+    "completedAt": "2026-09-30T20:28:39.282844+09:00"
+  },
+  {
+    "name": "root-tests",
+    "command": [
+      "npm",
+      "test"
+    ],
+    "exitCode": 0,
+    "completedAt": "2026-09-30T20:28:39.792757+09:00"
+  },
+  {
+    "name": "git-hooks",
+    "command": [
+      "npm",
+      "run",
+      "hooks:check"
+    ],
+    "exitCode": 0,
+    "completedAt": "2026-09-30T20:28:39.955123+09:00"
+  }
+]

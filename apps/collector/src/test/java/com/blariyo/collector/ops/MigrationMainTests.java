@@ -24,7 +24,7 @@ class MigrationMainTests {
             .executeQuery("SELECT version FROM collector.schema_migration ORDER BY version")) {
       var found = new TreeSet<String>();
       while (versions.next()) found.add(versions.getString(1));
-      assertTrue(found.containsAll(Set.of("V001", "V002", "V003", "V004", "V005", "V006")), found.toString());
+      assertTrue(found.containsAll(Set.of("V001", "V002", "V003", "V004", "V005", "V006", "V007", "V008", "V009", "V010")), found.toString());
     }
     try (var connection = DriverManager.getConnection(jdbc, user, password);
         var objects = connection.createStatement()

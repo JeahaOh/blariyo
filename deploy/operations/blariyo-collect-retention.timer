@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Blariyo collect retention each minute
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+AccuracySec=1s
+Persistent=true
+Unit=blariyo-collect-retention.service
+
+[Install]
+WantedBy=timers.target

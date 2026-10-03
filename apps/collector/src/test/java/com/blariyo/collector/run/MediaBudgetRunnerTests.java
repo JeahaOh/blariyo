@@ -16,7 +16,7 @@ class MediaBudgetRunnerTests {
         "parser","ARCALIVE","pathPrefixes",List.of("/"),"userAgent","fixture contact.invalid",
         "imageOrigins",Map.of(),"charts",Map.of("hot","https://arca.live/b/live"),
         "mediaLimits",Map.of("maxFileBytes",8,"maxTotalBytes",10)));
-    return new SourceRegistry.Source("arcalive",config);
+    return TestSourceControls.registry(Json.tree(Map.of("arcalive",config))).key("arcalive");
   }
   private SourceTransport transport() {
     var transport=mock(SourceTransport.class);
@@ -45,7 +45,7 @@ class MediaBudgetRunnerTests {
   }
   @Test void listBudgetIncludesFilesStopsWritesButContinuesNextArticlesWithFreshBudget() {
     var transport=transport();var store=store();var objects=objects();
-    var result=new DirectBatchRunner(transport,store,objects,ignored->{}).run(source(),new DirectBatchRunner.Options("arcalive","hot",1,6,Duration.ofHours(24),10000,true));
+    var result=new DirectBatchRunner(TestSourceControls.allowRobots(transport),store,objects,ignored->{}).run(source(),new DirectBatchRunner.Options("arcalive","hot",1,6,Duration.ofHours(24),10000,true));
     assertEquals("PARTIAL",result.state());assertEquals(5,result.failures());assertEquals(1,result.fetched());
     assertTrue(result.errors().stream().allMatch("SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED"::equals));
     verify(objects,times(6)).put(startsWith("collect/media/"),any(),eq("image/png"));
@@ -55,7 +55,7 @@ class MediaBudgetRunnerTests {
   }
   @Test void manualUrlUsesSameBudgetAndCannotMarkPartialMediaComplete() {
     var store=store();var objects=objects();
-    var result=new DirectUrlRunner(transport(),store,objects,ignored->{}).run(source(),new DirectUrlRunner.Options("arcalive","https://arca.live/b/live/101",10000,true));
+    var result=new DirectUrlRunner(TestSourceControls.allowRobots(transport()),store,objects,ignored->{}).run(source(),new DirectUrlRunner.Options("arcalive","https://arca.live/b/live/101",10000,true));
     assertEquals("FAILED",result.state());assertEquals(List.of("SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED"),result.errors());
     verify(store,never()).completeItem(any());verify(objects,never()).put(anyString(),any(),eq("application/pdf"));
   }

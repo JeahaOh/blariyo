@@ -50,7 +50,7 @@ await test('Nest collection sources, filtered pagination, candidate details and 
   const root = (await app.getUrl()) + '/api/v1/admin/collect';
   const headers = {
     'X-Blariyo-Service-Token': token,
-    'X-Blariyo-Admin-Actor': actor,
+    'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor': actor,
     'Content-Type': 'application/json',
   };
   async function request(

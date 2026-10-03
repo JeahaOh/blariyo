@@ -2,7 +2,7 @@ import { env } from 'node:process';
 export default defineNitroPlugin(() => {
   const config = useRuntimeConfig();
   if (env.NODE_ENV !== 'production') return;
-  if (config.adminAuthMode === 'local' || config.localAdminToken)
+  if (config.adminAuthMode === 'local' || config.localAdminToken || config.localAdminLoginEnabled)
     throw new Error('LOCAL_AUTH_FORBIDDEN');
   for (const key of [
     'siteName',

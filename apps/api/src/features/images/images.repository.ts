@@ -18,6 +18,7 @@ export interface Image {
   height: number;
 }
 export interface NewImage {
+  sourceExpiresAt?: string;
   key: string;
   hash: Buffer;
   mime: string;
@@ -30,6 +31,7 @@ export abstract class ImagesRepository {
   abstract create(image: NewImage): Promise<string>;
   abstract find(id: string, lock?: boolean): Promise<Image | null>;
   abstract byPublicKey(key: string): Promise<Image | null>;
+  abstract byPrivateKey(key: string, lock?: boolean): Promise<Image | null>;
   abstract transitionStatus(
     id: string,
     expected: ImageStatus,

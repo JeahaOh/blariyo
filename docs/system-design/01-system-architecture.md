@@ -6,6 +6,10 @@ M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-mem
 - 문서 대조일: 2026-09-24 (새 runtime 검증 아님)
 - 관련 문서: [데이터 모델](02-data-model.md), [API 설계](03-api-design.md), [인프라 설계](04-infrastructure-design.md), [보안·운영](05-security-operations.md)
 
+> 2026-09-26 최종 저장소 결정: **운영 DB 백업만 Google Drive**를 사용한다.
+> [인프라 계획](../planning/02-infra-plan.md#6-데이터와-저장소-원칙)이 공급자 선택 정본이다. 본문의 R2 backup 경로는 전환 전 현행 구현이며 Drive 전환·운영 검증은 미완료다.
+> 운영 DB는 PostgreSQL, 공개 전 자료·이미지/첨부는 기존 R2 private/collect, 공개 이미지는 R2 public media를 유지한다. 미리보기·발행 저장소를 Drive로 바꾸지 않는다.
+
 ## 1. 목표와 제약
 
 ### 목표
@@ -81,7 +85,7 @@ batch 결과 조회, 검수와 초안 승격·공개를 담당하며 외부 사�
 `GENERAL_LIST`, `DETAIL_ONLY`, `BLOCKED`, `UNVERIFIED`로 구분한다.
 
 direct는 글마다 Core API에 결과를 제출하지 않는다. CLI·Discord는 batch queue/저장 경로를 사용하고,
-Web URL 입력·source 변경의 전달/소유권은 미정이다. 기존 `/admin/collect`와 collector 중계는
+Web URL 입력은 [M0-D02](#m0-d02-delivery)의 API 소유 mailbox pull로 구현·로컬 검증했다(9/27). 실제 장비·운영 인수는 남아 있다. source 설정은 runtime 읽기 전용 조회로 제한한다. 기존 `/admin/collect`와 collector 중계는
 legacy 호환 경로로 남아 있으며 현행 [제품 경계](../planning/content-collection/README.md#12-현행-direct와-legacy의-적용-경계)를 따른다.
 로컬·운영 데이터 이전과 다른 PC에서 실행한 신규 수집의 증거를 구분한다.
 
@@ -185,6 +189,12 @@ collector 파일 중계 부하를 받으므로 preview를 파일당 10MiB로 제
 실제 origin·token·rate-limit 운영값은 배포 전에 확정하며 기능 활성화 전까지 미검증이다.
 
 GA4 기본 `page_title`, `page_location`, `page_referrer`도 [분석 계획 §4](../planning/04-analytics-ad-plan.md)의 고정값 규칙을 따른다. 자동 page view와 향상된 측정을 끄고, 실제 제목·URL·postId가 기본 필드로 전송되지 않는지 network 검증을 운영 활성화 조건에 포함한다.
+
+`analytics-v1`은 [분석 계획 §4.1](../planning/04-analytics-ad-plan.md#41-첫-확장-구현-확정--analytics-v1)의
+9개 수동 이벤트를 Web의 단일 adapter가 직접 GA4로 전송하는 확정 설계다. 동일 GA4 목적지의 GTM
+전송은 사용하지 않는다. Core는 공개 응답의 분석용 콘텐츠 키만 생성하고 BFF는 계약 검증·중계만 한다.
+자체 이용 이벤트 API·DB는 추가하지 않는다. GA4→BigQuery 일별 내보내기와 기본 집계는 첫 구현에서 제외하고 후속 조건으로 둔다.
+실제 연결·보관·비용·운영 수신은 미검증이다. 세부 필드·동의 전환은 [기능 명세 §13](../development-specs/m0-core/analytics-consent/analytics-consent.dev.md#analytics-v1)을 따른다.
 
 ## 5. 주요 흐름
 
@@ -445,3 +455,22 @@ Spring Batch·Quartz -> 운영자 PC의 전용 PostgreSQL 18 (`batch`·`quartz`�
 당시 source/migration/OpenAPI/test/build/runtime은 미구현·미검증이었다. 현재 원격 PC·운영 계정·Discord
 실연결·출처 사용 결정·연락처·법무 승인과 장기 관찰은 여전히 별도 인수 대상이다.
 기존 Python의 8787 포트·5필드 cron·SQLite·대기 100건·이력 30일은 승계하지 않는다.
+
+
+<a id="m0-d02-delivery"></a>
+## M0-D02 — Web URL 입력 전달 선택
+
+2026-09-26 확정 설계를 9/27 API V010·Collector V008~V010, BFF/입력 UI로 구현하고 D02-T1~T6을 로컬 검증했다. [완료 감사](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)와 [실제 인수](../operations/m0-operation-handoff.md)를 구분한다. API/Web 외부 원문 fetch 금지와 batch queue/item 소유권을 유지한다.
+
+| 대안 | 장점 | 운영 비용·제약 | 선택 |
+| --- | --- | --- | --- |
+| API 소유 입력 요청을 batch가 DB에서 pull·확인 | 장비 중단 중 접수 가능, 새 공개 ingress 없음, 기존 제한 DB 연결 사용 | mailbox/제한 함수·수신 receipt 필요, 늦은 실행을 UI로 설명 | **채택** |
+| 인증된 batch 입력 HTTP endpoint | 실행 중이면 즉시 전달 가능 | 미정 장비의 주소·인증서·방화벽·상시 가동 필요, 미가동 내구 큐를 따로 구현 | 미채택 |
+
+Web `/admin/batch` URL 입력 → BFF 인증/CSRF/멱등 키 → API mailbox commit(202) → batch 30초 간격 poll(최대20개) → 실제 적용 source·정책/중복 검사 → 자신의 queue+receipt+mailbox ack 원자 commit → 기존 direct pipeline → API 읽기 전용 상태 조회·검수 → 초안 → 별도 발행이다. poll은 원문 fetch가 아니다. 24시간 수락/실행 기한이 끝나면 EXPIRED이며 장비가 늦게 켜져도 자동 수집하지 않는다.
+
+API는 batch queue/confirmation 직접 권한을 받지 않는다. batch에 API 일반 테이블 DML·content 권한도 주지 않는다. 고정 mailbox 함수와 batch가 작성한 안전 receipt/runtime view만 추가한다. 전용 DB 연결은 기존 private 경계를 사용하며 인터넷 PostgreSQL 공개를 요구하지 않는다. 장비·OS·가동 시간은 실연동 직전 입력으로 남긴다.
+
+선택 영향: 입력은 즉시 수집을 보장하지 않는다. runtime 설정이 STALE/ABSENT면 저장은 가능하되 202 응답과 화면에 '수집기 확인 대기'를 표시하고 마지막 관측을 명시한다. 서로 다른 실행기의 설정 충돌(CONFLICT)은 503으로 접수를 막는다. 처리 직전 최신 batch 설정이 거부하면 BLOCKED가 최종 결과다. 설정 파일 편집·배포는 사용자/개발자 운영 절차이며 Web 설정 편집은 추가하지 않는다.
+
+되돌리기: Web 입력 flag를 끄고 미수락 요청은 TTL로 닫는다. 수락된 queue는 중단/종료 확인 후 drain하며 legacy로 자동 전송하지 않는다. 기존 검수·Core 수동 운영은 계속 사용한다. DB·API·화면 상세는 [데이터 모델](02-data-model.md#m0-d02-input-model), [API 계약](03-api-design.md#m0-d02-api), [수집 명세](../development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md#m0-design-completion)을 따른다.

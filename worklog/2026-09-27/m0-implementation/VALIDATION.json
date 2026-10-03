@@ -1,0 +1,103 @@
+{
+  "verifiedAt": "2026-09-27 10:18 KST",
+  "branch": "feature/m0-design-completion",
+  "head": "71ed8efe0d1cfb8ea22ed16f6464043c4aa1d81b",
+  "goalScope": "local implementation, verification and operational handoff",
+  "status": "PASSED",
+  "apiIntegration": {
+    "files": 30,
+    "tests": 130,
+    "failed": 0,
+    "skipped": 0
+  },
+  "apiServices": {
+    "tests": 35,
+    "failed": 0,
+    "skipped": 0
+  },
+  "commonContracts": {
+    "tests": 34,
+    "failed": 0,
+    "skipped": 0
+  },
+  "collector": {
+    "suites": 80,
+    "tests": 289,
+    "readbackTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "browser": {
+    "tests": 52,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 208645.7075
+  },
+  "backupUnit": {
+    "node": 17,
+    "python": 3,
+    "failed": 0
+  },
+  "roles": {
+    "roleCount": 5,
+    "restoredTables": 73,
+    "restoredSequences": 16,
+    "cancelFunctionBoundary": "PASSED"
+  },
+  "selectiveBackup": {
+    "encryption": "age",
+    "postgresMajor": 18,
+    "preservedTables": 53,
+    "excludedTables": 17,
+    "rawRestored": 0,
+    "sameUrlAdmission": "DUPLICATE",
+    "queueAfterAdmission": 0,
+    "legacySchemaUpgrade": "API008/Collector006->010/010",
+    "oldLedgersUnchanged": true,
+    "originalExpiryPreserved": true
+  },
+  "apiEntityCatalog": {
+    "tables": 23,
+    "columns": 273,
+    "foreignKeys": 19,
+    "schemaUnchanged": true
+  },
+  "dockerApiWeb": "build, runtime, signed Access, PostgreSQL restore, maintenance, SIGTERM PASS",
+  "backupImage": {
+    "id": "sha256:b8c12cc4da1ec0523c40fac2a0422c8455140856ca0ed96966c1e9b320137e96",
+    "uid": 65532,
+    "readOnly": true,
+    "network": "none",
+    "node": "24.18.0",
+    "pgDump": "18.6",
+    "age": "1.3.2",
+    "retainedAsArtifact": true
+  },
+  "staticChecks": [
+    "API/Web build and typecheck",
+    "API/Web/scripts/tests lint",
+    "scripts/tests typecheck",
+    "contracts generation and immutable baseline",
+    "hooks check",
+    "git diff --check"
+  ],
+  "scopePreserved": true,
+  "stageCommitPushMergeDeploy": false,
+  "actualExternalServiceAcceptance": "NOT_EXECUTED",
+  "sevenDayObservation": "NOT_EXECUTED",
+  "cleanup": {
+    "taskPostgres": "removed",
+    "taskPostgresAnonymousVolume": "removed",
+    "taskAgeDirectory": "removed",
+    "randomTestResources": "runner cleanup passed",
+    "existing5439and5433": "preserved"
+  },
+  "documents": {
+    "markdownFiles": 30,
+    "relativeLinks": 669,
+    "anchors": 233,
+    "errors": []
+  },
+  "placeholderRemovals": 0,
+  "unresolvedIssues": 0
+}

@@ -1,0 +1,29 @@
+{
+  "root": "/Volumes/MicroVault/iCloudDrive/git/private/blariyo",
+  "branch": "feature/m0-design-completion",
+  "head": "c49d27fd1a6dd5a29df8165648fc912990563364",
+  "release": "bb19c486f3cafa847bd34828a699382c6d5bd0b6",
+  "main": "e51f1b501f7cc327da279102dd69eac2f4c554db",
+  "files": {
+    "scripts/local/batch-privileges.mjs": "7e7b81c54ec43cb6a63f6504ed943f9288b3cfec55e7133c6e825ffea57aa565",
+    "scripts/local/batch-privileges.test.mjs": "bea2fb47dab8bf329c7386587fcbe1ba836784da5f92b1ec82af6e376b520714",
+    "worklog/2026-09-27/dev-21-site-publish/DOCUMENT-LINK-AUDIT.json": "6f6b9c1711b2544c4e71301f39deb08d264d3cc3c6d7c281a3f99917643321f1",
+    "worklog/2026-09-27/dev-21-site-publish/FILES.sha256": "e01d51046a10d71cda5304b30248b9eff03d56b5fa6c15d17caf8457fc43efe5",
+    "worklog/2026-09-27/dev-21-site-publish/README.md": "59540a78856698fae7ea02fe69fc8b941259291c1cf24f7f55e57d6815c5fc46",
+    "worklog/2026-09-27/dev-21-site-publish/RESULTS.json": "b8ca3eb7339a6eb4894c1f42ae5dd6f3afb2a8a3e4e6966dd03dd6dea4cc74c8",
+    "worklog/2026-09-27/m0-implementation-plan/README.md": "799464a0d8262d008b6d4fb823595ca6a7db342e537b31f33529391235c8ed72",
+    "worklog/2026-09-27/m0-next-step/README.md": "93fdb1779a65e9809d638e860ecdeb3d32d357ee67eff163957d476c851dfeca",
+    "worklog/2026-09-28/uncommitted-status/README.md": "3ff30b40ba18a6c4c84acd486ade39d9f91db5fc09f3f5a884c3031d1bbc99db",
+    "worklog/2026-09-30/project-health-review/EVIDENCE-MATCH.json": "76c4bc89d30bf346bc5e7503eac23cac3a2f697383ae68b95647976de01324f8",
+    "worklog/2026-09-30/project-health-review/LINK-CHECK.json": "82e07790c307a196573df88bfd5048a2044d2fe223efe60035c91ce8d2309c1d",
+    "worklog/2026-09-30/project-health-review/PUBLIC-HTTP.json": "8cbdfde1ed399dd1a2f1e7a985f3bf4fe8c7c965b7df3deb6b0978b6a6f4bb22",
+    "worklog/2026-09-30/project-health-review/README.md": "80740e59d0f5846f707a69907d5acae883adb4725b81e470557dea7c2ffe2d22",
+    "worklog/2026-09-30/project-health-review/VERIFICATION.json": "e96eee193ee51b59781cc879574470e37932a72312526836a05c60da9a3d0ea7",
+    "docs/implementation-tasks/contracts-maintenance.md": "df3bb6e6a1132c2525c7d8fd4067c09feb5ace1307ee1c55c82346ebb32da3e0",
+    "docs/operations/environment-configuration.md": "d9be506ba88ccdfc910bbd7bc793ffb7d0c63b98865cd3503b2aa83860bc6400",
+    "docs/status.md": "48b16c2f414797fcc5e7e95249b967ed380afda23d5091246b36a485339fb96f",
+    "scripts/local/README.md": "686b920979c9a9c013f4ebd024b14712f1b9765ba04cab3f5fa5eeccebb27ac1",
+    "scripts/local/prepare-batch-review.mjs": "80d3d84acc6850a52966be671ac447d5848df74fc48b0da52f9edee8a6e1778e"
+  },
+  "indexDiff": ""
+}

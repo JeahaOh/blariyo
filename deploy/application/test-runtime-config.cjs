@@ -23,7 +23,7 @@ async function run() {
     write('public-contact.json', JSON.stringify(contacts));
     write('db-secrets/app-password', hex('a') + '\n');
     // No migration/backup password files: assembling runtime must not read them.
-    write('admin-operators.json', JSON.stringify([{ identity: '11111111-1111-4111-8111-111111111111', operatorId: 'test-operator', active: true }]));
+    write('admin-operators.json', JSON.stringify([{ identity: '11111111-1111-4111-8111-111111111111', operatorId: 'test-operator', role: 'OWNER', active: true }]));
     write('cloudflare-access.env', `NUXT_ADMIN_AUTH_MODE=access\nNUXT_ACCESS_ISSUER=https://fixture-team.cloudflareaccess.com\nNUXT_ACCESS_AUDIENCE=${hex('b')}\n`);
     write('internal-auth.env', `SERVICE_TOKEN='${hex('c')}'\nNUXT_SERVICE_TOKEN='${hex('c')}'\nNUXT_ACTOR_SECRET='${hex('d')}'\n`);
     const r2 = `R2_ENDPOINT=https://${'e'.repeat(32)}.r2.cloudflarestorage.com\n` +
@@ -51,7 +51,7 @@ async function run() {
     assert.equal(api.APP_DB_PASSWORD_FILE, '/run/secrets/app-password');
     assert.equal(web.NUXT_CORE_ORIGIN, 'http://api:' + api.PORT);
     assert.equal(web.NUXT_LOCAL_ADMIN_TOKEN, '');
-    for (const flag of ['COLLECT_MANUAL_URL_ENABLED', 'COLLECT_DISCORD_COMMAND_ENABLED', 'COLLECT_BATCH_REVIEW_ENABLED']) {
+    for (const flag of ['COLLECT_MANUAL_URL_ENABLED', 'COLLECT_DISCORD_COMMAND_ENABLED', 'COLLECT_BATCH_REVIEW_ENABLED', 'COLLECT_DIRECT_INPUT_ENABLED']) {
       assert.equal(api[flag], 'false');
       assert.equal(web['NUXT_' + flag], 'false');
     }

@@ -949,8 +949,11 @@ list_page = FLOOR(newer_count / 20) + 1
 
 ## 9. 보존과 삭제
 
-아래 수집 후보 보존은 legacy에 한정한다. direct raw/media/report/queue 및 API 검수·영수증의 보존/파기는
-아직 미정이며, 기존 cleanup이 처리한다고 가정하지 않는다. 관련 계약·구현은 [P1-05](../roadmap.md#direct-보존삭제의-미정-경계)로 추적한다.
+아래 표의 수집 후보 보존은 legacy에 한정한다. direct는 2026-09-26 최종 결정으로 이미지·첨부·원문 HTML·본문을
+검수 완료·반려 후 7일에 삭제하고 미검수 자료는 수집일부터 4주(28일) 보관한다. **중복 방지용 최소 식별자는 무기한 보관**한다.
+[제품 결정과 기술 계약](../planning/content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다.
+상태·시각·키·회수·백업의 목표 계약은 [M0-D01](#m0-d01-retention)을 따른다. 기존 cleanup과
+V003 불변 trigger는 새 계약의 구현 증거가 아니다. 구현은 COL-04, 백업은 OPS-03으로 인계한다.
 
 | 데이터 | 보존 |
 | --- | --- |
@@ -1037,6 +1040,16 @@ JobDataMap에도 이 최소 참조만 넣고 token·원문 HTML·title·origin U
 result 원문 payload와 image temp는 macOS Keychain key로 AES-256-GCM 암호화한 local spool에 둔다.
 
 Core에는 다음 quota 표를 추가한다.
+
+### Direct 요청 budget — `collect.batch_request_budget`
+
+Collector V010의 direct 전용 최소 집계다. `source_key`가 기본 키이며 KST `budget_date`,
+`request_count`, `next_allowed_at`, `updated_at`만 보관한다. 원문·URL·운영자 identity는 저장하지 않는다.
+단건·목록·queue·probe와 dry-run의 모든 HTTP 시도는 같은 source 한도에서 차감한다.
+`reserve_batch_request(text,integer,bigint)` 제한 함수의 row lock·DB 시각·2초 permit으로
+동시 예약·재시작·자정 경계를 처리한다. batch에 일반 row 수정·삭제 권한은 주지 않는다.
+최소 집계는 선택 백업에 포함하며 원문 제외 table과 구분한다. 상세 동작은
+[COL-01/02 요청 통제](07-spring-collector-design.md#col-0102-direct-요청-통제-보완--2026-09-27)를 따른다.
 
 ### 출처 요청 budget — `collect.source_request_budget`
 
@@ -1159,7 +1172,7 @@ content post FK·승격 URL/source 중복·검수 전이는 DB 제약과 trigger
   본문·URL이 없는 metadata 시스템이라고 고지하지 않는다. 일반 로그·공개 API에서 수집 내부 정보를 제한한다.
 - DB의 max_pages 100/max_items 10000 CHECK와 CLI 10/100 및 source별 더 낮은 상한은 다른 층의 제한이다.
   큰 DB 허용값을 CLI 실행 허용값으로 사용하지 않는다.
-- V003 이후 runtime DELETE 거부와 완료 불변 trigger가 있다. 자동 보존/삭제는 미구현이며 별도 소유권·참조 보호 계약이 필요하다.
+- V003 이후 runtime DELETE 거부와 완료 불변 trigger가 있다. 9/27에는 API V009·Collector V007~V010의 제한 함수·회수 worker를 추가해 보존/삭제를 로컬 검증했다. 일반 runtime DELETE 거부는 유지하며 실제 운영 회수 인수는 별도다.
 
 
 ### Collector V006 MIME 정정 감사
@@ -1168,3 +1181,119 @@ content post FK·승격 URL/source 중복·검수 전이는 DB 제약과 trigger
 media별 증가 revision과 operation UUID로 조건부 수정·재실행을 구분하며, 이전 media JSON snapshot,
 새 MIME, item version, 사유 코드와 실행자/transaction/시각을 보존한다. API 검수 및 batch runtime의
 소유 테이블에 포함하지 않는다. [정정 함수·잠금·복구 계약](07-spring-collector-design.md#batch-v006-완료-이미지-mime-정정)을 따른다.
+
+
+<a id="m0-d01-retention"></a>
+## M0-D01 — direct 보존·삭제의 목표 계약
+
+2026-09-26 확정 설계의 신규 모델·함수·권한은 9/27 API V009/V010·Collector V007~V010 및 회수 worker로 구현·로컬 검증했다. 기존 API V001~V008/Collector V001~V006은 수정하지 않았다. [D01-T1~T7 증거](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)와 실제 운영 migration/제한 삭제 인수를 구분한다. API 소유 게시글 사본은 §9의 기존 정책을 유지한다.
+
+### 시각과 상태
+
+모든 계산은 PostgreSQL `timestamptz(3)`와 DB UTC 시각으로 하며 화면만 KST로 표시한다. 일은 달력 날짜가 아니라 24시간이다. item 수집 상태와 별도로 `retention_state=LIVE|PURGE_PENDING|PURGE_FAILED|PURGED`를 둔다.
+
+| 필드·조건 | 계약 |
+| --- | --- |
+| `collected_at` | 최초 raw/body/media 저장을 시작하는 transaction의 DB 시각. 재시도·재파싱으로 변경하지 않음. 성공 종료의 `fetched_at`과 구분 |
+| `review_finalized_at` | API 검수에서 최초 APPROVED 또는 REJECTED가 commit된 DB 시각. 이후 재검수·반려 전환·초안 생성으로 갱신하지 않음 |
+| `expires_at` | 최초 검수 확정 전 `collected_at + 28 days`; 그 기한 **전** 확정한 경우 `review_finalized_at + 7 days`. 검수 시점이 27일째면 34일째 만료 가능. 재검수로 다시 28일이나 새 7일을 부여하지 않음 |
+| 기한 경계 | `clock_timestamp() >= expires_at`이면 접근·검수·승격·다운로드 불가. equality도 만료. 만료 전에 시작했어도 최종 commit 때 다시 검사 |
+| 수집 실패·기간 제외 raw | raw를 남겼으면 동일한 collected_at·28일 적용. 성공 원문으로 집계하지 않음 |
+| REVIEWING 중 만료 | 검수 잠금·사용자 열람이 기간을 연장하지 않음. `410 BATCH_ITEM_EXPIRED` 및 로컬 임시 사본 회수 |
+| PURGE_PENDING/FAILED | 원문 열람 금지 유지. 실패는 삭제 완료가 아니며 `purged_at`은 모든 대상 readback 완료 후에만 기록 |
+
+최초 검수 확정 시 API transaction이 제한 함수 `collect.finalize_retention(item_id, expected_version, decision)`를 호출한다. 함수는 batch 소유 lifecycle 행과 API review 행을 같은 잠금 순서로 검사하고 시각을 확정한다. API에 batch item의 일반 UPDATE·DELETE 권한을 주지 않는다. 설치 역할이 소유한 함수의 EXECUTE만 허용하고 SECURITY DEFINER의 고정 search_path·인자/상태 검증·PUBLIC EXECUTE 회수를 요구한다.
+
+### 최소 중복 키
+
+별도 nullable 표기가 없는 신규 필드는 NOT NULL이며 시각·버전 불변 조건을 DB 함수/trigger로 검사한다. 새 batch 소유 `collect.batch_dedup_key`는 `id UUID PK`, `source_key VARCHAR(80)`, `normalization_version SMALLINT`, `post_key_hash BYTEA`, `canonical_hash BYTEA`만 영구 보관한다. 제목·본문·전체 URL·원문 post key·actor·수집 시각·파일명은 넣지 않는다. `source_key+normalization_version+post_key_hash`와 `normalization_version+canonical_hash`는 각각 UNIQUE다. post key 없는 adapter는 canonical 식별값을 post key 입력으로 사용한다. hash는 비식별 보장을 뜻하지 않으며 제한 접근 metadata다.
+
+- 정규화 v1: 승인된 adapter의 상세 URL 규칙을 고정한다. HTTPS·허용 host, 소문자 host·기본 port 제거·fragment 제거를 공통 적용하고, 게시물 식별에 필요한 board/id query는 보존한다. 추적 query 제거·alias·경로 case 규칙은 adapter별 fixture로 명시하며 임의 정렬/삭제하지 않는다.
+- SHA-256 입력은 UTF-8 length-prefix tuple `(v1, source_key, adapter canonical post key)` 및 `(v1, canonical URL)`이다. 원문 body hash를 식별자로 쓰지 않는다. 모든 hash 열에는 `CHECK(octet_length(해당_열)=32)`를 두며 bytea 길이 수식자를 사용하지 않는다. 같은 글 수정·이미지 교체는 새 글이 아니다.
+- FETCHED 확정 transaction에서 중복 키를 먼저 INSERT하고 item을 연결한다. 실패/차단만 있는 요청은 영구 성공 키를 만들지 않아 제한 재시도를 허용한다. 기존 FETCHED 자료와 post_id가 있는 검수의 post_collection_origin은 삭제 전에 같은 키로 backfill한다. 참조 count 불일치·중복 충돌이면 삭제 활성화를 거부한다.
+- 한 hash만 일치하면 같은 source·adapter alias 규칙으로 확인한다. 두 hash가 서로 다른 기존 행을 가리키거나 source가 다르면 `DEDUP_IDENTITY_CONFLICT`로 거부하고 원문을 자동 병합·덮어쓰지 않는다. hash 충돌 의심은 사용자 검토 대상으로 남기며 일반 runtime에서 키 삭제를 허용하지 않는다.
+- 원본 삭제 후 같은 키 재접수는 `DUPLICATE`, 원문을 다시 fetch/생성하지 않는다. 아직 존재하면 item 링크, 삭제됐으면 링크 없이 만료 안내만 반환한다. M0는 normalizer v1을 고정한다. 후속 버전은 입력 URL에 대해 과거 버전 lookup을 먼저 수행해 기존 dedup UUID를 재사용하고 미일치인 새 원문에만 새 버전 키를 만든다. 삭제된 원문을 역산/backfill하지 않으며 과거 버전 lookup 제거·충돌 검증 없는 전환은 금지한다.
+
+### 부수 사본과 삭제 소유권
+
+| 대상 | 보관·회수 계약 |
+| --- | --- |
+| item title/body/URL/attachment/SNS, raw/media bytes 및 remote URL | item expires_at까지. batch retention 전용 작업이 삭제 |
+| 상세 report·checkpoint·failure.detail·MIME correction 이전 snapshot | 원문/URL을 담을 수 있으므로 연결 item의 가장 이른 expires_at까지. run 전체 report는 그때 먼저 삭제하고 같은 기한의 나머지 payload도 함께 정리한다. item 없는 run failure/checkpoint는 run.started_at+28일, 원문 없는 run/code/count 요약은 run 종료+7일에 정리한다. 새 형식은 item별 파일로 분리. 최소 code/count 외 일반 로그 복제 금지 |
+| queue | URL은 terminal 즉시 삭제, 미완료는 접수+24시간 또는 연결 item expires_at 중 빠른 기한. 요청 중단 시 EXPIRED. terminal code/requestId는 terminal+7일까지만 |
+| Discord confirmation | 기존 10분 만료 또는 확인 완료 즉시 URL·actor/channel HMAC 제거. 중복 확인 receipt는 trigger HMAC/requestId만 24시간 |
+| API Web 요청·멱등 receipt | [D02](#m0-d02-input-model). raw URL은 전달 또는 24시간 만료 즉시 제거, 조회용 최소 상태는 terminal+7일. item 만료가 빠르면 그때 제거 |
+| batch_review·batch_review_request | 원문 식별값·digest·actor·응답은 item expires_at까지. 승격 시 별도 API 소유 `content.post_collection_origin(post_id PK/FK, dedup_id UUID UNIQUE)`에 최소 연결만 남겨 기존 content 정책으로 관리. 원문 삭제로 게시글을 지우지 않음 |
+| 로컬 다운로드·preview·승격 임시 파일 | 신규 direct는 크기 제한된 메모리/stream을 사용하고 장비 디스크에 원문 임시 복제를 만들지 않는다. 기존 디스크 잔재는 활성화 전 inventory로 회수. crash orphan과 API 임시 staging은 생성+24시간과 item expires_at 중 빠른 기한, 종료/실패는 즉시 회수. 원문 파일을 로그/작업 기록/일반 backup에 복제하지 않음 |
+| 삭제 ledger/manifest | item UUID·random object key·기한·대상 kind·상태/code만. 원문/URL/파일명 없음. 성공+7일 후 제거. 미완료 작업은 삭제를 계속 시도하며 남은 대상과 초과 시간을 장애로 보고; 새로운 보관 예외가 아님 |
+| API 게시글 private/public 이미지·본문 사본 | API 소유 독립 key·hash. 수집 객체를 직접 참조하지 않으며 §9 기존 콘텐츠 보존. 첨부는 기존대로 원문 링크만 게시 |
+
+`collect.batch_retention`은 item UUID, dedup UUID nullable, collected_at, review_finalized_at nullable, expires_at, retention_state, version, purged_at nullable, purge_owner UUID nullable, purge_lease_until TIMESTAMPTZ(3) nullable를 갖는다. `collect.batch_purge_object`는 `(item_id, object_key) PK`, kind, expected hash nullable, deletion state, attempts, last_error_code를 갖는다. 삭제 완료 후 7일에 lifecycle·manifest를 지우고 영구 dedup key만 남긴다. 임시 key는 원문 제목/URL을 포함하지 않는 UUID 경로로 만든다.
+
+### 경쟁·순서·권한
+
+1. API 소유 정리 함수는 만료된 review/receipt만 지우고 content 연결은 유지한다. 함수 이름·실행 역할·대상 table은 migration allowlist로 고정한다. API 검수/승격과 batch 회수는 공통 item advisory lock → retention row → review row 순서로 짧게 잠근다. read/preview도 기한을 검사하고 `Cache-Control: private,no-store`로 응답한다. 재검수는 최초 확정 시각을 유지한다.
+2. 승격은 최대 120초의 기존 준비 예산 안에서 사본을 만들고 최종 transaction에서 lock·버전·deadline을 재확인한다. 만료/회수 선점이면 commit 금지·새 사본 보상 삭제. 성공한 post_collection_origin과 content 사본은 회수 대상에서 제외한다. 긴 다운로드 동안 DB transaction을 열어 두지 않는다.
+3. 만료 worker는 batch가 소유하되 비상시 수집 PC와 무관하게 서버에서 사용자 관리 timer로 실행한다. 매분 기한 도달 건을 `PURGE_PENDING`으로 선점하고 raw/미디어/부수 사본 목록을 고정한다. purge lease는120초·30초 heartbeat이며 만료 lease는 다른 실행자가 같은 manifest로 회수한다. 완료/실패 기록은 owner token·version 조건부 갱신으로 늦은 실행자의 완료 처리를 거부한다. 기한 도달 시 논리 접근은 즉시 차단한다. 물리 삭제 지연은 측정·장애 처리하며 정상 보존 연장으로 취급하지 않는다.
+4. 수집/승격 writer는 만료 fence를 매 PUT 및 최종 commit에서 검사한다. run별 object prefix를 쓰고 중단 writer의 늦은 PUT도 inventory로 재회수한다. preview stream은 deadline에서 중단한다. API나 batch에 원문 영구 다운로드 URL을 발급하지 않는다.
+5. 전용 `blariyo_collect_retention` 실행 계정은 고정 함수와 collect 전용 객체 삭제만 허용한다. content/legal·private/public media·백업 자격증명 없음. `blariyo_batch`의 기존 완료 불변·DELETE 거부는 유지한다. trigger는 설치 역할 소유의 검증된 purge 함수에서만 제한 삭제를 허용하며 임의 세션 flag로 우회하지 못한다.
+6. object DELETE→HEAD/목록 재확인→DB 본문·부수 row 정리→API 소유 정리 함수→ledger 성공 순서다. 404는 해당 정확한 key의 삭제 성공, 403/timeout은 실패다. object 실패 중에도 API 접근 차단과 DB payload 비우기는 먼저 수행할 수 있으며 삭제 manifest는 유지한다. object key를 content 참조로 잘못 썼으면 자동 보호·연장 대신 승격 결함으로 중지하고 독립 사본 복구 후 기한 내 회수한다.
+7. 부분 실패는 1/5/30분 후 재시도, 이후 1시간마다 한 번과 Discord 경보. 새 수집을 중지해 backlog 증가를 막되 Core 수동 운영은 유지한다. 삭제 실패를 성공으로 바꾸거나 원문을 별도 백업으로 옮기지 않는다.
+
+### 백업·복원 경계
+
+7일 DB 백업에 삭제 대상 payload를 넣지 않는 **선택적 논리 백업**을 채택한다. 현행 full dump와 다르며 [D03](05-security-operations.md#m0-d03-drive)의 전환 검증을 선행한다. 영구 dedup·API 콘텐츠/최소 승격 연결·원문 없는 삭제 manifest는 복구 대상이다. direct의 일시적 원문과 검수 대기는 장애 복구 시 자동 재생성하지 않는다. 이 손실 가능성은 운영 인수에서 확인하며 콘텐츠 사본의 복구 범위는 줄이지 않는다.
+
+복원은 외부 경로·수집·worker를 닫고 schema/ledger→dedup/content→삭제 manifest와 R2 inventory 대조→현재 시각으로 만료 재적용→orphan 회수→private/public 참조·중복 검증 순서다. 복원된 queue/receipt로 원문을 다시 가져오지 않는다. 복원은 direct payload를 되살리지 않으므로 수집 쓰기를 동결한 전체 collect inventory 중 복원된 item이 없는 객체는 **즉시 orphan 회수**한다. 과거 backup의 review_finalized_at/기한이 오래됐더라도 그 시각까지 기다리지 않는다. content/private/public prefix는 이 대상이 아니다. 기한/소유권을 검증할 수 없는 객체는 원문을 읽어 재구성하지 않고 접근 차단·사용자 회수 목록으로 분리하며 미완료를 장애로 기록한다. 회수가 끝나기 전 수집/검수는 재개하지 않는다.
+
+### 후속 migration과 수용 시나리오
+
+- 새 API migration: 최초 검수 시각·함수, 최소 post 연결, 만료 접근/영수증 정리 및 D02 입력 요청. 새 Collector migration: dedup/lifecycle/manifest, queue URL nullable·EXPIRED·trigger/권한, report 참조 구조. 기존 적용 SQL/checksum 변경 금지.
+- 설치 순서: 수집/검수 쓰기 정지→기존 정상 백업 확인→새 모델/제한 함수의 additive 설치·metadata backfill dry-run→검증된 선택 백업·기존 full 사본 대체→API guard→worker dry-run→제한 삭제. 과거 collected_at은 fetched_at과 run 시작/객체 생성 중 **가장 이른 입증 시각**을 사용한다. 검수 최초 시각이 없으면 updated_at을 최초로 가장하지 않고 수집+28일과 updated_at+7일 중 빠른 기한으로 이행해 기간을 늘리지 않는다. 시각 근거가 전혀 없으면 즉시 만료 후보로 분리한다.
+- rollback은 새 입력·worker 정지와 이전 앱의 read-only 전환까지다. 파기된 raw 복구·삭제 키 제거·기존 raw 포함 백업 복원으로 되돌리지 않는다. content 정상 사본은 유지한다.
+
+| 시험 ID | 기대 결과·검증 방법 (9/27 로컬 검증, 실제 운영 인수 별도) |
+| --- | --- |
+| D01-T1 | 7일/28일 직전 허용·정각 거부, UTC/KST 경계 동일: 고정 DB clock 통합 시험 |
+| D01-T2 | 27일째 첫 승인→34일 만료, 재검수/반려 전환으로 연장 없음, 28일 정각 최초 검수 거부 |
+| D01-T3 | 승인/승격/삭제 동시 실행에서 하나의 순서만 commit, 만료 뒤 content 사본 생성 0, 기존 사본 hash 유지 |
+| D01-T4 | DELETE 일부 403/timeout·늦은 PUT·프로세스 crash 후 재실행, 원문 접근 410·최종 DB/object 부재·중복 키 유지 |
+| D01-T5 | API/batch 직접 삭제·불변 수정·content prefix 삭제 거부, retention 함수의 기한 전 호출 거부 |
+| D01-T6 | 보고서·MIME snapshot·receipt·임시 파일에 원문 canary를 심어 만료 후 모든 저장 경로 부재 확인 |
+| D01-T7 | 만료 전 백업을 만료 후 격리 복원해 raw 복구 0, queue 재실행 0, 같은 URL 접수 DUPLICATE, 게시글 사본 유지 |
+
+<a id="m0-d02-input-model"></a>
+## M0-D02 — Web 입력 mailbox와 runtime 설정 모델
+
+API 소유 `collect.web_collection_request`: `id UUID PK`, `actor VARCHAR(100)`, `idempotency_key VARCHAR(200)`, `request_hash BYTEA`, `source_key VARCHAR(80)`, `canonical_url TEXT nullable`, `canonical_hash BYTEA`, `post_key_hash BYTEA`, `normalization_version SMALLINT`, `requested_at TIMESTAMPTZ(3)`, `accept_before TIMESTAMPTZ(3)=requested_at+24h`, `lease_token UUID nullable`, `lease_until TIMESTAMPTZ(3) nullable`, `previous_request_id UUID nullable`, `closed_at TIMESTAMPTZ(3) nullable`. UNIQUE(actor,idempotency_key); URL 최대 2048자. API만 INSERT하고 batch는 고정 claim/ack 함수만 호출한다.
+
+- batch는 API 소유 `claim_web_requests(limit<=20)` 함수로 60초 lease·token을 받아 source 재검증 후 자신의 queue와 `batch_input_receipt`를 만들고 `ack_web_request`로 URL을 제거한다. **한 DB transaction** 안에서 처리하며 외부 fetch를 그 transaction에 포함하지 않는다. lease token·accept_before를 다시 검사한다. source 잠금 순서는 D01 item 잠금보다 앞선다. 늦은 owner의 ack는 실패한다.
+- batch 소유 `collect.batch_input_receipt`: `request_id UUID PK`, `queue_id UUID nullable`, `item_id UUID nullable`, `state`, `error_code nullable`, `retryable BOOLEAN`, `version BIGINT`, `updated_at`, `terminal_at nullable`. 모든 시각은 DB 기준. API는 URL·queue 내부값 없는 고정 view만 SELECT한다. batch는 receipt를 queue 상태 전이와 같은 transaction에 갱신하며 version을 1씩 증가시킨다. API가 batch_queue/confirmation을 조회·변경할 권한은 여전히 없다.
+- 상태는 `PENDING → ACCEPTED → RUNNING → SUCCEEDED|FAILED|BLOCKED`, 원문 중복은 `DUPLICATE`, 수락 전 또는 queue 대기 중 24시간 경계는 `EXPIRED`. API 응답은 자기 요청과 receipt를 합친 **조회 projection**이다. PENDING/EXPIRED 계산은 API 소유 요청 기한, 실행 결과는 batch receipt만 기준으로 한다. batch가 멈추면 성공/실패를 임의 추정하지 않는다.
+- 동일 actor+key+동일 request hash는 최소 24시간 같은 requestId, 본문 차이는 409. 다른 키의 같은 canonical/post identity는 `(normalization_version,canonical_hash) WHERE closed_at IS NULL` unique로 기존 활성 요청에 연결한다. source+post hash도 같은 조건 unique다. batch의 terminal 반영 함수와 API 만료 함수만 closed_at을 닫으며 timeout만으로 활성 키를 해제하지 않는다. 다른 actor의 key는 별도 request alias receipt로 원래 requestId에 24시간 매핑하며 URL은 저장하지 않는다. D01 영구 dedup이 완료 원문의 재수집을 막는다. 응답 유실은 같은 키 재전송 또는 GET으로 확인한다. item 만료로 receipt가 먼저 제거된 경우에도 영구 중복 키를 검사해 외부 재수집을 막는다.
+- 수락 전 만료 행의 URL 삭제는 API 소유 cleanup 함수가 담당한다. 수락 이후는 batch queue TTL·receipt terminal+7일과 D01의 더 빠른 원문 기한을 적용한다. URL 제거 뒤 hash는 멱등 비교에만 사용한다.
+- 재시도: queue의 일시 네트워크 오류만 기존 최대 3회·30초 지수 backoff, 24시간 accept deadline 안에서 수행한다. BLOCKED/정책/파싱/원문 삭제/한도 초과는 자동 재시도 금지. 수동 retry는 별도 API에서 새 requestId를 생성하고 이전 requestId를 연결하며 source 재검증·버전·멱등 키를 요구한다. 이전 실패를 성공으로 덮지 않는다. 만료 원문/영구 dedup 대상은 retry 거부.
+
+batch 소유 `collect.batch_source_runtime`은 `(instance_id UUID,source_key) PK`, `config_version CHAR(64)`, `normalization_version`, `loaded_at`, `heartbeat_at`, `effective_policy JSONB`를 갖는다. API는 비밀 없는 projection SELECT만 가능하다. 실행기는 안전 필드만 canonical JSON으로 hash하고 시작/설정 reload 성공 후 version·loaded_at을 원자 갱신, 30초마다 heartbeat한다. 5분 미만은 CURRENT, 5분 이상 STALE, 등록만 있고 runtime 없는 경우 ABSENT다. 여러 active instance의 version이 다르면 CONFLICT이며 입력을 503으로 거부한다. 파일 경로·토큰·DB 주소·bucket credential은 포함하지 않는다. runtime row는 마지막 heartbeat+28일 삭제하며 부재를 가동 증거로 대체하지 않는다.
+
+
+D02 mailbox 보충: `collect.web_collection_request_key`는 API 소유 `(actor,idempotency_key) PK`, request_hash, request_id, expires_at(생성+24h)의 alias/멱등 매핑이다. 요청과 mapping을 같은 transaction에 insert한다. retry·create 모두 이 표를 먼저 조회하며 같은 hash면 원래 requestId를 반환한다. request row 정리 시 mapping도 제거하되 완료 원문은 영구 dedup으로 다시 막는다. 원문 없는 terminal 상태를 보관하는 receipt는 기한에 정리되며 request와 queue의 상태를 서로 UPDATE하지 않는다. 이 테이블 데이터도 선택 백업에서 제외한다. claimed 작업의 서로 다른 정규화 버전은 `NORMALIZATION_VERSION_MISMATCH`로 BLOCKED 처리하고 fetch하지 않는다. API의 URL 식별 코드와 Java adapter는 동일 golden fixture로 canonical/post key를 비교한다.
+
+
+D01 구현 선택 근거: 전체 URL/post ID 영구 보관 대신 두 SHA-256 식별값과 source/버전/UUID만 보관한다. HMAC은 key rotation·유실 시 영구 중복 판정 복구 의존성이 생겨 채택하지 않았으며 hash를 익명정보로 가정하지 않는다. 최초 검수 시각 고정은 재검수마다7일을 재시작하는 대안의 무한 연장을 막는다. 수집 PC 실행에 회수를 맡기는 대안은 장비 미가동 중 만료를 지킬 수 없어 서버의 별도 retention 실행을 선택했다. 적용 뒤 normalization 버전은 병행 lookup으로 되돌릴 수 있지만 원본 파기·영구 키 삭제는 rollback 대상이 아니다.
+
+삭제 구현의 FK 순서: report/checkpoint/failure.detail·correction snapshot과 confirmation 연결을 먼저 정리하고 queue의 item/run 연결 및 API review/receipt를 제한 함수로 닫은 뒤 media→item을 지운다. 다른 LIVE item이 참조하는 run은 삭제하지 않는다. 그 run의 원문 없는 FK용 UUID/source/state shell만 최종 자식 삭제+7일까지 남기고 본문·page URL·checkpoint payload는 가장 이른 기한에 제거한다. 이는 원문 보관 예외가 아니다. API review INSERT/UPDATE trigger도 deadline을 검사하므로 옛 앱이 finalize 함수를 호출하지 않는 경로로 새 기한을 우회하지 못한다.
+
+D02 요청 digest는 검증된 원래 `{url}` JSON의 canonical serialization(정렬된 property, 공백 없는 JSON)을 SHA-256한 값이다. URL 식별용 canonical_hash와 분리하므로 같은 Idempotency-Key에 다른 URL 문자열을 보내면 정규화 결과가 같아도409다. retry digest는 previous requestId와 expectedVersion이다. projection version은 PENDING=0, receipt 최초 상태=1부터 증가, receipt 없이 기한 만료면1; updatedAt은 해당 전이 DB 시각(기한 만료는 acceptBefore)이다. retry는 새 requestId/version0으로 시작한다.
+
+batch가 꺼진 채 ACCEPTED 대기 요청의 acceptBefore를 넘긴 경우 GET은 EXPIRED·BATCH_QUEUE_EXPIRED로 계산하며
+updatedAt=acceptBefore, version=마지막 receipt version+1을 반환한다. receipt/queue를 쓰지 않는다.
+batch가 실제 EXPIRED receipt를 기록하면 그 version을 그대로 사용하므로 추가 가산하지 않는다.
+RUNNING과 이미 끝난 receipt의 결과는 시간만으로 덮어쓰지 않는다.
+
+
+API 승격 중 준비한 private staging은 content 게시글에 commit되기 전까지 `sourceExpiresAt`을 회수 outbox에 전달한다. 만료/승격 실패 후 해당 API worker가 자기 private credential로 회수하며 collect retention 계정에 private/public 삭제 권한을 주지 않는다. commit된 사본은 이 source deadline의 대상에서 제거하고 content 기존 정책을 적용한다. D01-T3/T6에서 두 객체 집합과 outbox 실패 뒤 회수를 각각 확인한다.
+
+### 2026-09-27 확인 전 Discord 취소 구현
+
+Collector V010의 `cancel_confirmation`은 actor/channel HMAC을 검사하고 확인과 같은 advisory lock으로 직렬화한다. 확인 전 취소는 URL·source/post 원문을 즉시 NULL로 만들며 `cancelled_at`·HMAC·기존10분기한만 남긴다. 같은 취소는 멱등이며 취소 후 확인/동일interaction 재준비는 거부한다. 이미 queue에 접수된 요청을 취소하지 않는다. 만료 후 회수는 기존 제한 worker가 수행하고 일반 runtime DELETE 권한은 늘리지 않는다. 실제5역할 거부 및 동시 확인/취소 시험은 [최종 감사](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)를 따른다.

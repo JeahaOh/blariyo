@@ -63,7 +63,7 @@ await test('Nest: original collection lifecycle, isolation and transactional pro
     const headers: Record<string, string> = auth
       ? machine
         ? { authorization: 'Bearer ' + bearer }
-        : { 'X-Blariyo-Service-Token': token, 'X-Blariyo-Admin-Actor': actor }
+        : { 'X-Blariyo-Service-Token': token, 'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor': actor }
       : {};
     headers['Idempotency-Key'] = key;
     if (body && !(body instanceof FormData)) headers['Content-Type'] = 'application/json';

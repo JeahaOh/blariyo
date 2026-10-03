@@ -134,8 +134,8 @@
 
 - direct batch는 검수 전에 이미지·첨부를 비공개 collect 저장소에 적재한다. 승인한 결과만 검증·복사해
   content 초안으로 만들고 공개 발행은 별도 처리한다.
-- legacy 후보 preview의 24시간 보존을 direct 원본에 적용하지 않는다. direct raw/media/report/queue
-  보존·파기 계약은 `(미정)`이며 [수집 기획](content-collection/README.md)과 법무 정합성 검토를 따른다.
+- legacy 후보 preview의 24시간 보존을 direct 원본에 적용하지 않는다. direct 이미지·첨부·원문 HTML·본문은 검수 완료·반려 후 7일 삭제,
+  미검수는 수집일부터 28일, 중복 방지용 최소 식별자는 무기한 보관한다. M0 출처 범위·세부 계약은 [수집 기획](content-collection/README.md#13-m0-마무리-결정--2026-09-26)을 따른다. 법무 정합성과 실제 파기는 별도 검증한다.
 - 외부 사이트 이미지를 직접 핫링크하지 않는다.
 - M0 저장소는 Cloudflare R2 Standard를 사용하고 collect 원본·content private·public media 접근을 분리한다.
   실제 이전·공개 이미지의 마지막 관측은 [운영 현재 상태](../operations/current-status.md)를 따른다.

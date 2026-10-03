@@ -1,0 +1,8 @@
+[Unit]
+Description=Blariyo independent backup expiry and upload retry
+After=network-online.target
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/python3 /opt/blariyo/backup/run-backup.py maintain
+TimeoutStartSec=2160

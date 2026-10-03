@@ -1,0 +1,17 @@
+{
+  "capturedAt": "2026-09-30T22:04:20.326078+09:00",
+  "head": "da3a96e2a2db660da1de60aea1d597a15714a13a",
+  "release": "ad5bc788915eee41a182114c1c0e4f5542829816",
+  "main": "8af72449a7d56c9701efd0d73dc7d430a66f9610",
+  "status": "## feature/m0-design-completion...origin/feature/m0-design-completion [ahead 1]\n M apps/web/nuxt.config.ts\n?? apps/web/public/apple-touch-icon.png\n?? apps/web/public/favicon-16x16.png\n?? apps/web/public/favicon-32x32.png\n?? apps/web/public/favicon.ico\n?? apps/web/public/favicon.png\n?? apps/web/public/favicon.svg\n?? worklog/2026-09-30/brand-favicon/",
+  "files": {
+    "apps/web/nuxt.config.ts": "5837e97d47a8a794c10b457fdbd5e26900c2273fb59481a4cc7bcff8e1134fa1",
+    "apps/web/public/apple-touch-icon.png": "50d7036fd6669352aadf29600f559e73b9c90ec8e6e2137eda2054360a721500",
+    "apps/web/public/favicon-16x16.png": "44edd0599766b00620281dd8168485662a970d987537fa1dc00938f8bb1c3b64",
+    "apps/web/public/favicon-32x32.png": "4d249ff808cd6ad3582e941e47137b9ddd848b917793f690ceabbd8c0abf09e1",
+    "apps/web/public/favicon.ico": "e8e65201a854421206c99126ae6edf239762ee725a60f84297d02e298020619c",
+    "apps/web/public/favicon.png": "989372a7d3d8c0f43693ab81d1fac2590d9b42fb210de6ba6fa8d68705e0c9aa",
+    "apps/web/public/favicon.svg": "9b63ab4562edd5a3e9b1ef4eb6f953e0f60d46c20582d0ba6d58e5668a249b3a",
+    "worklog/2026-09-30/brand-favicon/README.md": "4c750add33870dcb8d4b4f496939395f9da892e0c00f072b73e44caeda9cab34"
+  }
+}

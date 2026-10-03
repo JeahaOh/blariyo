@@ -4,6 +4,8 @@ import {BatchResultRepository,type BatchResultRow} from '../features/collection/
 import {DatabaseContext} from './database.js';
 import {rows,requiredRow} from './rows.js';
 import {fail} from '../shared/errors.js';
+import {batchResult,retentionColumns} from './batch-result.repository.js';
+import {performance} from 'node:perf_hooks';
 
 function review(row:Record<string,unknown>):Review {
   const status=row.status;if(status!=='REVIEWING'&&status!=='APPROVED'&&status!=='REJECTED')throw Error('INVALID_REVIEW_STATE');
@@ -17,13 +19,19 @@ export class TypeOrmBatchReviewRepository extends BatchReviewRepository {
   item(id:string){return this.results.find(id);}
   async list(page:number,source?:string,state?:string,reviewStatus?:string){
     const filters=[source??null,state??null,reviewStatus??null];
-    const selection=`FROM collect.batch_item i LEFT JOIN collect.batch_review r ON r.item_id=i.id
+    const selection=`FROM collect.batch_item i JOIN collect.batch_retention l ON l.item_id=i.id
+      LEFT JOIN collect.batch_review r ON r.item_id=i.id
       WHERE ($1::text IS NULL OR i.source_key=$1) AND ($2::text IS NULL OR i.state=$2)
-      AND ($3::text IS NULL OR COALESCE(r.status,'UNREVIEWED')=$3)`;
-    const total=Number(requiredRow(await this.db.manager.query('SELECT count(*) '+selection,filters)).count);
-    const ids=rows(await this.db.manager.query('SELECT i.id '+selection+' ORDER BY i.fetched_at DESC NULLS LAST,i.id LIMIT 20 OFFSET $4',[...filters,(page-1)*20]));
-    const items:BatchResultRow[]=[];
-    for(const row of ids){const item=await this.item(String(row.id));if(item)items.push(item);}
+      AND ($3::text IS NULL OR COALESCE(r.status,'UNREVIEWED')=$3)
+      AND l.retention_state='LIVE' AND l.expires_at>clock_timestamp()`;
+    const requestStarted=performance.now();
+    const selected=rows(await this.db.manager.query(`WITH visible AS MATERIALIZED (
+      SELECT i.*,${retentionColumns},to_jsonb(r) AS review_record,r.content_digest AS review_digest ${selection}
+    ), counted AS (SELECT count(*) AS total FROM visible), page AS (
+      SELECT * FROM visible ORDER BY fetched_at DESC NULLS LAST,id LIMIT 20 OFFSET $4
+    ) SELECT counted.total,page.* FROM counted LEFT JOIN page ON true ORDER BY page.fetched_at DESC NULLS LAST,page.id`,[...filters,(page-1)*20]));
+    const total=Number(requiredRow(selected).total);
+    const items=selected.filter(row=>row.id!==null).map(row=>({item:batchResult(row,requestStarted),review:row.review_record===null?null:review({...requiredRow([row.review_record]),content_digest:row.review_digest})}));
     return {items,total};
   }
   async media(id:string):Promise<BatchMedia[]>{

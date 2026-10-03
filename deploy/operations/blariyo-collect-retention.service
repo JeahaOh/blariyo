@@ -1,0 +1,24 @@
+[Unit]
+Description=Blariyo expired collect objects and payload retention
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=blariyo-retention
+Group=blariyo-retention
+WorkingDirectory=/opt/blariyo/current
+EnvironmentFile=/etc/blariyo/retention.env
+Environment=COLLECTOR_RETENTION_ALERT_STATE_DIR=/var/lib/blariyo-retention
+StateDirectory=blariyo-retention
+StateDirectoryMode=0700
+ExecStart=/opt/blariyo/runtime/node/bin/node /opt/blariyo/current/deploy/operations/run-collect-retention.mjs --once --write-db
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+UMask=0077
+TimeoutStartSec=240
+
+[Install]
+WantedBy=multi-user.target

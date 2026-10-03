@@ -5,6 +5,7 @@ import type { CoreRequest } from '../../http/contracts.js';
 import { ApiError, fail } from '../../shared/errors.js';
 export const COLLECTION_OPTIONS = Symbol('COLLECTION_OPTIONS');
 export interface CollectionOptions extends HttpOptions {
+  collectDirectInputEnabled?: boolean;
   collectBatchReviewEnabled?: boolean;
   collectorKeySecret?: string;
   collectorTokens?: CollectorCredential[];

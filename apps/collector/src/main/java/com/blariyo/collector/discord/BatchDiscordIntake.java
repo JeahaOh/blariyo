@@ -17,17 +17,21 @@ public final class BatchDiscordIntake {
     try {
       var source=sources.get().host(URI.create(url).getHost(),null);
       String canonical=source.canonical(url);String key=source.adapter().identify(URI.create(canonical)).postKey();
-      return queue.prepare(hmac.apply("interaction:"+interaction),hmac.apply("actor:"+actor),hmac.apply("channel:"+channel),source.key(),key,canonical);
+      return queue.prepare(hmac.apply("interaction:"+interaction+":"+actor+":"+channel),hmac.apply("actor:"+actor),hmac.apply("channel:"+channel),source.key(),key,canonical);
     }catch(IllegalArgumentException e){throw new CollectorFailure(400,"VALIDATION_FAILED");}
   }
   public UUID confirm(UUID id,String actor,String channel) {
     String a=hmac.apply("actor:"+actor),c=hmac.apply("channel:"+channel);
-    var confirmation=queue.confirmation(id,a,c);
+    String replay=hmac.apply("confirmed:"+id+":"+actor+":"+channel);
+    var confirmation=queue.confirmation(id,a,c,replay);
     if(confirmation.requestId()!=null)return confirmation.requestId();
     // A source disabled after preparation cannot be confirmed; worker rechecks again.
     var source=sources.get().key(confirmation.source());
     if(!source.canonical(confirmation.url()).equals(confirmation.url())||!source.adapter().identify(URI.create(confirmation.url())).postKey().equals(confirmation.postKey()))
       throw new CollectorFailure(409,"SOURCE_IDENTITY_CHANGED");
-    return queue.confirm(id,a,c);
+    return queue.confirm(id,a,c,replay);
+  }
+  public void cancel(UUID id,String actor,String channel) {
+    queue.cancel(id,hmac.apply("actor:"+actor),hmac.apply("channel:"+channel),hmac.apply("confirmed:"+id+":"+actor+":"+channel));
   }
 }

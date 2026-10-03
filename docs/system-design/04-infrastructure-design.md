@@ -66,9 +66,16 @@ Cloudflare 장애가 공개 origin 전체 장애로 이어질 수 있는 의존�
 
 ### 이미지·백업 저장소
 
+2026-09-26 최종 공급자 선택은 **운영 DB 백업만 Google Drive**, 공개 전·공개 이미지/첨부는 기존 R2 유지다.
+[인프라 계획](../planning/02-infra-plan.md#6-데이터와-저장소-원칙)을 따른다. 아래 R2 backup bucket·구성도·backup credential은
+전환 전 현행 구현 계약이며 새 백업 공급자 선택을 대체하지 않는다. R2 private/collect·public media 계약은 유지한다.
+Drive 계정·용량·연결 정보는 실연동 전 확인하며 서버·백업 관리 권한은 사용자만 갖는다. DB 백업 전환 조건과 현행 일정·최근 7일 보존은
+[보안·운영 §9](05-security-operations.md#9-백업)를 따르며 Drive 전환 도구와 age/격리DB 복원은 9/27 로컬 검증했다. 실제 계정 연결·독립 다운로드/복원·운영 전환은 [운영 인계](../operations/m0-operation-handoff.md)로 남아 있다.
+
 | 후보 | 가격·무료 구간 | 판단 |
 | --- | --- | --- |
-| Cloudflare R2 Standard | 10GB-month, Class A 100만, Class B 1,000만/월 무료; egress 무료 | 기본 선택 |
+| Cloudflare R2 Standard | 10GB-month, Class A 100만, Class B 1,000만/월 무료; egress 무료 | 공개 전·공개 이미지/첨부 유지. DB backup은 전환 전 구현 |
+| Google Drive | 사용할 계정·용량·비용 미정 | 운영 DB 백업만 선택. 로컬 전환 도구 검증 완료, 실제 계정·전환 인수 잔여 |
 | Backblaze B2 | 첫 10GB 무료, 이후 약 `$6.95/TB-month`; egress 정책 별도 | R2 정책 변경 시 대안 |
 | VM local disk | VM 요금 포함 | 임시 staging만 허용, 유일 원본 금지 |
 | AWS S3 | 안정적이지만 storage·request·egress 분리 과금 | M0 비용상 제외 |
@@ -326,16 +333,16 @@ Kakao/GA4는 운영값·정책·CSP·provider 설정·실제 네트워크 gate�
 
 legacy source의 robots·상한은 `collect.source`와 Core quota가 관리한다. direct는 별도 source config의
 HOT_LIST/GENERAL_LIST/DETAIL_ONLY/BLOCKED/UNVERIFIED 분류·요청 제한을 사용한다. direct robots·Crawl-delay·
-영속 일일 budget 연결은 현재 미구현이고 redirect도 설계와 차이가 있다. [보완 조건](07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)을 충족해야 한다.
+영속 일일 budget과 redirect 최대3회는 9/27 공통 실행 경로에서 구현·로컬 검증했다. [통제 근거](07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)를 따르며 실제 출처의 robots·간격·일일 한도/승인 설정 인수는 남아 있다.
 `COLLECT_LIST_CRAWL_ENABLED`의 legacy 비활성 경계를 direct 전체 차단 스위치로 해석하지 않는다.
 
-`NUXT_ADMIN_OPERATORS_FILE`은 외부 identity를 안정적인 내부 `operatorId`로 매핑하는 파일 경로다. 운영자가 여러 명일 수 있으므로 단일 값 환경변수를 사용하지 않는다. 파일은 `{"identity": "<외부 식별값>", "operatorId": "<내부 식별자>", "active": true}` 항목의 목록이며 BFF container에만 읽기 전용으로 mount한다. identity를 제거해도 기존 `operatorId`는 재사용하지 않고 감사 이력을 보존한다. provider를 교체하면 identity 값만 새 provider 기준으로 바꾸고 `operatorId`는 유지한다.
+`NUXT_ADMIN_OPERATORS_FILE`은 외부 identity를 안정적인 내부 `operatorId`로 매핑하는 파일 경로다. 운영자가 여러 명일 수 있으므로 단일 값 환경변수를 사용하지 않는다. 파일은 `{"identity": "<외부 식별값>", "operatorId": "<내부 식별자>", "role": "OWNER", "active": true}` 항목의 목록이며 BFF container에만 읽기 전용으로 mount한다. identity를 제거해도 기존 `operatorId`는 재사용하지 않고 감사 이력을 보존한다. provider를 교체하면 identity 값만 새 provider 기준으로 바꾸고 `operatorId`는 유지한다.
 
 Access 모드는 `NUXT_ADMIN_AUTH_MODE=access`로 설정한다. `NUXT_ACCESS_ISSUER`는
 `https://<team>.cloudflareaccess.com` 전체 URL, `NUXT_ACCESS_AUDIENCE`는 관리자 Access
 애플리케이션의 AUD다. `identity`에는 서명 검증된 JWT의 `sub`를 사용하며 이메일을 대신 넣지 않는다.
 목록은 모든 항목의 identity·operatorId가 앞뒤 공백이 없는 비어 있지 않은 문자열이고
-active가 boolean이어야 한다.
+active가 boolean이고 role은 `OWNER` 또는 `EDITOR`여야 한다. 역할 누락·알 수 없는 역할도 거부하며 공동 운영자 항목에는 `EDITOR`를 명시한다.
 identity 중복 또는 잘못된 목록 형식은 접근을 거부한다. `active: true`인 등록 사용자만 허용하며
 비활성 사용자·미등록 사용자와 과거 subject→operatorId 객체 형식은 거부한다.
 Core의 `SERVICE_TOKEN`과 BFF의 `NUXT_SERVICE_TOKEN`에는 같은 내부 서비스 인증키를 주입한다.
@@ -433,7 +440,7 @@ preview 저장량과 PUT/GET/DELETE 비용은 위 영구 원본 예산에 포함
 - `REMOVED` 게시글의 private canonical 원본은 30일 복구 유예 뒤 삭제한다.
 - 수동 업로드는 파일당 10MiB·요청당10개, 게시글은 IMAGE 최대200개다. direct는 파일당30MiB 등 별도 [수집 한도](07-spring-collector-design.md)를 따른다.
 - R2 저장량 7GB 알림·9GB 비용 검토는 운영 목표다. 자동 업로드 차단 구현으로 표시하지 않으며 정상 사용 실패를 피하도록 승인·유료 전환·정리 대상을 검토한다.
-- DB backup은 12시간 간격 최근 28개(14일), weekly 8개를 유지하고 총 4GB 예산을 잡는다.
+- DB backup은 [보안·운영 §9](05-security-operations.md#9-백업)에 따라 매일 03:30·15:30 KST, 최근 7일을 유지하며 M0 주간 보존 사본은 만들지 않는다. 2026-09-26 결정으로 목적지는 Google Drive이며 전환 전 현행 도구는 R2를 사용한다. Drive 제공 용량·비용은 계정 확인 후 산정한다.
 
 ## 9. 비용 전환 기준
 
@@ -505,3 +512,18 @@ Spring source·migration·OpenAPI·test·runtime과 실제 출처·Discord·운�
 확정 정책 v0.1을 실제 command로 발행한 뒤 Core·Web·Nginx를 기동했다. blariyo.com의 이전 Squarespace A를 proxied Tunnel CNAME으로 전환하고, www는 같은 Tunnel의 Nginx 308 대표 주소 전환 전용 경로로 연결했다. DB·Core·Web·Nginx의 host port는 없다. 기존 메일 MX/TXT와 R2 media 도메인은 유지했다. Always Use HTTPS와 최소 TLS 1.2를 적용한다.
 
 당시 단일 Lightsail + Docker Compose에 맥에서 빌드한 amd64 image와 부팅 복구 service·예약/outbox/cleanup timer·7일 진단 로그·12시간 암호화 백업을 설치했다. [9월 20일 기록](../../worklog/2026-09-20/infrastructure-setup/TASK-19.md)은 보존하며, 이후 GHCR 기반 `5c581c2`와 V008/Collector V006 반영은 [9월 23일 마지막 관측](../operations/current-status.md)을 따른다. 블루그린·무중단 전환과 실제 재부팅/rollback 완료를 뜻하지 않는다.
+
+
+## M0-D01~D04 인프라 인계 — 2026-09-26
+
+9/26 인계 이후9/27 로컬 구현·검증을 완료했다. 운영 설치/전환은 미실행이며 아래 인수 계약은 [D03](05-security-operations.md#m0-d03-drive)의 **선택 logical dump→age→manifest→Drive**, [D04](05-security-operations.md#m0-d04-roles)의 OWNER/EDITOR·서비스 계정 분리다. [선택 백업 실행서](../../deploy/backup/SELECTIVE-RUNBOOK.md)와 [운영 인계](../operations/m0-operation-handoff.md)를 따른다. 문서 최신화 작업에서는 source/실제 실행 설정을 변경하지 않았다.
+
+| 후속 설정 | 책임·운영 영향·되돌리기 |
+| --- | --- |
+| 기존 operator registry에 OWNER/EDITOR role | 사용자만 계정 등록/회수, BFF 내부 header·Core allowlist 추가. 미지정 role 거부. 설치 순서: Core role 지원→BFF 등록값 전환→두 계정 인수; gate 확인 전 기존 앱으로 되돌리기 가능 |
+| 서버의 collect retention timer·전용 DB/object credential | 수집 장비가 꺼져도 매분 만료 회수, source 외부 fetch 없음. API/batch 일반 DELETE 거부 유지. 삭제 후 이전 앱으로 원문 복원하지 않음 |
+| batch outbound mailbox poll·runtime heartbeat | 기존 private DB 경로로 연결, 장비의 공개 HTTP endpoint 불필요. Web 입력 flag OFF로 새 요청 중단 |
+| Drive auth mode·folder/drive ID·secret path·recipient·dump profile | 실값은 사용자만 준비. 첫 R2 선택 백업 검증→Drive 병행→독립 복원 후 전환. Drive 실패 시 같은 profile의 R2 전송으로 복귀 |
+| Discord 장애 credential | 기존 사용자 전용 채널, secret 별도 mount. 친구 초대 필수 아님. 전송 실패와 백업/삭제 실패를 각각 관측 |
+
+장비·OS·가동 시간, 계정 종류·용량은 `(미정)`이며 [준비 체크리스트](../operations/owner-setup-checklist.md#m0-design-inputs)의 확인 시점을 따른다. RPi4를 확정 장비로 가정하지 않는다. Drive 공개 공유·앱에 backup secret mount·PostgreSQL 인터넷 공개를 추가하지 않는다.

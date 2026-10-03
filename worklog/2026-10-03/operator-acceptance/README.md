@@ -106,6 +106,23 @@
 - DB 수량: post total `79`, published `78`, scheduled `0`, draft `1`
 - 판정: 통과. 예약 취소 후 공개되지 않음.
 
+## 2026-10-03 13:43 KST 로컬 보완
+
+- 범위: PR 진행 중 운영 배포 없이 local/source에서 가능한 인수 결함 보완.
+- 브랜치: `feature/admin-acceptance-local-fixes`
+- 변경:
+  - 고해상도 이미지 업로드 실패 사유에 `40MP 이하` 안내를 추가했다.
+  - 업로드 실패 목록에 `aria-live="assertive"`를 부여해 화면 알림성을 높였다.
+  - 관리자 검색 목록과 편집 상태 영역에 글 번호를 표시했다.
+  - 편집 화면에 `글 번호 복사` 버튼을 추가했다.
+- 로컬 검증:
+  - `/Users/zeaha/.nvm/versions/node/v24.18.0/bin/node --test tests/upload-errors.test.ts tests/admin-render.test.ts` 통과.
+  - `npm run typecheck:web` 통과.
+  - `npm run typecheck:tests` 통과.
+  - `git diff --check` 통과.
+- 미검증:
+  - 운영 반영 전이므로 `/admin` 실제 고해상도 업로드 실패 문구는 아직 운영에서 재확인하지 않았다.
+
 ## 다음
 
 - 사용자 조작 후 글 제목 또는 공개 URL, 화면 결과, 실패 문구 여부를 기록한다.

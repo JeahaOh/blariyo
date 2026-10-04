@@ -195,6 +195,23 @@
   - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run test:browser:docker -- tests/browser/admin-roles.test.ts tests/browser/admin-workflow.test.ts` 통과.
   - `git diff --check` 통과.
 
+## 2026-10-04 release 로컬 인수 재검증
+
+- 기준 branch: `release`
+- 기준 HEAD: `6cee5a6 merge: record body html roadmap`
+- 범위:
+  - 문서 `M0.5 body-html` 로드맵을 release에 로컬 merge.
+  - 관리자 목록 검색 UX, 권한, 12건 반복 작성/편집/발행/숨김/재공개, 이미지 실패, 예약/취소, 레이아웃과 preview retry를 로컬에서 재검증.
+- 로컬 검증:
+  - `git diff --check` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH node --test tests/admin-render.test.ts tests/upload-errors.test.ts tests/auth-contract.test.ts` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run typecheck:web` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run typecheck:tests` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run test:browser:docker -- tests/browser/admin-roles.test.ts tests/browser/admin-workflow.test.ts` 통과.
+- 미검증:
+  - 운영 배포·운영 브라우저 확인은 아직 별도다.
+  - release push와 main PR merge는 아직 별도다.
+
 ## 다음
 
 - 사용자 조작 후 글 제목 또는 공개 URL, 화면 결과, 실패 문구 여부를 기록한다.

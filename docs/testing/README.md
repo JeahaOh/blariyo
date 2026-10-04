@@ -14,6 +14,7 @@
 | [M0 Core 케이스](core-cases.md) | 공개 조회, 권한, 게시글·이미지, 화면, 정책과 동의 30개 |
 | [수집·운영 케이스](collection-operations-cases.md) | legacy 수집·운영10개와 direct batch·queue·검수6개 |
 | [향후 게시판·익게 케이스](future-board-cases.md) | M1.5 및 선택적인 게시판 관리 기능 6개. 현재 M0 통과 조건에 포함하지 않음 |
+| [CI 실행과 검증 기록](ci.md) | 병렬 검사, PR 결과의 main 재사용 조건, 실패 시 전체 검사 경로 |
 
 추천 순서는 `PUB-02 → PUB-04 → ADM-01 → ADM-02 → IMG-03 → ADM-05 → COL-03 → OPS-02`다.
 앞부분에서 HTTP·DB 검증 방법을 익힌 뒤, 동시성·외부 실패·프로세스 복구로 넓힌다.

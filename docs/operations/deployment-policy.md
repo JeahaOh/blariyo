@@ -33,12 +33,33 @@ OS·Docker·Tunnel은 별도다. 상한의 합이 실제 사용량은 아니므�
 
 [CI workflow](../../.github/workflows/ci.yml)는 PR/main push/수동 실행에서 Node 24.18.0을 사용한다.
 Java parser를 호출하는 discovery 통합 검사를 위해 Java 25를 설정하고 `npm run test:fixtures`로
-`testClasses`·`fixtureClasspath`를 생성한다. `verify` job은 타입·lint·unit·Nest/PostgreSQL 통합·
-실제 Chromium 검증을 수행한다. 별도 `collector` job은 Java 전체·fixture·임시 PostgreSQL readback을
+`testClasses`·`fixtureClasspath`를 생성한다. 2026-10-04 변경부터 `quality`(계약·타입·lint·unit),
+`integration`(Nest/PostgreSQL), `browser`(Chromium), `collector`를 독립 runner에서 병렬 실행하고
+`verify`가 선택된 검사의 성공을 집계한다. `collector` job은 Java 전체·fixture·임시 PostgreSQL readback을
 `npm run test:collector`로 검사하고 JAR·SBOM을 빌드한다. 테스트 건너뜀·실패·결과 누락은 실패로 처리한다.
-`verify`와 `collector`가 모두 성공해야 image job을 실행한다.
+main image job은 집계 `verify`가 성공해야 실행한다. main 대상 PR은 전체 검증하며, main push에서
+동일한 PR 검증을 재사용할 때는 아래 동일성 조건을 모두 확인한다. Java 준비에는 기존 setup-java의
+Gradle 의존성 cache를 사용하되 실제 DB readback과 테스트 결과 검사는 생략하지 않는다.
 운영 DB·SSH·R2·Access secret을 CI에 넣지 않는다. PostgreSQL trust 인증은 일회성 runner의 검사 DB 전용이다.
 Actions는 전체 commit SHA로 고정하며 변경은 버전·테스트를 대조한 PR로 한다.
+
+### PR 검증과 main 이미지 게시 분리
+
+- release/hotfix→main PR에서 전체 검사 후 검증 기록을 artifact로 30일 보관한다.
+- main은 같은 저장소의 병합된 release/hotfix PR, 성공한 동일 CI workflow와 실행 회차,
+  필수 5개 job(`quality`, `integration`, `browser`, `collector`, `verify`)의 성공을 조회한다.
+- 기록의 PR head/base·병합 부모·전체 Git tree(파일 내용·경로·권한)가 실제 main merge와 모두 같아야
+  무거운 DB·브라우저·Collector 검사를 재실행하지 않는다. main 커밋 SHA와 PR 합성 merge SHA는 달라도
+  위 동일성이 성립할 수 있다. 원본 PR run과 실제 main SHA를 함께 남기며 main에서 재실행한 것으로 표시하지 않는다.
+- main에서도 빠른 계약·CI 판정 회귀·빌드·타입·lint·unit 검사는 수행하고 새 main SHA로 이미지를 게시한다.
+- 증거 없음·만료·누락·실패·서로 다른 부모/tree·API 조회 실패이면 main 전체 검사로 돌아간다.
+  PR 검사 완료 전에 병합하면 성공 증거가 없어 전체 검사를 수행한다. `workflow_dispatch`도 항상 전체 검사다.
+- main 이외 대상 PR에서는 제한된 일반 Markdown/worklog 변경만 무거운 검사를 생략한다.
+  OpenAPI·개발 명세·CI·lockfile 등은 이 예외가 아니다. main 대상 PR에는 문서 전용 예외를 적용하지 않는다.
+- [CI 실행과 검증 기록](../testing/ci.md)에 판정·권한·복구 경로와 로컬 검사 명령을 정의한다.
+
+이 변경은 검사 결과의 검증된 재사용이며 main 직접 push/CLI 병합이나 자동 운영 배포를 허용하지 않는다.
+새 workflow의 원격 성공·실제 단축 시간은 해당 실행 증거로 별도 확인한다.
 
 검사된 main만 GHCR(GitHub 이미지 저장소)에 `linux/amd64` API/Web 이미지를 게시한다.
 tag는 전체 Git SHA, 배포 식별자는 `image@sha256:...` digest다. `latest` 배포는 하지 않는다.

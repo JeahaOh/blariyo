@@ -10,55 +10,47 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  verify:
+  plan:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    services:
-      postgres:
-        image: postgres:18
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      full: ${{ steps.plan.outputs.full }}
+      reused_run: ${{ steps.plan.outputs.reused_run }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - id: plan
         env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports: ['55449:5432']
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s --health-timeout 5s --health-retries 20
-    env:
-      TEST_DATABASE_ADMIN_URL: postgresql://postgres@127.0.0.1:55449/postgres
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -B scripts/ci/validation.py plan
+
+  quality:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24.18.0
           cache: npm
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: '25'
+      # No build, Java or database is needed to catch stale contracts.
+      - run: node .githooks/check-contracts.mjs
+      - run: python3 -B -m unittest discover -s scripts/ci -p 'test_*.py'
       - run: npm ci --no-audit --no-fund
-      # Discovery integration invokes the real Java parser; build its test classpath on every checkout.
-      - run: npm run test:fixtures
-      # Scripts/tests import generated API dist modules; build before checking them.
       - run: npm run build && npm run build:test -w @blariyo/api
       - run: npm run typecheck:scripts && npm run lint:scripts && npm run typecheck:tests && npm run lint:tests
       - run: npm run typecheck:web
       - run: npm test
-      # Integration fixtures use the macOS-compatible /private/tmp prefix.
-      - run: sudo install -d -m 1777 /private/tmp
-      # Full dump/restore verification runs separately; keep every push/PR CI focused on application checks.
-      - run: node scripts/test-nest-integration.ts --exclude-schema-restore
-      - run: npx playwright install --with-deps chromium
-      - run: node --test --test-concurrency=1 tests/browser/*.test.ts
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (Node 24)
-        if: always()
-        with:
-          name: browser-evidence-${{ github.sha }}
-          path: |
-            test-results/m0-browser/
-            test-results/admin-core/
-          retention-days: 7
-          if-no-files-found: ignore
 
-  collector:
+  integration:
+    needs: plan
+    if: needs.plan.outputs.full == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
@@ -82,6 +74,89 @@ jobs:
         with:
           distribution: temurin
           java-version: '25'
+          cache: gradle
+          cache-dependency-path: |
+            apps/collector/*.gradle.kts
+            apps/collector/gradle.lockfile
+            apps/collector/gradle/wrapper/gradle-wrapper.properties
+      - run: npm ci --no-audit --no-fund
+      # Discovery integration invokes the real Java parser.
+      - run: npm run test:fixtures
+      # BFF and sitemap integration tests also start the compiled Web server.
+      - run: npm run build && npm run build:test -w @blariyo/api
+      - run: sudo install -d -m 1777 /private/tmp
+      # Full dump/restore still runs in the daily/manual backup workflow.
+      - run: node scripts/test-nest-integration.ts --exclude-schema-restore
+
+  browser:
+    needs: plan
+    if: needs.plan.outputs.full == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['55449:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_ADMIN_URL: postgresql://postgres@127.0.0.1:55449/postgres
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.18.0
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: sudo install -d -m 1777 /private/tmp
+      - run: npx playwright install --with-deps chromium
+      # Keep real-time scheduling tests and file-level isolation intact.
+      - run: node --test --test-concurrency=1 tests/browser/*.test.ts
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (Node 24)
+        if: always()
+        with:
+          name: browser-evidence-${{ github.sha }}
+          path: |
+            test-results/m0-browser/
+            test-results/admin-core/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  collector:
+    needs: plan
+    if: needs.plan.outputs.full == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['55449:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_ADMIN_URL: postgresql://postgres@127.0.0.1:55449/postgres
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.18.0
+          cache: npm
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: gradle
+          cache-dependency-path: |
+            apps/collector/*.gradle.kts
+            apps/collector/gradle.lockfile
+            apps/collector/gradle/wrapper/gradle-wrapper.properties
       - run: npm ci --no-audit --no-fund
       # Full Java suite, including fixture and real disposable PostgreSQL readback; skips fail the job.
       - run: npm run test:collector
@@ -105,9 +180,36 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+  verify:
+    needs: [plan, quality, integration, browser, collector]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 2
+      - name: Require all selected checks
+        env:
+          CI_NEEDS: ${{ toJSON(needs) }}
+        run: python3 -B scripts/ci/validation.py gate
+      - name: Record full PR verification
+        if: github.event_name == 'pull_request' && needs.plan.outputs.full == 'true'
+        env:
+          CI_NEEDS: ${{ toJSON(needs) }}
+          RECEIPT: ${{ runner.temp }}/ci-verification.json
+        run: python3 -B scripts/ci/validation.py receipt "$RECEIPT"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (Node 24)
+        if: github.event_name == 'pull_request' && needs.plan.outputs.full == 'true'
+        with:
+          name: ci-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ci-verification.json
+          retention-days: 30
+          if-no-files-found: error
+
   images:
-    needs: [verify, collector]
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: verify
+    if: ${{ !cancelled() && needs.verify.result == 'success' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:

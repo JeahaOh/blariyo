@@ -19,8 +19,13 @@
 
 ## 파일
 
-맥 복구키(내용을 출력하지 않는다):
-`/Users/zeaha/task_list/.blariyo-recovery/postgres-age-identity.txt`
+맥 복구키(2026-10-04 실제 위치 확인, 내용을 출력하지 않는다):
+
+- 프로젝트 루트 기준: `worklog/task-list/.blariyo-recovery/postgres-age-identity.txt`
+- 현재 절대경로: `/Volumes/MicroVault/iCloudDrive/git/private/blariyo/worklog/task-list/.blariyo-recovery/postgres-age-identity.txt`
+
+기존 `/Users/zeaha/task_list/.blariyo-recovery/postgres-age-identity.txt` 경로 대신 위 위치를 사용한다.
+프로젝트 폴더 안에 있지만 Git 추적 대상은 아니며, 새 clone에 자동으로 포함되지 않는다.
 
 부모 폴더 700·파일 600, Git 제외 파일을 함께 둔다. **이 키를 잃으면 R2 암호화 백업을 복호화할 수 없다.**
 사용자가 별도 암호 관리자나 안전한 오프라인 저장소에도 보관해야 한다. 채팅·Git에 붙여 넣지 않는다.

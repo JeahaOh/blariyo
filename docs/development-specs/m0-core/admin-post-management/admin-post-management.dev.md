@@ -43,6 +43,8 @@
 - 수집 후보·출처 화면/API, 회원·사용자 작성, 광고
 - 정책 시행 command, 물리 row 삭제, 권리 문의 form/API
 - R2 account·bucket·custom domain 실값 확정과 infrastructure 생성
+- `M0.5 body-html` 저장 구조 전환. 현행 M0 Core는 `TEXT/IMAGE` block 계약을 유지하고,
+  수집 검수 block을 게시글 `body_html` 단일 본문으로 변환하는 작업은 별도 migration/API/UI 변경으로 진행한다.
 
 ## 5. 요구사항 추적표
 
@@ -105,6 +107,10 @@
 - 기본 슬롯·임의 시각·scheduler 복구와 재시도는 [예약 발행 관리](#d01-schedule-post)를 따른다.
 - 실제 관리자 allowlist·provider·R2 설정의 준비·배포 기록은 [운영 현황](../../../operations/current-status.md)을 따른다. 비공개 값을 이 문서에 복사하지 않는다. 실제 운영자 MFA와 전체 권리 처리 인수는 별도다.
 - 새 구현과 검증 범위는 [현재 준비 상태](../../../system-design/README.md#현재-준비-상태)를 따른다. 이 명세 전체의 구현·test·runtime 완료를 뜻하지 않는다.
+- 후속 `M0.5 body-html`에서는 수집 원문·검수 block은 유지하되 게시글 저장·공개·관리자 편집 계약을
+  `body_html` 단일 본문과 image reference 검증으로 바꾼다. 목표 계약과 미확정 항목은
+  [데이터 모델 §M0.5 본문 HTML 저장 구조 전환 목표](../../../system-design/02-data-model.md#m05-본문-html-저장-구조-전환-목표)와
+  [로드맵 §M0.5](../../../roadmap.md#45-m05--게시글-본문-html-저장-구조-전환)를 따른다.
 
 ## 12. 기능 계약 상세
 

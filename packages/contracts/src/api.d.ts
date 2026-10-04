@@ -958,8 +958,13 @@ export interface operations {
             query?: {
                 status?: components["schemas"]["PostStatus"];
                 board?: components["schemas"]["BoardSlug"];
+                title?: string;
+                publishedDate?: string;
+                /** @deprecated */
                 titlePrefix?: string;
+                /** @deprecated */
                 from?: string;
+                /** @deprecated */
                 to?: string;
                 page?: components["parameters"]["Page"];
             };

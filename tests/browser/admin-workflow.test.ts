@@ -33,7 +33,12 @@ await test(
         !!document.querySelector('#__nuxt') && '__vue_app__' in document.querySelector('#__nuxt')!
     );
     const button = (name: string) => page.getByRole('button', { name, exact: true });
-    const title = page.getByLabel('제목', { exact: true });
+    const title = page.getByRole('group', { name: '게시글 내용' }).getByLabel('제목', {
+      exact: true,
+    });
+    const searchTitle = page
+      .getByRole('complementary', { name: '게시글 검색 목록' })
+      .getByLabel('제목', { exact: true });
     const feedback = page.locator('main > [role="status"]').first();
     async function command(name: string, confirm = false) {
       if (confirm) page.once('dialog', (d) => d.accept());
@@ -194,10 +199,10 @@ await test(
     await t.test(
       'filters, empty, errors, permissions, version conflict and input preservation',
       async () => {
-        await page.getByLabel('제목 앞부분', { exact: true }).fill('없는 글');
+        await searchTitle.fill('없는 글');
         await button('검색').click();
         await expect(page.getByText('검색 결과가 없습니다.', { exact: false })).toBeVisible();
-        await page.getByLabel('제목 앞부분', { exact: true }).fill('반복 검증 01');
+        await searchTitle.fill('검증 01');
         await page.locator('aside').getByLabel('상태', { exact: true }).selectOption('PUBLISHED');
         await page.locator('aside').getByLabel('게시판', { exact: true }).selectOption('meme');
         await button('검색').click();
@@ -278,7 +283,7 @@ await test(
       }
     );
     await t.test('320/390/768/1280 layout, mobile return and preview retry', async () => {
-      await page.getByLabel('제목 앞부분', { exact: true }).fill('');
+      await searchTitle.fill('');
       await button('검색').click();
       await expect(page.locator('.admin-result')).toHaveCount(12);
       await page.locator(`[data-post-id="${ids[1]}"]`).click();

@@ -48,7 +48,9 @@ export interface PostRecord {
 export interface PostSearch {
   status?: string;
   board?: string;
+  title?: string;
   titlePrefix?: string;
+  publishedDate?: string;
   from?: string;
   to?: string;
   page?: string;

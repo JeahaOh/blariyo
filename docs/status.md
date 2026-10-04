@@ -133,3 +133,7 @@
 ## M0 기존 설계 보완 — 2026-09-26
 
 M0-D01~D06의 보존/삭제·Web mailbox·Drive 백업·역할·출처 편입 계약을 [인계표](implementation-tasks/README.md#m0-design-handoff)로 연결했다. [문서 검증](../worklog/2026-09-26/m0-design-completion/README.md)과 구현/운영 증거를 구분한다. 9월26일 설계 단계에서는 애플리케이션 source·migration·실행 계약 사본을 변경하지 않았다. 이후9월27일의 미커밋 구현·검증과 집계는 이 문서 상단을 따른다. 출처 편입 확정을 입증하는 증거는 현재 없고, 17개 로컬 성공 이력도 운영 통과가 아니다. 독립적인 UX 작업은 병행할 수 있다.
+
+## M0.5 body-html 후속 결정 — 2026-10-04
+
+운영 게시글 저장 구조를 `TEXT/IMAGE block`에서 `body_html` 단일 본문과 image reference 검증으로 전환하는 후속 작업을 [로드맵](roadmap.md#45-m05--게시글-본문-html-저장-구조-전환)에 등록했다. 수집 원문·검수 화면은 block 단위 보관·표시를 유지하고, 검수 승인 또는 수동 작성 저장 시점에만 게시글 HTML로 변환하는 방향이다. 이 항목은 구현·migration·배포 완료가 아니며, 현행 M0 운영 인수 release에는 적용하지 않는다.

@@ -123,7 +123,107 @@
 - 미검증:
   - 운영 반영 전이므로 `/admin` 실제 고해상도 업로드 실패 문구는 아직 운영에서 재확인하지 않았다.
 
+## 2026-10-03 14:00 KST 운영 반영
+
+- main SHA: `b2a74352709693f17dd3a318d9ad185ba53d4d31`
+- release: `/opt/blariyo/application/release-b2a7435-main-nightly-20261003T045949Z`
+- API image: `ghcr.io/jeahaoh/blariyo-api@sha256:e488add277205b968ea6c3efeb9885ce1eeb7dd0d2292c2316332481a7f698f9`
+- Web image: `ghcr.io/jeahaoh/blariyo-web@sha256:2ef7f1840c520dc1b0f2a21c7afc04cf6d54baf46bdc58cee06251e7f151b93d`
+- 배포 방식: 서버 `blariyo-nightly-main-deploy.service` 수동 1회 실행.
+- 이전 release: `/opt/blariyo/application/release-31be83b-main-nightly-20261003T034353Z`
+- 확인:
+  - API/Web container `running healthy`
+  - `/health/live` 200
+  - `/meme` 200
+  - `blariyo-publish.timer`, `blariyo-outbox.timer`, `blariyo-cleanup.timer`, `blariyo-nightly-main-deploy.timer` active/enabled
+  - local annotated tag 생성: `prod/2026-10-03-1400-KST-b2a7435`
+- 미검증:
+  - 운영자 브라우저에서 고해상도 이미지 실패 문구 표시 여부.
+  - 관리자 글 번호 표시·복사 버튼의 실제 사용성.
+  - 예약 입력 UX의 실제 운영자 수용.
+  - tag push.
+
+## 2026-10-04 운영자 재확인과 UI 후속
+
+- 운영자 확인:
+  - 관리자 로그인 성공.
+  - 글 번호 표시와 `글 번호 복사` 확인 완료.
+  - 작은 이미지 업로드 정상.
+  - 예약 버튼 동작 확인.
+  - 예약 취소 동작 확인.
+- 잔여/개선 요청:
+  - `게시글 찾기` 문구를 `게시글 목록`으로 변경.
+  - 게시글 목록과 게시글 편집 영역은 데스크톱에서 별도 scroll로 동작해야 한다.
+  - 큰 이미지 실패 문구 위치가 부적절하다.
+  - 큰 이미지 업로드 시 브라우저 console에 `POST /api/v1/admin/images 413`이 표시된다. 413 자체는 서버 제한 응답으로 예상 가능하나, 화면 피드백 위치를 개선한다.
+  - 이미지 대체 텍스트 미입력 시 업로드 순서대로 `이미지 1`, `이미지 2`, ...를 자동 등록한다.
+- 로컬 수정:
+  - 브랜치: `feature/admin-acceptance-ui-followups`
+  - 업로드된 이미지의 기본 alt를 `이미지 N`으로 설정.
+  - 업로드 실패 안내를 이미지 추가 control 바로 아래로 이동.
+  - 데스크톱 관리자 layout에서 목록/편집 영역을 독립 scroll로 변경.
+  - 목록 제목을 `게시글 목록`으로 변경.
+
+## 2026-10-04 운영자 목록 검색 UX 후속
+
+- 운영자 확인:
+  - 게시글 목록 문구 확인 완료.
+  - 게시글 목록과 게시글 편집 영역의 별도 scroll 확인 완료.
+  - 이미지 실패 문구 위치 확인 완료.
+  - 예약 flow 확인 완료.
+- 잔여/개선 요청:
+  - 게시글 목록의 날짜 선택도 key-in 없이 browser date picker가 떠야 한다.
+  - `수정 시작`, `수정 종료`는 운영자 관점에서 불명확하다.
+  - 목록 검색 날짜는 게시일 1개로 충분하다.
+  - 제목 검색은 앞부분 일치가 아니라 `%검색어%` 포함 검색이어야 한다.
+- 로컬 수정:
+  - 브랜치: `feature/admin-list-search-ux`
+  - 목록 검색 label을 `제목`, `게시일`로 단순화.
+  - 게시일 input을 `type="date"`로 변경하고 클릭/포커스 시 `showPicker()`를 호출.
+  - 관리자 화면 검색 요청을 `title`, `publishedDate` query로 변경.
+  - API 검색은 `title`을 `LIKE '%검색어%'`로 조회하고, `publishedDate`는 KST 하루 범위의 `published_at`으로 조회.
+  - 기존 `titlePrefix`, `from`, `to` query는 deprecated 호환 경로로 유지.
+- 로컬 검증:
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run contracts:generate` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH node --test tests/admin-render.test.ts tests/upload-errors.test.ts tests/auth-contract.test.ts` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run typecheck:web` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run typecheck:tests` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run build -w @blariyo/api` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run build -w @blariyo/web` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run build:test -w @blariyo/api` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH TEST_DATABASE_ADMIN_URL=postgresql://blariyo_local@127.0.0.1:5439/postgres node scripts/test-nest-integration.ts apps/api/dist-test/admin-http.integration.test.js` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run test:browser:docker -- tests/browser/admin-roles.test.ts tests/browser/admin-workflow.test.ts` 통과.
+  - `git diff --check` 통과.
+
+## 2026-10-04 release 로컬 인수 재검증
+
+- 기준 branch: `release`
+- 기준 HEAD: `6cee5a6 merge: record body html roadmap`
+- 범위:
+  - 문서 `M0.5 body-html` 로드맵을 release에 로컬 merge.
+  - 관리자 목록 검색 UX, 권한, 12건 반복 작성/편집/발행/숨김/재공개, 이미지 실패, 예약/취소, 레이아웃과 preview retry를 로컬에서 재검증.
+- 로컬 검증:
+  - `git diff --check` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH node --test tests/admin-render.test.ts tests/upload-errors.test.ts tests/auth-contract.test.ts` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run typecheck:web` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run typecheck:tests` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run test:browser:docker -- tests/browser/admin-roles.test.ts tests/browser/admin-workflow.test.ts` 통과.
+- 미검증:
+  - 운영 배포·운영 브라우저 확인은 아직 별도다.
+  - release push와 main PR merge는 아직 별도다.
+
+## 2026-10-04 운영자 로컬 수동 확인
+
+- 기준 branch: `release`
+- 운영자 확인:
+  - 게시일 date picker 확인 완료.
+  - 제목 포함 검색 결과 확인 완료.
+  - 게시글 목록과 편집 영역의 별도 scroll 확인 완료.
+  - 이미지 실패 문구 위치 확인 완료.
+- 판정:
+  - 로컬 인수 범위의 관리자 목록 검색 UX와 이미지 실패 안내는 통과.
+  - 운영 배포·운영 브라우저 재확인은 아직 별도.
+
 ## 다음
 
-- 사용자 조작 후 글 제목 또는 공개 URL, 화면 결과, 실패 문구 여부를 기록한다.
-- 각 조작 뒤 운영 DB/API를 읽기 전용으로 재조회해 저장 상태와 공개 상태를 확인한다.
+- release push, main PR merge, 운영 배포와 운영 브라우저 재확인을 별도 승인 후 진행한다.

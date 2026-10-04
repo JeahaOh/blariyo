@@ -72,10 +72,9 @@ async function backToList() {
   (target || document.querySelector<HTMLElement>('#new-draft'))?.focus();
 }
 const status = ref(''),
-  titlePrefix = ref(''),
+  titleQuery = ref(''),
   board = ref(''),
-  from = ref(''),
-  to = ref(''),
+  publishedDate = ref(''),
   page = ref(1),
   busy = ref(false),
   message = ref(''),
@@ -191,14 +190,12 @@ async function searchPosts(n = 1) {
   searchRetryPage.value = n;
   searchError.value = '';
   try {
-    if (from.value && to.value && from.value > to.value) throw new Error('DATE_RANGE');
     const result = await $fetch<ApiResponse<'searchAdminPosts'>>('/api/v1/admin/posts', {
       query: {
         ...(status.value ? { status: status.value } : {}),
         ...(board.value ? { board: board.value } : {}),
-        ...(titlePrefix.value.trim() ? { titlePrefix: titlePrefix.value.trim() } : {}),
-        ...(from.value ? { from: new Date(from.value + '+09:00').toISOString() } : {}),
-        ...(to.value ? { to: new Date(to.value + '+09:00').toISOString() } : {}),
+        ...(titleQuery.value.trim() ? { title: titleQuery.value.trim() } : {}),
+        ...(publishedDate.value ? { publishedDate: publishedDate.value } : {}),
         page: n,
       },
       retry: 0,
@@ -208,7 +205,7 @@ async function searchPosts(n = 1) {
   } catch (e) {
     searchError.value = failureMessage(
       e,
-      '목록을 불러오지 못했습니다. 검색 조건과 수정일 범위를 확인하고 다시 시도해 주세요.'
+      '목록을 불러오지 못했습니다. 검색 조건과 게시일을 확인하고 다시 시도해 주세요.'
     );
   } finally {
     searchBusy.value = false;
@@ -400,8 +397,13 @@ async function upload(event: Event) {
       body: form,
       retry: 0,
     });
+    const nextImageNumber = editor.value.blocks.filter((b) => b.type === 'IMAGE').length + 1;
     editor.value.blocks.push(
-      ...result.data.items.map((i) => ({ ...i, type: 'IMAGE' as const, alt: '' }))
+      ...result.data.items.map((i, index) => ({
+        ...i,
+        type: 'IMAGE' as const,
+        alt: `이미지 ${nextImageNumber + index}`,
+      }))
     );
   } catch (e) {
     const failure = uploadError(apiError(e), files);
@@ -496,14 +498,9 @@ onBeforeRouteLeave(
       내 입력은 그대로 보존되어 있습니다. 필요한 내용을 복사한 뒤 ‘최신 내용 확인’을 선택하세요.
       변경을 버리기 전 다시 확인합니다.
     </p>
-    <ul v-if="uploadErrors.length" role="alert" aria-live="assertive" class="upload-errors">
-      <li v-for="failure in uploadErrors" :key="failure.index">
-        {{ failure.name }}: {{ failure.reason }}
-      </li>
-    </ul>
     <div class="admin-layout" :class="{ 'editing-mobile': mobileEditor }">
       <aside aria-label="게시글 검색 목록" :aria-busy="searchBusy">
-        <h2>게시글 찾기</h2>
+        <h2>게시글 목록</h2>
         <form @submit.prevent="searchPosts()">
           <label
             >상태<select v-model="status" aria-label="상태">
@@ -517,9 +514,14 @@ onBeforeRouteLeave(
               <option value="">전체</option>
               <option v-for="b in boards?.data.items" :value="b.slug">{{ b.displayName }}</option>
             </select></label
-          ><label>제목 앞부분<input v-model="titlePrefix" maxlength="100" /></label
-          ><label>수정 시작 (KST)<input type="datetime-local" v-model="from" /></label
-          ><label>수정 종료 (KST)<input type="datetime-local" v-model="to" /></label
+          ><label>제목<input v-model="titleQuery" maxlength="100" /></label
+          ><label
+            >게시일<input
+              type="date"
+              v-model="publishedDate"
+              @click="openDateTimePicker"
+              @focus="openDateTimePicker"
+          /></label>
           ><button :disabled="searchBusy">{{ searchBusy ? '검색 중…' : '검색' }}</button
           ><button id="new-draft" type="button" @click="newDraft" :disabled="locked">
             새 초안
@@ -726,6 +728,11 @@ onBeforeRouteLeave(
               accept="image/jpeg,image/png,image/webp,image/gif"
               multiple
               @change="upload" /></label
+          ><ul v-if="uploadErrors.length" role="alert" aria-live="assertive" class="upload-errors">
+            <li v-for="failure in uploadErrors" :key="failure.index">
+              {{ failure.name }}: {{ failure.reason }}
+            </li>
+          </ul>
           ><button class="primary" @click="save">
             {{ editor.postId ? '수정 저장' : '초안 생성' }}
           </button>
@@ -797,6 +804,9 @@ onBeforeRouteLeave(
   display: grid;
   grid-template-columns: minmax(230px, 0.8fr) minmax(0, 1.7fr);
   gap: 24px;
+  align-items: start;
+  height: calc(100vh - 140px);
+  min-height: 520px;
 }
 .admin-result {
   display: block;
@@ -873,6 +883,8 @@ section {
   border: 1px solid var(--line);
   border-radius: 8px;
   min-width: 0;
+  max-height: 100%;
+  overflow: auto;
 }
 label {
   display: block;
@@ -943,8 +955,14 @@ small,
   .mobile-back {
     display: inline-flex;
   }
+  .admin-layout {
+    height: auto;
+    min-height: 0;
+  }
   aside,
   section {
+    max-height: none;
+    overflow: visible;
     padding: 12px;
   }
 }

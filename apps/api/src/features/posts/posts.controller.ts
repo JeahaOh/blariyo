@@ -13,7 +13,9 @@ export class PostsController {
     const result = await this.service.search({
       status: stringField(input.query, 'status'),
       board: stringField(input.query, 'board'),
+      title: stringField(input.query, 'title'),
       titlePrefix: stringField(input.query, 'titlePrefix'),
+      publishedDate: stringField(input.query, 'publishedDate'),
       from: stringField(input.query, 'from'),
       to: stringField(input.query, 'to'),
       page: stringField(input.query, 'page', '1'),

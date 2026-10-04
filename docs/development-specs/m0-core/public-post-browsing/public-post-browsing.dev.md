@@ -656,6 +656,8 @@ empty·error 문구는 화면 설계를 사용한다. 홈 `<title>`은 `블라�
 - 단독 X·YouTube·TikTok·Instagram URL의 공식 임베드와 실패 시 원문 링크·안내 표시는
   [화면 설계의 본문 규칙](../../../planning/03-screen-design.md#본문과-이미지)을 따른다.
   저장된 TEXT/IMAGE API 응답을 표시 계층에서 묶으며 원문 DB를 변경하지 않는다.
+- 후속 `M0.5 body-html`에서는 수집 검수 block은 유지하되 공개 게시글 응답·SSR 렌더링을
+  `body_html` 단일 본문 기준으로 전환한다. 현행 M0 운영 인수 중에는 이 변경을 적용하지 않는다.
 - 출처는 본문 뒤 1회, name 전체가 HTTPS link이며 없으면 영역을 생략한다.
 - 현재 하단 행은 `aria-current="true"`, link와 tab stop이 없다.
 - 정상 상세의 SSR 첫 HTML은 다음 metadata를 게시글별로 넣는다.

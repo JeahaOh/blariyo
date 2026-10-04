@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-09-30",
+  "asOf": "2026-10-04",
   "specifications": [
     "docs/system-design/07-spring-collector-design.md",
     "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
@@ -14,13 +14,13 @@
     },
     "packages/contracts/openapi/m0-core.yaml": {
       "baselineSha256": "d3744e62c7a4ce714d7b34be2b9c22f864794ba445e72153423f75706877de60",
-      "sha256": "9f07638132c59c70192597cb8271846f9c6fa74b961c0beffa2c326f64180b4d",
-      "reason": "Direct batch review/draft contracts plus analytics-v1 public content key. Canonical specifications are the source. Adds analyticsContentKey to public list and detail responses for GA4 events without SQL migration changes."
+      "sha256": "05db1929e823ed17b45b3942af3cd3c6d1c98ea85b85991adde83c2c2a3ea74c",
+      "reason": "Direct batch review/draft contracts plus analytics-v1 public content key. Canonical specifications are the source. Adds analyticsContentKey to public list and detail responses for GA4 events without SQL migration changes. Admin list search UX (2026-10-04): adds title substring search and publishedDate KST calendar-day filtering; retains titlePrefix/from/to as deprecated compatibility parameters. Regenerated contracts follow the canonical admin-post-management and M0 Core OpenAPI specifications; no SQL migration changes."
     },
     "packages/contracts/src/api.d.ts": {
       "baselineSha256": "3e34875319f128bc3c8a60735c4042e6c2fdf2566039ee051cc37c190bd1927e",
-      "sha256": "340389a1f9f4b3f9cb4d177581d29626353418b014100641be5788c25bc11ddf",
-      "reason": "Direct batch review/draft contracts plus analytics-v1 public content key. Canonical specifications are the source. Adds analyticsContentKey to public list and detail responses for GA4 events without SQL migration changes."
+      "sha256": "0d1fdc1b96c46dfaf06c94aaa444fec298df08d2639cfbe6df97436da81e48be",
+      "reason": "Direct batch review/draft contracts plus analytics-v1 public content key. Canonical specifications are the source. Adds analyticsContentKey to public list and detail responses for GA4 events without SQL migration changes. Admin list search UX (2026-10-04): adds title substring search and publishedDate KST calendar-day filtering; retains titlePrefix/from/to as deprecated compatibility parameters. Regenerated contracts follow the canonical admin-post-management and M0 Core OpenAPI specifications; no SQL migration changes."
     },
     "packages/contracts/src/collection-api.d.ts": {
       "baselineSha256": "03dcac61af757e7d58f52fd02b79e80b5a0cd4cdf1eadcb134fc50eb4930b1f5",
@@ -29,8 +29,8 @@
     },
     "packages/contracts/src/schema.mjs": {
       "baselineSha256": "e43249c0dc4d11da8ef9c00b9c5f97a35b644f8bced633134493b9e15aedc8c4",
-      "sha256": "d21573ae8c8ce39575210d829c2b775135cd1f6532d179ac3025d4e05d738298",
-      "reason": "Combined analytics-v1 public analyticsContentKey and M0 D01 retention/410 guards, D02 Web mailbox create/get/retry/runtime contracts. Canonical specifications are the source; existing applied migration checksums remain unchanged."
+      "sha256": "95f2f9fffc22946a4f9670c3b7d0ac0ee5d0f7cba66bc83a75723817e248569e",
+      "reason": "Combined analytics-v1 public analyticsContentKey and M0 D01 retention/410 guards, D02 Web mailbox create/get/retry/runtime contracts. Canonical specifications are the source; existing applied migration checksums remain unchanged. Admin list search UX (2026-10-04): adds title substring search and publishedDate KST calendar-day filtering; retains titlePrefix/from/to as deprecated compatibility parameters. Regenerated contracts follow the canonical admin-post-management and M0 Core OpenAPI specifications; no SQL migration changes."
     }
   },
   "addedMigrations": {

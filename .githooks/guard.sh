@@ -1,4 +1,12 @@
-# Shared by the installed hooks. Requires only POSIX sh and Git.
+# Branch guards require POSIX sh and Git; contract checks also require Node.js.
+guard_contracts() {
+    # No npm dependencies or TS loader: this works with the Node on Git's PATH.
+    if ! command -v node >/dev/null 2>&1; then
+        guard_deny '계약 검사에 Node.js가 필요합니다. Git 실행 환경의 PATH를 확인하세요.'
+    fi
+    node "$(dirname "$0")/check-contracts.mjs"
+}
+
 guard_deny() {
     printf '%s\n' "[git-guard] $*" >&2
     exit 1

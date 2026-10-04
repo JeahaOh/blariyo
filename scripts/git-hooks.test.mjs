@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
@@ -7,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 const project = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const hookNames = ['pre-commit', 'pre-merge-commit', 'pre-push', 'guard.sh'];
+const hookNames = ['pre-commit', 'pre-merge-commit', 'pre-push', 'guard.sh', 'check-contracts.mjs'];
 
 function fixture(t, { install = true } = {}) {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'blariyo git guards-'));
@@ -180,4 +181,110 @@ test('installer preserves existing custom hooksPath and default executable hooks
   chmodSync(existing, 0o755);
   assert.notEqual(f.installer('install').status, 0);
   assert.equal(readFileSync(existing, 'utf8'), '#!/bin/sh\nexit 0\n');
+});
+
+function contracts(f) {
+  const write = (file, content) => {
+    mkdirSync(path.dirname(path.join(f.repo, file)), { recursive: true });
+    writeFileSync(path.join(f.repo, file), content);
+  };
+  const hash = value => createHash('sha256').update(value).digest('hex');
+  const file = 'packages/contracts/openapi/m0-core.yaml';
+  const canonical = 'docs/development-specs/m0-core/openapi/m0-core.yaml';
+  const evolutionPath = 'docs/migration/contract-evolution.json';
+  const baseline = { files: {} };
+  for (const name of ['m0-core', 'm0-collection-assist']) {
+    const packaged = `packages/contracts/openapi/${name}.yaml`;
+    write(packaged, 'original\n');
+    write(`docs/development-specs/${name}/openapi/${name}.yaml`, 'original\n');
+    baseline.files[packaged] = hash('original\n');
+  }
+  for (let i = 1; i <= 14; i++) {
+    const sql = `apps/api/migrations/V${String(i).padStart(3, '0')}__fixture.sql`;
+    write(sql, 'SELECT 1;\n');
+    baseline.files[sql] = hash('SELECT 1;\n');
+  }
+  const evolution = { amendedContracts: {}, addedMigrations: {} };
+  write('docs/migration/contract-baseline.json', JSON.stringify(baseline));
+  write(evolutionPath, JSON.stringify(evolution));
+  f.git('add', 'docs', 'packages', 'apps');
+  f.git('commit', '-qm', 'valid contract baseline');
+  const repair = () => {
+    evolution.amendedContracts[file] = { baselineSha256: baseline.files[file], sha256: hash('updated\n'), reason: 'Approved fixture contract evolution with canonical specification.' };
+    write(evolutionPath, JSON.stringify(evolution));
+  };
+  return { write, file, canonical, evolutionPath, repair };
+}
+
+test('commit checks the index: unstaged repair cannot hide stale contract hashes', (t) => {
+  const f = fixture(t);
+  const c = contracts(f);
+  c.write(c.file, 'updated\n');
+  c.write(c.canonical, 'updated\n');
+  f.git('add', c.file, c.canonical);
+  const before = f.git('rev-parse', 'HEAD');
+  f.deny(['commit', '-qm', 'stale hash'], /contract SHA-256 mismatch/);
+  c.repair();
+  f.deny(['commit', '-qm', 'unstaged repair'], /contract SHA-256 mismatch/);
+  assert.equal(f.git('rev-parse', 'HEAD'), before);
+  f.git('add', c.evolutionPath);
+  // Unstaged work is intentionally different; the valid staged snapshot wins.
+  c.write(c.file, 'uncommitted further edit\n');
+  f.git('commit', '-qm', 'registered contract evolution');
+  assert.equal(f.git('show', `HEAD:${c.file}`), 'updated');
+});
+
+test('commit rejects canonical drift even when the registered hash matches', (t) => {
+  const f = fixture(t);
+  const c = contracts(f);
+  c.write(c.file, 'updated\n');
+  c.repair();
+  f.git('add', c.file, c.evolutionPath);
+  f.deny(['commit', '-qm', 'canonical drift'], /canonical OpenAPI mismatch/);
+});
+
+test('commit rejects SQL mutation, unregistered migration and manifest deletion', (t) => {
+  const f = fixture(t);
+  const c = contracts(f);
+  const sql = 'apps/api/migrations/V001__fixture.sql';
+  c.write(sql, 'SELECT 2;\n');
+  f.git('add', sql);
+  f.deny(['commit', '-qm', 'mutated SQL'], /contract SHA-256 mismatch/);
+  c.write(sql, 'SELECT 1;\n');
+  f.git('add', sql);
+  c.write('apps/api/migrations/V015__new.sql', 'SELECT 1;\n');
+  f.git('add', 'apps/api/migrations/V015__new.sql');
+  f.deny(['commit', '-qm', 'missing registration'], /migration inventory mismatch/);
+  f.git('rm', '--cached', 'apps/api/migrations/V015__new.sql');
+  f.git('rm', 'docs/migration/contract-baseline.json', c.evolutionPath);
+  f.deny(['commit', '-qm', 'delete manifests'], /contract manifest deleted/);
+});
+
+test('merge hooks accept valid integration and reject an invalid staged resolution', (t) => {
+  const f = fixture(t);
+  const c = contracts(f);
+  // Build two valid branch tips, then check both merge completion paths.
+  f.git('branch', 'feature/other-contract');
+  c.write(c.file, 'updated\n');
+  c.write(c.canonical, 'updated\n');
+  c.repair();
+  f.git('add', c.file, c.canonical, c.evolutionPath);
+  f.git('commit', '-qm', 'first valid evolution');
+  f.git('switch', 'feature/other-contract');
+  c.write('note.txt', 'other branch\n');
+  f.git('add', 'note.txt');
+  f.git('commit', '-qm', 'other work');
+  f.git('switch', 'release');
+  f.git('merge', '--no-ff', 'feature/test', '-m', 'valid integration');
+  // Exercise the installed pre-merge-commit directly with a deliberately
+  // inconsistent merge index, without making any invalid fixture commit.
+  f.git('merge', '--no-ff', '--no-commit', 'feature/other-contract');
+  c.write(c.file, 'unregistered merge resolution\n');
+  f.git('add', c.file);
+  const before = f.git('rev-parse', 'HEAD');
+  const result = f.run('sh', [path.join(f.repo, '.git/blariyo-hooks/pre-merge-commit')]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /contract SHA-256 mismatch/);
+  f.deny(['commit', '-qm', 'bad merge resolution'], /contract SHA-256 mismatch/);
+  assert.equal(f.git('rev-parse', 'HEAD'), before);
 });

@@ -37,3 +37,15 @@
 - 최초 DB 통합 실행은 Collector 재컴파일과 병행 중 Java fixture 시작 실패. 재컴파일 후 fixture 진입이 정상임을 확인했으며, Collector 완료 후 전체 재검증한다.
 - 사용자 메시지로 중단된 최초 Collector 실행은 완료 증거가 없다(`RUNNING`). 소유 프로세스가 남지 않았음을 조회하고 재실행했다. 통과로 집계하지 않는다.
 - 로그: `/private/tmp/blariyo-contract-*.log` (임시 실행 산출물). 최종 결과와 자원 정리는 후속 절에 기록한다.
+
+## 2. 커밋 전 계약 검사
+
+- 1번 수정 commit: `0f8a37a` (`fix(contracts): register admin search contract evolution`). 실제 commit에서 설치 hook의 stage 검사 통과.
+- `.githooks/check-contracts.mjs`: npm 의존성 없이 Git index를 읽어 해시·변경 사유·migration 목록·정본 일치를 검사한다. 기존 추적 manifest 삭제·누락·충돌·비정규 파일도 차단한다.
+- `pre-commit`, `pre-merge-commit`에서 기존 브랜치 보호 후 검사한다. `pre-push` 정책은 유지한다.
+- installer/check 대상에 검사 파일을 포함하고 현재 clone에 `hooks:install` 후 `hooks:check` 통과. linked worktree는 기존 공통 hooksPath를 공유한다.
+- 임시 저장소에서 실제 commit/push/merge 회귀 16/16 통과. 해시 누락·unstaged 수정·정본 불일치·SQL 변경·미등록 migration·manifest 삭제·병합 index 불일치를 검증했다.
+- 실제 저장소는 별도 임시 index로 수정 전 거부와 수정 후 허용을 확인했다. 실제 index는 이 검증으로 변경하지 않았다. 기본 PATH의 Node 20과 프로젝트 Node 24.18.0에서 검사 실행을 확인했다.
+- `npm test`에 hook 테스트를 포함해 CI에서도 기존 35개와 합산 51/51 통과.
+- 문서 상대 링크, `git diff --check`, Node 구문 및 shell 구문 검사 통과.
+- 이 hook은 빠른 계약 검사다. 전체 단위·DB·Java·브라우저 테스트를 매 commit마다 실행하지 않으며, GitHub 웹 병합은 로컬 hook 보호 범위 밖이다.

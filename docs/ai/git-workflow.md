@@ -70,7 +70,7 @@ main ──분기──> hotfix-<주제영역>
   [GitHub 보호 브랜치 지원 범위](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 - 로컬 hook은 Git 명령 실행 시 실수를 차단하고, AI 공통 지침은 작업 범위·병합 방향·웹 GUI 사용을 규정한다.
   웹에서 main PR을 병합할 때 같은 저장소의 release 또는 hotfix-*인지, 후보 SHA의 필요한 검증이 끝났는지 확인한다.
-- 현재 hook은 작업 기록 내용·사용자 승인·전체 변경 범위·제품 테스트 결과를 자동 판정하지 않는다.
+- 현재 hook은 stage된 계약·migration 해시와 OpenAPI 정본 일치를 검사한다. 작업 기록 내용·사용자 승인·전체 변경 범위·제품 테스트 결과를 자동 판정하지 않는다.
   이 항목은 작업자와 병합 담당자가 확인한다. hook 통과를 commit·push 권한으로 해석하지 않는다.
 - 추가 CI는 필요할 때 별도 요청으로 구성한다. 기존 workflow는 이번에 삭제하거나 수정하지 않는다.
   CI가 실행되면 대상 SHA·실행 여부·결과를 확인하며, 검사 실행을 원격 병합 강제 차단과 혼동하지 않는다.
@@ -92,18 +92,33 @@ npm run test:git-hooks
 - 다른 `core.hooksPath`나 기존 실행 hook이 있으면 자동 덮어쓰지 않고 중단한다. 담당·통합 방법을 확인한다.
 - hook source를 수정하거나 새 변경을 받은 뒤 `hooks:check`가 설치본 차이를 보고하면 내용을 검토하고
   `hooks:install`로 다시 설치한다. 설치는 반복 실행할 수 있으며 다른 clone에는 자동 전파되지 않는다.
-- 설치·테스트에는 Node.js가 필요하고, 설치된 hook 실행에는 Git과 POSIX sh만 필요하다. npm 의존성 설치는 필요 없다.
+- 설치·테스트와 commit/merge 계약 검사에는 Node.js가 필요하다. 프로젝트 검증은 Node 24.18.0을 사용한다.
+  브랜치·push 보호는 Git과 POSIX sh를 사용하며, 계약 검사도 Node 내장 모듈만 사용해 npm 의존성 설치가 필요 없다.
+  GUI Git에서도 Node가 PATH에 있어야 한다. 찾지 못하면 안내와 함께 commit/merge를 중단한다.
 
 | hook | 차단 | 허용 |
 | --- | --- | --- |
-| `pre-commit` | main 직접 commit, release 일반 commit | feature·hotfix commit, MERGE_HEAD가 있는 release 병합 완료 commit |
-| `pre-merge-commit` | main의 로컬 merge commit | release 통합 등 main 이외의 merge commit |
+| `pre-commit` | main 직접 commit, release 일반 commit, stage된 계약·migration·OpenAPI 불일치 | 계약 검사를 통과한 feature·hotfix commit, MERGE_HEAD가 있는 release 병합 완료 commit |
+| `pre-merge-commit` | main의 로컬 merge commit, 병합 index의 계약·migration·OpenAPI 불일치 | 계약 검사를 통과한 release 통합 등 main 이외의 merge commit |
 | `pre-push` | 원격 main 생성·수정·삭제, release 삭제·이력 재작성 | release의 기존 이력을 포함하는 push, release 최초 생성, 일반 feature·hotfix push |
 
 pre-push는 현재 브랜치 이름이 아닌 **Git이 제공한 실제 목적지 ref**를 검사한다. `HEAD:main`, 다른 원격 이름,
 여러 ref를 보내는 push에도 적용한다. release의 원격 기준 커밋이 로컬에 없으면 자동 fetch하지 않고 중단한다.
 해당 원격을 fetch하고 변경·병합 상태를 확인한 뒤 다시 실행한다. `--force` 여부 자체가 아니라 이전 원격 커밋의
 이력을 포함하는지를 판정하므로, 실제 이력을 지우는 `--force-with-lease`도 차단한다.
+
+### 커밋 전 계약 검사
+
+- 설치본의 [`check-contracts.mjs`](../../.githooks/check-contracts.mjs)가 **Git index(stage된 파일)**를 읽는다.
+  작업 파일만 고치고 `git add`를 누락하면 통과하지 않는다. 부분 stage와 병합 완료에도 같은 기준을 적용한다.
+- `contract-baseline.json`과 `contract-evolution.json`에 등록한 파일의 SHA-256, 변경 사유·기준 해시,
+  API/Collector migration 목록, packaged OpenAPI와 정본의 일치를 검사한다. 해시를 자동 갱신하지 않는다.
+- 계약 변경 시 정본·생성 결과를 먼저 검토한 뒤 `docs/migration/contract-evolution.json`의 변경 해시·사유·날짜를
+  갱신하고 관련 파일을 함께 stage한다. 이미 적용된 SQL migration을 수정하거나 baseline을 현재 값으로 덮어쓰지 않는다.
+- 계약 추적이 도입되기 전의 브랜치는 양쪽 manifest가 index와 HEAD 모두에 없을 때만 검사 대상이 아니다.
+  현행 브랜치에서 manifest를 삭제하거나 파일이 누락·충돌·잘못된 JSON 상태이면 중단한다.
+- 이 검사는 DB·Java·브라우저를 기동하지 않는다. 전체 `npm test`, 빌드·타입·DB 통합·브라우저·Collector 검증은
+  별도로 수행하고 결과를 기록한다. 로컬 계약 검사 통과가 전체 CI 통과를 대신하지 않는다.
 
 ### 한계
 

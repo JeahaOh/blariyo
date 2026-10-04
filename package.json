@@ -12,6 +12,7 @@
   "scripts": {
     "hooks:install": "node scripts/git-hooks.mjs install",
     "hooks:check": "node scripts/git-hooks.mjs check",
+    "test:ci": "python3 -B -m unittest discover -s scripts/ci -p 'test_*.py'",
     "test:git-hooks": "node --test scripts/git-hooks.test.mjs",
     "dev:web": "npm run dev -w @blariyo/web",
     "dev:api": "npm run dev -w @blariyo/api",

@@ -20,7 +20,7 @@ await test(
     await page.goto(fixture.origin + '/admin');
     await page.waitForFunction(() => '__vue_app__' in document.querySelector('#__nuxt')!);
     const button = (name: string) => page.getByRole('button', { name, exact: true });
-    const title = page.getByLabel('제목', { exact: true });
+    const title = page.getByRole('group', { name: '게시글 내용' }).getByLabel('제목', { exact: true });
     const feedback = page.locator('main > [role="status"]').first();
     for (const loss of ['response', 'detail']) {
       for (const denial of [401, 403]) {

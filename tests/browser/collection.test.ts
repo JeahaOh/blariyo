@@ -147,7 +147,7 @@ await test(
     await expect(page.getByRole('button', { name: '검수 완료 · 초안 만들기' })).toBeEnabled();
     await page.getByRole('button', { name: '검수 완료 · 초안 만들기' }).click();
     await page.waitForURL(/\/admin\?postId=/);
-    await expect(page.getByLabel('제목', { exact: true })).toHaveValue('브라우저 검수 후보');
+    await expect(page.getByRole('group', { name: '게시글 내용' }).getByLabel('제목', { exact: true })).toHaveValue('브라우저 검수 후보');
     assert.equal(
       firstRow(await f.pool.query('SELECT status FROM collect.candidate')).status,
       'APPROVED'

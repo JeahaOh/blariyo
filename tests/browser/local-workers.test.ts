@@ -49,7 +49,7 @@ await test(
       .toBuffer();
     async function create(title: string) {
       await button('새 초안').click();
-      await page.getByLabel('제목', { exact: true }).fill(title);
+      await page.getByRole('group', { name: '게시글 내용' }).getByLabel('제목', { exact: true }).fill(title);
       await page.getByLabel('본문 1', { exact: true }).fill(title + ' 본문');
       await page
         .getByLabel('이미지 추가', { exact: true })

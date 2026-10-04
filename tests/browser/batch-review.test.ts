@@ -333,7 +333,7 @@ await test(
           '/admin?postId=' + String(row.post_id) + '&batchItemId=' + item.id
         );
         await link.click();
-        await expect(page.getByLabel('제목', { exact: true })).toHaveValue('검수 후 선택 초안');
+        await expect(page.getByRole('group', { name: '게시글 내용' }).getByLabel('제목', { exact: true })).toHaveValue('검수 후 선택 초안');
         await expect(page.getByLabel('본문 1', { exact: true })).toHaveValue('검수용 원문 첫 문단');
         assert.equal(
           (

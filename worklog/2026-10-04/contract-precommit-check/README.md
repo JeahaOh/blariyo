@@ -4,8 +4,8 @@
 - 작업 폴더: `/Volumes/MicroVault/iCloudDrive/git/private/blariyo`
 - 브랜치: `feature/contract-precommit-check`
 - 기준: `release@c0ffd55` (시작 시 tracked/untracked 변경 없음)
-- 상태: 진행
-- 갱신: 2026-10-04 KST
+- 상태: 종료
+- 갱신: 2026-10-04 15:01 KST
 
 ## 요청과 범위
 
@@ -49,3 +49,41 @@
 - `npm test`에 hook 테스트를 포함해 CI에서도 기존 35개와 합산 51/51 통과.
 - 문서 상대 링크, `git diff --check`, Node 구문 및 shell 구문 검사 통과.
 - 이 hook은 빠른 계약 검사다. 전체 단위·DB·Java·브라우저 테스트를 매 commit마다 실행하지 않으며, GitHub 웹 병합은 로컬 hook 보호 범위 밖이다.
+
+
+## 3. 브라우저 테스트 보완과 전체 검증
+
+- 2번 검사 도입 commit: `3e1a489` (`feat(hooks): validate staged contracts before commit and merge`). 실제 commit의 stage 검사 통과.
+- 제목 검색 label 변경에 맞춰 admin-recovery·batch-review·collection·core·local-workers 5파일에서 편집 제목을 `게시글 내용` group으로 한정했다.
+- Core 테스트는 `d7edd18`의 업로드 대체 텍스트 기본값을 고려해 필수 입력 검사 직전에 값을 명시적으로 비웠다. 명세 `blocks[].alt` trim 1~300과 기존 오류 assertion은 유지했다.
+- 중간 전체 브라우저 재검증에서 위 기본값 가정으로 실패한 2개 하위 검사(부모 포함 3실패)는 기록으로 보존한다. 후속 GTM 횟수 실패는 앞선 발행/공개 탐색 중단에 따른 것이며 횟수 기대값을 바꾸지 않았다. Core 단독 최종 6/6 통과 후 전체 브라우저 재실행 중이다.
+- Collector 최종 289/289, 실패·오류·skip 0. 실제 DB readback 18건 포함. `bootJar fixtureClasspath` 통과.
+- DB 통합 최종 30파일 129/129, 실패·skip 0. `--exclude-schema-restore` 없이 전체 실행했고 스키마·기존 ledger/data·PostgreSQL dump/restore 34개 테이블/시퀀스 검증을 포함했다.
+- 테스트 전용 PostgreSQL 컨테이너 `24f95d800a0e`는 최종 DB 검증 후 종료·자동 제거했다. 중단된 최초 Collector의 일회용 DB도 해당 전용 컨테이너에만 존재했다. 기존 개발 PostgreSQL은 유지했다.
+- 검사 범위: CI verify·collector의 로컬 대응 + API service 단위 + 별도 스키마 복원 + 백업 도구. Docker 배포 이미지 publish, 별도 Spring 프로세스 장애 매트릭스, 운영 외부 연동·수동 수용은 이 실행 범위에 포함하지 않는다.
+
+
+## 최종 결과
+
+- 최종 브라우저: 54/54 통과, 실패·skip 0, 약253초. 실제 예약 발행·취소·재시도·재시작·worker 중복 소유 방지를 포함한다.
+- 검증 기준: `3e1a489` + 이 commit의 브라우저 테스트 5파일 수정. 앱·계약·hook 코드는 앞선 검증 이후 변경하지 않았다.
+
+| 검사 | 결과 |
+| --- | --- |
+| 전체 `npm test` | 51/51 (기존35 + hook16) |
+| API service 단위 | 35/35 |
+| API DB 통합 전체 | 30파일 129/129, schema restore 포함 |
+| Chromium 브라우저 전체 | 54/54 |
+| Collector | 80 suites 289/289, DB readback18 포함, skip0 |
+| 백업 도구 | Node17/17 + Python3/3 |
+| fixture·API/Web·API test·Collector JAR build | 통과 |
+| scripts/tests/API/Web 타입 및 해당 lint | 통과 |
+| 설치 hook 검사·실제 commit stage 검사 | 통과 |
+| 변경 문서 상대 링크·Node/sh 구문·diff whitespace | 통과 |
+
+- 명령/로그 대응: `test:fixtures`→`/private/tmp/blariyo-contract-fixtures.log`, `build`와 API `build:test`→`build.log`, 정적 검사·`npm test`·API service→`static-unit.log` (각 파일명 앞에 같은 `blariyo-contract-` prefix).
+- `test:collector`·`bootJar fixtureClasspath`→`collector-final.log`, `node scripts/test-nest-integration.ts`→`integration-final.log`, `test:browser:docker`→`browser-complete.log`, `test:backup`→`backup.log` (동일 prefix).
+- Node24.18.0, Homebrew OpenJDK25, PostgreSQL18, 설치된 Playwright 버전에 맞는 Docker Chromium으로 실행했다. CI의 새 Ubuntu runner 및 Windows 검증으로 해석하지 않는다.
+- 브라우저 runner가 생성한 Playwright 컨테이너를 자체 정리했다. 전용 PostgreSQL도 제거했으며 기존 개발 DB 컨테이너는 유지했다.
+- 이 기록과 브라우저 테스트 변경을 세 번째 단위 `test(browser): scope editor fields and exercise empty alt validation`로 commit한다. 결과 commit SHA는 Git 이력으로 확인한다.
+- push·release 병합·GitHub Actions 재실행·운영 배포는 미실행이다.

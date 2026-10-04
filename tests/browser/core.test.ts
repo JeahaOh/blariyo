@@ -64,7 +64,7 @@ await test(
       return root !== null && '__vue_app__' in root && !!root.__vue_app__;
     });
     const input = page.getByLabel('이미지 추가', { exact: true });
-    const title = page.getByLabel('제목', { exact: true });
+    const title = page.getByRole('group', { name: '게시글 내용' }).getByLabel('제목', { exact: true });
     const feedback = page.locator('main > [role="status"]').first();
     async function upload(files: Parameters<typeof input.setInputFiles>[0], status: number) {
       const response = page.waitForResponse(
@@ -131,6 +131,9 @@ await test(
         await page.unroute('**/api/v1/admin/images', holdUpload);
         await title.fill('브라우저 이미지 발행 검증');
         await page.getByLabel('본문 1', { exact: true }).fill('브라우저에서 작성한 본문');
+        // Uploads now supply default alt text; explicitly empty it to exercise
+        // the unchanged required-field validation (trimmed length 1..300).
+        await page.getByLabel('대체 텍스트').fill('');
         await page.getByRole('button', { name: '초안 생성', exact: true }).click();
         await expect(page.getByLabel('대체 텍스트')).toHaveAttribute('aria-invalid', 'true');
         await page.getByLabel('대체 텍스트').fill('청록색 테스트 이미지');

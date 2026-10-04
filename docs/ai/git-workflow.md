@@ -36,10 +36,30 @@ main HEAD가 실제 운영 버전이라는 뜻은 아니다. 실제 배포 여�
 main에는 로컬 직접 commit·push, `gh pr merge`·병합 API·자동 병합을 사용하지 않는다.
 GUI로 실행한다는 사실도 병합 권한을 대신하지 않으며, AI의 실행 범위는 매번 받은 사용자 요청을 따른다.
 
-기본 병합 방식은 원본 커밋 관계를 유지하는 merge commit이다. 로컬 통합은 `git merge --no-ff`,
-웹 PR은 **Create a merge commit**을 사용한다. 공유 main·release 이력을 squash·rebase로 다시 쓰지 않는다.
+### 로컬 통합은 FF-only 기본
+
+2026-10-04 사용자 요청에 따라 feature→release는 `git merge --ff-only <검증한-feature-SHA>`를 기본으로 한다.
+FF(fast-forward)는 원본 커밋을 유지하면서 release가 가리키는 위치만 앞으로 옮긴다. 불필요한 병합 커밋을 추가하지 않는다.
+release가 후보 feature의 조상이 아니면 명령이 실패하며, 자동으로 merge commit 방식으로 전환하지 않는다.
+[Git merge의 FF 옵션](https://git-scm.com/docs/git-merge#Documentation/git-merge.txt---ff-only)
+
+1. 담당·병합 권한·release의 로컬/원격 기준선을 확인한다. 후보 feature에서 `git status --short` 출력이 없는지 확인한다.
+2. `npm run hooks:check`로 설치본을 확인하고, 저장소 루트에서
+   `node "$(git rev-parse --git-common-dir)/blariyo-hooks/check-contracts.mjs"`를 실행한다.
+   이 검사는 index를 읽으므로 stage/unstaged 변경이 없어야 후보 HEAD 검증으로 사용할 수 있다.
+3. 후보의 필요한 테스트 결과와 `git rev-parse HEAD`의 SHA를 기록한다. 다른 SHA의 검증 결과를 재사용하지 않는다.
+4. release로 전환한 뒤 기존 변경이 없고 기준 SHA가 그대로인지 다시 확인하고, 위에서 검증한 SHA를 `--ff-only`로 병합한다.
+   병합 후 release HEAD가 후보 SHA와 같은지 확인한다. 다른 담당이 작업 중인 폴더에서는 브랜치를 전환하지 않는다.
+5. FF 불가 시 중단하고 양쪽 변경과 담당을 확인한다. 이력 분기로 실제 병합이 필요하면 권한 범위 안에서
+   명시적인 `--no-ff` 병합과 충돌·통합 검증을 수행하고 사유를 기록한다. 공유 이력을 rebase하거나 강제 push하여 맞추지 않는다.
+
+FF는 commit을 만들지 않아 `pre-commit`·`pre-merge-commit`이 실행되지 않는다. 위 사전 검증은 필수 작업 절차이며
+hook이 FF를 자동 검사·차단한다는 뜻은 아니다. commit을 만드는 병합에는 기존 계약 검사 hook이 계속 적용된다.
+
+release/hotfix→main 웹 PR은 **Create a merge commit**을 유지한다. GitHub의 이 방식은 `--no-ff`이며,
+Rebase and merge는 원본 SHA를 그대로 옮기는 FF와 달리 SHA를 새로 만든다. 공유 main·release 이력을 squash·rebase로 다시 쓰지 않는다.
 반복 병합하는 장기 브랜치에서 squash는 이전 변경이 다음 PR에 다시 나타나거나 충돌이 반복될 수 있다.
-이 기본값은 원본 이력과 긴급 수정의 전달 관계를 확인하기 위한 선택이다. [GitHub 병합 방식](https://docs.github.com/en/pull-requests/reference/pull-request-merges)
+[GitHub 병합 방식](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/about-merge-methods-on-github)
 
 ## 긴급 수정
 

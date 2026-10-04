@@ -20,7 +20,7 @@ guard_commit() {
             ;;
         release)
             if ! test -f "$(git rev-parse --git-path MERGE_HEAD)"; then
-                guard_deny 'release 일반 commit은 금지합니다. feature에서 작성한 뒤 merge --no-ff로 통합하세요.'
+                guard_deny 'release 일반 commit은 금지합니다. feature에서 작성·검증한 뒤 merge --ff-only로 통합하세요. FF 불가 시 Git workflow의 분기 처리 절차를 따르세요.'
             fi
             ;;
     esac

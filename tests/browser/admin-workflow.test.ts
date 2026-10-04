@@ -323,12 +323,14 @@ await test(
       await page.route('**/api/v1/admin/images/*/preview*', (route) => route.abort());
       await button('최신 내용 확인').click();
       // Reloading an identical src may stay cached: explicitly invalidate the DOM src to exercise onerror.
-      await page
-        .getByAltText('업로드 미리보기')
-        .first()
-        .evaluate((img) => {
-          if (img instanceof HTMLImageElement) img.src += '?fault=1';
-        });
+      const preview = page.getByAltText('업로드 미리보기').first();
+      await preview.scrollIntoViewIfNeeded();
+      await preview.evaluate((img) => {
+        if (img instanceof HTMLImageElement) {
+          img.src += '?fault=1';
+          img.dispatchEvent(new Event('error'));
+        }
+      });
       await expect(button('이미지 다시 불러오기')).toBeVisible();
       await page.unroute('**/api/v1/admin/images/*/preview*');
       await button('이미지 다시 불러오기').click();

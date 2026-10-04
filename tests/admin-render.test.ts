@@ -92,8 +92,13 @@ await test('actual admin template renders scheduled immediate action and escaped
   assert.match(scheduled, /예약 취소/);
   assert.match(scheduled, /글 1 ·/);
   assert.match(scheduled, /글 번호 복사/);
+  assert.match(scheduled, /게시글 목록/);
+  assert.doesNotMatch(scheduled, /게시글 찾기/);
   assert.doesNotMatch(scheduled, /07:30 KST/);
-  assert.match(scheduled, /&lt;broken&gt;\.gif: 파일 크기가 10MiB/);
+  assert.match(
+    scheduled,
+    /이미지 추가[\s\S]*&lt;broken&gt;\.gif: 파일 크기가 10MiB[\s\S]*수정 저장/
+  );
   assert.match(scheduled, /role="alert"/);
   assert.doesNotMatch(await render('PUBLISHED'), />\s*즉시 발행\s*<\/button>/);
   const pending = await render('HIDDEN_REVIEW', true);

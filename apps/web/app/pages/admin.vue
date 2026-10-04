@@ -400,8 +400,13 @@ async function upload(event: Event) {
       body: form,
       retry: 0,
     });
+    const nextImageNumber = editor.value.blocks.filter((b) => b.type === 'IMAGE').length + 1;
     editor.value.blocks.push(
-      ...result.data.items.map((i) => ({ ...i, type: 'IMAGE' as const, alt: '' }))
+      ...result.data.items.map((i, index) => ({
+        ...i,
+        type: 'IMAGE' as const,
+        alt: `이미지 ${nextImageNumber + index}`,
+      }))
     );
   } catch (e) {
     const failure = uploadError(apiError(e), files);
@@ -496,14 +501,9 @@ onBeforeRouteLeave(
       내 입력은 그대로 보존되어 있습니다. 필요한 내용을 복사한 뒤 ‘최신 내용 확인’을 선택하세요.
       변경을 버리기 전 다시 확인합니다.
     </p>
-    <ul v-if="uploadErrors.length" role="alert" aria-live="assertive" class="upload-errors">
-      <li v-for="failure in uploadErrors" :key="failure.index">
-        {{ failure.name }}: {{ failure.reason }}
-      </li>
-    </ul>
     <div class="admin-layout" :class="{ 'editing-mobile': mobileEditor }">
       <aside aria-label="게시글 검색 목록" :aria-busy="searchBusy">
-        <h2>게시글 찾기</h2>
+        <h2>게시글 목록</h2>
         <form @submit.prevent="searchPosts()">
           <label
             >상태<select v-model="status" aria-label="상태">
@@ -726,6 +726,11 @@ onBeforeRouteLeave(
               accept="image/jpeg,image/png,image/webp,image/gif"
               multiple
               @change="upload" /></label
+          ><ul v-if="uploadErrors.length" role="alert" aria-live="assertive" class="upload-errors">
+            <li v-for="failure in uploadErrors" :key="failure.index">
+              {{ failure.name }}: {{ failure.reason }}
+            </li>
+          </ul>
           ><button class="primary" @click="save">
             {{ editor.postId ? '수정 저장' : '초안 생성' }}
           </button>
@@ -797,6 +802,9 @@ onBeforeRouteLeave(
   display: grid;
   grid-template-columns: minmax(230px, 0.8fr) minmax(0, 1.7fr);
   gap: 24px;
+  align-items: start;
+  height: calc(100vh - 140px);
+  min-height: 520px;
 }
 .admin-result {
   display: block;
@@ -873,6 +881,8 @@ section {
   border: 1px solid var(--line);
   border-radius: 8px;
   min-width: 0;
+  max-height: 100%;
+  overflow: auto;
 }
 label {
   display: block;
@@ -943,8 +953,14 @@ small,
   .mobile-back {
     display: inline-flex;
   }
+  .admin-layout {
+    height: auto;
+    min-height: 0;
+  }
   aside,
   section {
+    max-height: none;
+    overflow: visible;
     padding: 12px;
   }
 }

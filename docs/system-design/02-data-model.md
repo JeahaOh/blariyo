@@ -30,6 +30,26 @@ V005 receipt/quota/event, V007 discovery 설정과 direct batch/API review는 �
 모든 테이블에 같은 4개 컬럼이 있다고 가정하지 않는다. 후속 감사 정보의 충분성은 별도 수용 조건이며,
 문서 갱신을 이유로 적용된 migration의 checksum을 바꾸지 않는다.
 
+### M0.5 본문 HTML 저장 구조 전환 목표
+
+현행 M0 Core는 `content.board_post_block`의 `TEXT/IMAGE` block 구조를 사용한다. 운영 인수 중인 M0 release에는 이 구조를 유지한다. 사용자 결정으로 후속 `M0.5 body-html`에서는 운영 게시글 저장 구조를 `body_html` 단일 본문과 별도 image reference 검증으로 전환한다.
+
+목표 계약:
+
+- `collect` schema의 원문·검수 자료는 `TEXT/IMAGE/LINK` block 단위 보관을 유지한다.
+- 수집 검수 화면도 block 단위로 표시해 parser 결과, 이미지 누락, SNS·첨부 순서를 검토할 수 있게 한다.
+- 검수 승인 또는 수동 작성 저장 시점에만 게시글 본문을 허용 HTML로 변환해 `content` schema에 저장한다.
+- 저장 HTML은 sanitize된 제한 태그만 허용하며 script, style, iframe, SVG, 이벤트 속성, inline style, 임의 외부 URL fetch 지시를 금지한다.
+- 게시글 이미지는 별도 image row가 소유하고, HTML 안의 image 참조는 해당 post가 소유한 image id 또는 안정적인 내부 token으로만 표현한다.
+- 렌더링 단계가 image row를 조회해 public URL, alt, width, height를 조립한다. public object key나 signed URL을 `body_html`에 고정하지 않는다.
+- migration은 기존 `content.board_post_block`을 `body_html`로 변환하고, 읽기 호환 기간·rollback 또는 재생성 경로를 명시한다.
+
+미확정 항목:
+
+- `body_html`을 `content.board_post`에 둘지, 별도 `content.board_post_body` 테이블로 둘지.
+- HTML 내부 image 참조를 `data-image-id`로 둘지, 별도 위치 테이블로 분리할지.
+- 기존 `content.board_post_block`의 제거 시점과 운영 rollback 보존 기간.
+
 ### 공통 감사 컬럼
 
 | 논리명 | 물리명 | 타입 | 규칙 |

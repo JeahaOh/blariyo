@@ -28,6 +28,7 @@
 | 5 · P0/P1 | OPS-03/COL-04: 선택 백업·Drive 전환·보존 회수 | Drive·R2·age 복구·비운영 삭제 대상 / 사용자 | R2 선택 대체본·기존 full 처리, Drive 정기2회 성공·독립 복원·만료/알림·R2 복귀, 제한 회수와 content 사본 보호. 실제 수집 회수 활성 전 필수 |
 | 6 · P1 | COL-03/A08: 선택 출처·설정·고지 인수 | 승인된 표본/source 설정·고지 검토 | source/방식/config hash/SHA별 S1~S5·실제 운영 적용 목록, 고지 발행과 범위 내 활성화 |
 | 7 · P2 | OPS-05: Core 실제7일 관찰 | 운영 개시·담당/시작일 | 실제 날짜별 예약·알림·백업·용량·오류·권리 요청과 미해결 장애 조치 |
+| 별도 · M0.5 | BODY-HTML-01: 게시글 본문 저장 구조 전환 | M0 Core 운영 인수 후 별도 승인 / 개발자+운영자 | 수집 검수는 block 유지, 게시글 저장·공개·관리자 편집은 `body_html` 단일 본문과 이미지 참조로 전환. migration/API/UI/브라우저/rollback 증거 |
 
 문서 상태 동기화는 이번 요청에서 수행한다. 운영 인수 미완료를 앱 미구현으로 표시하지 않는다.
 CON-01 legacy는 재활성화 결정 후, COL-REANALYZE-01은 사용자 재개 지시 후에만 착수한다.
@@ -154,6 +155,34 @@ robots 금지/미확인 무요청, Crawl-delay, 재시작/KST 날짜 경계, red
 **첫 운영에서 미뤄도 되는 것:** 관리 통계 대시보드, drag-and-drop, 일괄 발행, 고급 필터, GA4/Kakao 활성화, 광고·회원, 무중단 배포, 4개 차단 출처의 우회 없는 접근 조건 대기.
 
 **미루면 안 되는 것:** 관리자 접근 통제, 원문/이미지 유실, 잘못된 공개, 숨김 실패, 데이터 역할 침범, 백업 없는 배포, 오류를 성공으로 표시하는 보고, 수집 활성화 전 robots/일일 요청 통제와 상시 수집의 보존·회수 부재.
+
+## 4.5 M0.5 — 게시글 본문 HTML 저장 구조 전환
+
+M0.5는 운영 게시글의 저장 구조를 `TEXT/IMAGE block` 배열에서 `body_html` 단일 본문과 이미지 참조 계약으로 바꾸는 별도 구조 변경이다. 현행 M0 Core 운영 인수와 release 안정화를 먼저 마감하고, 별도 승인된 migration/API/UI 작업으로 진행한다.
+
+목표 방향:
+
+- 수집 원문과 수집 검수 화면은 현행처럼 `TEXT/IMAGE/LINK` block 단위로 보관·표시한다.
+- 운영자가 수집 결과를 검토해 게시글 초안을 만들 때 block을 안전한 HTML로 변환한다.
+- 실제 게시글 저장·수정·공개 응답은 `body_html` 단일 본문을 기준으로 한다.
+- 이미지 binary와 공개/private object 상태, alt, 크기, 해시는 별도 image 테이블에서 계속 추적한다.
+- 저장 HTML에는 외부 이미지 URL이나 public object key를 직접 고정하지 않고, post 소유 image 참조를 검증해 렌더링 단계에서 public URL을 조립한다.
+
+완료 조건:
+
+- 데이터 모델에 `body_html` 저장 위치, 이미지 참조 방식, `content.board_post_block`의 전환·보존·제거 순서를 확정한다.
+- 기존 게시글의 block 데이터를 `body_html`로 변환하는 migration과 rollback 또는 읽기 호환 기간을 둔다.
+- `CreatePostRequest`, `UpdatePostRequest`, 공개 상세, 관리자 편집 상세의 OpenAPI·생성 타입·BFF/API 구현을 같은 SHA에서 정렬한다.
+- 수집 검수→초안 생성 converter가 TEXT/IMAGE/LINK block을 허용 HTML과 image reference로 변환하고, XSS sanitize·post 소유권·alt·누락 이미지 실패를 검증한다.
+- 숨김·재공개·최종 제거·object cleanup·public cache purge가 HTML 참조 기반에서도 기존 상태 전이와 같은 결과를 보인다.
+- 기존 public SSR, OG description, 본문 도달 analytics, 광고 위치 후보가 `body_html` 기준으로 재검증된다.
+- 운영 배포 전 기존 게시글 readback, 공개 HTML, 관리자 편집, 수집 승격, 브라우저 회귀와 DB rollback rehearsal 증거를 남긴다.
+
+범위 밖:
+
+- 수집 raw HTML을 공개 게시글에 그대로 저장하거나 렌더링하지 않는다.
+- 수집 검수 전 block 구조를 폐기하지 않는다.
+- M0 Core 운영 인수 중인 release에 끼워 넣어 배포하지 않는다.
 
 ## 5. 추가로 확정할 항목
 

@@ -5,7 +5,7 @@ import { constants } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const files = ['pre-commit', 'pre-merge-commit', 'pre-push', 'guard.sh'];
+const files = ['pre-commit', 'pre-merge-commit', 'pre-push', 'guard.sh', 'check-contracts.mjs'];
 const marker = 'blariyo-local-git-guards-v1\n';
 const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const git = (...args) => execFileSync('git', args, { cwd: sourceRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();

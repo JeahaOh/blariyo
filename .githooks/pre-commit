@@ -2,3 +2,4 @@
 set -eu
 . "$(dirname "$0")/guard.sh"
 guard_commit
+guard_contracts

@@ -72,10 +72,9 @@ async function backToList() {
   (target || document.querySelector<HTMLElement>('#new-draft'))?.focus();
 }
 const status = ref(''),
-  titlePrefix = ref(''),
+  titleQuery = ref(''),
   board = ref(''),
-  from = ref(''),
-  to = ref(''),
+  publishedDate = ref(''),
   page = ref(1),
   busy = ref(false),
   message = ref(''),
@@ -191,14 +190,12 @@ async function searchPosts(n = 1) {
   searchRetryPage.value = n;
   searchError.value = '';
   try {
-    if (from.value && to.value && from.value > to.value) throw new Error('DATE_RANGE');
     const result = await $fetch<ApiResponse<'searchAdminPosts'>>('/api/v1/admin/posts', {
       query: {
         ...(status.value ? { status: status.value } : {}),
         ...(board.value ? { board: board.value } : {}),
-        ...(titlePrefix.value.trim() ? { titlePrefix: titlePrefix.value.trim() } : {}),
-        ...(from.value ? { from: new Date(from.value + '+09:00').toISOString() } : {}),
-        ...(to.value ? { to: new Date(to.value + '+09:00').toISOString() } : {}),
+        ...(titleQuery.value.trim() ? { title: titleQuery.value.trim() } : {}),
+        ...(publishedDate.value ? { publishedDate: publishedDate.value } : {}),
         page: n,
       },
       retry: 0,
@@ -208,7 +205,7 @@ async function searchPosts(n = 1) {
   } catch (e) {
     searchError.value = failureMessage(
       e,
-      '목록을 불러오지 못했습니다. 검색 조건과 수정일 범위를 확인하고 다시 시도해 주세요.'
+      '목록을 불러오지 못했습니다. 검색 조건과 게시일을 확인하고 다시 시도해 주세요.'
     );
   } finally {
     searchBusy.value = false;
@@ -517,9 +514,14 @@ onBeforeRouteLeave(
               <option value="">전체</option>
               <option v-for="b in boards?.data.items" :value="b.slug">{{ b.displayName }}</option>
             </select></label
-          ><label>제목 앞부분<input v-model="titlePrefix" maxlength="100" /></label
-          ><label>수정 시작 (KST)<input type="datetime-local" v-model="from" /></label
-          ><label>수정 종료 (KST)<input type="datetime-local" v-model="to" /></label
+          ><label>제목<input v-model="titleQuery" maxlength="100" /></label
+          ><label
+            >게시일<input
+              type="date"
+              v-model="publishedDate"
+              @click="openDateTimePicker"
+              @focus="openDateTimePicker"
+          /></label>
           ><button :disabled="searchBusy">{{ searchBusy ? '검색 중…' : '검색' }}</button
           ><button id="new-draft" type="button" @click="newDraft" :disabled="locked">
             새 초안

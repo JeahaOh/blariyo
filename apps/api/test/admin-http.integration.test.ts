@@ -183,6 +183,16 @@ await test('original administrator transactions, storage and scheduler with stri
     const visible = await request(`/boards/meme/posts/${post.postId}`);
     assert.equal(visible.status, 200);
     await visible.body?.cancel();
+    assert.ok(firstPublished);
+    const publishedDate = new Date(
+      new Date(firstPublished).getTime() + 9 * 3600000
+    ).toISOString().slice(0, 10);
+    const searched = await contractSuccess(
+      'searchAdminPosts',
+      await request(`/admin/posts?title=${encodeURIComponent('초안')}&publishedDate=${publishedDate}`)
+    );
+    assert.equal(searched.data.items.length, 1);
+    assert.equal(searched.data.items[0]?.postId, post.postId);
     const hidden = await call('hide', { reasonCode: 'RIGHTS_EMAIL' });
     assert.equal(hidden.status, 200);
     post = (await contractSuccess('hidePost', hidden, 'POST')).data;

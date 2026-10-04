@@ -164,6 +164,37 @@
   - 데스크톱 관리자 layout에서 목록/편집 영역을 독립 scroll로 변경.
   - 목록 제목을 `게시글 목록`으로 변경.
 
+## 2026-10-04 운영자 목록 검색 UX 후속
+
+- 운영자 확인:
+  - 게시글 목록 문구 확인 완료.
+  - 게시글 목록과 게시글 편집 영역의 별도 scroll 확인 완료.
+  - 이미지 실패 문구 위치 확인 완료.
+  - 예약 flow 확인 완료.
+- 잔여/개선 요청:
+  - 게시글 목록의 날짜 선택도 key-in 없이 browser date picker가 떠야 한다.
+  - `수정 시작`, `수정 종료`는 운영자 관점에서 불명확하다.
+  - 목록 검색 날짜는 게시일 1개로 충분하다.
+  - 제목 검색은 앞부분 일치가 아니라 `%검색어%` 포함 검색이어야 한다.
+- 로컬 수정:
+  - 브랜치: `feature/admin-list-search-ux`
+  - 목록 검색 label을 `제목`, `게시일`로 단순화.
+  - 게시일 input을 `type="date"`로 변경하고 클릭/포커스 시 `showPicker()`를 호출.
+  - 관리자 화면 검색 요청을 `title`, `publishedDate` query로 변경.
+  - API 검색은 `title`을 `LIKE '%검색어%'`로 조회하고, `publishedDate`는 KST 하루 범위의 `published_at`으로 조회.
+  - 기존 `titlePrefix`, `from`, `to` query는 deprecated 호환 경로로 유지.
+- 로컬 검증:
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run contracts:generate` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH node --test tests/admin-render.test.ts tests/upload-errors.test.ts tests/auth-contract.test.ts` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run typecheck:web` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run typecheck:tests` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run build -w @blariyo/api` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run build -w @blariyo/web` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run build:test -w @blariyo/api` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH TEST_DATABASE_ADMIN_URL=postgresql://blariyo_local@127.0.0.1:5439/postgres node scripts/test-nest-integration.ts apps/api/dist-test/admin-http.integration.test.js` 통과.
+  - `PATH=/Users/zeaha/.nvm/versions/node/v24.18.0/bin:$PATH npm run test:browser:docker -- tests/browser/admin-roles.test.ts tests/browser/admin-workflow.test.ts` 통과.
+  - `git diff --check` 통과.
+
 ## 다음
 
 - 사용자 조작 후 글 제목 또는 공개 URL, 화면 결과, 실패 문구 여부를 기록한다.

@@ -328,6 +328,8 @@ export class PostsService {
   async search(query: PostSearch) {
     if (query.from && query.to && new Date(query.from) > new Date(query.to))
       fail(400, 'VALIDATION_FAILED');
+    if (query.publishedDate && !/^\d{4}-\d{2}-\d{2}$/.test(query.publishedDate))
+      fail(400, 'VALIDATION_FAILED');
     const result = await this.repository.search(query);
     return { items: result.items, meta: pagination(Number(query.page || 1), result.total, 50) };
   }

@@ -47,6 +47,11 @@ function mapPost(row: ContentBoardPostEntity, slug: string): PostRecord {
     updatedAt: row.updated_at,
   };
 }
+const escapeLike = (value: string) => value.trim().replace(/[\\%_]/g, '\\$&');
+const kstDayBounds = (value: string) => {
+  const start = new Date(`${value}T00:00:00+09:00`);
+  return { start: start.toISOString(), end: new Date(+start + 86400000).toISOString() };
+};
 @Injectable()
 export class TypeOrmPostsRepository extends PostsRepository {
   constructor(@Inject(DatabaseContext) private readonly db: DatabaseContext) {
@@ -117,12 +122,19 @@ export class TypeOrmPostsRepository extends PostsRepository {
       .innerJoin(ContentBoardEntity, 'b', 'b.id = p.board_id');
     if (query.status) builder.andWhere('p.status = :status', { status: query.status });
     if (query.board) builder.andWhere('b.slug = :board', { board: query.board });
-    if (query.titlePrefix)
-      builder.andWhere("p.title LIKE :prefix ESCAPE '\\'", {
-        prefix: query.titlePrefix.trim().replace(/[\\%_]/g, '\\$&') + '%',
+    const title = query.title || query.titlePrefix;
+    if (title)
+      builder.andWhere("p.title LIKE :title ESCAPE '\\'", {
+        title: `%${escapeLike(title)}%`,
       });
-    if (query.from) builder.andWhere('p.updated_at >= :from', { from: query.from });
-    if (query.to) builder.andWhere('p.updated_at <= :to', { to: query.to });
+    if (query.publishedDate) {
+      const bounds = kstDayBounds(query.publishedDate);
+      builder.andWhere('p.published_at >= :publishedFrom', { publishedFrom: bounds.start });
+      builder.andWhere('p.published_at < :publishedTo', { publishedTo: bounds.end });
+    } else {
+      if (query.from) builder.andWhere('p.updated_at >= :from', { from: query.from });
+      if (query.to) builder.andWhere('p.updated_at <= :to', { to: query.to });
+    }
     const total = await builder.getCount();
     const result = await builder
       .orderBy('p.updated_at', 'DESC')

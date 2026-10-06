@@ -36,9 +36,16 @@ public final class OrderedContentParser {
 
   public JsonNode extract(byte[] html, URI uri, String bodySelector, String titleSelector, String version) {
     try {
+      return extract(Jsoup.parse(new java.io.ByteArrayInputStream(html), null, uri.toString()), uri, bodySelector, titleSelector, version);
+    } catch (CollectorFailure e) { throw e; }
+    catch (Exception e) { throw failed(); }
+  }
+
+  /** Reuse an already decoded DOM without reinterpreting stale source charset declarations. */
+  public JsonNode extract(Document document, URI uri, String bodySelector, String titleSelector, String version) {
+    try {
       blocks.clear(); images.clear(); attachments.clear(); attachmentUrls.clear(); pending.setLength(0);
       base = uri;
-      var document = Jsoup.parse(new java.io.ByteArrayInputStream(html), null, uri.toString());
       var articles = document.select(bodySelector);
       if (articles.size() != 1) throw failed();
       var og = document.selectFirst(titleSelector);

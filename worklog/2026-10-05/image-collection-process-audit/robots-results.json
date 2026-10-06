@@ -1,0 +1,50 @@
+[
+  {
+    "source": "arcalive",
+    "host": "ac.arca.live",
+    "status": 403,
+    "contentType": "text/plain;charset=UTF-8",
+    "bytes": 13,
+    "rulesValid": false
+  },
+  {
+    "source": "bobaedream",
+    "host": "file1.bobaedream.co.kr",
+    "status": 404,
+    "contentType": "text/html; charset=iso-8859-1",
+    "bytes": 208,
+    "rulesValid": false
+  },
+  {
+    "source": "humoruniv",
+    "host": "down-webp.humoruniv.com",
+    "status": 404,
+    "contentType": "text/html; charset=iso-8859-1",
+    "bytes": 13,
+    "rulesValid": false
+  },
+  {
+    "source": "goodgag",
+    "host": "cdn.goodgag.net",
+    "status": 404,
+    "contentType": "text/html",
+    "bytes": 27511,
+    "rulesValid": false
+  },
+  {
+    "source": "instiz",
+    "host": "cdn.instiz.net",
+    "status": 404,
+    "contentType": "text/html",
+    "bytes": 27150,
+    "rulesValid": false
+  },
+  {
+    "source": "yuldo",
+    "host": "img.yul-do.com",
+    "status": 404,
+    "contentType": "text/html",
+    "bytes": 146,
+    "rulesValid": false
+  }
+]

@@ -1,0 +1,6 @@
+{"outcome":"ROBOTS_UNVERIFIED","requests":["/robots.txt"],"case":"robots404"}
+{"outcome":"ROBOTS_UNVERIFIED","requests":["/robots.txt"],"case":"robots200Empty"}
+{"outcome":"ROBOTS_UNVERIFIED","requests":["/robots.txt"],"case":"robots200CommentsOnly"}
+{"outcome":"OK","requests":["/robots.txt","/a.png"],"case":"robots200Allow"}
+{"outcome":"ROBOTS_UNVERIFIED","requests":["/robots.txt"],"case":"robotsRedirectSameHost"}
+{"case":"429RetryAfter3600","errors":["SOURCE_RATE_LIMITED"],"imageRequests":2,"gapMillis":10000,"requiredMillis":3600000}

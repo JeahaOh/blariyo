@@ -353,14 +353,15 @@ await test('batch-owned objects pass through API review and draft before separat
 
   await t.test('combined source/state/review filters count and paginate unreviewed rows consistently', async () => {
     const filterRun = randomUUID(), ids: string[] = [];
+    const nonReviewableStates = ['FAILED','BLOCKED','DISCOVERED','FETCHING','SKIPPED_DUPLICATE','SKIPPED_POLICY'];
     await pool.query("INSERT INTO collect.batch_source(source_key,host,policy_version) VALUES('filter-fixture','filter.invalid','fixture-v1')");
     await pool.query("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,interval_ms) VALUES($1,'filter-fixture','hot','WRITE_DB','COMPLETED',1,30,10000)", [filterRun]);
-    for (let index = 0; index < 23; index++) {
+    for (let index = 0; index < 22 + nonReviewableStates.length; index++) {
       const id = randomUUID(), url = `https://filter.invalid/${id}`;
       ids.push(id);
-      await pool.query(`INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,version)
-        VALUES($1::uuid,$2,'filter-fixture',$1::text,$3,$4,$5,'필터 표본',$6,1)`,
-      [id,filterRun,url,createHash('sha256').update(url).digest(),index === 22 ? 'FAILED' : 'FETCHED',JSON.stringify([{type:'TEXT',text:'filter fixture'}])]);
+      await pool.query(`INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,version,skip_reason)
+        VALUES($1::uuid,$2,'filter-fixture',$1::text,$3,$4,$5::text,'필터 표본',$6,1,CASE WHEN $5::text='SKIPPED_POLICY' THEN 'SOURCE_OUTSIDE_WINDOW' END)`,
+      [id,filterRun,url,createHash('sha256').update(url).digest(),nonReviewableStates[index - 22] ?? 'FETCHED',JSON.stringify([{type:'TEXT',text:'filter fixture'}])]);
     }
     const reviewed = '/admin/collect/batch-items/' + ids[0];
     await status(request(reviewed+'/review',await decision(reviewed,'REJECTED')),200);
@@ -373,8 +374,17 @@ await test('batch-owned objects pass through API review and draft before separat
     assert.ok([...first.items,...second.items].every(item=>item.sourceKey==='filter-fixture'&&item.state==='FETCHED'&&item.review.status==='UNREVIEWED'));
     const rejected = (await contractSuccess('listBatchItems',await request(query.replace('UNREVIEWED','REJECTED')))).data;
     assert.equal(rejected.totalItems,1);assert.equal(rejected.items[0]?.itemId,ids[0]);
-    const failed = (await contractSuccess('listBatchItems',await request(query.replace('FETCHED','FAILED')))).data;
-    assert.equal(failed.totalItems,1);assert.equal(failed.items[0]?.itemId,ids[22]);
+    const waiting = (await contractSuccess('listBatchItems',await request(query.replace('&state=FETCHED','')))).data;
+    assert.equal(waiting.totalItems,21);assert.equal(waiting.totalPages,2);
+    assert.ok(waiting.items.every(item=>item.state==='FETCHED'));
+    const all = (await contractSuccess('listBatchItems',await request('/admin/collect/batch-items?source=filter-fixture'))).data;
+    assert.equal(all.totalItems,28);
+    for (const [index,state] of nonReviewableStates.entries()) {
+      const conflict = (await contractSuccess('listBatchItems',await request(query.replace('FETCHED',state)))).data;
+      assert.equal(conflict.totalItems,0,state);assert.deepEqual(conflict.items,[],state);
+      const diagnostic = (await contractSuccess('listBatchItems',await request(query.replace('FETCHED',state).replace('&reviewStatus=UNREVIEWED','')))).data;
+      assert.equal(diagnostic.totalItems,1,state);assert.equal(diagnostic.items[0]?.itemId,ids[22+index],state);
+    }
     const empty = (await contractSuccess('listBatchItems',await request(query.replace('UNREVIEWED','APPROVED')))).data;
     assert.equal(empty.totalItems,0);assert.equal(empty.totalPages,1);assert.deepEqual(empty.items,[]);
     await status(request('/admin/collect/batch-items?state=INVALID'),400);

@@ -681,7 +681,13 @@ await test(
         await page.getByLabel('수집 상태', { exact: true }).selectOption('FAILED');
         await page.getByLabel('검수 상태', { exact: true }).selectOption('UNREVIEWED');
         await button('조회').click();
+        await expect(button('조회')).toBeEnabled();
+        await expect(page.locator('.batch-list li')).toHaveCount(0);
+        await expect(page.getByText('조건에 맞는 수집 결과가 없습니다.')).toBeVisible();
+        await page.getByLabel('검수 상태', { exact: true }).selectOption('');
+        await button('조회').click();
         await expect(page.locator('.batch-list li')).toHaveCount(20);
+        await expect(page.locator('.batch-list li').first()).toContainText('검수 대상 아님');
         const pagination = page.getByRole('navigation', { name: '수집 결과 페이지' });
         await expect(pagination).toContainText('1 / 2');
         await page.getByLabel('수집 상태', { exact: true }).selectOption('FETCHED');

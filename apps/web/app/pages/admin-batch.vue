@@ -648,7 +648,7 @@ useUiLoading(() => busy.value || listLoading.value);
               </button>
               <span
                 >{{ sourceName(item.sourceKey) }} ·
-                {{ collectionLabels[item.state] || item.state }} · {{ labels[item.review.status]
+                {{ collectionLabels[item.state] || item.state }} · {{ item.state === 'FETCHED' ? labels[item.review.status] : '검수 대상 아님'
                 }}{{ item.review.postId ? ` · 게시글 ${item.review.postId}` : '' }}</span
               >
             </li>
@@ -673,15 +673,15 @@ useUiLoading(() => busy.value || listLoading.value);
           <template v-if="selected">
             <div class="batch-panel-heading">
               <span>원문 및 검수</span
-              ><small>{{ sourceName(selected.sourceKey) }} · {{ labels[selected.review.status] }}</small>
+              ><small>{{ sourceName(selected.sourceKey) }} · {{ selected.state === 'FETCHED' ? labels[selected.review.status] : '검수 대상 아님' }}</small>
             </div>
             <div class="batch-detail">
               <h2 tabindex="-1">{{ draftTitle(selected.title || '', selected.sourceKey) || '제목을 가져오지 못한 글' }}</h2>
               <p>
                 {{ collectionLabels[selected.state] || selected.state }} ·
-                {{ labels[selected.review.status] }}
+                {{ selected.state === 'FETCHED' ? labels[selected.review.status] : '검수 대상 아님' }}
               </p>
-              <ol class="batch-workflow" aria-label="원문 검수부터 발행까지">
+              <ol v-if="selected.state === 'FETCHED'" class="batch-workflow" aria-label="원문 검수부터 발행까지">
                 <li :class="{ complete: flowStep > 1, current: flowStep === 1 }">원문 확인</li>
                 <li :class="{ complete: flowStep > 2, current: flowStep === 2 }">검수</li>
                 <li :class="{ complete: flowStep > 3, current: flowStep === 3 }">초안 작성</li>

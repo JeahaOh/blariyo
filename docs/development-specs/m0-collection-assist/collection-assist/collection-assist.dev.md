@@ -1124,6 +1124,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - `/admin`과 `/admin/batch`의 관리 메뉴는 기존 Web batch 검수 flag가 켜졌을 때만 수집 결과 검수를 표시한다.
   인증된 `/api/admin/features`는 메뉴 표시용 boolean만 제공한다. Core/BFF의 실제 인증·feature gate는 독립 적용한다.
 - 목록 GET은 `source`, `state`, `reviewStatus`, `page`를 조합한다. 검수 행이 없는 item은 `UNREVIEWED`다.
+- `reviewStatus=UNREVIEWED` 필터는 검수 가능한 `FETCHED`만 포함하며 건수와 페이지에 동일 적용한다. 실패·차단·진행·제외 항목은 검수 필터 없는 조회에서 유지하고 화면에는 `검수 대상 아님`으로 표시한다. 응답의 미검수 기본값이나 삭제 API 조건은 변경하지 않는다.
   전체 건수·목록에 같은 조건을 적용하며 페이지 이동은 마지막 조회 조건을 유지한다. 검수로 마지막 페이지가
   비면 유효한 페이지로 이동한다. 조회 실패 때 기존 목록·페이지를 보존하고 다시 조회할 수 있다.
 - 원문 본문·인증 이미지 preview·첨부 원문 링크·수집 실패/기간 제외 사유를 표시한다.

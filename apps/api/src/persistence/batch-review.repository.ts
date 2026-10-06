@@ -28,6 +28,7 @@ export class TypeOrmBatchReviewRepository extends BatchReviewRepository {
       LEFT JOIN collect.batch_review r ON r.item_id=i.id
       WHERE ($1::text IS NULL OR i.source_key=$1) AND ($2::text IS NULL OR i.state=$2)
       AND ($3::text IS NULL OR COALESCE(NULLIF(r.status,'REVIEWING'),'UNREVIEWED')=$3)
+      AND ($3::text IS DISTINCT FROM 'UNREVIEWED' OR i.state='FETCHED')
       AND l.retention_state='LIVE' AND l.expires_at>clock_timestamp()`;
     const requestStarted=performance.now();
     const selected=rows(await this.db.manager.query(`WITH visible AS MATERIALIZED (

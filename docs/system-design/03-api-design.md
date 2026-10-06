@@ -711,6 +711,7 @@ URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하�
 - Web 선택 상태는 `/admin/batch?itemId=<UUID>`의 query를 기준으로 한다. 목록 선택은 history에 추가하고 같은 항목 다시 열기는 상세만 재조회한다. query 없는 주소는 선택을 해제하며 sessionStorage는 목록 필터·페이지만 복원한다. API 경로·ID 형식은 변경하지 않는다.
 - 목록 일괄 반려는 현재 페이지에서 선택한 최대20건에 기존 상세 GET → review POST를 순차 적용한다. GET의 item version·review lockVersion/상태를 선택 시 목록과 대조한 뒤 contentDigest를 전달한다. 항목별 Idempotency-Key/body를 유지해 응답 유실 시 같은 요청만 재생하며 성공한 항목은 재전송하지 않는다. 전체 원자적 작업이 아니므로 개별 실패와 저장 후 목록 조회 실패를 구분한다. 신규 API·migration은 필요하지 않다.
 - `itemId`는 UUID다. 목록은 공통 `meta.requestId` 외 `data.items/page/totalItems/totalPages`를 반환한다.
+- `reviewStatus=UNREVIEWED` 목록은 `state=FETCHED`인 미검수 항목만 집계·페이징한다. 수집 상태 미지정에도 같은 조건이며 FAILED/BLOCKED 등과 함께 지정하면0건이다. 검수 필터를 생략하면 실패·차단 조회를 유지한다. 개별 응답의 미검수 기본값과 삭제 가능 여부는 변경하지 않는다.
 - review 요청은 `itemVersion`, `lockVersion`, `contentDigest`, `decision=APPROVED|REJECTED`다.
   이 흐름은 API V011 migration과 새 Web/API를 함께 적용한다. batch 검수 준비 상태는 V011을 요구하며 V011 down은 기존 판정·보존 이력을 변경하지 않고 이전 guard만 복원한다.
   FETCHED 항목만 가능하며 검수 기록이 없으면 lockVersion은 0이다. 상세 응답의 contentDigest(원문·미디어 snapshot SHA-256 hex)를 그대로 전달하고 현재 내용과 다르면 409 BATCH_ITEM_VERSION_CONFLICT로 거부한다. 승인·반려는 바로 저장하며 기존 REVIEWING은 조회·필터에서 UNREVIEWED로 매핑한다. 신규 REVIEWING 요청은 400이다.

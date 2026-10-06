@@ -2,7 +2,6 @@
 
 > 2026-10-06 수집 정책 변경: robots.txt는 참고 정보이며 자동 조회·허용 판정·활성화 선행 조건으로 사용하지 않는다. 과거 설계의 robots 차단 조건은 [현행 수집 정책](../planning/content-collection/README.md#수집-요청-정책--2026-10-06-사용자-결정)으로 대체한다. 기본 요청 간격5초·출처별 일일5000 HTTP 요청이며 명시한 출처별 설정은 유지한다. 실제 접근 제한·요청 한도·DNS 보호와 별도 법무 검토 항목은 유지한다.
 
-
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 아키텍처 설계 계약 · direct batch와 legacy 호환 구분
 - 최초 기준일: 2026-09-04
@@ -477,3 +476,21 @@ API는 batch queue/confirmation 직접 권한을 받지 않는다. batch에 API 
 선택 영향: 입력은 즉시 수집을 보장하지 않는다. runtime 설정이 STALE/ABSENT면 저장은 가능하되 202 응답과 화면에 '수집기 확인 대기'를 표시하고 마지막 관측을 명시한다. 서로 다른 실행기의 설정 충돌(CONFLICT)은 503으로 접수를 막는다. 처리 직전 최신 batch 설정이 거부하면 BLOCKED가 최종 결과다. 설정 파일 편집·배포는 사용자/개발자 운영 절차이며 Web 설정 편집은 추가하지 않는다.
 
 되돌리기: Web 입력 flag를 끄고 미수락 요청은 TTL로 닫는다. 수락된 queue는 중단/종료 확인 후 drain하며 legacy로 자동 전송하지 않는다. 기존 검수·Core 수동 운영은 계속 사용한다. DB·API·화면 상세는 [데이터 모델](02-data-model.md#m0-d02-input-model), [API 계약](03-api-design.md#m0-d02-api), [수집 명세](../development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md#m0-design-completion)을 따른다.
+
+## 로컬 다중 출처 배치 동시 실행 설정
+
+- `scripts/local/run-batches.mjs`는 등록된 출처마다 기존 `run-batch.mjs batch --source ...`를 실행한다. 대상은 기존 실행기와 같은 로컬 DB `127.0.0.1:5439/blariyo_local`이다. 단일 출처·queue·운영 스케줄러의 동시 실행 수를 바꾸지 않는다.
+- 기본 상수는 `scripts/local/batch-concurrency.mjs`의 `DEFAULT_SOURCE_CONCURRENCY = 3`이다. `COLLECTOR_SOURCE_CONCURRENCY` 환경변수로 덮어쓰며 양의 정수만 허용한다. 실제 worker 수는 등록 출처 수 이하로 제한한다. 값은 실행 시작 때 읽고, 한 실행기 프로세스에 적용한다.
+- `COLLECTOR_SOURCE_CONFIG`로 출처 설정 JSON을 선택하고, 미지정 시 `apps/collector/ops/reference-sites.sources.example.json`을 사용한다. 등록된 모든 출처를 실행하되 기존 Java 배치의 출처 승인·차단 판정을 유지한다.
+- 한 출처가 끝나면 다음 출처를 즉시 시작한다. 출처별 비정상 종료를 기록하고 나머지를 계속 실행하며, 하나라도 비정상 종료면 전체 종료 코드는1이다. 중지 시 대기 출처를 시작하지 않고 실행 중인 Java 프로세스까지 신호를 전달한다.
+- 동시 실행 수를 늘려도 사이트별 요청 간격/한도/DB lock은 유지한다. Java 프로세스와 DB 연결 수는 동시 출처 수에 비례하여 늘어난다. 아래 명령의 `--write-db`는 실제 수집·저장이며 `--dry-run`도 외부 요청을 수행한다.
+
+```sh
+# 기본 3개 출처씩 실행
+node scripts/local/run-batches.mjs --max-pages 2 --max-items 10 --since 24h --write-db
+
+# 이번 실행만 5개 출처씩 실행 (macOS/Linux)
+COLLECTOR_SOURCE_CONCURRENCY=5 node scripts/local/run-batches.mjs --max-pages 2 --max-items 10 --since 24h --write-db
+```
+
+PowerShell에서는 `$env:COLLECTOR_SOURCE_CONCURRENCY='5'`로 지정하고 같은 Node 명령을 실행한다. 항상 적용할 기본값을 바꾸려면 위 상수 한 곳을 수정한다. 소스 설정의 요청 간격 기본5초와는 독립적이다.

@@ -13,7 +13,11 @@ if(['detail','review','draft'].includes(command)&&!/^[0-9a-f-]{36}$/.test(id||''
 if(['review','draft'].includes(command)){
   body={itemVersion:Number(options['item-version']),lockVersion:Number(options['lock-version'])};
   if(!Number.isSafeInteger(body.itemVersion)||!Number.isSafeInteger(body.lockVersion))throw Error('EXPECTED_EXPLICIT_VERSIONS');
-  if(command==='review'){body.decision=options.decision;path+='/review';}
+  if(command==='review'){
+    if(!['APPROVED','REJECTED'].includes(options.decision))throw Error('EXPECTED_APPROVED_OR_REJECTED');
+    if(!/^[a-f0-9]{64}$/.test(options['content-digest']||''))throw Error('EXPECTED_DETAIL_CONTENT_DIGEST');
+    body.decision=options.decision;body.contentDigest=options['content-digest'];path+='/review';
+  }
   else{body.boardSlug=options.board||'meme';if(options.title)body.title=options.title;path+='/draft';}
 }
 if(['publish','hide','republish'].includes(command)){

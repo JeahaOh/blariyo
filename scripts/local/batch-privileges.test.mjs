@@ -27,13 +27,25 @@ test('local batch privileges permit current intake and quota, deny Core/review w
     owner=new pg.Client({...settings,database:name});await owner.connect();
     for(let i=0;i<2;i++)await grantLocalBatchPrivileges(owner,config.batchRole);
     batch=new pg.Client({...settings,database:name,user:config.batchRole,password:config.batchPassword});await batch.connect();
-    assert.equal((await owner.query('SELECT max(version) AS version FROM collector.schema_migration')).rows[0].version,'V010');
+    assert.equal((await owner.query('SELECT max(version) AS version FROM collector.schema_migration')).rows[0].version,'V015');
     await batch.query('BEGIN');
     const first=(await batch.query("SELECT * FROM collect.reserve_batch_request('local_grant_test',2,10000)")).rows[0];
     assert.equal(first.used,1);assert.equal(Number(first.wait_ms),0);
     const next=(await batch.query("SELECT * FROM collect.reserve_batch_request('local_grant_test',2,10000)")).rows[0];
     assert.equal(next.used,1);assert.ok(Number(next.wait_ms)>0);
     await batch.query('ROLLBACK');
+    await batch.query("SELECT collect.defer_batch_request('cooldown_fixture',3600000)");
+    await batch.query("SELECT collect.defer_batch_request('cooldown_fixture',1000)");
+    const deferred=(await batch.query("SELECT * FROM collect.reserve_batch_request('cooldown_fixture',5000,15000)")).rows[0];
+    assert.ok(Number(deferred.wait_ms)>3590000);assert.equal(deferred.used,0);
+    await batch.query("SELECT collect.defer_batch_request('cooldown_overflow',9223372036854775807)");
+    assert.equal((await owner.query("SELECT next_allowed_at::text AS deadline FROM collect.batch_request_budget WHERE source_key='cooldown_overflow'")).rows[0].deadline,'infinity');
+
+    await assert.rejects(batch.query("UPDATE collect.batch_request_budget SET next_allowed_at=now()"),e=>e.code==='42501');
+    for(const code of ['ROBOTS_UNVERIFIED','ROBOTS_DISALLOWED','SOURCE_RATE_LIMITED','SOURCE_HTTP_UNAVAILABLE','SOURCE_DNS_FAILED','SOURCE_ACCESS_BLOCKED'])
+      assert.equal((await owner.query('SELECT collect.image_failure_code($1) AS discard',[code])).rows[0].discard,false);
+    assert.equal((await owner.query("SELECT collect.image_failure_code('SOURCE_NOT_IMAGE') AS discard")).rows[0].discard,true);
+
     assert.deepEqual((await batch.query('SELECT * FROM collect.claim_web_requests(1)')).rows,[]);
     await batch.query('SELECT * FROM collect.batch_runtime_projection');
     await batch.query('UPDATE collect.batch_input_receipt SET updated_at=updated_at WHERE false');

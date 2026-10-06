@@ -77,7 +77,7 @@ BEGIN
       EXECUTE format('GRANT SELECT ON collect.%I TO blariyo_app',t);
     END IF;
   END LOOP;
-  FOREACH t IN ARRAY ARRAY['collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()'] LOOP
+  FOREACH t IN ARRAY ARRAY['collect.delete_failed_item(uuid,bigint,bigint,text)','collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()'] LOOP
     IF to_regprocedure(t) IS NOT NULL THEN
       EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO blariyo_app',t);
     END IF;
@@ -100,7 +100,7 @@ BEGIN
     IF to_regclass('collect.batch_media') IS NOT NULL THEN
       GRANT DELETE ON collect.batch_media TO blariyo_batch;
     END IF;
-    FOREACH t IN ARRAY ARRAY['collect.assert_source_owner(text)','collect.assert_run_owner(uuid)','collect.assert_item_live(uuid)','collect.lookup_dedup(text,text,text)','collect.purge_authorized(text,uuid)','collect.retention_backlog()','collect.assert_run_payload_live(uuid)','collect.complete_confirmation(uuid,text,text,text,uuid)','collect.cancel_confirmation(uuid,text,text,text)','collect.lock_collection_writer()','collect.unlock_collection_writer()','collect.claim_web_requests(integer)','collect.ack_web_request(uuid,uuid)','collect.cleanup_input_receipts()','collect.web_retry_accessible(uuid)','collect.reserve_batch_request(text,integer,bigint)'] LOOP
+    FOREACH t IN ARRAY ARRAY['collect.assert_source_owner(text)','collect.assert_run_owner(uuid)','collect.assert_item_live(uuid)','collect.lookup_dedup(text,text,text)','collect.purge_authorized(text,uuid)','collect.retention_backlog()','collect.assert_run_payload_live(uuid)','collect.complete_confirmation(uuid,text,text,text,uuid)','collect.cancel_confirmation(uuid,text,text,text)','collect.lock_collection_writer()','collect.unlock_collection_writer()','collect.claim_web_requests(integer)','collect.ack_web_request(uuid,uuid)','collect.cleanup_input_receipts()','collect.web_retry_accessible(uuid)','collect.reserve_batch_request(text,integer,bigint)','collect.defer_batch_request(text,bigint)','collect.retry_image(uuid,text)','collect.prepare_image_retry(text,text)','collect.discard_image_failure(uuid)'] LOOP
       IF to_regprocedure(t) IS NOT NULL THEN
         EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO blariyo_batch',t);
       END IF;
@@ -117,7 +117,7 @@ BEGIN
       EXECUTE format('ALTER DEFAULT PRIVILEGES FOR ROLE blariyo_migrator IN SCHEMA %I REVOKE ALL ON FUNCTIONS FROM blariyo_collect_retention',t);
     END LOOP;
     GRANT USAGE ON SCHEMA collect TO blariyo_collect_retention;
-    FOREACH t IN ARRAY ARRAY['collect.claim_retention(uuid,integer)','collect.heartbeat_retention(uuid,uuid,bigint)',
+    FOREACH t IN ARRAY ARRAY['collect.image_cleanup_pending()','collect.image_cleanup_allowed(uuid,uuid,text)','collect.finish_image_cleanup(uuid,uuid)','collect.claim_retention(uuid,integer)','collect.heartbeat_retention(uuid,uuid,bigint)',
       'collect.retention_objects(uuid,uuid,bigint)','collect.record_purge_inventory(uuid,uuid,bigint,text)',
       'collect.record_purge_result(uuid,uuid,bigint,text,boolean,text)','collect.fail_retention(uuid,uuid,bigint)',
       'collect.finish_retention(uuid,uuid,bigint)','collect.observe_retention_object(text,boolean)',

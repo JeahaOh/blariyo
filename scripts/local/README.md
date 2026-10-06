@@ -162,6 +162,35 @@ DB만 제거한다. 프로세스 강제 종료 등으로 정리가 실패하면 
 
 ## 정식 batch 검수 실행
 
+### 로컬 검수 전 자료를 명시적으로 비우기
+
+사용자가 로컬 검수 전 자료 삭제를 요청했을 때만 실행한다. 운영용 명령이 아니며
+`127.0.0.1:5439/blariyo_local`과 `.local-data/collector-objects`가 고정 대상이다.
+
+```sh
+node scripts/local/clear-unreviewed.mjs --apply-local-unreviewed
+```
+
+- 수집 실행·대기열이 비어 있어야 한다. 실행 중에는 검수/발행 작업도 멈춘다.
+- 미검수/검수 중이면서 게시글 연결이 없는 항목만 선택한다. 승인·반려·게시글과 실행 기록은 보존한다.
+- `.local-data/backups/unreviewed-<UTC>/`에 DB dump·객체 전체 사본·SHA-256 목록을 저장한다.
+  DB archive 목록과 객체 사본 해시가 일치해야 삭제한다. 백업은 비공개이며 Git에 넣지 않는다.
+- 기존 삭제 guard의 트랜잭션·행별 권한을 세션 임시 소유자 함수에서만 사용한다.
+  보존기한·회수 활성 조건·trigger·애플리케이션 role 권한을 변경하지 않는다.
+- 동일 삭제를 savepoint 안에서 실행·보존 비교 후 되돌려 확인하고, 실제 삭제 뒤 다시 비교한다.
+  공유 실행 기록은 남기며, 원문·첨부는 백업된 정확한 키 중 다른 참조가 없는 파일만 제거한다.
+- 기존 게시글/남은 보존 원장과 연결된 중복 방지 키는 유지한다. 삭제만으로 이미 게시된 글을 재발행하지 않는다.
+- 실패 시 `databaseCommitted`와 백업 경로를 확인한다. DB 반영 전 오류는 rollback,
+  반영 후 파일 정리 오류는 백업 manifest와 실제 참조를 대조한다. 명령을 무조건 반복하지 않는다.
+- 완료는 출력의 `preservation`, `rehearsal`과 백업의 `receipt.json`으로 확인한다.
+  자동 검사는 DB 전체 복원까지 수행하지 않으므로 별도 복원 검증과 구분한다.
+
+새 수집은 아래 `run-batch.mjs`로 별도 실행한다. 실제 로컬 source 설정의
+`COLLECTOR_SOURCE_CONFIG`를 지정해야 한다. 저장소 example에는 일일 요청 한도가 없으므로
+그대로 live 실행하면 `SOURCE_CONFIG_REQUIRED`로 거부된다.
+
+### 준비와 수집 실행
+
 저장소 루트에서 실행한다. DB는 동일한 `blariyo_local`을 사용하지만 API와 batch의 로그인 role은
 분리한다. 준비 명령은 사전 pg_dump 백업 후 migration/grant를 적용하고 자격 증명을 Git 제외 파일에
 권한600으로 저장한다. API는 batch 결과를 SELECT만, batch는 content/검수 테이블에 접근할 수 없다.
@@ -182,9 +211,8 @@ COLLECTOR_SOURCE_CONFIG=/absolute/path/to/local-sources.json node scripts/local/
 COLLECTOR_SOURCE_CONFIG=/absolute/path/to/local-sources.json node scripts/local/run-batch.mjs batch --source yuldo --chart latest --max-pages 1 --max-items 1 --since 24h --write-db
 node scripts/local/batch-review.mjs list yuldo
 node scripts/local/batch-review.mjs detail ITEM_UUID
-node scripts/local/batch-review.mjs review ITEM_UUID --item-version=N --lock-version=0 --decision=REVIEWING --key=UNIQUE_REVIEW_KEY
-node scripts/local/batch-review.mjs review ITEM_UUID --item-version=N --lock-version=1 --decision=APPROVED --key=UNIQUE_APPROVAL_KEY
-node scripts/local/batch-review.mjs draft ITEM_UUID --item-version=N --lock-version=2 --key=UNIQUE_DRAFT_KEY
+node scripts/local/batch-review.mjs review ITEM_UUID --item-version=N --lock-version=0 --content-digest=DETAIL_CONTENT_DIGEST --decision=APPROVED --key=UNIQUE_APPROVAL_KEY
+node scripts/local/batch-review.mjs draft ITEM_UUID --item-version=N --lock-version=1 --key=UNIQUE_DRAFT_KEY
 # 위 응답의 postId와 lockVersion을 사용. reviewLockVersion과 혼동하지 않는다.
 node scripts/local/batch-review.mjs publish POST_ID --lock-version=POST_VERSION --key=UNIQUE_PUBLISH_KEY
 ```
@@ -280,13 +308,12 @@ node scripts/local/repair-notice-posts.mjs --rollback
 
 ### 정식 검수·초안·별도 발행 확인
 
-`batch-review.mjs detail ITEM_UUID`의 현재 item version과 review lock version을 확인한다.
+`batch-review.mjs detail ITEM_UUID`의 현재 item version, review lock version과 contentDigest를 확인한다. 검수 시작 요청 없이 해당 상세의 digest로 바로 승인/반려한다.
 아래 ID·version은 자리표시자이며 실제 응답값으로 바꾼다. 각 논리 요청의 KEY는 UUID이며,
 응답 유실 재시도에서는 같은 KEY와 본문을 사용한다.
 
 ```sh
-node scripts/local/batch-review.mjs review ITEM_UUID --item-version=ITEM_VERSION --lock-version=REVIEW_VERSION --decision=REVIEWING --key=KEY_1
-node scripts/local/batch-review.mjs review ITEM_UUID --item-version=ITEM_VERSION --lock-version=NEXT_REVIEW_VERSION --decision=APPROVED --key=KEY_2
+node scripts/local/batch-review.mjs review ITEM_UUID --item-version=ITEM_VERSION --lock-version=REVIEW_VERSION --content-digest=DETAIL_CONTENT_DIGEST --decision=APPROVED --key=KEY_2
 node scripts/local/batch-review.mjs draft ITEM_UUID --item-version=ITEM_VERSION --lock-version=APPROVED_REVIEW_VERSION --key=KEY_3
 # 반환 postId를 관리자에서 확인한 뒤 별도 실행한다.
 node scripts/local/batch-review.mjs publish POST_ID --lock-version=POST_VERSION --key=KEY_4

@@ -479,6 +479,11 @@ API는 batch queue/confirmation 직접 권한을 받지 않는다. batch에 API 
 
 ## 로컬 다중 출처 배치 동시 실행 설정
 
+- 로컬 정기 실행은 macOS LaunchAgent `com.blariyo.local-collection`으로 매일 한국 시간04:30·16:30에 시작한다. `scripts/local/render-batch-schedule.py`의 `SCHEDULE`이 시각 상수이며 변경 후 plist 재생성·재등록이 필요하다. OS 시간대는 Asia/Seoul이어야 한다.
+- `scripts/local/scheduled-batch.mjs`가 기존 다중 출처 실행기를 호출한다. `BATCH_ARGS`는 최근24시간·출처별 최대2페이지/20건·로컬 DB 저장이며 `MAX_RUNTIME_MS`는2시간이다. 초과 시 배치 프로세스 그룹에 종료 요청 후30초 뒤 강제 종료한다. 실패 시 즉시 무한 재실행하지 않고 다음 예약을 기다린다.
+- launchd의 같은 job 중복 실행 방지를 사용한다. 수동 재실행도 `launchctl kickstart`를 사용하며 실행 중인 job을 재시작하는 `-k`는 쓰지 않는다. 출처별 DB lock도 유지한다. 로그는 `.local-data/batch-schedule/logs/`에 실행별 저장하고14일 지난 해당 실행 로그만 정리한다.
+- 사용자 로그인·Docker와 로컬 DB가 필요하다. 잠자기 중 예정 실행은 깨어날 때 합쳐 실행될 수 있고 전원 종료·로그아웃 상태의 정시 실행은 보장하지 않는다. 운영 서버 스케줄은 변경하지 않는다. [설치·조회·중단 기록](../../worklog/2026-10-06/local-batch-schedule/README.md)을 따른다.
+
 - `scripts/local/run-batches.mjs`는 등록된 출처 중 `blockedReason: SOURCE_DISABLED`를 제외하고 기존 `run-batch.mjs batch --source ...`를 실행한다. 시작 로그의 `excludedSources`에 제외 출처를 남긴다. 대상은 기존 실행기와 같은 로컬 DB `127.0.0.1:5439/blariyo_local`이다. 단일 출처·queue·운영 스케줄러의 동시 실행 수를 바꾸지 않는다.
 - 2026-10-06 임시 제외: 기본 `apps/collector/ops/reference-sites.sources.example.json`의 `dcinside`, `arcalive`, `bobaedream`, `inven`, `mlbpark`, `pgr21`을 `approved: false`, `blockedReason: SOURCE_DISABLED`로 설정한다. 직접 실행도 기존 정책 검증에서 차단한다. 재개 결정 시 해당 두 값을 `true`, 빈 문자열로 복구한다. 별도 `COLLECTOR_SOURCE_CONFIG` 또는 운영 장비의 설정 사본에는 별도 반영이 필요하며 과거 실행 snapshot은 자동 갱신하지 않는다.
 - 기본 상수는 `scripts/local/batch-concurrency.mjs`의 `DEFAULT_SOURCE_CONCURRENCY = 3`이다. `COLLECTOR_SOURCE_CONCURRENCY` 환경변수로 덮어쓰며 양의 정수만 허용한다. 실제 worker 수는 등록 출처 수 이하로 제한한다. 값은 실행 시작 때 읽고, 한 실행기 프로세스에 적용한다.

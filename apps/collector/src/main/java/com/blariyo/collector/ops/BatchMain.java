@@ -35,7 +35,7 @@ public final class BatchMain {
     return new DiscoveryBatch.Options(values.get("--source"), values.getOrDefault("--chart", "hot"),
         Integer.parseInt(values.getOrDefault("--max-pages", "2")), Integer.parseInt(values.getOrDefault("--max-items", "20")),
         Duration.ofHours(Long.parseLong(since.substring(0, since.length() - 1))),
-        Long.parseLong(values.getOrDefault("--interval-ms", "10000")), flags.contains("--write-db"));
+        Long.parseLong(values.getOrDefault("--interval-ms", Integer.toString(SourceRequestPolicy.DEFAULT_INTERVAL_MS))), flags.contains("--write-db"));
   }
   private static void collectUrl(String[] args) throws Exception {
     var values = new HashMap<String, String>();
@@ -58,8 +58,8 @@ public final class BatchMain {
         OperatorSettings.get("collector.sources-file", "COLLECTOR_SOURCES_FILE",
             "apps/collector/ops/reference-sites.sources.example.json"));
     var source = SourceRegistry.read(sourceFile).key(values.get("--source"));
-    long interval=Long.parseLong(values.getOrDefault("--interval-ms","10000"));
-    if(interval<source.config().path("requestIntervalMs").asLong(10000)||interval>3600000)
+    long interval=Long.parseLong(values.getOrDefault("--interval-ms",Long.toString(SourceRequestPolicy.interval(source.config()))));
+    if(interval<SourceRequestPolicy.interval(source.config())||interval>SourceRequestPolicy.MAX_INTERVAL_MS)
       throw new CollectorFailure(400,"SOURCE_LIMIT_EXCEEDED");
     // Reject disallowed sources before opening a DB connection or reading object-store credentials.
     source.policy();
@@ -107,7 +107,7 @@ public final class BatchMain {
       }
       var report = new DirectBatchRunner(new PinnedHttp(), datasource == null ? null : new BatchStore(datasource),
           options.writeDb() ? BatchObjectStore.fromEnvironment() : null)
-          .run(source, new DirectBatchRunner.Options(options.source(), chart, options.maxPages(), options.maxItems(), options.since(), options.intervalMillis(), options.writeDb()));
+          .run(source, new DirectBatchRunner.Options(options.source(), chart, options.maxPages(), options.maxItems(), options.since(), Arrays.asList(args).contains("--interval-ms")?options.intervalMillis():SourceRequestPolicy.interval(source.config()), options.writeDb()));
       if (datasource != null) datasource.close();
       System.out.println(Json.tree(Map.of("runId", report.runId().toString(), "mode", options.writeDb() ? "WRITE_DB" : "DRY_RUN",
           "report", report)));

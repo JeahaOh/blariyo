@@ -110,7 +110,7 @@ public final class DiscordGateway extends ListenerAdapter {
                             + confirmation.source() + " (" + uri.getHost() + ")"
                             + "\n대상: "
                             + url
-                            + "\nrobots·상세·이미지 요청이 발생하며 검수 후에만 발행됩니다.")
+                            + "\n상세·이미지 요청이 발생하며 검수 후에만 발행됩니다.")
                     .setComponents(
                         ActionRow.of(Button.primary("collect-confirm:" + confirmation.id(), "수집 확인"),
                             Button.secondary("collect-cancel:" + confirmation.id(), "취소")))

@@ -8,6 +8,7 @@ import com.blariyo.collector.shared.CollectorFailure;
 import com.blariyo.collector.shared.Json;
 import com.blariyo.collector.source.PinnedHttp;
 import com.blariyo.collector.source.SourcePolicy;
+import com.blariyo.collector.source.SourceRequestPolicy;
 import com.blariyo.collector.source.SourceTransport;
 import com.blariyo.collector.state.StateStore;
 import java.net.*;
@@ -285,26 +286,7 @@ public final class CollectionPipeline {
     try {
       var policy = policy(state);
       URI uri = policy.allow(state.path("claim").path("originUrl").asText());
-      var robots =
-          fetchOne(
-              id,
-              run,
-              state,
-              new SourcePolicy(
-                  policy.host(),
-                  List.of("/robots.txt"),
-                  policy.titleSelector(),
-                  policy.imageSelector(),
-                  policy.userAgent()),
-              URI.create("https://" + policy.host() + "/robots.txt"),
-              "ROBOTS",
-              512 * 1024,
-              "robots");
-      if (!robots.contentType().toLowerCase(Locale.ROOT).startsWith("text/plain")
-          || !policy.robotsAllows(new String(robots.bytes(), StandardCharsets.UTF_8), uri))
-        throw new CollectorFailure(403, "ROBOTS_DISALLOWED");
-      state.put("robotsDelayMs", new com.blariyo.collector.source.RobotsRules(new String(robots.bytes(), StandardCharsets.UTF_8)).delayMillis(policy.userAgent()));
-      waitInterval(id, run, state);
+      // robots.txt observations are reference-only; the Core permit controls pacing.
       var response = fetchOne(id, run, state, policy, uri, "DETAIL", 2 * 1024 * 1024, "detail");
       if (!response.contentType().toLowerCase(Locale.ROOT).startsWith("text/html"))
         throw new CollectorFailure(415, "SOURCE_NOT_HTML");
@@ -332,7 +314,7 @@ public final class CollectionPipeline {
 
   private void waitInterval(UUID id, Map<String, Object> run, ObjectNode state) {
     // Quota permits include a ten-second send window; wait for the global next-request boundary.
-    long wait = 10000 + Math.max(state.path("claim").path("requestIntervalMs").asLong(1000), state.path("robotsDelayMs").asLong(0));
+    long wait = 10000 + Math.max(SourceRequestPolicy.MIN_INTERVAL_MS, state.path("claim").path("requestIntervalMs").asLong(SourceRequestPolicy.DEFAULT_INTERVAL_MS));
     long end = System.nanoTime() + wait * 1_000_000,
         nextHeartbeat = System.nanoTime() + 30_000_000_000L;
     while (System.nanoTime() < end) {

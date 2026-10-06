@@ -131,7 +131,7 @@ public record SourcePolicy(
     }
   }
 
-  /** Conservative robots handling: a potentially applicable disallow blocks the fetch. */
+  /** Reference-only robots interpretation; collection does not use this as a fetch gate. */
   public boolean robotsAllows(String text, URI uri) {
     return new RobotsRules(text).allows(userAgent, uri);
   }

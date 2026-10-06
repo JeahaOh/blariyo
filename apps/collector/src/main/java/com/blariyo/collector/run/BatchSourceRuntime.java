@@ -22,13 +22,12 @@ public final class BatchSourceRuntime {
       throw new CollectorFailure(503,"SOURCE_CONFIG_REQUIRED");
     try{source.policy();}catch(CollectorFailure failure){blocked=failure.getMessage();}
     if(collection.equals("BLOCKED")||collection.equals("UNVERIFIED"))blocked="SOURCE_NOT_ALLOWED";
-    Integer daily=config.hasNonNull("dailyRequestLimit")?integer(config,"dailyRequestLimit",1,1,1000000):null;
-    if(daily==null&&blocked.isEmpty())blocked="SOURCE_CONFIG_REQUIRED";
+    int daily=SourceRequestPolicy.dailyLimit(config);
     boolean enabled=config.path("approved").asBoolean(false)&&config.path("enabled").asBoolean(true)&&blocked.isEmpty();
     if(!enabled&&blocked.isEmpty())blocked="SOURCE_DISABLED";
     result.put("enabled",enabled);result.put("blockedReason",blocked.isEmpty()?null:blocked);
     result.put("collectionPolicy",collection);result.put("allowedHosts",List.copyOf(hosts));
-    result.put("requestIntervalMs",integer(config,"requestIntervalMs",10000,10000,3600000));
+    result.put("requestIntervalMs",SourceRequestPolicy.interval(config));
     result.put("dailyRequestLimit",daily);result.put("maxPages",integer(config,"maxPages",2,1,10));
     result.put("maxItems",integer(config,"maxItems",20,1,100));
     result.put("mediaLimits",SourceMediaLimits.from(config.path("mediaLimits")));

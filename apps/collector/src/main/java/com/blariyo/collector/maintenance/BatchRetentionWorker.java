@@ -20,12 +20,13 @@ public final class BatchRetentionWorker {
     try(var fence=repository.restoreFence(restoreInventory)) { return guardedOnce(restoreInventory); }
   }
   private Result guardedOnce(boolean restoreInventory) {
+    var images=new ImageFailureCleanup(repository,objects,alert).once();
     repository.metadata();
     // Inventory precedes cleanup so objects uploaded after PURGED reopen their durable manifest.
     for(String prefix:List.of("collect/raw/","collect/media/","collect/report/")) {
       inventory(prefix,key->repository.observe(key,restoreInventory));
     }
-    int purged=0,failed=0;
+    int purged=images.completed(),failed=images.failed();
     for(int i=0;i<20;i++) {
       var lease=repository.claim();if(lease==null)break;
       if(purge(lease))purged++;else failed++;

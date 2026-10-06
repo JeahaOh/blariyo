@@ -17,7 +17,6 @@ public final class BatchMailbox {
   private final BatchQueueStore queue;
   public BatchMailbox(BatchStore store){this.store=store;this.queue=new BatchQueueStore(store);}
   public int pull(SourceRegistry sources) {
-    if(store.retentionBacklog())throw new CollectorFailure(503,"BATCH_RETENTION_BACKLOG");
     try(var c=store.connection()) {
       c.setAutoCommit(false);
       try {

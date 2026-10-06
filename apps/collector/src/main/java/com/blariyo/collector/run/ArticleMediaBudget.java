@@ -8,6 +8,8 @@ final class ArticleMediaBudget {
   private final SourceMediaLimits limits;
   private int used;
   ArticleMediaBudget(SourceMediaLimits limits) { this.limits = limits; }
+  int checkpoint() { return used; }
+  void restore(int checkpoint) { used=checkpoint; }
   int requestLimit() {
     if (used >= limits.maxTotalBytes()) throw new CollectorFailure(413, "SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED");
     // One extra byte distinguishes total-budget overflow from an individually oversized file.

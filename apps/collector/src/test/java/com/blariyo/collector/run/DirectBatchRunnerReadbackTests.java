@@ -37,10 +37,10 @@ class DirectBatchRunnerReadbackTests {
       SourceTransport network=new SourceTransport(){
         public void validate(URI uri){}
         public PinnedHttp.Response get(URI uri,int maximum,String agent) {
-          if(uri.getPath().equals("/second.png")&&fail.get())return new PinnedHttp.Response(403,"text/html",Map.of(),new byte[0]);
+          if(uri.getPath().equals("/second.pdf")&&fail.get())return new PinnedHttp.Response(403,"text/html",Map.of(),new byte[0]);
           var r=base.get(uri,maximum,agent);
           if(uri.getPath().endsWith("/"+key))return new PinnedHttp.Response(200,"text/html",Map.of(),
-            new String(r.bytes(),StandardCharsets.UTF_8).replace("</div></div>","<img src='https://cdn.fixture.invalid/second.png'></div></div>").getBytes(StandardCharsets.UTF_8));
+            new String(r.bytes(),StandardCharsets.UTF_8).replace("</div></div>","<a href='https://cdn.fixture.invalid/second.pdf'>attachment</a></div></div>").getBytes(StandardCharsets.UTF_8));
           return r;
         }
       };
@@ -52,6 +52,7 @@ class DirectBatchRunnerReadbackTests {
       try(var c=ds.getConnection();var s=c.prepareStatement("SELECT id,state,raw_object_key,failure_code,(SELECT count(*) FROM collect.batch_media m WHERE m.item_id=i.id) AS media FROM collect.batch_item i WHERE source_post_key=?")) {
         s.setString(1,key);try(var row=s.executeQuery()){assertTrue(row.next());item=(java.util.UUID)row.getObject("id");assertEquals("BLOCKED",row.getString("state"));assertNotNull(row.getString("raw_object_key"));assertEquals("SOURCE_ACCESS_BLOCKED",row.getString("failure_code"));assertEquals(1,row.getInt("media"));}
       }
+      // Attachment failures remain available for manual retry; image failures now discard after one retry.
       // Another process cannot restart this source while its owner holds the lock.
       try(var lease=store.lockSource("arcalive")) {
         assertEquals("BATCH_SOURCE_BUSY",assertThrows(com.blariyo.collector.shared.CollectorFailure.class,()->store.lockSource("arcalive")).getMessage());

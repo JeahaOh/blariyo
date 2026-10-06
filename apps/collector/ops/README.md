@@ -1,5 +1,16 @@
 # 수집기 운영 — direct batch와 legacy 호환 서버
 
+## 요청 간격과 한도 설정
+
+- 공통 상수: `src/main/java/com/blariyo/collector/source/SourceRequestPolicy.java`
+- 기본값: `DEFAULT_INTERVAL_MS=5000`, `DEFAULT_DAILY_LIMIT=5000`, `DEFAULT_COOLDOWN_MS=900000`.
+- 출처 JSON의 `requestIntervalMs`·`dailyRequestLimit`이 공통 기본값보다 우선한다. 예제21개 출처는 두 값을 생략해 공통 상수를 따른다. 상수를 바꾸고 collector를 재빌드하면 기본 출처들에 함께 적용된다.
+- 출처별 예외 예: `"requestIntervalMs": 10000, "dailyRequestLimit": 1000`. 간격은1000~3600000ms, 일일 한도는1~1000000 HTTP 요청이다.
+- CLI `--interval-ms`로 더 긴 간격을 지정할 수 있다. 출처 설정보다 빠른 요청은 거부한다. 생략하면 출처 값/공통 기본값을 쓴다.
+- 429 또는 서버가 긴 Retry-After를 응답하면 기본 간격보다 서버 대기를 우선한다. 실제 송신 간격에는 DB permit의 최대2초 안전 여유와 응답 시간이 더해질 수 있다.
+- V015는 과거 DB의 최소10초 제약도 최소1초로 변경한다. 새 collector 실행 전에 migration과 제한 함수 권한을 반영한다.
+
+
 현재 구현·테스트 단계다. 실제 출처·Discord·운영 PC 값과 7일 관찰 전에는 운영 완료가 아니다.
 
 현행 direct batch는 [직접 저장 batch 실행](#직접-저장-batch-실행)과
@@ -14,7 +25,7 @@
 ## Web direct 입력의 실행 조건
 
 - API `COLLECT_DIRECT_INPUT_ENABLED`, Web `NUXT_COLLECT_DIRECT_INPUT_ENABLED`, queue 실행기 `COLLECTOR_WEB_INPUT_ENABLED`의 기본값은 모두 `false`다. legacy manual/Discord flag와 독립적이다. 서버 설정 후보 생성기도 API/Web direct 입력을 비활성으로 만든다.
-- queue 실행기의 Web 입력은 명시한 `COLLECTOR_SOURCE_CONFIG` 또는 `COLLECTOR_SOURCES_FILE`/`collector.sources-file`을 요구한다. 예제 파일을 자동으로 실제 실행 설정으로 발표하지 않는다. `approved`, `enabled`, `collectionPolicy`, `dailyRequestLimit`을 포함한 실제 설정이 검증돼야 수집 허용으로 표시한다. 일일 한도 누락은 비활성/미설정이다.
+- queue 실행기의 Web 입력은 명시한 `COLLECTOR_SOURCE_CONFIG` 또는 `COLLECTOR_SOURCES_FILE`/`collector.sources-file`을 요구한다. 예제 파일을 자동으로 실제 실행 설정으로 발표하지 않는다. `approved`, `enabled`, `collectionPolicy`, `dailyRequestLimit`을 포함한 실제 설정이 검증돼야 수집 허용으로 표시한다. 일일 한도 생략 시5000, 간격 생략 시5000ms를 적용한다.
 - API V010·Collector V010과 `deploy/postgresql/apply-privileges.sql`의 역할별 재적용이 선행한다. API는 mailbox/alias를 소유하고 batch receipt/runtime view만 읽는다. batch는 제한 claim/ack/cleanup 함수와 자기 테이블만 사용한다.
 - queue 실행기는 기동/성공한 reload 때 안전 필드의 설정 버전과 적용 시각을 발표하고, 30초마다 heartbeat와 mailbox 인수를 수행한다. 요청 최대20개·lease60초·요청24시간을 적용하며 원문 HTTP는 인수 transaction 밖에서 실행한다. 단건 요청 상태는 Web에서 5초마다 조회하고 화면 이탈/백그라운드에서 조회를 멈춘다.
 - 이 절은 구현 인계다. COL-01/02 요청 통제·실제 S1~S5 출처 승인·장비/사설 경로·고지·운영 권한 인수 전에는 세 flag를 활성화하지 않는다. 배포 후보에서 요청을 차단하려면 API/Web flag부터 끄고 기존 접수 건의 기한/상태를 확인한다. 전체 수집 중단은 별도로 queue/Discord 실행기의 신규 시작을 중지하고 진행 중 작업을 정상 종료한다. DB 행 삭제나 legacy 재활성화로 되돌리지 않는다.
@@ -57,7 +68,7 @@ collector.pg-dump=/(PostgreSQL 18 설치 경로)/bin/pg_dump
 collector.pg-restore=/(PostgreSQL 18 설치 경로)/bin/pg_restore
 ```
 
-출처 파일은 source ID별 `approved`, `host`, `pathPrefixes`, `titleSelector`, `imageSelector`, `userAgent`를 가진다. 이용 조건·robots·선택자·Core 출처 설정을 확인한 대상만 `approved=true`로 둔다. production에서 fixture profile·fixture secret file을 사용하지 않는다.
+출처 파일은 source ID별 `approved`, `host`, `pathPrefixes`, `titleSelector`, `imageSelector`, `userAgent`를 가진다. 이용 조건·선택자·Core 출처 설정을 확인한 대상만 `approved=true`로 둔다. production에서 fixture profile·fixture secret file을 사용하지 않는다.
 
 정상 서버 기동은 DDL을 수행하지 않는다. 첫 기동 전에 별도 CLI로 migration을 실행한다.
 
@@ -185,7 +196,7 @@ BLOCKED/UNVERIFIED 목록을 generic parser로 성공 처리하지 않는다. `-
 }
 ```
 
-`imageOrigins`는 확인한 첨부 CDN의 정확한 origin·경로만 넣는다. source 승인과 robots 확인은 위 예시로 대신하지 않는다.
+`imageOrigins`는 확인한 첨부 CDN의 정확한 origin·경로만 넣는다. source 승인은 위 예시로 대신하지 않으며 robots 관측값은 참고로만 남긴다.
 위 예시는 상세 URL 정책의 일부다. 목록 batch에는 `batchApproved`, `chartVerified`, `charts`, 상한·간격 등의
 추가 설정이 필요하다. [source 예시 파일](reference-sites.sources.example.json)의 해당 출처 전체 설정과 대조한다.
 direct parser는 본문 1000블록과 source별 `mediaLimits.maxImages`(기본 200장)를 넘으면
@@ -227,7 +238,7 @@ DB 연결은 직접 연결 또는 session pooling이어야 하며 transaction po
 DB가 source 잠금 소유·상태 전이·version을 검사하며, 완성 report/checkpoint와 run 종료를 함께 확정한다.
 
 `batch`는 목록·상세 요청과 parser 결과를 직접 collect DB와 object store에 기록한다. Core 후보 endpoint를 호출하지
-않는다. `--dry-run`도 robots·목록/상세 요청 전에 batch DB의 일일 quota를 예약하므로 제한 DB 연결이 필요하다. 콘텐츠 row와 object는 저장하지 않는다. source 설정에 명시적 dailyRequestLimit과 최소10000ms 간격이 없으면 실행을 거부한다.
+않는다. `--dry-run`도 목록/상세 요청 전에 batch DB의 일일 quota를 예약하므로 제한 DB 연결이 필요하다. 콘텐츠 row와 object는 저장하지 않는다. 기본 dailyRequestLimit은5000, requestIntervalMs는5000이다. 출처별 명시값은 유지한다(간격 최소1000ms). robots는 명세 참고 정보로만 보존하고 필수 조회/차단하지 않는다. V015 및 batch 권한 반영 후 새 collector를 실행한다.
 
 ```sh
 COLLECTOR_SOURCES_FILE=/config/sources.json \
@@ -251,7 +262,7 @@ legacy presigned PUT template(`COLLECTOR_OBJECT_STORE_PUT_URL_TEMPLATE`)은 마�
 
 PowerShell에서는 `COLLECTOR_SOURCES_FILE`, `COLLECTOR_OBJECT_STORE_DIRECTORY` 또는 `COLLECTOR_OBJECT_STORE_S3_*`를 `$env:`로 설정하고
 `bin\blariyo-collector.ps1 batch ...`를 실행한다. Docker Linux에서는 같은 변수를 compose의 collector에 주입한다.
-실제 설정의 source는 `batchApproved`, `chartVerified`, robots·약관 검토가 모두 확인된 경우에만 활성화한다.
+실제 설정의 source는 `batchApproved`, `chartVerified`, 출처 사용 결정가 모두 확인된 경우에만 활성화한다.
 운영 DB/S3/R2 readback은 비밀값이 주입된 운영 터미널에서 다음 검증 스크립트로 제한 실행한다.
 스크립트는 기본적으로 `theqoo`, `humoruniv`, `todayhumor` 각 1건을 `--write-db`로 실행하고,
 `collect.batch_run`·`collect.batch_item` readback을 markdown과 JSONL로 남긴다. 비밀값은 출력하지 않는다.
@@ -396,7 +407,7 @@ queue request는 실행마다 새 `batch_run`을 연결한다. 중단 후 재개
 403·삭제·parser·크기 초과·rate-limit은 요청을 종결한다. 403/정책 거부/rate-limit 뒤 같은 source의
 다른 대기 요청도 15분간 유예한다. 만료된 confirmation은 접수하지 않고, 확인 완료 receipt는 재전송에 같은 ID를 반환한다.
 `queue --once`는 한 건의 처리/복구 결과 또는 IDLE을 JSON으로 출력하며, 장기 실행 `queue --write-db`는 JSONL로 기록한다.
-queue/discord 명령은 `--write-db`가 필수다. `batch --dry-run`은 콘텐츠/object 무저장이고 batch DB 요청 quota만 기록한다. `SiteProbeMain`도 같은 제한 DB 연결·robots·quota를 사용한다.
+queue/discord 명령은 `--write-db`가 필수다. `batch --dry-run`은 콘텐츠/object 무저장이고 batch DB 요청 quota만 기록한다. `SiteProbeMain`도 같은 제한 DB 연결·요청 간격·quota를 사용한다.
 
 V005 migration은 기존 QUEUED run의 payload를 같은 ID의 request로 옮기고 이전 run에
 `BATCH_QUEUE_MIGRATED`를 기록한다. 원문·미디어·기존 게시글은 삭제하지 않는다.

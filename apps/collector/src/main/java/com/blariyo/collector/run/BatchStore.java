@@ -20,6 +20,12 @@ public final class BatchStore {
   public void reserveRequest(String source,int limit,long interval,java.util.function.LongConsumer sleeper,Runnable beforeSend) {
     new DirectRequestBudget(this,source,limit,sleeper).reserve(interval,beforeSend);
   }
+  public void deferRequests(String source,long millis) {
+    try(var c=connection();var q=c.prepareStatement("SELECT collect.defer_batch_request(?,?)")) {
+      if(!c.getAutoCommit())throw new CollectorFailure(503,"SOURCE_BUDGET_TRANSACTION_OPEN");
+      q.setString(1,source);q.setLong(2,millis);q.execute();
+    }catch(SQLException error){throw new CollectorFailure(503,"SOURCE_BUDGET_UNAVAILABLE");}
+  }
   private final ThreadLocal<SourceLock> activeLock = new ThreadLocal<>();
   public Connection connection() throws SQLException {
     var lock = activeLock.get();
@@ -95,19 +101,12 @@ public final class BatchStore {
   public UUID queueManual(String source,String postKey,String url) {
     return new BatchQueueStore(this).enqueue(source,postKey,url);
   }
-  public boolean retentionBacklog() {
-    try(var c=connection();var query=c.createStatement();var result=query.executeQuery("SELECT collect.retention_backlog()")) {
-      result.next();return result.getBoolean(1);
-    } catch(SQLException e) { throw new CollectorFailure(503,"BATCH_DB_UNAVAILABLE"); }
-  }
   public void media(UUID item,int position,String kind,String remote,String objectKey,byte[] sha256,String mime,long byteSize){try(var c=connection();var s=c.prepareStatement("INSERT INTO collect.batch_media(id,item_id,position,kind,remote_url,object_key,sha256,mime_type,byte_size) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(item_id,position) DO NOTHING")){s.setObject(1,UUID.randomUUID());s.setObject(2,item);s.setInt(3,position);s.setString(4,kind);s.setString(5,remote);s.setString(6,objectKey);s.setBytes(7,sha256);s.setString(8,mime);s.setLong(9,byteSize);s.executeUpdate();}catch(SQLException e){throw new CollectorFailure(503,"BATCH_DB_WRITE_FAILED");}}
   public UUID begin(String source, String chart, String mode, int pages, int items, long interval, Instant since) {
     UUID id=UUID.randomUUID();
     try (var c=connection(); var s=c.prepareStatement("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,since_at,interval_ms) VALUES(?,?,?,?,?,?,?,?,?)")) {
       c.setAutoCommit(false);
-      try(var check=c.createStatement();var result=check.executeQuery("SELECT collect.retention_backlog()")) {
-        result.next();if(result.getBoolean(1))throw new CollectorFailure(503,"BATCH_RETENTION_BACKLOG");
-      }
+      // Expired items are reclaimed independently; per-item expiry and restore fences still apply.
       ensureSource(c, source, "config");
       // The caller holds the source session lock, so remaining RUNNING runs lost their owner.
       try(var abandoned=c.prepareStatement("UPDATE collect.batch_run SET state='FAILED',finished_at=now(),checkpoint=checkpoint || '{\"reason\":\"BATCH_OWNER_LOST\"}'::jsonb,version=version+1 WHERE source_key=? AND state='RUNNING'")) {
@@ -140,6 +139,9 @@ public final class BatchStore {
       if("23505".equals(error.getSQLState()))throw new CollectorFailure(409,"DEDUP_IDENTITY_CONFLICT");
       throw new CollectorFailure(503,"BATCH_DB_UNAVAILABLE");
     }
+    try(var c=connection();var s=c.prepareStatement("SELECT collect.prepare_image_retry(?,?)")) {
+      s.setString(1,source);s.setString(2,postKey);s.execute();
+    }catch(SQLException e){throw new CollectorFailure(503,"BATCH_IMAGE_RETRY_FAILED");}
     return item(run,source,postKey,url,"FETCHING",null,"[]","[]","[]",null);
   }
   /** Every object PUT is fenced before and after I/O; final row commits are fenced by PostgreSQL. */
@@ -214,10 +216,16 @@ public final class BatchStore {
       if (s.executeUpdate() != 1) throw new CollectorFailure(409, "BATCH_ITEM_LOCK_CONFLICT");
     } catch (SQLException e) { throw new CollectorFailure(503, "BATCH_DB_WRITE_FAILED"); }
   }
+  public boolean retryImage(UUID item,String code) {
+    try(var c=connection();var s=c.prepareStatement("SELECT collect.retry_image(?,?)")) {
+      s.setObject(1,item);s.setString(2,code);
+      try(var r=s.executeQuery()){r.next();return r.getBoolean(1);}
+    }catch(SQLException e){throw new CollectorFailure(503,"BATCH_IMAGE_RETRY_FAILED");}
+  }
   public void failItem(UUID run, UUID item, String phase, String code) {
     failItem(run, item, phase, code, Map.of());
   }
-  public void failItem(UUID run, UUID item, String phase, String code, Map<String, Object> detail) {
+  public boolean failItem(UUID run, UUID item, String phase, String code, Map<String, Object> detail) {
     try (var c = connection()) {
       c.setAutoCommit(false);
       try {
@@ -236,7 +244,11 @@ public final class BatchStore {
           s.setString(6, Json.tree(detail == null ? Map.of() : detail).toString());
           s.executeUpdate();
         }
-        c.commit();
+        boolean discarded=false;
+        if(item!=null && "MEDIA".equals(phase) && detail!=null && "IMAGE".equals(detail.get("assetKind"))) {
+          try(var s=c.prepareStatement("SELECT collect.discard_image_failure(?)")){s.setObject(1,item);try(var r=s.executeQuery()){r.next();discarded=r.getBoolean(1);}}
+        }
+        c.commit();return discarded;
       } catch (RuntimeException | SQLException e) {
         try { c.rollback(); } catch (SQLException ignored) {}
         if (e instanceof RuntimeException r) throw r;

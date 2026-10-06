@@ -18,9 +18,13 @@ public final class RetentionFixtureMain {
     var config=new HikariConfig();config.setJdbcUrl(url);config.setUsername(env.get("RETENTION_FIXTURE_USER"));
     config.setPassword(env.getOrDefault("RETENTION_FIXTURE_PASSWORD",""));config.setMaximumPoolSize(3);
     var local=new BatchObjectStore.Local(env.get("RETENTION_FIXTURE_DIRECTORY"));
+    var concurrentCollections=new ArrayList<Map<String,Object>>();
     RetentionObjects objects=new RetentionObjects() {
       public Page list(String prefix,String token) { return local.list(prefix,token); }
       public void delete(String key) {
+        // Run collection on another DB connection while the real purge lease remains pending.
+        if(key.equals(env.get("RETENTION_FIXTURE_COLLECT_ON_DELETE"))&&concurrentCollections.isEmpty())
+          concurrentCollections.add(CollectionDuringRetentionFixture.collect());
         if(key.equals(env.get("RETENTION_FIXTURE_FAIL_KEY")))throw new CollectorFailure(503,env.getOrDefault("RETENTION_FIXTURE_FAIL_CODE","OBJECT_FORBIDDEN"));
         local.delete(key);
         if(key.equals(env.get("RETENTION_FIXTURE_CRASH_KEY")))Runtime.getRuntime().halt(77);
@@ -31,7 +35,7 @@ public final class RetentionFixtureMain {
       var alerts=new ArrayList<String>();
       var result=new BatchRetentionWorker(new RetentionRepository(db),objects,alerts::add)
           .once("true".equals(env.get("RETENTION_FIXTURE_RESTORE")));
-      System.out.println(Json.tree(Map.of("purged",result.purged(),"failed",result.failed(),"alerts",alerts)));
+      System.out.println(Json.tree(Map.of("purged",result.purged(),"failed",result.failed(),"alerts",alerts,"concurrentCollections",concurrentCollections)));
     }
   }
 }

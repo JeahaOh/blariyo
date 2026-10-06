@@ -1,6 +1,7 @@
 package com.blariyo.collector.run;
 
 import com.blariyo.collector.shared.CollectorFailure;
+import com.blariyo.collector.source.SourceRequestPolicy;
 import java.sql.SQLException;
 import java.util.Set;
 import java.util.function.LongConsumer;
@@ -19,7 +20,7 @@ final class DirectRequestBudget {
   }
   DirectRequestBudget(BatchStore store,String source,int limit,LongConsumer sleeper,LongSupplier nanoTime) {
     if(store==null)throw new CollectorFailure(503,"SOURCE_BUDGET_REQUIRED");
-    if(limit<1||limit>1000000)throw new CollectorFailure(503,"SOURCE_CONFIG_REQUIRED");
+    if(limit<1||limit>SourceRequestPolicy.MAX_DAILY_LIMIT)throw new CollectorFailure(503,"SOURCE_CONFIG_REQUIRED");
     this.store=store;this.source=source;this.limit=limit;this.sleeper=sleeper;this.nanoTime=nanoTime;
   }
   void reserve(long interval) {

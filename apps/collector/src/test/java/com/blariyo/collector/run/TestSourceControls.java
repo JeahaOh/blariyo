@@ -15,7 +15,10 @@ import static org.mockito.ArgumentMatchers.*;
 final class TestSourceControls {
   static SourceRegistry registry(JsonNode input) {
     var fixture=Json.parse(input.toString().getBytes(StandardCharsets.UTF_8));
-    for(var entry:fixture.properties())((ObjectNode)entry.getValue()).put("dailyRequestLimit",1000000);
+    for(var entry:fixture.properties()) {
+      var source=(ObjectNode)entry.getValue();source.put("dailyRequestLimit",1000000);
+      if(!source.has("requestIntervalMs"))source.put("requestIntervalMs",10000);
+    }
     return new SourceRegistry(fixture);
   }
   static SourceTransport allowRobots(SourceTransport delegate) {

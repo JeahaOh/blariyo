@@ -13,7 +13,7 @@ import java.util.*;
 import org.junit.jupiter.api.*;
 
 class DirectHttpControlReadbackTests {
-  @Test void realLoopbackHttpHonorsRobotsDelayQuotaAndNewClient() throws Exception {
+  @Test void realLoopbackHttpHonorsConfiguredDelayQuotaAndNewClient() throws Exception {
     String jdbc=System.getenv("COLLECTOR_READBACK_DATABASE_URL");
     Assumptions.assumeTrue(jdbc!=null&&!jdbc.isBlank(),"COLLECTOR_READBACK_DATABASE_URL not set");
     var config=new HikariConfig();config.setJdbcUrl(jdbc);config.setMaximumPoolSize(2);
@@ -33,7 +33,7 @@ class DirectHttpControlReadbackTests {
     String key="http-budget-"+UUID.randomUUID();
     var source=new SourceRegistry(Json.tree(Map.of(key,Map.of("host","fixture.invalid","approved",true,
       "parser","METADATA","pathPrefixes",List.of("/"),"userAgent","fixture contact.invalid",
-      "dailyRequestLimit",2,"requestIntervalMs",10000)))).key(key);
+      "dailyRequestLimit",2,"requestIntervalMs",5000)))).key(key);
     try(var db=new HikariDataSource(config);var http=HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()) {
       // Explicit test adapter: all packets go to this owned loopback server. Production PinnedHttp is unchanged.
       SourceTransport transport=new SourceTransport() {
@@ -46,16 +46,16 @@ class DirectHttpControlReadbackTests {
           }catch(Exception error){throw new AssertionError(error);}
         }
       };
-      var requests=SourceRequests.controlled(transport,DirectHttpControlReadbackTests::sleep,10000,source,new BatchStore(db),()->{});
-      assertEquals("ROBOTS_DISALLOWED",assertThrows(CollectorFailure.class,()->requests.fetch(URI.create("https://fixture.invalid/blocked"),source.policy(),1024)).getMessage());
-      assertEquals(List.of("/robots.txt"),paths);
+      var requests=SourceRequests.controlled(transport,DirectHttpControlReadbackTests::sleep,5000,source,new BatchStore(db),()->{});
+      assertEquals(200,requests.fetch(URI.create("https://fixture.invalid/blocked"),source.policy(),1024).status());
+      assertEquals(List.of("/blocked"),paths);
       requests.fetch(URI.create("https://fixture.invalid/allowed"),source.policy(),1024);
-      assertEquals(List.of("/robots.txt","/allowed"),paths);
-      assertTrue(times.get(1)-times.get(0)>=12_000_000_000L,"Crawl-delay must be observed at the receiving server");
+      assertEquals(List.of("/blocked","/allowed"),paths);
+      assertTrue(times.get(1)-times.get(0)>=5_000_000_000L,"Configured interval must be observed at the receiving server");
       assertEquals("SOURCE_DAILY_LIMIT_EXCEEDED",assertThrows(CollectorFailure.class,()->
-        SourceRequests.controlled(transport,DirectHttpControlReadbackTests::sleep,10000,source,new BatchStore(db),()->{})
+        SourceRequests.controlled(transport,DirectHttpControlReadbackTests::sleep,5000,source,new BatchStore(db),()->{})
           .fetch(URI.create("https://fixture.invalid/new-client"),source.policy(),1024)).getMessage());
-      assertEquals(List.of("/robots.txt","/allowed"),paths,"a fresh client must not reset the day or send robots again");
+      assertEquals(List.of("/blocked","/allowed"),paths,"a fresh client must not reset the day or send another request");
       try(var c=db.getConnection();var q=c.prepareStatement("SELECT request_count FROM collect.batch_request_budget WHERE source_key=?")) {
         q.setString(1,key);try(var row=q.executeQuery()){assertTrue(row.next());assertEquals(2,row.getInt(1));}
       }

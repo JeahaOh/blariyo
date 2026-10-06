@@ -20,44 +20,55 @@ class SourceRequestsTests {
     return TestSourceControls.registry(Json.tree(Map.of("arcalive",Map.of("host","arca.live","approved",true,
       "parser","ARCALIVE","pathPrefixes",List.of("/"),"userAgent","fixture contact.invalid")))).key("arcalive");
   }
-  @Test void robotsDeniedOrUnverifiedNeverSendsTheTarget() {
-    for(var robots:List.of(
-      new PinnedHttp.Response(200,"text/plain",Map.of(),"User-agent: *\nDisallow: /b/".getBytes()),
-      new PinnedHttp.Response(200,"text/html",Map.of(),"<html>challenge</html>".getBytes()),
-      new PinnedHttp.Response(200,"text/plain",Map.of(),"User-agent: *\nCrawl-delay: NaN".getBytes()),
-      new PinnedHttp.Response(404,"text/plain",Map.of(),new byte[0]))) {
+  @Test void robotsNeverBlocksOrAddsNetworkTraffic() {
+    for(var robot:List.of(response(403,Map.of()),response(404,Map.of()),
+        new PinnedHttp.Response(200,"text/plain",Map.of(),"User-agent: *\nDisallow: /\nCrawl-delay: 3600".getBytes()))) {
       var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
-      when(transport.get(any(),anyInt(),anyString())).thenReturn(robots);
-      assertThrows(CollectorFailure.class,()->SourceRequests.controlled(transport,x->{},10000,controlledSource(),store,()->{}).fetch(url,policy(),100));
-      verify(transport).get(eq(URI.create("https://arca.live/robots.txt")),eq(512*1024),anyString());
-      verify(transport,never()).get(eq(url),anyInt(),anyString());
-      verify(store).reserveRequest(eq("arcalive"),eq(1000000),eq(10000L),any(),any());
+      when(transport.get(any(),anyInt(),anyString())).thenAnswer(call ->
+          ((URI)call.getArgument(0)).getPath().equals("/robots.txt")?robot:response(200,Map.of()));
+      var requests=SourceRequests.controlled(transport,x->{},10000,controlledSource(),store,()->{});
+      assertEquals(200,requests.fetch(url,policy(),100).status());
+      var media=new SourcePolicy("cdn.fixture.invalid",List.of("/"),"","","fixture contact.invalid");
+      assertEquals(200,requests.fetch(URI.create("https://cdn.fixture.invalid/image.png"),media,100).status());
+      verify(transport,times(2)).get(any(),anyInt(),anyString());
+      verify(transport,never()).get(argThat(u->u.getPath().equals("/robots.txt")),anyInt(),anyString());
+      verify(store,times(2)).reserveRequest(eq("arcalive"),eq(1000000),eq(10000L),any(),any());
     }
   }
-  @Test void robotsCrawlDelayRetryAndMediaUseOnePersistentSourceBudget() {
+  @Test void retryAndMediaUseOnePersistentSourceBudget() {
     var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);var sleeps=new ArrayList<Long>();
-    var requested=new ArrayList<URI>();var attempt=new java.util.concurrent.atomic.AtomicInteger();
-    when(transport.get(any(),anyInt(),anyString())).thenAnswer(call->{
-      URI target=call.getArgument(0);requested.add(target);
-      if(target.getPath().equals("/robots.txt"))return new PinnedHttp.Response(200,"text/plain",Map.of(),"User-agent: *\nAllow: /\nCrawl-delay: 15".getBytes());
-      return response(attempt.incrementAndGet()==1?503:200,Map.of());
-    });
-    var requests=SourceRequests.controlled(transport,sleeps::add,10000,controlledSource(),store,()->{});
+    when(transport.get(any(),anyInt(),anyString())).thenReturn(response(503,Map.of()),response(200,Map.of()),response(200,Map.of()));
+    var requests=SourceRequests.controlled(transport,sleeps::add,15000,controlledSource(),store,()->{});
     requests.fetch(url,policy(),100);
-    var media=new SourcePolicy("cdn.fixture.invalid",List.of("/"),"","","fixture contact.invalid");
-    requests.fetch(URI.create("https://cdn.fixture.invalid/image.png"),media,100);
-    assertEquals(5,requested.size());assertEquals(List.of(10000L,15000L,15000L,15000L,15000L),sleeps);
-    verify(store,times(5)).reserveRequest(eq("arcalive"),eq(1000000),anyLong(),any(),any());
-    verify(store,times(4)).reserveRequest(eq("arcalive"),eq(1000000),eq(15000L),any(),any());
+    requests.fetch(URI.create("https://arca.live/image.png"),policy(),100);
+    assertEquals(List.of(15000L,15000L,15000L),sleeps);
+    verify(store,times(3)).reserveRequest(eq("arcalive"),eq(1000000),eq(15000L),any(),any());
   }
-  @Test void missingLimitAndBudgetOutageDenyAllContentRequests() {
+  @Test void defaultsAreRelaxedButInvalidLimitsAndBudgetOutageDenyRequests() {
     var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
-    var config=(tools.jackson.databind.node.ObjectNode)controlledSource().config().deepCopy();config.remove("dailyRequestLimit");
-    assertThrows(CollectorFailure.class,()->SourceRequests.controlled(transport,x->{},10000,new SourceRegistry.Source("arcalive",config),store,()->{}));
-    verifyNoInteractions(transport,store);
+    var config=(tools.jackson.databind.node.ObjectNode)controlledSource().config().deepCopy();
+    config.remove("dailyRequestLimit");config.remove("requestIntervalMs");
+    var source=new SourceRegistry.Source("arcalive",config);
+    when(transport.get(any(),anyInt(),anyString())).thenReturn(response(200,Map.of()));
+    SourceRequests.controlled(transport,x->{},5000,source,store,()->{}).fetch(url,policy(),100);
+    verify(store).reserveRequest(eq("arcalive"),eq(5000),eq(5000L),any(),any());
+    assertThrows(CollectorFailure.class,()->SourceRequests.controlled(transport,x->{},4999,source,store,()->{}));
+    config.put("dailyRequestLimit",0);
+    assertThrows(CollectorFailure.class,()->SourceRequests.controlled(transport,x->{},5000,source,store,()->{}));
+    reset(transport,store);
     doThrow(new CollectorFailure(503,"SOURCE_BUDGET_UNAVAILABLE")).when(store).reserveRequest(anyString(),anyInt(),anyLong(),any(),any());
     assertThrows(CollectorFailure.class,()->SourceRequests.controlled(transport,x->{},10000,controlledSource(),store,()->{}).fetch(url,policy(),100));
     verify(transport,never()).get(any(),anyInt(),anyString());
+  }
+  @Test void throttlingPersistsDeadlineAndStopsWithoutAnImmediateRetry() {
+    for(int status:List.of(429,503)) {
+      var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
+      when(transport.get(any(),anyInt(),anyString())).thenReturn(response(status,Map.of("Retry-After",List.of("3600"))));
+      var failure=assertThrows(CollectorFailure.class,()->SourceRequests.controlled(transport,x->{},15000,controlledSource(),store,()->{}).fetch(url,policy(),100));
+      assertTrue(SourceRequests.stopSite(failure));
+      verify(transport,times(1)).get(any(),anyInt(),anyString());
+      verify(store).deferRequests("arcalive",3600000L);
+    }
   }
   @Test void zeroAndThreeRedirectsSucceedButFourthDestinationIsNeverRequested() {
     for(int hops:List.of(0,3,4)) {
@@ -93,7 +104,7 @@ class SourceRequestsTests {
   }
   @Test void transientResponsesRespectIntervalAndRetryAfter() {
     var transport=mock(SourceTransport.class);var sleeps=new ArrayList<Long>();
-    when(transport.get(any(),anyInt(),anyString())).thenReturn(response(503,Map.of()),response(429,Map.of("Retry-After",List.of("12"))),response(200,Map.of()));
+    when(transport.get(any(),anyInt(),anyString())).thenReturn(response(503,Map.of()),response(503,Map.of("Retry-After",List.of("12"))),response(200,Map.of()));
     assertEquals(200,new SourceRequests(transport,sleeps::add,10000).fetch(url,policy(),100).status());
     assertEquals(List.of(10000L,10000L,12000L),sleeps);
   }

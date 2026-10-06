@@ -1,0 +1,96 @@
+{
+  "receipt": "worklog/2026-10-06/ai-quality-adoption/verification/2026-10-06T11-55-38.545Z-quality-37704.json",
+  "checks": [
+    {
+      "id": "contracts",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "ci",
+      "state": "pass",
+      "counts": {
+        "tests": 16,
+        "passed": 16,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "id": "build",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "api-test-build",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "types-scripts",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "types-tests",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "types-web",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "types-quality-rules",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "lint-api",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "lint-web",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "lint-scripts",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "lint-tests",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "lint-quality-rules",
+      "state": "pass",
+      "counts": null
+    },
+    {
+      "id": "unit",
+      "state": "pass",
+      "counts": {
+        "tests": 86,
+        "passed": 86,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    }
+  ],
+  "changedDuringOrAfterRun": [
+    "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+    "docs/planning/03-screen-design.md",
+    "docs/planning/content-collection/README.md",
+    "docs/system-design/03-api-design.md",
+    "tests/draft-title.test.ts"
+  ],
+  "currentDigest": "bd2b77ccd24e077bea332ed8c1763a4c561bd5fa889035df11b00cc5b0a9b4ca",
+  "completion": "incomplete; current input differs from tested input"
+}

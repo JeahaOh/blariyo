@@ -1,0 +1,225 @@
+{
+  "kind": "retrospective-real-change-observation",
+  "baseline": "12df6aedce57d41993d49060793656870c5c318f",
+  "current_head": "b9323667f39609fa42a75ae4e5870414dab9db94",
+  "records": [
+    {
+      "path": "apps/api/src/features/collection/collector-quota.service.ts",
+      "before_exists": true,
+      "before_hash": "2ffc5994dfce72230bc44c25065e64336681e066d4ca442e9afcc37f96ca4d7b",
+      "after_hash": "2fb77f12bf200ffb30d6d6ae52b508e7cc836dafd3b849dc8438ceededa6bf27",
+      "before_lines": 117,
+      "after_lines": 117,
+      "runs": [
+        {
+          "state": "before",
+          "tool": "selected-oxlint",
+          "seconds": 0.1514,
+          "exit": 0,
+          "findings": []
+        },
+        {
+          "state": "before",
+          "tool": "iron-laws",
+          "seconds": 0.6651,
+          "exit": 0,
+          "findings": [],
+          "unverified_rule_language_rate": 1.0
+        },
+        {
+          "state": "after",
+          "tool": "selected-oxlint",
+          "seconds": 0.1538,
+          "exit": 0,
+          "findings": []
+        },
+        {
+          "state": "after",
+          "tool": "iron-laws",
+          "seconds": 0.3808,
+          "exit": 0,
+          "findings": [],
+          "unverified_rule_language_rate": 1.0
+        }
+      ]
+    },
+    {
+      "path": "apps/api/src/features/collection/collector-result.service.ts",
+      "before_exists": true,
+      "before_hash": "57f7cbc26bee50f1177925ef00c24e3b5943203a558394257eb3ac19a0c4c22c",
+      "after_hash": "8f03d4d08e4d8f80a696c98b0c595abe25a560e3db8f80caecd3deb18d75f8ed",
+      "before_lines": 116,
+      "after_lines": 116,
+      "runs": [
+        {
+          "state": "before",
+          "tool": "selected-oxlint",
+          "seconds": 0.1572,
+          "exit": 0,
+          "findings": []
+        },
+        {
+          "state": "before",
+          "tool": "iron-laws",
+          "seconds": 0.3978,
+          "exit": 0,
+          "findings": [],
+          "unverified_rule_language_rate": 1.0
+        },
+        {
+          "state": "after",
+          "tool": "selected-oxlint",
+          "seconds": 0.1561,
+          "exit": 0,
+          "findings": []
+        },
+        {
+          "state": "after",
+          "tool": "iron-laws",
+          "seconds": 0.3697,
+          "exit": 0,
+          "findings": [],
+          "unverified_rule_language_rate": 1.0
+        }
+      ]
+    },
+    {
+      "path": "apps/web/shared/admin-return.ts",
+      "before_exists": true,
+      "before_hash": "e26cf4411ee00e73013eaad2998daa052f1c702500cabb99f2dd4e0462747ab7",
+      "after_hash": "1efa8ecd9d2f89a18766c26d80eca0d7e785444949b392aa72324fdfeccd6d61",
+      "before_lines": 20,
+      "after_lines": 20,
+      "runs": [
+        {
+          "state": "before",
+          "tool": "selected-oxlint",
+          "seconds": 0.151,
+          "exit": 0,
+          "findings": []
+        },
+        {
+          "state": "before",
+          "tool": "iron-laws",
+          "seconds": 0.3686,
+          "exit": 0,
+          "findings": [
+            {
+              "rule": "IL-301",
+              "line": 17,
+              "confidence": "REVIEW"
+            }
+          ],
+          "unverified_rule_language_rate": 1.0
+        },
+        {
+          "state": "after",
+          "tool": "selected-oxlint",
+          "seconds": 0.1484,
+          "exit": 0,
+          "findings": []
+        },
+        {
+          "state": "after",
+          "tool": "iron-laws",
+          "seconds": 0.332,
+          "exit": 0,
+          "findings": [
+            {
+              "rule": "IL-301",
+              "line": 17,
+              "confidence": "REVIEW"
+            }
+          ],
+          "unverified_rule_language_rate": 1.0
+        }
+      ]
+    },
+    {
+      "path": "apps/web/app/pages/admin.vue",
+      "before_exists": true,
+      "before_hash": "c8a3fab6278d5232df7653b8e03006445152123cbdebac7ac603fd810f00dab5",
+      "after_hash": "8e6d16a94934ed5f002a60a24d769b0970e19d5a6e17466c19b9a5d6d4bbd1ba",
+      "before_lines": 969,
+      "after_lines": 1005,
+      "runs": [
+        {
+          "state": "before",
+          "tool": "selected-oxlint",
+          "seconds": 0.1492,
+          "exit": 0,
+          "findings": []
+        },
+        {
+          "state": "before",
+          "tool": "iron-laws",
+          "status": "unsupported_vue"
+        },
+        {
+          "state": "after",
+          "tool": "selected-oxlint",
+          "seconds": 0.1533,
+          "exit": 0,
+          "findings": []
+        },
+        {
+          "state": "after",
+          "tool": "iron-laws",
+          "status": "unsupported_vue"
+        }
+      ]
+    },
+    {
+      "path": "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java",
+      "before_exists": true,
+      "before_hash": "21ae85ea4a67328cee633010181a9f79d9ce12e564551796d8e9d22e866e8227",
+      "after_hash": "60056e9a3a53551d615d8128f546acc8608cb2b8fb5a9c3df1899180c01dd0df",
+      "before_lines": 134,
+      "after_lines": 109,
+      "runs": [
+        {
+          "state": "before",
+          "tool": "selected-oxlint",
+          "status": "unsupported_java"
+        },
+        {
+          "state": "before",
+          "tool": "iron-laws",
+          "seconds": 0.4038,
+          "exit": 0,
+          "findings": [
+            {
+              "rule": "IL-301",
+              "line": 129,
+              "confidence": "REVIEW"
+            }
+          ],
+          "unverified_rule_language_rate": 0.75
+        },
+        {
+          "state": "after",
+          "tool": "selected-oxlint",
+          "status": "unsupported_java"
+        },
+        {
+          "state": "after",
+          "tool": "iron-laws",
+          "seconds": 0.3654,
+          "exit": 0,
+          "findings": [
+            {
+              "rule": "IL-301",
+              "line": 104,
+              "confidence": "REVIEW"
+            }
+          ],
+          "unverified_rule_language_rate": 0.75
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Five existing real changes, not five future development cycles",
+    "Static pattern coverage only; absent findings do not prove semantic correctness"
+  ]
+}

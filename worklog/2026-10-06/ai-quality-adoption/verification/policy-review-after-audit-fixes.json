@@ -1,0 +1,145 @@
+{
+  "status": "review_required",
+  "base": "85109e67779f046ddefd4b0440d163adc3df39ac",
+  "findings": [
+    {
+      "rule": "verification-policy-changed",
+      "path": ".github/workflows/ci.yml",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "package.json",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "inspection-policy-changed",
+      "path": "oxlint.config.ts",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 설정 변경: strict/ignore/rule/포함 범위 변경의 근거를 대조"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "scripts/quality/audit.ts",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "scripts/quality/policy.ts",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "scripts/quality/receipt.ts",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "scripts/quality/review-guards.ts",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "scripts/quality/verify.ts",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "tools/iron-laws/config.yml",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "tools/iron-laws/requirements.lock",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "tools/oxlint/anti-slop/index.ts",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "tools/oxlint/anti-slop/rules/no-reduce-accumulator-copy.ts",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "tools/oxlint/anti-slop/shared/array-method.ts",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    },
+    {
+      "rule": "inspection-policy-changed",
+      "path": "tools/oxlint/tsconfig.json",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 설정 변경: strict/ignore/rule/포함 범위 변경의 근거를 대조"
+    },
+    {
+      "rule": "verification-policy-changed",
+      "path": "tools/oxlint/tsconfig.json",
+      "line": 1,
+      "before": 1,
+      "after": 1,
+      "reason": "검사 실행·판정 정책 변경: 필수 명령/조건/실패 무시 여부를 이전 기준으로 검토"
+    }
+  ],
+  "unsupported": [
+    "AGENTS.md",
+    "README.md",
+    "apps/collector/src/test/java/com/blariyo/collector/source/ManualSiteAdapterTests.java",
+    "apps/collector/src/test/java/com/blariyo/collector/source/ObservedFixtureMain.java",
+    "apps/collector/src/test/java/com/blariyo/collector/source/SiteAdapterTests.java",
+    "apps/collector/src/test/java/com/blariyo/collector/source/SourceRegistryCompletenessTests.java",
+    "apps/web/app/pages/admin.vue",
+    "docs/ai/harness.md",
+    "docs/roadmap.md",
+    "docs/status.md",
+    "docs/testing/README.md",
+    "docs/testing/ci.md",
+    "docs/testing/local-playwright-docker.md",
+    "tools/iron-laws/README.md",
+    "tools/oxlint/anti-slop/LICENSE",
+    "tools/oxlint/anti-slop/UPSTREAM.md"
+  ],
+  "files": 38
+}

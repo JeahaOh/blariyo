@@ -1,0 +1,13 @@
+{
+  "scope": "Selected rule source, configuration, paired fixture and boundary review; excludes earlier mixed work",
+  "startedAt": "2026-10-06 11:47:27 UTC",
+  "finishedAt": "2026-10-06 11:47:43 UTC",
+  "seconds": 16,
+  "findings": [
+    "No autofix; local ownership must be checked before replacing copies with mutation",
+    "Array initial-value and binding resolution inspected; custom reduce semantics and nested callbacks are not complete semantic coverage",
+    "Bounded intentional copying may require human policy review; no unresolved false positive in evaluated fixtures",
+    "Assertion safety comments are syntactic markers and are excluded from enforcement"
+  ],
+  "decision": "Keep selected 2 rules; retain iron-laws as advisory"
+}

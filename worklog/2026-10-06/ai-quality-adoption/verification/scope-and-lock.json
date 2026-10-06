@@ -1,0 +1,41 @@
+{
+  "quality_files": {
+    "apps/api/src/persistence/entities.ts": {
+      "sha256": "67f0663c7eb24c4bb0b714d12cfa066cfaf56e62d0f37260907f2fa348a62474"
+    },
+    "apps/api/test/database.integration.test.ts": {
+      "sha256": "e7e1f6187db207c3e5c77c6c62ad8c410dbf72902231985851b2d0f5632754c1"
+    },
+    "apps/web/app/pages/admin.vue": {
+      "sha256": "8e6d16a94934ed5f002a60a24d769b0970e19d5a6e17466c19b9a5d6d4bbd1ba"
+    }
+  },
+  "baseline": "b9323667f39609fa42a75ae4e5870414dab9db94",
+  "lock": {
+    "removed_packages": [],
+    "changed_existing_packages": [],
+    "new_packages": [
+      "node_modules/@oxlint/binding-android-arm-eabi",
+      "node_modules/@oxlint/binding-android-arm64",
+      "node_modules/@oxlint/binding-darwin-arm64",
+      "node_modules/@oxlint/binding-darwin-x64",
+      "node_modules/@oxlint/binding-freebsd-x64",
+      "node_modules/@oxlint/binding-linux-arm-gnueabihf",
+      "node_modules/@oxlint/binding-linux-arm-musleabihf",
+      "node_modules/@oxlint/binding-linux-arm64-gnu",
+      "node_modules/@oxlint/binding-linux-arm64-musl",
+      "node_modules/@oxlint/binding-linux-ppc64-gnu",
+      "node_modules/@oxlint/binding-linux-riscv64-gnu",
+      "node_modules/@oxlint/binding-linux-riscv64-musl",
+      "node_modules/@oxlint/binding-linux-s390x-gnu",
+      "node_modules/@oxlint/binding-linux-x64-gnu",
+      "node_modules/@oxlint/binding-linux-x64-musl",
+      "node_modules/@oxlint/binding-openharmony-arm64",
+      "node_modules/@oxlint/binding-win32-arm64-msvc",
+      "node_modules/@oxlint/binding-win32-ia32-msvc",
+      "node_modules/@oxlint/binding-win32-x64-msvc",
+      "node_modules/@oxlint/plugins",
+      "node_modules/oxlint"
+    ]
+  }
+}

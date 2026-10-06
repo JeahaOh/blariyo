@@ -44,6 +44,20 @@ test('source configuration conforms to its schema', async () => {
   assert.equal(validate(invalid), false);
 });
 
+test('temporary source exclusions preserve registration and prevent direct collection', async () => {
+  const config = JSON.parse(await readFile(new URL('../../apps/collector/ops/reference-sites.sources.example.json', import.meta.url)));
+  const excluded = Object.keys(config).filter(key => config[key].blockedReason === 'SOURCE_DISABLED');
+  const policies = {arcalive:'HOT_LIST', bobaedream:'HOT_LIST', dcinside:'HOT_LIST', inven:'HOT_LIST', mlbpark:'GENERAL_LIST', pgr21:'DETAIL_ONLY'};
+  assert.deepEqual(excluded.sort(), Object.keys(policies).sort());
+  for (const key of excluded) {
+    assert.equal(config[key].approved, false, key);
+    assert.equal(config[key].collectionPolicy, policies[key], key);
+    if (policies[key] === 'HOT_LIST') assert.ok(config[key].charts.hot, key);
+    if (policies[key] === 'GENERAL_LIST') assert.ok(config[key].charts.latest, key);
+    if (policies[key] === 'DETAIL_ONLY') assert.deepEqual(config[key].charts, {}, key);
+  }
+});
+
 test('readback manifests use an available chart for each source policy', async () => {
   const root = new URL('../../apps/collector/ops/', import.meta.url);
   const sources = JSON.parse(await readFile(new URL('reference-sites.sources.example.json', root)));

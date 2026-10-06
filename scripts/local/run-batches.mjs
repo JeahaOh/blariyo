@@ -1,4 +1,4 @@
-// Run every registered source through the existing fixed-local-DB batch command.
+// Run registered sources except explicitly disabled ones through the fixed-local-DB command.
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {spawn} from 'node:child_process';
@@ -33,10 +33,11 @@ if (args.includes('--help')) {
     const sourcePath = resolve(process.env.COLLECTOR_SOURCE_CONFIG ?? 'apps/collector/ops/reference-sites.sources.example.json');
     const config = JSON.parse(await readFile(sourcePath, 'utf8'));
     if (!config || Array.isArray(config) || typeof config !== 'object' || !Object.keys(config).length) throw new Error('SOURCE_CONFIG_INVALID');
-    const sources = Object.keys(config);
+    const excludedSources = Object.keys(config).filter(source => config[source]?.blockedReason === 'SOURCE_DISABLED');
+    const sources = Object.keys(config).filter(source => !excludedSources.includes(source));
     process.on('SIGINT', onInt);
     process.on('SIGTERM', onTerm);
-    console.log(JSON.stringify({event:'batch-pool-started', sources:sources.length, concurrency:Math.min(concurrency, sources.length)}));
+    console.log(JSON.stringify({event:'batch-pool-started', sources:sources.length, excludedSources, concurrency:Math.min(concurrency, sources.length)}));
     const results = await runSourcePool(sources, concurrency, source => new Promise((yes, no) => {
       console.log(JSON.stringify({event:'source-started', source}));
       const child = spawn(process.execPath, ['scripts/local/run-batch.mjs', 'batch', '--source', source, ...args], {

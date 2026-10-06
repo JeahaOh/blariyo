@@ -479,7 +479,8 @@ API는 batch queue/confirmation 직접 권한을 받지 않는다. batch에 API 
 
 ## 로컬 다중 출처 배치 동시 실행 설정
 
-- `scripts/local/run-batches.mjs`는 등록된 출처마다 기존 `run-batch.mjs batch --source ...`를 실행한다. 대상은 기존 실행기와 같은 로컬 DB `127.0.0.1:5439/blariyo_local`이다. 단일 출처·queue·운영 스케줄러의 동시 실행 수를 바꾸지 않는다.
+- `scripts/local/run-batches.mjs`는 등록된 출처 중 `blockedReason: SOURCE_DISABLED`를 제외하고 기존 `run-batch.mjs batch --source ...`를 실행한다. 시작 로그의 `excludedSources`에 제외 출처를 남긴다. 대상은 기존 실행기와 같은 로컬 DB `127.0.0.1:5439/blariyo_local`이다. 단일 출처·queue·운영 스케줄러의 동시 실행 수를 바꾸지 않는다.
+- 2026-10-06 임시 제외: 기본 `apps/collector/ops/reference-sites.sources.example.json`의 `dcinside`, `arcalive`, `bobaedream`, `inven`, `mlbpark`, `pgr21`을 `approved: false`, `blockedReason: SOURCE_DISABLED`로 설정한다. 직접 실행도 기존 정책 검증에서 차단한다. 재개 결정 시 해당 두 값을 `true`, 빈 문자열로 복구한다. 별도 `COLLECTOR_SOURCE_CONFIG` 또는 운영 장비의 설정 사본에는 별도 반영이 필요하며 과거 실행 snapshot은 자동 갱신하지 않는다.
 - 기본 상수는 `scripts/local/batch-concurrency.mjs`의 `DEFAULT_SOURCE_CONCURRENCY = 3`이다. `COLLECTOR_SOURCE_CONCURRENCY` 환경변수로 덮어쓰며 양의 정수만 허용한다. 실제 worker 수는 등록 출처 수 이하로 제한한다. 값은 실행 시작 때 읽고, 한 실행기 프로세스에 적용한다.
 - `COLLECTOR_SOURCE_CONFIG`로 출처 설정 JSON을 선택하고, 미지정 시 `apps/collector/ops/reference-sites.sources.example.json`을 사용한다. 등록된 모든 출처를 실행하되 기존 Java 배치의 출처 승인·차단 판정을 유지한다.
 - 한 출처가 끝나면 다음 출처를 즉시 시작한다. 출처별 비정상 종료를 기록하고 나머지를 계속 실행하며, 하나라도 비정상 종료면 전체 종료 코드는1이다. 중지 시 대기 출처를 시작하지 않고 실행 중인 Java 프로세스까지 신호를 전달한다.

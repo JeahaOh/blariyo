@@ -1,6 +1,6 @@
 {
   "arcalive": {
-    "approved": true,
+    "approved": false,
     "host": "arca.live",
     "pathPrefixes": [
       "/"
@@ -24,7 +24,7 @@
       "hot": "https://arca.live/b/live"
     },
     "chartVerified": true,
-    "blockedReason": "",
+    "blockedReason": "SOURCE_DISABLED",
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
@@ -45,7 +45,7 @@
     "datePolicy": "INCLUDE_UNKNOWN"
   },
   "bobaedream": {
-    "approved": true,
+    "approved": false,
     "host": "www.bobaedream.co.kr",
     "pathPrefixes": [
       "/"
@@ -75,7 +75,7 @@
       "hot": "https://www.bobaedream.co.kr/list?code=best"
     },
     "chartVerified": true,
-    "blockedReason": "",
+    "blockedReason": "SOURCE_DISABLED",
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
@@ -137,7 +137,7 @@
     "datePolicy": "INCLUDE_UNKNOWN"
   },
   "dcinside": {
-    "approved": true,
+    "approved": false,
     "host": "gall.dcinside.com",
     "pathPrefixes": [
       "/board/view/",
@@ -171,7 +171,7 @@
       "hot": "https://gall.dcinside.com/board/lists/?id=hit"
     },
     "chartVerified": true,
-    "blockedReason": "",
+    "blockedReason": "SOURCE_DISABLED",
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
@@ -527,7 +527,7 @@
     "datePolicy": "INCLUDE_UNKNOWN"
   },
   "inven": {
-    "approved": true,
+    "approved": false,
     "host": "www.inven.co.kr",
     "pathPrefixes": [
       "/"
@@ -548,7 +548,7 @@
       "hot": "https://www.inven.co.kr/best/issue"
     },
     "chartVerified": true,
-    "blockedReason": "",
+    "blockedReason": "SOURCE_DISABLED",
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
@@ -569,7 +569,7 @@
     "datePolicy": "INCLUDE_UNKNOWN"
   },
   "mlbpark": {
-    "approved": true,
+    "approved": false,
     "host": "mlbpark.donga.com",
     "pathPrefixes": [
       "/mp/b.php"
@@ -596,7 +596,7 @@
       "latest": "https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen"
     },
     "chartVerified": true,
-    "blockedReason": "",
+    "blockedReason": "SOURCE_DISABLED",
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",
@@ -663,7 +663,7 @@
     "datePolicy": "INCLUDE_UNKNOWN"
   },
   "pgr21": {
-    "approved": true,
+    "approved": false,
     "host": "pgr21.com",
     "pathPrefixes": [
       "/"
@@ -682,7 +682,7 @@
     "bodySelector": ".viewContent, .post_content, #view_content, article .content",
     "charts": {},
     "chartVerified": false,
-    "blockedReason": "",
+    "blockedReason": "SOURCE_DISABLED",
     "maxPages": 2,
     "maxItems": 20,
     "recrawl": "skip",

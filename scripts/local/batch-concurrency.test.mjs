@@ -74,7 +74,7 @@ test('CLI runs bounded child processes and preserves per-source failures and opt
     await mkdir(scripts, {recursive:true});
     for (const name of ['run-batches.mjs', 'batch-concurrency.mjs']) await copyFile(resolve('scripts/local', name), join(scripts, name));
     const config = join(root, 'sources.json');
-    await writeFile(config, JSON.stringify({first:{}, second:{}, third:{}, fourth:{}}));
+    await writeFile(config, JSON.stringify({first:{}, disabled:{approved:false,blockedReason:'SOURCE_DISABLED'}, second:{}, third:{}, fourth:{}}));
     await writeFile(join(scripts, 'run-batch.mjs'), `
       import assert from 'node:assert/strict';
       assert.deepEqual(process.argv.slice(2).filter((_,i)=>i!==2), ['batch','--source','--max-items','10','--write-db']);
@@ -92,6 +92,9 @@ test('CLI runs bounded child processes and preserves per-source failures and opt
     assert.equal(code, 1, errors);
     assert.equal(errors, '');
     const events = output.trim().split('\n').map(line => JSON.parse(line));
+    assert.deepEqual(events[0].excludedSources, ['disabled']);
+    assert.equal(events[0].sources, 4);
+    assert.equal(events.some(event => event.source === 'disabled'), false);
     let active = 0, peak = 0;
     for (const event of events) {
       if (event.event === 'source-started') peak = Math.max(peak, ++active);
@@ -101,6 +104,15 @@ test('CLI runs bounded child processes and preserves per-source failures and opt
     assert.equal(active, 0);
     assert.deepEqual(events.at(-1).results.map(result => result.source).sort(), ['first','fourth','second','third']);
     assert.equal(events.at(-1).results.find(result => result.source === 'second').exitCode, 2);
+    await writeFile(config, JSON.stringify({disabled:{approved:false,blockedReason:'SOURCE_DISABLED'}}));
+    const empty = spawnSync(process.execPath, [join(scripts, 'run-batches.mjs'), '--write-db'], {
+      cwd:root, env:{...process.env, COLLECTOR_SOURCE_CONFIG:config}, encoding:'utf8',
+    });
+    assert.equal(empty.status, 0, empty.stderr);
+    const emptyEvents = empty.stdout.trim().split('\n').map(line => JSON.parse(line));
+    assert.equal(emptyEvents[0].sources, 0);
+    assert.deepEqual(emptyEvents.at(-1).results, []);
+    assert.equal(emptyEvents.some(event => event.event === 'source-started'), false);
   } finally { await rm(root, {recursive:true, force:true}); }
 });
 

@@ -716,8 +716,10 @@ URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하�
   FETCHED 항목만 가능하며 검수 기록이 없으면 lockVersion은 0이다. 상세 응답의 contentDigest(원문·미디어 snapshot SHA-256 hex)를 그대로 전달하고 현재 내용과 다르면 409 BATCH_ITEM_VERSION_CONFLICT로 거부한다. 승인·반려는 바로 저장하며 기존 REVIEWING은 조회·필터에서 UNREVIEWED로 매핑한다. 신규 REVIEWING 요청은 400이다.
 - draft 요청은 두 version과 `boardSlug`, 선택 `title`이다. APPROVED와 현재 원문 digest가 일치해야 한다.
   Web 목록·상세 표시 제목/초안 기본값과 API 초안 저장 제목은 공유 `@blariyo/contracts/draft-title` 규칙으로 보정한다.
-  해당 sourceKey의 알려진 사이트명·게시판명(예: `보배드림 베스트글`)만 공백 뒤 구분자(`-`, `–`, `—`, `|`)와 함께 제목 끝에서 제거하고,
+  해당 sourceKey의 알려진 사이트명·게시판명(예: `보배드림 베스트글`)만 공백 뒤 구분자(`-`, `–`, `—`, `|`, `:`)와 함께 제목 끝에서 반복 제거하고,
   나머지가 빈 제목이면 제거하지 않는다. 미등록 출처·다른 출처명·제목 중간 문구는 유지한다.
+  `natepann`의 `네이트판`/`네이트 판`을 모두 허용하며 알려진 명칭 내부 공백은 연속 공백·NBSP와도 일치한다. `yuldo`의 `유머/이슈 - YULDO`, `etoland`의 `유머 게시판 | 이토랜드`는 각 알려진 접미사를 모두 제거한다.
+  제목 앞 접두어는 `todayhumor=오늘의유머`, `theqoo=더쿠`, `dmitory=이슈/유머`에 한정하며 명칭+공백+구분자를 제거한다. 각 제거 단계에서 나머지가 비면 제거하지 않는다. 재적용해도 결과는 동일하다.
   원제목 및 source 필드는 변경하지 않으며 보정 후 기존 제목 길이 검증을 적용한다.
   두 POST 모두 `Idempotency-Key`를 요구하고 actor·작업·item·key 및 body hash로 완료 결과를 재생한다.
 - API는 batch 결과 테이블을 읽고 API 소유 review/receipt 및 Core 초안·이미지를 쓴다. batch item 상태나

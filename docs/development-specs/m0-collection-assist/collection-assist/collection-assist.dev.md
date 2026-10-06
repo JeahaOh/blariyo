@@ -1141,7 +1141,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 BATCH_ITEM_VERSION_CONFLICT로 거부하고 재검수를 요구한다. 목록 조회는 개별 본문 검증과 분리해 손상된
 본문 하나가 목록 전체를 막지 않게 한다. DRAFT 응답은 게시글 lockVersion과 reviewLockVersion을 구분한다.
 운영자는 초안 승격 요청에 title(1~200자)을 지정할 수 있다. 현행 batch 목록·상세 표시 제목, 초안 기본값과 API 저장 제목은
-[API 설계의 출처 접미사 규칙](../../../system-design/03-api-design.md#5-2-direct-batch-결과-조회검수초안-승격)을 적용한다.
+[API 설계의 출처별 접두어·연속 접미사 규칙](../../../system-design/03-api-design.md#5-2-direct-batch-결과-조회검수초안-승격)을 적용한다.
 생략 시 원제목을 보정하며, 보정 후에도 제목이 한도를 넘으면 실패한다. 원제목·출처 정보는 보존한다.
 
 수집 이미지 미리보기와 초안 승격은 동일한 수집 전용 이미지 검증을 사용한다. 파일당 30MiB,

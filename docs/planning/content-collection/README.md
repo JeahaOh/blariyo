@@ -16,6 +16,7 @@
 - 화면 계약: [화면 설계](../03-screen-design.md)
 - 기술 계약: [시스템 설계](../../system-design/README.md)
 - 법무·출시 차단: [법무 문서](../../legal/README.md)
+- 후속 아이디어: [콘텐츠 수집 백로그](BACKLOG.md) — 구현 미확정 제안 보관
 
 이 문서는 콘텐츠를 어디서 어떻게 후보로 가져오고, 어떤 순서와 조건으로 수집 기능을
 활성화할지 결정한다. DB 자료형, endpoint payload, container와 cron 명령은 시스템 설계의

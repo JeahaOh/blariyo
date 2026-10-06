@@ -30,7 +30,7 @@ function summaryIs(value: unknown): value is BatchSummary {
 function url(value: string) { try { return new URL(value).href; } catch { fail(409, 'BATCH_CONTENT_INVALID'); } }
 function snapshot(item: BatchResultRow, media: BatchMedia[]) {
   // Processing diagnostics are not part of the original-content review snapshot.
-  const reviewedItem=Object.fromEntries(Object.entries(item).filter(([key])=>!['failure_code','skip_reason','collected_at','review_finalized_at','expires_at','retention_state','accessDeadline'].includes(key)));
+  const reviewedItem=Object.fromEntries(Object.entries(item).filter(([key])=>!['failure_code','skip_reason','fetched_at','collected_at','review_finalized_at','expires_at','retention_state','accessDeadline'].includes(key)));
   return collectionDigest({ item: reviewedItem, media: media.map(m => ({ ...m, hash: m.hash?.toString('hex') ?? null })) });
 }
 function uniqueConflict(error: unknown) {
@@ -60,6 +60,7 @@ export class BatchReviewService {
     const value = { itemId: item.id, sourceKey: item.source_key, sourcePostKey: item.source_post_key,
       canonicalUrl: url(item.canonical_url), state: item.state, version: Number(item.version), title: item.title,
       failureCode: item.failure_code, skipReason: item.skip_reason,
+      fetchedAt: item.state === 'FETCHED' ? item.fetched_at : null,
       retention: { collectedAt: item.collected_at, reviewFinalizedAt: item.review_finalized_at,
         expiresAt: item.expires_at, retentionState: item.retention_state },
       review: this.reviewDto(item, review) };

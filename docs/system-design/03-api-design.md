@@ -942,6 +942,8 @@ runtime source는 sourceKey, configVersion(nullable SHA-256), loadedAt/observedA
 [OpenAPI](../development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml)의 신규4개 operation은 `x-implementation-status: implemented-local`이다. 9/27 실행용 `packages/contracts` 사본·생성 타입·controller/guard/BFF/UI를 동기화하고 계약 생성·API/DB·브라우저 시험을 완료했다. 실제 운영 endpoint 활성화와 운영자 인수는 별도다.
 
 
+2026-10-07: `BatchItemSummary`/`BatchItem`의 `fetchedAt`은 nullable ISO 8601 시각이다. `FETCHED` 상태의 `collect.batch_item.fetched_at`만 반환하며 미완료 또는 기록 부재는 null이다. 보존 시작 `retention.collectedAt`으로 대체하지 않는다. 완료 시각은 원문 검수 contentDigest에 포함하지 않는다.
+
 D01의 목표 응답 확장: BatchItemSummary/BatchItem에 `retention={collectedAt,reviewFinalizedAt,expiresAt,retentionState}`를 추가한다. 목록은 LIVE이면서 현재 시각<expiresAt인 항목만 조회하고 total에도 같은 조건을 쓴다. 만료 item의 전체 URL·제목·본문을 '만료 목록'에 남기지 않는다. 상세/preview/검수/승격은 lifecycle가 남아 있으면410, 정리 후404다. 성공 영수증 재생도 이 접근 기한을 우회하지 않으며 이미 생성된 content 초안 결과는 원문 없이 postId만 반환할 수 있다. UI는 마지막 원문 preview를 폐기하고 독립 게시글 링크만 유지한다.
 
 ## 공통코드 관리 — 2026-10-05

@@ -717,6 +717,8 @@ export interface components {
             postId: number | null;
         };
         BatchItemSummary: {
+            /** @description 글의 원문과 첨부 저장을 마친 시각. FETCHED가 아니거나 기록이 없으면 null. */
+            fetchedAt: string | null;
             retention: components["schemas"]["BatchRetention"];
             /** Format: uuid */
             itemId: string;
@@ -733,6 +735,8 @@ export interface components {
             review: components["schemas"]["BatchReview"];
         };
         BatchItem: {
+            /** @description 글의 원문과 첨부 저장을 마친 시각. FETCHED가 아니거나 기록이 없으면 null. */
+            fetchedAt: string | null;
             /** @description 상세 조회 시 원문과 미디어의 snapshot. 승인/반려 요청에 그대로 전달한다. */
             contentDigest: string;
             retention: components["schemas"]["BatchRetention"];

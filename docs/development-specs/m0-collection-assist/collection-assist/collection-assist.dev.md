@@ -1253,3 +1253,7 @@ mobile은 입력→요청 상태→검수 순서로 표시하고 status는 aria-
 ### 관리자 실패 항목 삭제 — 2026-10-06
 
 단건/선택 삭제는 OWNER/EDITOR 공통 기능이다. `POST /api/v1/admin/collect/batch-items/{itemId}/delete`에 목록의 itemVersion·lockVersion과 고유 Idempotency-Key를 전달한다. 수집 완료 항목은 반려하며 실패/차단의 미검수·미연결만 삭제한다. 선택 건수를 확인한 뒤 순차 실행하고 항목별 성공/실패/미확인을 표시한다. 상세 조회 실패에 의존하지 않는다. 같은 요청은 삭제 후에도 재생하고 파일 정리는 정확한 item/run 별도 작업으로 남긴다. [기술 계약](../../../system-design/03-api-design.md#관리자-실패-항목-삭제--2026-10-06)을 따른다.
+
+### 관리자 글별 수집 완료 시각 — 2026-10-07
+
+목록·상세의 nullable `fetchedAt`은 글의 원문·첨부 저장 완료 시각이다. FETCHED 외 상태는 null을 반환한다. 검수 화면은 한국 시간 `YYYY. MM. DD. HH24:mi:ss`로 표시하며 기록이 없는 완료 항목은 미기록으로 표시한다. 보존 시작이나 배치 전체 종료 시각을 대신 쓰지 않는다. 원문 검수 digest와 DB schema는 변경하지 않는다.

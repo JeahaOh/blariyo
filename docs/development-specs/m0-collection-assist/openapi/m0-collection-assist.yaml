@@ -4902,6 +4902,12 @@ components:
       type: object
       additionalProperties: false
       properties:
+        fetchedAt:
+          description: 글의 원문과 첨부 저장을 마친 시각. FETCHED가 아니거나 기록이 없으면 null.
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
         retention:
           $ref: "#/components/schemas/BatchRetention"
         itemId:
@@ -4951,6 +4957,7 @@ components:
         review:
           $ref: "#/components/schemas/BatchReview"
       required:
+        - fetchedAt
         - retention
         - itemId
         - sourceKey
@@ -4966,6 +4973,12 @@ components:
       type: object
       additionalProperties: false
       properties:
+        fetchedAt:
+          description: 글의 원문과 첨부 저장을 마친 시각. FETCHED가 아니거나 기록이 없으면 null.
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
         contentDigest:
           type: string
           pattern: "^[a-f0-9]{64}$"
@@ -5081,6 +5094,7 @@ components:
               - byteSize
           maxItems: 1000
       required:
+        - fetchedAt
         - contentDigest
         - retention
         - itemId

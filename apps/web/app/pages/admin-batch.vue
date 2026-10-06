@@ -5,6 +5,15 @@ definePageMeta({ path: '/admin/batch' });
 type Decision = 'APPROVED' | 'REJECTED' | 'DRAFT' | 'PUBLISH';
 type Filters = { source: string; state: string; reviewStatus: string };
 type BatchRow = ApiResponse<'listBatchItems'>['data']['items'][number];
+const completionDateFormat = new Intl.DateTimeFormat('sv-SE', {
+  timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit',
+  hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+});
+function completionTime(value: string) {
+  const parts = completionDateFormat.formatToParts(new Date(value));
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find(item => item.type === type)?.value;
+  return `${part('year')}. ${part('month')}. ${part('day')}. ${part('hour')}:${part('minute')}:${part('second')}`;
+}
 type BulkEntry = {
   item: BatchRow;
   key: string;
@@ -651,6 +660,10 @@ useUiLoading(() => busy.value || listLoading.value);
                 {{ collectionLabels[item.state] || item.state }} · {{ item.state === 'FETCHED' ? labels[item.review.status] : '검수 대상 아님'
                 }}{{ item.review.postId ? ` · 게시글 ${item.review.postId}` : '' }}</span
               >
+              <span v-if="item.state === 'FETCHED'" class="batch-completion-time">
+                <template v-if="item.fetchedAt">수집 완료 · <time :datetime="item.fetchedAt">{{ completionTime(item.fetchedAt) }}</time></template>
+                <template v-else>수집 완료 시각 미기록</template>
+              </span>
             </li>
           </ul>
           <nav v-if="listing?.data.items.length && listing.data.totalPages > 1" class="batch-pagination" aria-label="수집 결과 페이지">
@@ -680,6 +693,10 @@ useUiLoading(() => busy.value || listLoading.value);
               <p>
                 {{ collectionLabels[selected.state] || selected.state }} ·
                 {{ selected.state === 'FETCHED' ? labels[selected.review.status] : '검수 대상 아님' }}
+              </p>
+              <p v-if="selected.state === 'FETCHED'" class="batch-completion-time">
+                <template v-if="selected.fetchedAt">수집 완료 · <time :datetime="selected.fetchedAt">{{ completionTime(selected.fetchedAt) }}</time></template>
+                <template v-else>수집 완료 시각 미기록</template>
               </p>
               <ol v-if="selected.state === 'FETCHED'" class="batch-workflow" aria-label="원문 검수부터 발행까지">
                 <li :class="{ complete: flowStep > 1, current: flowStep === 1 }">원문 확인</li>

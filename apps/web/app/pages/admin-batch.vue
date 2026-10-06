@@ -677,9 +677,6 @@ useUiLoading(() => busy.value || listLoading.value);
             </div>
             <div class="batch-detail">
               <h2 tabindex="-1">{{ draftTitle(selected.title || '', selected.sourceKey) || '제목을 가져오지 못한 글' }}</h2>
-              <a :href="selected.canonicalUrl" target="_blank" rel="noopener noreferrer"
-                >원문 확인 ↗</a
-              >
               <p>
                 {{ collectionLabels[selected.state] || selected.state }} ·
                 {{ labels[selected.review.status] }}
@@ -706,23 +703,26 @@ useUiLoading(() => busy.value || listLoading.value);
                   maxlength="200"
                   :disabled="locked || !!selected.review.postId"
               /></label>
-              <div class="actions">
-                <button v-if="deletable(selected)" :disabled="locked" @click="requestDeletion([selected])">삭제</button>
-                <button
-                  :disabled="locked || selected.state !== 'FETCHED' || !!selected.review.postId"
-                  @click="decide('REJECTED')"
-                >
-                  반려
-                </button>
-                <button
-                  :disabled="locked || selected.state !== 'FETCHED' || !!selected.review.postId || !title.trim()"
-                  :class="{ 'batch-action-primary': selected.review.status !== 'APPROVED' }"
-                  @click="decide('APPROVED')"
-                >
-                  승인 및 발행
-                </button>
+              <div class="batch-detail-actions" role="group" aria-label="수집 항목 처리">
+                <div class="actions">
+                  <a class="batch-original-link" :href="selected.canonicalUrl" target="_blank" rel="noopener noreferrer" title="원본 게시글을 새 탭에서 열기">원본 열기 ↗</a>
+                  <button v-if="deletable(selected)" :disabled="locked" @click="requestDeletion([selected])">삭제</button>
+                  <button
+                    :disabled="locked || selected.state !== 'FETCHED' || !!selected.review.postId"
+                    @click="decide('REJECTED')"
+                  >
+                    반려
+                  </button>
+                  <button
+                    :disabled="locked || selected.state !== 'FETCHED' || !!selected.review.postId || !title.trim()"
+                    :class="{ 'batch-action-primary': selected.review.status !== 'APPROVED' }"
+                    @click="decide('APPROVED')"
+                  >
+                    승인 및 발행
+                  </button>
+                  <button v-if="linkedPost?.status === 'DRAFT'" class="batch-action-primary" :disabled="locked" @click="decide('PUBLISH')">발행 재시도</button>
+                </div>
               </div>
-              <button v-if="linkedPost?.status === 'DRAFT'" class="batch-action-primary" :disabled="locked" @click="decide('PUBLISH')">발행 재시도</button>
               <p v-if="linkedPost">게시글 상태: {{ linkedPost.status === 'PUBLISHED' ? '발행 완료' : linkedPost.status === 'DRAFT' ? '초안' : linkedPost.status === 'SCHEDULED' ? '예약' : '비공개' }}</p>
               <p v-if="selected.review.postId">
                 연결된 게시글: {{ selected.review.postId }} ·

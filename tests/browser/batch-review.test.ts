@@ -241,7 +241,7 @@ await test(
           .click();
         await expect(detail).toContainText('검수용 원문 첫 문단');
         await expect(
-          detail.getByRole('link', { name: '원문 확인 ↗', exact: true })
+          detail.getByRole('link', { name: '원본 열기 ↗', exact: true })
         ).toHaveAttribute('href', item.url);
         await expect(detail.getByRole('link', { name: '원문 첨부.pdf' })).toHaveAttribute(
           'href',

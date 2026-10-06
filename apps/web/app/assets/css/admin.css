@@ -384,6 +384,10 @@
   min-width: 0;
   overflow: hidden;
 }
+.batch-detail-panel {
+  /* Preserve rounded clipping without trapping the sticky action bar. */
+  overflow: clip;
+}
 .batch-panel-heading {
   display: flex;
   justify-content: space-between;
@@ -497,9 +501,19 @@
   font-size: 12px;
 }
 .batch-detail {
+  --batch-detail-padding: 18px;
   margin: 0;
-  padding: 18px;
+  padding: var(--batch-detail-padding);
   border: 0;
+}
+.batch-detail-actions {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: 12px calc(-1 * var(--batch-detail-padding)) 16px;
+  padding: 10px var(--batch-detail-padding);
+  border-bottom: 1px solid var(--admin-line);
+  background: #fff;
 }
 .batch-detail h2 {
   margin: 0 0 8px;
@@ -517,9 +531,29 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   max-width: 480px;
-  margin: 12px 0 16px;
+  margin: 0;
 }
 .batch-detail .actions button { min-height: 44px; font-size: 14px; line-height: 20px; margin: 0; }
+.batch-original-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-right: auto;
+  padding: 8px 12px;
+  border: 1px solid #9eb0b7;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--admin-brand);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 20px;
+  white-space: nowrap;
+}
+.batch-original-link:hover {
+  background: #e5f4f2;
+  text-decoration: none;
+}
 .batch-detail .actions button:last-child {
   background: #087f7b;
   border-color: #087f7b;
@@ -600,7 +634,7 @@
     gap: 12px;
   }
   .batch-detail {
-    padding: 15px;
+    --batch-detail-padding: 15px;
   }
 }
 @media (min-width: 768px) and (max-width: 900px) {
@@ -717,10 +751,14 @@
     display: none;
   }
   .batch-detail {
-    padding: 14px;
+    --batch-detail-padding: 14px;
   }
 }
 @media (max-width: 380px) {
+  .batch-original-link {
+    flex-basis: 100%;
+    margin-right: 0;
+  }
   .admin-account {
     gap: 4px;
   }

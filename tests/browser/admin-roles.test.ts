@@ -38,6 +38,14 @@ await test('D04-T1/T3/T4: signed Access BFF identities, forged role ignored and 
   await expect(page.getByRole('button', { name: '새 초안', exact: true })).toBeVisible();
   assert.equal((await context.request.get(fixture.origin + '/api/v1/admin/posts?page=1')).status(), 200);
   assert.equal((await context.request.get(fixture.origin + '/api/admin/features')).status(), 200);
+  await page.goto(fixture.origin + '/admin/common-codes');
+  await expect(page.getByRole('heading', { name: '출처 코드 21개' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '코드 등록', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '더쿠 수정', exact: true })).toHaveCount(0);
+  assert.equal((await context.request.post(fixture.origin + '/api/v1/admin/common-code-groups/source/codes', {
+    headers: { Origin: fixture.origin, 'X-Blariyo-Admin-Role': 'OWNER' },
+    data: { code: 'test', referenceKey: 'forged-editor', displayName: '위조 권한' },
+  })).status(), 403);
   // No browser reload, new token or server restart: the next BFF call must read the changed registry.
   await fixture.setOperators([owner, { ...editor, active: false }]);
   assert.equal((await context.request.get(fixture.origin + '/api/v1/admin/posts?page=1')).status(), 403);

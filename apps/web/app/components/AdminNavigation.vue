@@ -16,6 +16,7 @@ const { data: features } = await useAsyncData('admin-features', () =>
       :aria-current="route.path === '/admin/batch' ? 'page' : undefined"
       >수집 결과 검수</NuxtLink
     >
+    <NuxtLink to="/admin/common-codes" :aria-current="route.path === '/admin/common-codes' ? 'page' : undefined">공통코드 관리</NuxtLink>
     <NuxtLink to="/meme">공개 목록</NuxtLink>
   </nav>
 </template>

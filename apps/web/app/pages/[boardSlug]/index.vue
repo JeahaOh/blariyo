@@ -61,6 +61,7 @@ function changePage(page: number) {
   });
   return navigateTo({ query: { page } });
 }
+useUiLoading(() => status.value === 'pending');
 </script>
 <template>
   <main class="board-page">

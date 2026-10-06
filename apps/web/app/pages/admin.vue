@@ -4,6 +4,10 @@ import type { components } from '@blariyo/contracts/api';
 import { uploadError } from '../utils/upload-errors.mjs';
 import { editorErrors } from '../utils/editor-validation.mjs';
 const route = useRoute();
+const selectedPostId = computed(() => {
+  const value = String(route.query.postId || '');
+  return /^[1-9][0-9]*$/.test(value) ? value : '';
+});
 const uploadErrors = ref<ReturnType<typeof uploadError>['details']>([]);
 const validation = ref<Record<string, string>>({});
 const requestFetch = useRequestFetch();
@@ -65,6 +69,15 @@ async function focusEditor() {
 }
 async function backToList() {
   if (locked.value) return;
+  if (selectedPostId.value) {
+    const query = { ...route.query };
+    delete query.postId;
+    await navigateTo({ path: '/admin', query }, { replace: true });
+    return;
+  }
+  await focusList();
+}
+async function focusList() {
   mobileEditor.value = false;
   await nextTick();
   // A status change can remove the selected post from the current search results.
@@ -132,7 +145,7 @@ const editable = computed(
 const waiting = computed(() =>
   editor.value.blocks.some((b) => 'status' in b && b.status === 'PUBLIC_DELETE_PENDING')
 );
-const { data: boards } = await useFetch<ApiResponse<'listBoards'>>('/api/v1/boards');
+const { data: boards, status: boardsStatus } = await useFetch<ApiResponse<'listBoards'>>('/api/v1/boards');
 function remember() {
   saved.value = JSON.stringify({
     ...editor.value,
@@ -143,7 +156,14 @@ function remember() {
 remember();
 async function load(id: number | string) {
   if (locked.value) return;
+  if (selectedPostId.value !== String(id)) {
+    await navigateTo({ path: '/admin', query: { ...route.query, postId: String(id) } });
+    return;
+  }
   if (dirty.value && !confirm('저장하지 않은 변경을 버리고 이동할까요?')) return;
+  await readEditor(id);
+}
+async function readEditor(id: number | string) {
   busy.value = true;
   taskLabel.value = '게시글을 불러오는 중…';
   detailRetry.value = id;
@@ -167,7 +187,7 @@ async function load(id: number | string) {
     busy.value = false;
   }
 }
-function newDraft() {
+async function newDraft() {
   if (locked.value) return;
   if (dirty.value && !confirm('저장하지 않은 변경을 버리고 새 초안을 만들까요?')) return;
   conflict.value = false;
@@ -182,7 +202,12 @@ function newDraft() {
   uploadErrors.value = [];
   message.value = '';
   remember();
-  void focusEditor();
+  if (selectedPostId.value) {
+    const query = { ...route.query };
+    delete query.postId;
+    await navigateTo({ path: '/admin', query }, { replace: true });
+  }
+  await focusEditor();
 }
 async function searchPosts(n = 1) {
   if (searchBusy.value) return;
@@ -470,12 +495,23 @@ function beforeUnload(event: BeforeUnloadEvent) {
 }
 onMounted(() => {
   window.addEventListener('beforeunload', beforeUnload);
-  if (/^[1-9][0-9]*$/.test(String(route.query.postId || ''))) void load(String(route.query.postId));
+  if (selectedPostId.value) void readEditor(selectedPostId.value);
+});
+watch(selectedPostId, async (id) => {
+  if (id) await readEditor(id);
+  else await focusList();
+});
+onBeforeRouteUpdate((to, from) => {
+  if (locked.value) return false;
+  // Returning to the list keeps the editor's unsaved input. Loading another post replaces it.
+  if (to.query.postId !== from.query.postId && /^[1-9][0-9]*$/.test(String(to.query.postId || '')))
+    return !dirty.value || confirm('저장하지 않은 변경을 버리고 이동할까요?');
 });
 onUnmounted(() => window.removeEventListener('beforeunload', beforeUnload));
 onBeforeRouteLeave(
   () => !locked.value && (!dirty.value || confirm('저장하지 않은 변경을 버리고 이동할까요?'))
 );
+useUiLoading(() => busy.value || searchBusy.value || boardsStatus.value === 'pending');
 </script>
 <template>
   <main class="admin-page">

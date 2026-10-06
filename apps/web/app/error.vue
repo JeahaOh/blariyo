@@ -14,6 +14,7 @@ useSeoMeta({ robots: 'noindex, nofollow', title: () => `${message.value} · 블�
 if (import.meta.server) useResponseHeader('Cache-Control').value = 'no-store';
 </script>
 <template>
+  <AppLoadingBar />
   <div class="shell">
     <div v-if="detail" class="detail-nav">
       <a href="/meme" aria-label="목록으로">←</a><strong>{{ message }}</strong>

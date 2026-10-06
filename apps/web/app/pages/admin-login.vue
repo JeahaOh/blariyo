@@ -6,6 +6,7 @@ const route = useRoute();
 const requestFetch = useRequestFetch();
 const {
   data: session,
+  status: sessionStatus,
   error,
   refresh,
 } = await useAsyncData(
@@ -24,7 +25,7 @@ async function login() {
   try {
     await $fetch('/api/admin/local-session', { method: 'POST', body: {}, retry: 0 });
     await refresh();
-    await navigateTo(target.value);
+    await navigateTo(target.value, { replace: true });
   } catch {
     message.value = '로그인하지 못했습니다. 개발 서버 연결을 확인하고 다시 시도해 주세요.';
   } finally {
@@ -43,6 +44,7 @@ async function logout() {
     busy.value = false;
   }
 }
+useUiLoading(() => busy.value || sessionStatus.value === 'pending');
 </script>
 <template>
   <main class="admin-login">
@@ -58,7 +60,7 @@ async function logout() {
       </div>
       <template v-else-if="session?.authenticated">
         <div class="login-actions">
-          <NuxtLink class="admin-button primary" :to="target">관리 화면으로</NuxtLink>
+          <NuxtLink class="admin-button primary" :to="target" replace>관리 화면으로</NuxtLink>
           <button
             v-if="session.localLoginAvailable"
             class="login-signout"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { sourceName } = await useSourceCodes();
 import { apiError, type ApiResponse } from '~~/shared/api-types';
 type RequestState = ApiResponse<'getDirectCollectionRequest'>['data'];
 type SourceState = ApiResponse<'listRuntimeCollectionSources'>['data']['items'][number];
@@ -6,6 +7,8 @@ const emit = defineEmits<{ collected: [itemId: string] }>();
 defineProps<{ reviewEnabled: boolean }>();
 const route = useRoute(), router = useRouter();
 const url = ref(''), request = ref<RequestState | null>(null), sources = ref<SourceState[]>([]);
+const manualCheck = ref(false), manualRuntime = ref(false);
+let runtimeBusy = false;
 const busy = ref(false), checking = ref(false), sourceLoading = ref(true), message = ref(''), sourceError = ref('');
 const pending = ref<{ key: string; path: string; body: { url: string } | { expectedVersion: number } } | null>(null);
 const statusHeading = ref<HTMLElement | null>(null);
@@ -59,10 +62,10 @@ async function retry() {
   pending.value = { key: crypto.randomUUID(), path: `/api/admin/collect/requests/${request.value.requestId}/retry`, body: { expectedVersion: request.value.version } };
   await execute();
 }
-async function refresh() {
+async function refresh(background = false) {
   const id = request.value?.requestId ?? (typeof route.query.request === 'string' ? route.query.request : null);
   if (!id || !/^[a-f0-9-]{36}$/i.test(id) || checking.value || disposed) return;
-  checking.value = true;
+  checking.value = true; manualCheck.value = !background;
   try {
     const result = await $fetch<ApiResponse<'getDirectCollectionRequest'>>(`/api/admin/collect/requests/${id}`, { retry: 0, signal: abort.signal });
     if (!disposed && (!request.value || request.value.requestId === id)) { request.value = result.data; if (!pending.value) message.value = ''; }
@@ -70,28 +73,30 @@ async function refresh() {
     if (disposed) return;
     message.value = describe(error);
     if (apiError(error).code === 'COLLECTION_REQUEST_NOT_FOUND') { request.value = null; await router.replace({ query: { ...route.query, request: undefined } }); }
-  } finally { checking.value = false; }
+  } finally { checking.value = false; manualCheck.value = false; }
 }
-async function runtime() {
-  sourceLoading.value = true;
+async function runtime(background = false) {
+  if (runtimeBusy || disposed) return;
+  runtimeBusy = true; sourceLoading.value = true; manualRuntime.value = !background;
   try {
     const result = await $fetch<ApiResponse<'listRuntimeCollectionSources'>>('/api/admin/collect/runtime-sources', { retry: 0, signal: abort.signal });
     if (!disposed) { sources.value = result.data.items; sourceError.value = ''; }
   } catch (error) { if (!disposed) { sources.value = []; sourceError.value = describe(error); } }
-  finally { sourceLoading.value = false; }
+  finally { sourceLoading.value = false; manualRuntime.value = false; runtimeBusy = false; }
 }
 async function poll() {
-  if (!document.hidden && progress.value) await refresh();
+  if (!document.hidden && progress.value) await refresh(true);
   if (!disposed) timer = setTimeout(() => { void poll(); }, 5000);
 }
 async function pollRuntime() {
-  if (!document.hidden) await runtime();
+  if (!document.hidden) await runtime(true);
   if (!disposed) runtimeTimer = setTimeout(() => { void pollRuntime(); }, 30000);
 }
 function leaving(event: BeforeUnloadEvent) { if (pending.value || busy.value) { event.preventDefault(); event.returnValue = ''; } }
-onMounted(() => { void refresh(); void poll(); void pollRuntime(); window.addEventListener('beforeunload', leaving); });
+onMounted(() => { void refresh(true); void poll(); void pollRuntime(); window.addEventListener('beforeunload', leaving); });
 onBeforeRouteLeave(() => !pending.value && !busy.value);
 onUnmounted(() => { disposed = true; abort.abort(); clearTimeout(timer); clearTimeout(runtimeTimer); window.removeEventListener('beforeunload', leaving); });
+useUiLoading(() => busy.value || manualCheck.value || manualRuntime.value);
 </script>
 <template>
   <section class="direct-input" aria-labelledby="direct-title">
@@ -114,7 +119,7 @@ onUnmounted(() => { disposed = true; abort.abort(); clearTimeout(timer); clearTi
       <p v-if="request.state === 'PENDING'">아직 수집기가 수락하지 않았습니다. 접수 후 24시간 안에 처리되지 않으면 만료됩니다.</p>
       <p v-if="request.state === 'EXPIRED'">수집하지 못한 요청이 종료됐습니다. 출처 설정과 수집기 상태를 확인해 주세요.</p>
       <p v-if="request.state === 'DUPLICATE'">{{ request.itemId ? '이미 수집한 원문입니다.' : '이미 수집한 원문이며 현재 열 수 있는 보관 자료가 없습니다.' }}</p>
-      <button :disabled="checking || busy" @click="refresh">상태 다시 확인</button>
+      <button :disabled="checking || busy" @click="refresh()">상태 다시 확인</button>
       <button v-if="request.retryable" :disabled="busy || !!pending" @click="retry">실패한 수집 다시 요청</button>
       <button v-if="reviewEnabled && ['SUCCEEDED', 'DUPLICATE'].includes(request.state) && request.itemId" @click="emit('collected', request.itemId)">수집 결과 열기</button>
     </section>
@@ -122,12 +127,12 @@ onUnmounted(() => { disposed = true; abort.abort(); clearTimeout(timer); clearTi
       <summary>출처 실행 설정 확인</summary>
       <p>수집기가 실제 로딩한 설정입니다. 이 화면에서는 변경할 수 없습니다.</p>
       <p v-if="sourceError" role="alert">{{ sourceError }}</p>
-      <button :disabled="sourceLoading" @click="runtime">실행 설정 다시 조회</button>
+      <button :disabled="sourceLoading" @click="runtime()">실행 설정 다시 조회</button>
       <p v-if="sourceLoading" aria-live="polite">실행 설정을 확인하고 있습니다.</p>
       <p v-else-if="!sourceError && !sources.length">등록된 출처가 없습니다.</p>
       <ul>
         <li v-for="source in sources" :key="source.sourceKey">
-          <strong>{{ source.sourceKey }}</strong> — {{ freshness[source.freshness] }}
+          <strong>{{ sourceName(source.sourceKey) }}</strong> — {{ freshness[source.freshness] }}
           <p v-if="source.freshness === 'ABSENT'">적용 중인 설정을 아직 확인하지 못했습니다.</p>
           <template v-else>
             <p v-if="source.freshness === 'STALE'">마지막 관측값입니다. 현재 적용 여부는 확인되지 않았습니다.</p>

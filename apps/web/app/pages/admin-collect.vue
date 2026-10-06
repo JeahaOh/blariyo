@@ -23,7 +23,11 @@ const eventLabels: Record<string, string> = {
   QUOTA_INTERVAL_VIOLATION: '출처 요청 간격 확인 필요',
   COLLECTOR_CLOCK_UNSAFE: '수집 서버 시각 확인 필요',
 };
+const eventBusy = ref(false);
+const listBusy = ref(false);
 async function acknowledgeEvent(eventId: string) {
+  if (eventBusy.value) return;
+  eventBusy.value = true;
   try {
     await $fetch(`/api/v1/admin/collect/operational-events/${eventId}/acknowledge`, {
       method: 'POST',
@@ -36,7 +40,7 @@ async function acknowledgeEvent(eventId: string) {
     );
   } catch {
     message.value = '운영 알림 확인을 저장하지 못했습니다.';
-  }
+  } finally { eventBusy.value = false; }
 }
 const statuses: Record<string, string> = {
   PENDING: '수집 대기',
@@ -60,14 +64,19 @@ const title = ref(''),
   replacements = ref<Record<string, number>>({}),
   ack = ref(false),
   reason = ref('OTHER');
-async function refresh(n = page.value) {
-  page.value = n;
-  listing.value = await $fetch<ApiResponse<'listCollectionCandidates'>>(
-    '/api/v1/admin/collect/candidates',
-    {
-      query: { page: n, ...(filter.value ? { status: filter.value } : {}) },
-    }
-  );
+async function refresh(n = page.value, propagateError = false) {
+  if (listBusy.value) return;
+  listBusy.value = true;
+  try {
+    listing.value = await $fetch<ApiResponse<'listCollectionCandidates'>>(
+      '/api/v1/admin/collect/candidates',
+      { query: { page: n, ...(filter.value ? { status: filter.value } : {}) } }
+    );
+    page.value = n;
+  } catch (error) {
+    if (propagateError) throw error;
+    message.value = '목록을 불러오지 못했습니다. 현재 목록을 유지합니다. 다시 조회해 주세요.';
+  } finally { listBusy.value = false; }
 }
 async function open(id: number) {
   if (busy.value) return;
@@ -124,7 +133,7 @@ async function action(path: string, body: Record<string, unknown>) {
       await navigateTo(`/admin?postId=${r.data.postId}`);
       return;
     }
-    await refresh();
+    await refresh(page.value, true);
     if (detail.value)
       detail.value = (
         await $fetch<ApiResponse<'getCollectionCandidate'>>(
@@ -204,6 +213,7 @@ async function replace(id: number, event: Event) {
     input.value = '';
   }
 }
+useUiLoading(() => busy.value || listBusy.value || eventBusy.value);
 </script>
 <template>
   <main v-if="listing">
@@ -214,7 +224,7 @@ async function replace(id: number, event: Event) {
         <li v-for="event in operationalEvents.data.items" :key="event.eventId">
           {{ eventLabels[event.eventCode] || '수집 서버 확인 필요' }}
           <span v-if="event.candidateId"> · 후보 #{{ event.candidateId }}</span>
-          <button type="button" @click="acknowledgeEvent(event.eventId)">확인 처리</button>
+          <button type="button" :disabled="eventBusy" @click="acknowledgeEvent(event.eventId)">확인 처리</button>
         </li>
       </ul>
     </section>
@@ -245,7 +255,7 @@ async function replace(id: number, event: Event) {
           <option value="">전체</option>
           <option v-for="(label, key) in statuses" :key="key" :value="key">{{ label }}</option>
         </select></label
-      ><button :disabled="busy">새로고침</button>
+      ><button :disabled="busy || listBusy">{{ listBusy ? '조회 중…' : '새로고침' }}</button>
     </form>
     <div class="collect-layout">
       <section aria-label="후보 목록">

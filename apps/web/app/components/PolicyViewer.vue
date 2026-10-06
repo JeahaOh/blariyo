@@ -19,6 +19,7 @@ watch([data, status], async () => {
   policyHeading.value?.focus({ preventScroll: true });
   policyHeading.value?.scrollIntoView({ block: 'start', behavior: 'instant' });
 });
+useUiLoading(() => status.value === 'pending');
 </script>
 <template>
   <section class="policy-viewer">

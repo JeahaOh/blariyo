@@ -15,6 +15,7 @@ const { data: session } = await useAsyncData(
 const titles: Record<string, string> = {
   '/admin': '게시글 관리',
   '/admin/batch': '수집 결과 검수',
+  '/admin/common-codes': '공통코드 관리',
   '/admin/collect': '수집 요청',
   '/admin/collect/sources': '수집 출처',
 };
@@ -39,6 +40,7 @@ const sessionUrl = computed(() => '/admin/login?returnTo=' + encodeURIComponent(
           :aria-current="route.path === '/admin/batch' ? 'page' : undefined"
           ><span aria-hidden="true">◎</span> 수집 결과 검수</NuxtLink
         >
+    <NuxtLink to="/admin/common-codes" :aria-current="route.path === '/admin/common-codes' ? 'page' : undefined">공통코드 관리</NuxtLink>
       </nav>
       <div class="admin-sidebar-bottom"><NuxtLink to="/meme">↗ 공개 사이트 보기</NuxtLink></div>
     </aside>

@@ -1,4 +1,4 @@
-const paths = new Set(['/admin', '/admin/batch', '/admin/collect', '/admin/collect/sources']);
+const paths = new Set(['/admin', '/admin/source-codes', '/admin/common-codes', '/admin/batch', '/admin/collect', '/admin/collect/sources']);
 const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 
 /** Only known local admin routes and non-secret identifiers survive a login round trip. */

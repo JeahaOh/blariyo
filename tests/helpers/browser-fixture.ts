@@ -30,6 +30,7 @@ export async function browserFixture(
     collection = false,
     spring = false,
     batchReview = false,
+    batchDeletion = false,
     localAdminLogin = true,
     directInput = false,
     rightsEmail = '',
@@ -42,6 +43,7 @@ export async function browserFixture(
     collection?: boolean;
     spring?: boolean;
     batchReview?: boolean;
+    batchDeletion?: boolean;
     localAdminLogin?: boolean;
     directInput?: boolean;
     rightsEmail?: string;
@@ -140,6 +142,11 @@ export async function browserFixture(
           await readFile(`apps/collector/src/main/resources/db/collector-v${version}.sql`, 'utf8')
         );
       });
+    }
+  } else if (batchDeletion) {
+    await mkdir(collectRoot, { recursive: true });
+    for (const version of ['002','003','004','005','006','007','008','009','011','012','013','014']) {
+      await source.transaction(manager => readFile(`apps/collector/src/main/resources/db/collector-v${version}.sql`, 'utf8').then(sql => manager.query(sql)));
     }
   } else if (batchReview) {
     await mkdir(collectRoot, { recursive: true });
@@ -278,6 +285,7 @@ export async function browserFixture(
   return {
     origin,
     pool,
+    database: source,
     storage,
     collectRoot,
     posts,

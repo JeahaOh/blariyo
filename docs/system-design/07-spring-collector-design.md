@@ -33,27 +33,17 @@ OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는
 - 수집 운영 활성화 전 [P1-06](../roadmap.md#3-p1--수집-보조자동-수집-마감)에서 direct 단건·목록·queue의
   공통 통제와 실패 시 외부 요청 차단을 검증한다. 이번 검토는 정적 코드 대조이며 네트워크 호출·코드 수정은 하지 않았다.
 
-## COL-01/02 direct 요청 통제 보완 — 2026-09-27
+## COL-01/02 direct 요청 통제 — 2026-10-06 변경
 
-구현 중인 후속 계약이다. 위 9월 24일 대조는 당시 증거이며 현재 구현·검증은
-[실행 기록](../../worklog/2026-09-27/m0-implementation/README.md)을 따른다.
-
-- 단건·목록·queue·출처 probe의 실제 HTTP는 같은 robots/요청 budget gate를 거친다.
-  dry-run도 네트워크 요청은 한도에서 차감하므로 batch DB 연결이 필요하다. 콘텐츠·object는 저장하지 않는다.
-- 명시적인 `dailyRequestLimit`(1~1000000)과 `requestIntervalMs`(기본10000, 10000~3600000), 승인된 source 설정을 사용한다.
-  누락·비활성·DB 장애·permit 불확실 상태에서 요청하지 않는다. 예제 파일에 임의 한도를 넣어 활성화하지 않는다.
-- 출처 및 허용된 미디어 origin 각각의 robots를 확인한다. robots 조회 자체도 원래 source의 한도에 포함한다.
-  확인 불가·금지일 때 대상 본문/미디어는 요청하지 않는다. Crawl-delay와 설정 간격 중 큰 값을 적용한다.
-- Collector V010의 `collect.batch_request_budget`은 source별 현재 KST 날짜·요청 수·다음 허용 시각만 보관한다.
-  batch는 `reserve_batch_request` 제한 함수로만 예약하며 원문/URL/개인정보는 저장하지 않는다.
-  row lock과 DB 시각으로 재시작·동시 실행·날짜 변경을 처리하고 자정에도 이전 간격을 유지한다.
-  2초 permit의 만료 또는 자정 이후에는 보내지 않는다. 사용 여부가 불확실한 예약은 환불하지 않는다.
-  이 최소 집계는 선택 백업에 포함한다. 복원 뒤에는 collector restore gate를 닫고 다음 KST 날짜 시작 전까지
-  direct permit을 발급하지 않는다. snapshot 이후 잃어버린 당일 요청 수를 다시 소비하지 않으며, 다음 날에도
-  운영자가 D01 정리/인수를 마쳐 gate를 해제하기 전에는 수집하지 않는다.
-- robots·목록·상세·redirect 각 hop·이미지·첨부 및 각 재시도마다 같은 source의 예약을 소비한다.
-  redirect는 최초 host를 유지하며 최대3회만 따라간다. 순환·다른 host·네 번째 목적지·안전 DNS 검사 실패는 송신 전에 차단한다.
-- 로컬 검증은 합성 transport와 격리 PostgreSQL을 사용한다. 실제 출처 허용·운영 편입을 뜻하지 않는다.
+- [수집 요청 정책](../planning/content-collection/README.md#수집-요청-정책--2026-10-06-사용자-결정)에 따라 robots는 참고 정보다. 단건·목록·queue·probe·legacy 수집은 robots 자동 조회/Disallow/Crawl-delay 판정을 실행 조건으로 쓰지 않는다. 출처 명세의 과거 관측값은 보존한다.
+- `dailyRequestLimit` 기본5000(1~1000000), `requestIntervalMs` 기본5000(1000~3600000)을 적용한다. 명시한 출처별 값은 유지하며 CLI에서 간격을 생략하면 해당 출처 값을 따른다. DB 장애·permit 불확실 상태에서는 보내지 않는다.
+- 목록·상세·redirect 각 hop·이미지·첨부·재시도마다 같은 source의 예약을 소비한다. dry-run도 quota 예약이 필요하며 콘텐츠/object는 저장하지 않는다.
+- Collector V010의 `collect.batch_request_budget`은 KST 날짜·요청 수·다음 허용 시각을 저장한다. row lock과 DB 시각으로 재시작·동시 실행·자정을 처리한다. 2초 permit이 만료되면 보내지 않으며 불확실한 예약은 환불하지 않는다.
+- Collector V015의 `collect.defer_batch_request(text,bigint)`는 HTTP429 또는 재시도 종료/긴 Retry-After의 다음 허용 시각을 늘리기만 한다. 429는 즉시 해당 출처 실행을 중단한다. Retry-After가 없으면15분, 있으면 설정 간격과 서버 대기 중 큰 값을 사용한다. 1년 초과/정수 overflow 응답은 infinity로 보류한다. 새 JVM·다음날 예약도 이 시각보다 먼저 송신할 수 없다.
+- HTTP403·429·DNS/일시 장애·robots 오류를 이미지 재시도 후 삭제 조건에서 제외한다. 실제 이미지 없음/형식·크기·인코딩 실패는 기존 추가1회 재시도 정책을 유지한다. 이미 적용된 V011~014는 수정하지 않는다.
+- redirect는 최초 host를 유지하며 최대3회만 따른다. 순환·다른 host·네 번째 목적지·안전 DNS 검사 실패는 송신 전에 차단한다.
+- 요청 집계는 선택 백업에 포함한다. 복원 gate와 다음 KST 날짜 이전 재개 금지, 운영자 복원 인수 조건은 유지한다.
+- V015 migration 및 batch role EXECUTE 권한을 적용한 뒤 새 collector를 실행한다. source 파일의 기존 명시값은 배포 시 별도로 확인한다.
 
 ## Direct batch Discord 대기열 계약 (2026-09-23)
 
@@ -646,7 +636,7 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 
 ### quota·외부 요청
 
-- robots, detail, redirect 각 hop, 각 image, HEAD+GET을 정의대로 각각 센다.
+- list, detail, redirect 각 hop, 각 image, HEAD+GET을 정의대로 각각 센다.
 - 100개 병렬 reservation과 날짜 경계에서 daily limit을 넘지 않는다.
 - reservation 응답 유실은 중복 차감하지 않고, `NETWORK_STARTED` 뒤 retry는 새 reservation으로 센다.
 - restart·local DB restore·Core timeout에도 quota가 초기화되지 않는다.
@@ -784,10 +774,10 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
   readback과 4출처의 실패 기록은 검증표에 있다. 원격 batch writer·Discord Gateway E2E는 별도다.
   Java 25 jar를 macOS·PowerShell·Docker Linux에서 공통 실행한다. `COLLECTOR_SOURCES_FILE`,
   `COLLECTOR_CONFIG_FILE`, `COLLECTOR_JAR`로 경로를 주입하고 secret은 기존 전용 파일 backend를 사용한다.
-- max-pages 1~10, max-items 1~100, since 1h~720h, interval 최소 10초·최대 1시간. 출처 설정이 더 엄격하면 낮출 수 없다.
+- max-pages 1~10, max-items 1~100, since 1h~720h, interval 기본5초·최소1초·최대1시간. 출처 설정이 더 엄격하면 낮출 수 없다.
   게시 시각 미확인은 INCLUDE_UNKNOWN/REQUIRE_KNOWN에 따라 포함·제외하고 report에 구분한다.
   다음 페이지는 실제 목록의 허용 pagination 링크만 따른다.
-- robots·Crawl-delay·일일 budget은 위 9월 27일 COL-01/02 계약에 따라 공통 요청기에 연결한다. 현행 direct의 재시도·redirect·site stop은
+- 요청 간격·일일 budget은 위 10월 6일 COL-01/02 계약에 따라 공통 요청기에 연결한다. 현행 direct의 재시도·redirect·site stop은
   `SourceRequests`와 뒤의 9월 23일 구현 계약을 따른다. legacy의 목록 redirect 전면 차단을 direct 구현으로 표시하지 않는다.
 - legacy 목록 요청만 Core 전역 source budget에서 예약한다. `discovery:true` 예약은 candidateId/lockVersion 없이
   ROBOTS/LIST/REDIRECT만 허용하고, V007의 `source_discovery_policy.enabled`를 확인한다. 후보는 LIST_CRAWL로 생성한다.
@@ -819,7 +809,7 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
 - `source_post_key`: Core가 URL에서 계산하며 `(source_id, source_post_key)` 부분 unique index로 보호한다.
   기존 후보의 NULL 키는 자동 backfill하지 않았다. 기존 데이터의 URL 별칭 중복 감사와 backfill은 운영 전 필요하다.
 - V007 down은 LIST_CRAWL 후보 또는 LIST 예약이 있으면 먼저 거부한다. 데이터를 삭제해 rollback을 통과시키지 않는다.
-- `--dry-run`도 실제 robots/list GET과 Core quota 예약은 발생한다. 후보/본문/이미지는 저장하지 않는다.
+- `--dry-run`도 실제 list GET과 Core quota 예약은 발생한다. 후보/본문/이미지는 저장하지 않는다.
   `--write-db`의 QUEUED는 candidate/job 접수이며 상세 저장 성공이 아니다. 별도 job 상태와 DB readback이 필요하다.
 - 실제 URL 상세 parser 4종, 기존 THEQOO parser 1종. 다른 16종 상세 parser와 17종 목록 adapter는 미구현이다.
   첨부 파일은 LINK 참조만 보존한다. 파일 binary 저장, update 재수집, 전체 사이트 E2E는 미완료다.
@@ -859,15 +849,15 @@ Gateway 자체 연결·상호작용은 별도 운영 증거로 기록하며, 테
 - 관리자 메뉴의 수집 결과 검수는 기존 Web `collectBatchReviewEnabled`가 켜진 경우만 표시한다.
   BFF의 인증된 `GET /api/admin/features`는 메뉴 표시용 batchReview boolean만 반환하며 private/no-store다.
   실제 API는 기존 Web/Core feature gate와 관리자 인증을 각각 유지한다. 초안 링크는 `/admin?postId=<id>`로 연결한다.
-- review 명령은 `itemVersion`, `lockVersion`(최초 0), `decision`을 받는다. 모든 쓰기는 Idempotency-Key를 사용한다. 동일 key/동일 body는 결과 재생, 다른 body는 409. version 충돌·이미 승격된 item·승인 없는 승격을 거부한다.
+- review 명령은 `itemVersion`, `lockVersion`(최초 0), 상세에서 받은 `contentDigest`, `decision=APPROVED|REJECTED`을 받는다. 모든 쓰기는 Idempotency-Key를 사용한다. 동일 key/동일 body는 결과 재생, 다른 body는 409. version 충돌·이미 승격된 item·승인 없는 승격을 거부한다.
 - 승격은 collect reader의 고정 local root 또는 전용 read credential의 S3 bucket만 읽는다. object key prefix/path 검증, byte limit, DB sha/size 확인 후 이미지 decode/재인코딩을 수행한다. 원문 remote URL로 대체 fetch하지 않는다.
 - private 이미지 준비 뒤 transaction에서 item/review version과 중복을 재확인하고 전체 순서의 DRAFT와 post 연결·receipt를 함께 commit한다. 실패 시 준비된 미연결 이미지를 정리한다. 공개 object는 별도 발행에서만 만든다.
 - preview는 관리자 인증 경로만 사용한다. 일반 공개 media 프록시는 collect/private를 허용하지 않는다.
 - 완료는 서비스/API 실행·migration/state/unique/optimistic lock·실패재시도·중복·DB/object readback·별도 발행·격리 숨김/재발행 테스트로 판정한다. 설계 기록만으로 완료가 아니다.
 
-검수 일관성 보강(2026-09-23): REVIEWING 시작 시 item 식별자·버전·본문·SNS·첨부·media 위치/hash/key의
-SHA-256 snapshot을 API 소유 review 행에 기록한다. 승인과 초안 승격 때 같은 snapshot인지 대조한다.
-변경된 원문은 기존 승인으로 승격하지 않고 REVIEWING을 다시 시작한다. 조회는 PostgreSQL repeatable-read로
+검수 일관성(2026-10-05 중간 단계 제거): 상세 조회 시 item 식별자·버전·본문·SNS·첨부·media 위치/hash/key의
+SHA-256 snapshot을 contentDigest로 반환한다. 직접 승인·반려 시 요청 digest와 현재 snapshot을 대조하고 API 소유 review 행에 저장한다.
+변경된 원문은 기존 승인으로 승격하지 않고 상세를 다시 읽어 직접 재판정한다. 조회는 PostgreSQL repeatable-read로
 item/media를 함께 읽는다. 승격 최종 트랜잭션에서도 snapshot을 재대조하며 외부 원문 fetch는 없다.
 초안 응답의 lockVersion은 content 게시글 버전이고 reviewLockVersion은 검수 행 버전이다.
 승격 제목은 운영자가 200자 이내로 별도 지정할 수 있으며, 지정하지 않으면 원문 제목을 사용한다.
@@ -991,3 +981,21 @@ REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 s
 ## 2026-09-26 M0 보완 계약의 적용 순서
 
 [보존 D01](02-data-model.md#m0-d01-retention)은 기존 완료 불변/DELETE 거부를 유지하면서 전용 만료 함수·회수 역할을 추가하는 목표 설계다. [입력 D02](01-system-architecture.md#m0-d02-delivery)는 API mailbox를 batch가 pull하며 기존 Discord queue를 재사용한다. collector가 글마다 Core API에 결과를 제출하는 legacy 방식으로 되돌리지 않는다. source runtime snapshot/heartbeat·receipt는 batch 소유이며 API는 안전 view만 조회한다. 기존 V001~V006 적용 SQL은 변경하지 않고 후속 migration·호환성 시험으로 전달한다. 구현·활성화 상태는 [인계표](../implementation-tasks/README.md#m0-design-handoff)를 따른다.
+
+## 2026-10-05 검수 화면 연속 발행·웃대 문자 보존
+
+- Web은 명시적인 `승인 및 발행`으로 review → draft → posts/:postId/publish(IMMEDIATE)를 순차 실행한다. 각 API의 권한·버전·Idempotency-Key 검사는 유지하며 완료된 단계는 되돌리지 않는다. 응답 손실 시 실패 단계의 동일 key/body로 결과를 확인하고 이후 단계를 이어 간다. 초안 이후 실패는 생성된 초안을 보존한다.
+- 수동 목록 재조회는 상세/주소 선택을 해제하고 내부 저장 후 목록 갱신은 유지한다. 사용 안내는 공통 dialog에서 제공한다. wire 계약·migration 변경은 없다.
+- 웃대 상세는 charset을 탐지해 읽은 DOM을 그대로 순서 파서에 전달한다. UTF-8 bytes로 재직렬화한 뒤 원문의 EUC-KR 선언으로 다시 디코딩하지 않는다. 원문 bytes와 출처 식별자는 보존한다.
+
+## 이미지 실패 1회 재시도와 자동 삭제 — 2026-10-05
+
+- direct 목록·단건·queue가 같은 DB 재시도 기록을 사용한다. 처음 실패한 이미지부터 한 번 다시 처리하고, 이후 이미지 단계 실패는 해당 미검수 항목의 삭제로 끝낸다. 단건/queue 보고는 IMAGE_RETRY_EXHAUSTED로 끝내 queue의 일반 네트워크 재시도와 중복하지 않는다. 기존 MEDIA/IMAGE 실패 항목을 다시 claim할 때도 그 실행을 한 번의 추가 시도로 기록한다.
+- source/run 소유권, 항목 생존 기한, 검수 잠금을 확인한 제한 함수만 재시도를 예약하고 삭제한다. 이미지 오류 외 DB/object 저장 오류는 자동 삭제 근거로 삼지 않는다. 글당 미디어 용량은 실패한 이미지 시도 전으로 되돌려 중복 차감을 막는다.
+- 재실패 기록과 삭제는 같은 transaction으로 확정한다. 원문/첨부/실패 상세와 미검수 review만 지우고 다른 항목·공유 run/report·게시글은 보존한다. batch_dedup_key에는 해시만 남긴다. 만료일을 변경하거나 만료 삭제 gate를 우회하지 않는다.
+- 삭제된 item/run 조합으로 한정된 파일 정리 목록을 DB에 남긴다. 재시도 도중 프로세스가 종료돼 failure 행이 없는 FETCHING 항목도 다음 claim 전에 이전 run 경로를 기록하며 추가 시도를 새로 부여하지 않는다. 서버 retention worker가 해당 raw/media prefix만 삭제하고 부재 확인 후 완료한다. 삭제 실패와 중단은 다음 실행에서 재개한다. batch 계정에는 일반 DELETE 권한이나 서버 파일 삭제 자격을 주지 않는다.
+- 검증 기준: 일시 이미지 오류 회복, 1회 초과 재시도 금지, 재실패 삭제 및 중복 방지, 기존 이미지 실패의 한 번 재시도, 비이미지/검수/게시글 보호, 파일 삭제 실패 후 재개. 운영 적용은 별도 배포·검증 증거를 따른다.
+
+### 관리자 실패 삭제 연동 — 2026-10-06
+
+Collector V014는 명시 삭제와 image retry를 별도 원장으로 구분한다. API는 제한 함수로 실패/차단·미검수·미연결 항목만 삭제하며 출처/검수/restore 잠금을 공유한다. 기존 `ImageFailureCleanup`의 exact item/run 경로 정리 호출은 수동 삭제 작업도 조회한다(기존 SQL 함수명은 호환성 유지). 수동 삭제는 run 전체의 보고서·다른 실패 항목·queue를 건드리지 않는다. 삭제 결과와 파일 회수 완료는 별도로 검증한다.

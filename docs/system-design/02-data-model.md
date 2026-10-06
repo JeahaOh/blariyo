@@ -1067,9 +1067,9 @@ Collector V010의 direct 전용 최소 집계다. `source_key`가 기본 키이�
 `request_count`, `next_allowed_at`, `updated_at`만 보관한다. 원문·URL·운영자 identity는 저장하지 않는다.
 단건·목록·queue·probe와 dry-run의 모든 HTTP 시도는 같은 source 한도에서 차감한다.
 `reserve_batch_request(text,integer,bigint)` 제한 함수의 row lock·DB 시각·2초 permit으로
-동시 예약·재시작·자정 경계를 처리한다. batch에 일반 row 수정·삭제 권한은 주지 않는다.
+동시 예약·재시작·자정 경계를 처리한다. V015 `defer_batch_request(text,bigint)`는 Retry-After에 따라 next_allowed_at을 늘리기만 하며 사용량을 초기화하지 않는다. batch에 일반 row 수정·삭제 권한은 주지 않는다.
 최소 집계는 선택 백업에 포함하며 원문 제외 table과 구분한다. 상세 동작은
-[COL-01/02 요청 통제](07-spring-collector-design.md#col-0102-direct-요청-통제-보완--2026-09-27)를 따른다.
+[COL-01/02 요청 통제](07-spring-collector-design.md#col-0102-direct-요청-통제--2026-10-06)를 따른다.
 
 ### 출처 요청 budget — `collect.source_request_budget`
 
@@ -1186,7 +1186,7 @@ content post FK·승격 URL/source 중복·검수 전이는 DB 제약과 trigger
 - source session advisory lock과 owner backend가 수집 쓰기를 보호한다. RUNNING은 source당 하나다.
 - item은 FETCHING에서 FETCHED/FAILED/BLOCKED/SKIPPED_POLICY로 끝난다. 완료 FETCHED snapshot은 runtime에서 불변이며
   실패·기간 제외의 재시도는 새 run으로 수행한다. 기간 제외 사유와 실패 코드를 혼용하지 않는다.
-- 수집 상태와 검수 상태는 다르다. 검수 시작 REVIEWING → APPROVED/REJECTED, 승인 snapshot만 DRAFT로 승격한다.
+- 수집 상태와 검수 상태는 다르다. 중간 상태 없이 UNREVIEWED에서 APPROVED/REJECTED로 직접 판단하며 승인 snapshot만 DRAFT로 승격한다. 기존 REVIEWING 행은 조회 시 UNREVIEWED로 해석하고 다음 판단으로 전환한다. API V011은 신규 REVIEWING 저장을 거부하며 과거/만료 행은 소급 변경하지 않는다.
   post 연결 후 검수 행은 불변이며 별도 발행이 있어야 공개된다.
 - direct DB에는 원문 본문과 미디어 metadata가, 비공개 object에는 raw/media/report bytes가 있다.
   본문·URL이 없는 metadata 시스템이라고 고지하지 않는다. 일반 로그·공개 API에서 수집 내부 정보를 제한한다.
@@ -1219,7 +1219,7 @@ media별 증가 revision과 operation UUID로 조건부 수정·재실행을 구
 | `expires_at` | 최초 검수 확정 전 `collected_at + 28 days`; 그 기한 **전** 확정한 경우 `review_finalized_at + 7 days`. 검수 시점이 27일째면 34일째 만료 가능. 재검수로 다시 28일이나 새 7일을 부여하지 않음 |
 | 기한 경계 | `clock_timestamp() >= expires_at`이면 접근·검수·승격·다운로드 불가. equality도 만료. 만료 전에 시작했어도 최종 commit 때 다시 검사 |
 | 수집 실패·기간 제외 raw | raw를 남겼으면 동일한 collected_at·28일 적용. 성공 원문으로 집계하지 않음 |
-| REVIEWING 중 만료 | 검수 잠금·사용자 열람이 기간을 연장하지 않음. `410 BATCH_ITEM_EXPIRED` 및 로컬 임시 사본 회수 |
+| 원문 확인 중 만료 | 검수 잠금·사용자 열람이 기간을 연장하지 않음. `410 BATCH_ITEM_EXPIRED` 및 로컬 임시 사본 회수 |
 | PURGE_PENDING/FAILED | 원문 열람 금지 유지. 실패는 삭제 완료가 아니며 `purged_at`은 모든 대상 readback 완료 후에만 기록 |
 
 최초 검수 확정 시 API transaction이 제한 함수 `collect.finalize_retention(item_id, expected_version, decision)`를 호출한다. 함수는 batch 소유 lifecycle 행과 API review 행을 같은 잠금 순서로 검사하고 시각을 확정한다. API에 batch item의 일반 UPDATE·DELETE 권한을 주지 않는다. 설치 역할이 소유한 함수의 EXECUTE만 허용하고 SECURITY DEFINER의 고정 search_path·인자/상태 검증·PUBLIC EXECUTE 회수를 요구한다.
@@ -1258,7 +1258,7 @@ media별 증가 revision과 operation UUID로 조건부 수정·재실행을 구
 4. 수집/승격 writer는 만료 fence를 매 PUT 및 최종 commit에서 검사한다. run별 object prefix를 쓰고 중단 writer의 늦은 PUT도 inventory로 재회수한다. preview stream은 deadline에서 중단한다. API나 batch에 원문 영구 다운로드 URL을 발급하지 않는다.
 5. 전용 `blariyo_collect_retention` 실행 계정은 고정 함수와 collect 전용 객체 삭제만 허용한다. content/legal·private/public media·백업 자격증명 없음. `blariyo_batch`의 기존 완료 불변·DELETE 거부는 유지한다. trigger는 설치 역할 소유의 검증된 purge 함수에서만 제한 삭제를 허용하며 임의 세션 flag로 우회하지 못한다.
 6. object DELETE→HEAD/목록 재확인→DB 본문·부수 row 정리→API 소유 정리 함수→ledger 성공 순서다. 404는 해당 정확한 key의 삭제 성공, 403/timeout은 실패다. object 실패 중에도 API 접근 차단과 DB payload 비우기는 먼저 수행할 수 있으며 삭제 manifest는 유지한다. object key를 content 참조로 잘못 썼으면 자동 보호·연장 대신 승격 결함으로 중지하고 독립 사본 복구 후 기한 내 회수한다.
-7. 부분 실패는 1/5/30분 후 재시도, 이후 1시간마다 한 번과 Discord 경보. 새 수집을 중지해 backlog 증가를 막되 Core 수동 운영은 유지한다. 삭제 실패를 성공으로 바꾸거나 원문을 별도 백업으로 옮기지 않는다.
+7. 부분 실패는 1/5/30분 후 재시도, 이후 1시간마다 한 번과 Discord 경보. 신규 수집과 만료 회수를 독립 실행한다. 만료 `LIVE`·`PURGE_PENDING`·`PURGE_FAILED`가 남아 있어도 목록 수집·URL queue·Web mailbox를 전역 중단하지 않는다. `retention_backlog()`는 미처리 여부를 나타내며 수집 허용 조건으로 사용하지 않는다. 회수 지연 건수·시간은 계속 장애로 기록하고 Core 수동 운영을 유지한다. 복원 inventory의 배타 잠금과 항목별 만료 fence는 그대로 적용한다. 삭제 실패를 성공으로 바꾸거나 원문을 별도 백업으로 옮기지 않는다.
 
 ### 백업·복원 경계
 
@@ -1317,3 +1317,45 @@ API 승격 중 준비한 private staging은 content 게시글에 commit되기 �
 ### 2026-09-27 확인 전 Discord 취소 구현
 
 Collector V010의 `cancel_confirmation`은 actor/channel HMAC을 검사하고 확인과 같은 advisory lock으로 직렬화한다. 확인 전 취소는 URL·source/post 원문을 즉시 NULL로 만들며 `cancelled_at`·HMAC·기존10분기한만 남긴다. 같은 취소는 멱등이며 취소 후 확인/동일interaction 재준비는 거부한다. 이미 queue에 접수된 요청을 취소하지 않는다. 만료 후 회수는 기존 제한 worker가 수행하고 일반 runtime DELETE 권한은 늘리지 않는다. 실제5역할 거부 및 동시 확인/취소 시험은 [최종 감사](../../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md)를 따른다.
+
+## 공통코드 그룹 — V013
+
+`content.common_code_group(group_key VARCHAR(40) PK, display_name VARCHAR(200), lock_version, created_by/at, updated_by/at)`와 `content.common_code(group_key FK, code VARCHAR(40), display_name, reference_key VARCHAR(80) NULL, lock_version, created_by/at, updated_by/at)`를 사용한다. 코드 PK는(group_key,code), 연결 키는(group_key,reference_key) UNIQUE다. 그룹/코드/연결 키·생성 감사 값 불변, 이름 수정은 lock_version+1 및 감사 갱신. content 백업에 포함한다.
+
+source 그룹만 코드를 `^[a-z][a-z0-9]{3}$`로 제한하고 reference_key에 기존 Collector 식별자를 필수 연결한다. 타 그룹은 일반 코드 형식(소문자/숫자/하이픈/밑줄,최대40자), reference_key=NULL. 독립 Collector 결과와 FK를 만들지 않는다. 코드 이름은 검수·실행 설정·새 초안에서 공유하되 기존 게시글 수정값은 보존한다.
+
+| 수집 연결 식별자 | source 코드 |
+| --- | --- |
+| theqoo | thqo |
+| ppomppu | pmpu |
+| yuldo | yldo |
+| inven | invn |
+| dogdrip | dgdp |
+| ruliweb | rlwb |
+| arcalive | arca |
+| bobaedream | bbae |
+| clien | clin |
+| dcinside | dcid |
+| dmitory | dmtr |
+| etoland | etld |
+| fmkorea | fmkr |
+| goodgag | ggag |
+| humoruniv | hmun |
+| instiz | inst |
+| mlbpark | mlbp |
+| natepann | ntpn |
+| pgr21 | pgr2 |
+| todayhumor | tdhm |
+| youtube-community | ytcm |
+
+V012의 적용 이력/checksum은 유지한다. V013에서 기존 source_code 행의 이름·버전·감사를 위 매핑으로 이관하고 원본 테이블을 대체한다. 미등록 매핑 발견 시 전체 transaction을 거부하며 원본을 유지한다. 공통 그룹의 정보 유실을 막기 위해 자동 down은 COMMON_CODES_ROLLBACK_REQUIRES_HANDOFF로 거부하며 복귀는 별도 데이터 이관이 필요하다.
+
+### 이미지 실패 자동 정리 기록 (2026-10-05)
+
+Collector V011의 `batch_image_retry`는 item UUID·첫/최종 오류 코드·재시도/삭제 시각만 저장해 글당 추가 시도를 한 번으로 제한한다. `batch_image_cleanup`은 item/run UUID와 파일 삭제 완료 시각만 보관한다. 원문·제목·URL은 두 테이블에 저장하지 않는다. 두 최소 기록은 선택 백업에 포함해 복원 후 중복 수집과 파일 삭제 재개를 보장한다. 삭제한 글은 기존 `batch_dedup_key`의 해시로 중복을 차단한다.
+
+삭제 함수는 live·source/run 소유권·미검수·게시글 미연결·MEDIA/IMAGE 오류와 기존 재시도 기록을 확인한다. 수집 item/media/failure와 해당 미검수 review만 삭제하고 공유 run/report와 API 게시글은 보존한다. 원래 retention 만료일은 유지하며 파일 정리는 별도 정확한 item/run prefix 목록으로 수행한다. [실행 계약](07-spring-collector-design.md#이미지-실패-1회-재시도와-자동-삭제--2026-10-05)을 따른다.
+
+### 수집 실패 수동 삭제 기록 — Collector V014
+
+`collect.batch_manual_deletion(item_id PK,item_version,deleted_at,deleted_by)`와 `collect.batch_manual_cleanup(item_id FK,run_id,completed_at,PK(item_id,run_id))`는 payload 삭제·복원 후 재정리를 위한 최소 기록이다. 이미지 재시도 원장과 분리하며 수집 내용·URL은 저장하지 않는다. API 역할은 직접 읽기/쓰기 없이 제한 삭제 함수만 호출한다. 선택 백업에는 이 기록과 dedup identity를 포함하고 원문은 계속 제외한다.

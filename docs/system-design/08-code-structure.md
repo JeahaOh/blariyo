@@ -40,7 +40,7 @@ apps/api/migrations/      기존 SQL 및 checksum 이력 유지
 - Unit of Work가 트랜잭션과 연결 범위를 관리하며 서비스에는 업무 Repository를 제공한다.
 - public snapshot의 REPEATABLE READ, 게시물 session advisory lock, 멱등성·lease·fencing을 유지한다.
 - 일반 JSON controller는 Express Request/Response를 받지 않는다. multipart·stream은 HTTP 경계에 격리한다.
-- 기능 간 의존성은 collection → posts/images와 posts → images만 허용한다. 인프라는 업무 서비스에 의존하지 않는다.
+- 기능 간 의존성은 collection → posts/images/common-codes와 posts → images를 허용한다. common-codes는 그룹/코드 기준정보를 소유하고 collection에 역의존하지 않는다. 인프라는 업무 서비스에 의존하지 않는다.
 - 전역 거대 모듈 및 forwardRef는 사용하지 않는다.
 - TypeScript strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes를 모두 활성화한다.
 - TypeORM synchronize/dropSchema/migrationsRun은 false다. DDL과 migration 이력은 기존 SQL runner가 소유한다.
@@ -153,3 +153,7 @@ Core/브라우저 회귀, Spring 단위·프로세스·복구 시험, Docker bui
 [루트 README](../../README.md#검증)를 따른다. 당시 결과는 [전환 검증 보고](../../worklog/2026-09-09/nest-transition/REPORT.md)에 있다.
 [이전 구현 검증 기록](../../worklog/2026-09-09/core-spring-verification/evidence.md)은 이전 M0/Spring 개별 검증 이력으로 구분한다.
 구조 정리가 실제 출처·Discord·Keychain·launchd·7일 관찰의 완료를 의미하지 않는다.
+
+### Web 공통 로딩 상태
+
+`AppLoadingBar.vue`는 app/error 루트에서 상단 진행 표시를 담당한다. `useUiLoading`은 화면의 실제 요청 진행 ref를 감시하고 scope 종료 시 작업 토큰을 해제한다. `ui-loading.client.ts`는 Nuxt 페이지 이동·실패를 연결한다. 공통 토큰 집계는 요청별 종료를 멱등 처리하며 SSR에는 작업을 등록하지 않는다. 전역 fetch 교체 없이 기존 인증·Idempotency-Key·AbortSignal·캐시·오류 복구를 유지한다. 자동 polling은 수동 조회 상태와 분리한다.

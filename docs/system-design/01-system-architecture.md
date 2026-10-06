@@ -1,5 +1,8 @@
 # M0 시스템 아키텍처
 
+> 2026-10-06 수집 정책 변경: robots.txt는 참고 정보이며 자동 조회·허용 판정·활성화 선행 조건으로 사용하지 않는다. 과거 설계의 robots 차단 조건은 [현행 수집 정책](../planning/content-collection/README.md#수집-요청-정책--2026-10-06-사용자-결정)으로 대체한다. 기본 요청 간격5초·출처별 일일5000 HTTP 요청이며 명시한 출처별 설정은 유지한다. 실제 접근 제한·요청 한도·DNS 보호와 별도 법무 검토 항목은 유지한다.
+
+
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 아키텍처 설계 계약 · direct batch와 legacy 호환 구분
 - 최초 기준일: 2026-09-04
@@ -337,7 +340,7 @@ timeout이 발생하면 item 또는 source run을 실패·차단으로 남긴다
 
 ### 후보 초안 승격
 
-현행 direct 검수는 REVIEWING → APPROVED 또는 REJECTED다. 승인한 item version이 일치하는 경우만
+현행 direct 검수는 상세 조회 후 APPROVED 또는 REJECTED로 직접 판단한다. 검수 시작/REVIEWING 중간 단계는 없다. 승인한 item version이 일치하는 경우만
 모든 collect 이미지의 private 사본을 준비한 뒤 content DRAFT를 만든다. 첨부는 원문 링크·metadata로
 보존하며 공개 collect 다운로드를 열지 않는다. 같은 item의 중복 승격·동시 수정은 버전·멱등성으로 막고
 실패 사본을 회수한다. [수집 상세 설계](07-spring-collector-design.md)의 direct 계약을 따른다.

@@ -128,7 +128,7 @@ batch 수집 결과는 바로 공개 게시글이 아니다. 운영 또는 로�
 - API role: batch 소유 7개 테이블은 SELECT만, `collect.batch_review`/`collect.batch_review_request`와 `content.*`는 API 소유다. batch role에는 API 검수·content 테이블 쓰기 권한을 주지 않는다.
 - API의 `COLLECT_READER_S3_*`는 batch bucket의 `collect/media/*` GET 전용 자격증명이다. API public/private 저장 자격증명 및 batch writer와 구분한다. local에서는 `COLLECT_READER_DIRECTORY`가 batch object root를 가리킨다.
 - 현재 후보 API V010/Collector V010 migration·기존 ledger 보존, DB role과 object 접근권한 및 고지/운영 조건 검증 후 `COLLECT_BATCH_REVIEW_ENABLED`와 `NUXT_COLLECT_BATCH_REVIEW_ENABLED`를 함께 true로 설정한다. 기본 예시는 false다. 시작만으로 검수·승격·발행하지 않는다.
-- 격리 DB 통합 테스트의 조회 → REVIEWING → APPROVED → DRAFT → 별도 발행 → 숨김 → 재발행 기록과
+- 격리 DB 통합 테스트의 상세 조회 → 직접 APPROVED → DRAFT → 별도 발행 → 숨김 → 재발행 기록과
   [9월 23일 운영 DB 반영](../../worklog/2026-09-23/release/production-db-promotion.md)을 구분한다. 운영에는
   API V008·Collector V006과 batch 검수 flag가 반영됐고 내부 service 조회·private R2 미리보기를 확인했다.
   실제 MFA 관리자 조작·원격 batch writer 연결 및 dev/stage 환경 검증은 별도다.

@@ -1,5 +1,8 @@
 # 수집 보조 기능 명세
 
+> 2026-10-06 수집 정책 변경: robots.txt는 참고 정보이며 자동 조회·허용 판정·활성화 선행 조건으로 사용하지 않는다. 과거 설계의 robots 차단 조건은 [현행 수집 정책](../../../planning/content-collection/README.md#수집-요청-정책--2026-10-06-사용자-결정)으로 대체한다. 기본 요청 간격5초·출처별 일일5000 HTTP 요청이며 명시한 출처별 설정은 유지한다. 실제 접근 제한·요청 한도·DNS 보호와 별도 법무 검토 항목은 유지한다.
+
+
 ## 1. 문서 정보와 입력 근거
 
 - 문서 상태: `조건부 설계 확정 가능(개발 입력) · 주 검수 완료`, 구현 수용·production 공개 승인 별도
@@ -42,7 +45,7 @@ Web URL 입력의 direct 전달은 API mailbox pull, source는 runtime 읽기 �
 | 경로 | 이번 계약 범위 | 구현·검증 경계 |
 | --- | --- | --- |
 | direct 수집 보조 | 상세 URL 확인·공통 queue·원문/이미지/첨부/SNS의 비공개 저장 | CLI/Discord 코드와 실제 Gateway·다른 PC 실행을 구분 |
-| direct 검수 | `/admin/batch` 목록/상세·필터·인증 preview·검수 시작/승인/반려·선택 초안 편집 이동 | 로컬 브라우저·API 증거와 실제 운영자/Access/원격 object 인수 분리 |
+| direct 검수 | `/admin/batch` 목록/상세·필터·인증 preview·직접 승인/반려·선택 초안 편집 이동 | 로컬 브라우저·API 증거와 실제 운영자/Access/원격 object 인수 분리 |
 | Web URL 전달·source 변경 | API 외부 fetch·batch queue 무제한 쓰기 없이 입력 전달 | M0-D02 구현·로컬 검증 완료, 실장비·운영 인수 잔여 |
 | legacy 후보 | 기존 `/admin/collect`·candidate·임시 preview·선택 이미지 승격 API 호환 | 아래 legacy 절에만 적용. direct source 설정이나 queue를 수정하지 않음 |
 | 자동 목록 수집 | 2026-09-21 확장의 허용 HOT/GENERAL 목록·pagination | source별 실제 검증·기능 활성화는 별도 |
@@ -75,7 +78,7 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 | --- | --- | --- | --- | --- |
 | 수집 기능은 M0 Core 뒤 별도 활성화 | 확정 | 콘텐츠 수집 기획 §2 | 전체 | 반영 |
 | 로컬 collector가 관리자 화면 또는 Discord `/collect url`의 URL 한 건 후보 생성 | 확정 | 콘텐츠 수집 기획 §3.2·§8 | `create-candidate-from-url`, D01, D08 | 반영 |
-| 등록·활성되지 않은 host·robots 금지 거부 | 확정 | 보안·운영 §4 | API·D01 | 반영 |
+| 등록·활성되지 않은 host 거부 | 확정 | 보안·운영 §4 | API·D01 | 반영 |
 | 후보 단계는 metadata와 임시 preview만 저장 | 확정 | 콘텐츠 수집 기획 §4, 데이터 모델 §6 | API·D01·D08 | 반영 |
 | 이미지는 Spring 수집 서버의 작업 경로에 임시 저장 후 게시 결정 시 영구 저장 | 확정 | 콘텐츠 수집 기획 §4, API 설계 §5 | API·D01·D08 | 반영 |
 | 실패 후보 재시도·반려 | 확정 | API 설계 §5 | `retry-candidate`, `reject-candidate` | 반영 |
@@ -90,8 +93,8 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 
 - batch가 수집/queue 상태를, API가 검수/content 상태를 소유한다. 같은 database를 쓰더라도 역할별 쓰기 범위는 다르다.
 - item의 DISCOVERED/FETCHING/FETCHED/FAILED/BLOCKED/SKIPPED_DUPLICATE/SKIPPED_POLICY와
-  API의 UNREVIEWED/REVIEWING/APPROVED/REJECTED를 분리한다. FETCHED 결과만 검수/승격 대상이다.
-- REVIEWING의 원문·미디어 snapshot이 바뀌면 재검수한다. 승인 없는 승격·버전 충돌·기존 원문 중복을 거부한다.
+  API의 UNREVIEWED/APPROVED/REJECTED를 분리한다. FETCHED 결과만 검수/승격 대상이다.
+- 상세에서 읽은 원문·미디어 snapshot이 바뀌면 상세를 다시 읽어 승인·반려한다. 기존 REVIEWING 기록은 UNREVIEWED로 조회하며 신규 REVIEWING 요청·저장은 거부한다. 승인 없는 승격·버전 충돌·기존 원문 중복을 거부한다.
 - raw/media/report는 비공개 collect 저장소에 보관하고, API는 고정된 읽기 경로에서 hash/size를 대조한다.
   원격 원문 URL로 대체 fetch하지 않는다. 첨부는 원문 링크이며 이미지 실패를 정상 preview로 처리하지 않는다.
 - 초안 승격 뒤 별도 즉시/예약 발행이 필요하다. 제목 보정·긴 본문/이미지 한도·실패 복구는 아래 direct 계약을 따른다.
@@ -108,7 +111,7 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 - URL은 `https`만 허용하고 정규화 뒤 중복 후보를 검사한다.
 - 같은 출처 host 안에서만 최대 3회 redirect를 따른다.
 - 사설·loopback·link-local·metadata 주소로 해석되는 대상은 거부한다.
-- `robots.txt` 금지 또는 미확인 경로는 fetch하지 않고 성공 후보 `NEW`로 만들지 않는다. 이미 접수된 작업은 `FETCH_FAILED`로 기록한다.
+- `robots.txt` 관측값은 참고로 보존하며 수집·결과 제출을 차단하지 않는다.
 - 요청 간격과 일일 상한을 넘으면 collector가 fetch하지 않고 `SOURCE_RATE_LIMITED` 결과를 제출한다.
 - fetch 실패·timeout·비HTML·parser 실패는 `FETCH_FAILED` 후보로 남겨 운영자가 재시도 또는 반려한다.
 - 후보 단계에는 원문 URL, 제목, 이미지 후보 URL, 경고·실패 사유 metadata와 관리자 preview 식별자만 저장한다.
@@ -225,7 +228,7 @@ Core `/internal/collect/*`로 중계한다. 예를 들어 `/api/collector/v1/can
 
 - `COLLECT`는 선택 candidateId 또는 PENDING·만료 RUNNING을 `FOR UPDATE SKIP LOCKED`로 선점하고 `status=RUNNING`, collector/execution, claimedAt, leaseUntil, attemptCount, lockVersion을 갱신한다. 성공 item은 candidateId, sourceId/host, originUrl, discoveryMode, attemptCount, lockVersion, leaseUntil, requestIntervalMs, dailyFetchLimit, robotsAllowed, robotsCheckedAt을 가진다. 대상이 없거나 이미 선점됐으면 빈 items다.
 - `PREVIEW_REFRESH`는 candidateId와 현재 `lockVersion`이 필수이고 NEW 후보의 만료·누락 preview만 대상으로 한다. `(status, lockVersion)` compare-and-set으로 새 execution·version을 만들되 status·attemptCount·`lease_until=NULL`은 바꾸지 않는다. 새 execution owner에게만 position·candidateImageId·remoteUrl을 준다.
-- 접수 이전이나 COLLECT claim 성공 이전에는 출처를 요청하지 않는다. source 활성·robots·quota gate는 fetch 직전 다시 검사한다.
+- 접수 이전이나 COLLECT claim 성공 이전에는 출처를 요청하지 않는다. source 활성·quota gate는 fetch 직전 다시 검사한다.
 
 #### Heartbeat와 Result Submit
 
@@ -319,7 +322,7 @@ incoming webhook은 처리 결과 알림용으로만 사용한다.
 - collector claim 뒤 실행 직전 host 활성 상태를 다시 확인한다.
 - 이용약관 판단은 자동 차단 조건이 아니라 운영 위험 참고값이다.
 - collector가 DNS 해석 결과를 확인하고 사설·loopback·link-local·metadata 주소면 거부한다.
-- collector가 출처 `robots.txt` 금지 경로를 확인하면 fetch하지 않고 실패 결과를 제출한다.
+- collector는 robots 금지/미확인만으로 실패 결과를 제출하지 않는다.
 - collector가 요청 간격과 일일 상한을 넘으면 fetch하지 않고 `SOURCE_RATE_LIMITED` 결과를 제출한다.
 
 #### 정상 처리와 데이터·상태 전이
@@ -329,7 +332,7 @@ incoming webhook은 처리 결과 알림용으로만 사용한다.
 3. `collect.source` 활성 출처와 host를 대조한다.
 4. 외부 fetch 없이 `collect.candidate`를 `PENDING`으로 저장하고 `202`를 반환한다.
 5. 로컬 collector가 대기 후보를 claim해 `RUNNING`으로 바꾼다.
-6. collector가 robots·요청 상한·DNS 안전성·redirect 경계를 확인한다.
+6. collector가 요청 상한·DNS 안전성·redirect 경계를 확인한다.
 7. collector가 상세 페이지를 1회 fetch하고 출처별 parser로 제목과 이미지 후보 URL을 추출한다.
 8. Java/Spring 추출기는 미리보기에 필요한 이미지 후보만 로컬 작업 경로에 임시 저장한다.
 9. collector가 `result` API로 후보와 이미지 후보 metadata만 제출한다.
@@ -350,7 +353,7 @@ incoming webhook은 처리 결과 알림용으로만 사용한다.
 | `503` | `DEPENDENCY_UNAVAILABLE` | DB 등 내부 의존성 장애 |
 
 후보 상세에서 추출 후 이미지 후보 수와 상태를 확인한다. 접수 응답에 추출 결과를 섞지 않는다.
-robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `ROBOTS_DISALLOWED`·`SOURCE_RATE_LIMITED` 실패 결과로 제출한다.
+요청 상한은 접수 HTTP 오류가 아니라 collector가 `SOURCE_RATE_LIMITED` 실패 결과로 제출한다. robots는 차단 사유가 아니다.
 관리자 접수 성공은 `202`와 `PENDING`을 반환한다. fetch·timeout·비HTML·parser 실패는 collector 결과
 제출 시 후보를 `FETCH_FAILED`로 만들고 처리 결과를 저장한다.
 
@@ -365,7 +368,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 - 등록되지 않은 host `403`
 - 관리자 접수 성공 시 외부 fetch 없이 `202` + `PENDING`
 - collector claim 시 `PENDING -> RUNNING`
-- robots 금지 결과 제출 시 `RUNNING→FETCH_FAILED`와 일반화한 실패 코드
+- robots 금지/미확인 메타데이터가 있어도 정상 수집·결과 제출 허용
 - Discord 권한 없는 guild·channel·user 거부
 - 중복 후보 `409`
 - fetch 실패 시 collector 제출 결과 `FETCH_FAILED`
@@ -558,7 +561,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 2. `lockVersion`을 비교한다.
 3. 기존 이미지 후보 metadata를 재시도 교체 대상으로 표시한다.
 4. 데이터 모델의 재시도 전이에 따라 `fetched_at`, `fetch_error_code`, `lease_until`을 초기화하고 `PENDING`으로 되돌린다. 증가한 `lockVersion`으로 접수 결과를 반환한다.
-5. 로컬 collector가 출처 등록·활성 상태, robots, 요청 상한을 다시 확인한다.
+5. 로컬 collector가 출처 등록·활성 상태, 요청 상한을 다시 확인한다.
 6. collector는 기존 후보의 단일 상세 페이지 원문 URL만 다시 fetch하고 parser를 실행한다. 목록·feed·pagination은 호출하지 않는다.
 7. 성공하면 기존 이미지 후보 metadata와 로컬 수집기 임시 preview 파일을 새 결과로 교체하고 `NEW`로 바꾼다.
 8. claim으로 `RUNNING`이 된 후보는 실패 결과 제출 시 `FETCH_FAILED`로 전환하고 실패 분류와 `lockVersion`을 갱신한다.
@@ -572,7 +575,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 | `409` | `CANDIDATE_STATE_CONFLICT` | `FETCH_FAILED`가 아님 |
 | `409` | `CANDIDATE_VERSION_CONFLICT` | lockVersion 불일치 |
 
-출처·robots·상한 검사는 접수 후 collector 실행 단계다. 실패 코드는
+출처·상한 검사는 접수 후 collector 실행 단계다. 실패 코드는
 [API 설계의 재수집 계약](../../../system-design/03-api-design.md#재수집과-반려)에 따라
 `fetchErrorCode`로 기록하고, 이미 성공한 retry HTTP 응답을 바꾸지 않는다.
 
@@ -614,7 +617,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
    거친다.
 6. 로컬 collector는 확인된 Discord URL을 전용 중계로 PENDING 접수하고, 관리자·Discord 후보를 같은
    claim 흐름으로 선점한다. 같은 interaction ID를 기존 멱등 key 계약에 사용한다.
-7. collector는 출처·robots·요청 상한·DNS 안전성·redirect 경계를 확인한다.
+7. collector는 출처·요청 상한·DNS 안전성·redirect 경계를 확인한다.
 8. collector는 상세 페이지를 1회 fetch하고 parser를 실행한다.
 9. Java/Spring 추출기는 미리보기에 필요한 이미지 후보를 로컬 작업 경로에 임시 저장한다.
 10. collector는 `result` API로 후보와 이미지 후보 metadata만 제출하고, 응답의
@@ -627,7 +630,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 #### 대안·실패 흐름
 
 - 등록되지 않은 host: 후보를 만들지 않고 허용되지 않은 출처로 표시한다.
-- robots 금지: 접수된 후보를 fetch 없이 FETCH_FAILED로 기록하고 수집 금지로 표시한다.
+- robots 금지/미확인: 참고값만 유지하고 수집 상태를 실패로 바꾸지 않는다.
 - 요청 상한 초과: `Retry-After` 기준으로 재시도 가능 시점을 표시한다.
 - fetch·parser 실패: `FETCH_FAILED` 후보를 표시하고 재시도·반려만 허용한다.
 - 중복 후보: 기존 후보를 안내하고 새 후보를 만들지 않는다.
@@ -773,7 +776,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 - lockVersion 충돌: 최신 후보를 다시 불러오도록 안내한다.
 - terminal 상태: 재시도·반려 버튼을 숨기거나 비활성화한다.
-- 출처 비활성·robots 변경·상한 초과: 재시도 접수 후 collector 실패 결과가 반영되면 `FETCH_FAILED`와 일반화한 사유를 표시한다.
+- 출처 비활성·상한 초과: 재시도 접수 후 collector 실패 결과가 반영되면 `FETCH_FAILED`와 일반화한 사유를 표시한다.
 
 #### 단계별 호출 API 매핑
 
@@ -794,7 +797,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 - 관리자 인증 필수.
 - retry API는 외부 fetch를 직접 수행하지 않고 로컬 collector 작업을 다시 대기시킨다. collector는
-  출처 상한과 robots를 재확인한다.
+  출처 상한을 재확인한다.
 - reject는 외부 fetch를 수행하지 않는다.
 
 #### 완료 조건과 수용 기준
@@ -895,7 +898,7 @@ robots 금지와 요청 상한은 접수 HTTP 오류가 아니라 collector가 `
 
 - 후보 생성은 후보 또는 명시적 실패 상태로 끝난다.
 - 실패 후보는 재시도 또는 반려만 가능하다.
-- 승격 성공 뒤 자동 발행하지 않고 편집기로 이동한다.
+- direct batch의 `승인 및 발행`은 운영자의 명시적 동작으로 review → draft → 즉시 publish를 연속 실행한다. 각 단계의 요청 키·버전을 유지하고 응답 손실은 같은 단계에서 재확인한다. 수집 자체로 발행하지 않으며 legacy 후보 승격은 기존 편집기 흐름을 유지한다.
 - 원문 HTML 전체와 내부 오류 상세를 화면에 노출하지 않는다.
 - 수집기 임시 파일 내부 경로와 image binary를 화면에 노출하지 않는다.
 
@@ -947,7 +950,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - `COLLECTOR_SERVICE_TOKEN`: Core 내부 API 전용 bearer token.
 - `DISCORD_BOT_TOKEN`, `DISCORD_ALLOWED_GUILD_ID`, `DISCORD_ALLOWED_CHANNEL_ID`, `DISCORD_ALLOWED_USER_IDS`: Discord 명령 수신 gate.
 - `COLLECT_MAX_RESPONSE_BYTES`, `COLLECT_TIMEOUT_MS`, `COLLECT_USER_AGENT`: 출처 요청 제한.
-- 출처 host, robots, 요청 간격, Core quota reservation, DNS 안전성, 같은 host 안의 redirect 3회 제한은 fetch 직전 다시 확인한다.
+- 출처 host, 요청 간격, Core quota reservation, DNS 안전성, 같은 host 안의 redirect 3회 제한은 fetch 직전 다시 확인한다.
 - `https`가 아니거나 사설·loopback·link-local·metadata 주소로 해석되는 대상은 요청하지 않는다.
 
 #### 이벤트·후처리
@@ -959,7 +962,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 | Discord `/collect status` | local Job과 Core 집계를 분리해 읽기 전용 요약을 낸다. 새 Job을 만들지 않는다. |
 | Quartz / REST 실행 | `CollectorRunService.submit()`으로 공통 실행 요청을 만들며, Quartz는 15분 주기·기본 비활성이고 신규 목록 URL을 찾지 않는다. |
 | Batch 후보 처리 | 후보 1건의 `resolveCandidate` → `claimCandidate` → `fetchAndExtract` → `submitResult` → `uploadPreviews` → `notifyAndFinalize` 여섯 Tasklet Step을 순서대로 실행한다. 기본 active Job은 1개다. |
-| heartbeat · quota | RUNNING fetch 중 heartbeat를 연장하고, robots·상세·redirect·image 각 실제 HTTP 전에 Core reservation을 받는다. |
+| heartbeat · quota | RUNNING fetch 중 heartbeat를 연장하고, 상세·redirect·image 각 실제 HTTP 전에 Core reservation을 받는다. |
 | shutdown | 새 Step·reservation을 막고, 이미 시작한 network 요청은 제한 timeout까지 기다린다. 90초 유예 뒤 미완료 Job은 restartable STOPPED로 남기며 lease 회수에 맡긴다. |
 
 #### 프로그램 상태
@@ -969,7 +972,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - `idle`: 처리 가능한 후보 없음
 - `running`: 후보 1건 처리 중
 - `rate_limited`: 출처 요청 간격 또는 일일 상한 초과
-- `blocked`: robots 금지, host 비활성, DNS·redirect·content-type·응답 크기 제한으로 fetch 차단
+- `blocked`: host 비활성, DNS·redirect·content-type·응답 크기 제한으로 fetch 차단
 - `failed`: Core API, Discord, parser, preview upload 오류
 
 오류는 후보별 실패와 프로세스 치명 오류를 구분한다. 후보별 실패는 공개 서비스 장애로 확대하지 않는다.
@@ -998,7 +1001,7 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 
 - BE·FE runtime이 외부 사이트를 직접 fetch하지 않는다.
 - Discord 일반 메시지를 감시하지 않고 초기 명령인 `/collect url`과 읽기 전용 `/collect status`만 처리한다.
-- 등록·활성 출처, robots, 요청 상한, DNS 안전성, redirect, content-type, 응답 크기, timeout gate를 fetch 직전 적용한다.
+- 등록·활성 출처, 요청 상한, DNS 안전성, redirect, content-type, 응답 크기, timeout gate를 fetch 직전 적용한다.
 - 성공 결과는 원문 HTML·이미지 binary·local temp path 없이 `result`에 metadata만 제출하고, 이후 별도
   preview 업로드 성공 응답의 식별자만 사용한다.
 - 실패 결과는 `FETCH_FAILED`와 허용된 `fetchErrorCode`로 남긴다.
@@ -1069,10 +1072,10 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 - 출처·fixture·차단과 완료 상태는 [검증표](../../../planning/content-collection/reference-site-validation.md)를 따른다.
 - Discord는 권한 검증→registry 출처·상세 URL 확인→확인 버튼→동일 registry 재검사→후보 접수→공통 queue.
   Core 숫자 sourceId와 파일의 source key를 같은 값으로 가정하지 않는다.
-- batch CLI는 유효한 옵션·출처 정책 gate→robots→목록 parser→페이지/기간/글 수 제한→canonical/post key 중복 제거
+- batch CLI는 유효한 옵션·출처 정책 gate→목록 parser→페이지/기간/글 수 제한→canonical/post key 중복 제거
   →상세 parser→`collect.batch_*`와 batch object store 저장 순으로 처리한다. `HOT_LIST`(hot)와 `GENERAL_LIST`(latest)의 검증된 목록을 조회하고,
-  `DETAIL_ONLY`는 상세 URL만 처리하며 `BLOCKED`·`UNVERIFIED`는 실행하지 않는다. dry-run은 콘텐츠·object를 저장하지 않고 batch DB 요청 quota만 기록한다. robots 조회도 같은 한도에 포함한다.
-- 21개 중 parser/fixture/robots/정책이 미확인인 출처는 blocked 코드로 보고한다.
+  `DETAIL_ONLY`는 상세 URL만 처리하며 `BLOCKED`·`UNVERIFIED`는 실행하지 않는다. dry-run은 콘텐츠·object를 저장하지 않고 batch DB 요청 quota만 기록한다. robots는 수집 전 조회하지 않는다.
+- 21개 중 parser/fixture/정책이 미확인인 출처는 blocked 코드로 보고한다.
   BLOCKED adapter에 OG metadata fallback을 제공하지 않는다. 파일 링크 보존과 binary 다운로드 성공을 구분한다.
 - 사진 후보는 lazy-load 속성(`data-src`, `data-original`, `data-original-src`, `data-lazy-src`), `srcset`/`data-srcset`,
   CSS `background-image`까지 파싱하되 허용 CDN policy를 통과한 URL만 저장한다.
@@ -1134,10 +1137,12 @@ BE·FE runtime은 외부 사이트를 fetch하지 않으며, `/collect status`�
 
 ### Batch 검수 snapshot과 제목 보정
 
-REVIEWING 시 원문/미디어 snapshot digest를 고정한다. 승인·승격에서 내용 또는 media hash/key가 바뀌면
+상세 응답의 contentDigest를 직접 승인/반려 요청에 전달한다. 승인/반려·승격에서 내용 또는 media hash/key가 바뀌면
 BATCH_ITEM_VERSION_CONFLICT로 거부하고 재검수를 요구한다. 목록 조회는 개별 본문 검증과 분리해 손상된
 본문 하나가 목록 전체를 막지 않게 한다. DRAFT 응답은 게시글 lockVersion과 reviewLockVersion을 구분한다.
-운영자는 초안 승격 요청에 title(1~200자)을 지정할 수 있다. 생략한 원문 제목이 한도를 넘으면 실패한다.
+운영자는 초안 승격 요청에 title(1~200자)을 지정할 수 있다. 현행 batch 목록·상세 표시 제목, 초안 기본값과 API 저장 제목은
+[API 설계의 출처 접미사 규칙](../../../system-design/03-api-design.md#5-2-direct-batch-결과-조회검수초안-승격)을 적용한다.
+생략 시 원제목을 보정하며, 보정 후에도 제목이 한도를 넘으면 실패한다. 원제목·출처 정보는 보존한다.
 
 수집 이미지 미리보기와 초안 승격은 동일한 수집 전용 이미지 검증을 사용한다. 파일당 30MiB,
 최대 500프레임, 한 프레임 40,000,000픽셀을 유지한다. 전체64Mi픽셀 초과 GIF/WebP는
@@ -1197,7 +1202,7 @@ Discord 확인은 batch 소유 confirmation/queue에 원자적으로 접수한�
 3. batch는 기동 중 30초마다 claim→source 정책 재검사→자기 queue/receipt 기록→ack를 한 DB transaction으로 수행한다. Discord 기존 queue와 같은 중복/재시도 계약을 사용하며 API는 queue를 수정하지 않는다. crash 전후 동일 request가 두 queue를 만들지 않아야 한다.
 4. Web은 화면이 보일 때 5초 간격으로 getDirectCollectionRequest를 조회한다. 백그라운드/이탈 시 poll을 멈춘다. 24시간 deadline 이후 EXPIRED 표시, 자동 재접수 금지. 일시 조회 실패는 마지막 확인 상태/시각을 남긴다.
 5. SUCCEEDED만 item 상세로 연결한다. DUPLICATE는 기존 item이 있으면 열기, 만료돼 없으면 '이미 수집한 원문이며 보관 기간이 지났습니다'를 표시한다. FAILED 중 retryable인 경우에만 retryDirectCollectionRequest로 새 요청을 만들고 이전 실패 기록과 연결한다.
-6. 검수·preview·승격은 D01 시각/버전 검사에 참여한다. 최초 APPROVED/REJECTED 이후 재검수로 만료를 연장하지 않는다. 승격은 API private 사본·content 최소 원문 연결을 원자 저장하고 별도 발행을 기다린다.
+6. 검수·preview·승격은 D01 시각/버전 검사에 참여한다. 최초 APPROVED/REJECTED 이후 재검수로 만료를 연장하지 않는다. 승격은 API private 사본·content 최소 원문 연결을 원자 저장한다. direct batch 화면에서 명시적으로 승인 및 발행하면 이어서 별도 게시글 발행 API를 호출한다.
 
 ### 화면·상태와 API 대응
 
@@ -1235,3 +1240,15 @@ mobile은 입력→요청 상태→검수 순서로 표시하고 status는 aria-
 | D01/D03/D04 | 각 정본의 T1~T7/T1~T6 및 역할 거부표 전체, content 사본과 원문·백업 경계를 별도 readback |
 
 검증 범위: 신규 migration·mailbox/lease/재시도·안전 설정·역할·브라우저·선택 복원의 로컬 단계별 결과는 실행 기록에 있다. 전체 통합, COL 요청 통제·UX 잔여와 실제 Drive/Discord·두 계정·장비 인수는 미완료다. 법무 발행/출시 차단은 유지하며 과거 source/fixture 통과를 현재 전체 구현 통과로 재사용하지 않는다.
+
+## 공통코드 그룹 — 2026-10-05
+
+- 제품: [수집 기획](../../../planning/content-collection/README.md#출처-공통-코드--2026-10-05), 화면 `/admin/common-codes`. 출처는 source 그룹에4자리 코드로 관리.
+- D01: V013 common_code_group/common_code, 코드PK(groupKey,code), referenceKey로 기존 Collector 키 연결. V012 자료의 이름/버전/감사 보존 후 이관, 미등록 매핑은 중단. 자동 down은 이관 필요 오류로 거부.
+- API: listCommonCodeGroups/listCommonCodes(OWNER/EDITOR), create/updateCommonCodeGroup 및 create/updateCommonCode(OWNER). `/api/v1/admin/common-code-groups`와 그룹별/codes 사용. 입력400, 인증401, 권한403, 없는 그룹/코드404, 중복/경쟁409, 유지보수503.
+- D08: 그룹 선택→그룹별 코드 목록/추가/이름 수정. source referenceKey로 검수 검색·표시·초안 저장 연결. 새 이름으로 기존 게시글 소급 변경 없음. 미등록 원문 코드 fallback 유지.
+- 수용: 그룹 간 분리/동일 코드 허용, source4자리/연결 중복 방어, 이름/감사 이관 및 데이터 보존 실패 처리, 역할/경쟁/유실 응답/모바일 화면/검수·초안 회귀.
+
+### 관리자 실패 항목 삭제 — 2026-10-06
+
+단건/선택 삭제는 OWNER/EDITOR 공통 기능이다. `POST /api/v1/admin/collect/batch-items/{itemId}/delete`에 목록의 itemVersion·lockVersion과 고유 Idempotency-Key를 전달한다. 수집 완료 항목은 반려하며 실패/차단의 미검수·미연결만 삭제한다. 선택 건수를 확인한 뒤 순차 실행하고 항목별 성공/실패/미확인을 표시한다. 상세 조회 실패에 의존하지 않는다. 같은 요청은 삭제 후에도 재생하고 파일 정리는 정확한 item/run 별도 작업으로 남긴다. [기술 계약](../../../system-design/03-api-design.md#관리자-실패-항목-삭제--2026-10-06)을 따른다.

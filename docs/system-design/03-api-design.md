@@ -704,13 +704,21 @@ URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하�
 | GET | `/api/v1/admin/collect/batch-items` | `page`·`source`·`state`·`reviewStatus` 필터, 20건 목록 |
 | GET | `/api/v1/admin/collect/batch-items/:itemId` | 원문 블록·SNS·첨부·미디어 metadata·검수 상세 |
 | GET | `/api/v1/admin/collect/batch-items/:itemId/media/:position/preview` | IMAGE만 private stream, 크기/hash 확인·검증 후 제공 |
-| POST | `/api/v1/admin/collect/batch-items/:itemId/review` | 검수 시작·승인·반려 |
+| POST | `/api/v1/admin/collect/batch-items/:itemId/review` | 직접 승인·반려 |
+| POST | `/api/v1/admin/collect/batch-items/:itemId/delete` | 미검수 FAILED/BLOCKED 항목 삭제, itemVersion·lockVersion·Idempotency-Key 필수 |
 | POST | `/api/v1/admin/collect/batch-items/:itemId/draft` | 승인한 원문을 수동 편집용 DRAFT로 이동 |
 
+- Web 선택 상태는 `/admin/batch?itemId=<UUID>`의 query를 기준으로 한다. 목록 선택은 history에 추가하고 같은 항목 다시 열기는 상세만 재조회한다. query 없는 주소는 선택을 해제하며 sessionStorage는 목록 필터·페이지만 복원한다. API 경로·ID 형식은 변경하지 않는다.
+- 목록 일괄 반려는 현재 페이지에서 선택한 최대20건에 기존 상세 GET → review POST를 순차 적용한다. GET의 item version·review lockVersion/상태를 선택 시 목록과 대조한 뒤 contentDigest를 전달한다. 항목별 Idempotency-Key/body를 유지해 응답 유실 시 같은 요청만 재생하며 성공한 항목은 재전송하지 않는다. 전체 원자적 작업이 아니므로 개별 실패와 저장 후 목록 조회 실패를 구분한다. 신규 API·migration은 필요하지 않다.
 - `itemId`는 UUID다. 목록은 공통 `meta.requestId` 외 `data.items/page/totalItems/totalPages`를 반환한다.
-- review 요청은 `itemVersion`, `lockVersion`, `decision=REVIEWING|APPROVED|REJECTED`다.
-  FETCHED 항목만 가능하며 검수 기록이 없으면 lockVersion은 0이다. 승인·반려는 REVIEWING을 거친다.
+- review 요청은 `itemVersion`, `lockVersion`, `contentDigest`, `decision=APPROVED|REJECTED`다.
+  이 흐름은 API V011 migration과 새 Web/API를 함께 적용한다. batch 검수 준비 상태는 V011을 요구하며 V011 down은 기존 판정·보존 이력을 변경하지 않고 이전 guard만 복원한다.
+  FETCHED 항목만 가능하며 검수 기록이 없으면 lockVersion은 0이다. 상세 응답의 contentDigest(원문·미디어 snapshot SHA-256 hex)를 그대로 전달하고 현재 내용과 다르면 409 BATCH_ITEM_VERSION_CONFLICT로 거부한다. 승인·반려는 바로 저장하며 기존 REVIEWING은 조회·필터에서 UNREVIEWED로 매핑한다. 신규 REVIEWING 요청은 400이다.
 - draft 요청은 두 version과 `boardSlug`, 선택 `title`이다. APPROVED와 현재 원문 digest가 일치해야 한다.
+  Web 목록·상세 표시 제목/초안 기본값과 API 초안 저장 제목은 공유 `@blariyo/contracts/draft-title` 규칙으로 보정한다.
+  해당 sourceKey의 알려진 사이트명·게시판명(예: `보배드림 베스트글`)만 공백 뒤 구분자(`-`, `–`, `—`, `|`)와 함께 제목 끝에서 제거하고,
+  나머지가 빈 제목이면 제거하지 않는다. 미등록 출처·다른 출처명·제목 중간 문구는 유지한다.
+  원제목 및 source 필드는 변경하지 않으며 보정 후 기존 제목 길이 검증을 적용한다.
   두 POST 모두 `Idempotency-Key`를 요구하고 actor·작업·item·key 및 body hash로 완료 결과를 재생한다.
 - API는 batch 결과 테이블을 읽고 API 소유 review/receipt 및 Core 초안·이미지를 쓴다. batch item 상태나
   queue를 수정하지 않는다. 승격 시 수집 이미지를 private Core staging에 복사·검증하며 외부 출처를 fetch하지 않는다.
@@ -718,6 +726,10 @@ URL을 찾는 실행 경로를 별도 계약한다. 실행 기술과 무관하�
   `itemId/postId/status=DRAFT/lockVersion/reviewLockVersion`을 반환하며 자동 공개하지 않는다.
 - 로컬 구현·격리 검증과 실제 운영자 MFA/원격 object 인수는 구분한다. 보존·URL 입력의 M0-D01/D02는9/27 구현·로컬 검증했다. 실제 장비·고지·운영 인수는
   [roadmap P1](../roadmap.md#3-p1--수집-보조자동-수집-마감)에 남아 있다.
+
+### Direct batch 관리자 명령 연결 — 2026-10-05
+
+Web의 `승인 및 발행`은 기존 review → draft → `/api/v1/admin/posts/:postId/publish` (`mode=IMMEDIATE`)를 순차 호출한다. 새 endpoint나 단일 트랜잭션으로 합치지 않는다. 각 단계의 인증·권한·버전·멱등성 검사를 유지하고, 부분 완료 및 응답 손실을 구분한다. 초안 응답의 게시글 lockVersion으로 발행하며 발행 실패는 생성된 초안을 삭제하지 않는다. 상세의 발행 완료는 연결된 게시글 조회 결과로 확인한다. 수동 목록 재조회는 Web 선택 상태와 itemId 주소를 비우며 API 조회 계약은 유지한다.
 
 ## 6. 상태 코드와 오류 코드
 
@@ -928,3 +940,23 @@ runtime source는 sourceKey, configVersion(nullable SHA-256), loadedAt/observedA
 
 
 D01의 목표 응답 확장: BatchItemSummary/BatchItem에 `retention={collectedAt,reviewFinalizedAt,expiresAt,retentionState}`를 추가한다. 목록은 LIVE이면서 현재 시각<expiresAt인 항목만 조회하고 total에도 같은 조건을 쓴다. 만료 item의 전체 URL·제목·본문을 '만료 목록'에 남기지 않는다. 상세/preview/검수/승격은 lifecycle가 남아 있으면410, 정리 후404다. 성공 영수증 재생도 이 접근 기한을 우회하지 않으며 이미 생성된 content 초안 결과는 원문 없이 postId만 반환할 수 있다. UI는 마지막 원문 preview를 폐기하고 독립 게시글 링크만 유지한다.
+
+## 공통코드 관리 — 2026-10-05
+
+- GET/POST `/api/v1/admin/common-code-groups`: 그룹 조회/추가.
+- PATCH `/api/v1/admin/common-code-groups/{groupKey}`: 그룹명 수정.
+- GET/POST `/api/v1/admin/common-code-groups/{groupKey}/codes`: 코드 조회/추가.
+- PATCH `/api/v1/admin/common-code-groups/{groupKey}/codes/{code}`: 코드명 수정.
+- 조회는 OWNER/EDITOR, 추가·수정은 OWNER. 목록은 canManage 반환. 입력400, 인증401/권한403, 없는 그룹/코드404, 중복 키/연결/버전 충돌409, 유지보수503. private,no-store 적용.
+- 추가 시 code/displayName/referenceKey(source 필수,타 그룹null), 수정 시 displayName/lockVersion. 그룹·코드·연결키 변경 및 삭제 API 없음. 요청 자동 재시도 없이 유실 응답은 목록 재조회로 확인.
+- 기존 미출시 source-codes API를 대체한다. 검수 필터의 source 인자는 Collector 키를 유지하고 Web에서 공통 코드와 연결한다.
+- 현재 Core readiness는 V013과 공통 그룹/코드 테이블의 SELECT/INSERT/UPDATE 권한 각각을 확인한다. Collector/direct 준비 검사도 V013을 인식한다.
+
+### 관리자 실패 항목 삭제 — 2026-10-06
+
+- OWNER/EDITOR가 기존 batchReview 기능·유지보수 제한 아래 실행한다. contentDigest/상세 본문은 요구하지 않아 본문 파싱 실패 항목도 삭제 가능하다. 목록의 itemVersion·review lockVersion을 전달하고 실패/차단·미검수·게시글 미연결·보존 기한을 제한 DB 함수가 재검증한다.
+- Collector V014의 `collect.delete_failed_item(uuid,bigint,bigint,text)`만 API 역할에 EXECUTE 허용한다. Collector 소유 payload 테이블의 직접 DELETE 권한은 주지 않는다. restore fence·출처 잠금·item 검수 잠금과 활성 run 검사를 수행한다. 충돌은409, 만료410, 미존재404, migration 미적용503이다.
+- 개별 payload/item 연결 failure/media/correction만 제거한다. 같은 run의 다른 item·failure·report·checkpoint·queue는 보존한다. `batch_manual_deletion`에 item/version/actor/time과 `batch_manual_cleanup`에 정확한 item/run을 남긴다. 수집 원문/URL은 삭제 증거에 복제하지 않는다. 자동 재수집은 dedup identity로 차단한다.
+- 응답은 `{itemId,deleted:true,cleanupStatus:"PENDING"}`. DB 삭제와 API receipt 저장은 같은 transaction이며 같은 actor/item/key/body는 삭제 후에도200을 재생한다. 다른 body는409. 성공 응답은 object 삭제 완료를 뜻하지 않는다.
+- 기존 exact item/run 파일 정리 worker가 자동 이미지 실패 작업과 수동 삭제 작업을 함께 처리한다. 모든 페이지를 열거한 뒤 정확한 경로·다른 원문/게시글의 참조 없음·삭제 후 부재를 검사한다. 실패는 대기 작업을 유지하고 복원/지연 업로드로 파일이 재등장하면 다시 연다. 공개 게시글 파일에는 접근하지 않는다.
+- 새 endpoint만 V014를 필요로 한다. 기존 batch 검수 준비 상태는 유지하며 새 함수 미설치 시 삭제 요청은503으로 거부한다. 배포 순서는 Collector migration → API 실행 권한 → API/Web → retention worker 관측이다.

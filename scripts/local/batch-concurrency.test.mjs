@@ -104,6 +104,17 @@ test('CLI runs bounded child processes and preserves per-source failures and opt
     assert.equal(active, 0);
     assert.deepEqual(events.at(-1).results.map(result => result.source).sort(), ['first','fourth','second','third']);
     assert.equal(events.at(-1).results.find(result => result.source === 'second').exitCode, 2);
+    const filtered = spawnSync(process.execPath, [join(scripts, 'run-batches.mjs'), '--max-items', '10', '--write-db'], {
+      cwd:root, env:{...process.env, COLLECTOR_SOURCE_CONFIG:config, COLLECTOR_SOURCE_FILTER:'first,disabled'}, encoding:'utf8',
+    });
+    assert.equal(filtered.status, 0, filtered.stderr);
+    const filteredEvents = filtered.stdout.trim().split('\n').map(line => JSON.parse(line));
+    assert.deepEqual(filteredEvents.at(-1).results, [{source:'first', exitCode:0}]);
+    const invalidFilter = spawnSync(process.execPath, [join(scripts, 'run-batches.mjs'), '--write-db'], {
+      cwd:root, env:{...process.env, COLLECTOR_SOURCE_CONFIG:config, COLLECTOR_SOURCE_FILTER:'unknown'}, encoding:'utf8',
+    });
+    assert.equal(invalidFilter.status, 1);
+    assert.match(invalidFilter.stderr, /SOURCE_FILTER_INVALID/);
     await writeFile(config, JSON.stringify({disabled:{approved:false,blockedReason:'SOURCE_DISABLED'}}));
     const empty = spawnSync(process.execPath, [join(scripts, 'run-batches.mjs'), '--write-db'], {
       cwd:root, env:{...process.env, COLLECTOR_SOURCE_CONFIG:config}, encoding:'utf8',

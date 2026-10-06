@@ -6,7 +6,7 @@ import {DEFAULT_SOURCE_CONCURRENCY, sourceConcurrency, runSourcePool} from './ba
 
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
-  console.log(`Usage: node scripts/local/run-batches.mjs (--dry-run | --write-db) [--chart NAME] [--max-pages N] [--max-items N] [--since 24h] [--interval-ms N]\nCOLLECTOR_SOURCE_CONCURRENCY: simultaneous source batches (default ${DEFAULT_SOURCE_CONCURRENCY}).\nCOLLECTOR_SOURCE_CONFIG: source JSON file (same setting as run-batch.mjs).\n--dry-run still fetches remote content; it is not an offline preview.`);
+  console.log(`Usage: node scripts/local/run-batches.mjs (--dry-run | --write-db) [--chart NAME] [--max-pages N] [--max-items N] [--since 24h] [--interval-ms N]\nCOLLECTOR_SOURCE_CONCURRENCY: simultaneous source batches (default ${DEFAULT_SOURCE_CONCURRENCY}).\nCOLLECTOR_SOURCE_CONFIG: source JSON file (same setting as run-batch.mjs).\nCOLLECTOR_SOURCE_FILTER: optional comma-separated registered keys; disabled sources stay excluded.\n--dry-run still fetches remote content; it is not an offline preview.`);
 } else {
   const controller = new AbortController();
   const children = new Set();
@@ -34,7 +34,9 @@ if (args.includes('--help')) {
     const config = JSON.parse(await readFile(sourcePath, 'utf8'));
     if (!config || Array.isArray(config) || typeof config !== 'object' || !Object.keys(config).length) throw new Error('SOURCE_CONFIG_INVALID');
     const excludedSources = Object.keys(config).filter(source => config[source]?.blockedReason === 'SOURCE_DISABLED');
-    const sources = Object.keys(config).filter(source => !excludedSources.includes(source));
+    const filter = process.env.COLLECTOR_SOURCE_FILTER?.split(',');
+    if (filter && (!filter.length || filter.some(source => !Object.hasOwn(config, source)))) throw new Error('SOURCE_FILTER_INVALID');
+    const sources = Object.keys(config).filter(source => !excludedSources.includes(source) && (!filter || filter.includes(source)));
     process.on('SIGINT', onInt);
     process.on('SIGTERM', onTerm);
     console.log(JSON.stringify({event:'batch-pool-started', sources:sources.length, excludedSources, concurrency:Math.min(concurrency, sources.length)}));
@@ -57,7 +59,7 @@ if (args.includes('--help')) {
   } catch (error) {
     // Only known validation messages are printed; config paths/contents may be private.
     const message = error instanceof Error ? error.message : '';
-    console.error(['BATCH_OPTIONS_INVALID','BATCH_MODE_REQUIRED','SOURCE_CONFIG_INVALID','COLLECTOR_SOURCE_CONCURRENCY must be a positive integer'].includes(message) ? message : 'LOCAL_BATCH_POOL_FAILED');
+    console.error(['BATCH_OPTIONS_INVALID','BATCH_MODE_REQUIRED','SOURCE_CONFIG_INVALID','SOURCE_FILTER_INVALID','COLLECTOR_SOURCE_CONCURRENCY must be a positive integer'].includes(message) ? message : 'LOCAL_BATCH_POOL_FAILED');
     process.exitCode = 1;
   } finally {
     process.removeListener('SIGINT', onInt);

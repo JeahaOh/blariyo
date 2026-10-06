@@ -36,6 +36,19 @@ def render(root, node, java_home):
     target = output / f'{LABEL}.plist'
     target.write_bytes(plistlib.dumps(data, sort_keys=False))
     target.chmod(0o600)
+    # Separate, reviewable opt-in: prevent AC system sleep while reservations are enabled.
+    # It does not keep the display on and does not prevent sleep on battery power.
+    awake = {
+        'Label': LABEL + '.awake',
+        'ProgramArguments': ['/usr/bin/caffeinate', '-s'],
+        'RunAtLoad': True,
+        'KeepAlive': True,
+        'StandardOutPath': '/dev/null',
+        'StandardErrorPath': '/dev/null',
+    }
+    awake_target = output / f'{LABEL}.awake.plist'
+    awake_target.write_bytes(plistlib.dumps(awake, sort_keys=False))
+    awake_target.chmod(0o600)
     return target
 
 

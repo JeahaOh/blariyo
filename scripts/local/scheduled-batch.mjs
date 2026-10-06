@@ -1,8 +1,12 @@
 // Invoked once per launchd calendar event. The existing runner owns source policy and local DB credentials.
 import {spawn} from 'node:child_process';
-import {mkdir, open, readdir, stat, unlink} from 'node:fs/promises';
+import {mkdir, open, readdir, stat, unlink, readFile, writeFile, rename} from 'node:fs/promises';
+import {lookup} from 'node:dns/promises';
+import {createConnection} from 'node:net';
+import {setTimeout as delay} from 'node:timers/promises';
 import {resolve, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {batchReports, collectWithRecovery} from './batch-schedule-retry.mjs';
 
 export const BATCH_ARGS = ['--write-db', '--max-pages', '2', '--max-items', '20', '--since', '24h'];
 export const MAX_RUNTIME_MS = 2 * 60 * 60 * 1000;
@@ -42,6 +46,22 @@ export async function runBatch({command = process.execPath, args = ['scripts/loc
   }
 }
 
+async function ready() {
+  const database = new Promise(resolve => {
+    const socket = createConnection({host:'127.0.0.1', port:5439});
+    const finish = value => {socket.destroy(); resolve(value);};
+    socket.setTimeout(5000, () => finish(false));
+    socket.once('connect', () => finish(true));
+    socket.once('error', () => finish(false));
+  });
+  const dns = Promise.any(['theqoo.net', 'www.dogdrip.net'].map(host => lookup(host))).then(() => true, () => false);
+  const timeout = AbortSignal.timeout(6000);
+  return await Promise.race([
+    Promise.all([database, dns]).then(values => values.every(Boolean)),
+    new Promise(resolve => timeout.addEventListener('abort', () => resolve(false), {once:true})),
+  ]);
+}
+
 async function main() {
   process.umask(0o077);
   process.chdir(fileURLToPath(new URL('../../', import.meta.url)));
@@ -53,13 +73,52 @@ async function main() {
     const path = join(logDirectory, name);
     if (Date.now() - (await stat(path)).mtimeMs > LOG_RETENTION_MS) await unlink(path);
   }
-  const log = await open(join(logDirectory, `run-${new Date().toISOString().replaceAll(':', '-')}.log`), 'wx', 0o600);
+  const startedAt = new Date().toISOString();
+  const logPath = join(logDirectory, `run-${startedAt.replaceAll(':', '-')}.log`);
+  const log = await open(logPath, 'wx', 0o600);
+  const controller = new AbortController();
+  const stop = () => controller.abort();
+  process.on('SIGINT', stop);
+  process.on('SIGTERM', stop);
+  const awake = spawn('/usr/bin/caffeinate', ['-is', '-w', String(process.pid)], {stdio:'ignore'});
+  awake.on('error', () => controller.abort());
+  const statePath = resolve('.local-data/batch-schedule/status.json');
+  let attempt = 0;
   try {
     await log.write(`${JSON.stringify({event:'scheduled-batch-started', at:new Date().toISOString(), args:BATCH_ARGS})}\n`);
-    process.exitCode = await runBatch({stdio:['ignore', log.fd, log.fd], env:{...process.env,
-      COLLECTOR_SOURCE_CONFIG:resolve('apps/collector/ops/reference-sites.sources.example.json')}});
+    const result = await collectWithRecovery({signal:controller.signal, deadline:Date.now() + MAX_RUNTIME_MS,
+      ready, wait:(ms, signal) => delay(ms, undefined, {signal}),
+      publish:async value => {
+        const status = {startedAt, updatedAt:new Date().toISOString(), ...value};
+        await writeFile(statePath + '.tmp', JSON.stringify(status, null, 2) + '\n', {mode:0o600});
+        await rename(statePath + '.tmp', statePath);
+        await log.write(`${JSON.stringify({event:'scheduled-batch-status', ...status})}\n`);
+      },
+      run:async (sources, timeoutMs) => {
+        const attemptPath = logPath.replace('.log', `.${++attempt}.log`);
+        const output = await open(attemptPath, 'wx', 0o600);
+        let exitCode;
+        try {
+          const env = {...process.env, COLLECTOR_SOURCE_CONFIG:resolve('apps/collector/ops/reference-sites.sources.example.json')};
+          delete env.COLLECTOR_SOURCE_FILTER;
+          if (sources) env.COLLECTOR_SOURCE_FILTER = sources.join(',');
+          exitCode = await runBatch({stdio:['ignore', output.fd, output.fd], timeoutMs, env});
+        } finally { await output.close(); }
+        const text = await readFile(attemptPath, 'utf8');
+        return {exitCode, reports:batchReports(text)};
+      },
+    });
+    process.exitCode = result.exitCode;
     await log.write(`${JSON.stringify({event:'scheduled-batch-finished', at:new Date().toISOString(), exitCode:process.exitCode})}\n`);
+  } catch (error) {
+    await writeFile(statePath + '.tmp', JSON.stringify({startedAt, updatedAt:new Date().toISOString(),
+      state:'FAILED', exitCode:1, error:'LOCAL_SCHEDULED_BATCH_FAILED'}) + '\n', {mode:0o600});
+    await rename(statePath + '.tmp', statePath);
+    throw error;
   } finally {
+    awake.kill('SIGTERM');
+    process.removeListener('SIGINT', stop);
+    process.removeListener('SIGTERM', stop);
     await log.close();
   }
 }

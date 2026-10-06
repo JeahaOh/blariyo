@@ -625,6 +625,23 @@
   background: #f2f9f8;
   color: #3e625f;
 }
+@media (min-width: 901px) {
+  .batch-split.has-detail .batch-list-panel {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 12px);
+  }
+  .batch-split.has-detail .batch-list-panel > :not(.batch-list) {
+    flex-shrink: 0;
+  }
+  .batch-split.has-detail .batch-list {
+    min-height: 0;
+    max-height: none;
+    overscroll-behavior-y: contain;
+  }
+}
 @media (max-width: 1100px) {
   .admin-workspace {
     grid-template-columns: 210px minmax(0, 1fr);

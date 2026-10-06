@@ -286,7 +286,13 @@ await test('Nest: original Spring V2 fencing, replay, quota and legacy transitio
           .reserved_count,
         1
       );
-      for (const change of ['is_active=false', 'robots_allowed=false', "host='changed.invalid'"]) {
+      // 2026-10-06: robots metadata does not revoke a valid source permit.
+      for (const robots of [false, null]) {
+        await pool.query('UPDATE collect.source SET robots_allowed=$1,robots_checked_at=CASE WHEN $1::boolean IS NULL THEN NULL ELSE now() END WHERE id=$2', [robots,source]);
+        const advisoryReplay=await service.reserve(source,'spring-fixture',winningKey,{...body,requestKey:'permit-'+n});
+        assert.equal(advisoryReplay.reservationId,saved.reservationId);
+      }
+      for (const change of ['is_active=false', "host='changed.invalid'"]) {
         await pool.query('UPDATE collect.source SET ' + change + ' WHERE id=$1', [source]);
         await assert.rejects(
           service.reserve(source, 'spring-fixture', winningKey, {
@@ -296,7 +302,7 @@ await test('Nest: original Spring V2 fencing, replay, quota and legacy transitio
           { status: 403 }
         );
         await pool.query(
-          "UPDATE collect.source SET is_active=true,robots_allowed=true,host='fixture.invalid' WHERE id=$1",
+          "UPDATE collect.source SET is_active=true,robots_allowed=true,robots_checked_at=now(),host='fixture.invalid' WHERE id=$1",
           [source]
         );
       }

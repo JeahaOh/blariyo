@@ -50,7 +50,7 @@ export class CollectorQuotaService {
             fail(400, 'VALIDATION_FAILED');
           }
           const source = await this.collection.source(sourceId, true);
-          if (!source?.isActive || source.robotsAllowed !== true || !source.robotsCheckedAt
+          if (!source?.isActive
               || (candidateHost !== null && candidateHost !== source.host)
               || discovery && !(await this.collection.discoveryAllowed(sourceId)))
             fail(403, 'SOURCE_NOT_ALLOWED');

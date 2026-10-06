@@ -8,7 +8,7 @@ import {batchResult,retentionColumns} from './batch-result.repository.js';
 import {performance} from 'node:perf_hooks';
 
 function review(row:Record<string,unknown>):Review {
-  const status=row.status;if(status!=='REVIEWING'&&status!=='APPROVED'&&status!=='REJECTED')throw Error('INVALID_REVIEW_STATE');
+  const status=row.status==='REVIEWING'?'UNREVIEWED':row.status;if(status!=='UNREVIEWED'&&status!=='APPROVED'&&status!=='REJECTED')throw Error('INVALID_REVIEW_STATE');
   if(!Buffer.isBuffer(row.content_digest))throw Error('INVALID_REVIEW_DIGEST');
   return {contentDigest:row.content_digest,itemId:String(row.item_id),itemVersion:Number(row.item_version),status,lockVersion:Number(row.lock_version),postId:row.post_id===null?null:Number(row.post_id)};
 }
@@ -17,12 +17,17 @@ function optionalText(value:unknown):string|null {return typeof value==='string'
 export class TypeOrmBatchReviewRepository extends BatchReviewRepository {
   constructor(@Inject(DatabaseContext) private readonly db:DatabaseContext,@Inject(BatchResultRepository) private readonly results:BatchResultRepository){super();}
   item(id:string){return this.results.find(id);}
+  async deleteFailed(id:string,itemVersion:number,lockVersion:number,actor:string){
+    const ready=requiredRow(await this.db.manager.query("SELECT to_regprocedure('collect.delete_failed_item(uuid,bigint,bigint,text)') IS NOT NULL AS ready"));
+    if(!ready.ready)fail(503,'DEPENDENCY_UNAVAILABLE');
+    return String(requiredRow(await this.db.manager.query('SELECT collect.delete_failed_item($1,$2,$3,$4) AS result',[id,itemVersion,lockVersion,actor])).result);
+  }
   async list(page:number,source?:string,state?:string,reviewStatus?:string){
     const filters=[source??null,state??null,reviewStatus??null];
     const selection=`FROM collect.batch_item i JOIN collect.batch_retention l ON l.item_id=i.id
       LEFT JOIN collect.batch_review r ON r.item_id=i.id
       WHERE ($1::text IS NULL OR i.source_key=$1) AND ($2::text IS NULL OR i.state=$2)
-      AND ($3::text IS NULL OR COALESCE(r.status,'UNREVIEWED')=$3)
+      AND ($3::text IS NULL OR COALESCE(NULLIF(r.status,'REVIEWING'),'UNREVIEWED')=$3)
       AND l.retention_state='LIVE' AND l.expires_at>clock_timestamp()`;
     const requestStarted=performance.now();
     const selected=rows(await this.db.manager.query(`WITH visible AS MATERIALIZED (
@@ -41,10 +46,9 @@ export class TypeOrmBatchReviewRepository extends BatchReviewRepository {
     });
   }
   async review(id:string){const row=rows(await this.db.manager.query('SELECT * FROM collect.batch_review WHERE item_id=$1',[id]))[0];return row?review(row):null;}
-  async setReview(item:BatchResultRow,decision:Review['status'],version:number,actor:string,canonicalHash:Buffer,contentDigest:Buffer){
+  async setReview(item:BatchResultRow,decision:Exclude<Review['status'],'UNREVIEWED'>,version:number,actor:string,canonicalHash:Buffer,contentDigest:Buffer){
     let result:unknown;
     if(version===0){
-      if(decision!=='REVIEWING')fail(409,'BATCH_REVIEW_STATE_CONFLICT');
       result=await this.db.manager.query(`INSERT INTO collect.batch_review(item_id,item_version,source_key,source_post_key,canonical_url_hash,status,updated_by,content_digest)
         VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(item_id) DO NOTHING RETURNING *`,[item.id,item.version,item.source_key,item.source_post_key,canonicalHash,decision,actor,contentDigest]);
     }else result=await this.db.manager.query(`WITH changed AS (UPDATE collect.batch_review SET content_digest=$6,status=$1,item_version=$2,lock_version=lock_version+1,updated_by=$3,updated_at=now()

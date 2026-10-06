@@ -196,7 +196,23 @@ await test('additive V009/V010 refuse destructive rollback and preserve exact le
         ? /RETENTION_ROLLBACK_REQUIRES_READ_ONLY_HANDOFF/ : /DIRECT_MAILBOX_ROLLBACK_REQUIRES_READ_ONLY_HANDOFF/);
       assert.deepEqual(await source.query('SELECT * FROM ops.schema_migration ORDER BY version'), before);
     }
+    // V012 remains reversible before the grouped data model is installed.
+    for (const version of ['V011','V012']) {
+      const script=(await repo.scripts()).find(entry=>entry.version===version);assert.ok(script);
+      await source.transaction(async manager=>{
+        await manager.query(await readFile(new URL(`../migrations/${script.filename}`,import.meta.url),'utf8'));
+        await manager.query('INSERT INTO ops.schema_migration VALUES($1,$2,$3,now(),0)',[script.version,script.filename,script.checksum]);
+      });
+    }
+    await service.migrate('down');
+    assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V011') ready")).ready,true);
     await service.migrate();
-    assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V010') ready")).ready, true);
+    assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V013') ready")).ready,true);
+    const ledger:unknown=await source.query('SELECT * FROM ops.schema_migration ORDER BY version');
+    await assert.rejects(service.migrate('down'),/COMMON_CODES_ROLLBACK_REQUIRES_HANDOFF/);
+    await service.migrate();
+    const stable = (value: unknown) => JSON.stringify(value, (key, entry: unknown) =>
+      ['applied_at', 'duration_ms'].includes(key) ? undefined : entry);
+    assert.equal(stable(await source.query('SELECT * FROM ops.schema_migration ORDER BY version')), stable(ledger));
   } finally { await app.close(); await source.destroy(); }
 });

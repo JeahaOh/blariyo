@@ -1,16 +1,16 @@
 /** Explicit permissions: adding an OpenAPI operation does not silently grant access. */
 const editorialOperations = new Set([
-  'searchAdminPosts', 'createPost', 'getPostEditor', 'updatePost', 'removePost',
+  'listCommonCodeGroups', 'listCommonCodes', 'searchAdminPosts', 'createPost', 'getPostEditor', 'updatePost', 'removePost',
   'uploadImages', 'previewImage', 'discardImage', 'publishPost', 'unschedulePost',
   'hidePost', 'republishPost', 'listCollectionSources', 'listCollectionCandidates',
   'createCollectionCandidate', 'getCollectionCandidate', 'previewCollectionImage',
   'retryCollectionCandidate', 'rejectCollectionCandidate', 'promoteCollectionCandidate',
-  'listBatchItems', 'getBatchItem', 'reviewBatchItem', 'promoteBatchItem', 'previewBatchImage',
+  'listBatchItems', 'getBatchItem', 'reviewBatchItem', 'promoteBatchItem', 'previewBatchImage', 'deleteBatchItem',
   'createDirectCollectionRequest', 'getDirectCollectionRequest',
   'retryDirectCollectionRequest', 'listRuntimeCollectionSources',
 ]);
 const ownerOperations = new Set([
-  ...editorialOperations, 'updateCollectionSource',
+  ...editorialOperations, 'createCommonCodeGroup', 'updateCommonCodeGroup', 'createCommonCode', 'updateCommonCode', 'updateCollectionSource',
   'listCollectorOperationalEvents', 'acknowledgeCollectorOperationalEvent',
 ]);
 export type AdminRole = 'OWNER' | 'EDITOR';

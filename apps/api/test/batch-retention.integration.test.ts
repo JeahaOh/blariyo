@@ -40,10 +40,10 @@ await test('D01: real PostgreSQL lifecycle, first review, immutable dedup and co
       raw_object_key=$2,fetched_at=clock_timestamp(),version=version+1 WHERE id=$1`, [item, `collect/raw/${run}/${item}.html`]);
     return { item, run, source, canonical };
   };
-  const review = async (item: string) => {
+  const review = async (item: string, decision = 'APPROVED') => {
     await connection.query(`INSERT INTO collect.batch_review(item_id,item_version,content_digest,source_key,source_post_key,
-      canonical_url_hash,status,updated_by) SELECT id,version,$2,source_key,source_post_key,canonical_url_hash,'REVIEWING',$3
-      FROM collect.batch_item WHERE id=$1`, [item, digest, actor]);
+      canonical_url_hash,status,updated_by) SELECT id,version,$2,source_key,source_post_key,canonical_url_hash,$4,$3
+      FROM collect.batch_item WHERE id=$1`, [item, digest, actor, decision]);
   };
   const lifecycle = async (item: string) => requiredRow(await connection.query('SELECT * FROM collect.batch_retention WHERE item_id=$1', [item]));
   await t.test('D01-T1: fixed database instants reject exact equality in UTC and KST', async () => {
@@ -67,7 +67,6 @@ await test('D01: real PostgreSQL lifecycle, first review, immutable dedup and co
     assert.ok(approved.review_finalized_at instanceof Date && approved.expires_at instanceof Date && approved.collected_at instanceof Date);
     assert.equal(approved.expires_at.getTime() - approved.review_finalized_at.getTime(), 7 * 86400000);
     assert.ok(approved.expires_at.getTime() - approved.collected_at.getTime() >= 34 * 86400000);
-    await connection.query("UPDATE collect.batch_review SET status='REVIEWING',lock_version=lock_version+1 WHERE item_id=$1", [item]);
     await connection.query("UPDATE collect.batch_review SET status='REJECTED',lock_version=lock_version+1 WHERE item_id=$1", [item]);
     const rejected = await lifecycle(item);
     assert.deepEqual(rejected.review_finalized_at, approved.review_finalized_at);
@@ -79,7 +78,8 @@ await test('D01: real PostgreSQL lifecycle, first review, immutable dedup and co
     await connection.query("UPDATE collect.batch_retention SET collected_at=clock_timestamp()-interval '28 days',expires_at=clock_timestamp() WHERE item_id=$1", [first.item]);
     await assert.rejects(review(first.item), /BATCH_ITEM_EXPIRED/);
     const second = await seed();
-    await review(second.item);
+    await review(second.item, 'REJECTED');
+    const before = await lifecycle(second.item);
     await connection.query("UPDATE collect.batch_retention SET expires_at=clock_timestamp()+interval '1 second' WHERE item_id=$1", [second.item]);
     await connection.startTransaction();
     try {
@@ -87,8 +87,8 @@ await test('D01: real PostgreSQL lifecycle, first review, immutable dedup and co
       await connection.query('SELECT pg_sleep(1.1)');
       await assert.rejects(connection.commitTransaction(), /BATCH_ITEM_EXPIRED/);
     } finally { if (connection.isTransactionActive) await connection.rollbackTransaction(); }
-    assert.equal(requiredRow(await connection.query('SELECT status FROM collect.batch_review WHERE item_id=$1', [second.item])).status, 'REVIEWING');
-    assert.equal((await lifecycle(second.item)).review_finalized_at, null);
+    assert.equal(requiredRow(await connection.query('SELECT status FROM collect.batch_review WHERE item_id=$1', [second.item])).status, 'REJECTED');
+    assert.deepEqual((await lifecycle(second.item)).review_finalized_at, before.review_finalized_at);
   });
   await t.test('D01: length-prefix hashes, minimal permanent columns and cross-source conflict', async () => {
     const result = requiredRow(await connection.query("SELECT collect.identity_hash('ab','c')=collect.identity_hash('a','bc') collision"));

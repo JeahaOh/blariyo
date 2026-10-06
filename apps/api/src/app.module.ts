@@ -1,3 +1,4 @@
+import { CommonCodeModule } from './features/common-codes/common-code.module.js';
 import { BatchReviewModule } from './features/collection/batch-review.module.js';
 import { DirectRequestModule } from './features/collection/direct-request.module.js';
 import { CollectReader } from './shared/collect-reader.js';
@@ -44,6 +45,7 @@ export class AppModule {
       module: AppModule,
       imports: [
         collection,
+        CommonCodeModule.register(persistence,options),
         DirectRequestModule.register(persistence,options),
         BatchReviewModule.register(persistence, images, posts, options.collectReader ?? new DisabledCollectReader(), options),
         HealthModule.register(persistence, options),

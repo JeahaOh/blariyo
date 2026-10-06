@@ -6,7 +6,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { resolve } from 'node:path';
 import { createDataSource } from '../dist/persistence/database.js';
-import { requiredRow } from '../dist/persistence/rows.js';
+import { requiredRow, rows } from '../dist/persistence/rows.js';
 import { migrationContext } from '../dist/commands/migrate.js';
 import { MigrationsService } from '../dist/commands/migrations.service.js';
 
@@ -43,18 +43,45 @@ await test('D01-T4/T5: real retention JVM, restricted DB role, object failure an
   await owner.query("INSERT INTO collect.batch_confirmation(id,trigger_hmac,actor_hmac,channel_hmac,source_key,source_post_key,canonical_url,expires_at) VALUES($1,$2,$2,$2,$3,'CANARY_AUXILIARY','https://example.invalid/CANARY_AUXILIARY',clock_timestamp()-interval '1 minute')",[oldConfirmation,'a'.repeat(64),legacySource]);
   await mkdir(resolve(root,reportKey,'..'),{recursive:true});await writeFile(resolve(root,reportKey),'CANARY_AUXILIARY');
   await db.transaction(async manager=>{await manager.query(await readFile('apps/collector/src/main/resources/db/collector-v008.sql','utf8'));});
+  // The queue runner also uses the Web receipt cleanup installed by V009.
+  await db.transaction(async manager=>{
+    await manager.query(await readFile('apps/collector/src/main/resources/db/collector-v009.sql','utf8'));
+  });
+  // This retention-only fixture omits the Spring framework schema and V010 quota;
+  // the collection fixture stubs permits. V011 adds the cleanup entry points used by the real worker.
+  for(const version of ['011','012','013'])await db.transaction(async manager=>{
+    await manager.query(await readFile(`apps/collector/src/main/resources/db/collector-v${version}.sql`,'utf8'));
+  });
   await db.query(`CREATE ROLE ${role} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT`);created=true;
   await db.query(`GRANT USAGE ON SCHEMA collect TO ${role}`);
-  await db.query(`GRANT EXECUTE ON FUNCTION collect.claim_retention(uuid,integer),collect.heartbeat_retention(uuid,uuid,bigint),
+  await db.query(`GRANT EXECUTE ON FUNCTION collect.image_cleanup_pending(),collect.image_cleanup_allowed(uuid,uuid,text),collect.finish_image_cleanup(uuid,uuid),collect.claim_retention(uuid,integer),collect.heartbeat_retention(uuid,uuid,bigint),
     collect.retention_objects(uuid,uuid,bigint),collect.record_purge_inventory(uuid,uuid,bigint,text),
     collect.record_purge_result(uuid,uuid,bigint,text,boolean,text),collect.fail_retention(uuid,uuid,bigint),
     collect.finish_retention(uuid,uuid,bigint),collect.observe_retention_object(text,boolean),collect.cleanup_retention_ledger(),collect.cleanup_retention_metadata(),collect.prepare_expired_run_retention(),collect.lock_retention_restore(),collect.unlock_retention_restore() TO ${role}`);
   const cp=(await readFile('apps/collector/build/fixture-classpath.txt','utf8')).trim();
   const target=new URL(database);
+  const collectionEnv={COLLECTION_FIXTURE_JDBC:`jdbc:postgresql://${target.host}${target.pathname}`,
+    COLLECTION_FIXTURE_USER:decodeURIComponent(target.username),COLLECTION_FIXTURE_DIRECTORY:root};
+  const collectedSources:string[]=[];
+  const collect=async()=>{
+    const result=await execute(resolve(javaHome,'bin/java'),['-cp',cp,'com.blariyo.collector.run.CollectionDuringRetentionFixture'],{
+      timeout:30000,maxBuffer:1024*1024,env:{...process.env,...collectionEnv}});
+    const value:unknown=JSON.parse(result.stdout);const {source}=requiredRow([value]);
+    assert.ok(typeof source==='string');collectedSources.push(source);return {source};
+  };
+  const verifyNew=async(source:string)=>{
+    const items=rows(await db.query("SELECT id,raw_object_key FROM collect.batch_item WHERE source_key=$1 AND state='FETCHED'",[source]));
+    assert.equal(items.length,2);
+    for(const item of items){
+      assert.ok(typeof item.raw_object_key==='string');await access(resolve(root,item.raw_object_key));
+      const media=requiredRow(await db.query('SELECT object_key,sha256 FROM collect.batch_media WHERE item_id=$1',[item.id]));
+      assert.deepEqual(createHash('sha256').update(await readFile(resolve(root,String(media.object_key)))).digest(),media.sha256);
+    }
+  };
   const worker=async(extra:Record<string,string>={})=>{
     const result=await execute(resolve(javaHome,'bin/java'),['-cp',cp,'com.blariyo.collector.run.RetentionFixtureMain'],{
       timeout:30000,maxBuffer:1024*1024,env:{...process.env,RETENTION_FIXTURE_JDBC:`jdbc:postgresql://${target.host}${target.pathname}`,
-        RETENTION_FIXTURE_USER:role,RETENTION_FIXTURE_PASSWORD:'',RETENTION_FIXTURE_DIRECTORY:root,...extra}
+        ...collectionEnv,RETENTION_FIXTURE_USER:role,RETENTION_FIXTURE_PASSWORD:'',RETENTION_FIXTURE_DIRECTORY:root,...extra}
     });
     const value:unknown=JSON.parse(result.stdout);assert.ok(value && typeof value==='object');
     return Object.fromEntries(Object.entries(value));
@@ -99,8 +126,14 @@ await test('D01-T4/T5: real retention JVM, restricted DB role, object failure an
     assert.equal(requiredRow(await db.query('SELECT count(*) n FROM collect.batch_checkpoint WHERE run_id=$1',[emptyRun])).n,'0');
     assert.deepEqual(requiredRow(await db.query('SELECT checkpoint FROM collect.batch_run WHERE id=$1',[emptyRun])).checkpoint,{});
     await db.query('UPDATE collect.batch_retention SET expires_at=clock_timestamp() WHERE item_id=$1',[item]);
+    // LIVE expired rows and even a closed purge gate must not block unrelated new collection.
+    await db.query("UPDATE collect.batch_retention_control SET selective_backup_verified=false,backup_receipt_hash=NULL");
+    assert.equal(requiredRow(await db.query('SELECT collect.retention_backlog() backlog')).backlog,true);
+    await verifyNew((await collect()).source);
+    await db.query("UPDATE collect.batch_retention_control SET selective_backup_verified=true,backup_receipt_hash=sha256('fixture'::bytea)");
     const failed=await worker({RETENTION_FIXTURE_FAIL_KEY:key});assert.equal(failed.failed,1);
     assert.equal((await state()).retention_state,'PURGE_FAILED');assert.equal((await state()).purged_at,null);
+    await verifyNew((await collect()).source);
     await access(resolve(root,key));await assert.rejects(db.query('SELECT collect.assert_item_live($1)',[item]),/BATCH_ITEM_EXPIRED/);
     assert.equal(requiredRow(await db.query('SELECT last_error_code FROM collect.batch_purge_object WHERE item_id=$1 AND object_key=$2',[item,key])).last_error_code,'OBJECT_FORBIDDEN');
   });
@@ -117,7 +150,12 @@ await test('D01-T4/T5: real retention JVM, restricted DB role, object failure an
   });
   await t.test('another JVM retries durably, deletes raw/unrecorded media, preserves content and dedup',async()=>{
     await db.query('UPDATE collect.batch_retention SET next_attempt_at=clock_timestamp() WHERE item_id=$1',[item]);
-    assert.equal((await worker()).purged,1);
+    const purged=await worker({RETENTION_FIXTURE_COLLECT_ON_DELETE:key});
+    assert.equal(purged.purged,1);
+    const concurrent=rows(purged.concurrentCollections);assert.equal(concurrent.length,1);
+    const concurrentSource=requiredRow(concurrent).source;assert.ok(typeof concurrentSource==='string');
+    collectedSources.push(concurrentSource);
+    for(const source of collectedSources)await verifyNew(source);
     for(const file of [key,media,correctedKey,itemReport])await assert.rejects(access(resolve(root,file)),{code:'ENOENT'});
     await access(resolve(root,'private/protected'));
     assert.equal((await state()).retention_state,'PURGED');
@@ -152,7 +190,9 @@ await test('D01-T4/T5: real retention JVM, restricted DB role, object failure an
   await t.test('completed manifests and run shells expire after seven days; permanent identity survives',async()=>{
     await db.query("UPDATE collect.batch_retention SET purged_at=clock_timestamp()-interval '7 days' WHERE retention_state='PURGED'");
     assert.equal((await worker()).failed,0);
-    assert.equal(requiredRow(await db.query('SELECT count(*) n FROM collect.batch_retention')).n,'0');
+    assert.equal(requiredRow(await db.query("SELECT count(*) n FROM collect.batch_retention WHERE expires_at<=clock_timestamp()")).n,'0');
+    for(const source of collectedSources)await verifyNew(source);
+    assert.equal(requiredRow(await db.query('SELECT count(*) n FROM collect.batch_retention')).n,String(collectedSources.length*2));
     assert.equal(requiredRow(await db.query('SELECT count(*) n FROM collect.batch_purge_object')).n,'0');
     assert.equal(requiredRow(await db.query('SELECT count(*) n FROM collect.batch_run WHERE id=ANY($1::uuid[])',[[run,emptyRun]])).n,'0');
     assert.ok(requiredRow(await db.query('SELECT collect.lookup_dedup($1,$2,$3) id',[source,item,url])).id);

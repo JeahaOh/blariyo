@@ -1,3 +1,4 @@
+import {CommonCodeModule} from '../common-codes/common-code.module.js';
 import {Module,type DynamicModule} from '@nestjs/common';
 import {BatchReviewController,BatchReviewEnabledGuard} from './batch-review.controller.js';
 import {BatchReviewService} from './batch-review.service.js';
@@ -11,7 +12,7 @@ import {COLLECTION_OPTIONS,CollectionMaintenanceGuard,type CollectionOptions} fr
 @Module({})
 export class BatchReviewModule {
   static register(persistence:DynamicModule,images:DynamicModule,posts:DynamicModule,reader:CollectReader,options:CollectionOptions):DynamicModule{
-    return {module:BatchReviewModule,imports:[persistence,images,posts],controllers:[BatchReviewController],providers:[
+    return {module:BatchReviewModule,imports:[persistence,images,posts,CommonCodeModule.register(persistence,options)],controllers:[BatchReviewController],providers:[
       BatchReviewService,BatchReviewEnabledGuard,AdminGuard,CollectionMaintenanceGuard,
       {provide:BatchReviewRepository,useClass:TypeOrmBatchReviewRepository},
       {provide:BatchResultRepository,useClass:TypeOrmBatchResultRepository},

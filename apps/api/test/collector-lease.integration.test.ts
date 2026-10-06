@@ -286,7 +286,7 @@ await test('collector leases retain SKIP LOCKED claiming, expiration and executi
       await assert.rejects(submit.submit(row.id, success, nextExecution), /SOURCE_NOT_ALLOWED/);
       await sources.update(
         { id: source.id },
-        { is_active: true, robots_allowed: true, robots_checked_at: new Date() }
+        { is_active: true, robots_allowed: false, robots_checked_at: new Date() }
       );
       await assert.rejects(
         submit.submit(

@@ -115,6 +115,8 @@ await test(
           await page.getByRole('button', { name: '처리 결과 다시 확인' }).click();
           await expect(page.getByRole('button', { name: '처리 결과 다시 확인' })).toHaveCount(0);
           await expect(page.getByRole('progressbar')).toHaveCount(0);
+          // The delayed loading bar can still be absent while list refresh holds the route guard.
+          await expect(page.getByRole('button', { name: '조회', exact: true })).toBeEnabled();
           await page.goBack();
           await expect(page).toHaveURL(f.origin + '/admin/batch');
           await page.reload();

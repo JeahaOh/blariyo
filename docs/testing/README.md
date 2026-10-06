@@ -253,6 +253,31 @@ requestId·현재 시각처럼 요청마다 바뀌는 값은 무조건 전체 JS
 
 ## 7. 구현·실행 기록 양식
 
+### 로컬 품질 검사와 결과 기록
+
+```sh
+# Node 24.18.0, npm ci 및 현행 build 준비 후. 아래 작업 경로는 이번 작업의 실제 경로로 지정한다.
+npm run quality:verify -- --profile quality --task worklog/2026-10-06/ai-quality-adoption
+npm run quality:receipt -- worklog/2026-10-06/ai-quality-adoption/verification/<실행기록>.json
+npm run quality:review -- --base <작업기준SHA>
+```
+
+- `quality`는 기존 계약·CI 판정·build·타입·API/Web/scripts/tests lint·공통 테스트를 기록한다. DB/API 통합과 브라우저는 `--profile api`, `--profile browser`로 별도 실행한다. 로컬 Docker 브라우저는 `--profile browser-docker`로 실행한다. `test:browser:docker`가 먼저 build를 실행하고 성공한 경우에만 브라우저 검사를 시작하므로 직접 실행과 프로필 실행 모두 같은 선행 조건을 적용한다. 해당 프로필에는 현행 테스트 전용 DB/브라우저 준비와 자원 소유권 확인이 필요하다.
+- 실행기 반환0은 해당 프로필과 입력의 유효한 통과, 1은 실패/미완료/입력 변경, 2는 실행기 또는 기록 오류다. 출력에 표시된 실패 명령을 로컬에서 다시 실행해 상세 원인을 확인한다. 원문 로그는 기록에 저장하지 않는다.
+- `verification/*.json`에는 시작/종료 입력 hash, 필수 검사 명령·시각·종료 코드·테스트 집계, Node/npm/Python/ESLint/TypeScript/Oxlint/Playwright 버전과 명시한 JAVA_HOME의 Java 버전, 제외/미지원 범위가 들어간다. lockfile과 정책도 입력에 포함된다. 실행 중 기록을 갱신하므로 중단 전 결과와 미실행을 구분할 수 있다.
+- 필수 테스트의 skip/todo 또는 지원하지 않는 요약은 `unknown`이며 통과가 아니다. Collector·실제 운영·사람의 수용 결과는 기존 양식으로 별도 기록한다.
+- 검사 후 source·정책·설정·도구 버전이 바뀌면 기록을 다시 확인한다. 문서/기록에 적힌 PASS만으로 유효성을 판정하지 않는다. 현재 구현은 worklog 외 전체 Git 입력을 보수적으로 검사하므로 관련 없는 입력 변경도 재검사를 요구할 수 있다.
+- 실제 개발 launcher를 사용하는 브라우저 fixture는 임시 DB와 별도 loopback 포트를 쓴다. sandbox 설정의 `webPort`/`corePort`만 허용하며 일반 개발 서버의 기본3000/3100은 유지한다. 실행 중인 개발 서버를 종료하여 검증 환경을 만들지 않는다.
+- `quality:review`의 개수 변화·정책 변경은 검토 후보다. 루트와 하위 workspace의 `package.json` 변경도 포함하며, 명령 제거뿐 아니라 정상적인 의존성/메타데이터 변경도 검토 후보가 될 수 있다. 요구 변경/이동/동등한 assertion 교체 여부를 확인하고 판단을 작업 기록에 남긴다. 자동 규칙 예외와 자동 승인은 없다.
+
+### 추가 정적 규칙
+
+- 공통 `npm run lint`는 기존4개 ESLint와 `lint:quality-rules`를 순서대로 실행한다. 어느 검사든 실패하면 전체 명령이 실패한다.
+- 추가 규칙은 [출처·선정 근거](../../tools/oxlint/anti-slop/UPSTREAM.md)의 누적 배열 복사2개뿐이다. 기존 타입 검사·ESLint 규칙·입력 검증은 유지하며 자동 수정하지 않는다. Vue는 script 영역만 확인했다.
+- iron-laws는 [전용 가상환경 설치](../../tools/iron-laws/README.md) 후 `npm run quality:audit -- --task worklog/YYYY-MM-DD/<주제>`로 명시적으로 실행한다. 경고는 검토 후보이며 필수 CI gate나 보안 완료 증거가 아니다. Vue·Gradle 의존성과 미검증 언어/규칙 조합은 검사 통과로 집계하지 않는다.
+
+### 기능별 수동 기록
+
 구현자는 케이스별로 다음을 남긴다. 모든 입력 변형이 통과하지 않았다면 `부분 검증`으로 기록한다.
 
 ```text

@@ -44,8 +44,9 @@ jobs:
       - run: python3 -B -m unittest discover -s scripts/ci -p 'test_*.py'
       - run: npm ci --no-audit --no-fund
       - run: npm run build && npm run build:test -w @blariyo/api
-      - run: npm run typecheck:scripts && npm run lint:scripts && npm run typecheck:tests && npm run lint:tests
+      - run: npm run typecheck:scripts && npm run typecheck:tests && npm run typecheck:quality-rules
       - run: npm run typecheck:web
+      - run: npm run lint
       - run: npm test
 
   integration:

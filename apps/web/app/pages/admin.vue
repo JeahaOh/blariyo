@@ -108,8 +108,8 @@ function scheduleAfter(minutes: number) {
   scheduled.value = new Date(Date.now() + minutes * 60000 + 9 * 3600000).toISOString().slice(0, 16);
 }
 function openDateTimePicker(event: Event) {
-  const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void };
-  input.showPicker?.();
+  const input = event.currentTarget;
+  if (input instanceof HTMLInputElement) input.showPicker?.();
 }
 async function copyPostId() {
   if (!editor.value.postId) return;

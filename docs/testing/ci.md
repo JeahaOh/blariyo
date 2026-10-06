@@ -7,7 +7,7 @@
 ## 실행 흐름
 
 1. `plan`: PR 변경 경로 또는 main의 기존 PR 검증 기록을 확인한다.
-2. `quality`: 계약·CI 판정 회귀, build, 타입·lint·unit 검사. Java/DB가 필요한 단계 앞에서 계약 오류를 찾는다.
+2. `quality`: 계약·CI 판정 회귀, build, 타입·lint·unit 검사. `npm run lint`가 API·Web·scripts·tests lint를 연결한다. Web의 `.nuxt` 입력은 앞선 build/타입 검사에서 준비한다. Java/DB가 필요한 단계 앞에서 계약 오류를 찾는다.
 3. 전체 검사 대상이면 `integration`, `browser`, `collector`를 quality와 병렬 실행한다. 각 job은 독립 runner와 PostgreSQL을 사용한다.
 4. `verify`: 선택된 모든 검사 성공을 요구한다. 전체 검사에서 failed/cancelled/skipped/missing을 통과로 취급하지 않는다.
 5. PR 전체 성공이면 검증 기록을 업로드한다. main의 성공 실행이면 API/Web image를 새 main SHA로 게시한다.

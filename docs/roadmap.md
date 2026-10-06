@@ -1,5 +1,7 @@
 # M0 로드맵 — 남은 작업과 완료 조건
 
+- 2026-10-06 AI 품질 도구: 공통 lint·검증 입력/결과 기록·정책 약화 검토·선택 Oxlint 규칙을 구현했다. iron-laws는 검토 보조다. 도입 검증과 실제 변경 관찰의 완료 여부는 [현재 실행 기록](../worklog/2026-10-06/ai-quality-adoption/README.md)을 따른다. 원격 CI·배포·운영 수용을 뜻하지 않는다.
+
 - 2026-09-27 로컬 구현: UX-01~06, D01~D04, COL-01/02 및 CON-02의 코드·계약·추가migration·운영 도구를 반영했다. 검수1/20건의 SQL은 모두5회이며 신규 입력/회수 기능은 기본 OFF다.
 - 실행 결과와 최종 판정: [완료 조건 감사](../worklog/2026-09-27/m0-implementation/COMPLETION-AUDIT.md), [현재 상태](status.md), [17개 task](implementation-tasks/README.md).
 - 남은 실제 인수: [운영 인계](operations/m0-operation-handoff.md)의 OWNER/EDITOR Access/MFA, 장비·사설 DB/R2 경로, Drive/Discord 실연동·18시간 이내 복구 증거, source별 S1~S5·고지, Core 운영7일. CON-01은 재활성화 결정 전 조건부다.

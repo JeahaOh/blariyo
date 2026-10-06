@@ -3,6 +3,7 @@ const route = useRoute();
 const detail = computed(() => /^\/[^/]+\/posts\/[^/]+$/.test(route.path));
 </script>
 <template>
+  <AppLoadingBar />
   <AdminWorkspace v-if="route.path.startsWith('/admin') && route.path !== '/admin/login'">
     <NuxtPage id="main-content" />
   </AdminWorkspace>

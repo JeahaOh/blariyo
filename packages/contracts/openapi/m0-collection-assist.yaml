@@ -5,6 +5,414 @@ info:
   description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public
     Core routes remain unchanged. New M0-D02 operations are implemented locally and synchronized with runtime packages/contracts. Production acceptance remains pending.
 paths:
+  /api/v1/admin/common-code-groups:
+    get:
+      operationId: listCommonCodeGroups
+      tags:
+        - common-codes
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      parameters: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CommonCodeGroup"
+                      canManage:
+                        type: boolean
+                    required:
+                      - items
+                      - canManage
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+    post:
+      operationId: createCommonCodeGroup
+      tags:
+        - common-codes
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+      parameters: []
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/CommonCodeGroup"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommonCodeGroup"
+  /api/v1/admin/common-code-groups/{groupKey}:
+    patch:
+      operationId: updateCommonCodeGroup
+      tags:
+        - common-codes
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+      parameters:
+        - &a1
+          in: path
+          name: groupKey
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 40
+            pattern: ^[a-z][a-z0-9_-]{0,39}$
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/CommonCodeGroup"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCommonCode"
+  /api/v1/admin/common-code-groups/{groupKey}/codes:
+    get:
+      operationId: listCommonCodes
+      tags:
+        - common-codes
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      parameters:
+        - *a1
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CommonCode"
+                      canManage:
+                        type: boolean
+                    required:
+                      - items
+                      - canManage
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+    post:
+      operationId: createCommonCode
+      tags:
+        - common-codes
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+      parameters:
+        - *a1
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/CommonCode"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommonCode"
+  /api/v1/admin/common-code-groups/{groupKey}/codes/{code}:
+    patch:
+      operationId: updateCommonCode
+      tags:
+        - common-codes
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+      parameters:
+        - *a1
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 40
+            pattern: ^[a-z0-9][a-z0-9_-]{0,39}$
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/CommonCode"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCommonCode"
   /api/v1/admin/collect/sources:
     get:
       operationId: listCollectionSources
@@ -3073,7 +3481,7 @@ paths:
           name: reviewStatus
           schema:
             type: string
-            enum: [UNREVIEWED, REVIEWING, APPROVED, REJECTED]
+            enum: [UNREVIEWED, APPROVED, REJECTED]
       responses:
         "200":
           description: Success
@@ -3282,6 +3690,93 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/BatchReviewRequest"
+  /api/v1/admin/collect/batch-items/{itemId}/delete:
+    post:
+      operationId: deleteBatchItem
+      tags:
+        - collection-assist
+      security:
+        - AdminSession: []
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 200
+            pattern: ^[A-Za-z0-9_-]+$
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      itemId:
+                        type: string
+                        format: uuid
+                      deleted:
+                        const: true
+                      cleanupStatus:
+                        const: PENDING
+                    required:
+                      - itemId
+                      - deleted
+                      - cleanupStatus
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BatchDeleteRequest"
   /api/v1/admin/collect/batch-items/{itemId}/draft:
     post:
       operationId: promoteBatchItem
@@ -3716,6 +4211,88 @@ components:
       in: cookie
       name: BLARIYO_ADMIN_SESSION
   schemas:
+    CommonCodeGroup:
+      type: object
+      additionalProperties: false
+      properties:
+        groupKey: &a1
+          type: string
+          minLength: 1
+          maxLength: 40
+          pattern: ^[a-z][a-z0-9_-]{0,39}$
+        displayName: &a2
+          type: string
+          minLength: 1
+          maxLength: 200
+          pattern: \S
+        lockVersion: &a3
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        updatedAt: &a4
+          type: string
+          format: date-time
+      required:
+        - groupKey
+        - displayName
+        - lockVersion
+        - updatedAt
+    CommonCode:
+      type: object
+      additionalProperties: false
+      properties:
+        groupKey: *a1
+        displayName: *a2
+        lockVersion: *a3
+        updatedAt: *a4
+        code: &a5
+          type: string
+          minLength: 1
+          maxLength: 40
+          pattern: ^[a-z0-9][a-z0-9_-]{0,39}$
+        referenceKey: &a6
+          type:
+            - string
+            - "null"
+          minLength: 1
+          maxLength: 80
+          pattern: ^[a-z][a-z0-9-]{0,79}$
+      required:
+        - groupKey
+        - displayName
+        - lockVersion
+        - updatedAt
+        - code
+        - referenceKey
+    CreateCommonCodeGroup:
+      type: object
+      additionalProperties: false
+      properties:
+        groupKey: *a1
+        displayName: *a2
+      required:
+        - groupKey
+        - displayName
+    CreateCommonCode:
+      type: object
+      additionalProperties: false
+      properties:
+        code: *a5
+        displayName: *a2
+        referenceKey: *a6
+      required:
+        - code
+        - displayName
+        - referenceKey
+    UpdateCommonCode:
+      type: object
+      additionalProperties: false
+      properties:
+        displayName: *a2
+        lockVersion: *a3
+      required:
+        - displayName
+        - lockVersion
     BatchRetention:
       type: object
       additionalProperties: false
@@ -3866,7 +4443,7 @@ components:
         requestIntervalMs:
           anyOf:
             - type: integer
-              minimum: 10000
+              minimum: 1000
             - type: "null"
         dailyRequestLimit:
           anyOf:
@@ -4304,7 +4881,6 @@ components:
         status:
           enum:
             - UNREVIEWED
-            - REVIEWING
             - REJECTED
             - APPROVED
         lockVersion: &a1
@@ -4390,6 +4966,10 @@ components:
       type: object
       additionalProperties: false
       properties:
+        contentDigest:
+          type: string
+          pattern: "^[a-f0-9]{64}$"
+          description: 상세 조회 시 원문과 미디어의 snapshot. 승인/반려 요청에 그대로 전달한다.
         retention:
           $ref: "#/components/schemas/BatchRetention"
         itemId: &a2
@@ -4501,6 +5081,7 @@ components:
               - byteSize
           maxItems: 1000
       required:
+        - contentDigest
         - retention
         - itemId
         - sourceKey
@@ -4520,6 +5101,9 @@ components:
       type: object
       additionalProperties: false
       properties:
+        contentDigest:
+          type: string
+          pattern: "^[a-f0-9]{64}$"
         itemVersion: &a1
           type: integer
           minimum: 0
@@ -4527,13 +5111,28 @@ components:
         lockVersion: *a1
         decision:
           enum:
-            - REVIEWING
             - APPROVED
             - REJECTED
       required:
+        - contentDigest
         - itemVersion
         - lockVersion
         - decision
+    BatchDeleteRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        itemVersion:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        lockVersion:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+        - itemVersion
+        - lockVersion
     BatchDraftRequest:
       type: object
       additionalProperties: false

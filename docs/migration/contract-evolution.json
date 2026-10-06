@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-10-04",
+  "asOf": "2026-10-06",
   "specifications": [
     "docs/system-design/07-spring-collector-design.md",
     "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
@@ -9,8 +9,8 @@
   "amendedContracts": {
     "packages/contracts/openapi/m0-collection-assist.yaml": {
       "baselineSha256": "9f31e550f30a7f80c119b7ed0e553e22bb60211507a51a4a8faecabfa976be17",
-      "sha256": "90a1af9415b4ae33c589e059c14189f17c8d0fb931a685abe84fb12e79a0bad5",
-      "reason": "M0 D01 retention projection and 410 guards; D02 Web mailbox create/get/retry/runtime contracts, implemented-local operation status and generated response types. Implements the approved 2026-09-26 canonical design; existing applied migration checksums remain unchanged."
+      "sha256": "9c6cd23601e8c7a60d3c66097a8b6b91f8132546cda19885a9030acaaf2a9b45",
+      "reason": "M0 D01 retention projection and 410 guards; D02 Web mailbox create/get/retry/runtime contracts, implemented-local operation status and generated response types. Implements the approved 2026-09-26 canonical design; existing applied migration checksums remain unchanged. 2026-10-05 operator decision: remove REVIEWING start/restart actions and public status; approve/reject directly using the detail contentDigest snapshot. V011 updates the review guard while preserving legacy rows, retention deadlines and promotion invariants. 2026-10-05 source common codes: OWNER create/update and OWNER/EDITOR list, immutable source keys and optimistic versions; V012 seeds the existing 21 canonical display names independently from collector activation. 2026-10-05 user correction: generic common-code groups with lowercase source group and four-character source codes replace the unreleased source-only API. V013 migrates existing display/audit data and preserves collector identities through reference keys. 2026-10-06: operator deletion of unreviewed FAILED/BLOCKED items with version checks, idempotent replay, collector V014 exact item cleanup and protected linked/reviewed content. 2026-10-06 user request: robots reference-only; configurable request interval default 5000ms with source overrides and minimum 1000ms. V015 updates direct DB interval constraints and persistent server cooldown."
     },
     "packages/contracts/openapi/m0-core.yaml": {
       "baselineSha256": "d3744e62c7a4ce714d7b34be2b9c22f864794ba445e72153423f75706877de60",
@@ -24,13 +24,13 @@
     },
     "packages/contracts/src/collection-api.d.ts": {
       "baselineSha256": "03dcac61af757e7d58f52fd02b79e80b5a0cd4cdf1eadcb134fc50eb4930b1f5",
-      "sha256": "f1e32dda8dd01521cad96df3ae74a63b8513a2045890e2ca748a54079c639b8c",
-      "reason": "M0 D01 retention projection and 410 guards; D02 Web mailbox create/get/retry/runtime contracts, implemented-local operation status and generated response types. Implements the approved 2026-09-26 canonical design; existing applied migration checksums remain unchanged."
+      "sha256": "9d9fac995f00923420a1931b42d83fc58a3eda533fcb9d5773b1c1227eb45267",
+      "reason": "M0 D01 retention projection and 410 guards; D02 Web mailbox create/get/retry/runtime contracts, implemented-local operation status and generated response types. Implements the approved 2026-09-26 canonical design; existing applied migration checksums remain unchanged. 2026-10-05 operator decision: remove REVIEWING start/restart actions and public status; approve/reject directly using the detail contentDigest snapshot. V011 updates the review guard while preserving legacy rows, retention deadlines and promotion invariants. 2026-10-05 source common codes: OWNER create/update and OWNER/EDITOR list, immutable source keys and optimistic versions; V012 seeds the existing 21 canonical display names independently from collector activation. 2026-10-05 user correction: generic common-code groups with lowercase source group and four-character source codes replace the unreleased source-only API. V013 migrates existing display/audit data and preserves collector identities through reference keys. 2026-10-06: regenerate typed/runtime contract for deleteBatchItem and BatchDeleteRequest from canonical collection OpenAPI. 2026-10-06 user request: robots reference-only; configurable request interval default 5000ms with source overrides and minimum 1000ms. V015 updates direct DB interval constraints and persistent server cooldown."
     },
     "packages/contracts/src/schema.mjs": {
       "baselineSha256": "e43249c0dc4d11da8ef9c00b9c5f97a35b644f8bced633134493b9e15aedc8c4",
-      "sha256": "95f2f9fffc22946a4f9670c3b7d0ac0ee5d0f7cba66bc83a75723817e248569e",
-      "reason": "Combined analytics-v1 public analyticsContentKey and M0 D01 retention/410 guards, D02 Web mailbox create/get/retry/runtime contracts. Canonical specifications are the source; existing applied migration checksums remain unchanged. Admin list search UX (2026-10-04): adds title substring search and publishedDate KST calendar-day filtering; retains titlePrefix/from/to as deprecated compatibility parameters. Regenerated contracts follow the canonical admin-post-management and M0 Core OpenAPI specifications; no SQL migration changes."
+      "sha256": "b46201b42ca5346f64f793c2069d7641bd48f545aa42fd71fd90feb55b5e3700",
+      "reason": "Combined analytics-v1 public analyticsContentKey and M0 D01 retention/410 guards, D02 Web mailbox create/get/retry/runtime contracts. Canonical specifications are the source; existing applied migration checksums remain unchanged. Admin list search UX (2026-10-04): adds title substring search and publishedDate KST calendar-day filtering; retains titlePrefix/from/to as deprecated compatibility parameters. Regenerated contracts follow the canonical admin-post-management and M0 Core OpenAPI specifications; no SQL migration changes. 2026-10-05 operator decision: remove REVIEWING start/restart actions and public status; approve/reject directly using the detail contentDigest snapshot. V011 updates the review guard while preserving legacy rows, retention deadlines and promotion invariants. 2026-10-05 source common codes: OWNER create/update and OWNER/EDITOR list, immutable source keys and optimistic versions; V012 seeds the existing 21 canonical display names independently from collector activation. 2026-10-05 user correction: generic common-code groups with lowercase source group and four-character source codes replace the unreleased source-only API. V013 migrates existing display/audit data and preserves collector identities through reference keys. 2026-10-06: regenerate typed/runtime contract for deleteBatchItem and BatchDeleteRequest from canonical collection OpenAPI. 2026-10-06 user request: robots reference-only; configurable request interval default 5000ms with source overrides and minimum 1000ms. V015 updates direct DB interval constraints and persistent server cooldown."
     }
   },
   "addedMigrations": {
@@ -52,6 +52,17 @@
     "apps/collector/src/main/resources/db/collector-v007.sql": "e30ac90a75fe887e26b30c182a016eec670d14f080d8fc874728a059e2ead3ae",
     "apps/collector/src/main/resources/db/collector-v008.sql": "d117fd6418ad66672ff3f97e14bf9697e5cc88885ee8ffddf134a9b929e7c674",
     "apps/collector/src/main/resources/db/collector-v009.sql": "4c69eeead9528fe37559740f0d1308bbf836a9e48154da80b1d74a9d072b2288",
-    "apps/collector/src/main/resources/db/collector-v010.sql": "88764830b6045d384e9d1e022a82e4efd5c2e53629bbed4ca3c17f2f41d6c298"
+    "apps/collector/src/main/resources/db/collector-v010.sql": "88764830b6045d384e9d1e022a82e4efd5c2e53629bbed4ca3c17f2f41d6c298",
+    "apps/api/migrations/V011__direct_batch_review.sql": "f5dce05893552cea251f14010a98e0a6f8e173cd69b2da9ece5b5e275a7ae697",
+    "apps/api/migrations/V011__direct_batch_review.down.sql": "6d08bb9d55384b96f4ed324b46b0e04b4dff229e953090c202f11f9dcb3ec700",
+    "apps/api/migrations/V012__source_codes.sql": "17d64e76abad61b87350483e3f914ca69b9d1e1d277135e132b681c7f17b923f",
+    "apps/api/migrations/V012__source_codes.down.sql": "33ee908ab4f3506f78b2a5ae9bca229aa3567e4f4dc6b4ed836fac938a6dc668",
+    "apps/api/migrations/V013__common_code_groups.sql": "39339f7db0434eb230dd00f7397a3b8915ccad24b1f0a6f2b8c79284b97b6952",
+    "apps/api/migrations/V013__common_code_groups.down.sql": "0706b0e42dc7e56a0cbe7200698130cbb641c1761d862ec7159e8512fcf8986e",
+    "apps/collector/src/main/resources/db/collector-v011.sql": "e25f5ee35f144c7ed815939e558031a07670991a06d2363b6f126042f46e131c",
+    "apps/collector/src/main/resources/db/collector-v012.sql": "ad7591aca043a75b2b47668ffbf2a705e5dff5ecc15f7fe40b4008585b520821",
+    "apps/collector/src/main/resources/db/collector-v013.sql": "b054ae8bd29df82921f405a51929d9b7503d4ba30d2e8f496a044dd85e686209",
+    "apps/collector/src/main/resources/db/collector-v014.sql": "08bf0751a382fcce6273dac5a53f4e2b33c573d9315dfec0a5e88bd03041d887",
+    "apps/collector/src/main/resources/db/collector-v015.sql": "c22cf7f4c2026a1c4dd8799cb4b7bc77964a592d1eb35843cb7f40021909d6d6"
   }
 }

@@ -1,6 +1,6 @@
 # Discord 검수 운영 반영 — 2026-10-08
 
-- 담당: Codex, 상태: 종료, 갱신: 2026-10-08 00:09 KST.
+- 담당: Codex, 상태: 종료, 갱신: 2026-10-08 00:11 KST.
 - 작업 폴더: `/Volumes/MicroVault/iCloudDrive/git/private/blariyo`, 브랜치: `feature/discord-review`.
 - 범위: 검증된 main 이미지의 운영 반영, V014 migration, Discord worker 실행 예약, 실제 수집→Discord 확인 및 운영 문서 갱신. 변경 경로는 이 작업 기록과 `docs/status.md`, `docs/roadmap.md`, `docs/operations/{current-status,deployment-policy,private-files-and-recovery}.md`다.
 - 이전 기록: [10월 7일 구현·검증](../../2026-10-07/discord-review-implementation/README.md).
@@ -61,3 +61,4 @@
 - 변경 문서의 상대 링크183개/누락0, 증거JSON parse 성공, `git diff --check` 및 계약 검사·hook 설치 상태 통과. 구현 소스는 배포한 입력 이후 변경하지 않았고 문서 변경 때문에 API/브라우저 전체 검사를 다시 실행하지 않았다.
 - 로컬 annotated tag `prod/2026-10-08-0003-KST-f8067ab`를 배포된 main SHA에 생성했다. tag push는 하지 않았다.
 - 배포 후 문서·실행 증거는 `feature/discord-review`에 별도 기록한다. 해당 문서 커밋이 운영 코드 SHA를 바꾸지는 않는다. 범위 밖 작업 기록은 stage하지 않는다.
+- 후속 문서 commit `09806a3` 작성 후 feature push를 00:09~00:10 KST 세 번 시도했으나 GitHub가 `Internal Server Error`로 거부했다. remote feature는 `7df63de`인 것을 재조회했다. 구현/release/main/이미지/운영 적용은 이미 완료됐으며 이 실패는 후속 문서 원격 보관만 해당한다. 로컬 커밋과 작업 파일은 보존했고 복구 후 `git push origin feature/discord-review`로 이어갈 수 있다. tag는 별도 push하지 않는다.

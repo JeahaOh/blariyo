@@ -5,6 +5,1245 @@ info:
   description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public
     Core routes remain unchanged. New M0-D02 operations are implemented locally and synchronized with runtime packages/contracts. Production acceptance remains pending.
 paths:
+  /internal/discord-review/v1/runtime:
+    get:
+      operationId: discordReviewRuntime
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: maintenance
+      parameters:
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: maintenance
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      environment:
+                        type: string
+                        enum:
+                          - production
+                          - local_test
+                      guildId: &a1
+                        type: string
+                        pattern: ^[0-9]{17,20}$
+                      channelId: *a1
+                      reviewerIds:
+                        type: array
+                        items: *a1
+                        maxItems: 1000
+                      serverTime:
+                        type: string
+                        format: date-time
+                    required:
+                      - environment
+                      - guildId
+                      - channelId
+                      - reviewerIds
+                      - serverTime
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/export/claim:
+    post:
+      operationId: claimDiscordReviewExport
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: export
+      parameters:
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: export
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: &a3
+              type: object
+              additionalProperties: false
+              properties:
+                workerId:
+                  type: string
+                  pattern: ^[A-Za-z0-9_.:-]{1,100}$
+              required:
+                - workerId
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      delivery:
+                        anyOf:
+                          - $ref: "#/components/schemas/DiscordReviewExport"
+                          - type: "null"
+                    required:
+                      - delivery
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/deliveries/{deliveryId}/ack:
+    post:
+      operationId: ackDiscordReviewExport
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: export
+      parameters:
+        - name: deliveryId
+          in: path
+          required: true
+          schema: &a2
+            type: string
+            format: uuid
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: export
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscordReviewExportAck"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data: &a4
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      accepted:
+                        type: boolean
+                    required:
+                      - accepted
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/deliveries/{deliveryId}/media/{position}:
+    get:
+      operationId: discordReviewMedia
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: export
+      parameters:
+        - name: deliveryId
+          in: path
+          required: true
+          schema: *a2
+        - name: position
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: export
+            type: string
+        - name: leaseToken
+          in: query
+          required: true
+          schema: *a2
+        - name: generation
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Success
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/scan/claim:
+    post:
+      operationId: claimDiscordReviewScan
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: scan
+      parameters:
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: scan
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *a3
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      scan:
+                        anyOf:
+                          - $ref: "#/components/schemas/DiscordReviewScan"
+                          - type: "null"
+                    required:
+                      - scan
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/scan/next:
+    post:
+      operationId: nextDiscordReviewScan
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: scan
+      parameters:
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: scan
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                scanId: *a2
+                leaseToken: *a2
+              required:
+                - scanId
+                - leaseToken
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      delivery:
+                        anyOf:
+                          - $ref: "#/components/schemas/DiscordReviewDelivery"
+                          - type: "null"
+                    required:
+                      - delivery
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/scan/chunk:
+    post:
+      operationId: chunkDiscordReviewScan
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: scan
+      parameters:
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: scan
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                scanId: *a2
+                leaseToken: *a2
+                deliveryId: *a2
+                index:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                messages:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/DiscordReviewMessage"
+                  maxItems: 100
+              required:
+                - scanId
+                - leaseToken
+                - deliveryId
+                - index
+                - messages
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data: *a4
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/scan/finish:
+    post:
+      operationId: finishDiscordReviewScan
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: scan
+      parameters:
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: scan
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                scanId: *a2
+                leaseToken: *a2
+                deliveryId: *a2
+              required:
+                - scanId
+                - leaseToken
+                - deliveryId
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      result:
+                        type: string
+                        minLength: 1
+                        maxLength: 80
+                    required:
+                      - result
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/jobs:
+    get:
+      operationId: discordReviewJobs
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: maintenance
+      parameters:
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: maintenance
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      commands:
+                        type: array
+                        items: *a2
+                        maxItems: 20
+                      cleanup:
+                        type: array
+                        items: *a2
+                        maxItems: 20
+                      notices:
+                        type: array
+                        items: *a2
+                        maxItems: 20
+                    required:
+                      - commands
+                      - cleanup
+                      - notices
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/commands/{commandId}/advance:
+    post:
+      operationId: advanceDiscordReviewCommand
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: maintenance
+      parameters:
+        - name: commandId
+          in: path
+          required: true
+          schema: *a2
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: maintenance
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *a3
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/BatchReviewCommandResult"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/deliveries/{deliveryId}/cleanup/claim:
+    post:
+      operationId: claimDiscordReviewCleanup
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: maintenance
+      parameters:
+        - name: deliveryId
+          in: path
+          required: true
+          schema: *a2
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: maintenance
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *a3
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      claim:
+                        anyOf:
+                          - $ref: "#/components/schemas/DiscordCleanupClaim"
+                          - type: "null"
+                    required:
+                      - claim
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/deliveries/{deliveryId}/cleanup/ack:
+    post:
+      operationId: ackDiscordReviewCleanup
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: maintenance
+      parameters:
+        - name: deliveryId
+          in: path
+          required: true
+          schema: *a2
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: maintenance
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                claim:
+                  $ref: "#/components/schemas/DiscordCleanupClaim"
+                result:
+                  $ref: "#/components/schemas/DiscordCleanupResult"
+              required:
+                - claim
+                - result
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data: *a4
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/deliveries/{deliveryId}/notice/claim:
+    post:
+      operationId: claimDiscordReviewNotice
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: maintenance
+      parameters:
+        - name: deliveryId
+          in: path
+          required: true
+          schema: *a2
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: maintenance
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *a3
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      claim:
+                        anyOf:
+                          - $ref: "#/components/schemas/DiscordNoticeClaim"
+                          - type: "null"
+                    required:
+                      - claim
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /internal/discord-review/v1/deliveries/{deliveryId}/notice/ack:
+    post:
+      operationId: ackDiscordReviewNotice
+      tags:
+        - discord-review
+      security:
+        - DiscordReviewWorker: []
+      x-review-scope: maintenance
+      parameters:
+        - name: deliveryId
+          in: path
+          required: true
+          schema: *a2
+        - name: X-Blariyo-Review-Scope
+          in: header
+          required: true
+          schema:
+            const: maintenance
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscordNoticeAck"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data: *a4
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/batch-items/{itemId}/commands:
+    post:
+      operationId: createBatchReviewCommand
+      tags:
+        - discord-review
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema: *a2
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BatchReviewCommandRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/BatchReviewCommandResult"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/batch-items/{itemId}/commands/status:
+    get:
+      operationId: getBatchReviewCommandStatus
+      tags:
+        - discord-review
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema: *a2
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/BatchReviewCommandStatus"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "410":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
   /api/v1/admin/common-code-groups:
     get:
       operationId: listCommonCodeGroups
@@ -4203,6 +5442,10 @@ paths:
           $ref: "#/components/responses/CollectionFailure"
 components:
   securitySchemes:
+    DiscordReviewWorker:
+      type: apiKey
+      in: header
+      name: X-Blariyo-Review-Token
     CollectorToken:
       type: http
       scheme: bearer
@@ -4211,6 +5454,563 @@ components:
       in: cookie
       name: BLARIYO_ADMIN_SESSION
   schemas:
+    DiscordReviewMessage:
+      type: object
+      additionalProperties: false
+      properties:
+        messageId: &a2
+          type: string
+          pattern: ^[0-9]{17,20}$
+        complete: &a1
+          type: boolean
+        reactions:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              emoji:
+                type: string
+                minLength: 1
+                maxLength: 100
+              complete: *a1
+              users:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    id: *a2
+                    bot: *a1
+                  required:
+                    - id
+                    - bot
+                maxItems: 1000
+            required:
+              - emoji
+              - complete
+              - users
+          maxItems: 20
+      required:
+        - messageId
+        - complete
+        - reactions
+    DiscordReviewPart:
+      type: object
+      additionalProperties: false
+      properties:
+        ordinal: &a3
+          type: integer
+          minimum: 0
+        unitId: &a5
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        fragmentIndex: *a3
+        kind:
+          type: string
+          enum:
+            - TEXT
+            - IMAGE
+            - LINK
+        imagePosition:
+          anyOf:
+            - *a3
+            - type: "null"
+        messageId:
+          anyOf:
+            - *a2
+            - type: "null"
+        sendState:
+          type: string
+          enum:
+            - PENDING
+            - SENDING
+            - SENT
+            - UNKNOWN
+            - BLOCKED
+        seeded: *a1
+        nonce:
+          type: string
+          minLength: 1
+          maxLength: 25
+      required:
+        - ordinal
+        - unitId
+        - fragmentIndex
+        - kind
+        - imagePosition
+        - messageId
+        - sendState
+        - seeded
+        - nonce
+    DiscordReviewDelivery:
+      type: object
+      additionalProperties: false
+      properties:
+        id: &a4
+          type: string
+          format: uuid
+        itemId: *a4
+        itemVersion: *a3
+        contentDigest: *a5
+        number: *a3
+        state: &a6
+          type: string
+          enum:
+            - PENDING
+            - EXPORTING
+            - READY
+            - CANCELLED
+            - BLOCKED
+            - CLOSED
+        generation: *a3
+        channelId: *a2
+        guildId: *a2
+        headMessageId: &a7
+          anyOf:
+            - *a2
+            - type: "null"
+        threadId: &a8
+          anyOf:
+            - *a2
+            - type: "null"
+        headSeeded: *a1
+        headSendState: &a9
+          type: string
+          enum:
+            - PENDING
+            - SENDING
+            - SENT
+            - UNKNOWN
+            - BLOCKED
+        headNonce: &a10
+          type: string
+          minLength: 1
+          maxLength: 25
+        leaseToken: &a11
+          anyOf:
+            - *a4
+            - type: "null"
+        readyAt: &a12
+          anyOf:
+            - &a14
+              type: string
+              format: date-time
+            - type: "null"
+        parts: &a13
+          type: array
+          items:
+            $ref: "#/components/schemas/DiscordReviewPart"
+          maxItems: 5000
+      required:
+        - id
+        - itemId
+        - itemVersion
+        - contentDigest
+        - number
+        - state
+        - generation
+        - channelId
+        - guildId
+        - headMessageId
+        - threadId
+        - headSeeded
+        - headSendState
+        - headNonce
+        - leaseToken
+        - readyAt
+        - parts
+    DiscordReviewExport:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *a4
+        itemId: *a4
+        itemVersion: *a3
+        contentDigest: *a5
+        number: *a3
+        state: *a6
+        generation: *a3
+        channelId: *a2
+        guildId: *a2
+        headMessageId: *a7
+        threadId: *a8
+        headSeeded: *a1
+        headSendState: *a9
+        headNonce: *a10
+        leaseToken: *a11
+        readyAt: *a12
+        parts: *a13
+        title:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 1000
+            - type: "null"
+        sourceUrl:
+          anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 4096
+            - type: "null"
+        fragments:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              unitId: *a5
+              fragmentIndex: *a3
+              text:
+                type: string
+                maxLength: 1800
+              imagePosition:
+                anyOf:
+                  - *a3
+                  - type: "null"
+            required:
+              - unitId
+              - fragmentIndex
+              - text
+              - imagePosition
+          maxItems: 5000
+      required:
+        - id
+        - itemId
+        - itemVersion
+        - contentDigest
+        - number
+        - state
+        - generation
+        - channelId
+        - guildId
+        - headMessageId
+        - threadId
+        - headSeeded
+        - headSendState
+        - headNonce
+        - leaseToken
+        - readyAt
+        - parts
+        - title
+        - sourceUrl
+        - fragments
+    DiscordReviewScan:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *a4
+        leaseToken: *a4
+        cutoff: *a14
+      required:
+        - id
+        - leaseToken
+        - cutoff
+    DiscordReviewExportAck:
+      type: object
+      additionalProperties: false
+      properties:
+        leaseToken: *a4
+        generation: *a3
+        event:
+          type: string
+          enum:
+            - HEAD_BEGIN
+            - HEAD_RETRY
+            - CANCEL_RESOLVED
+            - HEAD_SENT
+            - THREAD_BEGIN
+            - THREAD_SENT
+            - PART_BEGIN
+            - PART_RETRY
+            - PART_SENT
+            - HEAD_SEEDED
+            - PART_SEEDED
+            - READY
+            - ERROR
+        ordinal: *a3
+        messageId: *a2
+        code:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]{0,79}$
+        blocked: *a1
+        retryAfterMs:
+          type: integer
+          minimum: 0
+          maximum: 86400000
+      required:
+        - leaseToken
+        - generation
+        - event
+    DiscordCleanupClaim:
+      type: object
+      additionalProperties: false
+      properties:
+        deliveryId: *a4
+        channelId: *a2
+        headMessageId:
+          anyOf:
+            - *a2
+            - type: "null"
+        threadId:
+          anyOf:
+            - *a2
+            - type: "null"
+        headDeleted: *a1
+        threadDeleted: *a1
+        leaseToken: *a4
+        attemptId: *a4
+      required:
+        - deliveryId
+        - channelId
+        - headMessageId
+        - threadId
+        - headDeleted
+        - threadDeleted
+        - leaseToken
+        - attemptId
+    DiscordCleanupResult:
+      type: object
+      additionalProperties: false
+      properties:
+        headDeleted: *a1
+        threadDeleted: *a1
+        error:
+          anyOf:
+            - type: string
+              pattern: ^[A-Z][A-Z0-9_]{0,79}$
+            - type: "null"
+        blocked: *a1
+        retryAfterMs:
+          type: integer
+          minimum: 0
+          maximum: 86400000
+      required:
+        - headDeleted
+        - threadDeleted
+        - error
+        - blocked
+        - retryAfterMs
+    DiscordNoticeClaim:
+      type: object
+      additionalProperties: false
+      properties:
+        deliveryId: *a4
+        channelId: *a2
+        threadId: *a2
+        messageId:
+          anyOf:
+            - *a2
+            - type: "null"
+        leaseToken: *a4
+        attemptId: *a4
+        nonce:
+          type: string
+          minLength: 1
+          maxLength: 25
+        text:
+          type: string
+          minLength: 1
+          maxLength: 1000
+      required:
+        - deliveryId
+        - channelId
+        - threadId
+        - messageId
+        - leaseToken
+        - attemptId
+        - nonce
+        - text
+    DiscordNoticeAck:
+      type: object
+      additionalProperties: false
+      properties:
+        leaseToken: *a4
+        attemptId: *a4
+        messageId: *a2
+        error:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]{0,79}$
+        unavailable: *a1
+        blocked: *a1
+        retryAfterMs:
+          type: integer
+          minimum: 0
+          maximum: 86400000
+      required:
+        - leaseToken
+        - attemptId
+    BatchReviewCommandRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        action:
+          type: string
+          enum:
+            - APPROVE_PUBLISH
+            - REJECT
+        itemVersion: &a1
+          type: integer
+          minimum: 0
+        lockVersion: *a1
+        contentDigest:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        boardSlug:
+          type: string
+          minLength: 1
+          maxLength: 80
+        title:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        postVersion:
+          type: integer
+          minimum: 1
+      required:
+        - action
+        - itemVersion
+        - lockVersion
+        - contentDigest
+    BatchReviewCommandResult:
+      type: object
+      additionalProperties: false
+      properties:
+        commandId: *a4
+        stage:
+          type: string
+          enum:
+            - ACCEPTED
+            - APPROVED
+            - PREPARING
+            - DRAFTED
+            - PUBLISHED
+            - REJECTED
+            - CANCELLED
+            - NEEDS_ADMIN
+            - FAILED
+        postId:
+          anyOf:
+            - *a3
+            - type: "null"
+      required:
+        - commandId
+        - stage
+        - postId
+    BatchReviewCommandStatus:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+        delivery:
+          anyOf:
+            - type: object
+              additionalProperties: false
+              properties:
+                state:
+                  type: string
+                  minLength: 1
+                  maxLength: 20
+                ready_at:
+                  anyOf:
+                    - &a1
+                      type: string
+                      format: date-time
+                    - type: "null"
+                expires_at:
+                  anyOf:
+                    - *a1
+                    - type: "null"
+                cleanup_state:
+                  type: string
+                  minLength: 1
+                  maxLength: 20
+                cleanup_failures: &a2
+                  type: integer
+                  minimum: 0
+                notice_state:
+                  type: string
+                  minLength: 1
+                  maxLength: 20
+                last_error:
+                  anyOf:
+                    - type: string
+                      minLength: 1
+                      maxLength: 80
+                    - type: "null"
+                last_scan_result:
+                  anyOf:
+                    - type: string
+                      minLength: 1
+                      maxLength: 80
+                    - type: "null"
+              required:
+                - state
+                - ready_at
+                - expires_at
+                - cleanup_state
+                - cleanup_failures
+                - notice_state
+                - last_error
+                - last_scan_result
+            - type: "null"
+        command:
+          anyOf:
+            - type: object
+              additionalProperties: false
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                stage:
+                  type: string
+                  minLength: 1
+                  maxLength: 20
+                origin:
+                  type: string
+                  minLength: 1
+                  maxLength: 8
+                post_id:
+                  anyOf:
+                    - anyOf:
+                        - *a2
+                        - type: string
+                          minLength: 1
+                          maxLength: 20
+                    - type: "null"
+                excluded_unit_ids:
+                  type: array
+                  items:
+                    type: string
+                    pattern: ^[a-f0-9]{64}$
+                  maxItems: 5000
+                last_error:
+                  anyOf:
+                    - type: string
+                      minLength: 1
+                      maxLength: 80
+                    - type: "null"
+              required:
+                - id
+                - stage
+                - origin
+                - post_id
+                - excluded_unit_ids
+                - last_error
+            - type: "null"
+        selection:
+          anyOf:
+            - type: array
+              maxItems: 1000
+              items:
+                $ref: "#/components/schemas/CollectionContentBlock"
+            - type: "null"
+      required:
+        - enabled
+        - delivery
+        - command
+        - selection
     CommonCodeGroup:
       type: object
       additionalProperties: false

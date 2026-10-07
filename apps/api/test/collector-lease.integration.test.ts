@@ -425,6 +425,7 @@ await test('collector leases retain SKIP LOCKED claiming, expiration and executi
       assert.ok(detail.images[0]?.previewUploadedAt);
       const actual = first.get(UnitOfWork);
       class LostAcknowledgment extends UnitOfWork {
+        afterCommit(notify: () => void) { actual.afterCommit(notify); }
         async transaction<T>(work: () => Promise<T>, options?: TransactionOptions): Promise<T> {
           await actual.transaction(work, options);
           throw new Error('fixture lost commit acknowledgment');

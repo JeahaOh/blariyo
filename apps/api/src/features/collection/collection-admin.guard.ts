@@ -7,6 +7,7 @@ export const COLLECTION_OPTIONS = Symbol('COLLECTION_OPTIONS');
 export interface CollectionOptions extends HttpOptions {
   collectDirectInputEnabled?: boolean;
   collectBatchReviewEnabled?: boolean;
+  discordReviewEnabled?: boolean;
   collectorKeySecret?: string;
   collectorTokens?: CollectorCredential[];
   collectContractMode?: 'LEGACY_V1' | 'SPRING_V2';

@@ -121,10 +121,10 @@ try {
   await command(java, ['-cp', classpath, 'com.blariyo.collector.ops.MigrationMain'], undefined, collectorEnv('migrator'));
   await migrator.query(grants);
   await migrator.query(grants);
-  assert.equal(rows(await migrator.query('SELECT count(*)::int AS count FROM ops.schema_migration'))[0]?.count, 13);
+  assert.equal(rows(await migrator.query('SELECT count(*)::int AS count FROM ops.schema_migration'))[0]?.count, 14);
   assert.deepEqual(rows(await migrator.query('SELECT version FROM collector.schema_migration ORDER BY version')).map(row=>row.version),
     ['V001','V002','V003','V004','V005','V006','V007','V008','V009','V010','V011','V012','V013','V014','V015']);
-  assert.equal(rows(await app.query("SELECT ops.is_schema_ready('V013') AS ready"))[0]?.ready, true);
+  assert.equal(rows(await app.query("SELECT ops.is_schema_ready('V014') AS ready"))[0]?.ready, true);
   assert.equal(rows(await app.query('SHOW timezone'))[0]?.TimeZone, 'UTC');
   await denied(app, 'SELECT * FROM ops.schema_migration');
   await denied(app, 'UPDATE ops.schema_migration SET duration_ms=0');
@@ -246,7 +246,7 @@ try {
     [imageJob.item_id,imageJob.run_id,`collect/raw/${imageJob.run_id}/${imageJob.item_id}.html`]))[0]?.allowed,true);
   assert.equal(rows(await retention.query('SELECT collect.image_cleanup_allowed($1,$2,$3) AS allowed',
     [imageJob.item_id,imageJob.run_id,'private/protected.png']))[0]?.allowed,false);
-  console.log('PASS 실제 API V001–V013 / Collector V001–V015 migration · D02 앱 접수/batch ack/안전 조회 · 앱 draft/publish · trigger 유지 · DDL/ledger/역할 전환 차단');
+  console.log('PASS 실제 API V001–V014 / Collector V001–V015 migration · D02 앱 접수/batch ack/안전 조회 · 앱 draft/publish · trigger 유지 · DDL/ledger/역할 전환 차단');
 
   stage = 'dedicated retention capabilities and real CLI readback';
   for(const sql of ['SELECT * FROM content.board_post','SELECT * FROM legal.policy_version','SELECT * FROM collect.batch_item',

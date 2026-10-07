@@ -38,9 +38,11 @@ await test('common groups migrate source identities and enforce group boundaries
     await migrator.migrate();
     assert.equal((await fetch(origin+'/internal/health/ready')).status,200);
     assert.deepEqual(await db.query("SELECT display_name,lock_version,created_by,created_at,updated_by,updated_at FROM content.common_code WHERE group_key='source' AND code='thqo'"),original);
+    await migrator.migrate('down'); // Empty V014 is reversible; V013 still requires a handoff.
     const ledger:unknown=await db.query('SELECT * FROM ops.schema_migration ORDER BY version');
     await assert.rejects(migrator.migrate('down'),/COMMON_CODES_ROLLBACK_REQUIRES_HANDOFF/);
     assert.deepEqual(await db.query('SELECT * FROM ops.schema_migration ORDER BY version'),ledger);
+    await migrator.migrate();
   });
   await t.test('readiness requires every group and code privilege',async()=>{
     const health=new TypeOrmHealthRepository(context),repo=new TypeOrmMigrationsRepository(context);

@@ -1,0 +1,12 @@
+[Unit]
+Description=Blariyo Discord review decisions at 07:30 and 17:00 KST
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -B /opt/blariyo/discord-review/run.py scan
+TimeoutStartSec=960
+UMask=0077
+Nice=10

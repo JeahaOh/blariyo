@@ -13,6 +13,7 @@ export function outboxRepository(overrides: Partial<OutboxRepository> = {}): Out
   return { recoverExpired: unexpected, claim: unexpected, owns: unexpected, succeed: unexpected, fail: unexpected, enqueue: unexpected, ...overrides };
 }
 export const immediateWork: UnitOfWork = {
+  afterCommit: () => { throw new Error('Unexpected after-commit notification'); },
   transaction: <T>(work: () => Promise<T>) => work(),
   transactionLock: unexpected,
   lock: unexpected,

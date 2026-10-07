@@ -2,7 +2,7 @@
 import { draftTitle } from '@blariyo/contracts/draft-title';
 import { apiError, type ApiResponse } from '~~/shared/api-types';
 definePageMeta({ path: '/admin/batch' });
-type Decision = 'APPROVED' | 'REJECTED' | 'DRAFT' | 'PUBLISH';
+type Decision = 'COMMAND' | 'APPROVED' | 'REJECTED' | 'DRAFT' | 'PUBLISH';
 type Filters = { source: string; state: string; reviewStatus: string };
 type BatchRow = ApiResponse<'listBatchItems'>['data']['items'][number];
 const completionDateFormat = new Intl.DateTimeFormat('sv-SE', {
@@ -17,7 +17,7 @@ function completionTime(value: string) {
 type BulkEntry = {
   item: BatchRow;
   key: string;
-  body?: { itemVersion: number; lockVersion: number; contentDigest?: string; decision?: 'REJECTED' };
+  body?: { itemVersion: number; lockVersion: number; contentDigest?: string; decision?: 'REJECTED'; action?: 'REJECT' };
   status: 'waiting' | 'success' | 'failed' | 'unknown';
   reason?: string;
 };
@@ -35,7 +35,7 @@ function isFilters(value: unknown): value is Filters {
 const requestFetch = useRequestFetch();
 const route = useRoute();
 const { data: features } = await useAsyncData('admin-features', () =>
-  requestFetch<{ batchReview: boolean; directInput: boolean }>('/api/admin/features').catch(
+  requestFetch<{ batchReview: boolean; directInput: boolean; discordReview?: boolean }>('/api/admin/features').catch(
     () => null
   )
 );
@@ -63,6 +63,47 @@ const listRequests = ref(0);
 const listLoading = computed(() => listRequests.value > 0);
 const appliedFilters = ref<Filters>({ source: '', state: '', reviewStatus: '' });
 const selected = ref<ApiResponse<'getBatchItem'>['data']['item'] | null>(null);
+const commandStatus = ref<ApiResponse<'getBatchReviewCommandStatus'>['data'] | null>(null);
+const commandStatusError = ref('');
+const finalPreviewOpen = ref(false);
+const commandLabels: Record<string,string> = { APPROVED:'승인 완료 · 발행 대기', PREPARING:'본문 준비 중', DRAFTED:'초안 완료 · 발행 대기',
+  PUBLISHED:'발행 완료', REJECTED:'반려 완료', CANCELLED:'관리자 처리로 이전 작업 취소', NEEDS_ADMIN:'관리자 확인 필요', FAILED:'처리 실패' };
+let commandTimer: ReturnType<typeof setTimeout> | undefined;
+let commandPollingStopped = false;
+async function refreshCommandStatus(id: string) {
+  if (!features.value?.discordReview) return;
+  try {
+    const status = (await $fetch<ApiResponse<'getBatchReviewCommandStatus'>>(`/api/v1/admin/collect/batch-items/${id}/commands/status`, {retry:0})).data;
+    if (selected.value?.itemId !== id) return;
+    const changed = commandStatus.value?.command?.id !== status.command?.id || commandStatus.value?.command?.stage !== status.command?.stage;
+    commandStatus.value = status;
+    commandStatusError.value = '';
+    if (changed && status.command) {
+      const item = (await $fetch<ApiResponse<'getBatchItem'>>(`/api/v1/admin/collect/batch-items/${id}`, {retry:0})).data.item;
+      if (selected.value?.itemId !== id) return;
+      selected.value = item;
+      if (item.review.postId) {
+        const post = (await $fetch<ApiResponse<'getPostEditor'>>(`/api/v1/admin/posts/${item.review.postId}`, {retry:0})).data;
+        if (selected.value?.itemId === id) linkedPost.value = post;
+      }
+    }
+  } catch (error) {
+    if (selected.value?.itemId !== id) return;
+    if (apiError(error).code === 'BATCH_ITEM_EXPIRED') expireOriginal();
+    else commandStatusError.value = '처리 상태를 확인하지 못했습니다. 다시 조회해 주세요.';
+  }
+}
+watch(() => selected.value?.itemId, id => {
+  clearTimeout(commandTimer); commandStatus.value = null; commandStatusError.value = ''; finalPreviewOpen.value = false;
+  if (!id || !features.value?.discordReview || !import.meta.client) return;
+  const poll = async () => {
+    if (commandPollingStopped || selected.value?.itemId !== id) return;
+    if (!busy.value) await refreshCommandStatus(id);
+    if (!commandPollingStopped && selected.value?.itemId === id) commandTimer = setTimeout(() => { void poll(); }, 5000);
+  };
+  commandTimer = setTimeout(() => { void poll(); }, 100);
+});
+onUnmounted(() => { commandPollingStopped = true; clearTimeout(commandTimer); });
 const restoringContext = ref(true);
 const expiredPostId = ref<number | null>(null);
 const helpOpen = ref(false);
@@ -284,6 +325,14 @@ async function readItem(id: string) {
 async function decide(decision: 'APPROVED' | 'REJECTED' | 'PUBLISH') {
   const item = selected.value;
   if (!item || locked.value || (decision === 'APPROVED' && !title.value.trim()) || (decision === 'PUBLISH' && linkedPost.value?.status !== 'DRAFT')) return;
+  if (features.value?.discordReview) {
+    pending.value = { itemId:item.itemId, path:`/api/v1/admin/collect/batch-items/${item.itemId}/commands`,
+      body:{action:decision === 'REJECTED' ? 'REJECT' : 'APPROVE_PUBLISH',itemVersion:item.version,lockVersion:item.review.lockVersion,
+        contentDigest:item.contentDigest,boardSlug:'meme',title:title.value,...(decision === 'PUBLISH' && linkedPost.value ? {postVersion:linkedPost.value.lockVersion} : {})},
+      key:crypto.randomUUID(),decision:'COMMAND',confirmed:false,title:title.value };
+    await executePending();
+    return;
+  }
   pending.value = {
     itemId: item.itemId,
     path: decision === 'PUBLISH' ? `/api/v1/admin/posts/${item.review.postId}/publish` : `/api/v1/admin/collect/batch-items/${item.itemId}/review`,
@@ -346,10 +395,11 @@ async function executeBulk() {
             entry.reason = '수집 내용 또는 검수 상태가 바뀌었습니다. 다시 조회해 주세요.';
             continue;
           }
-          entry.body = { itemVersion: item.version, lockVersion: item.review.lockVersion, contentDigest: item.contentDigest, decision: 'REJECTED' };
+          entry.body = { itemVersion: item.version, lockVersion: item.review.lockVersion, contentDigest: item.contentDigest,
+            ...(features.value?.discordReview ? {action:'REJECT' as const} : {decision:'REJECTED' as const}) };
         }
         submitted = true;
-        await $fetch<ApiResponse<'reviewBatchItem'> | ApiResponse<'deleteBatchItem'>>(`/api/v1/admin/collect/batch-items/${entry.item.itemId}/${bulkAction.value === 'DELETE' ? 'delete' : 'review'}`, {
+        await $fetch<ApiResponse<'reviewBatchItem'> | ApiResponse<'deleteBatchItem'>>(`/api/v1/admin/collect/batch-items/${entry.item.itemId}/${bulkAction.value === 'DELETE' ? 'delete' : features.value?.discordReview ? 'commands' : 'review'}`, {
           method: 'POST', body: entry.body, headers: { 'Idempotency-Key': entry.key }, retry: 0,
         });
         entry.status = 'success';
@@ -388,6 +438,16 @@ async function executePending() {
       retry: 0,
     };
     let post: ApiResponse<'promoteBatchItem'>['data'] | null = null;
+    if (request.decision === 'COMMAND') {
+      const result = (await $fetch<ApiResponse<'createBatchReviewCommand'>>(request.path,options)).data;
+      request.confirmed = true;
+      pending.value = null;
+      await refreshCommandStatus(request.itemId);
+      message.value = commandLabels[result.stage] || '처리를 접수했습니다.';
+      try { await fetchList(page.value, appliedFilters.value); }
+      catch { listError.value = '처리는 접수했지만 목록을 갱신하지 못했습니다.'; }
+      return;
+    }
     if (request.decision === 'DRAFT') {
       post = (await $fetch<ApiResponse<'promoteBatchItem'>>(request.path, options)).data;
     } else if (request.decision === 'PUBLISH') {
@@ -725,7 +785,7 @@ useUiLoading(() => busy.value || listLoading.value);
                   <a class="batch-original-link" :href="selected.canonicalUrl" target="_blank" rel="noopener noreferrer" title="원본 게시글을 새 탭에서 열기">원본 열기 ↗</a>
                   <button v-if="deletable(selected)" :disabled="locked" @click="requestDeletion([selected])">삭제</button>
                   <button
-                    :disabled="locked || selected.state !== 'FETCHED' || !!selected.review.postId"
+                    :disabled="locked || selected.state !== 'FETCHED' || (!!selected.review.postId && !(features?.discordReview && linkedPost?.status === 'DRAFT'))"
                     @click="decide('REJECTED')"
                   >
                     반려
@@ -737,7 +797,28 @@ useUiLoading(() => busy.value || listLoading.value);
                   >
                     승인 및 발행
                   </button>
-                  <button v-if="linkedPost?.status === 'DRAFT'" class="batch-action-primary" :disabled="locked" @click="decide('PUBLISH')">발행 재시도</button>
+                  <button v-if="linkedPost?.status === 'DRAFT' && (!features?.discordReview || ['NEEDS_ADMIN','FAILED','CANCELLED'].includes(commandStatus?.command?.stage || ''))" class="batch-action-primary" :disabled="locked" @click="decide('PUBLISH')">발행 재시도</button>
+                </div>
+              </div>
+              <div v-if="features?.discordReview" aria-live="polite">
+                <p v-if="commandStatus?.command">{{ commandLabels[commandStatus.command.stage] || commandStatus.command.stage }}</p>
+                <p v-if="commandStatus?.delivery && commandStatus.delivery.cleanup_state !== 'NONE'">
+                  Discord 정리: {{ commandStatus.delivery.cleanup_state === 'DONE' ? '완료' : commandStatus.delivery.cleanup_state === 'BLOCKED' ? '접근 권한 확인 필요' : '삭제 대기·재시도 중' }}
+                  <span v-if="commandStatus.delivery.cleanup_failures"> · 실패 {{ commandStatus.delivery.cleanup_failures }}회</span>
+                </p>
+                <p v-if="commandStatus?.delivery?.notice_state === 'UNAVAILABLE' || commandStatus?.delivery?.notice_state === 'BLOCKED'">스레드에 처리 결과를 남기지 못했습니다. 이 화면의 승인·발행 상태를 확인해 주세요.</p>
+                <p v-if="commandStatus?.command?.last_error">처리 확인 코드: {{ commandStatus.command.last_error }}</p>
+                <p v-if="commandStatusError" role="alert">{{ commandStatusError }}</p>
+                <button v-if="commandStatus?.command?.excluded_unit_ids.length" :aria-expanded="finalPreviewOpen" @click="finalPreviewOpen = !finalPreviewOpen">
+                  발행 대상 보기 · 문장·이미지 {{ commandStatus.command.excluded_unit_ids.length }}개 제외
+                </button>
+                <div v-if="finalPreviewOpen && commandStatus?.selection" class="original-body">
+                  <template v-for="(block, index) in commandStatus.selection" :key="index">
+                    <p v-if="block.type === 'TEXT'">{{ block.text }}</p>
+                    <CollectImagePreview v-else-if="block.type === 'IMAGE'" :src="`/api/v1/admin/collect/batch-items/${selected.itemId}/media/${block.imagePosition}/preview`"
+                      :alt="block.alt || '선택된 이미지'" :source-url="selected.canonicalUrl" :status-path="`/api/v1/admin/collect/batch-items/${selected.itemId}`" @expired="expireOriginal" />
+                    <a v-else :href="block.url" target="_blank" rel="noopener noreferrer">{{ block.label || block.url }}</a>
+                  </template>
                 </div>
               </div>
               <p v-if="linkedPost">게시글 상태: {{ linkedPost.status === 'PUBLISHED' ? '발행 완료' : linkedPost.status === 'DRAFT' ? '초안' : linkedPost.status === 'SCHEDULED' ? '예약' : '비공개' }}</p>

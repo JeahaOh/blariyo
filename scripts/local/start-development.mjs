@@ -10,6 +10,7 @@ import { createNestApplication } from '../../apps/api/dist/bootstrap/application
 import { localStorage } from '../../apps/api/dist/adapters/storage.js';
 import { LocalCollectReader } from '../../apps/api/dist/adapters/collect-reader.js';
 import { localActorSecret } from './local-identity.mjs';
+import { discordReviewSettings } from '../../apps/api/dist/features/collection/review-authority.js';
 import { startCoreWorkers } from './core-workers.mjs';
 
 let app,
@@ -128,7 +129,9 @@ async function main() {
   await writeFile(resolve(directory, 'session.json'), JSON.stringify({ origin, adminToken }), {
     mode: 0o600,
   });
+  const discordReview = sandbox ? undefined : discordReviewSettings({ ...process.env, NODE_ENV: 'development' });
   app = await createNestApplication({
+    ...(discordReview ? { discordReview } : {}),
     databaseUrl: database.href,
     collectBatchReviewEnabled: Boolean(batch),
     ...(batch ? { collectReader: new LocalCollectReader(batch.objectRoot) } : {}),
@@ -155,6 +158,7 @@ async function main() {
       NITRO_HOST: '127.0.0.1',
       NITRO_PORT: String(webPort),
       NUXT_CORE_ORIGIN: `http://127.0.0.1:${corePort}`,
+      NUXT_DISCORD_REVIEW_ENABLED: String(Boolean(discordReview)),
       NUXT_COLLECT_BATCH_REVIEW_ENABLED: String(Boolean(batch)),
       NUXT_PUBLIC_SITE_ORIGIN: origin,
       NUXT_PUBLIC_IMAGE_ORIGIN: origin + '/media',

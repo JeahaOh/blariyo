@@ -229,8 +229,9 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
   대조하고, collector는 실행 직전 활성 상태·DNS·redirect 경계를 다시 확인한다.
 - 수집 제목·본문 TEXT는 plain text로 처리한다. direct는 파싱 전 응답 HTML을 비공개 raw object로 저장하며,
   공개 본문·로그에서 렌더하지 않는다. 원문 응답을 저장하지 않는 규칙은 legacy metadata 경로에 한정한다.
-- 운영자 검수 미리보기용 이미지는 Java/Spring 추출기 작업 경로에 임시 저장할 수 있지만 내부 절대 경로,
-  image binary와 storage key를 application log·Discord·공개 API에 남기지 않는다.
+- 운영자 검수 미리보기용 이미지는 Java/Spring 추출기 작업 경로에 임시 저장할 수 있지만 내부 절대 경로와
+  storage key를 application log·Discord·공개 API에 남기지 않는다. image binary는 application log·공개 API에
+  남기지 않으며, [Discord 검수 기술 계약](10-discord-review.md)에 따라 지정된 비공개 검수 채널에만 전송한다.
 - 수집 응답의 content-type이 예상과 다르거나 `COLLECT_MAX_RESPONSE_BYTES`를 넘으면 즉시 중단한다.
 - 모든 DB query는 placeholder를 사용한다.
 

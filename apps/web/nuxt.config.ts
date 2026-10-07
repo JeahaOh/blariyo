@@ -41,6 +41,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     collectDirectInputEnabled: false,
     collectBatchReviewEnabled: false,
+    discordReviewEnabled: false,
     collectManualUrlEnabled: false,
     collectDiscordCommandEnabled: false,
     coreOrigin: 'http://127.0.0.1:3100',

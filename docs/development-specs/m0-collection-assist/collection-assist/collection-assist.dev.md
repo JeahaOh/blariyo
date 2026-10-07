@@ -128,7 +128,7 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 - source 설정 파일을 읽는 direct 실행기와 legacy 출처 수정 UI를 구분한다. 후자의 변경이 direct 설정에 적용됐다고 보고하지 않는다.
 - 초안 승격 시 기존 `content.board_post`, `content.board_post_block`, `content.board_post_image` command를 재사용한다.
 - 외부 fetch는 로컬 collector만 수행하고 BFF·Core는 직접 외부 사이트를 호출하지 않는다.
-- 후보 제목·원문 URL 전체·HTML·이미지 binary·로컬 수집기 임시 파일 내부 경로를 application log나 Discord 보고서에 남기지 않는다.
+- 후보 제목·원문 URL 전체·HTML·이미지 binary·로컬 수집기 임시 파일 내부 경로를 application log나 일반 Discord 보고서에 남기지 않는다. 이 문서의 2026-10-07 전용 검수 채널에는 승인된 제목·출처·본문·이미지 전송 예외를 적용하며 내부 경로·저장 key는 계속 금지한다.
 - 출처별 운영 위험 판정과 robots 확인 전에는 production 활성화하지 않는다. 이용약관은 자동 차단 조건이 아니라 운영 위험 참고값으로 기록한다.
 
 ## 8. API 작업 목록
@@ -165,7 +165,7 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 
 ## 11. 결정·가정·미정·차단 항목
 
-- 확정: M0 수집 보조는 자동 발행하지 않는다.
+- 확정: 검수 승인 없는 자동 발행은 하지 않는다. 2026-10-07 Discord 검수와 관리자 공통 명령의 승인→발행은 명시적 운영자 검수 결정에 따라 실행한다.
 - 확정: 수집 실패는 공개 목록·상세와 수동 게시를 막지 않는다.
 - 확정: direct batch는 비공개 원문 object를 저장하고, API는 승격 시 검증된 private 사본을 만든다. 기존 legacy 후보만 임시 preview 계약을 적용한다.
 - 확정: Discord 연결 scraper는 운영자 로컬 컴퓨터에서 별도 프로세스로 실행하고 BE·FE runtime과 분리한다.
@@ -1257,3 +1257,36 @@ mobile은 입력→요청 상태→검수 순서로 표시하고 status는 aria-
 ### 관리자 글별 수집 완료 시각 — 2026-10-07
 
 목록·상세의 nullable `fetchedAt`은 글의 원문·첨부 저장 완료 시각이다. FETCHED 외 상태는 null을 반환한다. 검수 화면은 한국 시간 `YYYY. MM. DD. HH24:mi:ss`로 표시하며 기록이 없는 완료 항목은 미기록으로 표시한다. 보존 시작이나 배치 전체 종료 시각을 대신 쓰지 않는다. 원문 검수 digest와 DB schema는 변경하지 않는다.
+
+## Discord 수집 결과 검수 — 2026-10-07
+
+- 명세 상태: 작성 완료. 구현·로컬/운영 검증은 [작업 기록](../../../../worklog/2026-10-07/discord-review-implementation/README.md)의 개별 증거를 따른다.
+- 제품은 [수집 기획 §8](../../../planning/content-collection/README.md#8-discord-보고실행-연동), 기술·DB·transaction 경계는 [Discord 검수 계약](../../../system-design/10-discord-review.md)을 적용한다. 기존 `/collect url` Gateway와 독립된 opt-in REST 배치다.
+- 이 기능 ON에서는 위 direct 화면의 클라이언트 review→draft→publish 연속 호출을 서버 공통 명령으로 대체한다. 검수자 승인 없이 자동 발행하지 않으며, 정시 배치가 확인한 유효한 👍는 승인·발행 요청이다. 기능 OFF와 legacy 후보는 기존 계약을 유지한다.
+
+### API와 처리 흐름
+
+[OpenAPI](../openapi/m0-collection-assist.yaml)의 `createBatchReviewCommand`, `getBatchReviewCommandStatus`, `DiscordReview*` 스키마가 요청·응답 타입 정본이다.
+
+1. BATCH는 private worker token과 export/scan/maintenance scope로 `/internal/discord-review/v1`를 호출한다. 공개 Web 중계는 제공하지 않는다. API 기능 flag OFF이면 경로를 등록하지 않는다.
+2. export claim은 설정한 cutoff 이후 FETCHED·보존 중·미검수 item을 선점한다. 본문 manifest는 API가 분리하며 worker는 한 문장/이미지 단위와 조각 번호를 그대로 사용한다. 헤드·스레드·메시지 ID·seed 완료를 ACK한다. 본문/이미지 원문을 복구 테이블에 복제하지 않는다.
+3. 메시지 POST 전에 nonce·SENDING을 저장한다. 응답 불명확 시 같은 bot의 nonce/표식으로 조회하며, 찾을 수 없거나 중복이면 BLOCKED로 남긴다. 명확한429는 미생성 ACK로 PENDING을 복구하고 Retry-After를 지킨다. 준비 전 헤드 반응을 비우고 기본👍/❌를 붙인 다음 READY를 확정한다.
+4. 정시 slot은07:30/17:00 KST이며, scan claim은 slot당1회다. 1분 maintenance는 누락/중단된 해당 slot을 재개할 수 있고 완료 slot을 다시 판정하지 않는다. `(ready_at,id)` cursor와 cutoff를 유지한다. 관찰은100메시지·128KB 이하 chunk로 보내고 전체 조각·정상/강화 반응 사용자 페이지가 확인돼야 판정한다.
+5. 승인 결정은 선택 digest·원본 버전·검수 버전·운영자 매핑을 가진 command로 접수한다. BATCH가 API의 advance를 호출해 이미지 준비→DRAFT 저장→즉시 발행을 진행한다. 실행 시 active operator와 제외에 참여한 검수자 매핑을 다시 검사한다. 전체 제외·권한 회수·확정 충돌은 NEEDS_ADMIN이다.
+6. 관리자 command는 진행 중 Discord 명령을 선점한다. 아직 발행하지 않은 연결 DRAFT는 `postVersion`까지 확인하여 재사용해 발행하거나 반려할 수 있다. 이미 PUBLISHED인 글을 수집 반려로 취소하지 않는다. 원문이 없는 복원 상태에서는 업무 진행을 멈추고 남은 Discord ID 정리만 계속한다.
+7. 승인·반려 transaction은 삭제 PENDING과 함께 commit한다. 관리자 최초 삭제는 모든 DB 연결·잠금 반환 후 API 비동기 실행기가 시작하고, BATCH는 같은 claim/ACK로 재시도한다. 헤드 실패 시 스레드를 보존한다. 삭제2회 실패 안내는 별도 notice lease·실패 수·재시도 시각으로 관리한다.
+
+### 관리자 화면
+
+- `/api/admin/features`의 `discordReview`가 켜지면 `/admin/batch` 단건 승인·반려와 선택 반려는 공통 command를 사용한다. 기존 review/draft POST는 `409 BATCH_REVIEW_COMMAND_REQUIRED`로 우회 실행을 막는다.
+- 명령 접수와 실제 발행 완료를 구분한다. 5초 간격 상태 조회에서 승인/초안/발행 대기·완료·관리자 확인 필요를 표시한다. 화면 이탈 시 조회를 중단하고 응답 유실이면 같은 요청 키·본문을 유지한다.
+- 원문 preview는 유지하고 Discord 제외 단위 수와 선택 본문 preview를 별도로 제공한다. 편집한 초안의 실제 내용은 연결 게시글 관리에서 확인한다.
+- 삭제 상태·실패 횟수·스레드 안내 불가를 승인·발행 결과와 분리한다. cleanup 재시도 버튼으로 승인·발행을 다시 실행하지 않는다. 오류는 안전한 code만 표시한다.
+- 로컬/운영의 채널·token 파일·내부 운영자 매핑은 private runtime config로 주입한다. intake JSON은 실행 설정으로 자동 사용하지 않는다. Discord 이미지 전송은10MiB 상한이며 초과 시 전체 검수를 BLOCKED로 두고 관리자에서 확인한다. 원본·프레임을 자르거나 누락된 이미지를 승인으로 간주하지 않는다.
+
+### 수용 검사
+
+- 동일 command/ACK 재전송, nonce 응답 유실·프로세스 종료, 관리자 선점과 늦은 ACK, 삭제 중복 시도와 안내 중복0.
+- 등록 인간의 헤드👍/❌ 조합·본문 비👍 제외·전체 제외·48시간 경계·미완료 관찰·두 종류 반응의 전체 사용자 페이지.
+- 초안 이후 관리자 반려/재승인, 운영자 권한 회수, generic publish 우회, 선정된 이미지에만 저장 검증 적용.
+- 실제 Discord·로컬 브라우저·production 배포·04:30 수집/07:30 판정의 실제 실행은 합성 시험과 따로 기록한다.

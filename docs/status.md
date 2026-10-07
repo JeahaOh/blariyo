@@ -1,5 +1,7 @@
 # M0 현재 진행 상황
 
+- 2026-10-07 Discord 검수 구현 진행: 확정 정책을 기획·기술 정본에 반영하고 문장/이미지 선택·반응 판정·최상위 commit 이후 알림·영속 cleanup 기반을 작성했다. 공통 업무 명령·BATCH·관리자 화면·운영 반영은 진행 대상이며 아직 활성화하지 않았다. [현재 작업](../worklog/2026-10-07/discord-review-implementation/README.md).
+
 - 2026-10-06 AI 품질 도구: 공통 lint·검증 입력/결과 기록·정책 약화 검토·선택 Oxlint 규칙을 구현했다. iron-laws는 검토 보조다. 도입 검증과 실제 변경 관찰의 완료 여부는 [현재 실행 기록](../worklog/2026-10-06/ai-quality-adoption/README.md)을 따른다. 원격 CI·배포·운영 수용을 뜻하지 않는다.
 
 - 2026-10-06 수집 요청 정책 변경: robots 자동 조회/차단 제거, 기본 요청 간격5초·출처별 일일5000 HTTP 요청, Collector V015 Retry-After 영속 대기·일시 장애의 이미지 삭제 제외를 구현했다. 로컬21개 source 설정도300→5000회·10→5초로 변경했다. Collector296 tests·실제5개역할/backup-restore 검증 통과, 로컬V015 반영 전후 수집85·게시글117건 보존. 운영 반영·재수집·commit/push 미실행. [작업 기록](../worklog/2026-10-06/collector-request-policy/README.md).

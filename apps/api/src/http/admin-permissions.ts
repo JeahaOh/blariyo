@@ -5,6 +5,7 @@ const editorialOperations = new Set([
   'hidePost', 'republishPost', 'listCollectionSources', 'listCollectionCandidates',
   'createCollectionCandidate', 'getCollectionCandidate', 'previewCollectionImage',
   'retryCollectionCandidate', 'rejectCollectionCandidate', 'promoteCollectionCandidate',
+  'createBatchReviewCommand', 'getBatchReviewCommandStatus',
   'listBatchItems', 'getBatchItem', 'reviewBatchItem', 'promoteBatchItem', 'previewBatchImage', 'deleteBatchItem',
   'createDirectCollectionRequest', 'getDirectCollectionRequest',
   'retryDirectCollectionRequest', 'listRuntimeCollectionSources',

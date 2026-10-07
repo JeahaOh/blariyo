@@ -1,0 +1,52 @@
+{
+  "checked_at": "2026-10-07T22:06:12.980762+09:00",
+  "scope": "read_only_bot_and_channels",
+  "token_file_private": true,
+  "environments": {
+    "production": {
+      "bot_id_matches": true,
+      "guild_membership_verified": true,
+      "channel_matches": true,
+      "channel_type": "GUILD_TEXT",
+      "channel_name_matches": true,
+      "required_permissions": {
+        "VIEW_CHANNEL": true,
+        "SEND_MESSAGES": true,
+        "READ_MESSAGE_HISTORY": true,
+        "ADD_REACTIONS": true,
+        "ATTACH_FILES": true,
+        "CREATE_PUBLIC_THREADS": true,
+        "SEND_MESSAGES_IN_THREADS": true,
+        "MANAGE_MESSAGES": true,
+        "MANAGE_THREADS": true
+      },
+      "administrator_permission": false,
+      "read_history_request_succeeded": true,
+      "member_timed_out": false
+    },
+    "local": {
+      "bot_id_matches": true,
+      "guild_membership_verified": true,
+      "channel_matches": true,
+      "channel_type": "GUILD_TEXT",
+      "channel_name_matches": true,
+      "required_permissions": {
+        "VIEW_CHANNEL": true,
+        "SEND_MESSAGES": true,
+        "READ_MESSAGE_HISTORY": true,
+        "ADD_REACTIONS": true,
+        "ATTACH_FILES": true,
+        "CREATE_PUBLIC_THREADS": true,
+        "SEND_MESSAGES_IN_THREADS": true,
+        "MANAGE_MESSAGES": true,
+        "MANAGE_THREADS": true
+      },
+      "administrator_permission": false,
+      "read_history_request_succeeded": true,
+      "member_timed_out": false
+    }
+  },
+  "mutations_performed": false,
+  "bot_authenticated": true,
+  "status": "PASS"
+}

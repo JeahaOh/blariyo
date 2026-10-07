@@ -7,6 +7,7 @@ import { detailDto } from '../dist/features/public/public.dto.js';
 import { matchOperation, validateResponse, normalizeInput, schemaValidator } from '@blariyo/contracts';
 
 class MemoryWork extends UnitOfWork {
+  afterCommit(): void { throw new Error('Unexpected after-commit notification'); }
   calls: (TransactionOptions | undefined)[] = [];
   async transaction<T>(work: () => Promise<T>, options?: TransactionOptions): Promise<T> { this.calls.push(options); return work(); }
   async transactionLock(): Promise<void> { throw new Error('Unexpected lock'); }

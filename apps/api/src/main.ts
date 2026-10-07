@@ -1,3 +1,4 @@
+import { discordReviewSettings } from './features/collection/review-authority.js';
 import { collectReader } from './adapters/collect-reader.js';
 import { pathToFileURL } from 'node:url';
 import { adapters, type Environment } from './bootstrap/config.js';
@@ -10,6 +11,7 @@ import { PoliciesService } from './features/policies/policies.service.js';
 export async function start(env: Environment = process.env) {
   const databaseUrl = resolveDatabaseUrl(env, 'app');
   const collection = collectionSettings(env);
+  const discordReview = discordReviewSettings(env);
   const collectorTokens = await loadCollectorTokens(collection, env);
   const production = env.NODE_ENV === 'production';
   if (production && (!/^https:\/\//.test(env.SITE_ORIGIN || '') || !/^https:\/\//.test(env.IMAGE_ORIGIN || ''))) throw new Error('PRODUCTION_ORIGIN_REQUIRED');
@@ -24,6 +26,7 @@ export async function start(env: Environment = process.env) {
     }
   }
   const app = await createNestApplication({
+    ...(discordReview ? { discordReview } : {}),
     databaseUrl, ...adapters(env), ...collection, collectorTokens, collectReader: collectReader(env),
     localMedia: !production,
     ...(env.SERVICE_TOKEN === undefined ? {} : { serviceToken: env.SERVICE_TOKEN }),

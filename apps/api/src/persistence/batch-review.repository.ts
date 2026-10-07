@@ -53,7 +53,7 @@ export class TypeOrmBatchReviewRepository extends BatchReviewRepository {
       result=await this.db.manager.query(`INSERT INTO collect.batch_review(item_id,item_version,source_key,source_post_key,canonical_url_hash,status,updated_by,content_digest)
         VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(item_id) DO NOTHING RETURNING *`,[item.id,item.version,item.source_key,item.source_post_key,canonicalHash,decision,actor,contentDigest]);
     }else result=await this.db.manager.query(`WITH changed AS (UPDATE collect.batch_review SET content_digest=$6,status=$1,item_version=$2,lock_version=lock_version+1,updated_by=$3,updated_at=now()
-      WHERE item_id=$4 AND lock_version=$5 AND post_id IS NULL RETURNING *) SELECT * FROM changed`,[decision,item.version,actor,item.id,version,contentDigest]);
+      WHERE item_id=$4 AND lock_version=$5 AND (post_id IS NULL OR $1 IN ('APPROVED','REJECTED')) RETURNING *) SELECT * FROM changed`,[decision,item.version,actor,item.id,version,contentDigest]);
     const row=rows(result)[0];if(!row)fail(409,'BATCH_REVIEW_VERSION_CONFLICT');return review(row);
   }
   async promote(id:string,version:number,postId:number,actor:string){

@@ -11,6 +11,8 @@ import { TypeOrmOutboxRepository } from '../../persistence/outbox.repository.js'
 import { TypeOrmIdempotencyRepository } from '../../persistence/idempotency.repository.js';
 import { Storage } from '../../shared/storage.js';
 import { HTTP_OPTIONS, AdminGuard, type HttpOptions } from '../../http/auth.guard.js';
+import { ReviewPublicationGuard } from './review-publication.guard.js';
+import { TypeOrmReviewPublicationGuard } from '../../persistence/review-publication.guard.js';
 @Module({})
 export class PostsModule {
   static register(
@@ -25,6 +27,7 @@ export class PostsModule {
       controllers: [PostsController],
       providers: [
         PostsService,
+        { provide: ReviewPublicationGuard, useClass: TypeOrmReviewPublicationGuard },
         AdminGuard,
         { provide: PostsRepository, useClass: TypeOrmPostsRepository },
         { provide: ImagesRepository, useClass: TypeOrmImagesRepository },
@@ -34,7 +37,7 @@ export class PostsModule {
         { provide: HTTP_OPTIONS, useValue: options },
         { provide: POST_ORIGINS, useValue: origins },
       ],
-      exports: [PostsService],
+      exports: [PostsService,PostsRepository],
     };
   }
 }

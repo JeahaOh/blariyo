@@ -18,6 +18,7 @@ import { UnitOfWork } from '../../shared/unit-of-work.js';
 import { fail, validId, validSlug, pagination } from '../../shared/errors.js';
 import { canonical } from '../../shared/canonical.js';
 import { schemaValidator } from '@blariyo/contracts';
+import { ReviewPublicationGuard, type ReviewPublicationFence } from './review-publication.guard.js';
 export const POST_ORIGINS = Symbol('POST_ORIGINS');
 export interface PostOrigins {
   siteOrigin: string;
@@ -39,7 +40,8 @@ export class PostsService {
     @Inject(IdempotencyRepository) private readonly receipts: IdempotencyRepository,
     @Inject(Storage) private readonly storage: Storage,
     @Inject(UnitOfWork) private readonly work: UnitOfWork,
-    @Inject(POST_ORIGINS) private readonly origins: PostOrigins
+    @Inject(POST_ORIGINS) private readonly origins: PostOrigins,
+    @Inject(ReviewPublicationGuard) private readonly reviewPublication: ReviewPublicationGuard
   ) {}
   private async find(postId: string, lock = false) {
     if (!validId(postId)) fail(404, 'POST_NOT_FOUND');
@@ -110,12 +112,12 @@ export class PostsService {
     }
     return undefined;
   }
-  async command(command: PostCommand, actor: string, key?: string, scope = '') {
+  async command(command: PostCommand, actor: string, key?: string, scope = '', reviewFence?: ReviewPublicationFence) {
     const run = () =>
       command.action === 'create'
-        ? this.runCommand(command, actor, key, scope)
+        ? this.runCommand(command, actor, key, scope, reviewFence)
         : this.work.lock(`post-storage:${command.params.postId}`, () =>
-            this.runCommand(command, actor, key, scope)
+            this.runCommand(command, actor, key, scope, reviewFence)
           );
     return key ? this.work.lock(`${actor}:${scope}:${key}`, run, false) : run();
   }
@@ -123,7 +125,8 @@ export class PostsService {
     command: PostCommand,
     actor: string,
     key: string | undefined,
-    scope: string
+    scope: string,
+    reviewFence?: ReviewPublicationFence
   ) {
     const digest = createHash('sha256')
       .update(JSON.stringify(canonical({ params: command.params, body: command.body })))
@@ -164,6 +167,9 @@ export class PostsService {
         }
       }
       return await this.work.transaction(async () => {
+        reviewFence?.authorize();
+        if (command.action === 'publish' || command.action === 'due')
+          await this.reviewPublication.assertAllowed(command.params.postId, reviewFence);
         if (key) {
           await this.work.transactionLock(`${actor}:${scope}:${key}`);
           const saved = await this.replay(actor, scope, key, digest);

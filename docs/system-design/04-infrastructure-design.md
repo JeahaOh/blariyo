@@ -527,3 +527,7 @@ Spring source·migration·OpenAPI·test·runtime과 실제 출처·Discord·운�
 | Discord 장애 credential | 기존 사용자 전용 채널, secret 별도 mount. 친구 초대 필수 아님. 전송 실패와 백업/삭제 실패를 각각 관측 |
 
 장비·OS·가동 시간, 계정 종류·용량은 `(미정)`이며 [준비 체크리스트](../operations/owner-setup-checklist.md#m0-design-inputs)의 확인 시점을 따른다. RPi4를 확정 장비로 가정하지 않는다. Drive 공개 공유·앱에 backup secret mount·PostgreSQL 인터넷 공개를 추가하지 않는다.
+
+## Discord 검수 배치 — 2026-10-07
+
+로컬·운영 수집04:30/15:30과 별도 검수07:30/17:00 KST를 사용한다. 1분 maintenance는 전송·접수 명령·삭제/안내·미완료 정시 slot을 복구한다. 별도 프로세스 lock과 private runtime config·worker 인증으로 실행하며 content DB 쓰기 권한을 BATCH에 추가하지 않는다. [검수 기술 계약](10-discord-review.md)을 따른다.

@@ -1,6 +1,6 @@
 # GitHub CI와 배포 정책
 
-> **2026-10-07 운영 갱신:** [정식 배포 기록](../../worklog/2026-10-07/production-web-api-deployment/README.md)의 main `b57724d` API/Web을 적용했다. API V013·Collector V015이며 새 백업의 R2 다운로드·격리 복원, 공개·내부 관리자 읽기 검사를 통과했다. V013은 자동 down을 지원하지 않고 이전 V010 앱의 단순 복귀는 호환되지 않는다. MFA 이후 쓰기 인수·DB rollback·VM 재부팅은 미검증이다. 아래 9월의 경로·복귀 대상은 당시 기록이며 현재 복귀 대상으로 자동 선택하지 않는다.
+> **2026-10-08 운영 갱신:** [Discord 검수 배포 기록](../../worklog/2026-10-08/discord-review-deployment/README.md)의 main `f8067ab` API/Web을 적용했다. API V014·Collector V015, 전용 worker·예약 활성화와 실제 수집→Discord READY를 확인했다. 사전·사후 암호화 백업과 공개·인증 경계 검사 성공. 이번 백업의 별도 다운로드·복원은 미실행이며 [직전 b57724d 배포의 복원 증거](../../worklog/2026-10-07/production-web-api-deployment/README.md)와 구분한다. V014에 검수 상태가 있으면 down이 거부되므로 이전 앱으로 임의 복귀하지 않는다. MFA 이후 쓰기 인수·DB rollback·VM 재부팅은 미검증이다. 아래 9월의 경로·복귀 대상은 당시 기록이며 현재 복귀 대상으로 자동 선택하지 않는다.
 
 2026-09-20 결정, 2026-09-25 결과 갱신. **로컬에서 수정 → PR 검증 → main의 검증된 이미지 → 운영자가 배포 실행**을 기본으로 한다.
 9월 기록 당시 마지막 앱 배포는 9/25 [`8af7244` API/Web·GTM 운영 반영](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)이다.

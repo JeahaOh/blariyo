@@ -6,7 +6,7 @@ Git clone, iCloud 경로의 존재, 이 목록 작성은 백업·복원 성공�
 ## 관리 기준
 
 - 새 로컬 credential은 `~/.config/blariyo/<기능>/<환경>/` 아래 보관한다. 폴더는0700, 파일은0600을 기본으로 한다. 기존 SSH 키의0400은 유지한다.
-- Discord 로컬 토큰은 `~/.config/blariyo/discord/local/discord-token`을 사용한다. 운영 token은 운영 전용 경로·주입 구성을 확인한 뒤 별도 보관한다. 로컬 파일을 운영 보관 완료로 간주하지 않는다.
+- Discord 로컬 토큰은 `~/.config/blariyo/discord/local/discord-token`, 운영은 `/opt/blariyo/discord-review/secrets/discord-token`을 사용한다. 2026-10-08 두 환경의 실제 인증·채널 연결을 확인했다. 같은 봇을 환경별 채널로 분리했으며 토큰 재발급 시 두 환경을 함께 갱신한다.
 - 기존 파일은 참조 경로가 연결돼 있으므로 일괄 이동하지 않는다. 아래 목록이 분산된 기존 위치의 공통 진입점이다. 위치 변경 시 실행 설정·문서·복구 목록을 함께 갱신한다.
 - 토큰·비밀번호·개인키·복구 코드 원문은 이 문서, worklog, 입력 JSON, 명령행 인자와 Git에 남기지 않는다.
 - 실제 백업은 포맷 대상과 다른 장치 또는 별도 계정의 암호화 보관소에 둔다. 백업 잠금 해제 정보도 이 컴퓨터에만 두지 않는다. 외부 저장 대상은 아직 미정이며 자동 업로드는 설정하지 않았다.
@@ -22,7 +22,7 @@ Git clone, iCloud 경로의 존재, 이 목록 작성은 백업·복원 성공�
 | P0 | `<repo>/worklog/task-list/.blariyo-recovery/postgres-age-identity.txt` | 암호화 DB 백업을 복호화하는 age 개인키 | 존재·0600·Git 제외 확인. 폴더0700. **새 clone에 포함되지 않으며 분실하면 해당 백업 복호화 불가** |
 | P0 | `~/Library/Mobile Documents/com~apple~CloudDocs/blariyo/LightsailDefaultKey-ap-northeast-2.pem` | Lightsail SSH 접속 개인키 | 존재·0400 확인. iCloud 동기화·다른 장치에서 읽기·실제 접속은 별도 확인 |
 | P0 | 같은 iCloud `blariyo/` 폴더의 `squarespace_backup_codes_*.txt` | 도메인 관리 계정 복구 코드 후보 | 파일 존재만 확인. 현재 계정과의 대응·사용 가능 여부는 미검증. 파일명에 포함된 계정 정보도 공개하지 않음 |
-| P0 | `~/.config/blariyo/discord/local/discord-token` | Discord 검수 봇 token | 파일0600·폴더0700, 2026-10-07 실제 봇 인증·두 채널 조회 확인. 운영 서버 배치·별도 백업은 미확인 |
+| P0 | `~/.config/blariyo/discord/local/discord-token` | Discord 검수 봇 token | 파일0600·폴더0700. 2026-10-08 로컬·운영 실제 전송 확인. 운영 설치는 아래 경로이며 별도 암호화 백업은 미완료 |
 | P1 | `<repo>/worklog/2026-10-07/discord-review-plan/discord-server.production.json`, `discord-server.local.json` | 실제 서버·채널·봇·검수자 ID 입력 | Git 제외. 현재 같은 봇·다른 채널 구성. template와 안내는 Git 관리 후보로 유지 |
 | P1 | `<repo>/.local-data/development/` | 로컬 API/Web/batch 설정·credential·세션 관련 파일 | 폴더 존재·0700 확인. 세션은 복구 후 재발급할 수 있으며 운영 인증에 재사용하지 않음 |
 | P1 | `<repo>/.local-data/production-collection-20261004/`, `production-collector-schedule/`, `production-collector-trial-20261007/` | 운영 수집 준비·관찰 산출물, 비공개 설정 포함 가능 | 폴더 존재·0700 확인. 각 파일의 현재 운영 참조 여부는 미검증 |
@@ -81,7 +81,7 @@ discord/local/discord-token          # 로컬 저장·읽기 전용 인증 확�
 ## Discord 검수 런타임 추가 — 2026-10-07
 
 - 로컬 통일 위치: `~/.config/blariyo/discord/local/{api.json,worker.json,worker-token,reviewers.json,admin-operators.json,discord-token}`. 기존 Web actor secret은 `<repo>/.local-data/development/actor-secret`을 참조하므로 함께 보존한다.
-- 운영 설치 위치: `/opt/blariyo/discord-review/secrets/`의 API/worker 설정, 두 token, 검수자/운영자 registry, actor-secret. 실제 운영 설치·검증 결과는 [구현 기록](../../worklog/2026-10-07/discord-review-implementation/README.md)을 따른다.
+- 운영 설치 위치: `/opt/blariyo/discord-review/secrets/`의 API/worker 설정, 두 token, 검수자/운영자 registry, actor-secret. 2026-10-08 파일7개0600·폴더0700·소유1000:1000, API read-only mount 및 worker 연결을 확인했다. [운영 설치·검증 결과](../../worklog/2026-10-08/discord-review-deployment/README.md).
 - 로컬 예약: `~/Library/LaunchAgents/com.blariyo.discord-review.{development,maintenance,scan}.plist`. 재설치 시 경로를 재생성하고 DB·비공개 설정·봇 권한 확인 후 등록한다.
 - 운영 예약: `blariyo-discord-review.timer`, `blariyo-discord-review-scan.timer`. jar/manifest/service는 Git·빌드로 복원할 수 있지만 secrets는 Git에 없다. API release의 flags와 read-only mount도 복원한다.
 - 별도 암호화 백업 저장소·포맷 후 복원 시험은 아직 미완료다. 위치 목록과 Git 제외를 백업 완료로 해석하지 않는다.

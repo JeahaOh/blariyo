@@ -1,0 +1,83 @@
+{
+  "at": "2026-10-08 KST",
+  "apiReady": {
+    "status": "READY"
+  },
+  "agents": {
+    "local-collection": {
+      "Label": "com.blariyo.local-collection",
+      "StartCalendarInterval": [
+        {
+          "Hour": 4,
+          "Minute": 30
+        },
+        {
+          "Hour": 15,
+          "Minute": 30
+        }
+      ],
+      "RunAtLoad": false,
+      "KeepAlive": false,
+      "registered": true,
+      "state": [
+        "state = not running",
+        "last exit code = (never exited)"
+      ]
+    },
+    "local-collection.awake": {
+      "Label": "com.blariyo.local-collection.awake",
+      "RunAtLoad": true,
+      "KeepAlive": true,
+      "registered": true,
+      "state": [
+        "state = running",
+        "last exit code = (never exited)",
+        "state = active",
+        "state = active"
+      ]
+    },
+    "discord-review.development": {
+      "Label": "com.blariyo.discord-review.development",
+      "RunAtLoad": true,
+      "KeepAlive": true,
+      "registered": true,
+      "state": [
+        "state = running",
+        "last exit code = 0",
+        "state = active",
+        "state = active"
+      ]
+    },
+    "discord-review.maintenance": {
+      "Label": "com.blariyo.discord-review.maintenance",
+      "StartInterval": 60,
+      "RunAtLoad": false,
+      "registered": true,
+      "state": [
+        "state = not running",
+        "last exit code = 0",
+        "state = active",
+        "state = active"
+      ]
+    },
+    "discord-review.scan": {
+      "Label": "com.blariyo.discord-review.scan",
+      "StartCalendarInterval": [
+        {
+          "Hour": 7,
+          "Minute": 30
+        },
+        {
+          "Hour": 17,
+          "Minute": 0
+        }
+      ],
+      "RunAtLoad": false,
+      "registered": true,
+      "state": [
+        "state = not running",
+        "last exit code = (never exited)"
+      ]
+    }
+  }
+}

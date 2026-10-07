@@ -1,0 +1,143 @@
+{
+  "id": "2510fbc3-05c0-4424-afd4-36ade154f106",
+  "item_id": "e7d008b6-cd94-4bae-aa57-e4f08264dc03",
+  "environment": "production",
+  "review_number": 1,
+  "state": "READY",
+  "channel_id": "1553236861068247172",
+  "head_message_id": "1557408249014128641",
+  "thread_id": "1557408249014128641",
+  "head_seeded": true,
+  "ready_at": "2026-10-07T15:04:33.756+00:00",
+  "expires_at": "2026-10-09T15:04:33.756+00:00",
+  "expiry_exact_48h": true,
+  "cleanup_state": "NONE",
+  "last_error": null,
+  "parts": [
+    {
+      "ordinal": 0,
+      "kind": "LINK",
+      "messageId": "1557408257629356182",
+      "sendState": "SENT",
+      "seeded": true
+    },
+    {
+      "ordinal": 1,
+      "kind": "TEXT",
+      "messageId": "1557408266374488257",
+      "sendState": "SENT",
+      "seeded": true
+    },
+    {
+      "ordinal": 2,
+      "kind": "IMAGE",
+      "messageId": "1557408275211751426",
+      "sendState": "SENT",
+      "seeded": true
+    },
+    {
+      "ordinal": 3,
+      "kind": "TEXT",
+      "messageId": "1557408283763937281",
+      "sendState": "SENT",
+      "seeded": true
+    }
+  ],
+  "command_count": 0,
+  "post_count": 83,
+  "observedAt": "2026-10-07T15:05:20.425867+00:00",
+  "discordMessages": [
+    {
+      "messageId": "1557408249014128641",
+      "botAuthor": true,
+      "reactions": [
+        {
+          "emoji": "👍",
+          "count": 1,
+          "me": true
+        },
+        {
+          "emoji": "❌",
+          "count": 1,
+          "me": true
+        }
+      ],
+      "attachments": []
+    },
+    {
+      "messageId": "1557408257629356182",
+      "botAuthor": true,
+      "reactions": [
+        {
+          "emoji": "👍",
+          "count": 1,
+          "me": true
+        },
+        {
+          "emoji": "❌",
+          "count": 1,
+          "me": true
+        }
+      ],
+      "attachments": []
+    },
+    {
+      "messageId": "1557408266374488257",
+      "botAuthor": true,
+      "reactions": [
+        {
+          "emoji": "👍",
+          "count": 1,
+          "me": true
+        },
+        {
+          "emoji": "❌",
+          "count": 1,
+          "me": true
+        }
+      ],
+      "attachments": []
+    },
+    {
+      "messageId": "1557408275211751426",
+      "botAuthor": true,
+      "reactions": [
+        {
+          "emoji": "👍",
+          "count": 1,
+          "me": true
+        },
+        {
+          "emoji": "❌",
+          "count": 1,
+          "me": true
+        }
+      ],
+      "attachments": [
+        {
+          "bytes": 16704,
+          "mimeType": "image/webp",
+          "width": 1124,
+          "height": 1905
+        }
+      ]
+    },
+    {
+      "messageId": "1557408283763937281",
+      "botAuthor": true,
+      "reactions": [
+        {
+          "emoji": "👍",
+          "count": 1,
+          "me": true
+        },
+        {
+          "emoji": "❌",
+          "count": 1,
+          "me": true
+        }
+      ],
+      "attachments": []
+    }
+  ]
+}

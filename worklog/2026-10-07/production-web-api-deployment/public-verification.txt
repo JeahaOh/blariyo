@@ -1,0 +1,14 @@
+PASS HTTPS 200 /meme
+PASS HTTPS 200 /terms
+PASS HTTPS 200 /privacy
+PASS HTTPS 200 /cookie-settings
+PASS HTTPS 200 /health/live
+PASS 공개 정책 API terms v0.1 · 시행일 · placeholder 없음
+PASS 공개 정책 API privacy v0.1 · 시행일 · placeholder 없음
+PASS 익명·위조 헤더 관리자 요청 → Access 인증 /admin
+PASS 익명·위조 헤더 관리자 요청 → Access 인증 /api/v1/admin/posts
+PASS Core internal 경로 공개 차단
+PASS HTTP → HTTPS
+PASS www → 대표 도메인 (관리자 경로도 본 도메인 인증 적용)
+범위: 실제 공개 HTTPS·정책 API·익명 인증 경계. 로그인 이후 기능·부하·전체 CDN 전파는 별도.
+[{"path": "/not-found-deploy-20261007", "status": 404, "cache": "no-store"}, {"path": "/api/v1/boards/nonexistent/posts", "status": 404, "cache": "no-store"}, {"publicDetailStatus": 200, "postId": 117}, {"asset": "/_nuxt/entry.ClTESFvR.css", "sha256": "46e92b595a3911e574a8db3e2dd1dbe3f60381cf5377f679939f74979aa59690", "cache": "public, max-age=31536000, immutable"}, {"asset": "/_nuxt/Cw8DuOON.js", "sha256": "7b10ac1add6f217c012d9af11aedbc00595e63d2c33fc7ddf3a4a3e67be8e6e1", "cache": "public, max-age=31536000, immutable"}, {"asset": "/_nuxt/023_Jdi6.js", "sha256": "8ceb9f06228bd05f569bb128251d612cf055511d6e66f545c38119d14d2d5134", "cache": "public, max-age=31536000, immutable"}, {"asset": "/_nuxt/CQ9pppn6.js", "sha256": "93fa5c6175cb4a83051163e8f9dc02b0bed1f13137a35eac584c626645a599a3", "cache": "public, max-age=31536000, immutable"}]

@@ -1,0 +1,12 @@
+[Unit]
+Description=Blariyo Discord review export and recovery
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -B /opt/blariyo/discord-review/run.py maintain
+TimeoutStartSec=960
+UMask=0077
+Nice=10

@@ -965,3 +965,7 @@ D01의 목표 응답 확장: BatchItemSummary/BatchItem에 `retention={collected
 - 응답은 `{itemId,deleted:true,cleanupStatus:"PENDING"}`. DB 삭제와 API receipt 저장은 같은 transaction이며 같은 actor/item/key/body는 삭제 후에도200을 재생한다. 다른 body는409. 성공 응답은 object 삭제 완료를 뜻하지 않는다.
 - 기존 exact item/run 파일 정리 worker가 자동 이미지 실패 작업과 수동 삭제 작업을 함께 처리한다. 모든 페이지를 열거한 뒤 정확한 경로·다른 원문/게시글의 참조 없음·삭제 후 부재를 검사한다. 실패는 대기 작업을 유지하고 복원/지연 업로드로 파일이 재등장하면 다시 연다. 공개 게시글 파일에는 접근하지 않는다.
 - 새 endpoint만 V014를 필요로 한다. 기존 batch 검수 준비 상태는 유지하며 새 함수 미설치 시 삭제 요청은503으로 거부한다. 배포 순서는 Collector migration → API 실행 권한 → API/Web → retention worker 관측이다.
+
+## Discord 공통 검수 명령 — 2026-10-07
+
+전용 내부 worker API와 관리자 commands/status는 [Discord 검수 계약](10-discord-review.md#작업-api와-정시-처리)을 따른다. feature ON에서는 기존 direct review/draft POST를409로 거부하며 공통 명령이 초안·발행을 조정한다. 기능 OFF의 기존 계약은 유지한다.

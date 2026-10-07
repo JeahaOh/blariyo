@@ -1,0 +1,23 @@
+[Unit]
+Description=Blariyo bounded production source collection
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/blariyo/collector
+ExecStart=/usr/bin/python3 /opt/blariyo/collector/run.py
+ExecStopPost=-/usr/bin/flock -n /opt/blariyo/collector/run.lock /usr/bin/docker stop --time 20 blariyo-collector-scheduled
+ExecStopPost=-/usr/bin/flock -n /opt/blariyo/collector/run.lock /usr/bin/docker rm blariyo-collector-scheduled
+TimeoutStartSec=2h
+TimeoutStopSec=45s
+KillMode=control-group
+UMask=0077
+Nice=10
+CPUAccounting=true
+MemoryAccounting=true
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blariyo-collection

@@ -1,4 +1,260 @@
 export interface paths {
+    "/internal/discord-review/v1/runtime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["discordReviewRuntime"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/export/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["claimDiscordReviewExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/deliveries/{deliveryId}/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ackDiscordReviewExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/deliveries/{deliveryId}/media/{position}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["discordReviewMedia"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/scan/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["claimDiscordReviewScan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/scan/next": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["nextDiscordReviewScan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/scan/chunk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["chunkDiscordReviewScan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/scan/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["finishDiscordReviewScan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["discordReviewJobs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/commands/{commandId}/advance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["advanceDiscordReviewCommand"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/deliveries/{deliveryId}/cleanup/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["claimDiscordReviewCleanup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/deliveries/{deliveryId}/cleanup/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ackDiscordReviewCleanup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/deliveries/{deliveryId}/notice/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["claimDiscordReviewNotice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/discord-review/v1/deliveries/{deliveryId}/notice/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ackDiscordReviewNotice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/batch-items/{itemId}/commands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createBatchReviewCommand"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/batch-items/{itemId}/commands/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBatchReviewCommandStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/common-code-groups": {
         parameters: {
             query?: never;
@@ -536,6 +792,189 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        DiscordReviewMessage: {
+            messageId: string;
+            complete: boolean;
+            reactions: {
+                emoji: string;
+                complete: boolean;
+                users: {
+                    id: string;
+                    bot: boolean;
+                }[];
+            }[];
+        };
+        DiscordReviewPart: {
+            ordinal: number;
+            unitId: string;
+            fragmentIndex: number;
+            /** @enum {string} */
+            kind: "TEXT" | "IMAGE" | "LINK";
+            imagePosition: number | null;
+            messageId: string | null;
+            /** @enum {string} */
+            sendState: "PENDING" | "SENDING" | "SENT" | "UNKNOWN" | "BLOCKED";
+            seeded: boolean;
+            nonce: string;
+        };
+        DiscordReviewDelivery: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            itemId: string;
+            itemVersion: number;
+            contentDigest: string;
+            number: number;
+            /** @enum {string} */
+            state: "PENDING" | "EXPORTING" | "READY" | "CANCELLED" | "BLOCKED" | "CLOSED";
+            generation: number;
+            channelId: string;
+            guildId: string;
+            headMessageId: string | null;
+            threadId: string | null;
+            headSeeded: boolean;
+            /** @enum {string} */
+            headSendState: "PENDING" | "SENDING" | "SENT" | "UNKNOWN" | "BLOCKED";
+            headNonce: string;
+            leaseToken: string | null;
+            readyAt: string | null;
+            parts: components["schemas"]["DiscordReviewPart"][];
+        };
+        DiscordReviewExport: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            itemId: string;
+            itemVersion: number;
+            contentDigest: string;
+            number: number;
+            /** @enum {string} */
+            state: "PENDING" | "EXPORTING" | "READY" | "CANCELLED" | "BLOCKED" | "CLOSED";
+            generation: number;
+            channelId: string;
+            guildId: string;
+            headMessageId: string | null;
+            threadId: string | null;
+            headSeeded: boolean;
+            /** @enum {string} */
+            headSendState: "PENDING" | "SENDING" | "SENT" | "UNKNOWN" | "BLOCKED";
+            headNonce: string;
+            leaseToken: string | null;
+            readyAt: string | null;
+            parts: components["schemas"]["DiscordReviewPart"][];
+            title: string | null;
+            sourceUrl: string | null;
+            fragments: {
+                unitId: string;
+                fragmentIndex: number;
+                text: string;
+                imagePosition: number | null;
+            }[];
+        };
+        DiscordReviewScan: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            leaseToken: string;
+            /** Format: date-time */
+            cutoff: string;
+        };
+        DiscordReviewExportAck: {
+            /** Format: uuid */
+            leaseToken: string;
+            generation: number;
+            /** @enum {string} */
+            event: "HEAD_BEGIN" | "HEAD_RETRY" | "CANCEL_RESOLVED" | "HEAD_SENT" | "THREAD_BEGIN" | "THREAD_SENT" | "PART_BEGIN" | "PART_RETRY" | "PART_SENT" | "HEAD_SEEDED" | "PART_SEEDED" | "READY" | "ERROR";
+            ordinal?: number;
+            messageId?: string;
+            code?: string;
+            blocked?: boolean;
+            retryAfterMs?: number;
+        };
+        DiscordCleanupClaim: {
+            /** Format: uuid */
+            deliveryId: string;
+            channelId: string;
+            headMessageId: string | null;
+            threadId: string | null;
+            headDeleted: boolean;
+            threadDeleted: boolean;
+            /** Format: uuid */
+            leaseToken: string;
+            /** Format: uuid */
+            attemptId: string;
+        };
+        DiscordCleanupResult: {
+            headDeleted: boolean;
+            threadDeleted: boolean;
+            error: string | null;
+            blocked: boolean;
+            retryAfterMs: number;
+        };
+        DiscordNoticeClaim: {
+            /** Format: uuid */
+            deliveryId: string;
+            channelId: string;
+            threadId: string;
+            messageId: string | null;
+            /** Format: uuid */
+            leaseToken: string;
+            /** Format: uuid */
+            attemptId: string;
+            nonce: string;
+            text: string;
+        };
+        DiscordNoticeAck: {
+            /** Format: uuid */
+            leaseToken: string;
+            /** Format: uuid */
+            attemptId: string;
+            messageId?: string;
+            error?: string;
+            unavailable?: boolean;
+            blocked?: boolean;
+            retryAfterMs?: number;
+        };
+        BatchReviewCommandRequest: {
+            /** @enum {string} */
+            action: "APPROVE_PUBLISH" | "REJECT";
+            itemVersion: number;
+            lockVersion: number;
+            contentDigest: string;
+            boardSlug?: string;
+            title?: string;
+            postVersion?: number;
+        };
+        BatchReviewCommandResult: {
+            /** Format: uuid */
+            commandId: string;
+            /** @enum {string} */
+            stage: "ACCEPTED" | "APPROVED" | "PREPARING" | "DRAFTED" | "PUBLISHED" | "REJECTED" | "CANCELLED" | "NEEDS_ADMIN" | "FAILED";
+            postId: number | null;
+        };
+        BatchReviewCommandStatus: {
+            enabled: boolean;
+            delivery: {
+                state: string;
+                ready_at: string | null;
+                expires_at: string | null;
+                cleanup_state: string;
+                cleanup_failures: number;
+                notice_state: string;
+                last_error: string | null;
+                last_scan_result: string | null;
+            } | null;
+            command: {
+                /** Format: uuid */
+                id: string;
+                stage: string;
+                origin: string;
+                post_id: (number | string) | null;
+                excluded_unit_ids: string[];
+                last_error: string | null;
+            } | null;
+            selection: components["schemas"]["CollectionContentBlock"][] | null;
+        };
         CommonCodeGroup: {
             groupKey: string;
             displayName: string;
@@ -831,6 +1270,757 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    discordReviewRuntime: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "maintenance";
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            /** @enum {string} */
+                            environment: "production" | "local_test";
+                            guildId: string;
+                            channelId: string;
+                            reviewerIds: string[];
+                            /** Format: date-time */
+                            serverTime: string;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    claimDiscordReviewExport: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "export";
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    workerId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            delivery: components["schemas"]["DiscordReviewExport"] | null;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    ackDiscordReviewExport: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "export";
+            };
+            path: {
+                deliveryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscordReviewExportAck"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            accepted: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    discordReviewMedia: {
+        parameters: {
+            query: {
+                leaseToken: string;
+                generation: number;
+            };
+            header: {
+                "X-Blariyo-Review-Scope": "export";
+            };
+            path: {
+                deliveryId: string;
+                position: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    claimDiscordReviewScan: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "scan";
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    workerId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            scan: components["schemas"]["DiscordReviewScan"] | null;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    nextDiscordReviewScan: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "scan";
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    scanId: string;
+                    /** Format: uuid */
+                    leaseToken: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            delivery: components["schemas"]["DiscordReviewDelivery"] | null;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    chunkDiscordReviewScan: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "scan";
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    scanId: string;
+                    /** Format: uuid */
+                    leaseToken: string;
+                    /** Format: uuid */
+                    deliveryId: string;
+                    index: number;
+                    messages: components["schemas"]["DiscordReviewMessage"][];
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            accepted: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    finishDiscordReviewScan: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "scan";
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    scanId: string;
+                    /** Format: uuid */
+                    leaseToken: string;
+                    /** Format: uuid */
+                    deliveryId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            result: string;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    discordReviewJobs: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "maintenance";
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            commands: string[];
+                            cleanup: string[];
+                            notices: string[];
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    advanceDiscordReviewCommand: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "maintenance";
+            };
+            path: {
+                commandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    workerId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["BatchReviewCommandResult"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    claimDiscordReviewCleanup: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "maintenance";
+            };
+            path: {
+                deliveryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    workerId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            claim: components["schemas"]["DiscordCleanupClaim"] | null;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    ackDiscordReviewCleanup: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "maintenance";
+            };
+            path: {
+                deliveryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    claim: components["schemas"]["DiscordCleanupClaim"];
+                    result: components["schemas"]["DiscordCleanupResult"];
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            accepted: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    claimDiscordReviewNotice: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "maintenance";
+            };
+            path: {
+                deliveryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    workerId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            claim: components["schemas"]["DiscordNoticeClaim"] | null;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    ackDiscordReviewNotice: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Blariyo-Review-Scope": "maintenance";
+            };
+            path: {
+                deliveryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscordNoticeAck"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            accepted: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    createBatchReviewCommand: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchReviewCommandRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["BatchReviewCommandResult"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    getBatchReviewCommandStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["BatchReviewCommandStatus"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
     listCommonCodeGroups: {
         parameters: {
             query?: never;

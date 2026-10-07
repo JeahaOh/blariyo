@@ -1,0 +1,83 @@
+{
+  "exitCode": 0,
+  "before": {
+    "posts": 83,
+    "items": 113,
+    "runs": 46
+  },
+  "after": {
+    "posts": 83,
+    "items": 118,
+    "runs": 47
+  },
+  "metrics": {
+    "file": "/opt/blariyo/collector/metrics/metrics-20261007T115011Z-33bfb89d.jsonl",
+    "intervalSeconds": 60,
+    "samples": 2,
+    "sampleErrors": 0,
+    "writeErrors": 0,
+    "state": "RECORDED"
+  },
+  "sampleSpacingSeconds": [
+    60.0
+  ],
+  "bytes": 1012,
+  "samples": [
+    {
+      "timestamp": "2026-10-07T11:50:11.585183+00:00",
+      "executionId": "20261007T115011Z-33bfb89d",
+      "source": "goodgag",
+      "containers": {
+        "web": {
+          "container": "blariyo-app-web-1",
+          "state": "OK",
+          "cpuPercent": 0.01,
+          "memoryBytes": 53886321,
+          "memoryLimitBytes": 402653184
+        },
+        "api": {
+          "container": "blariyo-app-api-1",
+          "state": "OK",
+          "cpuPercent": 0.02,
+          "memoryBytes": 87608525,
+          "memoryLimitBytes": 268435456
+        },
+        "batch": {
+          "container": "blariyo-collector-scheduled",
+          "state": "OK",
+          "cpuPercent": 52.17,
+          "memoryBytes": 36773560,
+          "memoryLimitBytes": 536870912
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-07T11:51:11.585346+00:00",
+      "executionId": "20261007T115011Z-33bfb89d",
+      "source": "goodgag",
+      "containers": {
+        "web": {
+          "container": "blariyo-app-web-1",
+          "state": "OK",
+          "cpuPercent": 0.0,
+          "memoryBytes": 53666120,
+          "memoryLimitBytes": 402653184
+        },
+        "api": {
+          "container": "blariyo-app-api-1",
+          "state": "OK",
+          "cpuPercent": 0.01,
+          "memoryBytes": 87619011,
+          "memoryLimitBytes": 268435456
+        },
+        "batch": {
+          "container": "blariyo-collector-scheduled",
+          "state": "OK",
+          "cpuPercent": 0.06,
+          "memoryBytes": 95273615,
+          "memoryLimitBytes": 536870912
+        }
+      }
+    }
+  ]
+}

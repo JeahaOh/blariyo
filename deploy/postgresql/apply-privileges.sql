@@ -62,12 +62,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE blariyo_migrator IN SCHEMA content,legal GRANT
 DO $$
 DECLARE t text;
 BEGIN
-  FOREACH t IN ARRAY ARRAY['source','candidate','candidate_image','collector_receipt','source_request_budget','source_request_reservation','collector_operational_event','source_discovery_policy','batch_review','batch_review_request','web_collection_request','web_collection_request_key'] LOOP
+  FOREACH t IN ARRAY ARRAY['source','candidate','candidate_image','collector_receipt','source_request_budget','source_request_reservation','collector_operational_event','source_discovery_policy','batch_review','batch_review_request','web_collection_request','web_collection_request_key','batch_review_control','discord_review_delivery','discord_review_part','batch_review_command','discord_review_scan_run'] LOOP
     IF to_regclass('collect.'||t) IS NOT NULL THEN
       EXECUTE format('GRANT SELECT,INSERT,UPDATE,DELETE ON collect.%I TO blariyo_app',t);
     END IF;
   END LOOP;
-  FOREACH t IN ARRAY ARRAY['source_id_seq','candidate_id_seq','candidate_image_id_seq'] LOOP
+  FOREACH t IN ARRAY ARRAY['source_id_seq','candidate_id_seq','candidate_image_id_seq','discord_review_delivery_review_number_seq'] LOOP
     IF to_regclass('collect.'||t) IS NOT NULL THEN
       EXECUTE format('GRANT USAGE,SELECT ON SEQUENCE collect.%I TO blariyo_app',t);
     END IF;

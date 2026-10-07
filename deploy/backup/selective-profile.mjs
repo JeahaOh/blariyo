@@ -1,6 +1,10 @@
 // Classification is closed: adding a collect table requires an explicit data-retention decision.
 export const profileVersion = 'm0-direct-excluded-v1';
+// Discord jobs contain IDs, hashes, offsets and decisions, never source body/image bytes.
+// Keep recovery targets even when original batch rows are excluded from backups.
 const preserved = new Set([
+  'batch_review_control', 'discord_review_delivery', 'discord_review_part',
+  'batch_review_command', 'discord_review_scan_run',
   'source', 'candidate', 'candidate_image', 'collector_receipt', 'source_request_budget',
   'source_request_reservation', 'collector_operational_event', 'source_discovery_policy',
   'batch_source', 'batch_dedup_key', 'batch_retention', 'batch_purge_object', 'batch_retention_control',

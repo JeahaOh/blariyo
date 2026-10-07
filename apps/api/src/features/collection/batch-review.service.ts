@@ -16,6 +16,8 @@ import { PostsService } from '../posts/posts.service.js';
 import { originalDraftBlocks } from './collection-content.js';
 import { collectionDigest, normalizeCollectionUrl } from './collection-url.js';
 import { fail } from '../../shared/errors.js';
+import { reviewManifest, reviewSelection } from './discord-review-policy.js';
+import type { CreatePost } from '../posts/posts.model.js';
 type BatchItem = components['schemas']['BatchItem'];
 type BatchSummary = components['schemas']['BatchItemSummary'];
 type ReviewBody = components['schemas']['BatchReviewRequest'];
@@ -32,6 +34,12 @@ function snapshot(item: BatchResultRow, media: BatchMedia[]) {
   // Processing diagnostics are not part of the original-content review snapshot.
   const reviewedItem=Object.fromEntries(Object.entries(item).filter(([key])=>!['failure_code','skip_reason','fetched_at','collected_at','review_finalized_at','expires_at','retention_state','accessDeadline'].includes(key)));
   return collectionDigest({ item: reviewedItem, media: media.map(m => ({ ...m, hash: m.hash?.toString('hex') ?? null })) });
+}
+export interface PreparedBatchDraft {
+  body: CreatePost;
+  imageIds: number[];
+  digest: string;
+  checkDeadline: () => void;
 }
 function uniqueConflict(error: unknown) {
   return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505';
@@ -154,6 +162,10 @@ export class BatchReviewService {
     const media = await this.repository.media(id);
     return { item, review, media, digest: snapshot(item, media) };
   }
+  async commandSnapshot(id: string) {
+    const item = await this.row(id), review = await this.repository.review(id), media = await this.repository.media(id);
+    return { item, review, media, digest: snapshot(item, media) };
+  }
   async review(id: string, body: ReviewBody, actor: string, key: string) {
     return this.command(id, body, actor, key, 'review', () => this.work.transaction(async () => {
       const { item, review, media, digest } = await this.checked(id, body.itemVersion, body.lockVersion);
@@ -167,55 +179,82 @@ export class BatchReviewService {
       return { status: 200, data };
     }, { isolation: 'REPEATABLE READ' }));
   }
+  /** Shared preparation for legacy admin drafts and durable review commands.
+   * Call outside item/session locks when the command's epoch provides the final fence. */
+  async prepareSelectedDraft(id: string, expectedDigest: string, boardSlug: string,
+    selectedTitle: string | undefined, excludedUnitIds: string[], actor: string): Promise<PreparedBatchDraft> {
+    const { item, media, detail } = await this.work.transaction(async () => {
+      const item = await this.row(id), media = await this.repository.media(id);
+      const detail = this.dto(item, await this.repository.review(id), media);
+      if (item.state !== 'FETCHED' || detail.contentDigest !== expectedDigest) fail(409, 'BATCH_ITEM_VERSION_CONFLICT');
+      return { item, media, detail };
+    }, { isolation: 'REPEATABLE READ', readOnly: true });
+    const originalPositions = detail.bodyBlocks.flatMap(b => b.type === 'IMAGE' ? [b.imagePosition] : []);
+    const originalMedia = media.filter(m => m.kind === 'IMAGE');
+    if (!detail.bodyBlocks.length || originalPositions.length !== originalMedia.length ||
+      new Set(originalPositions).size !== originalPositions.length ||
+      originalPositions.some(p => !originalMedia.some(m => m.position === p))) fail(409, 'BATCH_MEDIA_INCOMPLETE');
+    const selection = reviewSelection(reviewManifest(detail.bodyBlocks, expectedDigest), excludedUnitIds);
+    if (!selection.blocks.length) fail(409, 'BATCH_REVIEW_EMPTY_SELECTION');
+    const positions = new Set(selection.blocks.flatMap(b => b.type === 'IMAGE' ? [b.imagePosition] : []));
+    const retainedMedia = media.filter(m => m.kind !== 'IMAGE' || positions.has(m.position));
+    const imageMedia = retainedMedia.filter(m => m.kind === 'IMAGE');
+    if (retainedMedia.some(m => !m.size || m.size < 0 || m.size > COLLECTED_FILE_BYTES)) fail(409, 'BATCH_MEDIA_INCOMPLETE');
+    if (retainedMedia.reduce((sum, m) => sum + (m.size ?? 0), 0) > COLLECTED_TOTAL_BYTES) fail(413, 'UPLOAD_TOO_LARGE');
+    const draft = { boardSlug, title: draftTitle(selectedTitle ?? item.title ?? '', item.source_key),
+      source: { name: (await this.sourceCodes.findReference('source', item.source_key))?.displayName ?? item.source_key,
+        url: normalizeCollectionUrl(item.canonical_url) }, pinnedPosition: null };
+    const preview = originalDraftBlocks(selection.blocks, (position, alt) => ({ type: 'IMAGE', imageId: position, alt: alt || '수집 이미지' }));
+    if (!schemaValidator({ $ref: '#/components/schemas/CreatePostRequest' })({ ...draft, blocks: preview })) fail(400, 'VALIDATION_FAILED');
+    const uploaded = new Map<number, number>(), imageIds: number[] = [];
+    let remainingBytes = COLLECTED_TOTAL_BYTES;
+    const deadline = performance.now() + 120000;
+    const checkDeadline = () => { if (performance.now() >= deadline) fail(503, 'DEPENDENCY_UNAVAILABLE'); };
+    try {
+      for (const m of imageMedia) {
+        checkDeadline();
+        await this.row(id);
+        const result = await this.images.uploadCollected(await this.mediaBytes(m, item.accessDeadline), actor, remainingBytes,
+          { expiresAt: item.expires_at, deadline: item.accessDeadline }), image = result.items[0];
+        if (!image) throw Error('MISSING_UPLOADED_IMAGE');
+        remainingBytes -= image.byteSize;
+        imageIds.push(image.imageId); uploaded.set(m.position, image.imageId);
+        checkDeadline();
+      }
+      const blocks = originalDraftBlocks(selection.blocks, (position, alt) => {
+        const imageId = uploaded.get(position); if (!imageId) fail(409, 'BATCH_MEDIA_INCOMPLETE');
+        return { type: 'IMAGE', imageId, alt: alt || '수집 이미지' };
+      });
+      return { body: { ...draft, blocks }, imageIds, digest: expectedDigest, checkDeadline };
+    } catch (error) {
+      for (const imageId of imageIds) await this.images.discard(String(imageId), actor);
+      throw error;
+    }
+  }
+  async discardPrepared(prepared: PreparedBatchDraft, actor: string): Promise<void> {
+    for (const imageId of prepared.imageIds) await this.images.discard(String(imageId), actor);
+  }
   async promote(id: string, body: DraftBody, actor: string, key: string) {
     return this.command(id, body, actor, key, 'draft', async () => {
       const initial = await this.work.transaction(() => this.checked(id, body.itemVersion, body.lockVersion),
         { isolation: 'REPEATABLE READ', readOnly: true });
-      const { item, review, media, digest } = initial;
+      const { item, review, digest } = initial;
       if (review?.status !== 'APPROVED') fail(409, 'BATCH_REVIEW_STATE_CONFLICT');
       if (review.itemVersion !== body.itemVersion || !review.contentDigest.equals(digest)) fail(409, 'BATCH_ITEM_VERSION_CONFLICT');
       const canonical = normalizeCollectionUrl(item.canonical_url);
       return this.work.lock(`batch-source:${collectionDigest(canonical).toString('hex')}`, async () => {
         if (await this.repository.existingPost(canonical)) fail(409, 'BATCH_DUPLICATE_POST');
-        const detail = this.dto(item, review, media), prepared: number[] = [];
-        const positions = detail.bodyBlocks.flatMap(b => b.type === 'IMAGE' ? [b.imagePosition] : []);
-        const imageMedia = media.filter(m => m.kind === 'IMAGE');
-        if (!detail.bodyBlocks.length || positions.length !== imageMedia.length || new Set(positions).size !== positions.length ||
-          positions.some(p => !imageMedia.some(m => m.position === p))) fail(409, 'BATCH_MEDIA_INCOMPLETE');
-        if (media.some(m => !m.size || m.size < 0 || m.size > COLLECTED_FILE_BYTES)) fail(409, 'BATCH_MEDIA_INCOMPLETE');
-        if (media.reduce((sum, m) => sum + (m.size ?? 0), 0) > COLLECTED_TOTAL_BYTES) fail(413, 'UPLOAD_TOO_LARGE');
-        const title = draftTitle(body.title ?? item.title ?? '', item.source_key);
-        const draft = { boardSlug: body.boardSlug, title, source: { name: (await this.sourceCodes.findReference('source',item.source_key))?.displayName ?? item.source_key, url: canonical }, pinnedPosition: null };
-        // Validate before any object writes; placeholder positive IDs preserve the actual block shape.
-        const previewBlocks = originalDraftBlocks(detail.bodyBlocks, (position, alt) => ({ type: 'IMAGE', imageId: position, alt: alt || '수집 이미지' }));
-        if (!schemaValidator({ $ref: '#/components/schemas/CreatePostRequest' })({ ...draft, blocks: previewBlocks })) fail(400, 'VALIDATION_FAILED');
-        const uploaded = new Map<number, number>();
-        let remainingBytes = COLLECTED_TOTAL_BYTES;
-        const deadline = performance.now() + 120000;
-        const checkDeadline = () => {
-          if (performance.now() >= deadline) fail(503, 'DEPENDENCY_UNAVAILABLE');
-        };
+        let prepared: PreparedBatchDraft | undefined;
         try {
-          for (const m of imageMedia) {
-            checkDeadline();
-            await this.row(id);
-            const result = await this.images.uploadCollected(await this.mediaBytes(m,item.accessDeadline), actor, remainingBytes,
-              {expiresAt:item.expires_at,deadline:item.accessDeadline}), image = result.items[0];
-            if (!image) throw Error('MISSING_UPLOADED_IMAGE');
-            remainingBytes -= image.byteSize;
-            prepared.push(image.imageId); uploaded.set(m.position, image.imageId);
-            checkDeadline();
-          }
+          prepared = await this.prepareSelectedDraft(id, digest.toString('hex'), body.boardSlug,
+            body.title, [], actor);
+          const ready = prepared;
           return await this.work.transaction(async () => {
             const current = await this.checked(id, body.itemVersion, body.lockVersion);
             if (current.review?.status !== 'APPROVED') fail(409, 'BATCH_REVIEW_STATE_CONFLICT');
             if (!current.digest.equals(digest) || !current.review.contentDigest.equals(digest)) fail(409, 'BATCH_ITEM_VERSION_CONFLICT');
-            const blocks = originalDraftBlocks(detail.bodyBlocks, (position, alt) => {
-              const imageId = uploaded.get(position); if (!imageId) fail(409, 'BATCH_MEDIA_INCOMPLETE');
-              return { type: 'IMAGE', imageId, alt: alt || '수집 이미지' };
-            });
-            checkDeadline();
-            const post = await this.posts.createDraftInTransaction({ ...draft, blocks }, actor);
+            ready.checkDeadline();
+            const post = await this.posts.createDraftInTransaction(ready.body, actor);
             const updated = await this.repository.promote(id, body.lockVersion, post.postId, actor);
             const data = { itemId: id, ...post, reviewLockVersion: updated.lockVersion };
             await this.repository.saveReceipt(actor, `batch:draft:${id}`, key, collectionDigest(body), 201, data);
@@ -225,7 +264,7 @@ export class BatchReviewService {
           // An ambiguous commit must never discard images already attached to a committed post.
           const committed = await this.repository.receipt(actor, `batch:draft:${id}`, key);
           if (committed) return { status: committed.status, data: committed.data };
-          for (const imageId of prepared) await this.images.discard(String(imageId), actor);
+          if (prepared) await this.discardPrepared(prepared, actor);
           if (uniqueConflict(error)) fail(409, 'BATCH_DUPLICATE_POST');
           throw error;
         }

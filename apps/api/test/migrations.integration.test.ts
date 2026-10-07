@@ -207,12 +207,15 @@ await test('additive V009/V010 refuse destructive rollback and preserve exact le
     await service.migrate('down');
     assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V011') ready")).ready,true);
     await service.migrate();
+    assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V014') ready")).ready,true);
+    await service.migrate('down'); // Empty Discord transport state permits V014 rollback.
     assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V013') ready")).ready,true);
     const ledger:unknown=await source.query('SELECT * FROM ops.schema_migration ORDER BY version');
     await assert.rejects(service.migrate('down'),/COMMON_CODES_ROLLBACK_REQUIRES_HANDOFF/);
     await service.migrate();
     const stable = (value: unknown) => JSON.stringify(value, (key, entry: unknown) =>
       ['applied_at', 'duration_ms'].includes(key) ? undefined : entry);
-    assert.equal(stable(await source.query('SELECT * FROM ops.schema_migration ORDER BY version')), stable(ledger));
+    const restored: unknown = await source.query("SELECT * FROM ops.schema_migration WHERE version<>'V014' ORDER BY version");
+    assert.equal(stable(restored), stable(ledger));
   } finally { await app.close(); await source.destroy(); }
 });

@@ -7,6 +7,7 @@
 - [M0 운영 인계](m0-operation-handoff.md): 로컬 구현 이후 실제 계정·장비·백업/회수·출처·7일 관찰. 결정과 잔여 순서는 [로드맵](../roadmap.md)을 따른다.
 - [배포 정책](deployment-policy.md), [배포 실행서](deployment-runbook.md): 최종 SHA CI·백업·호환성·승인 배포.
 - [환경 설정](environment-configuration.md), [운영자 준비](owner-setup-checklist.md), [인프라 검토](infrastructure-review-brief.md).
+- [비공개 파일 위치·포맷 전 복구 준비](private-files-and-recovery.md): Git 제외 파일, credential·복구키·로컬 설정의 보관 위치와 백업 확인 순서.
 - [Docker 실행](docker.md), [운영 명령](../../deploy/operations/README.md), [백업·복원](../../deploy/backup/README.md).
 - [법무·정책 확인](../legal/README.md), [Core 정책 자료](../legal/m0-core/).
 - [Collector 전환 관찰 양식](collector-transition-observation.md): 기존 legacy 전환 조건 포함. 현행 Core/P1 단계는 [로드맵](../roadmap.md)과 대조.

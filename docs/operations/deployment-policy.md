@@ -1,7 +1,9 @@
 # GitHub CI와 배포 정책
 
+> **2026-10-07 운영 갱신:** [정식 배포 기록](../../worklog/2026-10-07/production-web-api-deployment/README.md)의 main `b57724d` API/Web을 적용했다. API V013·Collector V015이며 새 백업의 R2 다운로드·격리 복원, 공개·내부 관리자 읽기 검사를 통과했다. V013은 자동 down을 지원하지 않고 이전 V010 앱의 단순 복귀는 호환되지 않는다. MFA 이후 쓰기 인수·DB rollback·VM 재부팅은 미검증이다. 아래 9월의 경로·복귀 대상은 당시 기록이며 현재 복귀 대상으로 자동 선택하지 않는다.
+
 2026-09-20 결정, 2026-09-25 결과 갱신. **로컬에서 수정 → PR 검증 → main의 검증된 이미지 → 운영자가 배포 실행**을 기본으로 한다.
-마지막 앱 배포는 9/25 [`8af7244` API/Web·GTM 운영 반영](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)이다.
+9월 기록 당시 마지막 앱 배포는 9/25 [`8af7244` API/Web·GTM 운영 반영](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)이다.
 [9/23 DB V008·Collector V006 반영](../../worklog/2026-09-23/release/production-db-promotion.md)을 유지했고 새 백업 다운로드·격리 복원을 확인했다.
 이번 문서 갱신은 해당 실행 증거의 반영이며 신규 배포가 아니다. 명령·복귀 조건은 [배포 실행서](deployment-runbook.md)를 따른다.
 

@@ -5,7 +5,7 @@ from pathlib import Path
 import plistlib
 
 LABEL = 'com.blariyo.local-collection'
-SCHEDULE = [{'Hour': 4, 'Minute': 30}, {'Hour': 16, 'Minute': 30}]
+SCHEDULE = [{'Hour': 4, 'Minute': 30}, {'Hour': 15, 'Minute': 30}]
 
 
 def render(root, node, java_home):

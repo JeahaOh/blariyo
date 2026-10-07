@@ -1,0 +1,25 @@
+webDirect404 {"status":404,"cache":"no-store"}
+
+jobs Result=success
+ExecMainStatus=0
+Id=blariyo-publish.service
+ActiveState=inactive
+
+Result=success
+ExecMainStatus=0
+Id=blariyo-outbox.service
+ActiveState=inactive
+
+Result=exit-code
+ExecMainStatus=1
+Id=blariyo-cleanup.service
+ActiveState=failed
+
+resources blariyo-app-web-1 0.03% 49.11MiB / 384MiB
+blariyo-app-api-1 0.00% 81.67MiB / 256MiB
+blariyo-gateway-nginx-1 0.00% 2.469MiB / 64MiB
+blariyo-db-postgresql-1 7.36% 38.55MiB / 768MiB
+quirky_hertz 0.23% 18.17MiB / 1.861GiB
+
+deploymentLockAbsent True
+trialContainers

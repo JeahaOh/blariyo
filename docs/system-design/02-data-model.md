@@ -1359,3 +1359,7 @@ Collector V011의 `batch_image_retry`는 item UUID·첫/최종 오류 코드·�
 ### 수집 실패 수동 삭제 기록 — Collector V014
 
 `collect.batch_manual_deletion(item_id PK,item_version,deleted_at,deleted_by)`와 `collect.batch_manual_cleanup(item_id FK,run_id,completed_at,PK(item_id,run_id))`는 payload 삭제·복원 후 재정리를 위한 최소 기록이다. 이미지 재시도 원장과 분리하며 수집 내용·URL은 저장하지 않는다. API 역할은 직접 읽기/쓰기 없이 제한 삭제 함수만 호출한다. 선택 백업에는 이 기록과 dedup identity를 포함하고 원문은 계속 제외한다.
+
+## Discord 검수 복구 데이터 — 2026-10-07
+
+API V014의5개 검수/전송/명령/scan 테이블과 기존 batch_review의 연결 초안 관리자 선점 제약은 [Discord 검수 데이터 계약](10-discord-review.md#영속-상태)을 따른다. 원문 본문·binary·저장 key를 추가 보관하지 않으며 선택 백업에는 최소 복구 상태만 보존한다.

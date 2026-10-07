@@ -864,7 +864,148 @@ export class ContentCommonCodeEntity {
   @JoinColumn([{ name: 'group_key', referencedColumnName: 'group_key' }])
   group?: Relation<ContentCommonCodeGroupEntity>;
 }
+// V014 durable Discord review state; SQL owns constraints, indexes and lifecycle.
+@Entity({ schema: 'collect', name: 'batch_review_control', synchronize: false })
+export class CollectBatchReviewControlEntity {
+  @PrimaryColumn({ type: 'uuid' }) item_id!: string;
+  @Column({ type: 'varchar', length: 16 }) authority!: string;
+  @Column({ type: 'bigint' }) decision_epoch!: string;
+  @Column({ type: 'uuid', nullable: true }) active_command_id!: string | null;
+  @Column({ type: 'varchar', length: 80, nullable: true }) last_observation_reason!: string | null;
+  @Column({ type: 'timestamptz', precision: 3 }) updated_at!: Date;
+}
+@Entity({ schema: 'collect', name: 'discord_review_delivery', synchronize: false })
+export class CollectDiscordReviewDeliveryEntity {
+  @PrimaryColumn({ type: 'uuid' }) id!: string;
+  @Column({ type: 'uuid' }) item_id!: string;
+  @Column({ type: 'varchar', length: 16 }) environment!: string;
+  @Column({ type: 'bigint' }) item_version!: string;
+  @Column({ type: 'bytea' }) content_digest!: Buffer;
+  @Column({ type: 'varchar', length: 40 }) renderer_version!: string;
+  @Column({ type: 'jsonb' }) manifest!: unknown;
+  @Column({ type: 'varchar', length: 20 }) guild_id!: string;
+  @Column({ type: 'varchar', length: 20 }) channel_id!: string;
+  @Column({ type: 'varchar', length: 20, nullable: true }) head_message_id!: string | null;
+  @Column({ type: 'varchar', length: 20, nullable: true }) thread_id!: string | null;
+  @Column({ type: 'bigint', generated: 'identity' }) review_number!: string;
+  @Column({ type: 'varchar', length: 20 }) state!: string;
+  @Column({ type: 'bigint' }) generation!: string;
+  @Column({ type: 'boolean' }) head_seeded!: boolean;
+  @Column({ type: 'varchar', length: 16 }) head_send_state!: string;
+  @Column({ type: 'varchar', length: 25, nullable: true }) head_nonce!: string | null;
+  @Column({ type: 'uuid', nullable: true }) export_token!: string | null;
+  @Column({ type: 'uuid', nullable: true }) observation_scan_id!: string | null;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) observation_started_at!: Date | null;
+  @Column({ type: 'jsonb' }) observation_chunks!: unknown;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) ready_at!: Date | null;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) expires_at!: Date | null;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) last_scanned_at!: Date | null;
+  @Column({ type: 'varchar', length: 80, nullable: true }) last_scan_result!: string | null;
+  @Column({ type: 'varchar', length: 16, nullable: true }) work_kind!: string | null;
+  @Column({ type: 'varchar', length: 100, nullable: true }) lease_owner!: string | null;
+  @Column({ type: 'uuid', nullable: true }) lease_token!: string | null;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) lease_until!: Date | null;
+  @Column({ type: 'uuid', nullable: true }) attempt_id!: string | null;
+  @Column({ type: 'uuid', nullable: true }) last_ack_attempt_id!: string | null;
+  @Column({ type: 'timestamptz', precision: 3 }) next_attempt_at!: Date;
+  @Column({ type: 'varchar', length: 20 }) cleanup_state!: string;
+  @Column({ type: 'integer' }) cleanup_failures!: number;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) head_deleted_at!: Date | null;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) thread_deleted_at!: Date | null;
+  @Column({ type: 'varchar', length: 20 }) notice_state!: string;
+  @Column({ type: 'integer' }) notice_failures!: number;
+  @Column({ type: 'timestamptz', precision: 3 }) notice_next_attempt_at!: Date;
+  @Column({ type: 'varchar', length: 20, nullable: true }) notice_message_id!: string | null;
+  @Column({ type: 'varchar', length: 80, nullable: true }) last_error!: string | null;
+  @Column({ type: 'timestamptz', precision: 3 }) created_at!: Date;
+  @Column({ type: 'timestamptz', precision: 3 }) updated_at!: Date;
+}
+@Entity({ schema: 'collect', name: 'discord_review_part', synchronize: false })
+export class CollectDiscordReviewPartEntity {
+  @PrimaryColumn({ type: 'uuid' }) delivery_id!: string;
+  @PrimaryColumn({ type: 'integer' }) ordinal!: number;
+  @Column({ type: 'varchar', length: 64 }) unit_id!: string;
+  @Column({ type: 'integer' }) fragment_index!: number;
+  @Column({ type: 'varchar', length: 8 }) kind!: string;
+  @Column({ type: 'integer' }) source_block!: number;
+  @Column({ type: 'integer' }) source_start!: number;
+  @Column({ type: 'integer' }) source_end!: number;
+  @Column({ type: 'integer', nullable: true }) image_position!: number | null;
+  @Column({ type: 'varchar', length: 20, nullable: true }) message_id!: string | null;
+  @Column({ type: 'varchar', length: 16 }) send_state!: string;
+  @Column({ type: 'boolean' }) seeded!: boolean;
+  @Column({ type: 'varchar', length: 25, nullable: true }) attempt_nonce!: string | null;
+  @Column({ type: 'timestamptz', precision: 3 }) updated_at!: Date;
+  @ManyToOne(() => CollectDiscordReviewDeliveryEntity, {
+    nullable: false, onDelete: 'NO ACTION', onUpdate: 'NO ACTION',
+    cascade: false, eager: false, lazy: false, persistence: false,
+    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+  })
+  @JoinColumn([{ name: 'delivery_id', referencedColumnName: 'id' }])
+  delivery?: Relation<CollectDiscordReviewDeliveryEntity>;
+}
+@Entity({ schema: 'collect', name: 'batch_review_command', synchronize: false })
+export class CollectBatchReviewCommandEntity {
+  @PrimaryColumn({ type: 'uuid' }) id!: string;
+  @Column({ type: 'uuid' }) item_id!: string;
+  @Column({ type: 'varchar', length: 8 }) origin!: string;
+  @Column({ type: 'varchar', length: 20 }) action!: string;
+  @Column({ type: 'varchar', length: 100 }) actor!: string;
+  @Column({ type: 'varchar', length: 100, nullable: true }) operator_id!: string | null;
+  @Column({ type: 'jsonb' }) reviewer_ids!: unknown;
+  @Column({ type: 'bigint' }) decision_epoch!: string;
+  @Column({ type: 'bigint' }) item_version!: string;
+  @Column({ type: 'integer' }) review_version!: number;
+  @Column({ type: 'bytea' }) content_digest!: Buffer;
+  @Column({ type: 'bytea' }) selection_digest!: Buffer;
+  @Column({ type: 'jsonb' }) excluded_unit_ids!: unknown;
+  @Column({ type: 'jsonb' }) evidence!: unknown;
+  @Column({ type: 'jsonb' }) request_body!: unknown;
+  @Column({ type: 'varchar', length: 200 }) request_key!: string;
+  @Column({ type: 'bytea' }) request_hash!: Buffer;
+  @Column({ type: 'varchar', length: 20 }) stage!: string;
+  @Column({ type: 'bigint', nullable: true }) post_id!: string | null;
+  @Column({ type: 'integer', nullable: true }) post_version!: number | null;
+  @Column({ type: 'varchar', length: 100, nullable: true }) lease_owner!: string | null;
+  @Column({ type: 'uuid', nullable: true }) lease_token!: string | null;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) lease_until!: Date | null;
+  @Column({ type: 'timestamptz', precision: 3 }) next_attempt_at!: Date;
+  @Column({ type: 'integer' }) retry_count!: number;
+  @Column({ type: 'varchar', length: 80, nullable: true }) last_error!: string | null;
+  @Column({ type: 'timestamptz', precision: 3 }) created_at!: Date;
+  @Column({ type: 'timestamptz', precision: 3 }) updated_at!: Date;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) finished_at!: Date | null;
+  @ManyToOne(() => ContentBoardPostEntity, {
+    nullable: true, onDelete: 'NO ACTION', onUpdate: 'NO ACTION',
+    cascade: false, eager: false, lazy: false, persistence: false,
+    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+  })
+  @JoinColumn([{ name: 'post_id', referencedColumnName: 'id' }])
+  post?: Relation<ContentBoardPostEntity>;
+}
+@Entity({ schema: 'collect', name: 'discord_review_scan_run', synchronize: false })
+export class CollectDiscordReviewScanRunEntity {
+  @PrimaryColumn({ type: 'uuid' }) id!: string;
+  @Column({ type: 'varchar', length: 16 }) environment!: string;
+  @Column({ type: 'timestamptz', precision: 3 }) scheduled_slot!: Date;
+  @Column({ type: 'timestamptz', precision: 3 }) cutoff_at!: Date;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) cursor_ready_at!: Date | null;
+  @Column({ type: 'uuid', nullable: true }) cursor_id!: string | null;
+  @Column({ type: 'varchar', length: 16 }) state!: string;
+  @Column({ type: 'varchar', length: 100 }) lease_owner!: string;
+  @Column({ type: 'uuid' }) lease_token!: string;
+  @Column({ type: 'timestamptz', precision: 3 }) lease_until!: Date;
+  @Column({ type: 'jsonb' }) summary!: unknown;
+  @Column({ type: 'timestamptz', precision: 3 }) started_at!: Date;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) finished_at!: Date | null;
+}
 export const entities = [
+  CollectBatchReviewControlEntity,
+  CollectDiscordReviewDeliveryEntity,
+  CollectDiscordReviewPartEntity,
+  CollectBatchReviewCommandEntity,
+  CollectDiscordReviewScanRunEntity,
+
   ContentCommonCodeGroupEntity,
   ContentCommonCodeEntity,
   ContentPostCollectionOriginEntity,

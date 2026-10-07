@@ -1,0 +1,12 @@
+[Unit]
+Description=Blariyo Discord review 07:30 and 17:00 KST
+
+[Timer]
+OnCalendar=*-*-* 07:30:00 Asia/Seoul
+OnCalendar=*-*-* 17:00:00 Asia/Seoul
+Persistent=true
+AccuracySec=1s
+Unit=blariyo-discord-review-scan.service
+
+[Install]
+WantedBy=timers.target

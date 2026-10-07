@@ -194,6 +194,18 @@ tools/collector/config.local.json
 *.local.properties
 codex-session-*.md
 
+# Blariyo private inputs: keep templates and recovery instructions in Git.
+discord-server.production.json
+discord-server.local.json
+discord-token
+worker-token
+actor-secret
+postgres-age-identity.txt
+LightsailDefaultKey-*.pem
+.blariyo-recovery/
+blariyo-discord-secrets/
+/.config/blariyo/
+
 
 
 # Cross-platform Collector entrypoints are source, not build output.

@@ -18,7 +18,8 @@ function deleteIs(value:unknown):value is components['schemas']['BatchDeleteRequ
 @Controller('/api/v1/admin/collect/batch-items')
 @UseGuards(BatchReviewEnabledGuard,AdminGuard,CollectionMaintenanceGuard)
 export class BatchReviewController {
-  constructor(@Inject(BatchReviewService) private readonly service:BatchReviewService){}
+  constructor(@Inject(BatchReviewService) private readonly service:BatchReviewService,
+    @Inject(COLLECTION_OPTIONS) private readonly options:CollectionOptions){}
   @Get() async list(@Input(ContractPipe) input:RequestInput){
     return new HttpResult(await this.service.list(Number(stringField(input.query,'page','1')),stringField(input.query,'source')||undefined,stringField(input.query,'state')||undefined,stringField(input.query,'reviewStatus')||undefined),{},200,'private, no-store');
   }
@@ -30,11 +31,13 @@ export class BatchReviewController {
     return new BinaryResult(result.bytes,result.mime,'private, no-store',true,result.deadline);
   }
   @Post(':itemId/review') async review(@Input(ContractPipe) input:RequestInput,@Actor() actor:string){
+    if(this.options.discordReviewEnabled)fail(409,'BATCH_REVIEW_COMMAND_REQUIRED');
     if(!reviewIs(input.body))fail(400,'VALIDATION_FAILED');
     const result=await this.service.review(stringField(input.params,'itemId'),input.body,actor,stringField(input.headers,'idempotency-key'));
     return new HttpResult(result.data,{},result.status,'private, no-store');
   }
   @Post(':itemId/draft') async draft(@Input(ContractPipe) input:RequestInput,@Actor() actor:string){
+    if(this.options.discordReviewEnabled)fail(409,'BATCH_REVIEW_COMMAND_REQUIRED');
     if(!draftIs(input.body))fail(400,'VALIDATION_FAILED');
     const result=await this.service.promote(stringField(input.params,'itemId'),input.body,actor,stringField(input.headers,'idempotency-key'));
     return new HttpResult(result.data,{},result.status,'private, no-store');

@@ -17,6 +17,6 @@ export class BatchReviewModule {
       {provide:BatchReviewRepository,useClass:TypeOrmBatchReviewRepository},
       {provide:BatchResultRepository,useClass:TypeOrmBatchResultRepository},
       {provide:CollectReader,useValue:reader},{provide:HTTP_OPTIONS,useValue:options},{provide:COLLECTION_OPTIONS,useValue:options},
-    ],exports:[BatchReviewService]};
+    ],exports:[BatchReviewService,BatchReviewRepository]};
   }
 }

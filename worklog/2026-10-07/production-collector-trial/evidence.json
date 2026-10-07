@@ -1,0 +1,748 @@
+{
+  "sourceSha": "1c255a9ba261903c6a64804edb29ef0fa0b70da1",
+  "jarSha256": "171e2201eae49208ecf0d82f9022d2f80d185386c40195d48ae24a4c479b24b0",
+  "image": "eclipse-temurin@sha256:78498f30dd330b06755c1b134039dcbf8324bedb385136819dd519b842a3816a",
+  "backup": {
+    "key": "db/daily/20261007T104722Z-1fcb24420b5e.dump.age",
+    "sha256": "c3b682784838c2c390870551911aa76cb9a86b16cea7cfe07112e0ac0ab3752e",
+    "bytes": 513885
+  },
+  "runs": [
+    {
+      "report": {
+        "runId": "0e8a3d6c-7c1a-4e3e-81b4-57fb040495b9",
+        "source": "dogdrip",
+        "state": "BLOCKED",
+        "pages": 0,
+        "discovered": 0,
+        "fetched": 0,
+        "duplicates": 0,
+        "failures": 1,
+        "unknownDates": 0,
+        "skippedByDate": 0,
+        "errors": [
+          "SOURCE_ACCESS_BLOCKED"
+        ]
+      },
+      "runId": "0e8a3d6c-7c1a-4e3e-81b4-57fb040495b9",
+      "mode": "WRITE_DB"
+    },
+    {
+      "mode": "WRITE_DB",
+      "runId": "6e81a9da-4795-46dc-993f-31fda80ae329",
+      "report": {
+        "runId": "6e81a9da-4795-46dc-993f-31fda80ae329",
+        "source": "goodgag",
+        "state": "COMPLETED",
+        "pages": 1,
+        "discovered": 5,
+        "fetched": 5,
+        "duplicates": 0,
+        "failures": 0,
+        "unknownDates": 5,
+        "skippedByDate": 0,
+        "errors": []
+      }
+    }
+  ],
+  "limits": {
+    "memoryMiB": 512,
+    "heapMiB": 256,
+    "cpus": 0.5,
+    "sourceConcurrency": 1,
+    "intervalMs": 5000,
+    "maxItems": 5
+  },
+  "containerState": {
+    "Status": "exited",
+    "ExitCode": 0,
+    "OOMKilled": false,
+    "StartedAt": "2026-10-07T10:50:58.982657262Z",
+    "FinishedAt": "2026-10-07T10:52:11.153646005Z"
+  },
+  "metrics": {
+    "before": {
+      "samples": 5,
+      "http200": 5,
+      "medianMs": 102,
+      "maxMs": 108,
+      "minimumAvailableMiB": 1121
+    },
+    "running": {
+      "samples": 17,
+      "http200": 17,
+      "medianMs": 113,
+      "maxMs": 617,
+      "minimumAvailableMiB": 1025
+    },
+    "after": {
+      "samples": 5,
+      "http200": 5,
+      "medianMs": 113,
+      "maxMs": 401,
+      "minimumAvailableMiB": 1123
+    }
+  },
+  "samples": [
+    {
+      "at": "2026-10-07T10:50:52.782141+00:00",
+      "phase": "before",
+      "availableMiB": 1121.890625,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.41",
+        "0.28",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.098276,
+        "exit": 0
+      }
+    },
+    {
+      "at": "2026-10-07T10:50:53.889752+00:00",
+      "phase": "before",
+      "availableMiB": 1121.42578125,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.38",
+        "0.28",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.103328,
+        "exit": 0
+      }
+    },
+    {
+      "at": "2026-10-07T10:50:55.002481+00:00",
+      "phase": "before",
+      "availableMiB": 1121.4375,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.38",
+        "0.28",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.09629,
+        "exit": 0
+      }
+    },
+    {
+      "at": "2026-10-07T10:50:56.108129+00:00",
+      "phase": "before",
+      "availableMiB": 1121.4375,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.38",
+        "0.28",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.10191,
+        "exit": 0
+      }
+    },
+    {
+      "at": "2026-10-07T10:50:57.219613+00:00",
+      "phase": "before",
+      "availableMiB": 1124.6953125,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.38",
+        "0.28",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.108359,
+        "exit": 0
+      }
+    },
+    {
+      "at": "2026-10-07T10:50:59.216646+00:00",
+      "phase": "running",
+      "availableMiB": 1110.00390625,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.35",
+        "0.27",
+        "0.12"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.123053,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "4.1kB / 0B",
+        "CPUPerc": "50.96%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "7.10%",
+        "MemUsage": "36.34MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "838B / 168B",
+        "PIDs": "14"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:03.428724+00:00",
+      "phase": "running",
+      "availableMiB": 1086.06640625,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.35",
+        "0.27",
+        "0.12"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.114862,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "4.1kB / 0B",
+        "CPUPerc": "50.74%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "9.89%",
+        "MemUsage": "50.66MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "1.63kB / 252B",
+        "PIDs": "14"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:07.635325+00:00",
+      "phase": "running",
+      "availableMiB": 1069.62109375,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.48",
+        "0.30",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.112847,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "8.19kB / 0B",
+        "CPUPerc": "2.07%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "14.01%",
+        "MemUsage": "71.71MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "5.31kB / 5.18kB",
+        "PIDs": "18"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:11.814637+00:00",
+      "phase": "running",
+      "availableMiB": 1044.09375,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.44",
+        "0.30",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.105833,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "8.19kB / 0B",
+        "CPUPerc": "10.99%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "14.29%",
+        "MemUsage": "73.17MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "5.87kB / 5.96kB",
+        "PIDs": "23"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:15.985811+00:00",
+      "phase": "running",
+      "availableMiB": 1051.76953125,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.41",
+        "0.29",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.127641,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "8.19kB / 0B",
+        "CPUPerc": "0.04%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.26%",
+        "MemUsage": "88.36MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "24.6kB / 10.4kB",
+        "PIDs": "22"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:20.189258+00:00",
+      "phase": "running",
+      "availableMiB": 1051.58203125,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.37",
+        "0.29",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.10986,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "8.19kB / 0B",
+        "CPUPerc": "20.29%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "16.81%",
+        "MemUsage": "86.08MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "55kB / 14.3kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:24.363519+00:00",
+      "phase": "running",
+      "availableMiB": 1041.4453125,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.34",
+        "0.28",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.351977,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "8.19kB / 0B",
+        "CPUPerc": "0.05%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "16.94%",
+        "MemUsage": "86.73MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "57.9kB / 43.8kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:28.784196+00:00",
+      "phase": "running",
+      "availableMiB": 1041.26953125,
+      "swapUsedMiB": 22.9453125,
+      "load": [
+        "0.32",
+        "0.28",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.616945,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "8.19kB / 0B",
+        "CPUPerc": "0.02%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.22%",
+        "MemUsage": "88.19MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "87.9kB / 75.9kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:33.491477+00:00",
+      "phase": "running",
+      "availableMiB": 1029.33203125,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.32",
+        "0.28",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.105022,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "8.19kB / 0B",
+        "CPUPerc": "0.04%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.32%",
+        "MemUsage": "88.69MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "88.2kB / 76.4kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:37.683882+00:00",
+      "phase": "running",
+      "availableMiB": 1035.01171875,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.45",
+        "0.31",
+        "0.14"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.111163,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "36.9kB / 0B",
+        "CPUPerc": "0.03%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.34%",
+        "MemUsage": "88.77MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "774kB / 756kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:41.860060+00:00",
+      "phase": "running",
+      "availableMiB": 1034.5390625,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.42",
+        "0.30",
+        "0.14"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.298298,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "36.9kB / 0B",
+        "CPUPerc": "2.74%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.43%",
+        "MemUsage": "89.24MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "848kB / 833kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:46.223272+00:00",
+      "phase": "running",
+      "availableMiB": 1034.078125,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.38",
+        "0.30",
+        "0.14"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.128558,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "36.9kB / 0B",
+        "CPUPerc": "0.05%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.44%",
+        "MemUsage": "89.27MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "848kB / 833kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:50.421050+00:00",
+      "phase": "running",
+      "availableMiB": 1041.71875,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.35",
+        "0.29",
+        "0.14"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.096265,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "36.9kB / 0B",
+        "CPUPerc": "0.02%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.46%",
+        "MemUsage": "89.38MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "874kB / 862kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:54.586499+00:00",
+      "phase": "running",
+      "availableMiB": 1042.31640625,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.32",
+        "0.29",
+        "0.14"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.10247,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "36.9kB / 0B",
+        "CPUPerc": "0.04%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.46%",
+        "MemUsage": "89.4MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "875kB / 863kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:51:58.754565+00:00",
+      "phase": "running",
+      "availableMiB": 1034.78515625,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.30",
+        "0.28",
+        "0.14"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.458594,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "36.9kB / 0B",
+        "CPUPerc": "0.07%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.64%",
+        "MemUsage": "90.32MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "899kB / 888kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:52:03.289775+00:00",
+      "phase": "running",
+      "availableMiB": 1024.54296875,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.30",
+        "0.28",
+        "0.14"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.110306,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "36.9kB / 0B",
+        "CPUPerc": "0.50%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.74%",
+        "MemUsage": "90.82MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "985kB / 977kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:52:07.490867+00:00",
+      "phase": "running",
+      "availableMiB": 1027.51171875,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.27",
+        "0.28",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.098531,
+        "exit": 0
+      },
+      "collector": {
+        "BlockIO": "36.9kB / 0B",
+        "CPUPerc": "0.14%",
+        "Container": "blariyo-collector-trial-20261007",
+        "ID": "a83d2747d0fb",
+        "MemPerc": "17.74%",
+        "MemUsage": "90.83MiB / 512MiB",
+        "Name": "blariyo-collector-trial-20261007",
+        "NetIO": "985kB / 977kB",
+        "PIDs": "24"
+      }
+    },
+    {
+      "at": "2026-10-07T10:52:11.704051+00:00",
+      "phase": "after",
+      "availableMiB": 1129.23046875,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.25",
+        "0.27",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.118849,
+        "exit": 0
+      }
+    },
+    {
+      "at": "2026-10-07T10:52:12.832151+00:00",
+      "phase": "after",
+      "availableMiB": 1122.5234375,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.25",
+        "0.27",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.109519,
+        "exit": 0
+      }
+    },
+    {
+      "at": "2026-10-07T10:52:13.951582+00:00",
+      "phase": "after",
+      "availableMiB": 1122.5703125,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.23",
+        "0.27",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.113395,
+        "exit": 0
+      }
+    },
+    {
+      "at": "2026-10-07T10:52:15.074471+00:00",
+      "phase": "after",
+      "availableMiB": 1124.41015625,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.23",
+        "0.27",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.400643,
+        "exit": 0
+      }
+    },
+    {
+      "at": "2026-10-07T10:52:16.484727+00:00",
+      "phase": "after",
+      "availableMiB": 1124.4140625,
+      "swapUsedMiB": 23.1015625,
+      "load": [
+        "0.23",
+        "0.27",
+        "0.13"
+      ],
+      "http": {
+        "code": "200",
+        "seconds": 0.098392,
+        "exit": 0
+      }
+    }
+  ],
+  "beforeCounts": {
+    "items": 108,
+    "media": 382,
+    "runs": 43
+  },
+  "afterCounts": {
+    "items": 113,
+    "media": 385,
+    "runs": 45
+  },
+  "objects": {
+    "state": "PASS",
+    "objects": 9,
+    "raw": 5,
+    "media": 3,
+    "totalBytes": 915649
+  },
+  "publicPosts": 83,
+  "contentUnchanged": true,
+  "servicesRestarted": false,
+  "cleanup": {
+    "roleAbsent": true,
+    "hbaRestored": true,
+    "secretRemoved": true
+  },
+  "collectorSchema": "V015",
+  "apiSchema": "V010",
+  "imageCleanupPending": 0,
+  "backupNewTablesReadable": true,
+  "finalReadback": {
+    "containerAbsent": true,
+    "networkAbsent": true,
+    "secretAbsent": true,
+    "hbaRestored": true,
+    "roleAbsent": true,
+    "noCollectorSessions": true,
+    "apiCanRead": true,
+    "apiSchema": "V010",
+    "collectorSchema": "V015",
+    "expiredItems": 8
+  }
+}

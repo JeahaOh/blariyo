@@ -1,3 +1,5 @@
+import { DiscordReviewModule } from './features/collection/discord-review.module.js';
+import type { DiscordReviewSettings } from './features/collection/review-authority.js';
 import { CommonCodeModule } from './features/common-codes/common-code.module.js';
 import { BatchReviewModule } from './features/collection/batch-review.module.js';
 import { DirectRequestModule } from './features/collection/direct-request.module.js';
@@ -18,6 +20,7 @@ import { PersistenceModule } from './persistence/persistence.module.js';
 
 export interface ApplicationOptions extends CollectionOptions {
   databaseUrl: string;
+  discordReview?: DiscordReviewSettings;
   collectReader?: CollectReader;
   collectorKeySecret?: string;
   collectManualUrlEnabled?: boolean;
@@ -40,6 +43,8 @@ export class AppModule {
       siteOrigin: options.siteOrigin ?? 'http://localhost:3000',
       imageOrigin: options.imageOrigin ?? 'http://localhost:3000/media',
     });
+    const reviewOptions = { ...options, discordReviewEnabled: Boolean(options.discordReview) };
+    const batches = BatchReviewModule.register(persistence, images, posts, options.collectReader ?? new DisabledCollectReader(), reviewOptions);
     const collection = CollectionModule.register(persistence, storage, options, images, posts);
     return {
       module: AppModule,
@@ -47,8 +52,9 @@ export class AppModule {
         collection,
         CommonCodeModule.register(persistence,options),
         DirectRequestModule.register(persistence,options),
-        BatchReviewModule.register(persistence, images, posts, options.collectReader ?? new DisabledCollectReader(), options),
-        HealthModule.register(persistence, options),
+        batches,
+        ...(options.discordReview ? [DiscordReviewModule.register(persistence,batches,posts,reviewOptions,options.discordReview)] : []),
+        HealthModule.register(persistence, {...options,discordReviewEnabled:Boolean(options.discordReview)}),
         PoliciesModule.register(persistence),
         PublicModule.register(persistence, {
           siteOrigin: options.siteOrigin ?? 'http://localhost:3000',

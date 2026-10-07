@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { Injectable, Inject, type OnApplicationShutdown } from '@nestjs/common';
+import { Injectable, Inject, Logger, type OnApplicationShutdown } from '@nestjs/common';
 import { DataSource, type QueryRunner } from 'typeorm';
 import { UnitOfWork, type TransactionOptions } from '../shared/unit-of-work.js';
 import { ApiError } from '../shared/errors.js';
@@ -26,20 +26,47 @@ export function createDataSource(url: string, migration = false): DataSource {
 
 @Injectable()
 export class DatabaseContext implements OnApplicationShutdown {
-  private readonly scope = new AsyncLocalStorage<QueryRunner>();
+  private readonly scope = new AsyncLocalStorage<{
+    runner: QueryRunner;
+    pending: (() => void)[];
+    committed: (() => void)[];
+  }>();
+  private readonly logger = new Logger(DatabaseContext.name);
   constructor(@Inject(DataSource) readonly source: DataSource) {}
   get manager() {
-    return this.scope.getStore()?.manager ?? this.source.manager;
+    return this.scope.getStore()?.runner.manager ?? this.source.manager;
+  }
+  afterCommit(notify: () => void): void {
+    const active = this.scope.getStore();
+    if (!active?.runner.isTransactionActive) throw new Error('AFTER_COMMIT_REQUIRES_TRANSACTION');
+    active.pending.push(notify);
+  }
+  transactionFinished(committed: boolean): void {
+    const active = this.scope.getStore();
+    if (!active) throw new Error('TRANSACTION_CONTEXT_REQUIRED');
+    const callbacks = active.pending.splice(0);
+    if (committed) active.committed.push(...callbacks);
   }
   async connection<T>(work: (runner: QueryRunner) => Promise<T>): Promise<T> {
     const active = this.scope.getStore();
-    if (active) return work(active);
+    if (active) return work(active.runner);
     const runner = this.source.createQueryRunner();
     await runner.connect();
+    const state = { runner, pending: [] as (() => void)[], committed: [] as (() => void)[] };
     try {
-      return await this.scope.run(runner, () => work(runner));
+      return await this.scope.run(state, () => work(runner));
     } finally {
       await runner.release();
+      // Schedule outside AsyncLocalStorage, after outer session locks and connection
+      // are released. A release failure skips notification; durable jobs still recover.
+      if (state.committed.length) this.scope.exit(() => {
+        setImmediate(() => {
+          for (const notify of state.committed) {
+            try { notify(); }
+            catch { this.logger.warn('AFTER_COMMIT_NOTIFICATION_FAILED'); }
+          }
+        });
+      });
     }
   }
   async onApplicationShutdown() {
@@ -61,12 +88,17 @@ export class TypeOrmUnitOfWork extends UnitOfWork {
         if (options.readOnly) await runner.query('SET TRANSACTION READ ONLY');
         const result = await work();
         await runner.commitTransaction();
+        this.database.transactionFinished(true);
         return result;
       } catch (error) {
+        this.database.transactionFinished(false);
         if (runner.isTransactionActive) await runner.rollbackTransaction();
         throw error;
       }
     });
+  }
+  afterCommit(notify: () => void): void {
+    this.database.afterCommit(notify);
   }
   async transactionLock(key: string, wait = false): Promise<void> {
     const result: unknown = await this.database.manager.query(

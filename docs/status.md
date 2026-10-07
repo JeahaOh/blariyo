@@ -1,5 +1,43 @@
 # M0 현재 진행 상황
 
+- 2026-10-06 AI 품질 도구: 공통 lint·검증 입력/결과 기록·정책 약화 검토·선택 Oxlint 규칙을 구현했다. iron-laws는 검토 보조다. 도입 검증과 실제 변경 관찰의 완료 여부는 [현재 실행 기록](../worklog/2026-10-06/ai-quality-adoption/README.md)을 따른다. 원격 CI·배포·운영 수용을 뜻하지 않는다.
+
+- 2026-10-06 수집 요청 정책 변경: robots 자동 조회/차단 제거, 기본 요청 간격5초·출처별 일일5000 HTTP 요청, Collector V015 Retry-After 영속 대기·일시 장애의 이미지 삭제 제외를 구현했다. 로컬21개 source 설정도300→5000회·10→5초로 변경했다. Collector296 tests·실제5개역할/backup-restore 검증 통과, 로컬V015 반영 전후 수집85·게시글117건 보존. 운영 반영·재수집·commit/push 미실행. [작업 기록](../worklog/2026-10-06/collector-request-policy/README.md).
+
+
+- 2026-10-06 관리자 실패 삭제: FAILED/BLOCKED 미검수 항목의 단건/선택 삭제·공통 확인창·항목별 결과·동일 요청 재확인을 구현했다. Collector V014 제한 함수와 정확한 item/run 파일 정리, 기존 검수·게시글·활성 수집 보호를 검증했다. 로컬 schema/서버 반영, 실제 사용자 데이터 삭제·운영 배포·commit/push 미실행. [작업 기록](../worklog/2026-10-06/batch-failure-delete/README.md).
+
+
+- 2026-10-05 이미지 실패 자동 처리: 목록·단건·queue에 글당 추가 재시도1회와 재실패 미검수 항목 삭제, 서버 파일 정리·중복 차단 구현. 로컬 기존6건 재시도 후 모두 재실패해 삭제, 파일 정리 대기0·대상 외 DB/파일 해시 보존 확인. [작업 기록](../worklog/2026-10-05/image-failure-retry-cleanup/README.md). 운영 배포·commit/push 미실행.
+
+- 2026-10-05 제목 표기 보완: `| 보배드림 베스트글` 등 확인된 게시판/사이트 접미사4종 추가, 검수 목록·상세·초안에 공통 보정 적용. 원제목/출처 보존과 발행 제목을 Chromium16 tests·단위/계약2 tests로 검증, Web 빌드·타입/lint 통과 및 로컬 반영. [작업 기록](../worklog/2026-10-05/collection-title-labels/README.md). commit/push·운영 배포 미실행.
+
+- 2026-10-05 로컬 검수 전 정리·재수집: 기존192건과 원문/첨부673개 백업 후 삭제, 승인47·반려7·게시글111 보존. 등록21개 출처 배치 실행을 마쳐 정상27건·실패9/차단1의 새 검수 전37건 적재. 원문37·첨부122개 해시, 목록/정상 상세 API·대표 이미지 미리보기 검증 통과. 미검증 목록·robots/접근 제한·파싱 오류·디시 HTTP 대기 정체는 [작업 기록](../worklog/2026-10-05/local-unreviewed-recollection/README.md)에 구분했다. 로컬 작업이며 운영 변경·발행·commit/push 미실행.
+
+- 2026-10-05 검수 버튼 정렬: 제목 중앙 SVG 도움말, 필터 라벨/입력 grid 공통행과 조회44px, 상세 작업 버튼 입력칸 오른쪽 정렬, 안내 확인 버튼 규격 통일. 화면 폭5종의 도움말 중심·조회 위치/높이 검사 포함 Chromium19 tests·Web build/type/lint 통과, 로컬 반영. [작업 기록](../worklog/2026-10-05/batch-button-position/README.md). commit/push·운영 배포 미실행.
+
+
+- 2026-10-05 검수 안내·상단 구성: 안내를 승인/반려 두 문장으로 줄이고 제목 옆 보조 도움말 아이콘으로 변경, 결과 건수를 목록 머리글로 이동, 필터 카드/여백 제거·입력/조회 정렬. Web 빌드·타입/lint·Chromium19 tests 통과, 모바일/데스크톱 화면 확인·로컬 반영 완료. [작업 기록](../worklog/2026-10-05/batch-help-layout/README.md). commit/push·운영 배포 미실행.
+
+
+- 2026-10-05 수집 빈 화면: 미선택 상세 패널 제거·목록 전체 너비, 0건의 목록 제목/빈 리스트/페이지 제거, 단일 페이지 이동 숨김. Web 빌드·타입/lint 및 Chromium20 tests 통과, 390/1280px 화면 확인·로컬 반영 완료. [작업 기록](../worklog/2026-10-05/batch-empty-state/README.md). commit/push·운영 배포 미실행.
+
+
+- 2026-10-05 수집 검수 후속: 웃대 EUC-KR 재파싱 깨짐 수정, 수동 목록 재조회 시 상세/주소 선택 해제, `승인 및 발행`으로 검수→초안→즉시 발행 연결, 공통 사용 안내 dialog 구현. Chromium26·Web 빌드/타입/lint 통과, Collector271 통과·DB 전제20 skip, 로컬 서버 반영. 기존 웃대 제목 깨짐6건의 DB 정정은 미실행이며 원문7건 재파싱 가능 확인. [작업 기록](../worklog/2026-10-05/batch-review-publish/README.md). commit/push·운영 배포 미실행.
+
+
+- 2026-10-05 수집 항목 주소: 목록 선택 시 `/admin/batch?itemId=<UUID>`를 반영하고 새로고침·직접 링크·뒤로/앞으로 이동을 동기화했다. 별도 목록으로 버튼 제거. 브라우저24 tests·Web 빌드/타입/lint 통과, 로컬 반영 완료. [작업 기록](../worklog/2026-10-05/batch-detail-navigation/README.md). commit/push·운영 배포 미실행.
+
+- 2026-10-05 공통 로딩바: 전체 화면의 페이지 이동·사용자 조회/저장/업로드에 상단3px 표시를 연결하고 자동 폴링을 제외했다. 공통 상태는 동시 작업과 화면 이탈을 처리한다. 브라우저52 tests(분리 실행·중복 제외), Web 빌드/타입 검사 통과, 로컬 서버 반영 완료. 기존 admin.vue lint1건은 유지. [작업 기록](../worklog/2026-10-05/global-loading-bar/README.md). commit/push·운영 배포 미실행.
+
+- 2026-10-05 초안 제목 보정: 수집 결과에서 초안을 만들 때 제목 끝의 알려진 출처 표기를 제거한다. 원제목·출처 정보는 보존한다. 단위/계약2·API21·브라우저12 tests 및 API/Web 빌드 통과, 로컬 재시작 완료. [작업 기록](../worklog/2026-10-05/draft-title-source/README.md). 기존 초안 일괄 수정·commit/push·운영 배포 미실행.
+
+- 2026-10-05 공통코드 그룹 전환: 출처 전용 관리를 `/admin/common-codes`의 공통코드 관리로 변경했다. `source` 그룹에 사용자 지정 thqo/pmpu/yldo/invn/dgdp/rlwb 포함21개4자리 코드를 이관하고 기존 수집 식별자는 연결 키로 보존한다. 그룹/코드 추가·이름 수정, API/DB29·브라우저14 tests, 제한5역할 및75테이블/16시퀀스 복원 통과. 로컬 API V013·서버·실화면 적용 완료. [후속 기록](../worklog/2026-10-05/common-code-groups/README.md). commit/push·운영 배포 미실행.
+
+- 2026-10-05 검수 흐름 단순화: 검수 시작/다시 검수 버튼과 REVIEWING 중간 상태를 제거하고 상세에서 바로 승인·반려하도록 변경했다. API/DB 회귀42 tests·브라우저13 tests·실제5역할 검사 통과, 로컬 DB V011 및 서버 재시작·실화면 확인 완료. [구현·검증 기록](../worklog/2026-10-05/batch-direct-decision/README.md). 기존 검수 데이터는 보존하며 commit/push·운영 배포는 미실행이다.
+
+- 2026-10-04 후속 정책: 신규 수집과 만료 원문 회수를 독립 실행하도록 로컬 정책·코드를 변경했다. Collector289·보존/회수/Web 통합23 tests PASS. backlog 전역 차단 제거와 회귀 검증은 [작업 기록](../worklog/2026-10-04/collection-retention-independence/README.md), 운영 적용·만료8건 처리·실제 재수집은 별도 증거로 구분한다. 아래 과거 검증 결과를 이번 변경의 통과로 재사용하지 않는다.
+
 - 문서 갱신: 2026-09-30. Git 반영 현황을 갱신했으며 운영 관측 날짜는 각각의 증거를 따른다. [사용자 결정·입력](roadmap.md#5-추가로-확정할-항목) → [잔여 작업](roadmap.md#1-다음-시작점) 순으로 확인한다. 로컬 구현과 운영 인수의 오래된 상태 표기를 동기화했고 [갱신 검증](../worklog/2026-09-27/m0-status-refresh/README.md)에 범위를 기록한다.
 
 - 개발 데이터 부분 적재 완료: [로컬 준비 도구의 최신 DB 권한·ledger 출력 정렬](implementation-tasks/contracts-maintenance.md#로컬-준비-도구-후속--2026-09-27-문서-대조)을 보완하고 격리 권한 시험과 개발 DB API010/Collector010 적용을 확인했다. 사용자 요청에 따라 21개 사이트를 판정해 5개 사이트의 신규 31건·이미지 70개를 개발 서버에 공개했다. 16개 사이트는 차단/실패이며 기존 글 75건을 보존했다. [실행 결과](../worklog/2026-09-27/dev-21-site-publish/README.md).

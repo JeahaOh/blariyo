@@ -1,0 +1,20 @@
+{
+  "runs": [
+    {
+      "attempt": 1,
+      "exit": 0,
+      "outputHash": "4a37d742f613c4ac2ed8502a96cee2743993893fbfa6870c409828661c2a033c"
+    },
+    {
+      "attempt": 2,
+      "exit": 0,
+      "outputHash": "a78b35775baef9e0c1e7bf16228dbd97387daf1785194a955bbc5e4a9778b601"
+    },
+    {
+      "attempt": 3,
+      "exit": 0,
+      "outputHash": "37abc9ef99f1fb870c4acb8c5f801987aaf22d12d783bf64a230c8f942008151"
+    }
+  ],
+  "purpose": "Reproduce unresolved intermittent history failure; not final whole-project verification"
+}

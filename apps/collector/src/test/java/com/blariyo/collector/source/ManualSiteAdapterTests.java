@@ -19,7 +19,7 @@ class ManualSiteAdapterTests {
     try(var fixture=getClass().getResourceAsStream("/sites/dcinside.detail.observed.html")) {
       org.junit.jupiter.api.Assertions.assertNotNull(fixture);
       var html=fixture.readAllBytes();
-      var result=source.adapter().detail(html,java.net.URI.create("https://gall.dcinside.com/board/view/?id=hit&no=17809"),source.policy());
+      var result=source.adapter().detail(html,java.net.URI.create("https://gall.dcinside.com/board/view/?id=hit&no=17809"),ObservedFixtureMain.offlinePolicy(source));
       assertEquals(49,result.path("imageCandidates").size());
       assertEquals(49,java.util.stream.StreamSupport.stream(result.path("contentBlocks").spliterator(),false)
           .filter(block->"IMAGE".equals(block.path("type").asText())).count());

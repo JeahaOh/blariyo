@@ -37,7 +37,7 @@ bin/blariyo-collector retention --once --write-db
   알림 실패 때문에 삭제를 중복 실행하거나 성공으로 바꾸지 않는다. 원문·객체 key·raw stderr·token은 알림에 넣지 않는다.
 - 매분 만료 건을 확인하며 item마다120초 lease와30초 heartbeat를 사용한다. 오래된 owner/version은 완료를 기록할 수 없다. 객체 I/O 중 DB transaction을 길게 유지하지 않는다.
 - DELETE 뒤 정확한 key의 HEAD로 부재를 확인한 후 DB payload와 API 검수 기록을 정리한다. 404는 부재,403/timeout은 실패다. 실패한 manifest는 유지하며1/5/30분, 이후1시간 간격으로 다시 시도한다.
-- 다음 전체 inventory는 완료 이후 늦은 PUT도 다시 PENDING으로 만든다. 실패 backlog가 있으면 새 수집을 중지하고 Core 수동 운영은 유지한다. 삭제 완료 이력은7일 뒤 제거한다.
+- 다음 전체 inventory는 완료 이후 늦은 PUT도 다시 PENDING으로 만든다. 2026-10-04 정책에 따라 신규 수집과 회수를 독립 실행한다. 만료·회수 대기·삭제 실패 backlog는 새 수집의 전역 차단 조건이 아니며, 회수 실패 재시도·경보와 Core 수동 운영을 유지한다. 복원 inventory 중에는 기존 배타 잠금으로 수집을 막는다. 삭제 완료 이력은7일 뒤 제거한다.
 - systemd 종료·프로세스 crash 뒤에는 저장된 manifest와 lease 만료를 따라 재개한다. 물리 삭제 지연은 보존 연장으로 정상 처리하지 않는다. 비밀 없는 상태/code를 확인하며 원문·전체 SQL·credential은 로그에 넣지 않는다.
 
 ## 격리 복원
@@ -51,3 +51,13 @@ bin/blariyo-collector retention --once --write-db --restore-inventory
 복원 inventory의 exclusive DB 잠금과 수집 writer의 shared 잠금은 서로를 거부한다. 남은 RUNNING run도 복원 실행을 차단한다. 새 원문 fetch로 누락 자료를 복구하지 않으며, private/public 사본의 참조·hash·영구 중복 판정을 별도로 확인한 뒤에만 입력·수집을 재개한다.
 
 잔여 인수: 선택 backup/age 실제 격리 복원, 과거 디스크·object inventory, R2 실제 권한과 부재 확인, Discord 연결·실수신, 서버 timer 설치/재부팅·장애 회복, 실제7일 관찰. 로컬 테스트 결과와 구분한다.
+
+## 이미지 실패 자동 삭제 (2026-10-05)
+
+- Collector V011~V013과 같은 릴리스의 권한 SQL을 함께 적용한다. 목록·단건·queue는 이미지 실패 글에 추가 시도를 한 번만 허용하며 계속 실패한 미검수 자료는 즉시 목록에서 제거한다.
+- retention worker는 만료 처리 전에 `batch_image_cleanup`의 삭제 대기를 처리한다. 이 명시적 실패 정리는 만료일을 바꾸지 않는다. raw/media의 정확한 item/run 경로만 삭제하고 부재를 확인한다. 실패하면 완료 시각을 남기지 않아 다음 실행에서 다시 처리한다.
+- 일반 batch 계정에 object DELETE 권한을 추가하지 않는다. 승인·발행 자료와 content 사본은 보존한다. 로컬에서는 이 작업의 고정 DB/객체 경로만 적용하며 운영 반영은 배포·timer 실행 확인이 필요하다.
+
+### 관리자 실패 삭제 파일 정리
+
+Collector V014부터 관리자 실패/차단 삭제는 DB payload를 즉시 제거하고 `batch_manual_cleanup`에 item/run별 회수 작업을 남긴다. 기존 retention worker가 만료와 별개로 이 작업도 처리한다. 신규 SQL 함수 설치 뒤 `apply-privileges.sql`을 실행해 앱의 제한 삭제 함수와 retention의 새 wrapper 권한을 반영한다. 파일 회수 완료는 `completed_at` 및 실제 부재로 확인한다. worker 미실행/저장소 장애에서는 DB 삭제만 완료되고 파일 작업이 대기한다. 기존 `BATCH_IMAGE_CLEANUP_FAILED` 경보와 함수명은 호환성을 유지하며 수동 삭제 작업 실패도 포함한다.

@@ -16,7 +16,14 @@ const child=spawn(executable,['-Dloader.main=com.blariyo.collector.ops.BatchMain
   stdio:'inherit',env:{...process.env,COLLECTOR_DB_URL:'jdbc:postgresql://127.0.0.1:5439/blariyo_local',COLLECTOR_DB_USER:config.batchRole,COLLECTOR_DB_PASSWORD:config.batchPassword,
   COLLECTOR_OBJECT_STORE_DIRECTORY:config.objectRoot,COLLECTOR_SOURCES_FILE:resolve('apps/collector/ops/reference-sites.sources.example.json')}
 });
-process.exitCode=await new Promise((resolve,reject)=>{child.once('error',reject);child.once('exit',code=>resolve(code??1));});
+const onInt=()=>child.kill('SIGINT');
+const onTerm=()=>child.kill('SIGTERM');
+process.on('SIGINT',onInt);process.on('SIGTERM',onTerm);
+try {
+process.exitCode=await new Promise((resolve,reject)=>{child.once('error',reject);child.once('close',(code,signal)=>resolve(code??(signal==='SIGINT'?130:signal==='SIGTERM'?143:1)));});
+} finally {
+process.removeListener('SIGINT',onInt);process.removeListener('SIGTERM',onTerm);
+}
 } catch {
 console.error('LOCAL_BATCH_START_FAILED');process.exitCode=1;
 } finally {

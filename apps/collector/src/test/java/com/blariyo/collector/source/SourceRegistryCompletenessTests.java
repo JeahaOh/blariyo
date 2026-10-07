@@ -8,6 +8,22 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 class SourceRegistryCompletenessTests {
+  @org.junit.jupiter.params.ParameterizedTest
+  @org.junit.jupiter.params.provider.ValueSource(strings={"dcinside","arcalive","bobaedream"})
+  void disabledLiveSourcesKeepOfflineParsersWithoutChangingApproval(String key) {
+    var source=SourceRegistry.read("ops/reference-sites.sources.example.json").key(key);
+    var before=Json.canonical(source.config());
+    assertFalse(source.config().path("approved").asBoolean());
+    assertEquals("SOURCE_DISABLED",source.config().path("blockedReason").asText());
+    assertEquals("SOURCE_NOT_ALLOWED",assertThrows(com.blariyo.collector.shared.CollectorFailure.class,source::policy).getMessage());
+    var offline=ObservedFixtureMain.offlinePolicy(source);
+    assertEquals(source.config().path("host").asText(),offline.host());
+    assertEquals(source.config().path("parser").asText(),offline.parser());
+    assertThrows(com.blariyo.collector.shared.CollectorFailure.class,()->offline.allow("https://foreign.invalid/"));
+    assertArrayEquals(before,Json.canonical(source.config()));
+    assertEquals("SOURCE_NOT_ALLOWED",assertThrows(com.blariyo.collector.shared.CollectorFailure.class,source::policy).getMessage());
+  }
+
   @Test
   void allTwentyOneSourcesHaveDetailParserAndHotListSourcesHaveListAdapters() throws Exception {
     var root = Path.of("ops/reference-sites.sources.example.json");

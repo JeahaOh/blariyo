@@ -1,0 +1,22 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "test:browser:docker",
+    "--",
+    "tests/browser/batch-navigation.test.ts",
+    "tests/browser/admin-workflow.test.ts",
+    "tests/browser/local-workers.test.ts"
+  ],
+  "counts": {
+    "tests": 9,
+    "pass": 9,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "exitCode": 0,
+  "outputHash": "2e453939cdcd94d8ddbe751ae01f175178df1b1e0c30d573593132737b5e5dd1",
+  "scope": "Focused port-isolation and route readiness regression; final full browser receipt supersedes this diagnostic run"
+}

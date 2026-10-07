@@ -20,7 +20,7 @@ class DiscoveryBatchTests {
         + "<time datetime='2026-09-21T10:00:00Z'></time></div></div>"
         + (next ? "<a href='/b/live?p=2'>next</a>" : "")).getBytes();
   }
-  private DiscoveryBatch.Options options(boolean write) { return new DiscoveryBatch.Options("arcalive","hot",2,20,Duration.ofHours(24),10000,write); }
+  private DiscoveryBatch.Options options(boolean write) { return new DiscoveryBatch.Options("arcalive","hot",2,20,Duration.ofHours(24),15000,write); }
   @Test void dryRunDoesNotWriteAndRepeatedPostIsDeduplicated() {
     var writes=new AtomicInteger(); var requests=new AtomicInteger();
     var report=new DiscoveryBatch().run(source(),options(false),url->{requests.incrementAndGet();return list("123",url.getQuery()==null);},
@@ -35,7 +35,7 @@ class DiscoveryBatchTests {
     assertEquals("FAILED",report.state());assertEquals(1,report.jobs().size());assertEquals(2,requests.get());
   }
   @Test void capSinceUnknownDateAndInvalidOptions() {
-    var limited=new DiscoveryBatch.Options("arcalive","hot",1,1,Duration.ofHours(1),10000,false);
+    var limited=new DiscoveryBatch.Options("arcalive","hot",1,1,Duration.ofHours(1),15000,false);
     var report=new DiscoveryBatch().run(source(),limited,url->list("1",true),(k,u)->Map.of(),Instant.parse("2026-09-21T12:00:00Z"));
     assertEquals(1,report.pages());assertEquals(0,report.eligible());
     var unknown=new DiscoveryBatch().run(source(),limited,url->new String(list("1",false)).replace(" datetime='2026-09-21T10:00:00Z'","").getBytes(),(k,u)->Map.of(),Instant.now());

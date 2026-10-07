@@ -14,6 +14,7 @@ export class BatchReviewEnabledGuard implements CanActivate {
 }
 function reviewIs(value:unknown):value is components['schemas']['BatchReviewRequest']{return schemaValidator({$ref:'#/components/schemas/BatchReviewRequest'})(value);}
 function draftIs(value:unknown):value is components['schemas']['BatchDraftRequest']{return schemaValidator({$ref:'#/components/schemas/BatchDraftRequest'})(value);}
+function deleteIs(value:unknown):value is components['schemas']['BatchDeleteRequest']{return schemaValidator({$ref:'#/components/schemas/BatchDeleteRequest'})(value);}
 @Controller('/api/v1/admin/collect/batch-items')
 @UseGuards(BatchReviewEnabledGuard,AdminGuard,CollectionMaintenanceGuard)
 export class BatchReviewController {
@@ -36,6 +37,11 @@ export class BatchReviewController {
   @Post(':itemId/draft') async draft(@Input(ContractPipe) input:RequestInput,@Actor() actor:string){
     if(!draftIs(input.body))fail(400,'VALIDATION_FAILED');
     const result=await this.service.promote(stringField(input.params,'itemId'),input.body,actor,stringField(input.headers,'idempotency-key'));
+    return new HttpResult(result.data,{},result.status,'private, no-store');
+  }
+  @Post(':itemId/delete') async deleteFailed(@Input(ContractPipe) input:RequestInput,@Actor() actor:string){
+    if(!deleteIs(input.body))fail(400,'VALIDATION_FAILED');
+    const result=await this.service.deleteFailed(stringField(input.params,'itemId'),input.body,actor,stringField(input.headers,'idempotency-key'));
     return new HttpResult(result.data,{},result.status,'private, no-store');
   }
 }

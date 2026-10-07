@@ -1,5 +1,8 @@
 # M0 보안·운영 설계
 
+> 2026-10-06 수집 정책 변경: robots.txt는 참고 정보이며 자동 조회·허용 판정·활성화 선행 조건으로 사용하지 않는다. 과거 설계의 robots 차단 조건은 [현행 수집 정책](../planning/content-collection/README.md#수집-요청-정책--2026-10-06-사용자-결정)으로 대체한다. 기본 요청 간격5초·출처별 일일5000 HTTP 요청이며 명시한 출처별 설정은 유지한다. 실제 접근 제한·요청 한도·DNS 보호와 별도 법무 검토 항목은 유지한다.
+
+
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 보안·운영 설계 계약 · 공개 경계·정기 작업·암호화 백업 복원 검증, 관리자 쓰기·장기 관찰 잔여
 - 기준일: 2026-09-04
@@ -42,7 +45,7 @@ RPO·RTO는 SLA가 아니라 단일 서버 저비용 운영 목표다. 초기 �
 | 저장형 XSS | 게시글 TEXT는 plain text escape, 정책 HTML은 허용 목록 sanitize, CSP |
 | 악성 이미지 | MIME·magic byte·decode 검사, SVG 금지, 크기 제한 |
 | SSRF | BE·FE는 외부 수집 URL을 직접 fetch하지 않는다. 외부 fetch는 운영자 로컬 collector만 수행하고, collector는 등록·활성 출처 host 매칭, DNS 결과의 사설·loopback·link-local·metadata 주소 차단, redirect 3회·응답 크기·timeout 제한, 문서·이미지·첨부 종류별 형식 검증을 강제한다 |
-| 수집 대상 사이트 과부하·차단 | 출처별 요청 간격·일일 상한, 식별 가능한 User-Agent, `robots.txt` 준수, `403`·`429` 누적 시 자동 비활성 |
+| 수집 대상 사이트 과부하·차단 | 출처별 요청 간격·일일 상한, 식별 가능한 User-Agent, `robots.txt` 참고, `403`·`429` 누적 시 자동 비활성 |
 | 수집 콘텐츠를 통한 저장형 공격 | 제목·본문 TEXT escape, raw HTML은 비공개 collect object로 격리하고 화면에서 렌더하지 않음. 이미지 승격 시 magic byte·decode·metadata 제거·재인코딩, 익명 collect/private 접근 거부 |
 | secret 유출 | 저장소·image·log 제외, provider별 최소 권한 key |
 | 숨김 콘텐츠 cache 잔존 | 상태 transaction과 목록·상세·이미지 URL purge outbox, 404 no-store |
@@ -223,7 +226,7 @@ page open을 포함한 Google tag/request와 cookieless ping을 만들지 않는
 - 정책 `body_html`은 저장·미리보기에 같은 허용 목록 sanitizer를 사용한다. script·style·iframe·form·SVG·`on*` 속성·inline style을 허용하지 않는다.
 - 정책 링크는 `https`, `mailto`, 서비스 내부 상대 경로와 `#` anchor만 허용하고 외부 새 창 링크에는 `rel="noopener noreferrer"`를 강제한다.
 - 수집 대상 URL은 `https`만 허용하고 최대 2048자다. BE는 접수 시 정규화한 뒤 등록 출처 host와
-  대조하고, collector는 실행 직전 활성 상태·robots·DNS·redirect 경계를 다시 확인한다.
+  대조하고, collector는 실행 직전 활성 상태·DNS·redirect 경계를 다시 확인한다.
 - 수집 제목·본문 TEXT는 plain text로 처리한다. direct는 파싱 전 응답 HTML을 비공개 raw object로 저장하며,
   공개 본문·로그에서 렌더하지 않는다. 원문 응답을 저장하지 않는 규칙은 legacy metadata 경로에 한정한다.
 - 운영자 검수 미리보기용 이미지는 Java/Spring 추출기 작업 경로에 임시 저장할 수 있지만 내부 절대 경로,

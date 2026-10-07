@@ -4,5 +4,5 @@
     "strict": true, "noUncheckedIndexedAccess": true, "exactOptionalPropertyTypes": true,
     "allowJs": true, "checkJs": true, "noEmit": true, "skipLibCheck": true
   },
-  "files": ["src/index.mjs"]
+  "files": ["src/index.mjs", "src/draft-title.mjs"]
 }

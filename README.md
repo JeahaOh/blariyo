@@ -111,6 +111,10 @@ Web·API 이미지 빌드, 실제 실행과 백업 복구를 검증한다. 기�
 
 ## 검증
 
+공통 lint는 `npm run lint`로 API·Web·scripts·tests를 검사한다. Web build/타입 준비가 필요하다.
+검사 명령·입력·결과를 보존하려면 `npm run quality:verify -- --profile quality --task worklog/YYYY-MM-DD/<주제>`를 사용한다.
+기록 검증과 업무별 범위는 [로컬 품질 기록](docs/testing/README.md#로컬-품질-검사와-결과-기록)을 따른다. quality 성공은 DB·브라우저·Collector·운영 통과를 대신하지 않는다.
+
 `npm run verify:migration`은 9월 9일 Nest 전환용 검증기다. Node 24.18.0·main 브랜치·고정된 두 컨테이너
 ID·55449/55450 포트를 검사하므로 환경 변수만 바꿔 다른 PC의 일반 검사로 사용할 수 없다.
 당시 결과와 실패 이력은 [진행 기록](worklog/2026-09-09/nest-transition/PROGRESS.md), 검증 대응은
@@ -264,5 +268,4 @@ checksum·행/sequence 및 현재 앱 호환성을 확인하며 V003 결과로 �
 ## M0 Core + Spring 수집 보조 진행
 
 이전 `feature/m0-core`의 [1~7 완료 조건](worklog/2026-09-08/core-spring-acceptance/acceptance.md), [실행 검증 기록](worklog/2026-09-09/core-spring-verification/evidence.md), [Spring 설치·복구 안내](apps/collector/ops/README.md)를 참고한다. 로컬 통과와 실제 운영 전환·7일 관찰은 별도이며 전체 완료로 표시하지 않는다.
-
 

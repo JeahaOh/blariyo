@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-10-06T12:49:53.887599+00:00",
+  "ownedContainer": {
+    "id": "8b3adbafa7ad575399340e655294c11f14b0f1d6c66650cd75921f03591d39c9",
+    "name": "blariyo-quality-pg-d7824c7d3e"
+  },
+  "connectionsBeforeRemoval": 0,
+  "testDatabasesBeforeRemoval": [],
+  "removedOnlyOwnedId": true,
+  "playwrightServerAbsent": true,
+  "persistentDevelopmentDatabasePreserved": true
+}

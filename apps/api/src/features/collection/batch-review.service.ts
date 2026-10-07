@@ -1,8 +1,10 @@
+import { CommonCodeRepository } from '../common-codes/common-code.repository.js';
 import { COLLECTED_FILE_BYTES, COLLECTED_TOTAL_BYTES } from '../images/image-validation.js';
 import { Inject, Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 import { schemaValidator, normalizeInput } from '@blariyo/contracts';
+import { draftTitle } from '@blariyo/contracts/draft-title';
 import type { components } from '@blariyo/contracts/collection-api';
 import { BatchReviewRepository, type Review, type BatchMedia } from './batch-review.repository.js';
 import type { BatchResultRow } from './batch-result.repository.js';
@@ -18,6 +20,7 @@ type BatchItem = components['schemas']['BatchItem'];
 type BatchSummary = components['schemas']['BatchItemSummary'];
 type ReviewBody = components['schemas']['BatchReviewRequest'];
 type DraftBody = components['schemas']['BatchDraftRequest'];
+type DeleteBody = components['schemas']['BatchDeleteRequest'];
 function itemIs(value: unknown): value is BatchItem {
   return schemaValidator({ $ref: '#/components/schemas/BatchItem' })(value);
 }
@@ -27,7 +30,7 @@ function summaryIs(value: unknown): value is BatchSummary {
 function url(value: string) { try { return new URL(value).href; } catch { fail(409, 'BATCH_CONTENT_INVALID'); } }
 function snapshot(item: BatchResultRow, media: BatchMedia[]) {
   // Processing diagnostics are not part of the original-content review snapshot.
-  const reviewedItem=Object.fromEntries(Object.entries(item).filter(([key])=>!['failure_code','skip_reason','collected_at','review_finalized_at','expires_at','retention_state','accessDeadline'].includes(key)));
+  const reviewedItem=Object.fromEntries(Object.entries(item).filter(([key])=>!['failure_code','skip_reason','fetched_at','collected_at','review_finalized_at','expires_at','retention_state','accessDeadline'].includes(key)));
   return collectionDigest({ item: reviewedItem, media: media.map(m => ({ ...m, hash: m.hash?.toString('hex') ?? null })) });
 }
 function uniqueConflict(error: unknown) {
@@ -40,7 +43,8 @@ export class BatchReviewService {
     @Inject(CollectReader) private readonly reader: CollectReader,
     @Inject(UnitOfWork) private readonly work: UnitOfWork,
     @Inject(ImagesService) private readonly images: ImagesService,
-    @Inject(PostsService) private readonly posts: PostsService
+    @Inject(PostsService) private readonly posts: PostsService,
+    @Inject(CommonCodeRepository) private readonly sourceCodes: CommonCodeRepository
   ) {}
   private async row(id: string) {
     const item = await this.repository.item(id);
@@ -56,6 +60,7 @@ export class BatchReviewService {
     const value = { itemId: item.id, sourceKey: item.source_key, sourcePostKey: item.source_post_key,
       canonicalUrl: url(item.canonical_url), state: item.state, version: Number(item.version), title: item.title,
       failureCode: item.failure_code, skipReason: item.skip_reason,
+      fetchedAt: item.state === 'FETCHED' ? item.fetched_at : null,
       retention: { collectedAt: item.collected_at, reviewFinalizedAt: item.review_finalized_at,
         expiresAt: item.expires_at, retentionState: item.retention_state },
       review: this.reviewDto(item, review) };
@@ -63,7 +68,7 @@ export class BatchReviewService {
     return value;
   }
   private dto(item: BatchResultRow, review: Review | null, media: BatchMedia[]): BatchItem {
-    const value = { ...this.summary(item, review), bodyBlocks: normalizeInput(item.body_blocks ?? []),
+    const value = { ...this.summary(item, review), contentDigest: snapshot(item, media).toString('hex'), bodyBlocks: normalizeInput(item.body_blocks ?? []),
       snsLinks: Array.isArray(item.sns_links) ? item.sns_links.map((value: unknown) => typeof value === 'string' ? url(value) : '') : [],
       attachments: normalizeInput(item.attachment_metadata), media: media.map(m => ({ mediaId: m.id, position: m.position,
         kind: m.kind, remoteUrl: m.remoteUrl ? url(m.remoteUrl) : null, mimeType: m.mime, byteSize: m.size })) };
@@ -75,6 +80,24 @@ export class BatchReviewService {
       const item = await this.row(id);
       return { item: this.dto(item, await this.repository.review(id), await this.repository.media(id)) };
     }, { isolation: 'REPEATABLE READ', readOnly: true });
+  }
+  async deleteFailed(id: string, body: DeleteBody, actor: string, key: string) {
+    const scope = `batch:delete:${id}`, hash = collectionDigest(body);
+    return this.work.lock(`batch-command:${actor}:${scope}:${key}`, () => this.work.transaction(async () => {
+      const receipt = await this.repository.receipt(actor, scope, key);
+      if (receipt) {
+        if (!receipt.hash.equals(hash)) fail(409, 'IDEMPOTENCY_CONFLICT');
+        return { status: receipt.status, data: receipt.data };
+      }
+      const result = await this.repository.deleteFailed(id, body.itemVersion, body.lockVersion, actor);
+      if (result !== 'DELETED') {
+        const status = result === 'BATCH_ITEM_NOT_FOUND' ? 404 : result === 'BATCH_ITEM_EXPIRED' ? 410 : result === 'VALIDATION_FAILED' ? 400 : 409;
+        fail(status, result);
+      }
+      const data = { itemId: id, deleted: true, cleanupStatus: 'PENDING' };
+      await this.repository.saveReceipt(actor, scope, key, hash, 200, data);
+      return { status: 200, data };
+    }));
   }
   private async mediaBytes(media: BatchMedia, deadline: number) {
     if (!media.key || !media.hash || !media.size || media.size > COLLECTED_FILE_BYTES) fail(409, 'BATCH_MEDIA_INCOMPLETE');
@@ -134,12 +157,7 @@ export class BatchReviewService {
   async review(id: string, body: ReviewBody, actor: string, key: string) {
     return this.command(id, body, actor, key, 'review', () => this.work.transaction(async () => {
       const { item, review, media, digest } = await this.checked(id, body.itemVersion, body.lockVersion);
-      if (body.decision === 'REVIEWING') {
-        if (review?.status === 'REVIEWING' && review.contentDigest.equals(digest)) fail(409, 'BATCH_REVIEW_STATE_CONFLICT');
-      } else {
-        if (review?.status !== 'REVIEWING') fail(409, 'BATCH_REVIEW_STATE_CONFLICT');
-        if (review.itemVersion !== body.itemVersion || !review.contentDigest.equals(digest)) fail(409, 'BATCH_ITEM_VERSION_CONFLICT');
-      }
+      if (body.contentDigest !== digest.toString('hex')) fail(409, 'BATCH_ITEM_VERSION_CONFLICT');
       // Reject can record an invalid body; approval must be structurally reviewable.
       if (body.decision === 'APPROVED') this.dto(item, review, media);
       const updated = await this.repository.setReview(item, body.decision, body.lockVersion, actor,
@@ -166,8 +184,8 @@ export class BatchReviewService {
           positions.some(p => !imageMedia.some(m => m.position === p))) fail(409, 'BATCH_MEDIA_INCOMPLETE');
         if (media.some(m => !m.size || m.size < 0 || m.size > COLLECTED_FILE_BYTES)) fail(409, 'BATCH_MEDIA_INCOMPLETE');
         if (media.reduce((sum, m) => sum + (m.size ?? 0), 0) > COLLECTED_TOTAL_BYTES) fail(413, 'UPLOAD_TOO_LARGE');
-        const title = (body.title ?? item.title ?? '').trim();
-        const draft = { boardSlug: body.boardSlug, title, source: { name: item.source_key, url: canonical }, pinnedPosition: null };
+        const title = draftTitle(body.title ?? item.title ?? '', item.source_key);
+        const draft = { boardSlug: body.boardSlug, title, source: { name: (await this.sourceCodes.findReference('source',item.source_key))?.displayName ?? item.source_key, url: canonical }, pinnedPosition: null };
         // Validate before any object writes; placeholder positive IDs preserve the actual block shape.
         const previewBlocks = originalDraftBlocks(detail.bodyBlocks, (position, alt) => ({ type: 'IMAGE', imageId: position, alt: alt || '수집 이미지' }));
         if (!schemaValidator({ $ref: '#/components/schemas/CreatePostRequest' })({ ...draft, blocks: previewBlocks })) fail(400, 'VALIDATION_FAILED');

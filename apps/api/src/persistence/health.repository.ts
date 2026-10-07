@@ -6,9 +6,16 @@ import { requiredRow } from './rows.js';
 @Injectable()
 export class TypeOrmHealthRepository extends HealthRepository {
  constructor(@Inject(DatabaseContext) private readonly database:DatabaseContext){super();}
+ async commonCodesReady():Promise<boolean> {
+  const schema=requiredRow(await this.database.manager.query("SELECT ops.is_schema_ready('V013') AND to_regclass('content.common_code_group') IS NOT NULL AND to_regclass('content.common_code') IS NOT NULL AS ready"));
+  if(!schema.ready)return false;
+  return requiredRow(await this.database.manager.query(`SELECT
+    has_table_privilege(current_user,'content.common_code_group','SELECT') AND has_table_privilege(current_user,'content.common_code_group','INSERT') AND has_table_privilege(current_user,'content.common_code_group','UPDATE')
+    AND has_table_privilege(current_user,'content.common_code','SELECT') AND has_table_privilege(current_user,'content.common_code','INSERT') AND has_table_privilege(current_user,'content.common_code','UPDATE') AS ready`)).ready===true;
+ }
  async ready(collectionEnabled:boolean,batchEnabled=false,directEnabled=false):Promise<boolean> {
   if(directEnabled){
-    const schema=requiredRow(await this.database.manager.query("SELECT ops.is_schema_ready('V010') AND to_regclass('collect.batch_runtime_projection') IS NOT NULL AND to_regclass('collect.batch_input_projection') IS NOT NULL AS ready"));
+    const schema=requiredRow(await this.database.manager.query("SELECT (((ops.is_schema_ready('V013') OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011')) OR ops.is_schema_ready('V010')) AND to_regclass('collect.batch_runtime_projection') IS NOT NULL AND to_regclass('collect.batch_input_projection') IS NOT NULL AS ready"));
     if(!schema.ready)return false;
     const access=requiredRow(await this.database.manager.query(`SELECT has_table_privilege(current_user,'collect.web_collection_request','SELECT,INSERT')
       AND has_table_privilege(current_user,'collect.web_collection_request_key','SELECT,INSERT')
@@ -18,12 +25,12 @@ export class TypeOrmHealthRepository extends HealthRepository {
     if(!access.ready)return false;
   }
   const version:unknown = await this.database.manager.query(
-    "SELECT ops.is_schema_ready('V010') OR ops.is_schema_ready('V009') OR ops.is_schema_ready('V008') OR ops.is_schema_ready('V007') OR (NOT $1::boolean AND (ops.is_schema_ready('V006') OR ops.is_schema_ready('V005') OR ops.is_schema_ready('V004') OR ops.is_schema_ready('V003'))) AS ready",
+    "SELECT ((ops.is_schema_ready('V013') OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011')) OR ops.is_schema_ready('V010') OR ops.is_schema_ready('V009') OR ops.is_schema_ready('V008') OR ops.is_schema_ready('V007') OR (NOT $1::boolean AND (ops.is_schema_ready('V006') OR ops.is_schema_ready('V005') OR ops.is_schema_ready('V004') OR ops.is_schema_ready('V003'))) AS ready",
     [collectionEnabled]
   );
   if (!requiredRow(version).ready) return false;
   if (batchEnabled) {
-    const batch=requiredRow(await this.database.manager.query(`SELECT (ops.is_schema_ready('V010') OR ops.is_schema_ready('V009'))
+    const batch=requiredRow(await this.database.manager.query(`SELECT ((ops.is_schema_ready('V013') OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011'))
       AND to_regclass('collect.batch_item') IS NOT NULL AND to_regclass('collect.batch_media') IS NOT NULL
       AND to_regclass('collect.batch_retention') IS NOT NULL AS ready`));
     if (!batch.ready) return false;

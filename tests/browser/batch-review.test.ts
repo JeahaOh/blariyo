@@ -53,7 +53,10 @@ await test(
     await mkdir('.local-data/admin-ux-rework/screenshots', { recursive: true });
     for (const width of [1280, 390, 320]) {
       await page.setViewportSize({ width, height: 900 });
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      assert.equal(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        true
+      );
       await page.screenshot({
         path: `.local-data/admin-ux-rework/screenshots/admin-login-${width}.png`,
         fullPage: true,
@@ -64,7 +67,10 @@ await test(
     await expect(page.getByRole('heading', { name: '게시글 관리', exact: true })).toBeVisible();
     for (const width of [1440, 1280, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 900 });
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      assert.equal(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        true
+      );
       await page.screenshot({
         path: `.local-data/admin-ux-rework/screenshots/admin-posts-${width}.png`,
         fullPage: true,
@@ -155,7 +161,7 @@ await test(
     })
       .png()
       .toBuffer();
-    async function seed(title: string, image = false, state = 'FETCHED') {
+    async function seed(title: string, image = false, state = 'FETCHED', source = { key: 'fixture', run }) {
       const id = randomUUID(),
         url = 'https://example.invalid/' + id;
       const blocks = [
@@ -165,10 +171,10 @@ await test(
       ];
       await f.pool.query(
         `INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,attachment_metadata,version,fetched_at,failure_code)
-      VALUES($1::uuid,$2,'fixture',$1::text,$3,$4,$5,$6,$7,$8,1,now(),$9)`,
+      VALUES($1::uuid,$2,$10,$1::text,$3,$4,$5,$6,$7,$8,1,now(),$9)`,
         [
           id,
-          run,
+          source.run,
           url,
           createHash('sha256').update(url).digest(),
           state,
@@ -182,6 +188,7 @@ await test(
             },
           ]),
           state === 'FAILED' ? 'SOURCE_GONE' : null,
+          source.key,
         ]
       );
       if (image) {
@@ -203,18 +210,21 @@ await test(
       await page.waitForFunction(() => '__vue_app__' in document.querySelector('#__nuxt')!);
       await page.locator('.batch-list').getByRole('button', { name: title, exact: true }).click();
       await expect(detail.getByRole('heading', { name: title, exact: true })).toBeVisible();
-      await expect(button('검수 시작 / 다시 검수')).toBeEnabled();
+      await expect(button('검수 시작 / 다시 검수')).toHaveCount(0);
+      await expect(button('승인 및 발행')).toBeEnabled();
     }
     async function approve() {
-      await button('검수 시작 / 다시 검수').click();
-      await expect(button('승인')).toBeEnabled();
-      await button('승인').click();
-      await expect(button('게시글 초안 만들기')).toBeEnabled();
+      await expect(button('승인 및 발행')).toBeEnabled();
+      await button('승인 및 발행').click();
+      await expect(feedback).toContainText('발행했습니다');
     }
     await t.test(
-      'enabled menu, private image retry, source attachments and selected draft editor',
+      'enabled menu, private image retry, source attachments and selected published editor',
       async () => {
-        const item = await seed('이미지·첨부 검수', true);
+        const dogRun = randomUUID();
+        await f.pool.query("INSERT INTO collect.batch_source(source_key,host,policy_version) VALUES('dogdrip','www.dogdrip.net','fixture')");
+        await f.pool.query("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,interval_ms) VALUES($1,'dogdrip','manual','WRITE_DB','COMPLETED',1,1,10000)", [dogRun]);
+        const item = await seed('이미지·첨부 검수 - DogDrip.Net 개드립', true, 'FETCHED', { key: 'dogdrip', run: dogRun });
         await page.goto(f.origin + '/admin');
         const menu = page.getByRole('navigation', { name: '관리 메뉴' });
         await menu.getByRole('link', { name: '수집 결과 검수' }).click();
@@ -227,11 +237,11 @@ await test(
         await page.route(preview, (route) => route.abort('connectionreset'));
         await page
           .locator('.batch-list')
-          .getByRole('button', { name: item.title, exact: true })
+          .getByRole('button', { name: '이미지·첨부 검수', exact: true })
           .click();
         await expect(detail).toContainText('검수용 원문 첫 문단');
         await expect(
-          detail.getByRole('link', { name: '원문 확인 ↗', exact: true })
+          detail.getByRole('link', { name: '원본 열기 ↗', exact: true })
         ).toHaveAttribute('href', item.url);
         await expect(detail.getByRole('link', { name: '원문 첨부.pdf' })).toHaveAttribute(
           'href',
@@ -270,7 +280,8 @@ await test(
           401
         );
         await authenticate();
-        await approve();
+        await expect(page.getByLabel('초안 제목', { exact: true })).toHaveValue('이미지·첨부 검수');
+        await expect(detail.getByRole('heading', { name: '이미지·첨부 검수', exact: true })).toBeVisible();
         await page.getByLabel('초안 제목', { exact: true }).fill('검수 후 선택 초안');
         const started = Promise.withResolvers<void>(),
           held = Promise.withResolvers<void>();
@@ -281,16 +292,16 @@ await test(
           await held.promise;
           return route.continue();
         });
-        const click = button('게시글 초안 만들기').dblclick();
+        const click = button('승인 및 발행').dblclick();
         await started.promise;
         try {
-          await expect(button('게시글 초안 만들기')).toBeDisabled();
+          await expect(button('승인 및 발행')).toBeDisabled();
           await expect(page.getByLabel('초안 제목', { exact: true })).toBeDisabled();
         } finally {
           held.resolve();
         }
         await click;
-        await expect(feedback).toContainText('초안');
+        await expect(feedback).toContainText('발행했습니다');
         assert.equal(submissions, 1);
         await page.unroute(`**/batch-items/${item.id}/draft`);
         const row = firstRow(
@@ -299,16 +310,17 @@ await test(
             [item.id]
           )
         );
-        assert.equal(row.status, 'DRAFT');
+        assert.equal(row.status, 'PUBLISHED');
         assert.equal(row.title, '검수 후 선택 초안');
-        assert.equal((await f.storage.inventory('public')).length, 0);
+        assert.equal((await f.storage.inventory('public')).length, 1);
         const stored = firstRow(
           await f.pool.query(
             'SELECT private_storage_key,public_storage_key FROM content.board_post_image WHERE post_id=$1',
             [row.post_id]
           )
         );
-        assert.equal(stored.public_storage_key, null);
+        assert.equal(typeof stored.public_storage_key, 'string');
+        assert.deepEqual(await f.storage.get('public', String(stored.public_storage_key)), await f.storage.get('private', String(stored.private_storage_key)));
         const privateBytes = await f.storage.get('private', String(stored.private_storage_key));
         assert.equal((await sharp(privateBytes).metadata()).width, 240);
         const before = await sharp(bytes).raw().toBuffer(),
@@ -333,15 +345,17 @@ await test(
           '/admin?postId=' + String(row.post_id) + '&batchItemId=' + item.id
         );
         await link.click();
-        await expect(page.getByRole('group', { name: '게시글 내용' }).getByLabel('제목', { exact: true })).toHaveValue('검수 후 선택 초안');
+        await expect(
+          page.getByRole('group', { name: '게시글 내용' }).getByLabel('제목', { exact: true })
+        ).toHaveValue('검수 후 선택 초안');
         await expect(page.getByLabel('본문 1', { exact: true })).toHaveValue('검수용 원문 첫 문단');
         assert.equal(
           (
             await context.request.get(f.origin + '/api/v1/boards/meme/posts/' + String(row.post_id))
           ).status(),
-          404
+          200
         );
-        await page.getByRole('button', { name: '즉시 발행', exact: true }).click();
+        await expect(page.getByRole('button', { name: '즉시 발행', exact: true })).toHaveCount(0);
         await expect(page.getByRole('link', { name: '공개 게시글 보기' })).toBeVisible();
         assert.equal(
           (
@@ -366,7 +380,6 @@ await test(
       async () => {
         const item = await seed('반려·충돌 확인');
         await open(item.title);
-        await button('검수 시작 / 다시 검수').click();
         await expect(button('반려')).toBeEnabled();
         await page.route(/\/api\/v1\/admin\/collect\/batch-items\?/, (route) =>
           route.fulfill({
@@ -389,19 +402,22 @@ await test(
         await page.unroute(/\/api\/v1\/admin\/collect\/batch-items\?/);
         await button('목록 다시 조회').click();
         await expect(page.getByRole('alert')).toHaveCount(0);
-        await button('검수 시작 / 다시 검수').click();
-        await expect(button('승인')).toBeEnabled();
+        await expect(page).toHaveURL(f.origin + '/admin/batch');
+        await expect(detail.getByRole('heading', { name: item.title, exact: true })).toHaveCount(0);
+        await open(item.title);
+        await expect(button('승인 및 발행')).toBeEnabled();
         await f.pool.query('UPDATE collect.batch_item SET version=version+1 WHERE id=$1', [
           item.id,
         ]);
-        await button('승인').click();
+        await button('승인 및 발행').click();
         await expect(feedback).toContainText('수집 내용 또는 검수 상태가 바뀌었습니다');
         await expect(button('처리 결과 다시 확인')).toHaveCount(0);
         await page
           .locator('.batch-list')
           .getByRole('button', { name: item.title, exact: true })
           .click();
-        await expect(button('검수 시작 / 다시 검수')).toBeEnabled();
+        await expect(button('검수 시작 / 다시 검수')).toHaveCount(0);
+        await expect(button('승인 및 발행')).toBeEnabled();
         await approve();
         const review = firstRow(
           await f.pool.query(
@@ -429,8 +445,7 @@ await test(
         });
         assert.equal(saved.status(), 201, await saved.text());
         await open(item.title);
-        await approve();
-        await button('게시글 초안 만들기').click();
+        await button('승인 및 발행').click();
         await expect(feedback).toHaveText('이미 같은 원문의 게시글이 있습니다.');
         await expect(button('처리 결과 다시 확인')).toHaveCount(0);
         assert.equal(
@@ -451,11 +466,10 @@ await test(
     for (const loss of ['response', 'detail'])
       for (const denial of [401, 403]) {
         await t.test(
-          `draft ${loss} loss -> ${denial} -> same request and one private draft`,
+          `draft ${loss} loss -> ${denial} -> same request and one published post`,
           async () => {
             const item = await seed(`${loss}-${denial} 복구`);
             await open(item.title);
-            await approve();
             const keys: string[] = [],
               bodies: string[] = [];
             let stage = 'loss';
@@ -476,13 +490,10 @@ await test(
               return route.continue();
             });
             if (loss === 'detail')
-              await page.route(detailPath, (route) =>
-                route.fulfill({
-                  status: 503,
-                  json: { success: false, error: { code: 'DEPENDENCY_UNAVAILABLE' } },
-                })
-              );
-            await button('게시글 초안 만들기').click();
+              await page.route(detailPath, (route) => keys.length > 0 ? route.fulfill({
+                status: 503, json: { success: false, error: { code: 'DEPENDENCY_UNAVAILABLE' } },
+              }) : route.continue());
+            await button('승인 및 발행').click();
             await expect(feedback).toContainText('처리 결과를 확인하지 못했습니다');
             await page.unroute(detailPath);
             stage = 'denied';
@@ -503,19 +514,21 @@ await test(
               .getByRole('navigation', { name: '관리 메뉴' })
               .getByRole('link', { name: '게시글 관리', exact: true })
               .click();
-            await expect(page).toHaveURL(f.origin + '/admin/batch');
+            await expect(page).toHaveURL(`${f.origin}/admin/batch?itemId=${item.id}`);
             stage = 'recovered';
             if (denial === 401) {
               const authTabPromise = context.waitForEvent('page');
               await page.getByRole('link', { name: '새 탭에서 다시 인증' }).click();
               const authTab = await authTabPromise;
-              await expect(authTab.getByRole('button', { name: '개발 관리자 로그인' })).toBeVisible();
+              await expect(
+                authTab.getByRole('button', { name: '개발 관리자 로그인' })
+              ).toBeVisible();
               await authTab.getByRole('button', { name: '개발 관리자 로그인' }).click();
               await expect(authTab).toHaveURL(`${f.origin}/admin/batch?itemId=${item.id}`);
               await authTab.close();
             } else await authenticate();
             await button('처리 결과 다시 확인').click();
-            await expect(feedback).toContainText('초안');
+            await expect(feedback).toContainText('발행했습니다');
             await expect(button('처리 결과 다시 확인')).toHaveCount(0);
             assert.equal(keys.length, 4);
             assert.ok(keys[0]);
@@ -526,7 +539,7 @@ await test(
                 item.title,
               ])
             );
-            assert.equal(row.status, 'DRAFT');
+            assert.equal(row.status, 'PUBLISHED');
             assert.equal(
               (await f.pool.query('SELECT id FROM content.board_post WHERE title=$1', [item.title]))
                 .rowCount,
@@ -539,7 +552,7 @@ await test(
                   [row.id]
                 )
               ).rowCount,
-              1
+              2
             );
             await page.unroute(path);
           }
@@ -548,7 +561,7 @@ await test(
     await t.test(
       'lost review response repeats one transition and filtering moves off an emptied final page',
       async () => {
-        const item = await seed('검수 시작 응답 복구');
+        const item = await seed('직접 승인 응답 복구');
         await open(item.title);
         const keys: string[] = [],
           bodies: string[] = [];
@@ -564,10 +577,10 @@ await test(
           }
           return route.continue();
         });
-        await button('검수 시작 / 다시 검수').click();
+        await button('승인 및 발행').click();
         await expect(button('처리 결과 다시 확인')).toBeEnabled();
         await button('처리 결과 다시 확인').click();
-        await expect(feedback).toHaveText('검수 상태를 저장했습니다.');
+        await expect(feedback).toContainText('발행했습니다');
         assert.equal(keys.length, 2);
         assert.equal(new Set(keys).size, 1);
         assert.equal(new Set(bodies).size, 1);
@@ -579,7 +592,7 @@ await test(
               ])
             ).lock_version
           ),
-          '1'
+          '2'
         );
         await page.unroute(path);
         for (let i = 0; i < 21; i++) await seed(`페이지 경계 검수 ${i + 1}`);
@@ -592,25 +605,89 @@ await test(
         await button('다음').click();
         await expect(page.locator('.batch-list li')).toHaveCount(1);
         await page.locator('.batch-list button').click();
-        await expect(button('검수 시작 / 다시 검수')).toBeEnabled();
-        await button('검수 시작 / 다시 검수').click();
-        await expect(feedback).toHaveText('검수 상태를 저장했습니다.');
-        await expect(page.getByRole('navigation', { name: '수집 결과 페이지' })).toContainText(
-          '1 / 1'
-        );
+        await expect(button('검수 시작 / 다시 검수')).toHaveCount(0);
+        await expect(button('승인 및 발행')).toBeEnabled();
+        await button('승인 및 발행').click();
+        await expect(feedback).toContainText('발행했습니다');
+        await expect(page.getByRole('navigation', { name: '수집 결과 페이지' })).toHaveCount(0);
         await expect(page.locator('.batch-list li')).toHaveCount(20);
       }
     );
+    for (const loss of ['before', 'after']) await t.test(`publish ${loss} commit failure preserves one draft and resumes`, async () => {
+      const item = await seed(`발행 단계 ${loss} 실패`);
+      await open(item.title);
+      let fail = true;
+      const keys: string[] = [], bodies: string[] = [];
+      const path = '**/api/v1/admin/posts/*/publish';
+      await page.route(path, async route => {
+        keys.push(route.request().headers()['idempotency-key'] || '');
+        bodies.push(route.request().postData() || '');
+        if (fail) {
+          if (loss === 'after') {
+            assert.equal((await route.fetch()).status(), 200);
+            return route.abort('connectionreset');
+          }
+          return route.fulfill({ status: 503, json: { success: false, error: { code: 'DEPENDENCY_UNAVAILABLE' } } });
+        }
+        return route.continue();
+      });
+      await button('승인 및 발행').click();
+      await expect(button('처리 결과 다시 확인')).toBeEnabled();
+      const saved = firstRow(await f.pool.query('SELECT p.id,p.status FROM content.board_post p JOIN collect.batch_review r ON r.post_id=p.id WHERE r.item_id=$1', [item.id]));
+      assert.equal(saved.status, loss === 'before' ? 'DRAFT' : 'PUBLISHED');
+      await expect(page.getByLabel('출처', { exact: true })).toBeDisabled();
+      fail = false;
+      await button('처리 결과 다시 확인').click();
+      await expect(feedback).toContainText('발행했습니다');
+      assert.equal(keys.length, 2);
+      assert.ok(keys[0]);
+      assert.equal(new Set(keys).size, 1);
+      assert.equal(new Set(bodies).size, 1);
+      assert.equal((await f.pool.query('SELECT id FROM content.board_post WHERE source_url=$1', [item.url])).rowCount, 1);
+      assert.equal((await f.pool.query('SELECT id FROM content.board_post_status_history WHERE post_id=$1', [saved.id])).rowCount, 2);
+      assert.equal((await context.request.get(f.origin + '/api/v1/boards/meme/posts/' + String(saved.id))).status(), 200);
+      await page.unroute(path);
+    });
+    await t.test('branded help dialog traps focus, closes with Escape and returns to its trigger', async () => {
+      await page.goto(f.origin + '/admin/batch');
+      const help = button('사용 안내');
+      await help.click();
+      const dialog = page.getByRole('dialog', { name: '검수 안내' });
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toContainText('바로 공개합니다');
+      await expect(dialog.getByRole('button', { name: '확인' })).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(dialog.getByRole('button', { name: '확인' })).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await expect(dialog.getByRole('button', { name: '확인' })).toBeFocused();
+      for (const width of [320, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        await page.screenshot({ path: `.local-data/admin-ux-rework/screenshots/batch-help-${width}.png` });
+      }
+      await page.keyboard.press('Escape');
+      await expect(dialog).not.toBeVisible();
+      await expect(help).toBeFocused();
+      await help.click();
+      await dialog.getByRole('button', { name: '확인' }).click();
+      await expect(dialog).not.toBeVisible();
+    });
     await t.test(
       'combined filters paginate failures, preserve current page on failure and show empty results',
       async () => {
         for (let i = 0; i < 21; i++) await seed(`수집 실패 ${i + 1}`, false, 'FAILED');
         await page.goto(f.origin + '/admin/batch');
-        await page.getByLabel('출처', { exact: true }).fill('fixture');
+        await page.getByLabel('출처', { exact: true }).selectOption('fixture');
         await page.getByLabel('수집 상태', { exact: true }).selectOption('FAILED');
         await page.getByLabel('검수 상태', { exact: true }).selectOption('UNREVIEWED');
         await button('조회').click();
+        await expect(button('조회')).toBeEnabled();
+        await expect(page.locator('.batch-list li')).toHaveCount(0);
+        await expect(page.getByText('조건에 맞는 수집 결과가 없습니다.')).toBeVisible();
+        await page.getByLabel('검수 상태', { exact: true }).selectOption('');
+        await button('조회').click();
         await expect(page.locator('.batch-list li')).toHaveCount(20);
+        await expect(page.locator('.batch-list li').first()).toContainText('검수 대상 아님');
         const pagination = page.getByRole('navigation', { name: '수집 결과 페이지' });
         await expect(pagination).toContainText('1 / 2');
         await page.getByLabel('수집 상태', { exact: true }).selectOption('FETCHED');
@@ -620,7 +697,7 @@ await test(
         await expect(pagination).toContainText('2 / 2');
         await page.locator('.batch-list button').click();
         await expect(detail).toContainText('SOURCE_GONE');
-        for (const name of ['검수 시작 / 다시 검수', '승인', '반려', '게시글 초안 만들기'])
+        for (const name of ['승인 및 발행', '반려'])
           await expect(button(name)).toBeDisabled();
         await page.route(/\/api\/v1\/admin\/collect\/batch-items\?/, (route) =>
           route.abort('connectionreset')
@@ -631,10 +708,33 @@ await test(
         await page.unroute(/\/api\/v1\/admin\/collect\/batch-items\?/);
         await button('목록 다시 조회').click();
         await expect(page.getByRole('alert')).toHaveCount(0);
-        await page.getByLabel('출처', { exact: true }).fill('missing');
+        await page.getByLabel('출처', { exact: true }).selectOption('theqoo');
         await button('조회').click();
         await expect(page.getByText('조건에 맞는 수집 결과가 없습니다.')).toBeVisible();
-        await expect(pagination).toContainText('1 / 1');
+        await expect(pagination).toHaveCount(0);
+        await expect(detail).toHaveCount(0);
+        await expect(page.locator('.batch-list-panel .batch-panel-heading')).toHaveCount(0);
+        await expect(page.locator('.batch-list')).toHaveCount(0);
+        for (const width of [320, 390, 768, 1280, 1440]) {
+          await page.setViewportSize({ width, height: 900 });
+          const listBox = await page.locator('.batch-list-panel').boundingBox();
+          const splitBox = await page.locator('.batch-split').boundingBox();
+          assert.ok(listBox && splitBox);
+          assert.ok(listBox.height < 160, 'Empty result should not reserve a tall list');
+          assert.ok(Math.abs(listBox.width - splitBox.width) < 2, 'Unselected list uses the available width');
+          const headingBox = await page.getByRole('heading', { name: '수집 결과 검수', exact: true }).boundingBox();
+          const helpBox = await button('사용 안내').boundingBox();
+          assert.ok(headingBox && helpBox);
+          assert.ok(Math.abs(headingBox.y + headingBox.height / 2 - helpBox.y - helpBox.height / 2) < 2, 'Help aligns with the title center');
+          if (width >= 768) {
+            const selectBox = await page.getByLabel('출처', { exact: true }).boundingBox();
+            const queryBox = await button('조회').boundingBox();
+            assert.ok(selectBox && queryBox);
+            assert.ok(Math.abs(selectBox.y - queryBox.y) < 2, 'Filter controls align on the same row');
+            assert.ok(Math.abs(selectBox.height - queryBox.height) < 2);
+          }
+          await page.screenshot({ path: `.local-data/admin-ux-rework/screenshots/batch-empty-${width}.png`, fullPage: true });
+        }
         const features = object(
           await (await context.request.get(f.origin + '/api/admin/features')).json()
         );
@@ -645,10 +745,31 @@ await test(
     assert.equal(
       Number(
         firstRow(
-          await f.pool.query("SELECT count(*) FROM content.board_post WHERE status<>'DRAFT'")
+          await f.pool.query("SELECT count(*) FROM content.board_post WHERE status='PUBLISHED'")
         ).count
       ),
-      1
+      10
     );
+    await t.test('source and board suffix is absent from list, detail, draft and published title', async () => {
+      const sourceRun = randomUUID();
+      await f.pool.query("INSERT INTO collect.batch_source(source_key,host,policy_version) VALUES('bobaedream','www.bobaedream.co.kr','fixture')");
+      await f.pool.query("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,interval_ms) VALUES($1,'bobaedream','manual','WRITE_DB','COMPLETED',1,1,10000)", [sourceRun]);
+      const clean = '보배드림 제목 검증 - 본문 문구';
+      const original = clean + ' | 보배드림 베스트글';
+      const item = await seed(original, false, 'FETCHED', { key: 'bobaedream', run: sourceRun });
+      await page.evaluate(() => sessionStorage.clear());
+      for (const width of [390, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await open(clean);
+        await expect(page.getByLabel('초안 제목', { exact: true })).toHaveValue(clean);
+        await expect(detail).not.toContainText('| 보배드림 베스트글');
+        await page.screenshot({ path: `.local-data/admin-ux-rework/screenshots/batch-title-label-${width}.png`, fullPage: true });
+      }
+      await approve();
+      const post = firstRow(await f.pool.query('SELECT p.title,p.status FROM content.board_post p JOIN collect.batch_review r ON r.post_id=p.id WHERE r.item_id=$1', [item.id]));
+      assert.equal(post.title, clean);
+      assert.equal(post.status, 'PUBLISHED');
+      assert.equal(firstRow(await f.pool.query('SELECT title FROM collect.batch_item WHERE id=$1', [item.id])).title, original);
+    });
   }
 );

@@ -4,7 +4,7 @@ const preserved = new Set([
   'source', 'candidate', 'candidate_image', 'collector_receipt', 'source_request_budget',
   'source_request_reservation', 'collector_operational_event', 'source_discovery_policy',
   'batch_source', 'batch_dedup_key', 'batch_retention', 'batch_purge_object', 'batch_retention_control',
-  'batch_request_budget',
+  'batch_request_budget', 'batch_image_retry', 'batch_image_cleanup', 'batch_manual_deletion', 'batch_manual_cleanup',
 ]);
 const excluded = new Set([
   'batch_item', 'batch_media', 'batch_run', 'batch_report', 'batch_checkpoint', 'batch_failure',

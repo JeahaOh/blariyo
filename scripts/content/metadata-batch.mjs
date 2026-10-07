@@ -1,6 +1,7 @@
 // Development-only metadata batch for approved reference fixtures.
 // It uses the same source/candidate/post services as the collector readback path.
 import crypto from 'node:crypto';
+import { draftTitle } from '@blariyo/contracts/draft-title';
 import { createDataSource } from '../../apps/api/dist/persistence/database.js';
 import { createNestApplication } from '../../apps/api/dist/bootstrap/application.js';
 import { ImagesService } from '../../apps/api/dist/features/images/images.service.js';
@@ -44,7 +45,7 @@ try {
       const images = app.get(ImagesService), posts = app.get(PostsService), work = app.get(UnitOfWork);
       const uploaded = await images.upload([{ bytes, mime: detectedMime }], actor);
       const imageId = uploaded.items[0].imageId;
-      const draft = await work.transaction(() => posts.createDraftInTransaction({ boardSlug: 'meme', title, source: { name, url }, pinnedPosition: null, blocks: [{ type: 'TEXT', text: title }, { type: 'IMAGE', imageId, alt: title }] }, actor));
+      const draft = await work.transaction(() => posts.createDraftInTransaction({ boardSlug: 'meme', title: draftTitle(title, site), source: { name, url }, pinnedPosition: null, blocks: [{ type: 'TEXT', text: title }, { type: 'IMAGE', imageId, alt: title }] }, actor));
       postId = draft.postId;
       await posts.command({ action: 'publish', params: { postId: String(postId) }, body: { mode: 'IMMEDIATE', lockVersion: draft.lockVersion } }, actor, `metadata-${site}-${postId}`, 'metadata-batch');
       await db.query(`INSERT INTO collect.candidate_image(candidate_id,position,remote_url,image_id,status,created_by,updated_by) VALUES($1,1,$2,$3,'STORED',$4,$4)`, [candidateId, image, imageId, actor]);

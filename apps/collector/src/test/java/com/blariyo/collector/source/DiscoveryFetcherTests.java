@@ -24,21 +24,21 @@ class DiscoveryFetcherTests {
   private PinnedHttp.Response response(int status, String type, String body) {
     return new PinnedHttp.Response(status, type, Map.of("content-type", List.of(type)), body.getBytes());
   }
-  @Test void eachRobotsAndListRequestReservesQuotaAndNeverRetries403() {
+  @Test void listRequestReservesQuotaAndNeverRetries403() {
     var core = core(); var transport = mock(SourceTransport.class);
     when(transport.get(any(), anyInt(), anyString())).thenReturn(
-        response(200,"text/plain","User-agent: *\nAllow: /"), response(403,"text/html","blocked"));
+        response(403,"text/html","blocked"));
     var fetcher = new DiscoveryFetcher(policy,transport,core,1,0);
     var error = assertThrows(CollectorFailure.class, () -> fetcher.fetch(URI.create("https://fixture.invalid/list")));
     assertEquals("SOURCE_ACCESS_BLOCKED", error.getMessage());
-    verify(transport,times(2)).get(any(),anyInt(),anyString());
-    verify(core,times(2)).post(eq("/sources/1/request-reservations"),anyString(),any());
+    verify(transport,times(1)).get(any(),anyInt(),anyString());
+    verify(core,times(1)).post(eq("/sources/1/request-reservations"),anyString(),any());
   }
-  @Test void challengeRobotsStopsBeforeList() {
+  @Test void robotsIsNotRequestedBeforeList() {
     var core=core();var transport=mock(SourceTransport.class);
-    when(transport.get(any(),anyInt(),anyString())).thenReturn(response(200,"text/html","<html>challenge</html>"));
-    var error=assertThrows(CollectorFailure.class,()->new DiscoveryFetcher(policy,transport,core,1,0).fetch(URI.create("https://fixture.invalid/list")));
-    assertEquals("ROBOTS_UNVERIFIED",error.getMessage());
+    when(transport.get(any(),anyInt(),anyString())).thenReturn(response(200,"text/html","<html>list</html>"));
+    assertArrayEquals("<html>list</html>".getBytes(),new DiscoveryFetcher(policy,transport,core,1,0).fetch(URI.create("https://fixture.invalid/list")));
+    verify(transport).get(eq(URI.create("https://fixture.invalid/list")),anyInt(),anyString());
     verify(transport,times(1)).get(any(),anyInt(),anyString());
   }
 }

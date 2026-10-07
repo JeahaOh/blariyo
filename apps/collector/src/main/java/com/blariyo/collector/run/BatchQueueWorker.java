@@ -21,7 +21,6 @@ public final class BatchQueueWorker {
   }
   public Result once() { return once(null); }
   public Result once(String sourceFilter) {
-    if(store.retentionBacklog())throw new CollectorFailure(503,"BATCH_RETENTION_BACKLOG");
     for(String source:queue.readySources()) {
       if(sourceFilter!=null&&!sourceFilter.equals(source))continue;
       BatchStore.SourceLock lease;
@@ -38,7 +37,7 @@ public final class BatchQueueWorker {
           policy=new SourceRegistry.Source(source,Json.tree(Map.of("host",java.net.URI.create(request.url()).getHost(),"approved",false)));
         }
         request=queue.claim(request);UUID id=request.id();
-        long interval=Math.max(10000,policy.config().path("requestIntervalMs").asLong(10000));
+        long interval=SourceRequestPolicy.interval(policy.config());
         var report=runner.runQueued(policy,new DirectUrlRunner.Options(source,request.url(),interval,true),run->queue.attach(id,run));
         queue.settle(id);
         return new Result(id,report.runId(),report.state());

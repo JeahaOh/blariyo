@@ -1,0 +1,4 @@
+# Advisory scope selected from fd746b425dd566569b6bd4009ab04efef8afb0f6.
+# The wrapper scans explicit source roots and agent files, never the whole repository.
+enabled_rules: [IL-301, IL-101, AIA-101, PERF-103]
+respect_gitignore: true

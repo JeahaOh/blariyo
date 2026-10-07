@@ -43,7 +43,13 @@ await test('batch-owned objects pass through API review and draft before separat
     method:body===undefined?'GET':'POST', headers:auth?{'X-Blariyo-Service-Token':token,'X-Blariyo-Admin-Role': 'OWNER', 'X-Blariyo-Admin-Actor':actor,'Idempotency-Key':key,'content-type':'application/json'}:{},
     ...(body===undefined?{}:{body:JSON.stringify(body)})
   });
+  const detail = async (path:string) => (await contractSuccess('getBatchItem',await request(path))).data.item;
+  const decision = async (path:string,value:'APPROVED'|'REJECTED') => {
+    const item=await detail(path);
+    return {itemVersion:item.version,lockVersion:item.review.lockVersion,contentDigest:item.contentDigest,decision:value};
+  };
   const status = async (response:Promise<Response>, expected:number) => {const r=await response;assert.equal(r.status,expected,await r.text());};
+  await status(request('/admin/common-code-groups/source/codes',{code:'test',referenceKey:'fixture',displayName:'검증 출처'}),201);
   const id=randomUUID(), run=randomUUID(), mediaId=randomUUID(), key=`collect/media/${mediaId}/1`;
   const bytes=await sharp({create:{width:8,height:8,channels:3,background:'#00a19b'}}).png().toBuffer();
   await mkdir(root+'/batch/collect/media/'+mediaId,{recursive:true});
@@ -76,15 +82,15 @@ await test('batch-owned objects pass through API review and draft before separat
     assert.equal((await storage.inventory('private')).length,0);
   });
   await t.test('review state/version and idempotency are enforced',async()=>{
-    await status(request(path+'/review',{itemVersion:1,lockVersion:0,decision:'APPROVED'}),409);
-    const receipt=randomUUID(), body={itemVersion:1,lockVersion:0,decision:'REVIEWING'};
+    await status(request(path+'/review',{itemVersion:1,lockVersion:0,decision:'REVIEWING'}),400);
+    const receipt=randomUUID(), body=await decision(path,'REJECTED');
     const started=(await contractSuccess('reviewBatchItem',await request(path+'/review',body,receipt),'POST')).data;
     assert.equal(started.review.lockVersion,1);
     const repeated=(await contractSuccess('reviewBatchItem',await request(path+'/review',body,receipt),'POST')).data;
     assert.deepEqual(repeated,started);
-    await status(request(path+'/review',{...body,decision:'REJECTED'},receipt),409);
-    await status(request(path+'/review',{itemVersion:1,lockVersion:0,decision:'APPROVED'}),409);
-    const approved=await contractSuccess('reviewBatchItem',await request(path+'/review',{itemVersion:1,lockVersion:1,decision:'APPROVED'}),'POST');
+    await status(request(path+'/review',{...body,decision:'APPROVED'},receipt),409);
+    await status(request(path+'/review',{...body,decision:'APPROVED'}),409);
+    const approved=await contractSuccess('reviewBatchItem',await request(path+'/review',await decision(path,'APPROVED')),'POST');
     assert.equal(approved.data.review.lockVersion,2);
     await assert.rejects(pool.query("UPDATE collect.batch_review SET status='REJECTED' WHERE item_id=$1",[id]));
   });
@@ -98,6 +104,7 @@ await test('batch-owned objects pass through API review and draft before separat
     await writeFile(root+'/batch/'+key,bytes);
     const created=(await contractSuccess('promoteBatchItem',await request(path+'/draft',draftBody,draftKey),'POST')).data;
     assert.equal(created.status,'DRAFT');postId=created.postId;
+    assert.equal(requiredRow(await pool.query('SELECT source_name FROM content.board_post WHERE id=$1',[postId])).source_name,'검증 출처');
     assert.equal(created.lockVersion,1);assert.equal(created.reviewLockVersion,3);
     assert.equal((await storage.inventory('public')).length,0);
     assert.equal((await storage.inventory('private')).length,1);
@@ -134,22 +141,59 @@ await test('batch-owned objects pass through API review and draft before separat
     return {id:itemId,path:'/admin/collect/batch-items/'+itemId};
   };
   const approve = async (path:string) => {
-    await status(request(path+'/review',{itemVersion:1,lockVersion:0,decision:'REVIEWING'}),200);
-    await status(request(path+'/review',{itemVersion:1,lockVersion:1,decision:'APPROVED'}),200);
+    await status(request(path+'/review',await decision(path,'APPROVED')),200);
   };
+  await t.test('V011 preserves legacy REVIEWING as unreviewed and rejects new start transitions',async()=>{
+    const legacy=await seed('legacy-reviewing',[{type:'TEXT',text:'old pending review'}]);
+    // Simulate the installed V010 guard, then apply the real forward migration.
+    await pool.query(await readFile('apps/api/migrations/V011__direct_batch_review.down.sql','utf8'));
+    try {
+      await pool.query(`INSERT INTO collect.batch_review(item_id,item_version,content_digest,source_key,source_post_key,canonical_url_hash,status,updated_by)
+        SELECT id,version,$2,source_key,source_post_key,canonical_url_hash,'REVIEWING',$3 FROM collect.batch_item WHERE id=$1`,
+        [legacy.id,Buffer.alloc(32),actor]);
+    } finally {
+      await pool.query(await readFile('apps/api/migrations/V011__direct_batch_review.sql','utf8'));
+    }
+    const old=await detail(legacy.path);
+    assert.equal(old.review.status,'UNREVIEWED');
+    assert.equal(old.review.lockVersion,1);
+    const listing=(await contractSuccess('listBatchItems',await request('/admin/collect/batch-items?reviewStatus=UNREVIEWED'))).data;
+    assert.ok(listing.items.some(item=>item.itemId===legacy.id));
+    await status(request('/admin/collect/batch-items?reviewStatus=REVIEWING'),400);
+    await status(request(legacy.path+'/review',{...await decision(legacy.path,'APPROVED'),decision:'REVIEWING'}),400);
+    await assert.rejects(pool.query("UPDATE collect.batch_review SET status='REVIEWING',lock_version=lock_version+1 WHERE item_id=$1",[legacy.id]),/invalid review decision/);
+    await approve(legacy.path);
+    assert.equal((await detail(legacy.path)).review.status,'APPROVED');
+  });
+  await t.test('concurrent direct decisions preserve one winner and displayed media snapshot',async()=>{
+    const next=await seed('direct-race',[{type:'TEXT',text:'concurrent decision'}]);
+    const body=await decision(next.path,'APPROVED');
+    await status(request(next.path+'/draft',{itemVersion:1,lockVersion:0,boardSlug:'meme'}),409);
+    await status(request(next.path+'/review',{...body,contentDigest:'0'.repeat(64)}),409);
+    const responses=await Promise.all([request(next.path+'/review',body),request(next.path+'/review',{...body,decision:'REJECTED'})]);
+    assert.deepEqual(responses.map(response=>response.status).sort(),[200,409]);
+    assert.equal((await detail(next.path)).review.lockVersion,1);
+    await assert.rejects(pool.query("UPDATE collect.batch_review SET post_id=999,content_digest=$2,lock_version=lock_version+1 WHERE item_id=$1",[next.id,Buffer.alloc(32)]),/stale reviewed item/);
+    // Media metadata is covered even when an external writer fails to bump item.version.
+    const mediaItem=await seed('changed-media',[{type:'TEXT',text:'media link'}]);
+    await pool.query("INSERT INTO collect.batch_media(id,item_id,position,kind,remote_url,mime_type,byte_size) VALUES($1,$2,1,'FILE','https://example.invalid/file','text/plain',1)",[randomUUID(),mediaItem.id]);
+    const before=await decision(mediaItem.path,'APPROVED');
+    await pool.query("UPDATE collect.batch_media SET mime_type='application/pdf' WHERE item_id=$1",[mediaItem.id]);
+    await status(request(mediaItem.path+'/review',before),409);
+    await approve(mediaItem.path);
+  });
   await t.test('one corrupt body cannot break list and changed content requires a new review snapshot',async()=>{
     const bad=await seed('bad',{bad:'structure'});
     await status(request('/admin/collect/batch-items'),200);
     await status(request(bad.path),409);
     const next=await seed('changed',[{type:'TEXT',text:'first version'}]);
-    await status(request(next.path+'/review',{itemVersion:1,lockVersion:0,decision:'REVIEWING'}),200);
+    const stale=await decision(next.path,'APPROVED');
     await pool.query('UPDATE collect.batch_item SET body_blocks=$1 WHERE id=$2',[JSON.stringify([{type:'TEXT',text:'unversioned change'}]),next.id]);
-    await status(request(next.path+'/review',{itemVersion:1,lockVersion:1,decision:'APPROVED'}),409);
-    await status(request(next.path+'/review',{itemVersion:1,lockVersion:1,decision:'REVIEWING'}),200);
-    await status(request(next.path+'/review',{itemVersion:1,lockVersion:2,decision:'APPROVED'}),200);
+    await status(request(next.path+'/review',stale),409);
+    await approve(next.path);
     await pool.query('UPDATE collect.batch_item SET version=version+1 WHERE id=$1',[next.id]);
-    await status(request(next.path+'/draft',{itemVersion:1,lockVersion:3,boardSlug:'meme'}),409);
-    await status(request(next.path+'/draft',{itemVersion:2,lockVersion:3,boardSlug:'meme'}),409);
+    await status(request(next.path+'/draft',{itemVersion:1,lockVersion:1,boardSlug:'meme'}),409);
+    await status(request(next.path+'/draft',{itemVersion:2,lockVersion:1,boardSlug:'meme'}),409);
   });
   await t.test('second image failure is compensated and same-key concurrent retry creates one private draft',async()=>{
     const next=await seed('partial',[{type:'IMAGE',imagePosition:1,alt:'first'},{type:'IMAGE',imagePosition:2,alt:'second'}]);
@@ -159,7 +203,7 @@ await test('batch-owned objects pass through API review and draft before separat
       await pool.query("INSERT INTO collect.batch_media(id,item_id,position,kind,sha256,mime_type,byte_size,object_key) VALUES($1,$2,$3,'IMAGE',$4,'image/png',$5,$6)",[randomUUID(),next.id,position,createHash('sha256').update(bytes).digest(),bytes.length,`collect/media/${next.id}/${position}`]);
     }
     await approve(next.path);
-    const body={itemVersion:1,lockVersion:2,boardSlug:'meme'},key=randomUUID();
+    const body={itemVersion:1,lockVersion:1,boardSlug:'meme'},key=randomUUID();
     await status(request(next.path+'/draft',body,key),409);
     assert.equal(Number(requiredRow(await pool.query("SELECT count(*) FROM content.board_post WHERE status='DRAFT'")).count),0);
     assert.equal(Number(requiredRow(await pool.query("SELECT count(*) FROM content.board_post_image WHERE status='PRIVATE_DELETE_PENDING'")).count),1);
@@ -175,7 +219,7 @@ await test('batch-owned objects pass through API review and draft before separat
   await t.test('legacy canonical duplicate and source post key uniqueness are enforced',async()=>{
     const next=await seed('encoded-duplicate',[{type:'TEXT',text:'same source'}],new URL(source).href);
     await approve(next.path);
-    await status(request(next.path+'/draft',{itemVersion:1,lockVersion:2,boardSlug:'meme'}),409);
+    await status(request(next.path+'/draft',{itemVersion:1,lockVersion:1,boardSlug:'meme'}),409);
     await assert.rejects(seed('encoded-duplicate',[{type:'TEXT',text:'different URL'}],'https://example.invalid/another-source'));
     await assert.rejects(seed('different-key',[{type:'TEXT',text:'same URL'}],new URL(source).href));
   });
@@ -193,9 +237,8 @@ await test('batch-owned objects pass through API review and draft before separat
     const animatedPath='/admin/collect/batch-items/'+animatedId;
     const preview=await request(animatedPath+'/media/1/preview');assert.equal(preview.status,200);
     assert.equal((await sharp(Buffer.from(await preview.arrayBuffer()),{animated:true}).metadata()).pages,257);
-    await status(request(animatedPath+'/review',{itemVersion:1,lockVersion:0,decision:'REVIEWING'}),200);
-    await status(request(animatedPath+'/review',{itemVersion:1,lockVersion:1,decision:'APPROVED'}),200);
-    const promoted=(await contractSuccess('promoteBatchItem',await request(animatedPath+'/draft',{itemVersion:1,lockVersion:2,boardSlug:'meme'}),'POST')).data;
+    await approve(animatedPath);
+    const promoted=(await contractSuccess('promoteBatchItem',await request(animatedPath+'/draft',{itemVersion:1,lockVersion:1,boardSlug:'meme'}),'POST')).data;
     const row=requiredRow(await pool.query('SELECT private_storage_key,public_storage_key FROM content.board_post_image WHERE post_id=$1',[promoted.postId]));
     assert.equal(row.public_storage_key,null);
     const result=await sharp(await storage.get('private',String(row.private_storage_key)),{animated:true}).metadata();
@@ -211,7 +254,7 @@ await test('batch-owned objects pass through API review and draft before separat
       const response=await contractSuccess('getBatchItem',await request('/admin/collect/batch-items/'+item));
       assert.equal(response.data.item.state,state);assert.equal(response.data.item.failureCode,code);assert.equal(response.data.item.skipReason,reason);
       assert.deepEqual(response.data.item.bodyBlocks,[]);
-      await status(request('/admin/collect/batch-items/'+item+'/review',{itemVersion:0,lockVersion:0,decision:'REVIEWING'}),409);
+      await status(request('/admin/collect/batch-items/'+item+'/review',await decision('/admin/collect/batch-items/'+item,'APPROVED')),409);
     }
     const listing=await contractSuccess('listBatchItems',await request('/admin/collect/batch-items'));
     assert.ok(listing.data.items.some(i=>i.state==='SKIPPED_POLICY'&&i.skipReason==='SOURCE_DATE_UNKNOWN'));
@@ -228,7 +271,7 @@ await test('batch-owned objects pass through API review and draft before separat
     await status(request(next.path+'/media/49/preview'),200);
     await approve(next.path);
     const beforePublic=(await storage.inventory('public')).length;
-    const promoted=(await contractSuccess('promoteBatchItem',await request(next.path+'/draft',{itemVersion:1,lockVersion:2,boardSlug:'meme'}),'POST')).data;
+    const promoted=(await contractSuccess('promoteBatchItem',await request(next.path+'/draft',{itemVersion:1,lockVersion:1,boardSlug:'meme'}),'POST')).data;
     assert.equal(promoted.status,'DRAFT');
     assert.equal((await storage.inventory('public')).length,beforePublic);
     const rows=await pool.query<{private_storage_key:string}[]>('SELECT private_storage_key FROM content.board_post_image WHERE post_id=$1',[promoted.postId]);
@@ -244,7 +287,7 @@ await test('batch-owned objects pass through API review and draft before separat
     for(let position=1;position<=6;position++)await pool.query("INSERT INTO collect.batch_media(id,item_id,position,kind,sha256,mime_type,byte_size,object_key) VALUES($1,$2,$3,'IMAGE',$4,'image/png',$5,$6)",[randomUUID(),next.id,position,createHash('sha256').update(bytes).digest(),30*1024*1024,`collect/media/${next.id}/${position}`]);
     await approve(next.path);
     const before=(await storage.inventory('private')).length;
-    await status(request(next.path+'/draft',{itemVersion:1,lockVersion:2,boardSlug:'meme'}),413);
+    await status(request(next.path+'/draft',{itemVersion:1,lockVersion:1,boardSlug:'meme'}),413);
     assert.equal((await storage.inventory('private')).length,before);
     assert.equal(Number(requiredRow(await pool.query('SELECT count(*) FROM collect.batch_review WHERE item_id=$1 AND post_id IS NOT NULL',[next.id])).count),0);
   });
@@ -265,7 +308,7 @@ await test('batch-owned objects pass through API review and draft before separat
     const writer=t.mock.method(storage,'put',async(...args:Parameters<typeof put>)=>{
       await put(...args);elapsed=120001;
     });
-    const body={itemVersion:1,lockVersion:2,boardSlug:'meme'},key=randomUUID();
+    const body={itemVersion:1,lockVersion:1,boardSlug:'meme'},key=randomUUID();
     try {await status(request(next.path+'/draft',body,key),503);}
     finally {clock.mock.restore();writer.mock.restore();}
     assert.equal(Number(requiredRow(await pool.query('SELECT count(*) FROM collect.batch_review WHERE item_id=$1 AND post_id IS NOT NULL',[next.id])).count),0);
@@ -298,7 +341,7 @@ await test('batch-owned objects pass through API review and draft before separat
     await status(request(next.path+'/media/1/preview'),404);
     await approve(next.path);
     const beforePrivate=(await storage.inventory('private')).length,beforePublic=(await storage.inventory('public')).length;
-    const promoted=(await contractSuccess('promoteBatchItem',await request(next.path+'/draft',{itemVersion:1,lockVersion:2,boardSlug:'meme'}),'POST')).data;
+    const promoted=(await contractSuccess('promoteBatchItem',await request(next.path+'/draft',{itemVersion:1,lockVersion:1,boardSlug:'meme'}),'POST')).data;
     await status(request('/boards/meme/posts/'+promoted.postId),404);
     await status(request('/admin/posts/'+promoted.postId+'/publish',{lockVersion:1,mode:'IMMEDIATE'}),200);
     const published=(await contractSuccess('getPost',await request('/boards/meme/posts/'+promoted.postId))).data.post;
@@ -310,18 +353,18 @@ await test('batch-owned objects pass through API review and draft before separat
 
   await t.test('combined source/state/review filters count and paginate unreviewed rows consistently', async () => {
     const filterRun = randomUUID(), ids: string[] = [];
+    const nonReviewableStates = ['FAILED','BLOCKED','DISCOVERED','FETCHING','SKIPPED_DUPLICATE','SKIPPED_POLICY'];
     await pool.query("INSERT INTO collect.batch_source(source_key,host,policy_version) VALUES('filter-fixture','filter.invalid','fixture-v1')");
     await pool.query("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,interval_ms) VALUES($1,'filter-fixture','hot','WRITE_DB','COMPLETED',1,30,10000)", [filterRun]);
-    for (let index = 0; index < 23; index++) {
+    for (let index = 0; index < 22 + nonReviewableStates.length; index++) {
       const id = randomUUID(), url = `https://filter.invalid/${id}`;
       ids.push(id);
-      await pool.query(`INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,version)
-        VALUES($1::uuid,$2,'filter-fixture',$1::text,$3,$4,$5,'필터 표본',$6,1)`,
-      [id,filterRun,url,createHash('sha256').update(url).digest(),index === 22 ? 'FAILED' : 'FETCHED',JSON.stringify([{type:'TEXT',text:'filter fixture'}])]);
+      await pool.query(`INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,version,skip_reason)
+        VALUES($1::uuid,$2,'filter-fixture',$1::text,$3,$4,$5::text,'필터 표본',$6,1,CASE WHEN $5::text='SKIPPED_POLICY' THEN 'SOURCE_OUTSIDE_WINDOW' END)`,
+      [id,filterRun,url,createHash('sha256').update(url).digest(),nonReviewableStates[index - 22] ?? 'FETCHED',JSON.stringify([{type:'TEXT',text:'filter fixture'}])]);
     }
     const reviewed = '/admin/collect/batch-items/' + ids[0];
-    await status(request(reviewed+'/review',{itemVersion:1,lockVersion:0,decision:'REVIEWING'}),200);
-    await status(request(reviewed+'/review',{itemVersion:1,lockVersion:1,decision:'REJECTED'}),200);
+    await status(request(reviewed+'/review',await decision(reviewed,'REJECTED')),200);
     const query = '/admin/collect/batch-items?source=filter-fixture&state=FETCHED&reviewStatus=UNREVIEWED';
     const first = (await contractSuccess('listBatchItems',await request(query))).data;
     const second = (await contractSuccess('listBatchItems',await request(query+'&page=2'))).data;
@@ -331,8 +374,17 @@ await test('batch-owned objects pass through API review and draft before separat
     assert.ok([...first.items,...second.items].every(item=>item.sourceKey==='filter-fixture'&&item.state==='FETCHED'&&item.review.status==='UNREVIEWED'));
     const rejected = (await contractSuccess('listBatchItems',await request(query.replace('UNREVIEWED','REJECTED')))).data;
     assert.equal(rejected.totalItems,1);assert.equal(rejected.items[0]?.itemId,ids[0]);
-    const failed = (await contractSuccess('listBatchItems',await request(query.replace('FETCHED','FAILED')))).data;
-    assert.equal(failed.totalItems,1);assert.equal(failed.items[0]?.itemId,ids[22]);
+    const waiting = (await contractSuccess('listBatchItems',await request(query.replace('&state=FETCHED','')))).data;
+    assert.equal(waiting.totalItems,21);assert.equal(waiting.totalPages,2);
+    assert.ok(waiting.items.every(item=>item.state==='FETCHED'));
+    const all = (await contractSuccess('listBatchItems',await request('/admin/collect/batch-items?source=filter-fixture'))).data;
+    assert.equal(all.totalItems,28);
+    for (const [index,state] of nonReviewableStates.entries()) {
+      const conflict = (await contractSuccess('listBatchItems',await request(query.replace('FETCHED',state)))).data;
+      assert.equal(conflict.totalItems,0,state);assert.deepEqual(conflict.items,[],state);
+      const diagnostic = (await contractSuccess('listBatchItems',await request(query.replace('FETCHED',state).replace('&reviewStatus=UNREVIEWED','')))).data;
+      assert.equal(diagnostic.totalItems,1,state);assert.equal(diagnostic.items[0]?.itemId,ids[22+index],state);
+    }
     const empty = (await contractSuccess('listBatchItems',await request(query.replace('UNREVIEWED','APPROVED')))).data;
     assert.equal(empty.totalItems,0);assert.equal(empty.totalPages,1);assert.deepEqual(empty.items,[]);
     await status(request('/admin/collect/batch-items?state=INVALID'),400);
@@ -340,11 +392,11 @@ await test('batch-owned objects pass through API review and draft before separat
   });
   await t.test('D01: expired payload and idempotent receipts are inaccessible and excluded from list totals',async()=>{
     const next=await seed('expired-http',[{type:'TEXT',text:'expiry canary'}]);
-    const body={itemVersion:1,lockVersion:0,decision:'REVIEWING'},key=randomUUID();
+    const body=await decision(next.path,'REJECTED'),key=randomUUID();
     await status(request(next.path+'/review',body,key),200);
     const before=(await contractSuccess('getBatchItem',await request(next.path))).data.item;
     assert.equal(before.retention.retentionState,'LIVE');
-    assert.equal(before.retention.reviewFinalizedAt,null);
+    assert.ok(before.retention.reviewFinalizedAt);
     const listing=(await contractSuccess('listBatchItems',await request('/admin/collect/batch-items'))).data;
     await pool.query("UPDATE collect.batch_retention SET expires_at=clock_timestamp() WHERE item_id=$1",[next.id]);
     for(const response of [request(next.path),request(next.path+'/media/1/preview'),
@@ -372,6 +424,27 @@ await test('batch-owned objects pass through API review and draft before separat
     await assert.rejects(storage.get('private',key));
     assert.deepEqual(await storage.get('private',protectedKey),protectedBytes);
     assert.equal(requiredRow(await pool.query('SELECT status FROM content.board_post_image WHERE id=$1',[imageId])).status,'DELETED');
+  });
+  await t.test('draft creation strips source suffix with omitted or explicit title and retains original attribution',async()=>{
+    const dogRun=randomUUID();
+    await pool.query("INSERT INTO collect.batch_source(source_key,host,policy_version) VALUES('dogdrip','www.dogdrip.net','fixture')");
+    await pool.query("INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,interval_ms) VALUES($1,'dogdrip','manual','WRITE_DB','COMPLETED',1,2,10000)",[dogRun]);
+    for (const explicit of [false,true]) {
+      const itemId=randomUUID(), canonical='https://www.dogdrip.net/'+itemId;
+      const title='실업급여 받고 여행 왔다는 말에 화가 많이 났다는 강레오';
+      const original=title+' - DogDrip.Net 개드립';
+      await pool.query(`INSERT INTO collect.batch_item(id,run_id,source_key,source_post_key,canonical_url,canonical_url_hash,state,title,body_blocks,version)
+        VALUES($1::uuid,$2,'dogdrip',$1::text,$3,sha256(convert_to($3,'UTF8')),'FETCHED',$4,'[{"type":"TEXT","text":"본문"}]',1)`,[itemId,dogRun,canonical,original]);
+      const itemPath='/admin/collect/batch-items/'+itemId;
+      await approve(itemPath);
+      const body={itemVersion:1,lockVersion:1,boardSlug:'meme',...(explicit?{title:'수정 제목 - 후편 - DogDrip.Net 개드립'}:{})};
+      const created=(await contractSuccess('promoteBatchItem',await request(itemPath+'/draft',body),'POST')).data;
+      const saved=requiredRow(await pool.query('SELECT title,source_name,source_url FROM content.board_post WHERE id=$1',[created.postId]));
+      assert.equal(saved.title,explicit?'수정 제목 - 후편':title);
+      assert.equal(saved.source_name,'개드립');
+      assert.equal(saved.source_url,canonical);
+      assert.equal((await detail(itemPath)).title,original);
+    }
   });
   await t.test('CON-02: one and twenty review items use the same SQL count with a single data query',async()=>{
     const sourceKey='query-count-'+randomUUID(),runId=randomUUID();

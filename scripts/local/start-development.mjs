@@ -12,7 +12,6 @@ import { LocalCollectReader } from '../../apps/api/dist/adapters/collect-reader.
 import { localActorSecret } from './local-identity.mjs';
 import { startCoreWorkers } from './core-workers.mjs';
 
-const origin = 'http://localhost:3000';
 let app,
   child,
   stopWorkers,
@@ -55,12 +54,6 @@ async function main() {
     : 60000;
   if (!Number.isInteger(intervalMs) || intervalMs < 1000 || intervalMs > 60000)
     throw Error('Worker interval must be 1000..60000ms');
-  for (const port of [3000, 3100]) {
-    const probe = createServer();
-    probe.listen(port, '127.0.0.1');
-    await once(probe, 'listening');
-    await new Promise((resolve) => probe.close(resolve));
-  }
   const config = sandboxArg
     ? {
         rightsEmail: 'rights@example.test',
@@ -91,6 +84,19 @@ async function main() {
       target.hash
     )
       throw Error('LOCAL_SANDBOX_INVALID');
+  }
+  // Only an explicit isolated sandbox can choose its loopback ports.
+  // The persistent development launcher retains 3000/3100.
+  const webPort = sandbox?.webPort ?? 3000;
+  const corePort = sandbox?.corePort ?? 3100;
+  if (![webPort, corePort].every(port => Number.isInteger(port) && port >= 1024 && port <= 65535)
+    || webPort === corePort) throw Error('LOCAL_SANDBOX_PORTS_INVALID');
+  const origin = `http://localhost:${webPort}`;
+  for (const port of [webPort, corePort]) {
+    const probe = createServer();
+    probe.listen(port, '127.0.0.1');
+    await once(probe, 'listening');
+    await new Promise((resolve) => probe.close(resolve));
   }
   await mkdir(directory, { recursive: true, mode: 0o700 });
   const actorSecret = await localActorSecret(directory);
@@ -132,7 +138,7 @@ async function main() {
     siteOrigin: origin,
     imageOrigin: origin + '/media',
   });
-  await app.listen(3100, '127.0.0.1');
+  await app.listen(corePort, '127.0.0.1');
   if (workers)
     stopWorkers = await startCoreWorkers({
       databaseUrl: database.href,
@@ -147,8 +153,8 @@ async function main() {
       ...process.env,
       NODE_ENV: 'test',
       NITRO_HOST: '127.0.0.1',
-      NITRO_PORT: '3000',
-      NUXT_CORE_ORIGIN: 'http://127.0.0.1:3100',
+      NITRO_PORT: String(webPort),
+      NUXT_CORE_ORIGIN: `http://127.0.0.1:${corePort}`,
       NUXT_COLLECT_BATCH_REVIEW_ENABLED: String(Boolean(batch)),
       NUXT_PUBLIC_SITE_ORIGIN: origin,
       NUXT_PUBLIC_IMAGE_ORIGIN: origin + '/media',
@@ -174,7 +180,7 @@ async function main() {
     if (!stopped) void stop(code ?? 1);
   });
   console.log(
-    `Local development: ${origin}/meme; Core loopback:3100; ${sandbox ? 'isolated sandbox' : 'persistent development DB'}; workers=${workers}`
+    `Local development: ${origin}/meme; Core loopback:${corePort}; ${sandbox ? 'isolated sandbox' : 'persistent development DB'}; workers=${workers}`
   );
   console.log(
     workers
@@ -186,7 +192,7 @@ process.on('SIGINT', () => void stop());
 process.on('SIGTERM', () => void stop());
 main().catch(() => {
   console.error(
-    'Local startup failed. Check fixed ports, PostgreSQL and contact config; values omitted.'
+    'Local startup failed. Check loopback ports, PostgreSQL and contact config; values omitted.'
   );
   void stop(1);
 });

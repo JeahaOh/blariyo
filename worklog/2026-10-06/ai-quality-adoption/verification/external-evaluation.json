@@ -1,0 +1,550 @@
+{
+  "sources": {
+    "anti_slop": "c44ef22ca116d0ba62a3ff663a0bd13a3f3fa40b",
+    "iron_laws": "fd746b425dd566569b6bd4009ab04efef8afb0f6"
+  },
+  "samples": [
+    {
+      "path": "apps/api/src/features/collection/collector-quota.service.ts",
+      "sha256": "2fb77f12bf200ffb30d6d6ae52b508e7cc836dafd3b849dc8438ceededa6bf27"
+    },
+    {
+      "path": "apps/api/src/features/collection/collector-result.service.ts",
+      "sha256": "8f03d4d08e4d8f80a696c98b0c595abe25a560e3db8f80caecd3deb18d75f8ed"
+    },
+    {
+      "path": "apps/api/src/http/contracts.ts",
+      "sha256": "f61cecd88e6c6b8f6776087bbda90b88531d54be508c064f59a165ffb1ea34ea"
+    },
+    {
+      "path": "apps/api/src/http/response.ts",
+      "sha256": "ee7e792226a41a61bc63232e6453e4008cc17efcd2f1b39a6b0481b9f0b1dbb9"
+    },
+    {
+      "path": "apps/web/shared/admin-return.ts",
+      "sha256": "1efa8ecd9d2f89a18766c26d80eca0d7e785444949b392aa72324fdfeccd6d61"
+    },
+    {
+      "path": "apps/web/server/utils/response.ts",
+      "sha256": "951d7ae7b8f5d73a68ef9e6dc1e84a7820bff596968abc56073c4b3b4379f103"
+    },
+    {
+      "path": "apps/web/app/pages/admin.vue",
+      "sha256": "8e6d16a94934ed5f002a60a24d769b0970e19d5a6e17466c19b9a5d6d4bbd1ba"
+    },
+    {
+      "path": "apps/web/app/components/AdminNavigation.vue",
+      "sha256": "d0324bdda628bb9c8f4bd8008dab623f8c47f5e9058140e36ecc925fda655370"
+    },
+    {
+      "path": "tests/draft-title.test.ts",
+      "sha256": "4e96b9a78510785fc48b96c6eb9c32df84d7afd9b41d047f293a31a7f048247f"
+    },
+    {
+      "path": "tests/migration-contracts.test.ts",
+      "sha256": "6fa1f6feb02b1fb0c8ad73f992b17ad7e30eda2ace3407e19b426626b092f246"
+    },
+    {
+      "path": "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java",
+      "sha256": "60056e9a3a53551d615d8128f546acc8608cb2b8fb5a9c3df1899180c01dd0df"
+    },
+    {
+      "path": "apps/collector/src/main/java/com/blariyo/collector/source/SourcePolicy.java",
+      "sha256": "7c42405995a4b1b9f609b5c337268d4103410637073fca3dcf08bb87f77a039e"
+    },
+    {
+      "path": "apps/api/eslint.config.mjs",
+      "sha256": "88d3c9990e380100357f74a5b969327178bee77ac931b6016ee6f29b9ad27183"
+    },
+    {
+      "path": "scripts/tsconfig.json",
+      "sha256": "76083b399b07c5ee84db3ee41e95a59fd9d937c25656dbca3d8b2ec6ba7b8f6a"
+    }
+  ],
+  "runs": [
+    {
+      "tool": "anti-slop",
+      "run": 0,
+      "cache": "process-cold",
+      "seconds": 0.2203,
+      "exit": 0,
+      "findings": [],
+      "coverage": {
+        "files": 11
+      }
+    },
+    {
+      "tool": "anti-slop",
+      "run": 1,
+      "cache": "warm-repeat",
+      "seconds": 0.2115,
+      "exit": 0,
+      "findings": [],
+      "coverage": {
+        "files": 11
+      }
+    },
+    {
+      "tool": "anti-slop",
+      "run": 2,
+      "cache": "warm-repeat",
+      "seconds": 0.217,
+      "exit": 0,
+      "findings": [],
+      "coverage": {
+        "files": 11
+      }
+    },
+    {
+      "tool": "anti-slop",
+      "run": 3,
+      "cache": "warm-repeat",
+      "seconds": 0.2143,
+      "exit": 0,
+      "findings": [],
+      "coverage": {
+        "files": 11
+      }
+    },
+    {
+      "tool": "iron-laws",
+      "run": 0,
+      "cache": "process-cold",
+      "seconds": 0.4367,
+      "exit": 0,
+      "findings": [
+        {
+          "rule": "IL-301",
+          "file": "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java",
+          "line": 104,
+          "confidence": "REVIEW"
+        },
+        {
+          "rule": "IL-301",
+          "file": "apps/web/shared/admin-return.ts",
+          "line": 17,
+          "confidence": "REVIEW"
+        }
+      ],
+      "coverage": {
+        "total_files_scanned": 12,
+        "total_violations": 2,
+        "critical_count": 0,
+        "high_count": 0,
+        "medium_count": 2,
+        "low_count": 0,
+        "suppressed_count": 0,
+        "is_passed": true,
+        "grade": "B",
+        "scan_status": "complete",
+        "new_count": null,
+        "existing_count": null,
+        "resolved_count": null,
+        "unobserved_count": null,
+        "approvals_valid": null,
+        "approvals_review": null,
+        "approvals_unobserved": null,
+        "contract_status": "not_applicable",
+        "contract_mode": "report",
+        "analysis_unknown_rate": null,
+        "evaluated_rule_language_pairs": 12,
+        "unverified_rule_language_pairs": 8,
+        "unverified_rule_language_rate": 0.6667,
+        "gates": null,
+        "gate_only_failure": false,
+        "gate_exceeded": []
+      }
+    },
+    {
+      "tool": "iron-laws",
+      "run": 1,
+      "cache": "warm-repeat",
+      "seconds": 0.4209,
+      "exit": 0,
+      "findings": [
+        {
+          "rule": "IL-301",
+          "file": "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java",
+          "line": 104,
+          "confidence": "REVIEW"
+        },
+        {
+          "rule": "IL-301",
+          "file": "apps/web/shared/admin-return.ts",
+          "line": 17,
+          "confidence": "REVIEW"
+        }
+      ],
+      "coverage": {
+        "total_files_scanned": 12,
+        "total_violations": 2,
+        "critical_count": 0,
+        "high_count": 0,
+        "medium_count": 2,
+        "low_count": 0,
+        "suppressed_count": 0,
+        "is_passed": true,
+        "grade": "B",
+        "scan_status": "complete",
+        "new_count": null,
+        "existing_count": null,
+        "resolved_count": null,
+        "unobserved_count": null,
+        "approvals_valid": null,
+        "approvals_review": null,
+        "approvals_unobserved": null,
+        "contract_status": "not_applicable",
+        "contract_mode": "report",
+        "analysis_unknown_rate": null,
+        "evaluated_rule_language_pairs": 12,
+        "unverified_rule_language_pairs": 8,
+        "unverified_rule_language_rate": 0.6667,
+        "gates": null,
+        "gate_only_failure": false,
+        "gate_exceeded": []
+      }
+    },
+    {
+      "tool": "iron-laws",
+      "run": 2,
+      "cache": "warm-repeat",
+      "seconds": 0.4315,
+      "exit": 0,
+      "findings": [
+        {
+          "rule": "IL-301",
+          "file": "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java",
+          "line": 104,
+          "confidence": "REVIEW"
+        },
+        {
+          "rule": "IL-301",
+          "file": "apps/web/shared/admin-return.ts",
+          "line": 17,
+          "confidence": "REVIEW"
+        }
+      ],
+      "coverage": {
+        "total_files_scanned": 12,
+        "total_violations": 2,
+        "critical_count": 0,
+        "high_count": 0,
+        "medium_count": 2,
+        "low_count": 0,
+        "suppressed_count": 0,
+        "is_passed": true,
+        "grade": "B",
+        "scan_status": "complete",
+        "new_count": null,
+        "existing_count": null,
+        "resolved_count": null,
+        "unobserved_count": null,
+        "approvals_valid": null,
+        "approvals_review": null,
+        "approvals_unobserved": null,
+        "contract_status": "not_applicable",
+        "contract_mode": "report",
+        "analysis_unknown_rate": null,
+        "evaluated_rule_language_pairs": 12,
+        "unverified_rule_language_pairs": 8,
+        "unverified_rule_language_rate": 0.6667,
+        "gates": null,
+        "gate_only_failure": false,
+        "gate_exceeded": []
+      }
+    },
+    {
+      "tool": "iron-laws",
+      "run": 3,
+      "cache": "warm-repeat",
+      "seconds": 0.4292,
+      "exit": 0,
+      "findings": [
+        {
+          "rule": "IL-301",
+          "file": "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java",
+          "line": 104,
+          "confidence": "REVIEW"
+        },
+        {
+          "rule": "IL-301",
+          "file": "apps/web/shared/admin-return.ts",
+          "line": 17,
+          "confidence": "REVIEW"
+        }
+      ],
+      "coverage": {
+        "total_files_scanned": 12,
+        "total_violations": 2,
+        "critical_count": 0,
+        "high_count": 0,
+        "medium_count": 2,
+        "low_count": 0,
+        "suppressed_count": 0,
+        "is_passed": true,
+        "grade": "B",
+        "scan_status": "complete",
+        "new_count": null,
+        "existing_count": null,
+        "resolved_count": null,
+        "unobserved_count": null,
+        "approvals_valid": null,
+        "approvals_review": null,
+        "approvals_unobserved": null,
+        "contract_status": "not_applicable",
+        "contract_mode": "report",
+        "analysis_unknown_rate": null,
+        "evaluated_rule_language_pairs": 12,
+        "unverified_rule_language_pairs": 8,
+        "unverified_rule_language_rate": 0.6667,
+        "gates": null,
+        "gate_only_failure": false,
+        "gate_exceeded": []
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "tool": "anti-slop",
+      "seconds": 0.2129,
+      "exit": 1,
+      "findings": [
+        {
+          "rule": "anti-slop(require-safety-comment-for-type-assertion)",
+          "file": "pairs/assertion-comment/bad/case.ts",
+          "labels": [
+            {
+              "span": {
+                "offset": 38,
+                "length": 9,
+                "line": 1,
+                "column": 39
+              }
+            }
+          ]
+        },
+        {
+          "rule": "anti-slop(no-chained-type-assertions)",
+          "file": "pairs/chained-assertion/bad/case.ts",
+          "labels": [
+            {
+              "span": {
+                "offset": 39,
+                "length": 27,
+                "line": 1,
+                "column": 40
+              }
+            }
+          ]
+        },
+        {
+          "rule": "anti-slop(require-safety-comment-for-type-assertion)",
+          "file": "pairs/chained-assertion/bad/case.ts",
+          "labels": [
+            {
+              "span": {
+                "offset": 39,
+                "length": 27,
+                "line": 1,
+                "column": 40
+              }
+            }
+          ]
+        },
+        {
+          "rule": "anti-slop(require-safety-comment-for-type-assertion)",
+          "file": "pairs/chained-assertion/bad/case.ts",
+          "labels": [
+            {
+              "span": {
+                "offset": 39,
+                "length": 11,
+                "line": 1,
+                "column": 40
+              }
+            }
+          ]
+        },
+        {
+          "rule": "oxc(no-accumulating-spread)",
+          "file": "pairs/reduce-spread/bad/case.ts",
+          "labels": [
+            {
+              "label": "From this spread",
+              "span": {
+                "offset": 72,
+                "length": 4,
+                "line": 1,
+                "column": 73
+              }
+            },
+            {
+              "label": "For this reduce",
+              "span": {
+                "offset": 44,
+                "length": 6,
+                "line": 1,
+                "column": 45
+              }
+            }
+          ]
+        },
+        {
+          "rule": "anti-slop(no-widen-then-assert)",
+          "file": "pairs/widen-assertion/bad/case.ts",
+          "labels": [
+            {
+              "span": {
+                "offset": 69,
+                "length": 20,
+                "line": 1,
+                "column": 70
+              }
+            }
+          ]
+        },
+        {
+          "rule": "anti-slop(require-safety-comment-for-type-assertion)",
+          "file": "pairs/widen-assertion/bad/case.ts",
+          "labels": [
+            {
+              "span": {
+                "offset": 69,
+                "length": 20,
+                "line": 1,
+                "column": 70
+              }
+            }
+          ]
+        },
+        {
+          "rule": "anti-slop(no-reduce-accumulator-copy)",
+          "file": "pairs/reduce-copy/bad/case.ts",
+          "labels": [
+            {
+              "span": {
+                "offset": 71,
+                "length": 13,
+                "line": 1,
+                "column": 72
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tool": "iron-laws",
+      "seconds": 0.3886,
+      "exit": 1,
+      "findings": [
+        {
+          "rule": "AIA-101",
+          "file": "agent-rules/bad/AGENTS.md",
+          "line": 1,
+          "confidence": "REVIEW"
+        },
+        {
+          "rule": "IL-101",
+          "file": "fake-secret/bad/case.ts",
+          "line": 1,
+          "confidence": "CONFIRMED"
+        },
+        {
+          "rule": "PERF-103",
+          "file": "loop-io/bad/case.ts",
+          "line": 1,
+          "confidence": "REVIEW"
+        },
+        {
+          "rule": "IL-301",
+          "file": "swallowed-error/bad/case.ts",
+          "line": 1,
+          "confidence": "CONFIRMED"
+        }
+      ]
+    },
+    {
+      "tool": "eslint",
+      "seconds": 0.7894,
+      "exit": 1,
+      "findings": [
+        {
+          "rule": "@typescript-eslint/no-unsafe-type-assertion",
+          "file": "/private/tmp/blariyo-quality-eval/pairs/assertion-comment/bad/case.ts",
+          "line": 1
+        },
+        {
+          "rule": "@typescript-eslint/no-unsafe-type-assertion",
+          "file": "/private/tmp/blariyo-quality-eval/pairs/assertion-comment/good/case.ts",
+          "line": 3
+        },
+        {
+          "rule": "@typescript-eslint/no-unsafe-type-assertion",
+          "file": "/private/tmp/blariyo-quality-eval/pairs/chained-assertion/bad/case.ts",
+          "line": 1
+        },
+        {
+          "rule": "@typescript-eslint/no-unsafe-type-assertion",
+          "file": "/private/tmp/blariyo-quality-eval/pairs/chained-assertion/bad/case.ts",
+          "line": 1
+        },
+        {
+          "rule": "@typescript-eslint/no-unsafe-type-assertion",
+          "file": "/private/tmp/blariyo-quality-eval/pairs/widen-assertion/bad/case.ts",
+          "line": 1
+        }
+      ]
+    }
+  ],
+  "baseline": [
+    {
+      "group": "apps/api",
+      "exit": 0,
+      "seconds": 2.078,
+      "findings": []
+    },
+    {
+      "group": "apps/web",
+      "exit": 0,
+      "seconds": 4.7751,
+      "findings": []
+    },
+    {
+      "group": ".",
+      "exit": 0,
+      "seconds": 1.6846,
+      "findings": []
+    }
+  ],
+  "vue_probe": {
+    "exit": 1,
+    "findings": [
+      {
+        "rule": "anti-slop(no-reduce-accumulator-copy)",
+        "file": "vue-probe/Probe.vue",
+        "labels": [
+          {
+            "span": {
+              "offset": 96,
+              "length": 13,
+              "line": 3,
+              "column": 46
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "expected_pairs": {
+    "reduce-copy": "anti-slop/no-reduce-accumulator-copy",
+    "reduce-spread": "oxc/no-accumulating-spread",
+    "chained-assertion": "anti-slop/no-chained-type-assertions",
+    "widen-assertion": "anti-slop/no-widen-then-assert",
+    "assertion-comment": "anti-slop/require-safety-comment-for-type-assertion",
+    "swallowed-error": "IL-301",
+    "fake-secret": "IL-101",
+    "loop-io": "PERF-103",
+    "agent-rules": "AIA-101"
+  }
+}

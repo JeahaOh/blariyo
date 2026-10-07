@@ -41,7 +41,7 @@ public final class SiteProbeMain {
       PinnedHttp.Response response;
       try(var db=new com.zaxxer.hikari.HikariDataSource(config)) {
         var store=new BatchStore(db);
-        var requests=SourceRequests.controlled(observed,millis->{try{Thread.sleep(millis);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new CollectorFailure(503,"BATCH_INTERRUPTED");}},source.config().path("requestIntervalMs").asLong(10000),source,store,()->{});
+        var requests=SourceRequests.controlled(observed,millis->{try{Thread.sleep(millis);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new CollectorFailure(503,"BATCH_INTERRUPTED");}},SourceRequestPolicy.interval(source.config()),source,store,()->{});
         try(var lease=store.lockSource(source.key())){response=requests.fetch(url,source.policy(),30*1024*1024);}
       }
       report.put("httpStatus",response.status());

@@ -5,5 +5,5 @@ export interface HealthOptions {collectDirectInputEnabled?:boolean;collectBatchR
 @Injectable()
 export class HealthService {
  constructor(@Inject(HealthRepository) private readonly repository:HealthRepository,@Inject(HEALTH_OPTIONS) private readonly options:HealthOptions){}
- async ready(){try{return await this.repository.ready(Boolean(this.options.collectManualUrlEnabled||this.options.collectDiscordCommandEnabled),Boolean(this.options.collectBatchReviewEnabled),Boolean(this.options.collectDirectInputEnabled));}catch{return false;}}
+ async ready(){try{return await this.repository.commonCodesReady() && await this.repository.ready(Boolean(this.options.collectManualUrlEnabled||this.options.collectDiscordCommandEnabled),Boolean(this.options.collectBatchReviewEnabled),Boolean(this.options.collectDirectInputEnabled));}catch{return false;}}
 }

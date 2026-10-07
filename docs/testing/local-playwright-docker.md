@@ -15,7 +15,7 @@ npm run test:browser:docker
 ```
 
 - `tests/` 아래 `*.test.ts` 파일을 인자로 전달할 수 있다. 여러 파일도 지정 가능하다.
-- 테스트는 `node --test --test-concurrency=1`로 실행한다. 프로덕션 빌드는 자동으로 하지 않는다.
+- 먼저 `npm run build`로 API·Web을 빌드하고 성공한 경우에만 `node --test --test-concurrency=1`로 테스트를 실행한다. 빌드 실패 시 기존 산출물로 테스트를 계속하지 않는다.
 - Docker 이미지 태그는 설치된 `@playwright/test` 버전과 일치한다. 이미지가 없으면 실행기가
   이미지 pull 명령을 알려주고 중단한다. 안내된 명령을 실행한 뒤 테스트를 다시 시작한다.
 - 브라우저 서버 포트 `55450`은 `127.0.0.1`에만 공개한다. 해당 포트가 점유 중이거나 고정

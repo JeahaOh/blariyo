@@ -1,0 +1,11 @@
+{
+  "removedOwnedContainer": {
+    "id": "002168ae3ae40a25924bcf7931046edf89432c546e1067abe8242175c8c8e326",
+    "name": "blariyo-quality-pg-a71f28a938"
+  },
+  "fixtureConnectionsBeforeRemoval": 0,
+  "persistentDevelopmentDatabase": "Not modified or stopped by this session",
+  "remainingContainers": [
+    "blariyo-m0-core-local-postgresql-1"
+  ]
+}

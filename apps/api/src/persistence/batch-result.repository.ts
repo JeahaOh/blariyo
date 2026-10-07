@@ -21,6 +21,7 @@ export function batchResult(row: Record<string, unknown>, requestStarted: number
     body_blocks: row.body_blocks, attachment_metadata: row.attachment_metadata, sns_links: row.sns_links,
     raw_object_key: text(row.raw_object_key), version: String(row.version),
     failure_code: text(row.failure_code), skip_reason: text(row.skip_reason),
+    fetched_at: row.fetched_at == null ? null : timestamp(row.fetched_at),
     collected_at: timestamp(row.collected_at), review_finalized_at: row.review_finalized_at == null ? null : timestamp(row.review_finalized_at),
     expires_at: timestamp(row.expires_at), retention_state: state,
     accessDeadline: requestStarted + Number(row.remaining_ms),

@@ -834,7 +834,39 @@ export class CollectWebCollectionRequestKeyEntity {
   @JoinColumn([{ name: 'request_id', referencedColumnName: 'id' }])
   request?: Relation<CollectWebCollectionRequestEntity>;
 }
+// V013 common-code schema; SQL migrations retain DDL and audit ownership.
+@Entity({ schema: 'content', name: 'common_code_group', synchronize: false })
+export class ContentCommonCodeGroupEntity {
+  @PrimaryColumn({ type: 'varchar', length: 40 }) group_key!: string;
+  @Column({ type: 'varchar', length: 200 }) display_name!: string;
+  @Column({ type: 'integer', default: 1 }) lock_version!: number;
+  @Column({ type: 'varchar', length: 100 }) created_by!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'now()' }) created_at!: Date;
+  @Column({ type: 'varchar', length: 100 }) updated_by!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'now()' }) updated_at!: Date;
+}
+@Entity({ schema: 'content', name: 'common_code', synchronize: false })
+export class ContentCommonCodeEntity {
+  @PrimaryColumn({ type: 'varchar', length: 40 }) group_key!: string;
+  @PrimaryColumn({ type: 'varchar', length: 40 }) code!: string;
+  @Column({ type: 'varchar', length: 200 }) display_name!: string;
+  @Column({ type: 'varchar', length: 80, nullable: true }) reference_key!: string | null;
+  @Column({ type: 'integer', default: 1 }) lock_version!: number;
+  @Column({ type: 'varchar', length: 100 }) created_by!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'now()' }) created_at!: Date;
+  @Column({ type: 'varchar', length: 100 }) updated_by!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'now()' }) updated_at!: Date;
+  @ManyToOne(() => ContentCommonCodeGroupEntity, {
+    nullable: false, onDelete: 'NO ACTION', onUpdate: 'NO ACTION',
+    cascade: false, eager: false, lazy: false, persistence: false,
+    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+  })
+  @JoinColumn([{ name: 'group_key', referencedColumnName: 'group_key' }])
+  group?: Relation<ContentCommonCodeGroupEntity>;
+}
 export const entities = [
+  ContentCommonCodeGroupEntity,
+  ContentCommonCodeEntity,
   ContentPostCollectionOriginEntity,
   CollectWebCollectionRequestEntity,
   CollectWebCollectionRequestKeyEntity,

@@ -1,0 +1,92 @@
+{
+  "checkedAt": "2026-10-06T12:17:36.435498+00:00",
+  "receipts": [
+    {
+      "profile": "quality",
+      "file": "worklog/2026-10-06/ai-quality-adoption/verification/2026-10-06T12-10-44.754Z-quality-10462.json",
+      "exitCode": 0,
+      "assessment": {
+        "profile": "quality",
+        "valid": true,
+        "problems": []
+      },
+      "counts": {
+        "ci": {
+          "tests": 16,
+          "passed": 16,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "unit": {
+          "tests": 86,
+          "passed": 86,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      "checks": 14,
+      "inputDigest": "c8b6ba759cd6bcc5947b13ffdb20b374ebca27e9670d0c8d84761fcc0d55ffed"
+    },
+    {
+      "profile": "api",
+      "file": "worklog/2026-10-06/ai-quality-adoption/verification/2026-10-06T12-11-46.958Z-api-27335.json",
+      "exitCode": 0,
+      "assessment": {
+        "profile": "api",
+        "valid": true,
+        "problems": []
+      },
+      "counts": {
+        "api-integration": {
+          "tests": 140,
+          "passed": 140,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      "checks": 1,
+      "inputDigest": "c8b6ba759cd6bcc5947b13ffdb20b374ebca27e9670d0c8d84761fcc0d55ffed"
+    },
+    {
+      "profile": "browser-docker",
+      "file": "worklog/2026-10-06/ai-quality-adoption/verification/2026-10-06T12-12-14.977Z-browser-docker-27969.json",
+      "exitCode": 0,
+      "assessment": {
+        "profile": "browser-docker",
+        "valid": true,
+        "problems": []
+      },
+      "counts": {
+        "browser-docker": {
+          "tests": 85,
+          "passed": 85,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      "checks": 1,
+      "inputDigest": "c8b6ba759cd6bcc5947b13ffdb20b374ebca27e9670d0c8d84761fcc0d55ffed"
+    }
+  ],
+  "collector": {
+    "file": "worklog/2026-10-06/ai-quality-adoption/verification/collector-2026-10-06T12-14-32Z.json",
+    "valid": true,
+    "summary": {
+      "state": "PASSED",
+      "suites": 82,
+      "tests": 299,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "readbackTests": 20
+    },
+    "inputDigest": "c8b6ba759cd6bcc5947b13ffdb20b374ebca27e9670d0c8d84761fcc0d55ffed"
+  },
+  "currentHead": "b9323667f39609fa42a75ae4e5870414dab9db94",
+  "currentDigest": "c8b6ba759cd6bcc5947b13ffdb20b374ebca27e9670d0c8d84761fcc0d55ffed",
+  "valid": true
+}

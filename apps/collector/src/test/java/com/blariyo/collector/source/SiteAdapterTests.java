@@ -127,7 +127,7 @@ class SiteAdapterTests {
     assertThrows(CollectorFailure.class, () -> SiteAdapters.require("UNKNOWN_SITE"));
   }
   @Test void observedDcconOriginUsesOnlyConfiguredImagePathAndNeverDetailPermission() throws Exception {
-    var policy = SourceRegistry.read("ops/reference-sites.sources.example.json").key("dcinside").policy();
+    var policy = ObservedFixtureMain.offlinePolicy(SourceRegistry.read("ops/reference-sites.sources.example.json").key("dcinside"));
     var uri = URI.create("https://gall.dcinside.com/board/view/?id=hit&no=17805");
     var parsed = policy.extract(Files.readAllBytes(Path.of("src/test/resources/sites/dcinside.dccon.observed.html")), uri);
     assertEquals(1,parsed.path("imageCandidates").size());

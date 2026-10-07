@@ -82,6 +82,8 @@ sudo python3 /opt/blariyo/backup/run-backup.py maintain
 - 시험 뒤 복구 DB/volume은 원문 잔존 inventory에 포함한다. 임의 기존 DB를 삭제하지 않으며 소유권을 확인한 시험 DB만 정리한다.
 - 복원 성공 직후 retention gate와 collector restore gate는 닫힌다. Collector V010의 direct permit은 복원 다음 KST 날짜 시작 전까지 추가 차단된다. snapshot 이후 당일 요청 수가 유실될 수 있으므로 이를 앞당기거나 counter를0으로 바꾸지 않는다. D01 quiesced object inventory·늦은 객체 회수·dedup/게시글 사본 확인 후 운영자가 gate를 재개하며, 다음 날이 되었다는 이유로 자동 해제하지 않는다.
 
+2026-10-04 수집 정책에서는 만료 원문 정리와 신규 수집을 독립 실행한다. 아래 선택 백업·기존 full 대체 검증은 실제 회수 활성화의 선행 조건으로 유지하며, backlog 존재 자체로 새 수집을 중단하지 않는다. 복원 중 쓰기 동결·inventory 및 원문 사본 재생성 금지는 그대로 적용한다.
+
 ## 기존 full 사본 교체와 Drive 전환
 
 `node deploy/backup/replace-full.mjs /사용자전용/replacement.json`
@@ -107,3 +109,7 @@ sudo python3 /opt/blariyo/backup/run-backup.py maintain
 
 실값·private key·token·session URI·원문은 Git/일반 로그/알림에 넣지 않는다. 외부 서비스의 HTTP receipt는
 실제 사용자 수신·운영 인수·7일 관찰 완료를 대신하지 않는다.
+
+### 관리자 실패 삭제 기록 보존 (Collector V014)
+
+선택 백업은 `collect.batch_manual_deletion`과 `collect.batch_manual_cleanup`을 포함한다. 원문/이미지 자체가 아니라 삭제한 item/version/actor/time과 정확한 item/run 정리 상태만 보존한다. 복원 뒤 파일이 다시 나타나면 inventory가 정리 작업을 다시 연다. 수집 원문 payload 제외 정책은 유지한다.

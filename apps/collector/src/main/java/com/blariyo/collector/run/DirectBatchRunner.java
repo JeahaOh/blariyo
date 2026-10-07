@@ -30,7 +30,7 @@ public final class DirectBatchRunner {
       var policy=source.policy();var adapter=source.adapter();String chart=source.config().path("charts").path(o.chart()).asText();
       if(!source.config().path("batchApproved").asBoolean(false))throw new CollectorFailure(403,"BATCH_NOT_APPROVED");
       if(o.maxPages()>source.config().path("maxPages").asInt(2)||o.maxItems()>source.config().path("maxItems").asInt(20)
-          ||o.intervalMs()<source.config().path("requestIntervalMs").asLong(10000))throw new CollectorFailure(400,"SOURCE_LIMIT_EXCEEDED");
+          ||o.intervalMs()<SourceRequestPolicy.interval(source.config()))throw new CollectorFailure(400,"SOURCE_LIMIT_EXCEEDED");
       if(chart.isBlank()||!source.config().path("chartVerified").asBoolean(false))throw new CollectorFailure(403,"CHART_UNVERIFIED");
       requests=SourceRequests.controlled(transport,sleeper,o.intervalMs(),source,store,()->{});
       lease=store.lockSource(source.key());
@@ -86,7 +86,7 @@ public final class DirectBatchRunner {
               phase="MEDIA";
           mediaBudget=new ArticleMediaBudget(policy.mediaLimits());
               for(var image:result.path("imageCandidates")){
-                try{ storeMedia(policy,store,run,item,image); }
+                try{ storeImageWithRetry(policy,run,item,image); }
                 catch(CollectorFailure e){ failureDetail.put("assetKind","IMAGE"); failureDetail.put("assetUrl",image.path("remoteUrl").asText()); throw e; }
               }
               int offset=result.path("imageCandidates").size();
@@ -148,6 +148,15 @@ public final class DirectBatchRunner {
     return response;
   }
   private static String sns(JsonNode blocks){var a=new ArrayList<String>();for(var b:blocks)if("LINK".equals(b.path("type").asText())&&b.path("url").asText().matches("https://(x.com|twitter.com|www.instagram.com|www.youtube.com|youtu.be|www.tiktok.com)/.*"))a.add(b.path("url").asText());return Json.tree(a).toString();}
+  private void storeImageWithRetry(SourcePolicy policy,UUID run,UUID item,JsonNode image) {
+    int checkpoint=mediaBudget.checkpoint();
+    try { storeMedia(policy,store,run,item,image); }
+    catch(CollectorFailure failure) {
+      if(SourceRequests.stopSite(failure)||!store.retryImage(item,failure.getMessage()))throw failure;
+      mediaBudget.restore(checkpoint);
+      storeMedia(policy,store,run,item,image);
+    }
+  }
   private void storeMedia(SourcePolicy policy,BatchStore store,UUID run,UUID item,JsonNode image){storeAsset(policy,store,run,item,image.path("position").asInt(),"IMAGE",image.path("remoteUrl").asText(),true);}
   private void storeAttachment(SourcePolicy policy,BatchStore store,UUID run,UUID item,JsonNode attachment,int offset){storeAsset(policy,store,run,item,offset+attachment.path("position").asInt(),"FILE",attachment.path("remoteUrl").asText(),false);}
   private void storeAsset(SourcePolicy policy,BatchStore store,UUID run,UUID item,int position,String kind,String remoteUrl,boolean requireImage){

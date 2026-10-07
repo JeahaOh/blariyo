@@ -14,7 +14,7 @@ public final class DiscoveryBatch {
       if (source == null || !source.matches("[a-z][a-z0-9-]{1,40}") || chart == null || !chart.matches("[a-z]{1,20}")
           || maxPages < 1 || maxPages > 10 || maxItems < 1 || maxItems > 100
           || since == null || since.compareTo(Duration.ofHours(1)) < 0 || since.compareTo(Duration.ofHours(720)) > 0
-          || intervalMillis < 10000 || intervalMillis > 3600000) throw new CollectorFailure(400, "BATCH_OPTIONS_INVALID");
+          || intervalMillis < SourceRequestPolicy.MIN_INTERVAL_MS || intervalMillis > SourceRequestPolicy.MAX_INTERVAL_MS) throw new CollectorFailure(400, "BATCH_OPTIONS_INVALID");
     }
   }
   public interface Fetcher { byte[] fetch(URI uri); }
@@ -36,7 +36,7 @@ public final class DiscoveryBatch {
       if (!source.config().path("batchApproved").asBoolean(false)) throw new CollectorFailure(403, "BATCH_NOT_APPROVED");
       if (options.maxPages() > source.config().path("maxPages").asInt(2)
           || options.maxItems() > source.config().path("maxItems").asInt(20)
-          || options.intervalMillis() < source.config().path("requestIntervalMs").asLong(10000))
+          || options.intervalMillis() < SourceRequestPolicy.interval(source.config()))
         throw new CollectorFailure(400, "SOURCE_LIMIT_EXCEEDED");
       String chart = source.config().path("charts").path(options.chart()).asText();
       if (!source.config().path("chartVerified").asBoolean(false) || chart.isBlank()) throw new CollectorFailure(403, "CHART_UNVERIFIED");

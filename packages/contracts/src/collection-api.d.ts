@@ -1,4 +1,68 @@
 export interface paths {
+    "/api/v1/admin/common-code-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listCommonCodeGroups"];
+        put?: never;
+        post: operations["createCommonCodeGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/common-code-groups/{groupKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateCommonCodeGroup"];
+        trace?: never;
+    };
+    "/api/v1/admin/common-code-groups/{groupKey}/codes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listCommonCodes"];
+        put?: never;
+        post: operations["createCommonCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/common-code-groups/{groupKey}/codes/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateCommonCode"];
+        trace?: never;
+    };
     "/api/v1/admin/collect/sources": {
         parameters: {
             query?: never;
@@ -351,6 +415,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/collect/batch-items/{itemId}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["deleteBatchItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/collect/batch-items/{itemId}/draft": {
         parameters: {
             query?: never;
@@ -456,6 +536,35 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        CommonCodeGroup: {
+            groupKey: string;
+            displayName: string;
+            lockVersion: number;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CommonCode: {
+            groupKey: string;
+            displayName: string;
+            lockVersion: number;
+            /** Format: date-time */
+            updatedAt: string;
+            code: string;
+            referenceKey: string | null;
+        };
+        CreateCommonCodeGroup: {
+            groupKey: string;
+            displayName: string;
+        };
+        CreateCommonCode: {
+            code: string;
+            displayName: string;
+            referenceKey: string | null;
+        };
+        UpdateCommonCode: {
+            displayName: string;
+            lockVersion: number;
+        };
         BatchRetention: {
             /** Format: date-time */
             collectedAt: string;
@@ -602,12 +711,14 @@ export interface components {
         CollectionContentBlocks: components["schemas"]["CollectionContentBlock"][];
         BatchReview: {
             /** @enum {unknown} */
-            status: "UNREVIEWED" | "REVIEWING" | "REJECTED" | "APPROVED";
+            status: "UNREVIEWED" | "REJECTED" | "APPROVED";
             lockVersion: number;
             itemVersion: number;
             postId: number | null;
         };
         BatchItemSummary: {
+            /** @description 글의 원문과 첨부 저장을 마친 시각. FETCHED가 아니거나 기록이 없으면 null. */
+            fetchedAt: string | null;
             retention: components["schemas"]["BatchRetention"];
             /** Format: uuid */
             itemId: string;
@@ -624,6 +735,10 @@ export interface components {
             review: components["schemas"]["BatchReview"];
         };
         BatchItem: {
+            /** @description 글의 원문과 첨부 저장을 마친 시각. FETCHED가 아니거나 기록이 없으면 null. */
+            fetchedAt: string | null;
+            /** @description 상세 조회 시 원문과 미디어의 snapshot. 승인/반려 요청에 그대로 전달한다. */
+            contentDigest: string;
             retention: components["schemas"]["BatchRetention"];
             /** Format: uuid */
             itemId: string;
@@ -658,10 +773,15 @@ export interface components {
             }[];
         };
         BatchReviewRequest: {
+            contentDigest: string;
             itemVersion: number;
             lockVersion: number;
             /** @enum {unknown} */
-            decision: "REVIEWING" | "APPROVED" | "REJECTED";
+            decision: "APPROVED" | "REJECTED";
+        };
+        BatchDeleteRequest: {
+            itemVersion: number;
+            lockVersion: number;
         };
         BatchDraftRequest: {
             itemVersion: number;
@@ -711,6 +831,259 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listCommonCodeGroups: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: components["schemas"]["CommonCodeGroup"][];
+                            canManage: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    createCommonCodeGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCommonCodeGroup"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["CommonCodeGroup"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    updateCommonCodeGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCommonCode"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["CommonCodeGroup"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    listCommonCodes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: components["schemas"]["CommonCode"][];
+                            canManage: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    createCommonCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCommonCode"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["CommonCode"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    updateCommonCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupKey: string;
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCommonCode"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["CommonCode"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
     listCollectionSources: {
         parameters: {
             query?: never;
@@ -1968,7 +2341,7 @@ export interface operations {
                 page?: number;
                 source?: string;
                 state?: "DISCOVERED" | "FETCHING" | "FETCHED" | "FAILED" | "BLOCKED" | "SKIPPED_DUPLICATE" | "SKIPPED_POLICY";
-                reviewStatus?: "UNREVIEWED" | "REVIEWING" | "APPROVED" | "REJECTED";
+                reviewStatus?: "UNREVIEWED" | "APPROVED" | "REJECTED";
             };
             header?: never;
             path?: never;
@@ -2077,6 +2450,58 @@ export interface operations {
                         success: true;
                         data: {
                             review: components["schemas"]["BatchReview"];
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            410: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    deleteBatchItem: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchDeleteRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            /** Format: uuid */
+                            itemId: string;
+                            /** @constant */
+                            deleted: true;
+                            /** @constant */
+                            cleanupStatus: "PENDING";
                         };
                         meta: {
                             requestId: string;

@@ -4,7 +4,7 @@ import { loadKakao } from '~/utils/kakao.mjs';
 import { description } from '~/utils/metadata.mjs';
 import { socialDisplayBlocks } from '~/utils/social-posts';
 const route = useRoute();
-const { data, error } = await useFetch<ApiResponse<'getPost'>>(
+const { data, error, status: postStatus } = await useFetch<ApiResponse<'getPost'>>(
   `/api/v1/boards/${String(route.params.boardSlug)}/posts/${String(route.params.postId)}`
 );
 if (error.value)
@@ -380,6 +380,7 @@ async function share() {
     shareBusy.value = false;
   }
 }
+useUiLoading(() => listLoading.value || postStatus.value === 'pending');
 </script>
 <template>
   <main class="detail-page">

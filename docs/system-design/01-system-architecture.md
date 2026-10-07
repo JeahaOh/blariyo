@@ -1,5 +1,7 @@
 # M0 시스템 아키텍처
 
+> 2026-10-06 수집 정책 변경: robots.txt는 참고 정보이며 자동 조회·허용 판정·활성화 선행 조건으로 사용하지 않는다. 과거 설계의 robots 차단 조건은 [현행 수집 정책](../planning/content-collection/README.md#수집-요청-정책--2026-10-06-사용자-결정)으로 대체한다. 기본 요청 간격5초·출처별 일일5000 HTTP 요청이며 명시한 출처별 설정은 유지한다. 실제 접근 제한·요청 한도·DNS 보호와 별도 법무 검토 항목은 유지한다.
+
 M1 회원·M1.5 익게의 추가 계약은 [회원·익게 기술 설계](06-member-community-design.md)를 따른다. 이 문서의 M0 한정 계약과 구분한다.
 - 문서 상태: M0 아키텍처 설계 계약 · direct batch와 legacy 호환 구분
 - 최초 기준일: 2026-09-04
@@ -337,7 +339,7 @@ timeout이 발생하면 item 또는 source run을 실패·차단으로 남긴다
 
 ### 후보 초안 승격
 
-현행 direct 검수는 REVIEWING → APPROVED 또는 REJECTED다. 승인한 item version이 일치하는 경우만
+현행 direct 검수는 상세 조회 후 APPROVED 또는 REJECTED로 직접 판단한다. 검수 시작/REVIEWING 중간 단계는 없다. 승인한 item version이 일치하는 경우만
 모든 collect 이미지의 private 사본을 준비한 뒤 content DRAFT를 만든다. 첨부는 원문 링크·metadata로
 보존하며 공개 collect 다운로드를 열지 않는다. 같은 item의 중복 승격·동시 수정은 버전·멱등성으로 막고
 실패 사본을 회수한다. [수집 상세 설계](07-spring-collector-design.md)의 direct 계약을 따른다.
@@ -474,3 +476,31 @@ API는 batch queue/confirmation 직접 권한을 받지 않는다. batch에 API 
 선택 영향: 입력은 즉시 수집을 보장하지 않는다. runtime 설정이 STALE/ABSENT면 저장은 가능하되 202 응답과 화면에 '수집기 확인 대기'를 표시하고 마지막 관측을 명시한다. 서로 다른 실행기의 설정 충돌(CONFLICT)은 503으로 접수를 막는다. 처리 직전 최신 batch 설정이 거부하면 BLOCKED가 최종 결과다. 설정 파일 편집·배포는 사용자/개발자 운영 절차이며 Web 설정 편집은 추가하지 않는다.
 
 되돌리기: Web 입력 flag를 끄고 미수락 요청은 TTL로 닫는다. 수락된 queue는 중단/종료 확인 후 drain하며 legacy로 자동 전송하지 않는다. 기존 검수·Core 수동 운영은 계속 사용한다. DB·API·화면 상세는 [데이터 모델](02-data-model.md#m0-d02-input-model), [API 계약](03-api-design.md#m0-d02-api), [수집 명세](../development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md#m0-design-completion)을 따른다.
+
+## 로컬 다중 출처 배치 동시 실행 설정
+
+- 로컬 정기 실행은 macOS LaunchAgent `com.blariyo.local-collection`으로 매일 한국 시간04:30·16:30에 시작한다. `scripts/local/render-batch-schedule.py`의 `SCHEDULE`이 시각 상수이며 변경 후 plist 재생성·재등록이 필요하다. OS 시간대는 Asia/Seoul이어야 한다.
+- `scripts/local/scheduled-batch.mjs`가 기존 다중 출처 실행기를 호출한다. `BATCH_ARGS`는 최근24시간·출처별 최대2페이지/20건·로컬 DB 저장이며 `MAX_RUNTIME_MS`는 네트워크/DB 준비 대기·재시도 포함2시간이다. 초과 시 배치 프로세스 그룹에 종료 요청 후30초 뒤 강제 종료한다. 실행 중 `caffeinate -is -w <pid>`로 잠자기를 방지하고 종료 시 해제한다.
+- `batch-schedule-retry.mjs`의 `RETRY_DELAYS_MS=[300000,900000]`으로5분·15분 대기 후 최대2회 추가 재시도한다. 보고서 오류가 `SOURCE_DNS_FAILED`, `SOURCE_FETCH_FAILED`, `SOURCE_HTTP_UNAVAILABLE`에만 해당하는 FAILED/PARTIAL 출처를 선택한다. 성공·정책 차단·파싱 실패는 재시도하지 않는다. `COLLECTOR_SOURCE_FILTER`는 등록된 출처 키만 허용하며 SOURCE_DISABLED 제외 규칙을 우회하지 않는다. 임시 실패와 영구 오류가 섞인 출처는 자동 재시도하지 않는다.
+- DNS(theqoo.net 또는 www.dogdrip.net)와 고정 로컬 DB TCP5439 준비를60초 간격으로 확인한다. 준비 확인은 실제 저장 성공의 대체 증거가 아니며 출처 보고서를 최종 결과로 쓴다. `.local-data/batch-schedule/status.json`에 실행·준비 대기·재시도 대기·종료 상태와 출처 보고서를 원자적으로 기록하고, 각 시도 원시 로그는 `run-<시각>.<시도>.log`에 남긴다. 미검증 출처가 있으면 최종 상태는 `COMPLETED_WITH_ERRORS`다.
+- renderer는 선택용 `com.blariyo.local-collection.awake.plist`도 생성한다. 사용자 선택 후 별도 설치하며 `caffeinate -s`로 AC 전원에서 시스템 잠자기를 막는다. 화면 잠자기와 배터리 사용은 그대로다. 예약 중단 시 수집 job과 awake job을 모두 bootout하고 두 설치 plist를 제거한다. 생성만으로 설치됐다고 보고하지 않는다.
+- launchd의 같은 job 중복 실행 방지를 사용한다. 수동 재실행도 `launchctl kickstart`를 사용하며 실행 중인 job을 재시작하는 `-k`는 쓰지 않는다. 출처별 DB lock도 유지한다. 로그는 `.local-data/batch-schedule/logs/`에 실행별 저장하고14일 지난 해당 실행 로그만 정리한다.
+- 사용자 로그인·Docker와 로컬 DB가 필요하다. 잠자기 중 예정 실행은 깨어날 때 합쳐 실행될 수 있고 전원 종료·로그아웃 상태의 정시 실행은 보장하지 않는다. 운영 서버 스케줄은 변경하지 않는다. [설치·조회·중단 기록](../../worklog/2026-10-06/local-batch-schedule/README.md)을 따른다.
+- 개발 DB의 root `compose.yaml`은 `restart: unless-stopped`를 사용한다. Docker 엔진 재시작 뒤 복구하되 사용자가 명시적으로 정지한 DB는 임의 기동하지 않는다. Docker Desktop 자체가 꺼져 있으면 이 설정만으로 기동되지 않는다.
+
+- `scripts/local/run-batches.mjs`는 등록된 출처 중 `blockedReason: SOURCE_DISABLED`를 제외하고 기존 `run-batch.mjs batch --source ...`를 실행한다. 시작 로그의 `excludedSources`에 제외 출처를 남긴다. 대상은 기존 실행기와 같은 로컬 DB `127.0.0.1:5439/blariyo_local`이다. 단일 출처·queue·운영 스케줄러의 동시 실행 수를 바꾸지 않는다.
+- 2026-10-06 임시 제외: 기본 `apps/collector/ops/reference-sites.sources.example.json`의 `dcinside`, `arcalive`, `bobaedream`, `inven`, `mlbpark`, `pgr21`을 `approved: false`, `blockedReason: SOURCE_DISABLED`로 설정한다. 직접 실행도 기존 정책 검증에서 차단한다. 재개 결정 시 해당 두 값을 `true`, 빈 문자열로 복구한다. 별도 `COLLECTOR_SOURCE_CONFIG` 또는 운영 장비의 설정 사본에는 별도 반영이 필요하며 과거 실행 snapshot은 자동 갱신하지 않는다.
+- 기본 상수는 `scripts/local/batch-concurrency.mjs`의 `DEFAULT_SOURCE_CONCURRENCY = 3`이다. `COLLECTOR_SOURCE_CONCURRENCY` 환경변수로 덮어쓰며 양의 정수만 허용한다. 실제 worker 수는 등록 출처 수 이하로 제한한다. 값은 실행 시작 때 읽고, 한 실행기 프로세스에 적용한다.
+- `COLLECTOR_SOURCE_CONFIG`로 출처 설정 JSON을 선택하고, 미지정 시 `apps/collector/ops/reference-sites.sources.example.json`을 사용한다. 등록된 모든 출처를 실행하되 기존 Java 배치의 출처 승인·차단 판정을 유지한다.
+- 한 출처가 끝나면 다음 출처를 즉시 시작한다. 출처별 비정상 종료를 기록하고 나머지를 계속 실행하며, 하나라도 비정상 종료면 전체 종료 코드는1이다. 중지 시 대기 출처를 시작하지 않고 실행 중인 Java 프로세스까지 신호를 전달한다.
+- 동시 실행 수를 늘려도 사이트별 요청 간격/한도/DB lock은 유지한다. Java 프로세스와 DB 연결 수는 동시 출처 수에 비례하여 늘어난다. 아래 명령의 `--write-db`는 실제 수집·저장이며 `--dry-run`도 외부 요청을 수행한다.
+
+```sh
+# 기본 3개 출처씩 실행
+node scripts/local/run-batches.mjs --max-pages 2 --max-items 10 --since 24h --write-db
+
+# 이번 실행만 5개 출처씩 실행 (macOS/Linux)
+COLLECTOR_SOURCE_CONCURRENCY=5 node scripts/local/run-batches.mjs --max-pages 2 --max-items 10 --since 24h --write-db
+```
+
+PowerShell에서는 `$env:COLLECTOR_SOURCE_CONCURRENCY='5'`로 지정하고 같은 Node 명령을 실행한다. 항상 적용할 기본값을 바꾸려면 위 상수 한 곳을 수정한다. 소스 설정의 요청 간격 기본5초와는 독립적이다.

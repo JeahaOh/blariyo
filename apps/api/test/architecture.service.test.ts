@@ -64,7 +64,8 @@ await test('Nest TypeScript runtime has acyclic imports and SQL/ORM remains insi
       if (name.startsWith('shared/')) assert.ok(targetName.startsWith('shared/'), name + ': shared reverse dependency');
       if (name.startsWith('features/') && targetName.startsWith('features/')) {
         const owner = name.split('/')[1], dependency = targetName.split('/')[1];
-        if (owner !== dependency) assert.ok((owner === 'collection' && ['posts', 'images'].includes(dependency ?? '')) || (owner === 'posts' && dependency === 'images'), `${name} -> ${targetName}`);
+        // Grouped reference data is now owned by common-codes; collection reads it without a reverse dependency.
+        if (owner !== dependency) assert.ok((owner === 'collection' && ['posts', 'images', 'common-codes'].includes(dependency ?? '')) || (owner === 'posts' && dependency === 'images'), `${name} -> ${targetName}`);
       }
       if (runtime) dependencies.add(targetName);
     }

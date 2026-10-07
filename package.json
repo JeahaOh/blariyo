@@ -10,6 +10,10 @@
     "packages/*"
   ],
   "scripts": {
+    "lint": "npm run lint -w @blariyo/api && npm run lint -w @blariyo/web && npm run lint:scripts && npm run lint:tests && npm run lint:quality-rules",
+    "quality:verify": "node scripts/quality/verify.ts",
+    "quality:receipt": "node scripts/quality/receipt.ts",
+    "quality:review": "node scripts/quality/review-guards.ts",
     "hooks:install": "node scripts/git-hooks.mjs install",
     "hooks:check": "node scripts/git-hooks.mjs check",
     "test:ci": "python3 -B -m unittest discover -s scripts/ci -p 'test_*.py'",
@@ -26,7 +30,7 @@
     "policies:publish": "node apps/api/dist/commands/command.js policies:publish",
     "test:integration": "npm run test:nest",
     "test:browser": "npm run build && node --test --test-concurrency=1 tests/browser/*.test.ts",
-    "test:browser:docker": "node scripts/local/playwright-tests.mjs",
+    "test:browser:docker": "npm run build && node scripts/local/playwright-tests.mjs",
     "test:web-cache": "npm run build -w @blariyo/web && node --test tests/http/web-cache.test.ts",
     "test:docker": "node scripts/test-docker.ts",
     "test:database-roles": "npm run build -w @blariyo/api && apps/collector/gradlew -p apps/collector testClasses fixtureClasspath && node scripts/test-database-roles.ts",
@@ -43,11 +47,16 @@
     "lint:tests": "eslint --config tests/eslint.config.mjs tests/**/*.ts",
     "typecheck:web": "npm run typecheck -w @blariyo/web",
     "test:spring": "npm run build && apps/collector/gradlew -p apps/collector test bootJar fixtureClasspath && node --test --test-concurrency=1 tests/spring/*.test.ts",
-    "verify:migration": "node scripts/verify-migration.ts"
+    "verify:migration": "node scripts/verify-migration.ts",
+    "lint:quality-rules": "oxlint --config oxlint.config.ts apps/api/src apps/api/test apps/web/app apps/web/server apps/web/shared packages/contracts/src scripts tests",
+    "typecheck:quality-rules": "tsc -p tools/oxlint/tsconfig.json",
+    "quality:audit": "node scripts/quality/audit.ts"
   },
   "devDependencies": {
+    "@oxlint/plugins": "1.78.0",
     "@playwright/test": "^1.55.0",
     "openapi-typescript": "^7.10.1",
+    "oxlint": "1.78.0",
     "prettier": "^3.9.6",
     "typescript": "^5.9.3"
   }

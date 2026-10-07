@@ -19,6 +19,19 @@ public final class RetentionRepository {
     }
     return new CollectorFailure(503,code);
   }
+  public record ImageCleanup(UUID item,UUID run) {}
+  public List<ImageCleanup> imageCleanupPending() {
+    try(var c=db.getConnection();var q=c.prepareStatement("SELECT * FROM collect.image_cleanup_pending()");var r=q.executeQuery()) {
+      var result=new ArrayList<ImageCleanup>();while(r.next())result.add(new ImageCleanup((UUID)r.getObject(1),(UUID)r.getObject(2)));return result;
+    }catch(SQLException e){throw failure(e);}
+  }
+  public boolean imageCleanupAllowed(ImageCleanup job,String key) {
+    try(var c=db.getConnection();var q=c.prepareStatement("SELECT collect.image_cleanup_allowed(?,?,?)")) {
+      q.setObject(1,job.item());q.setObject(2,job.run());q.setString(3,key);
+      try(var r=q.executeQuery()){r.next();return r.getBoolean(1);}
+    }catch(SQLException e){throw failure(e);}
+  }
+  public void finishImageCleanup(ImageCleanup job) { call("SELECT collect.finish_image_cleanup(?,?)",job.item(),job.run()); }
   public Lease claim() {
     UUID owner=UUID.randomUUID();
     try(var c=db.getConnection();var q=c.prepareStatement("SELECT item_id,run_id,version FROM collect.claim_retention(?,1)")) {

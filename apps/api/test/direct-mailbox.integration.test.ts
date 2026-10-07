@@ -22,9 +22,13 @@ await test('D02: PostgreSQL mailbox transaction, fencing and safe runtime projec
  const db=await createDataSource(url).initialize();
  const c=db.createQueryRunner(), other=db.createQueryRunner();
  t.after(async()=>{ await c.release(); await other.release(); await db.destroy(); });
- for(const version of ['002','003','004','005','006','007','008','009']) {
-  await db.transaction(async manager=>{ await manager.query(await readFile(`apps/collector/src/main/resources/db/collector-v${version}.sql`,'utf8')); });
- }
+ // Use the real migration chain: runtime interval constraints changed in V015.
+ const migrationTarget=new URL(url), javaHome=process.env.JAVA_HOME;assert.ok(javaHome);
+ const migrationCp=(await readFile('apps/collector/build/fixture-classpath.txt','utf8')).trim();
+ await promisify(execFile)(resolve(javaHome,'bin/java'),['-cp',migrationCp,'com.blariyo.collector.ops.MigrationMain'],{
+  timeout:30000,env:{...process.env,COLLECTOR_DB_URL:`jdbc:postgresql://${migrationTarget.host}${migrationTarget.pathname}`,
+   COLLECTOR_DB_USER:decodeURIComponent(migrationTarget.username),COLLECTOR_DB_PASSWORD:decodeURIComponent(migrationTarget.password)}
+ });
  await c.connect(); await other.connect();
  const actor='admin:v1:'+Buffer.alloc(32,4).toString('base64url');
  const seed=async()=>{
@@ -128,7 +132,7 @@ await test('D02: PostgreSQL mailbox transaction, fencing and safe runtime projec
    }
    const source='mail-fixture-'+randomUUID(),instance=randomUUID(),request=randomUUID(),target=new URL(url);
    const config={approved:true,host:'theqoo.net',parser:'THEQOO',pathPrefixes:['/hot/'],userAgent:'test contact@example.invalid',
-    collectionPolicy:'DETAIL_ONLY',requestIntervalMs:10000,dailyRequestLimit:100,maxPages:2,maxItems:20};
+    collectionPolicy:'DETAIL_ONLY',requestIntervalMs:5000,dailyRequestLimit:100,maxPages:2,maxItems:20};
    const cp=(await readFile('apps/collector/build/fixture-classpath.txt','utf8')).trim();
    const javaHome=process.env.JAVA_HOME;assert.ok(javaHome);
    const run=async(publishOnly=false,settings:Record<string,unknown>=config,crash='')=>{
@@ -145,7 +149,13 @@ await test('D02: PostgreSQL mailbox transaction, fencing and safe runtime projec
     SELECT $1::uuid,$2,$1::text,sha256($1::text::bytea),$3::text,'https://theqoo.net/hot/123',
     collect.identity_hash('v1','https://theqoo.net/hot/123'),collect.identity_hash('v1',$3::text,'123'),1,at,at+interval '24 hours'
     FROM (SELECT clock_timestamp()::timestamptz(3) at) time`,[request,actor,source]);
+   // An unrelated expired payload must not stop Web intake; the original TTL still applies.
+   const expired=randomUUID();
+   await c.query(`INSERT INTO collect.batch_retention(item_id,collected_at,expires_at)
+    VALUES($1,clock_timestamp()-interval '29 days',clock_timestamp()-interval '1 day')`,[expired]);
+   assert.equal(requiredRow(await c.query('SELECT collect.retention_backlog() backlog')).backlog,true);
    await run();
+   await assert.rejects(c.query('SELECT collect.assert_item_live($1)',[expired]),/BATCH_ITEM_EXPIRED/);
    const receipt=requiredRow(await c.query('SELECT * FROM collect.batch_input_receipt WHERE request_id=$1',[request]));
    assert.equal(receipt.state,'ACCEPTED');assert.equal(receipt.version,'1');
    assert.equal(requiredRow(await c.query('SELECT canonical_url FROM collect.web_collection_request WHERE id=$1',[request])).canonical_url,null);
@@ -179,8 +189,8 @@ await test('D02: PostgreSQL mailbox transaction, fencing and safe runtime projec
    await run(true,{...config,dailyRequestLimit:undefined,credential:'MUST_NOT_BE_PUBLISHED'});
    const runtime=requiredRow(await c.query('SELECT effective_policy,config_version FROM collect.batch_runtime_projection WHERE source_key=$1',[source]));
    assert.equal(JSON.stringify(runtime).includes('MUST_NOT_BE_PUBLISHED'),false);
-   assert.equal(requiredRow([runtime.effective_policy]).enabled,false);
-   assert.equal(requiredRow([runtime.effective_policy]).dailyRequestLimit,null);
+   assert.equal(requiredRow([runtime.effective_policy]).enabled,true);
+   assert.equal(requiredRow([runtime.effective_policy]).dailyRequestLimit,5000);
    assert.equal(requiredRow(await c.query('SELECT count(*) n FROM collect.batch_run WHERE source_key=$1',[source])).n,'0');
   }finally{
    for(const role of [batchRole,apiRole]){await c.query(`DROP OWNED BY ${role}`);await c.query(`DROP ROLE ${role}`);}

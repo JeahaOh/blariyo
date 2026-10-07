@@ -21,8 +21,15 @@ public final class ObservedFixtureMain {
   private final URI base;
   private final Map<String,Integer> refs=new LinkedHashMap<>();
   private ObservedFixtureMain(SourceRegistry.Source source,URI base){this.source=source;this.base=base;}
+  /** Parser-only policy for saved HTML; never changes the live source registry or fetch permission. */
+  public static SourcePolicy offlinePolicy(SourceRegistry.Source source) {
+    var config=(tools.jackson.databind.node.ObjectNode)source.config().deepCopy();
+    config.put("approved",true);
+    config.put("blockedReason","");
+    return SourcePolicy.from(config);
+  }
   public static SourcePolicy fixturePolicy(SourceRegistry.Source source) {
-    var p=source.policy();var origins=new LinkedHashMap<>(p.imageOrigins());origins.put("cdn.fixture.invalid",List.of("/"));
+    var p=offlinePolicy(source);var origins=new LinkedHashMap<>(p.imageOrigins());origins.put("cdn.fixture.invalid",List.of("/"));
     return new SourcePolicy(p.host(),p.pathPrefixes(),p.titleSelector(),p.imageSelector(),p.userAgent(),p.parser(),origins,p.hostAliases(),p.mediaLimits());
   }
   private String asset(String value) {

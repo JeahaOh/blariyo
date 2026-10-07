@@ -6,7 +6,6 @@ import com.blariyo.collector.source.SourcePolicy;
 import com.blariyo.collector.source.common.HtmlDetailParser;
 import com.blariyo.collector.source.common.OrderedContentParser;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import org.jsoup.nodes.Document;
 import static com.blariyo.collector.source.common.HtmlSupport.parseHtml;
 import tools.jackson.databind.JsonNode;
@@ -39,9 +38,8 @@ public final class HumorunivDetailParser extends HtmlDetailParser {
     // Real mobile HTML puts body_editor beside the auto-closed p, not inside it.
     // Prune observed controls only, then preserve the entire article in DOM order.
     doc.select(".daum-wm-content #btn_nemo_expand_all, .daum-wm-content [id^=timg_prog_], .daum-wm-content img[src*=loading_bar]").remove();
-    doc.charset(StandardCharsets.UTF_8);
     ObjectNode result = (ObjectNode) new OrderedContentParser(policy, maxBlocks(), policy.mediaLimits().maxImages()).extract(
-        doc.outerHtml().getBytes(StandardCharsets.UTF_8), url, ".daum-wm-content", titleSelector(), "humoruniv-mobile-ordered-v2");
+        doc, url, ".daum-wm-content", titleSelector(), "humoruniv-mobile-ordered-v2");
     result.put("canonicalUrl", requested.canonical().toString());
     return result;
   }

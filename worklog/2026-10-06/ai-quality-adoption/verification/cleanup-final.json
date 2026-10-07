@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-06T12:17:48.378410+00:00",
+  "owned": {
+    "id": "14ebc38062477769ceb360359c8a2f6146474d7ae9b2fcf26cd500892a3b68ba",
+    "name": "blariyo-quality-pg-99112bfbbd"
+  },
+  "connections": 0,
+  "testDatabases": [],
+  "removed": true,
+  "playwrightContainerAbsent": true,
+  "persistentDevelopmentPostgresPresent": true,
+  "scope": "Removed only immutable ID of this session disposable PostgreSQL; user development resources preserved"
+}

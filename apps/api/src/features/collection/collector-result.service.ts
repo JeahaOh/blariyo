@@ -45,7 +45,7 @@ export class CollectorResultService {
               body.contentBlocks,
               body.imageCandidates.map((image) => image.position)
             );
-            if (!source.isActive || source.robotsAllowed !== true || !source.robotsCheckedAt)
+            if (!source.isActive)
               fail(403, 'SOURCE_NOT_ALLOWED');
             const url = normalizeCollectionUrl(body.canonicalUrl);
             if (new URL(url).hostname !== source.host) fail(403, 'SOURCE_NOT_ALLOWED');

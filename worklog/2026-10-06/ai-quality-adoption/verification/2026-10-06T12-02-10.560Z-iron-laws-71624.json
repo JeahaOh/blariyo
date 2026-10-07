@@ -1,0 +1,1174 @@
+{
+  "tool": "iron-laws",
+  "source": "fd746b425dd566569b6bd4009ab04efef8afb0f6",
+  "startedAt": "2026-10-06T12:02:10.560Z",
+  "finishedAt": "2026-10-06T12:02:12.965Z",
+  "roots": [
+    "apps/api/src/",
+    "apps/web/app/",
+    "apps/web/server/",
+    "apps/web/shared/",
+    "apps/collector/src/main/java/"
+  ],
+  "inputs": {
+    "AGENTS.md": "2b071e8f04aa035940319b1b7cfda513851069212b00ae54becbf4f581df782b",
+    "CLAUDE.md": "afbfc7c1bd6f638b768d7c57cd06d936e4ca2b748a5d86febe17fa34f41fe52c",
+    "GEMINI.md": "5ea80f14668a9b431ef7b79423a471eea1c41f9c901b5de875315711cca19760",
+    "apps/api/src/adapters/collect-reader.ts": "f1b8f98bacef4288ac656a415c6ac68d818833af177ccc4b676ba35c7570df1e",
+    "apps/api/src/adapters/remote-adapters.ts": "13d30295381f23b51b5c51daee10a4aa50fffbeaee988bf6b8a25f4055744fe7",
+    "apps/api/src/adapters/schedule-webhook.ts": "07f9b5a2b178b93b63aae446bdc62a931a972856cc967b3234b49e2b3ceb154b",
+    "apps/api/src/adapters/storage.ts": "79f2cc75623d5a410761c1d1e6d10c19e8f4684f0c91094ab4af0b0851eda555",
+    "apps/api/src/app.module.ts": "c412fd8a60ab4651b6ef211a345f28d756ca586e8cba8afd0e0518fa36f27160",
+    "apps/api/src/bootstrap/application.ts": "4057ece7f6b0143890590d20e450ae5d2a3b0ac95716057cf7857c93f4313270",
+    "apps/api/src/bootstrap/collection-settings.ts": "d5cd3b6dc4b8fce6bbad5a086777d6492f72d6e30218eccc0e09778cc0dc737b",
+    "apps/api/src/bootstrap/config.ts": "42937fa93f6588cda8eb68c9c9e6030c9a0d763cc2484fa7b99ba7444093896d",
+    "apps/api/src/bootstrap/database-config.ts": "fea785a46041f0b72f1a71b1d5bdcb706b1fedbe9bc7dd7435d5b877149303f0",
+    "apps/api/src/bootstrap/startup.ts": "68ae47bc07e906db7b05c87983c108fbfadc75c8a47883c7367102cf3f0218d8",
+    "apps/api/src/commands/collection-transition.ts": "a03bcfecc15a2ea84db193461c91390e0b09d4653c596af51b40eac70ed7db4e",
+    "apps/api/src/commands/command.ts": "79728f3d85cb3367b042be103d52874bbd09aaae358a2acd0a4501b9030eb317",
+    "apps/api/src/commands/migrate.ts": "a86788349b7ebd934a8a4387e227a71ef0abd30e701d4613a60dd8466fd2060c",
+    "apps/api/src/commands/migrations.module.ts": "21fd46dad1e8942fdf879921d35346c7e9acfbe9d057f457f4cc25628401cb56",
+    "apps/api/src/commands/migrations.repository.ts": "9c175fa9a3f991f606f1ead2e2462e98c51a925bbfb8b40aed54c8c27c3dafb7",
+    "apps/api/src/commands/migrations.service.ts": "5813217676308b32bb7c32d9ad4beedc7498d3dcb75edac1009c35b72024c2c5",
+    "apps/api/src/features/collection/batch-result.repository.ts": "68f079b621116a4e7bbedcc504b14756d2ceab5c241768e919d7cb4602e65df9",
+    "apps/api/src/features/collection/batch-review.controller.ts": "fcd4d56638a4ddd8b85e096ac6c42156ef82b8622c52ea1c093536b23a137a23",
+    "apps/api/src/features/collection/batch-review.module.ts": "d8de8fdc3e15a7195b9882099a6eea5a61ff654acfcb13cf0e95b56dade6228e",
+    "apps/api/src/features/collection/batch-review.repository.ts": "2e9d4f79f0d17ba462bf7b436a5e15bccd278198b6cf9c06054636342a05abf2",
+    "apps/api/src/features/collection/batch-review.service.ts": "e1913db195b5533d5619131a9d16862ccbe5ec1837e23d84159132f575538e3e",
+    "apps/api/src/features/collection/collection-admin.guard.ts": "22371e41b24c326d325b26e893aae91c204f02b2ad981156d0179b08cbe8b865",
+    "apps/api/src/features/collection/collection-cleanup.repository.ts": "f70bda01d0e5ca048951f8c871de6784eca1c4493c2fd6754918cb4d87b7657d",
+    "apps/api/src/features/collection/collection-cleanup.service.ts": "5dae8dcc937c3a625f563e284e90d794613f711db48f98ec1e828f5d862e04d4",
+    "apps/api/src/features/collection/collection-content.ts": "18fd909ed66caf0aac634f1aeb937223ba82c2164cec8ea68cb0f435c33d30ba",
+    "apps/api/src/features/collection/collection-operations.controller.ts": "ac243fc9ba68b940cea39a8dcdf7a3ed98be1db5dcc8a3a88a1e1ae6694b6f7d",
+    "apps/api/src/features/collection/collection-operations.module.ts": "6f76139bd56c3e5033c25ad3d3d2c2d53cc4e1b6ac2579f4eb95435e300580d6",
+    "apps/api/src/features/collection/collection-operations.repository.ts": "25cc2b6e61c9f0304d769ec293a06774604ad539b91035bc5c94ea6a7adb7ef3",
+    "apps/api/src/features/collection/collection-operations.service.ts": "2988642a79be5f7af2b58a7c25e036abf29b2165a9c86543380dc9b3fb8d69fe",
+    "apps/api/src/features/collection/collection-promotion.service.ts": "7ad4682f43107bfdc2487888cc3231b2cb17a39dda3a98eebf63a20c2b751812",
+    "apps/api/src/features/collection/collection-url.ts": "35aa661c4379d4bc687ac5eae3375c6d24a8122215a96441c832643d8c25cca9",
+    "apps/api/src/features/collection/collection.controller.ts": "063d59d05fa7df5a05b31a07094e61251a27884fbfaa13f243328f761dce5460",
+    "apps/api/src/features/collection/collection.dto.ts": "8194e64129ad388aff74b6b20cc24102bc8f2b276bc92fed47c923542ef05e05",
+    "apps/api/src/features/collection/collection.model.ts": "ae20209e4d762ac09a8b924edb70d6b2220e83d1a18f0be40e80ed862cd1f2b1",
+    "apps/api/src/features/collection/collection.module.ts": "6987240fbf6dbee93ec23dc45e04fc4188395dca4f3c5e4cf85586952256877c",
+    "apps/api/src/features/collection/collection.repository.ts": "2b06c707fbe426616d6e5d7986bfbd7dd5ea5add9e95f4346c6a9d4865946fa4",
+    "apps/api/src/features/collection/collection.service.ts": "53000424a679e8bda83a969591f22a533e9c547f18e1ee36bc6abe2a1317cbe5",
+    "apps/api/src/features/collection/collector-command.model.ts": "77ec45a56eea23cc3f5aa575920b859b0578bd1ff0f55ee7a9e8ebcacc72f8b6",
+    "apps/api/src/features/collection/collector-commands.service.ts": "4f13d8b273b8e5165fb7d6b49f0bb4c8ed99a69924b4fdf2d9403113ecd424c7",
+    "apps/api/src/features/collection/collector-lease.repository.ts": "b8675a9bb36bde4101433f5466e82b0dc95159306c5db00a9ff15b80b1ba26db",
+    "apps/api/src/features/collection/collector-lease.service.ts": "d7465537912848d2593ad63cce119c057fbe7efd0a1ad1050a14bde841feb034",
+    "apps/api/src/features/collection/collector-preview.service.ts": "ae752e87eab6956081be7b731df774cdb65d0efd6db6d3b3ae3bff43c4f3745f",
+    "apps/api/src/features/collection/collector-protocol.service.ts": "96402e38e961d2f17a788e7f6a763af9dce47dd720b7b2869d021621c97f9060",
+    "apps/api/src/features/collection/collector-quota.repository.ts": "71401975f6b78d574626c3be2b4164e8b440e2d89860c0397abf17c04891cfe3",
+    "apps/api/src/features/collection/collector-quota.service.ts": "2fb77f12bf200ffb30d6d6ae52b508e7cc836dafd3b849dc8438ceededa6bf27",
+    "apps/api/src/features/collection/collector-receipt.repository.ts": "a8d4d8085fd4417a2d3c0e43a336a05985ea879c5567b8d422778c2f86519b16",
+    "apps/api/src/features/collection/collector-result.service.ts": "8f03d4d08e4d8f80a696c98b0c595abe25a560e3db8f80caecd3deb18d75f8ed",
+    "apps/api/src/features/collection/collector-state.repository.ts": "97e5e90a24f0842580ec622137c75b4031be64e9d812fffc3139f6a02ed3f535",
+    "apps/api/src/features/collection/collector-state.service.ts": "85c72487e3bbd07b8749b972fd2d00988303a8110a1932443621f8c4a8f42583",
+    "apps/api/src/features/collection/collector.controller.ts": "2c177b332a7a2d63210aa11f42610b1397ee4c4a571c5b5a3d97b1d42f5f434b",
+    "apps/api/src/features/collection/direct-request.controller.ts": "083f85092369cf6088fe147f3cd29e4e1c457884e66a7b387cc9c7d061f25168",
+    "apps/api/src/features/collection/direct-request.module.ts": "879765bfb276ebb247e5bb55dfc0d1c3b3ac54bbe2abb9a53f020290c6cb2d2c",
+    "apps/api/src/features/collection/direct-request.repository.ts": "ca1e56dbfc4362f1d2ca2e74659cb6312c158357c70099da0114f6574cb72b0b",
+    "apps/api/src/features/collection/direct-request.service.ts": "3eb24c60e1b8247b83f8540792b87823ce56edb42f9fdc031c935a22441e627b",
+    "apps/api/src/features/collection/direct-url.ts": "ece2142a27aae404b9bf43e280e26a30c000c60ccdb9e793083d2decb64bc1bf",
+    "apps/api/src/features/common-codes/common-code.controller.ts": "90f2b6582db9f46da59d60c90ec4e589af2de00bd9bb895f931dd246ad8b72bf",
+    "apps/api/src/features/common-codes/common-code.module.ts": "f0db3c43786a6e80ff6f4db4f3fdc724358d62f6a2719b254ec75533bfa78c0e",
+    "apps/api/src/features/common-codes/common-code.repository.ts": "580fe85b92ee449b3f8ca59a095122863f9a666ae7b320f9e59399c59c29f1ba",
+    "apps/api/src/features/common-codes/common-code.service.ts": "922306637b55eb462015ace9a5aeb23569208452391141d4ab226736b2f2cc29",
+    "apps/api/src/features/health/health.controller.ts": "48534d45534ca241113ed0983f1d53d2faeafbd5b9ab0e3e2d66a9369f1fc526",
+    "apps/api/src/features/health/health.module.ts": "04422cc55c2f1f87fc86b5a67ef9e91d4099f148d65311fb0f30ba1368194607",
+    "apps/api/src/features/health/health.repository.ts": "b7a19018ff5800f06ff17619495a29a46d3a4cec50487059c08cc1c29af9464b",
+    "apps/api/src/features/health/health.service.ts": "7c3694075ae93dd4b8d0fa9ce625b6593221ef094c04c51e8a015e582b5a6f1e",
+    "apps/api/src/features/images/collected-animation.ts": "904bfdd553bc011fd8de760b33c96519865939740ce6d3ca6109a3e90eddf782",
+    "apps/api/src/features/images/image-validation.ts": "cde937dd3c46b7dd5a2eba26ce086d8c71ca03ddfe35893925a2cd7862142188",
+    "apps/api/src/features/images/images.controller.ts": "3e54bb5c1699a33c94a326102294fc1ab61cde251579da092e291d7ba27db538",
+    "apps/api/src/features/images/images.module.ts": "8f3d9dbdf1338aa2184ee2e3a9c6d4cfb07699e2ae77a74acf2c68db00adb003",
+    "apps/api/src/features/images/images.repository.ts": "0b59e561a21834a9f7f23c7cb2ad98c619339557057d5970f5f7cbbc5d58e9bc",
+    "apps/api/src/features/images/images.service.ts": "3311e4101fcaf39a88f004de7c7a56d348203e5b50cfec559d7b4f131da7f97b",
+    "apps/api/src/features/images/local-media.controller.ts": "8973ed034c0a13a9f8ee09b5123f2eb763ae21d2c81974fae155aca90147914b",
+    "apps/api/src/features/policies/policies.module.ts": "c40293ec6bb9c5766811b5c139d54f3820c0dfe59290857eba95c3eb963422e7",
+    "apps/api/src/features/policies/policies.repository.ts": "4f8e2c2c3668078fcdbaf0b66ba67dcdcbb60bc1ad66d48393e9a892899a655e",
+    "apps/api/src/features/policies/policies.service.ts": "53676d9408753494866753ab7da3ed2f04bcf3b8327ebae738a5e5213b369f19",
+    "apps/api/src/features/policies/policy-artifact.ts": "296d87082f8d9216eb30e8e6b3b8d29328c615e79e4ecb61b60cb637c58a43ca",
+    "apps/api/src/features/posts/posts.controller.ts": "75922dafbdcb9aedd686cd7f5310018e967da8d34d3157d182c945235e783193",
+    "apps/api/src/features/posts/posts.dto.ts": "369fb93f965635ee9d87d949a708f2bee92902c9433a5d3c4a9ec1cef5f38747",
+    "apps/api/src/features/posts/posts.model.ts": "da52833cc072d664837814bc2ae43bd5f1486ba061ca83cfbbefbfbdc9731305",
+    "apps/api/src/features/posts/posts.module.ts": "58ac07d3aba3c9b340c5110f1371178d2a399dde4c4bfd32b51e7cbf3566ee90",
+    "apps/api/src/features/posts/posts.repository.ts": "0e81f5aef11577dcea6e422bd7e79457773dacdc704612f9faff049f1eec9103",
+    "apps/api/src/features/posts/posts.service.ts": "8083bdc68495dbf692dd0c48b13955f8aadbc0047cf64f16397437c87ea1ac44",
+    "apps/api/src/features/public/public.controller.ts": "d745af937e8a4a2a39d42ca8f67e23b4d40a0cf850f530850178e14da5ae7568",
+    "apps/api/src/features/public/public.dto.ts": "98ddd750b92d1d6048308b8a8d95e6162d31a43d3fe37811bf30c5ef9cd84b48",
+    "apps/api/src/features/public/public.module.ts": "3ba6a76ec252a1111b60502d94faab0e5f7a62058b7f026140c410d4349953e2",
+    "apps/api/src/features/public/public.repository.ts": "4a270ce1d92779dca7a1b7761a9e1229ceef3aaf3af64ac341d6d58e8f99c8b9",
+    "apps/api/src/features/public/public.service.ts": "98d093a8ed4bdda73ff987df4fceda8e26b727219eab9e45ec0c6ced85e8f51c",
+    "apps/api/src/features/public/sitemap-cache.ts": "d6a08b6222d1f8d6211a47f1a0a794fdb7acaa09bc0c03254d6df881c2b9e0b3",
+    "apps/api/src/features/public/sitemap.controller.ts": "d0296e9bdc9c33c75d3917c562736417f695f2e632b43fd3b807078837fc312b",
+    "apps/api/src/features/public/sitemap.repository.ts": "f552cca924ab09df31e9e896ca6e08b7b8fd7740f32a33645a7665a663f2c84a",
+    "apps/api/src/features/public/sitemap.service.ts": "c177c644eae6be932afcd9ee8054925df83282564120dfba982a12fb8d749ef3",
+    "apps/api/src/http/admin-permissions.ts": "6391dfa4cef1fc3accc9a0a3572d23153e4723ed3d06299994d40f4342bcf368",
+    "apps/api/src/http/auth.guard.ts": "ce09682478742d6f588571314bcf67a31b9fcac06d34502d72d8be79bad753f0",
+    "apps/api/src/http/collector-input.ts": "573b75b687dcc7f738cb9678fd8714567476e10eda9f7e424d491d66a3ba3d2c",
+    "apps/api/src/http/collector.guard.ts": "6b17a11f145be71e5b07bbb05294a99acadbc563360e11b0a7fd8dc139d03c71",
+    "apps/api/src/http/contracts.ts": "f61cecd88e6c6b8f6776087bbda90b88531d54be508c064f59a165ffb1ea34ea",
+    "apps/api/src/http/multipart.ts": "46c094a2fe4ca9de28bb66201832658456d4b94302b457df65b48bd6a8f95abd",
+    "apps/api/src/http/response.ts": "ee7e792226a41a61bc63232e6453e4008cc17efcd2f1b39a6b0481b9f0b1dbb9",
+    "apps/api/src/main.ts": "b65df805023170a25a9526b74ab2d25cd9bb852fe9881aa4869ee43a0772bf18",
+    "apps/api/src/operations/cleanup.repository.ts": "4c188052cee2957c21758ccae15f31529c1de53891727bfaab1e1d6b6b9a32d1",
+    "apps/api/src/operations/cleanup.service.ts": "e4f6e6b7f131f74bba297adc87a9a209b2629608fe550b107edf4ebd86bd51d9",
+    "apps/api/src/operations/operations.module.ts": "46aaf5a46704b41aced7777a376471a06831dbbfedef401e833b97fff8126012",
+    "apps/api/src/operations/outbox.repository.ts": "e0f1e871c7cbcf1c8e13bc26c16b29a0dc4a3cad41a8c14c1567b88f3eb91bbd",
+    "apps/api/src/operations/outbox.service.ts": "6181e5596d5f3536c769b6a9107897897dbd8b4f8d1874462459a90a5d3c7cc0",
+    "apps/api/src/operations/schedule-alerts.repository.ts": "83c94a9e6a354718eb72ce5b9869a24194c3d4491dee0455441cca06157ab317",
+    "apps/api/src/operations/schedule-alerts.service.ts": "30ff821e9035c3cef62c451d0a52b2502f3174c9f8443711585bed282f69bfec",
+    "apps/api/src/persistence/batch-result.repository.ts": "f62a2fffcc5de68b5ad5e0f0778646a2c8aabe909e76f7487cd195a66adbdccd",
+    "apps/api/src/persistence/batch-review.repository.ts": "a215971f3e7707d4c08598a8c80b1ec2f95a5eaed6ed4b8acb54fc8fa1d984e9",
+    "apps/api/src/persistence/cleanup.repository.ts": "ba97ab4d8ed32f17f93044fbcd49f43d308855c624e80c8c532362f49d977aeb",
+    "apps/api/src/persistence/collect-ownership.ts": "94b0fc43338ac616a1e41c4e9cbd15aefbf0fe35f433e3c833312c1b2b3fbdf7",
+    "apps/api/src/persistence/collection-cleanup.repository.ts": "a953799b93a1228f1c33083dd2d218c444c0107cf61b405e6dfd03789cdfe7eb",
+    "apps/api/src/persistence/collection-operations.repository.ts": "ca0d11bdbb81c2cdf4a92f7b1e358b6d886ae4f50458718667f02a7a7ee8c2da",
+    "apps/api/src/persistence/collection.repository.ts": "d6a9a98ea1ceeb9d2f5abb8f3056e97a08744f1c584357ae3b160c07a9affa64",
+    "apps/api/src/persistence/collector-lease.repository.ts": "4c9dc903cadd33247f66044898d2199fab78eee85c095061c27a7016f3c91cd4",
+    "apps/api/src/persistence/collector-quota.repository.ts": "332f8176bde5f45625f0506e57c8393fbaf3225dab2e535df42b3a7eefb35c5c",
+    "apps/api/src/persistence/collector-receipt.repository.ts": "ced0c50f8368b6d63ec86db42d59ccbbd9d08ecaafb54ad9c4085f2c55b29489",
+    "apps/api/src/persistence/collector-state.repository.ts": "5b217d1c4548be7f5e7bc1e37997739aef2b1e78b6ad7ef7e8470a15275501d3",
+    "apps/api/src/persistence/common-code.repository.ts": "8968c5318874e53e22030e6f232b735580408538a7af9ffa8c0eb7fcfadb5feb",
+    "apps/api/src/persistence/database.ts": "969c588149a1bea463442ae1a85dc6b628f2e489c9c14d2f4a7f328d6d2a50a4",
+    "apps/api/src/persistence/direct-request.repository.ts": "6d00a74527ec7d7a2d43b6b4bbe4f96c6a835ab0f6e17cda6f9ed9e2dc0d6c2e",
+    "apps/api/src/persistence/entities.ts": "67f0663c7eb24c4bb0b714d12cfa066cfaf56e62d0f37260907f2fa348a62474",
+    "apps/api/src/persistence/health.repository.ts": "3ec075c9c3f09f6c3f3c8028ed1fea1e6d7aebb79be58ca06956130256bd55f8",
+    "apps/api/src/persistence/idempotency.repository.ts": "6922c470f7ff141dadd4549b0aff0a18fc020a1aaa29633e403b867faa7fc564",
+    "apps/api/src/persistence/images.repository.ts": "630678715a450463741f86839840b9f5e32fdf2df670fd0b11e23397651874ba",
+    "apps/api/src/persistence/migrations.repository.ts": "7f0a034e3cc579d7e33e235bb98c00b504f0406389b31ef85619687c8b773e11",
+    "apps/api/src/persistence/outbox.repository.ts": "09185434ea85cf292ef3474e1be98e18251b35831e70e0d48e08040859a09c10",
+    "apps/api/src/persistence/persistence.module.ts": "d9b62654916367576c32cbc9061c0b27e4e6854b72d472f4d01aa4102680a40a",
+    "apps/api/src/persistence/policies.repository.ts": "350007ded3c406bc0a88d9e83f9572010b83aaf3319303104748bb4f59dfb44e",
+    "apps/api/src/persistence/posts.repository.ts": "0d2cfbc3cf384fbc8494829a969bcf5b44bd707bee197680bbd109caeb0ed5ed",
+    "apps/api/src/persistence/public.repository.ts": "2893f783a07935df199edf7f7cd2017eafb7fdb10fefb559645bc30a248a0495",
+    "apps/api/src/persistence/rows.ts": "ece0988598a7da5260280d602460b2470a8e1ac557cce24ecb2cf59f7a7cbcb5",
+    "apps/api/src/persistence/schedule-alerts.repository.ts": "a12a775d1c1d00933c10559198b10cca143615500f62b16ef996dcac546e92d5",
+    "apps/api/src/persistence/sitemap.repository.ts": "b1c94a53a5da8c28d20e76597d5a4abf5ab99ba22e12a906564fb2d46080441c",
+    "apps/api/src/shared/canonical.ts": "1f98f3637d6af6c416786e4113241b38814c6823c841b2197921c5dd157de770",
+    "apps/api/src/shared/collect-reader.ts": "6b7c9bceadb53a4200487b5a59217183ff246f1860549b976576709b02247873",
+    "apps/api/src/shared/errors.ts": "18701eb77cbc6c4e0cfbde00d3301c55dc9bc15fd1c0143286b967c811026305",
+    "apps/api/src/shared/idempotency.repository.ts": "29edd2c7c2943cc047fb44fef88e8b0df85ab6d3f3c2afa12f800df1ddb2da61",
+    "apps/api/src/shared/storage.ts": "6e0466f2c9cff4ade0fa9a246d22785b2db2ea48558c7b49a964c3a2732159cc",
+    "apps/api/src/shared/unit-of-work.ts": "2a7b3aa7b14c90593e3548402dc7d95af3353f9a3325dae2523af5695a7de2ca",
+    "apps/collector/src/main/java/com/blariyo/collector/CollectorApplication.java": "a8dc8f63410039c8ebc38b184bbf525f9152a5c6b8669ed5acac9ed1b3ce59a6",
+    "apps/collector/src/main/java/com/blariyo/collector/bootstrap/CollectorHealth.java": "3172d710b44e007bf1eec661cfce5a0ffe71141e1ac6f39f6f6dd7b321becb54",
+    "apps/collector/src/main/java/com/blariyo/collector/bootstrap/CollectorMetrics.java": "84562467033e350ea99ee2991bf294e0939c7a0ced032d914c6d1ed2ca9907b2",
+    "apps/collector/src/main/java/com/blariyo/collector/bootstrap/StartupChecks.java": "637cf1c9fca8731cddcfe92c76f00b0d2798b84a07978cf895489f3cde6b10cf",
+    "apps/collector/src/main/java/com/blariyo/collector/config/DataSourceConfiguration.java": "05277a22c028fd23a6216eb1c1141dd8f793a035be9103afc8bf829250af097b",
+    "apps/collector/src/main/java/com/blariyo/collector/config/OperatorSettings.java": "a8c08e2d536a2833396973f1aee098e0153e44e6189c05f1dcbbf26e0f0e35f2",
+    "apps/collector/src/main/java/com/blariyo/collector/config/PrivateFiles.java": "28d3d2dfa92db90af640ae6fd4a829e6e15ed86f15466fddb9cad4af42b12dcd",
+    "apps/collector/src/main/java/com/blariyo/collector/config/Secrets.java": "c71335a84ea637493858ea8ee8fd8668972774902abe69e6ae7f7c3b011a3ef0",
+    "apps/collector/src/main/java/com/blariyo/collector/core/CoreClient.java": "cfdf1a6840cf471349048e9c062c6fc6398c6e41d81aba5d28cc7bf72699be75",
+    "apps/collector/src/main/java/com/blariyo/collector/discord/BatchDiscordIntake.java": "8fc39318a4b2e868afc368b92b04ed1ddadc6a7093eb7d764fb05377565c93c9",
+    "apps/collector/src/main/java/com/blariyo/collector/discord/DiscordCommands.java": "2b3013d4874d5740964c1852391f2bbb8f98a153cd9e18836508afa79f7c5a5d",
+    "apps/collector/src/main/java/com/blariyo/collector/discord/DiscordGateway.java": "d2133f1eba0a3d785838ea0ffd1867076ccb8bdb8e59a403abb84fdd2a352ff9",
+    "apps/collector/src/main/java/com/blariyo/collector/discord/DiscordPolicy.java": "86449cd6d25eb97487abac8e87f20d54a365884c41e48008f0f146231f5a568e",
+    "apps/collector/src/main/java/com/blariyo/collector/execution/BatchRuntime.java": "b3835930512cc8e2df46780d2c1b0f40a13752900b3aebf7e1db14a7cad00046",
+    "apps/collector/src/main/java/com/blariyo/collector/execution/CollectionPipeline.java": "39071e25ff7dfb241771ec483accb5ef471f110f1a6708667abba0ae2d9ef187",
+    "apps/collector/src/main/java/com/blariyo/collector/execution/ExpiredRecovery.java": "082b18609e43720e39e34d2c9dc917db3cde18c2fc50ab379679f88eb2ab83d0",
+    "apps/collector/src/main/java/com/blariyo/collector/lifecycle/ShutdownGate.java": "2949ce00762363100053c5e5cdd20d87546cb06bee2096ed2871f279b6d50c0a",
+    "apps/collector/src/main/java/com/blariyo/collector/maintenance/BatchRetentionWorker.java": "44d147492a98da3136a0816fc000572c00dc4703a812f66fe8caf43cdc7b5df6",
+    "apps/collector/src/main/java/com/blariyo/collector/maintenance/ImageFailureCleanup.java": "b9b856ff5df5e39fb0a68f844d31c286afe04032122c3666706edf21d323bdb9",
+    "apps/collector/src/main/java/com/blariyo/collector/maintenance/MetadataRetention.java": "a7c422b03c14182a0041cc98dc3dad4acab33bdb42d91a73263466e5eda6d35b",
+    "apps/collector/src/main/java/com/blariyo/collector/maintenance/RetentionRepository.java": "15745c12dccda6432bc454e026495f4d50695909383e757e3846623bf53d4924",
+    "apps/collector/src/main/java/com/blariyo/collector/maintenance/SpoolCleanup.java": "86c33bbbb2c4a8698caab52e36852105b585ad790e770b2ac65f49ba1a13596e",
+    "apps/collector/src/main/java/com/blariyo/collector/notification/NotificationWorker.java": "a3ccb86e0e87a41a78515b66f4f27aa121bba8c00777889b906f030c26b0bf43",
+    "apps/collector/src/main/java/com/blariyo/collector/notification/OperationalEventOutbox.java": "fe65599cccaab0470d4ae0795de82b15d5b8a1ba1c85f269c7fa062a02eb3c47",
+    "apps/collector/src/main/java/com/blariyo/collector/observability/CollectorTelemetry.java": "cffa455d135278e76516a1873a99987b5f7a9230c144403676414fedcda8950d",
+    "apps/collector/src/main/java/com/blariyo/collector/ops/BackupMain.java": "b6df0b7c7efe52e2a14fe0fab6fe9640e445ed70e1ac2a0b0b207663d83b63ee",
+    "apps/collector/src/main/java/com/blariyo/collector/ops/BatchMain.java": "c975e26c7bb4fd71bca22bdb5759ef3388852f9b70941d9503b8fbf31311ae83",
+    "apps/collector/src/main/java/com/blariyo/collector/ops/JobControlMain.java": "460b151577296f603535769d4bc03d00890b311bc957c89aeb67bed78aada174",
+    "apps/collector/src/main/java/com/blariyo/collector/ops/MigrationMain.java": "46878580e41f6287375613063cf2f9dc43931703b6cd61a67ff2d4343d91ec94",
+    "apps/collector/src/main/java/com/blariyo/collector/ops/QueueMain.java": "032b948d800986503a5fbef4e3eccdb263b92fda42bde13cacef6fd19efba24a",
+    "apps/collector/src/main/java/com/blariyo/collector/ops/RetentionMain.java": "3d7463116abe5653a2f246d9d4579cc5dee4990d4dedf7abd9067fcbdd1f3da0",
+    "apps/collector/src/main/java/com/blariyo/collector/ops/SubmitUrlMain.java": "ddb0e146eb411083b83e6a0675f505a3e9fe08643d253b26873c753e14fc7e38",
+    "apps/collector/src/main/java/com/blariyo/collector/run/ArticleMediaBudget.java": "721388db0d04849a5f2ef65859f9356de74fcda679d04dc9cf0792a83cf94ca9",
+    "apps/collector/src/main/java/com/blariyo/collector/run/BatchMailbox.java": "6cec8af5ac6cb932ba0d957356afae1110d3a35343542da56c245e47ad84c667",
+    "apps/collector/src/main/java/com/blariyo/collector/run/BatchQueueStore.java": "3933046deead122544ceb60009dcb87d2f90e5568dbf6335611e8d999b4488c0",
+    "apps/collector/src/main/java/com/blariyo/collector/run/BatchQueueWorker.java": "322c6885062aa6bdbea18408f3e795ee3eab43339a49d3c62afcd6ac4844a019",
+    "apps/collector/src/main/java/com/blariyo/collector/run/BatchSourceRuntime.java": "9495aaf62a8f5c5a33194caf49e411ceede0a28273e088253f0ced1ccca7de3d",
+    "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java": "9f8a898bcb11d44db28d42ca993dd117489934d8ddecbe4c0601e2c5587e8467",
+    "apps/collector/src/main/java/com/blariyo/collector/run/CandidateIntake.java": "65c594e28eaac6c52b82716f48bc6b593de9249fb86fae04b675435d7d25adf6",
+    "apps/collector/src/main/java/com/blariyo/collector/run/CollectorRunService.java": "aeb68bdcee8381b6479f6f4869d754e596ed275ecbb69f10f459976361b95afa",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DirectBatchRunner.java": "bfef2bfea680293ad9c23a155770e0bd40255b588c2ea2bac8c7964f4178bbb9",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DirectRequestBudget.java": "8cc9f472479769841f6a4602b34f32096f61cfce88602e4ebf0df664bb71e98b",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DirectUrlRunner.java": "2e94ec94dd8f2c021054026e80ea1552c59343dec6bea8b802b3ef6110e9230f",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DiscoveryBatch.java": "86e02cb788826f005246cf759a111a7e3e2f29b8b1f62104ebe40f4d47e7d838",
+    "apps/collector/src/main/java/com/blariyo/collector/run/RunCommandValidation.java": "277690cd080066669abfd0448fe413a390e9f72342ccac1ec73e7c383f0a7253",
+    "apps/collector/src/main/java/com/blariyo/collector/run/RunRepository.java": "8666f93e96442db085da68055d72638d1de8c0bffc3ed82a0790409123437c49",
+    "apps/collector/src/main/java/com/blariyo/collector/run/SiteProbeMain.java": "a2f6c2e393e247b3403157884ccba438d124b2a57cddc649edad31551a76c023",
+    "apps/collector/src/main/java/com/blariyo/collector/run/SourceImageType.java": "4174989e0ad634f7510c377a0ba3fbc5aae8a26ee995e2927d3c1ec505ed7e12",
+    "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java": "60056e9a3a53551d615d8128f546acc8608cb2b8fb5a9c3df1899180c01dd0df",
+    "apps/collector/src/main/java/com/blariyo/collector/scheduling/QuartzConfiguration.java": "e312f5d83406c7c012ed4870cf664e2890dfc35346120f58f236a61efbe993c7",
+    "apps/collector/src/main/java/com/blariyo/collector/shared/CollectorFailure.java": "1074e5f5148ff60b73c6e29e606863c52152326f24c89b13a00c0efe876f0427",
+    "apps/collector/src/main/java/com/blariyo/collector/shared/Json.java": "4eae83e0103609bb0d2ea1797ad3d16e9d42c3dccab27e7a13470c2ff73ee05f",
+    "apps/collector/src/main/java/com/blariyo/collector/source/DiscoveryFetcher.java": "fcbe9865db1c1a51313be750b8cefd17a5255dbb11b91138205e6ed6e27ff73f",
+    "apps/collector/src/main/java/com/blariyo/collector/source/PinnedHttp.java": "5362f3f0e7b824f0a5900c77bc9c69ac9ad6165b410b7e2bbaf9f5c41d13c421",
+    "apps/collector/src/main/java/com/blariyo/collector/source/RobotsRules.java": "a2eb3234c44d2ad51e883bdc46feffdd780f5b3d7c59782af57701c28e80ef7e",
+    "apps/collector/src/main/java/com/blariyo/collector/source/SiteAdapter.java": "131c120b3240935128b94bb2e8d5f124c1762856fb56116013c2f71e5be96c4e",
+    "apps/collector/src/main/java/com/blariyo/collector/source/SiteAdapters.java": "484f9f4a6e19cd89ce31dd4a57a7ad4aeb0dae11210f5b6c54f7000691fd6f01",
+    "apps/collector/src/main/java/com/blariyo/collector/source/SourceMediaLimits.java": "4a030e6b838d7f9bf68c08d3570f75d60353e1b066f10093711a498315901bf5",
+    "apps/collector/src/main/java/com/blariyo/collector/source/SourcePolicy.java": "7c42405995a4b1b9f609b5c337268d4103410637073fca3dcf08bb87f77a039e",
+    "apps/collector/src/main/java/com/blariyo/collector/source/SourceRegistry.java": "588819fb384e8d4e2aaa37bc3da98f0872001a2243ab322e99ffd7841347a3de",
+    "apps/collector/src/main/java/com/blariyo/collector/source/SourceRequestPolicy.java": "e94a7a27c942ec39d2519e8046cfc6ce1e58cd97074345c50757604bd7caafda",
+    "apps/collector/src/main/java/com/blariyo/collector/source/SourceTransport.java": "5025432fe3f4e6dd298a336a3e9b531414b9be1959191974b39edd9fe748db4f",
+    "apps/collector/src/main/java/com/blariyo/collector/source/TransportConfiguration.java": "6ffa9b7ebe17f340dde76d6b18d8f29ba3b67da954ef2c1d83dcb184e27385b9",
+    "apps/collector/src/main/java/com/blariyo/collector/source/common/AbstractSiteAdapter.java": "a97cb053bb077e9177b1c14ee8e6282f1106864b09bd703ee5be4b4c04c7372f",
+    "apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlDetailParser.java": "13b40b558c01faa7ed006f7bc85319f366c87314fe26122d43c30753fbb46f8b",
+    "apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlListParser.java": "758a2b189eeff2b6da5b34b43b68523234a1b5641bc0f4c6653c249fc6c3e71a",
+    "apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlSupport.java": "add9f104f2db34f7dcdd94b0f59a27ec2a06e42f2ab50b127ac86f6cfa4a5b26",
+    "apps/collector/src/main/java/com/blariyo/collector/source/common/OrderedContentParser.java": "b262fc211aa352fe1a26e33b9fbfc133a6161bfc2c31c97e63767dccdb13f9d6",
+    "apps/collector/src/main/java/com/blariyo/collector/source/common/SiteParsingContext.java": "413499fe62ca34563c4767cd09e810b2dae55bc7aa17e3022419fe3662997a18",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/arcalive/ArcaliveAdapter.java": "9990eac1ae188599c7d33445178b7aa859755284985ef4299fe468042a669b4d",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/arcalive/ArcaliveDetailParser.java": "f80d5ae4b385ee9725cf5eee65fe52295846eb81563bef9dd0eb865f7f792d45",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/arcalive/ArcaliveListParser.java": "e111d0c53cf76a20b92bde7af2dea4b8cbb51f86b7dc0643d5cf0a3e9e85a932",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/bobaedream/BobaedreamAdapter.java": "f1fb9bece8c5ad5a97f6fc1281a6085d9af70e5b9771746c19da33c9f1f1a966",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/bobaedream/BobaedreamDetailParser.java": "2cef794969cd2c63c3d91aacf5b2b7c2eeced7f4cfb268a93f7db3a4a3ac1290",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/bobaedream/BobaedreamListParser.java": "202edb434d21ae1c2366398b9e92dc0d61f92f40af08443691c534d7c854560d",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/clien/ClienAdapter.java": "ea06a70083568a9d98e283c0e007675cf319a5275ba159fd18e6f40db73289f7",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/clien/ClienDetailParser.java": "a835b32c9c214b94536d43a7cb3021df1ca5615c726eca9b50209fbeb8a9fc34",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/clien/ClienListParser.java": "7d08ba2eecb2f843b479284b23cacb410f7511cf09b50763ddcb28542b617af9",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/dcinside/DcinsideAdapter.java": "fe11c048bc062e3c07192d1ef8e127caf5803ee77c5f88c3428cc270d385822f",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/dcinside/DcinsideDetailParser.java": "3efa4a895c078627818866da14679d722a8bf39b70869ec5e424778e7ab20482",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/dcinside/DcinsideListParser.java": "89fbc6bc33cca6ae21b79eaf86bdc802fa2d2b050a929a07b56359753fd6fde5",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/dmitory/DmitoryAdapter.java": "3db8021e826c93fa6247de09b82c889bca4e391a279255edde353cbb4d1105aa",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/dmitory/DmitoryDetailParser.java": "9bfe8134ece72fc696c5e46eb76f72dfc8b1d0c3972bec85050e8372b9b49ee1",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/dmitory/DmitoryListParser.java": "f6b4f9ecf7899902b1937ad113725af64b8ffd1e59e1ecf33c9c9416553928e0",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/dogdrip/DogdripAdapter.java": "7c66b319858449995990f932eaaa45f00adfa9aa7730666aab05a0244f54a865",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/dogdrip/DogdripDetailParser.java": "a0116c3ec370e9e6dd4aef13c74a2ee083b76f68ceac043a691fb1ce8cbe728b",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/dogdrip/DogdripListParser.java": "6fe3087ea94d38e2151571f701d3f7d939fd010eb9bd2ec08f9e82f0c5f1c907",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/etoland/EtolandAdapter.java": "645480d73217f072ff9f38052684ef4af3f0d0d6cde21a489eba7be0d7f422c1",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/etoland/EtolandDetailParser.java": "55a22c209eb9bea7303faa183bd76c2c59d55033b664b5baaa458dee8ca8f536",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/etoland/EtolandListParser.java": "df5782f678c841ef3268cf8a792b0b8c52e3539cdb3434bea47906f7c17d9573",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/fmkorea/FmkoreaAdapter.java": "4f1c4aef5b17f2149a32079b24d1550b875d6649b20fe60eb7312aeecba1ba30",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/fmkorea/FmkoreaDetailParser.java": "ba52457591f2462101ca79f9b915ebc287001db990fe17a4dd5e2735b8beb463",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/fmkorea/FmkoreaListParser.java": "4c5516e8f44fa65c2e9bb34b5ecf5ce2f4aafc59b9d77e15361d890bf0bb841a",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagAdapter.java": "114f2304182597bfbfbae109337d893711e2a5ce18aeb312d4d1d5b3bc18a0e8",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagDetailParser.java": "8f7dbd4ffb9d707bd3cb3c3cfaf656300d105a96032123307b2c408fff91bdd1",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagListParser.java": "1ef177b89e43a28bcd55e28f9eccd3ea91e33d471607c024f64cbe5956455e3e",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/humoruniv/HumorunivAdapter.java": "3abb3b4ddc391b0e6c15486579776efbb6a15705a75ce6b51e1c8ae9d276d2a3",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/humoruniv/HumorunivDetailParser.java": "32d4e927aa9cc183c2ee0e1d8b27a368bd919cadeaecb7509906a927f4660caf",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/humoruniv/HumorunivListParser.java": "1c52104ab15ce6c2830893651a5a7f33a0f430392d3104934d08193f77b6be7b",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/instiz/InstizAdapter.java": "a3029ace816b73ca0c9fdd9bac039a5d79f359b9f052da176d536ba811e81f3d",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/instiz/InstizDetailParser.java": "b8bf58288cc6cffa97417d1566618784bd1ad0d58fc4f174587971b77c06822f",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/instiz/InstizListParser.java": "7dbf46f475b8d4452a89d1e8ac5127ddc6447e72f2ec14f8f8eb7afa6d95f1b6",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/inven/InvenAdapter.java": "7a1dec4a8956f268aed60ecac5c62788ef0e4a40a63ac36eb010bbcaf60e705f",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/inven/InvenDetailParser.java": "1707bd5f0213cb78489702387e70810e3692c01674706bb8a6d4e406daad6621",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/inven/InvenListParser.java": "84e7eeff848be41a3d99c21eb8fb0d11f25ddf0bd858ae01cc8c8484e1dbde23",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/mlbpark/MlbparkAdapter.java": "bc7018deee6c181c8cab912a557bf52b5e3d2828eb8c05fb8384b72a28dace24",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/mlbpark/MlbparkDetailParser.java": "c8f08786843f060dca3185d02a461566962aaf0ed681d86b7c4faa9da0fc7784",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/mlbpark/MlbparkListParser.java": "1c43854506d7b324f61d6e1c9e015c91d83d4a15428254e16c5f512d264c4072",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/natepann/NatepannAdapter.java": "9e4117463ef711055d49f81be8fef65d03fb8d6245d9916476d755da8e314450",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/natepann/NatepannDetailParser.java": "913736203005895490697f8a17ce7e574407a17683cf91dbf9f6164bd503df5b",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/natepann/NatepannListParser.java": "094fd3d93c2d4c1a0c93c91bc32552b098a2a283db39c2edfd790a7b6cd8d19c",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/pgr21/Pgr21Adapter.java": "5f6fdd9bdf9e92e411110d9056a15858a82202a7033a37048810f81dd04159ed",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/pgr21/Pgr21DetailParser.java": "85691088c4c5f190915f44df460d3d4a918e2fc7b748115ba8de913882182cfc",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/ppomppu/PpomppuAdapter.java": "2c3f244ecfc4a2932de6f4c6fda43c0634447dc75a11868f3fa5ddd9f87bc4d8",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/ppomppu/PpomppuDetailParser.java": "95422eea9db88c551fd65e9347c74a65b3e1853e0ab9b5a84e1c893875fbe1e4",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/ppomppu/PpomppuListParser.java": "938846cdaa9db17402cda8f2ccc624b5eee3e8a29de0e82f4b8f2aa528120169",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/ruliweb/RuliwebAdapter.java": "ee51373cfd893116da970493efbbea56dc2742b5e404982a5815ea23b79dd425",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/ruliweb/RuliwebDetailParser.java": "10e260378d914218fa31bdef921df7cd97f0d007902c5fec19bb5e1279b14ea7",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/ruliweb/RuliwebListParser.java": "c7208e8118b9d8e691241310fb3f6da59fb78e883c8fbb7af8e95f0ff1af0933",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooAdapter.java": "4857120c5653df2e9d486f09f08272cdfe806e0db8e1e3182a9dcacb8dae0deb",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooDetailParser.java": "df5423c6d330abcc08b413e2d01f9366e29d7227928897f48cf4d831da47ec2f",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooListParser.java": "90949b049ab71987a311545633d8f56739371a7d36910aa384f9053dde99d965",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/theqoo/TheqooParser.java": "c0abcc23875385bd812282e847c1173f2acfc2cd141cacc0180c1eeca23c2578",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/todayhumor/TodayhumorAdapter.java": "bcdd6b7c956e33ec9f764925c9f2a2b4c63599b5dce0ca3697aef248fec1a0e7",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/todayhumor/TodayhumorDetailParser.java": "3a1a4d0e293f17688b4534f34bbadc2e5423e7504eba8be177323fc13bb65170",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/todayhumor/TodayhumorListParser.java": "7e6e38f23d284d7370961e39412809604ddaf97386ea03f4d5becc0f881ce5ac",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/youtubecommunity/YoutubeCommunityAdapter.java": "fd7541f6fe4f9dfc40eddbbddf96229a42153de973ad7d9b45b14b25a9366bd7",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/youtubecommunity/YoutubeCommunityDetailParser.java": "3f700565c1b1257a570114454b3a0d8ba804a442d4e23438e07dfe3a52d66d80",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/yuldo/YuldoAdapter.java": "a8b7513ddb7c8dd9724f1c8b077fa16725b2d4bde1884b243f26961fa9b545ac",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/yuldo/YuldoDetailParser.java": "f771180052fe8836e6b39f510ecbf81e1165b5f07acfe96b498ce6ab2623bcf1",
+    "apps/collector/src/main/java/com/blariyo/collector/source/sites/yuldo/YuldoListParser.java": "558e3709703538dec1db6dda71fe4da4a894f67ce8667e71cce2817c49084c84",
+    "apps/collector/src/main/java/com/blariyo/collector/spool/EncryptedSpool.java": "17a72206e5cdc4bd868d385cd20a8871dae9fea56286f657059a11f97fafd1d0",
+    "apps/collector/src/main/java/com/blariyo/collector/state/StateStore.java": "e5259bfc175c08cb1c47b5aced7c37dd96ce64bb62d58cfedc50d943d27cd9b4",
+    "apps/collector/src/main/java/com/blariyo/collector/storage/BatchObjectStore.java": "fdfc52322e99a9ce8374b8884a4af115c0b7419a41b0c0511e8dc8e05aa9fd9d",
+    "apps/collector/src/main/java/com/blariyo/collector/storage/RetentionObjects.java": "dcf60e59b3c60bf9af518d5a49a1da850394dec4393cfcf41f93ddbde995e0a1",
+    "apps/collector/src/main/java/com/blariyo/collector/web/LocalController.java": "8fcd01fb9374a399d09591a2f6b9895496289ac1a897dc07ea729897338c7334",
+    "apps/collector/src/main/java/com/blariyo/collector/web/LocalSecurity.java": "3163b3a3cca8e10b9928c06714d0ebe18a5b62a1b397ddf8e222f7867b41bd63",
+    "apps/web/app/composables/useConsent.ts": "178eddd8905b7eef33a928cf932c9b5a2be82d13010dff5c2f78b7513bcd9591",
+    "apps/web/app/composables/useSourceCodes.ts": "ea805079081df1da0f4a430b15d171ac89fb136cd14d598304070d5009e86db0",
+    "apps/web/app/composables/useUiLoading.ts": "34e3154c44164098887f3b155c7f200f3f3e95bd1daf4761115b3a6f630ea222",
+    "apps/web/app/plugins/analytics.client.ts": "225b7100b7be609c65c1e506e7d3068921f251f528d9f0cc6bfc6fcf906c029e",
+    "apps/web/app/plugins/ui-loading.client.ts": "7a2614fa6505efe3d956e9ae39ebe0c5720921b73bb2c4765e5f386c67f09d22",
+    "apps/web/app/types/browser.d.ts": "b689050402ede62068cfd6d1b336affa976e82dd8f792cfb315a381183b1ee88",
+    "apps/web/app/utils/consent.mjs": "22c1025d356d5b77e3f29ffe720b114ef5b3ce67c9dce8585499f6642bfd8ce9",
+    "apps/web/app/utils/editor-validation.mjs": "8991e7ff69f4b370e756f6e8055c422a35739471de0c6d12697d6e50762cc504",
+    "apps/web/app/utils/kakao.mjs": "28fe32ef6f50a2a529ec17b5f0f0419315904a98ad8cc73b912d18681305853e",
+    "apps/web/app/utils/metadata.mjs": "ea4b42bb979eb40959f72bc86225dddaf7875f85c5c3bf142c29a92d65cc8817",
+    "apps/web/app/utils/social-posts.ts": "940be254316a2050b0f91252113f5d9347d82389523735cc035cd108788624e6",
+    "apps/web/app/utils/social-widgets.ts": "7fc5af65e50e91ffe91deb2fa3c63e1ecb8a331923f63e85966ff85c4bda4b54",
+    "apps/web/app/utils/text-links.mjs": "b344efb819cc05d37581aa1f847579560c05a5b89b1b98c0c5cbdee4162c1d2c",
+    "apps/web/app/utils/upload-errors.mjs": "2d5f6f5ebf710022c8903c769915ab2ca9222a76751928c579d3abd59c3cd676",
+    "apps/web/app/utils/x-posts.ts": "8749c8d17156dbb40fb39d697d5fc0cbd5c72b69674c10c7957ad9d894d03e79",
+    "apps/web/app/utils/x-widgets.ts": "0e8c49a9616a53861ef3efa03ec9ae2ad30ae3ed1ac36779ed5c0083f897993a",
+    "apps/web/server/api/admin/collect/[...path].ts": "6b8c7815c630d347e2c3e34ffd6e62dc41d9d39f4a3df908c6e326db9386f709",
+    "apps/web/server/api/admin/features.get.ts": "1825158b9491ea159283ea024f092807b218bd83caa84d322a8551e5d7e74092",
+    "apps/web/server/api/admin/local-session.delete.ts": "c8dfc2f179ae43f5f76ecfeb010f2c2ae1b46daeb1e351663ac37d43e7486a43",
+    "apps/web/server/api/admin/local-session.post.ts": "4ad09e09c4ac758185a6194c34af5ead21b0cef3bff7e18186d1f6bffd63cc5f",
+    "apps/web/server/api/admin/session.get.ts": "c785b4a60f6191328ea50727dfedf3ed6d0a2864f75b1a2834c7cab105e9a1eb",
+    "apps/web/server/api/collector/v1/[...path].ts": "1dfcb94af4afd71443c66199df3eef4c8fbb386c998fd2248bc3c63a3fb043d2",
+    "apps/web/server/api/v1/[...path].ts": "d0231cf5e77914b7e5375779ddf4720537dc25487b894296727582a5b2c938e1",
+    "apps/web/server/error-handler.ts": "5657fab353232d7ecf9d9f331e79aa0b7b575b706273fe07326f38bfd4f68a82",
+    "apps/web/server/middleware/admin.ts": "13e288bbf3da25ca60f6fd8d4b89b411b4b607e35d2a4dd77863bf11e2d4ec95",
+    "apps/web/server/middleware/sitemap.ts": "97196aa49311ff29a7fee81eaab998040a6acecb278d29c18edcfe401e1efb83",
+    "apps/web/server/plugins/production.ts": "663eafa57a8fc93cc12c738983eb307d1cb1d73a4584e4c6380bef1c246654f1",
+    "apps/web/server/plugins/security.ts": "1d295ac5bd7b535658fe3d701ca430afbe6c1c4c22126c83cff9ad23c0aef884",
+    "apps/web/server/routes/health/live.get.ts": "e8094dfb2d23a15a1226cc72ddf081b4c8d00b736477c1c156c6d00302960f8c",
+    "apps/web/server/routes/health/ready.get.ts": "a24c2d0e1f8280913e4e7b7f3c79b735cabf9066d5e9f74ebd78bde03dcd7f5f",
+    "apps/web/server/routes/media/[...path].get.ts": "3c872e3ee827157b4bce809f170e3cf38bdfb3f3ec6bc811837d07f2aca7c5f6",
+    "apps/web/server/utils/access.mjs": "2a00634e3c9b1bf173d0813100c95ebac83783e26a112caf49c78a6c7aeb73ca",
+    "apps/web/server/utils/identity.ts": "ce97fa45425a5ded460000c200292b1e98de6ca925e6efbc5772d1736c223b1b",
+    "apps/web/server/utils/local-admin.ts": "dd0e9dbca2ecf48e9f0a17b12e66bf2c9c0692a38d94ed30d7cb982eb8860c05",
+    "apps/web/server/utils/response.ts": "951d7ae7b8f5d73a68ef9e6dc1e84a7820bff596968abc56073c4b3b4379f103",
+    "apps/web/shared/admin-return.ts": "1efa8ecd9d2f89a18766c26d80eca0d7e785444949b392aa72324fdfeccd6d61",
+    "apps/web/shared/api-types.ts": "c6ef2f3f0b1a0bfc43d37661b55285ca866a0f7a19be783c9257e79811e841eb"
+  },
+  "inputDigest": "8b37d936248c50db76a58a7f70032649064436c24dd89e6c7d726ad871297f0d",
+  "configHash": "d4ec0b1d4469e6ab17d72988f760aa204f8b3dfd432652004e8354fc63ce6dec",
+  "lockHash": "dae0ed9c7ab527a771b6b41811f865f8bd649d099e30c208a934d1f6462f033b",
+  "status": "review_required",
+  "findings": [
+    {
+      "rule": "AIA-101",
+      "file": "AGENTS.md",
+      "line": 19,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/adapters/collect-reader.ts",
+      "line": 47,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/batch-review.service.ts",
+      "line": 30,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/batch-review.service.ts",
+      "line": 108,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/collection-content.ts",
+      "line": 28,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/collection-promotion.service.ts",
+      "line": 103,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/collection-url.ts",
+      "line": 26,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/collection.service.ts",
+      "line": 218,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/collector-preview.service.ts",
+      "line": 97,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/collector-preview.service.ts",
+      "line": 101,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/collector-preview.service.ts",
+      "line": 102,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/collection/direct-url.ts",
+      "line": 35,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/health/health.service.ts",
+      "line": 8,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/images/image-validation.ts",
+      "line": 30,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/images/images.service.ts",
+      "line": 72,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/images/images.service.ts",
+      "line": 73,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/images/images.service.ts",
+      "line": 111,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/features/posts/posts.service.ts",
+      "line": 161,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/http/collector-input.ts",
+      "line": 59,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/http/multipart.ts",
+      "line": 21,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/operations/outbox.service.ts",
+      "line": 44,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/operations/schedule-alerts.service.ts",
+      "line": 21,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/api/src/persistence/batch-review.repository.ts",
+      "line": 64,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/bootstrap/CollectorHealth.java",
+      "line": 31,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/bootstrap/CollectorMetrics.java",
+      "line": 75,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/bootstrap/CollectorMetrics.java",
+      "line": 83,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/core/CoreClient.java",
+      "line": 160,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/discord/DiscordGateway.java",
+      "line": 118,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/discord/DiscordGateway.java",
+      "line": 152,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/execution/BatchRuntime.java",
+      "line": 213,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/maintenance/BatchRetentionWorker.java",
+      "line": 75,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/maintenance/ImageFailureCleanup.java",
+      "line": 36,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/maintenance/RetentionRepository.java",
+      "line": 73,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/maintenance/RetentionRepository.java",
+      "line": 83,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/maintenance/RetentionRepository.java",
+      "line": 84,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/maintenance/SpoolCleanup.java",
+      "line": 85,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/notification/NotificationWorker.java",
+      "line": 87,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/notification/OperationalEventOutbox.java",
+      "line": 71,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/ops/QueueMain.java",
+      "line": 67,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java",
+      "line": 75,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java",
+      "line": 76,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java",
+      "line": 90,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java",
+      "line": 93,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java",
+      "line": 96,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java",
+      "line": 97,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java",
+      "line": 253,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/DirectBatchRunner.java",
+      "line": 76,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/RunRepository.java",
+      "line": 31,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/SiteProbeMain.java",
+      "line": 64,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java",
+      "line": 104,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/PinnedHttp.java",
+      "line": 135,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/PinnedHttp.java",
+      "line": 139,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/PinnedHttp.java",
+      "line": 196,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/PinnedHttp.java",
+      "line": 210,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/PinnedHttp.java",
+      "line": 215,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/RobotsRules.java",
+      "line": 39,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlListParser.java",
+      "line": 38,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlListParser.java",
+      "line": 52,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlListParser.java",
+      "line": 59,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlSupport.java",
+      "line": 34,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlSupport.java",
+      "line": 61,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlSupport.java",
+      "line": 63,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/common/OrderedContentParser.java",
+      "line": 111,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/clien/ClienListParser.java",
+      "line": 30,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/dcinside/DcinsideListParser.java",
+      "line": 30,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/dcinside/DcinsideListParser.java",
+      "line": 42,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/dcinside/DcinsideListParser.java",
+      "line": 49,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/etoland/EtolandListParser.java",
+      "line": 33,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/etoland/EtolandListParser.java",
+      "line": 44,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/etoland/EtolandListParser.java",
+      "line": 55,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/etoland/EtolandListParser.java",
+      "line": 70,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/fmkorea/FmkoreaListParser.java",
+      "line": 28,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/fmkorea/FmkoreaListParser.java",
+      "line": 39,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/goodgag/GoodgagListParser.java",
+      "line": 27,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/humoruniv/HumorunivListParser.java",
+      "line": 28,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/humoruniv/HumorunivListParser.java",
+      "line": 40,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/humoruniv/HumorunivListParser.java",
+      "line": 47,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/instiz/InstizListParser.java",
+      "line": 33,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/instiz/InstizListParser.java",
+      "line": 46,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/instiz/InstizListParser.java",
+      "line": 53,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/mlbpark/MlbparkListParser.java",
+      "line": 30,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/mlbpark/MlbparkListParser.java",
+      "line": 42,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/mlbpark/MlbparkListParser.java",
+      "line": 49,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/natepann/NatepannListParser.java",
+      "line": 28,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/natepann/NatepannListParser.java",
+      "line": 39,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/natepann/NatepannListParser.java",
+      "line": 46,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/ppomppu/PpomppuListParser.java",
+      "line": 28,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/ppomppu/PpomppuListParser.java",
+      "line": 39,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/youtubecommunity/YoutubeCommunityDetailParser.java",
+      "line": 84,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/yuldo/YuldoListParser.java",
+      "line": 28,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/yuldo/YuldoListParser.java",
+      "line": 40,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/source/sites/yuldo/YuldoListParser.java",
+      "line": 47,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/spool/EncryptedSpool.java",
+      "line": 71,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/storage/BatchObjectStore.java",
+      "line": 94,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/collector/src/main/java/com/blariyo/collector/web/LocalController.java",
+      "line": 101,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/app/composables/useConsent.ts",
+      "line": 24,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/app/composables/useConsent.ts",
+      "line": 37,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/app/utils/consent.mjs",
+      "line": 45,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/app/utils/consent.mjs",
+      "line": 230,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/app/utils/editor-validation.mjs",
+      "line": 25,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/app/utils/kakao.mjs",
+      "line": 47,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/app/utils/social-posts.ts",
+      "line": 32,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/app/utils/text-links.mjs",
+      "line": 20,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/app/utils/x-posts.ts",
+      "line": 43,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/server/api/admin/session.get.ts",
+      "line": 7,
+      "severity": "LOW",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/server/api/collector/v1/[...path].ts",
+      "line": 66,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/server/api/collector/v1/[...path].ts",
+      "line": 101,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/server/api/v1/[...path].ts",
+      "line": 102,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/server/api/v1/[...path].ts",
+      "line": 161,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/server/plugins/security.ts",
+      "line": 38,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/server/routes/health/ready.get.ts",
+      "line": 14,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/server/routes/media/[...path].get.ts",
+      "line": 7,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/server/utils/local-admin.ts",
+      "line": 37,
+      "severity": "HIGH",
+      "confidence": "CONFIRMED"
+    },
+    {
+      "rule": "IL-301",
+      "file": "apps/web/shared/admin-return.ts",
+      "line": 17,
+      "severity": "MEDIUM",
+      "confidence": "REVIEW"
+    }
+  ],
+  "inputFileCount": 314,
+  "scannedFileCount": 314,
+  "unsupportedFiles": [
+    "apps/web/app/app.vue",
+    "apps/web/app/components/AdminNavigation.vue",
+    "apps/web/app/components/AdminWorkspace.vue",
+    "apps/web/app/components/AppDialog.vue",
+    "apps/web/app/components/AppLoadingBar.vue",
+    "apps/web/app/components/CollectImagePreview.vue",
+    "apps/web/app/components/CookieSettings.vue",
+    "apps/web/app/components/DirectCollectionInput.vue",
+    "apps/web/app/components/LinkedText.vue",
+    "apps/web/app/components/ListSkeleton.vue",
+    "apps/web/app/components/PageNumbers.vue",
+    "apps/web/app/components/PolicyViewer.vue",
+    "apps/web/app/components/PostList.vue",
+    "apps/web/app/components/SiteFooter.vue",
+    "apps/web/app/components/SiteHeader.vue",
+    "apps/web/app/components/SocialPost.vue",
+    "apps/web/app/components/XPost.vue",
+    "apps/web/app/error.vue",
+    "apps/web/app/pages/[boardSlug]/index.vue",
+    "apps/web/app/pages/[boardSlug]/posts/[postId].vue",
+    "apps/web/app/pages/admin-batch.vue",
+    "apps/web/app/pages/admin-collect-sources.vue",
+    "apps/web/app/pages/admin-collect.vue",
+    "apps/web/app/pages/admin-common-codes.vue",
+    "apps/web/app/pages/admin-login.vue",
+    "apps/web/app/pages/admin-source-codes.vue",
+    "apps/web/app/pages/admin.vue",
+    "apps/web/app/pages/cookie-settings.vue",
+    "apps/web/app/pages/index.vue",
+    "apps/web/app/pages/privacy.vue",
+    "apps/web/app/pages/terms.vue"
+  ],
+  "unsupportedScopes": [
+    "Gradle dependencies",
+    "cross-file semantic proof",
+    "production"
+  ],
+  "unverifiedRuleLanguageRate": 0.6667
+}

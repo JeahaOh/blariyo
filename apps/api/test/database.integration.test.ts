@@ -48,7 +48,8 @@ await test('TypeORM maps all SQL columns without changing schema and coordinates
   assert.equal(source.options.synchronize, false);
   assert.equal(source.options.migrationsRun, false);
   const columns = before.filter((row) => row.kind === 'column');
-  assert.equal(source.entityMetadatas.length, 23);
+  // V013 adds common_code_group and common_code to the 23 existing tables.
+  assert.equal(source.entityMetadatas.length, 25);
   assert.equal(
     source.entityMetadatas.reduce((n, m) => n + m.columns.length, 0),
     columns.length
@@ -117,7 +118,8 @@ await test('TypeORM maps all SQL columns without changing schema and coordinates
         .getMany();
     }
   }
-  assert.equal(foreignKeys.length, 19);
+  // V013 adds common_code.group_key -> common_code_group.group_key.
+  assert.equal(foreignKeys.length, 20);
   assert.equal(mapped.length, foreignKeys.length);
   assert.deepEqual(
     mapped.map((row) => JSON.stringify(row)).sort(),

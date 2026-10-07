@@ -121,10 +121,10 @@ try {
   await command(java, ['-cp', classpath, 'com.blariyo.collector.ops.MigrationMain'], undefined, collectorEnv('migrator'));
   await migrator.query(grants);
   await migrator.query(grants);
-  assert.equal(rows(await migrator.query('SELECT count(*)::int AS count FROM ops.schema_migration'))[0]?.count, 10);
+  assert.equal(rows(await migrator.query('SELECT count(*)::int AS count FROM ops.schema_migration'))[0]?.count, 13);
   assert.deepEqual(rows(await migrator.query('SELECT version FROM collector.schema_migration ORDER BY version')).map(row=>row.version),
-    ['V001','V002','V003','V004','V005','V006','V007','V008','V009','V010']);
-  assert.equal(rows(await app.query("SELECT ops.is_schema_ready('V010') AS ready"))[0]?.ready, true);
+    ['V001','V002','V003','V004','V005','V006','V007','V008','V009','V010','V011','V012','V013','V014','V015']);
+  assert.equal(rows(await app.query("SELECT ops.is_schema_ready('V013') AS ready"))[0]?.ready, true);
   assert.equal(rows(await app.query('SHOW timezone'))[0]?.TimeZone, 'UTC');
   await denied(app, 'SELECT * FROM ops.schema_migration');
   await denied(app, 'UPDATE ops.schema_migration SET duration_ms=0');
@@ -137,12 +137,25 @@ try {
   await writeFile(join(directory, 'fixture.png'), await sharp({create:{width:8,height:8,channels:3,background:'#00a19b'}}).png().toBuffer());
   await command(java, ['-cp', classpath, 'com.blariyo.collector.run.BatchRoleFixtureMain'], undefined, collectorEnv('batch'));
   stage = 'batch result DB/object assertions';
-  assert.equal(rows(await migrator.query("SELECT request_count FROM collect.batch_request_budget WHERE source_key='theqoo'"))[0]?.request_count,5);
+  // Reference-only robots: exactly detail + image + attachment, without two robots probes.
+  assert.equal(rows(await migrator.query("SELECT request_count FROM collect.batch_request_budget WHERE source_key='theqoo'"))[0]?.request_count,3);
   for(const connection of [app,batch,retention]) {
     await denied(connection,'SELECT * FROM collect.batch_request_budget');
     await denied(connection,'UPDATE collect.batch_request_budget SET request_count=0');
   }
   for(const connection of [app,retention])await denied(connection,"SELECT * FROM collect.reserve_batch_request('forbidden',10,10000)");
+  for(const connection of [app,retention,backup])await denied(connection,"SELECT collect.defer_batch_request('forbidden',3600000)");
+  await batch.query("SELECT collect.defer_batch_request('role-cooldown',3600000)");
+  const cooldown=rows(await batch.query("SELECT * FROM collect.reserve_batch_request('role-cooldown',5000,5000)"))[0];
+  assert.ok(Number(cooldown?.wait_ms)>3590000);assert.equal(cooldown?.used,0);
+
+  for(const connection of [app,batch,retention]) {
+    await denied(connection,'SELECT * FROM collect.batch_image_retry');
+    await denied(connection,'DELETE FROM collect.batch_image_cleanup');
+  }
+  for(const connection of [app,retention,backup])await denied(connection,`SELECT collect.retry_image('${randomUUID()}','SOURCE_NOT_IMAGE')`);
+  for(const connection of [app,batch,backup])await denied(connection,'SELECT * FROM collect.image_cleanup_pending()');
+  assert.equal(rows(await retention.query('SELECT * FROM collect.image_cleanup_pending()')).length,0);
   const cancelId=randomUUID(),cancelHash='c'.repeat(64);
   await batch.query("INSERT INTO collect.batch_confirmation(id,trigger_hmac,actor_hmac,channel_hmac,source_key,source_post_key,canonical_url) VALUES($1,$2,$2,$2,'fixture','cancel','https://example.invalid/cancel')",[cancelId,cancelHash]);
   await batch.query('SELECT collect.cancel_confirmation($1,$2,$2,$2)',[cancelId,cancelHash]);
@@ -202,10 +215,8 @@ try {
     });
     assert.equal((await direct.get(accepted.requestId)).state,'BLOCKED');
     assert.equal((await direct.runtime()).items.find(value=>value.sourceKey==='role-mailbox')?.freshness,'ABSENT');
-    for (const decision of ['REVIEWING','APPROVED'] as const) {
-      const {item} = await review.detail(itemId);
-      await review.review(itemId,{decision,itemVersion:item.version,lockVersion:item.review.lockVersion},actor,randomUUID());
-    }
+    const {item} = await review.detail(itemId);
+    await review.review(itemId,{decision:'APPROVED',itemVersion:item.version,lockVersion:item.review.lockVersion,contentDigest:item.contentDigest},actor,randomUUID());
     const approved = (await review.detail(itemId)).item;
     await review.promote(itemId,{boardSlug:'meme',itemVersion:approved.version,lockVersion:approved.review.lockVersion},actor,randomUUID());
     const postId = (await review.detail(itemId)).item.review.postId;
@@ -224,7 +235,18 @@ try {
   } finally { await application.close(); }
   await app.query("UPDATE content.board SET display_name=display_name WHERE slug='meme'");
   await denied(app, "UPDATE content.board SET slug='forbidden' WHERE slug='meme'", '23514');
-  console.log('PASS 실제 API V001–V010 / Collector V001–V010 migration · D02 앱 접수/batch ack/안전 조회 · 앱 draft/publish · trigger 유지 · DDL/ledger/역할 전환 차단');
+  stage = 'image retry discard with restricted batch and retention roles';
+  await command(java, ['-cp', classpath, 'com.blariyo.collector.run.ImageFailureRoleFixtureMain'], undefined, collectorEnv('batch'));
+  const imageJobs=rows(await retention.query('SELECT * FROM collect.image_cleanup_pending()'));
+  assert.equal(imageJobs.length,1);
+  const imageJob=imageJobs[0]!;
+  assert.ok(typeof imageJob.run_id==='string' && typeof imageJob.item_id==='string');
+  assert.equal(rows(await migrator.query('SELECT count(*)::int AS count FROM collect.batch_item WHERE id=$1',[imageJob.item_id]))[0]?.count,0);
+  assert.equal(rows(await retention.query('SELECT collect.image_cleanup_allowed($1,$2,$3) AS allowed',
+    [imageJob.item_id,imageJob.run_id,`collect/raw/${imageJob.run_id}/${imageJob.item_id}.html`]))[0]?.allowed,true);
+  assert.equal(rows(await retention.query('SELECT collect.image_cleanup_allowed($1,$2,$3) AS allowed',
+    [imageJob.item_id,imageJob.run_id,'private/protected.png']))[0]?.allowed,false);
+  console.log('PASS 실제 API V001–V013 / Collector V001–V015 migration · D02 앱 접수/batch ack/안전 조회 · 앱 draft/publish · trigger 유지 · DDL/ledger/역할 전환 차단');
 
   stage = 'dedicated retention capabilities and real CLI readback';
   for(const sql of ['SELECT * FROM content.board_post','SELECT * FROM legal.policy_version','SELECT * FROM collect.batch_item',
@@ -235,6 +257,23 @@ try {
     await denied(source,'DELETE FROM collect.batch_retention');
     await denied(source,'UPDATE collect.batch_dedup_key SET source_key=source_key');
   }
+  stage = 'manual failed-item deletion through restricted API role';
+  await command(java, ['-cp', classpath, 'com.blariyo.collector.run.ManualDeleteRoleFixtureMain'], undefined, collectorEnv('batch'));
+  const manualItems = rows(await app.query("SELECT id,run_id,source_post_key,version,raw_object_key FROM collect.batch_item WHERE source_key='manualdelete' ORDER BY source_post_key"));
+  const manualDelete = manualItems.find(item => item.source_post_key === 'delete')!;
+  const manualKeep = manualItems.find(item => item.source_post_key === 'preserve')!;
+  assert.ok(manualDelete && manualKeep);
+  for (const connection of [batch,retention,backup]) await denied(connection, `SELECT collect.delete_failed_item('${String(manualDelete.id)}',${Number(manualDelete.version)},0,'fixture')`);
+  assert.equal(rows(await app.query('SELECT collect.delete_failed_item($1,$2,0,$3) AS result',[manualDelete.id,Number(manualDelete.version)+1,'fixture']))[0]?.result,'BATCH_ITEM_VERSION_CONFLICT');
+  assert.equal(rows(await app.query('SELECT collect.delete_failed_item($1,$2,0,$3) AS result',[manualDelete.id,manualDelete.version,'fixture']))[0]?.result,'DELETED');
+  assert.equal(rows(await app.query('SELECT collect.delete_failed_item($1,$2,0,$3) AS result',[manualDelete.id,manualDelete.version,'fixture']))[0]?.result,'DELETED');
+  assert.equal(rows(await app.query('SELECT count(*)::int n FROM collect.batch_item WHERE id=$1',[manualDelete.id]))[0]?.n,0);
+  assert.equal(rows(await app.query('SELECT count(*)::int n FROM collect.batch_failure WHERE run_id=$1',[manualKeep.run_id]))[0]?.n,1);
+  const manualKeepRaw=await readFile(join(directory,'collect',String(manualKeep.raw_object_key)));
+  for(const connection of [app,batch,retention]) {
+    await denied(connection,'SELECT * FROM collect.batch_manual_deletion');
+    await denied(connection,'DELETE FROM collect.batch_manual_cleanup');
+  }
   const retentionEnv={...process.env,COLLECTOR_RETENTION_DB_URL:`jdbc:postgresql://127.0.0.1:${port}/blariyo`,
     COLLECTOR_RETENTION_DB_USER:'blariyo_collect_retention',COLLECTOR_RETENTION_DB_PASSWORD:secrets.retention,
     COLLECTOR_RETENTION_OBJECT_DIRECTORY:join(directory,'collect')};
@@ -244,6 +283,12 @@ try {
   const privateBefore=await storage.inventory('private');
   const privateHashes=await Promise.all(privateBefore.map(async object=>createHash('sha256').update(await storage.get('private',object.key)).digest('hex')));
   // Synthetic acceptance gate in an isolated DB only, not a production backup receipt.
+  assert.equal(rows(await migrator.query('SELECT count(*)::int n FROM collect.batch_manual_cleanup WHERE item_id=$1 AND completed_at IS NULL',[manualDelete.id]))[0]?.n,0);
+  await assert.rejects(readFile(join(directory,'collect',String(manualDelete.raw_object_key))));
+  await assert.rejects(readFile(join(directory,'collect',`collect/media/${String(manualDelete.run_id)}/${String(manualDelete.id)}/1`)));
+  assert.deepEqual(await readFile(join(directory,'collect',String(manualKeep.raw_object_key))),manualKeepRaw);
+  assert.equal((await readFile(join(directory,'collect',`collect/media/${String(manualKeep.run_id)}/${String(manualKeep.id)}/1`))).toString(),'file-preserve');
+  console.log('PASS manual delete role/version/dedup/exact raw-media cleanup and sibling preservation');
   await migrator.query("UPDATE collect.batch_retention_control SET selective_backup_verified=true,backup_receipt_hash=sha256('role fixture'::bytea)");
   await migrator.query('UPDATE collect.batch_retention SET expires_at=clock_timestamp() WHERE item_id=$1',[itemId]);
   const purged=await command(java,['-cp',classpath,'com.blariyo.collector.ops.BatchMain','retention','--once','--write-db'],undefined,retentionEnv);

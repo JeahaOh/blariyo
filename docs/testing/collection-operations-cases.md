@@ -1,5 +1,8 @@
 # 수집·운영 테스트 케이스
 
+> 2026-10-06 정책 변경: robots 허용/미확인은 차단 조건이 아니다. 아래 과거 robots 차단 시나리오는 robots 값과 관계없이 정상 요청/결과 제출을 허용하는 시나리오로 대체한다. 실제403/429·일일 한도·DNS/host 보호는 유지한다. 새 자동 검증은 SourceRequestsTests, DirectHttpControlReadbackTests, ImageFailureReadbackTests와 API collection-v2-http/collector-lease를 따른다.
+
+
 [구현 안내](README.md)의 공통 규칙을 따른다. 신규 ID는 전부 **미실행**이다.
 COL-01~05와 OPS-03은 legacy Core 제출 프로토콜을 다룬다. 현행 direct는 batch가 같은 database의 전용 collect 테이블/R2에 기록하고 Core는 관리자 검수·선택 초안 승격을 맡는다. direct에 legacy quota/lease 시험 결과를 승계하지 않는다.
 테스트에서는 실제 출처·Discord로 요청하지 않고 합성 HTTP 서버와 합성 이벤트를 사용한다.
@@ -203,7 +206,7 @@ COL-01~05와 OPS-03은 legacy Core 제출 프로토콜을 다룬다. 현행 dire
 ### DIR-05 — 검수 승인과 초안 이동은 자동 발행하지 않는다
 
 - **P0 / 기존 확장 / API·DB·브라우저**.
-- 실행: UNREVIEWED→REVIEWING→APPROVED/REJECTED, stale version·원문 변경·중복 원문, 승인 후 선택 초안 이동과 동일 key 재전송.
+- 실행: UNREVIEWED→APPROVED/REJECTED 직접 판단, 기존 REVIEWING의 UNREVIEWED 조회 호환, stale version·원문 변경·중복 원문, 승인 후 선택 초안 이동과 동일 key 재전송.
 - 기대: 승인만으로 게시글을 만들지 않고 명시적 초안 이동은 DRAFT 한 건만 만든다. 공개 조회404, 이미지/private 참조·검수 postId·receipt를 원자적으로 확인한다. 응답 유실 후 같은 key로 결과를 회복한다.
 - UI: `/admin/batch`의 필터/page/빈 결과/오류, preview 권한, 검수 충돌·재조회·초안 편집 이동. 실제 Access MFA 수용은 합성 인증 브라우저와 분리한다.
 - 참고: API `batch-review.integration.test.ts`, [브라우저 검수](../../tests/browser/batch-review.test.ts).

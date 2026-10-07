@@ -42,6 +42,7 @@ async function save(s: components['schemas']['CollectionSource']) {
     busy.value = false;
   }
 }
+useUiLoading(() => busy.value);
 </script>
 <template>
   <main v-if="sources">

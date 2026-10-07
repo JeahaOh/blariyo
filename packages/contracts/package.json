@@ -3,6 +3,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./draft-title": {
+      "types": "./src/draft-title.d.mts",
+      "default": "./src/draft-title.mjs"
+    },
     ".": {
       "types": "./src/index.d.mts",
       "default": "./src/index.mjs"
@@ -21,6 +25,6 @@
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "lint": "eslint src/index.mjs"
+    "lint": "eslint src/index.mjs src/draft-title.mjs"
   }
 }

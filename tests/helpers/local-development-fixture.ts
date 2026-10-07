@@ -12,8 +12,9 @@ import { migrationContext } from '../../apps/api/dist/commands/migrate.js';
 import { MigrationsService } from '../../apps/api/dist/commands/migrations.service.js';
 import { localStorage } from '../../apps/api/dist/adapters/storage.js';
 import { object } from './browser-values.ts';
+import { freePort } from './spring-runtime.ts';
 
-// Runs the actual user-facing launcher, including its opt-in command timer, on localhost:3000.
+// Runs the actual user-facing launcher, including its opt-in command timer, on isolated loopback ports.
 // Tests never invoke PostsService.publishDue or OutboxService.run directly.
 export async function localDevelopmentFixture(t: TestContext) {
   const base = process.env.TEST_DATABASE_ADMIN_URL;
@@ -32,7 +33,10 @@ export async function localDevelopmentFixture(t: TestContext) {
     created = false;
   const logs: string[] = [];
   let adminToken = '';
-  const origin = 'http://localhost:3000';
+  const webPort = await freePort();
+  let corePort = await freePort();
+  while (corePort === webPort) corePort = await freePort();
+  const origin = `http://localhost:${webPort}`;
   async function stop() {
     if (child && child.exitCode === null && child.signalCode === null) {
       const exited = once(child, 'exit');
@@ -69,7 +73,7 @@ export async function localDevelopmentFixture(t: TestContext) {
   await database.initialize();
   await writeFile(
     join(directory, 'sandbox.json'),
-    JSON.stringify({ version: 1, databaseUrl: target.href }),
+    JSON.stringify({ version: 1, databaseUrl: target.href, webPort, corePort }),
     { mode: 0o600 }
   );
   async function start() {
@@ -112,6 +116,7 @@ export async function localDevelopmentFixture(t: TestContext) {
       )
       .toBe(true);
     const session = object(JSON.parse(await readFile(join(directory, 'session.json'), 'utf8')));
+    assert.equal(session.origin, origin);
     assert.equal(typeof session.adminToken, 'string');
     adminToken = String(session.adminToken);
   }

@@ -6,7 +6,7 @@
 - 상위 계약: [시스템 아키텍처](01-system-architecture.md#spring-collector-transition), [데이터 모델](02-data-model.md#spring-수집-배치-저장-경계), [API 설계](03-api-design.md#spring-수집-서버의-실행-api와-기존-중계)
 - 기능 명세: [M0 수집 보조 개발 명세](../development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md)
 
-현행 수집 경로는 웹/API와 별도 컴퓨터에서 실행하는 Java direct batch다. batch가 외부 fetch,
+수집 배치는 Java direct batch다. 2026-10-07 결정으로 운영 VM의 제한 컨테이너와 개발 로컬에서 각 환경의 DB/object 저장소에 정기 수집한다. batch가 외부 fetch,
 목록/상세 parser, Discord queue와 `collect.batch_*`·collect object 저장을 소유한다. API는 저장된
 결과의 조회·검수·content 초안 승격·별도 발행만 소유한다. 글별 Core HTTP 전송은 하지 않는다.
 Spring Batch·Quartz·Core 후보/lease를 사용하는 아래 초기 절은 legacy 호환 경로를 설명한다.
@@ -20,6 +20,23 @@ OpenAPI, 실제 출처, Discord App, 운영 계정과 runtime이 검증됐다는
 [9월 9일 검증 기록](../../worklog/2026-09-09/core-spring-verification/evidence.md)은 당시 legacy 증거다.
 
 내부 패키지·의존성 규칙과 CLI 배치는 [M0 코드 구조](08-code-structure.md)를 따른다.
+
+## 운영·개발 정기 실행 — 2026-10-07
+
+- 시간은 `Asia/Seoul` 04:30·15:30이다. 개발=로컬 macOS LaunchAgent 한 개, 운영=systemd timer 한 개로 설치하며 중복 등록하지 않는다.
+- 운영 timer는 놓친 시간을 몰아서 실행하지 않는다. 이전 실행이 진행 중이면 별도 실행을 추가하지 않으며 동일 출처 DB 잠금도 유지한다.
+- 운영 direct batch는 출처 동시1개, 컨테이너 CPU0.5·RAM512MiB·추가swap금지·heap256MiB. source/DB/object 권한과 외부 포트 비공개를 유지한다.
+- 출처별7분·전체2시간으로 제한하고 결과 JSON은14일 보관한다. 운영 설치·확인·중단은 [정기 수집 운영 안내](../../deploy/collector/README.md)를 따른다. Web/API 야간 배포와 Collector 산출물 갱신은 별도다.
+- 운영 배치 실행 중 Web·API·Batch CPU/RAM을 시작 직후·이후60초 간격으로 서버 디스크의 실행별JSONL에 저장한다. 배치 종료 후 기존 비공개 R2 버킷의 `metrics/yyyy/mm/dd/production-<executionId>.jsonl`로 업로드하며 한국 날짜별로 분리한다. PUT/GET 해시 검증 후 로컬 확인 기록을 남기고 확인된 로컬 파일만7일 이후 정리한다. 미업로드 파일은 보존·다음 실행 종료 시 재시도하며 원격 객체 자동삭제는 추가하지 않는다. 측정·저장 장애는 수집 실행과 분리하고 결과의 `metrics` 상태에 남긴다. [측정 적용](../../worklog/2026-10-07/batch-resource-metrics/README.md), [비공개 저장 적용](../../worklog/2026-10-07/metrics-private-storage/README.md).
+- 실행 산출물·권한·설치·예약 관측은 [작업 기록](../../worklog/2026-10-07/collection-schedule/README.md)으로 확인한다.
+
+## 운영 서버 일회성 동거 시험 — 2026-10-07
+
+- [사용자 결정](../planning/content-collection/README.md#운영-서버-동거-시험--2026-10-07-사용자-결정)에 한해 별도 collector 컨테이너를 운영 VM에서 실행한다. API/Web 이미지와 정기 timer는 교체하지 않는다.
+- 출처1개, CPU0.5개, 메모리512MiB, 추가 swap 금지, JVM heap256MiB로 시작한다. 외부 공개 포트 없이 DB 전용 role·비공개 collect object 접근만 제공한다.
+- 실행 전 백업과 collector migration checksum을 확인한다. feature SHA로 고정한 시험 산출물은 main 정식 릴리스와 구분하고 서버에서 빌드하지 않는다.
+- 공개 HTTP·host 메모리/swap·컨테이너 CPU/메모리/OOM·DB readback을 기록한다. 가용 메모리256MiB 미만, OOM, 지속적인 공개 오류이면 시험 수집을 중단한다.
+- 종료 후 임시 login·네트워크 접근·실행 컨테이너를 회수하며 수집 결과와 DB migration은 보존한다. 운영 정기 예약은 별도 결정한다.
 
 ### direct 실행의 미충족 통제 — 2026-09-24 코드 대조
 

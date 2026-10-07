@@ -1,0 +1,13 @@
+[Unit]
+Description=Blariyo collection at 04:30 and 15:30 Asia/Seoul
+
+[Timer]
+OnCalendar=*-*-* 04:30:00 Asia/Seoul
+OnCalendar=*-*-* 15:30:00 Asia/Seoul
+Persistent=false
+AccuracySec=1s
+RandomizedDelaySec=0
+Unit=blariyo-collection.service
+
+[Install]
+WantedBy=timers.target

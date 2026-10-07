@@ -1,0 +1,113 @@
+{
+  "install": [
+    {
+      "state": "READY",
+      "sources": [
+        "clien",
+        "dmitory",
+        "dogdrip",
+        "etoland",
+        "fmkorea",
+        "goodgag",
+        "humoruniv",
+        "instiz",
+        "natepann",
+        "ppomppu",
+        "ruliweb",
+        "theqoo",
+        "todayhumor",
+        "yuldo",
+        "youtube-community"
+      ],
+      "sourceConcurrency": 1,
+      "maxSeconds": 7200
+    },
+    {
+      "state": "INSTALLED",
+      "backup": "/opt/blariyo/collector/backups/20261007T120229Z",
+      "sha256": {
+        "run.py": "c61182a5a9820207b92691bbc589367a01afc5c3416163d09d2870a8994f8fa8",
+        "resource_metrics.py": "8f21ee06cd656968ffabb62e8df447d0ace3300c2adb6814dc511b459e74d77f",
+        "metrics_archive.py": "71004665935932052ad683d1e480dd0a1c6e1ce483c46600302cb418364869d9",
+        "metrics-transfer.cjs": "2dae7c71e226102d9f19e72896c323118df0adff014d9e9a5d531c60d8b32bc2"
+      }
+    },
+    {
+      "state": "VERIFIED",
+      "uploaded": [
+        {
+          "key": "metrics/2026/10/07/production-20261007T115011Z-33bfb89d.jsonl",
+          "bytes": 1012,
+          "sha256": "5b635139b32851caac8c5650aa1a295412ed612ab66af4e63472ee301279c4f5"
+        }
+      ],
+      "failed": [],
+      "pending": 0
+    }
+  ],
+  "smoke": [
+    {
+      "source": "goodgag",
+      "startedAt": "2026-10-07T12:03:15.032665+00:00",
+      "minHostAvailableMiB": 1126.8,
+      "exitCode": 0,
+      "oomKilled": false,
+      "finishedAt": "2026-10-07T12:03:33.797463829Z",
+      "runId": "4676a9f6-7f9f-40f7-ba7b-e343651e6819",
+      "reportState": "COMPLETED",
+      "errors": [],
+      "counts": {
+        "pages": 1,
+        "discovered": 1,
+        "fetched": 0,
+        "duplicates": 1,
+        "failures": 0,
+        "unknownDates": 0,
+        "skippedByDate": 0
+      }
+    },
+    {
+      "state": "COMPLETED",
+      "sources": 1,
+      "unattempted": 0
+    },
+    {
+      "metrics": {
+        "file": "/opt/blariyo/collector/metrics/metrics-20261007T120315Z-c82121ce.jsonl",
+        "intervalSeconds": 60,
+        "samples": 1,
+        "sampleErrors": 0,
+        "writeErrors": 0,
+        "state": "RECORDED",
+        "archive": {
+          "state": "VERIFIED",
+          "uploaded": [
+            {
+              "key": "metrics/2026/10/07/production-20261007T120315Z-c82121ce.jsonl",
+              "bytes": 507,
+              "sha256": "21429fc2fc8f23e3914c8074b3440b89a6a7d2bc6762424addbf4848babaf4c0"
+            }
+          ],
+          "failed": [],
+          "pending": 0
+        }
+      },
+      "before": {
+        "posts": 83,
+        "items": 118
+      },
+      "after": {
+        "posts": 83,
+        "items": 118
+      }
+    },
+    {
+      "sha256": {
+        "run.py": "c61182a5a9820207b92691bbc589367a01afc5c3416163d09d2870a8994f8fa8",
+        "resource_metrics.py": "8f21ee06cd656968ffabb62e8df447d0ace3300c2adb6814dc511b459e74d77f",
+        "metrics_archive.py": "71004665935932052ad683d1e480dd0a1c6e1ce483c46600302cb418364869d9",
+        "metrics-transfer.cjs": "2dae7c71e226102d9f19e72896c323118df0adff014d9e9a5d531c60d8b32bc2"
+      }
+    }
+  ]
+}

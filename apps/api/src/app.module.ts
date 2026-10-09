@@ -53,7 +53,7 @@ export class AppModule {
         CommonCodeModule.register(persistence,options),
         DirectRequestModule.register(persistence,options),
         batches,
-        ...(options.discordReview ? [DiscordReviewModule.register(persistence,batches,posts,reviewOptions,options.discordReview)] : []),
+        DiscordReviewModule.register(persistence,batches,posts,reviewOptions,options.discordReview),
         HealthModule.register(persistence, {...options,discordReviewEnabled:Boolean(options.discordReview)}),
         PoliciesModule.register(persistence),
         PublicModule.register(persistence, {

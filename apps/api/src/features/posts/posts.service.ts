@@ -167,7 +167,7 @@ export class PostsService {
         }
       }
       return await this.work.transaction(async () => {
-        reviewFence?.authorize();
+        await reviewFence?.authorize();
         if (command.action === 'publish' || command.action === 'due')
           await this.reviewPublication.assertAllowed(command.params.postId, reviewFence);
         if (key) {

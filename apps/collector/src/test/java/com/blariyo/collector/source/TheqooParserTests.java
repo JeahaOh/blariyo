@@ -9,14 +9,15 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 
 class TheqooParserTests {
-  @Test void observedCdnImagesUseExactConfiguredOriginWithoutAllowingLookalikes() throws Exception {
+  @Test void observedCdnImagesAndUnlistedPublicHostsAreAccepted() throws Exception {
     var source=SourceRegistry.read(java.nio.file.Path.of("ops/reference-sites.sources.example.json").toString()).key("theqoo");
     try(var fixture=getClass().getResourceAsStream("/sites/theqoo.detail.observed.html")) {
       assertNotNull(fixture);
       var parsed=source.adapter().detail(fixture.readAllBytes(),URI.create("https://theqoo.net/hot/4353582713"),source.policy());
       assertEquals(2,parsed.path("imageCandidates").size());
       assertEquals("https://img-cdn.theqoo.net/lOWOyN.jpg",parsed.path("imageCandidates").get(0).path("remoteUrl").asText());
-      assertThrows(CollectorFailure.class,()->source.policy().imagePolicy("https://img-cdn.theqoo.net.evil.invalid/lOWOyN.jpg"));
+      // 2026-10-09 policy: hostname similarity is not an image permission boundary.
+      assertDoesNotThrow(()->source.policy().imagePolicy("https://other-cdn.invalid/one.jpg"));
     }
   }
   @Test void imageLimitIsDistinguishedFromChangedHtmlAndNeverTruncates() {
@@ -62,7 +63,7 @@ class TheqooParserTests {
   }
   @Test void missingBodyUnsafeAttachmentsAndLimitsFailWithoutTruncation() {
     for (var body : java.util.List.of("<script>only script</script>", "<img>",
-        "<img src='https://img.theqoo.net.evil.invalid/one.jpg'>", "<iframe></iframe>",
+        "<img src='https://127.0.0.1/one.jpg'>", "<iframe></iframe>",
         "<p>" + "가".repeat(20001) + "</p>", "<p>문단</p>".repeat(1001),
         "<img src='https://img.theqoo.net/one.jpg'>".repeat(201),
         "<div style=\"background-image:url(https://img.theqoo.net/one.jpg)\"></div>".repeat(201)))

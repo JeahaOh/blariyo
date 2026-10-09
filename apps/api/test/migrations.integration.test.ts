@@ -207,6 +207,8 @@ await test('additive V009/V010 refuse destructive rollback and preserve exact le
     await service.migrate('down');
     assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V011') ready")).ready,true);
     await service.migrate();
+    assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V015') ready")).ready,true);
+    await service.migrate('down'); // Empty auto-publication policy permits V015 rollback.
     assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V014') ready")).ready,true);
     await service.migrate('down'); // Empty Discord transport state permits V014 rollback.
     assert.equal(requiredRow(await source.query("SELECT ops.is_schema_ready('V013') ready")).ready,true);
@@ -215,7 +217,7 @@ await test('additive V009/V010 refuse destructive rollback and preserve exact le
     await service.migrate();
     const stable = (value: unknown) => JSON.stringify(value, (key, entry: unknown) =>
       ['applied_at', 'duration_ms'].includes(key) ? undefined : entry);
-    const restored: unknown = await source.query("SELECT * FROM ops.schema_migration WHERE version<>'V014' ORDER BY version");
+    const restored: unknown = await source.query("SELECT * FROM ops.schema_migration WHERE version NOT IN ('V014','V015') ORDER BY version");
     assert.equal(stable(restored), stable(ledger));
   } finally { await app.close(); await source.destroy(); }
 });

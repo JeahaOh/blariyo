@@ -40,6 +40,7 @@ public final class BatchSourceRuntime {
     return value.asInt();
   }
   public void publish(SourceRegistry registry) {
+    registry=new SourceCollectionSettings(store).effective(registry);
     try(var c=store.connection()) {
       c.setAutoCommit(false);
       try {

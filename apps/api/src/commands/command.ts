@@ -1,3 +1,4 @@
+import { SourceAutoPublishService } from '../features/collection/source-auto-publish.service.js';
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import type { INestApplicationContext } from '@nestjs/common';
@@ -36,9 +37,10 @@ export async function runCommand(command: string | undefined, args: string[], en
     } else {
       app = await NestFactory.createApplicationContext(AppModule.register({ databaseUrl, ...origins, ...adapters(env), ...collectionSettings(env) }), { logger: false, abortOnError: false });
       if (command === 'posts:publish-due') {
-        try { await app.get(PostsService).publishDue(); }
+        try { await app.get(PostsService).publishDue(); console.log(JSON.stringify({event:'SOURCE_AUTO_PUBLISH',counts:await app.get(SourceAutoPublishService).run()})); }
         finally { await app.get(ScheduleAlertsService).deliver(); }
-      } else if (command === 'outbox:run') await app.get(OutboxService).run();
+      } else if (command === 'collection:auto-publish') console.log(JSON.stringify({event:'SOURCE_AUTO_PUBLISH',counts:await app.get(SourceAutoPublishService).run()}));
+      else if (command === 'outbox:run') await app.get(OutboxService).run();
       else if (command === 'cleanup:run') await app.get(CleanupService).run();
       else throw new Error('UNKNOWN_COMMAND');
     }

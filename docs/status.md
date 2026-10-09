@@ -1,6 +1,15 @@
 # M0 현재 진행 상황
 
-- 2026-10-07 Discord 검수 구현 진행: 확정 정책을 기획·기술 정본에 반영하고 문장/이미지 선택·반응 판정·최상위 commit 이후 알림·영속 cleanup 기반을 작성했다. 공통 업무 명령·BATCH·관리자 화면·운영 반영은 진행 대상이며 아직 활성화하지 않았다. [현재 작업](../worklog/2026-10-07/discord-review-implementation/README.md).
+- 2026-10-09 수집처 설정: 수집 URL·수집 여부·자동 발행 select와 DB 기반 배치 수집 설정을 연결한다. 기존 임시 중지를 유지하고 Collector V016·권한 적용이 필요하다. 검증·로컬/운영 반영 상태는 [작업 기록](../worklog/2026-10-09/source-collection-settings/README.md)을 따른다.
+
+- 2026-10-09 관리자 메뉴 분리: `수집처 관리`(`/admin/sources`)에서 목록·자동 발행 상태와 설정을 관리하도록 검수 화면에서 분리했다. 검증·로컬 적용 상태는 [작업 기록](../worklog/2026-10-09/source-management-menu/README.md)을 따른다.
+
+- 2026-10-09 출처별 자동 발행: API 정책·변경 이력, 기본 OFF/OWNER 설정, 신규 run 자동 발행·최종 정책 검사, 관리자 설정 UI를 로컬 구현했다. 검증·운영 적용 여부는 [작업 기록](../worklog/2026-10-09/source-auto-publish/README.md)을 따른다.
+
+- 2026-10-09 이미지 정책 변경: direct 수집의 HTTP·HTTPS/외부 CDN 이미지 허용, 이미지 오류의 글 단위 격리, 이미지 호스트별 영속 대기 코드를 보완했다. 검증 결과와 운영 반영 여부는 [작업 기록](../worklog/2026-10-09/image-source-policy/README.md)을 따른다. 개발 배치 자동 실행은 중지 유지하며 운영 적용은 별도다.
+
+
+- 2026-10-08 Discord 검수 로컬·운영 반영: main `f8067ab`, API V014·Collector V015, 공통 승인/반려/발행 명령·관리자 우선권·비동기 삭제 복구·Java worker를 활성화했다. 실제 운영 수집 1건이 헤드와 본문 4개 메시지로 전송돼 READY/48시간·봇 반응만 존재·미발행을 확인했다. 수집04:30/15:30, 검수07:30/17:00 KST 예약 enabled/active. 첫04:30 정기 실행·사람의 운영 승인/발행·실시간48시간 만료 관찰은 아직 미실행이다. [배포·실연동 근거](../worklog/2026-10-08/discord-review-deployment/README.md).
 
 - 2026-10-06 AI 품질 도구: 공통 lint·검증 입력/결과 기록·정책 약화 검토·선택 Oxlint 규칙을 구현했다. iron-laws는 검토 보조다. 도입 검증과 실제 변경 관찰의 완료 여부는 [현재 실행 기록](../worklog/2026-10-06/ai-quality-adoption/README.md)을 따른다. 원격 CI·배포·운영 수용을 뜻하지 않는다.
 

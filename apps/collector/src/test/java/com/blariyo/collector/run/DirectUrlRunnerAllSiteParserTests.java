@@ -23,7 +23,7 @@ class DirectUrlRunnerAllSiteParserTests {
   @ParameterizedTest
   @MethodSource("manualSites")
   void directUrlWriteDbUsesSiteDetailParserAndStoresRawMediaReport(String sourceKey, String parser, String url, String bodySelector) {
-    var store = mock(BatchStore.class);
+    var store = TestSourceControls.mockStore();
     var objects = mock(BatchObjectStore.class);
     UUID run = UUID.randomUUID(), item = UUID.randomUUID();
     when(store.begin(eq(sourceKey), eq("manual"), eq("WRITE_DB"), eq(1), eq(1), eq(10000L), isNull())).thenReturn(run);

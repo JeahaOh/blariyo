@@ -92,9 +92,9 @@ test('CLI runs bounded child processes and preserves per-source failures and opt
     assert.equal(code, 1, errors);
     assert.equal(errors, '');
     const events = output.trim().split('\n').map(line => JSON.parse(line));
-    assert.deepEqual(events[0].excludedSources, ['disabled']);
-    assert.equal(events[0].sources, 4);
-    assert.equal(events.some(event => event.source === 'disabled'), false);
+    assert.deepEqual(events[0].excludedSources, []);
+    assert.equal(events[0].sources, 5);
+    assert.equal(events.some(event => event.source === 'disabled'), true);
     let active = 0, peak = 0;
     for (const event of events) {
       if (event.event === 'source-started') peak = Math.max(peak, ++active);
@@ -102,28 +102,28 @@ test('CLI runs bounded child processes and preserves per-source failures and opt
     }
     assert.equal(peak, 2);
     assert.equal(active, 0);
-    assert.deepEqual(events.at(-1).results.map(result => result.source).sort(), ['first','fourth','second','third']);
+    assert.deepEqual(events.at(-1).results.map(result => result.source).sort(), ['disabled','first','fourth','second','third']);
     assert.equal(events.at(-1).results.find(result => result.source === 'second').exitCode, 2);
     const filtered = spawnSync(process.execPath, [join(scripts, 'run-batches.mjs'), '--max-items', '10', '--write-db'], {
       cwd:root, env:{...process.env, COLLECTOR_SOURCE_CONFIG:config, COLLECTOR_SOURCE_FILTER:'first,disabled'}, encoding:'utf8',
     });
     assert.equal(filtered.status, 0, filtered.stderr);
     const filteredEvents = filtered.stdout.trim().split('\n').map(line => JSON.parse(line));
-    assert.deepEqual(filteredEvents.at(-1).results, [{source:'first', exitCode:0}]);
+    assert.deepEqual(filteredEvents.at(-1).results, [{source:'first', exitCode:0},{source:'disabled', exitCode:0}]);
     const invalidFilter = spawnSync(process.execPath, [join(scripts, 'run-batches.mjs'), '--write-db'], {
       cwd:root, env:{...process.env, COLLECTOR_SOURCE_CONFIG:config, COLLECTOR_SOURCE_FILTER:'unknown'}, encoding:'utf8',
     });
     assert.equal(invalidFilter.status, 1);
     assert.match(invalidFilter.stderr, /SOURCE_FILTER_INVALID/);
     await writeFile(config, JSON.stringify({disabled:{approved:false,blockedReason:'SOURCE_DISABLED'}}));
-    const empty = spawnSync(process.execPath, [join(scripts, 'run-batches.mjs'), '--write-db'], {
+    const empty = spawnSync(process.execPath, [join(scripts, 'run-batches.mjs'), '--max-items','10','--write-db'], {
       cwd:root, env:{...process.env, COLLECTOR_SOURCE_CONFIG:config}, encoding:'utf8',
     });
     assert.equal(empty.status, 0, empty.stderr);
     const emptyEvents = empty.stdout.trim().split('\n').map(line => JSON.parse(line));
-    assert.equal(emptyEvents[0].sources, 0);
-    assert.deepEqual(emptyEvents.at(-1).results, []);
-    assert.equal(emptyEvents.some(event => event.event === 'source-started'), false);
+    assert.equal(emptyEvents[0].sources, 1);
+    assert.deepEqual(emptyEvents.at(-1).results, [{source:'disabled',exitCode:0}]);
+    assert.equal(emptyEvents.some(event => event.event === 'source-started'), true);
   } finally { await rm(root, {recursive:true, force:true}); }
 });
 

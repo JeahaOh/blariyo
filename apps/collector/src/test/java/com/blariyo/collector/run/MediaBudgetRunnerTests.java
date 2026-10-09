@@ -34,7 +34,7 @@ class MediaBudgetRunnerTests {
     });return transport;
   }
   private BatchStore store() {
-    var store=mock(BatchStore.class);
+    var store=TestSourceControls.mockStore();
     when(store.begin(anyString(),anyString(),anyString(),anyInt(),anyInt(),anyLong(),any())).thenReturn(UUID.randomUUID());
     when(store.claim(any(),anyString(),anyString(),anyString())).thenAnswer(call->UUID.randomUUID());return store;
   }

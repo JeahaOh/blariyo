@@ -125,9 +125,11 @@ public final class OrderedContentParser {
     add(Map.of("type", "TEXT", "text", value));
   }
   private void image(String value, String alt) {
-    String remote = url(value);
+    String remote;
+    try { remote = url(value); }
+    catch (CollectorFailure error) { throw new CollectorFailure(422, "IMAGE_PARSE_FAILED"); }
     policy.imagePolicy(remote).allow(remote);
-    if (length(alt) > 300) throw failed();
+    if (length(alt) > 300) throw new CollectorFailure(422, "IMAGE_PARSE_FAILED");
     if (images.size() == maxImages) {
       throw new CollectorFailure(422, "SOURCE_IMAGE_LIMIT_EXCEEDED");
     }
@@ -173,15 +175,12 @@ public final class OrderedContentParser {
     if (tag.equals("br")) { pending.append('\n'); return; }
     if (tag.equals("img")) {
       flush();
-      String remote = attributeUrl(el, "data-original", "data-original-src", "data-src", "data-lazy-src", "data-url",
-          "data-full", "data-image", "data-echo", "data-srcset", "srcset", "src");
-      policy.imagePolicy(remote).allow(remote);
-      String alt = el.attr("alt");
-      if (length(alt) > 300) throw failed();
-      if (images.size() == maxImages) {
-          throw new CollectorFailure(422, "SOURCE_IMAGE_LIMIT_EXCEEDED");
-      }
-      image(remote, alt);
+      String remote;
+      try {
+        remote = attributeUrl(el, "data-original", "data-original-src", "data-src", "data-lazy-src", "data-url",
+            "data-full", "data-image", "data-echo", "data-srcset", "srcset", "src");
+      } catch (CollectorFailure error) { throw new CollectorFailure(422, "IMAGE_PARSE_FAILED"); }
+      image(remote, el.attr("alt"));
       return;
     }
     var background = CSS_BACKGROUND_URL.matcher(el.attr("style"));

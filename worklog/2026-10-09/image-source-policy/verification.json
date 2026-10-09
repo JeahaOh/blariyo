@@ -1,0 +1,44 @@
+{
+  "verifiedAt": "2026-10-09T17:20:42.156249+09:00",
+  "head": "0bf953383fd100f99ce182d7e1af7ca6011f4be4",
+  "collector": {
+    "suites": 85,
+    "tests": 312,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "readbackTests": 21
+  },
+  "migrationContracts": {
+    "tests": 1,
+    "failures": 0
+  },
+  "relativeLinks": {
+    "checked": 299,
+    "missing": 0
+  },
+  "javaSha256": {
+    "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java": "2f7facfa51f38350832a43fa97db94bdd6455efd178abd05935b697f965575d5",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DirectBatchRunner.java": "7ad6d881d96a37792b93451b938e770cb619bd27d489ca98dfd35e22b788f327",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DirectRequestBudget.java": "456c30af406db7b23ed65ece12d9bc12461cab870fb327d862c14592877fbde9",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DirectUrlRunner.java": "28aaee62a487166ffce4d20c52be00b0e90f2d69a5ef6f3c3099889d3240b273",
+    "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java": "26a3c230e863377a3325791e7e874f11166c1763bb7a6f5fb1da26c13274e6bb",
+    "apps/collector/src/main/java/com/blariyo/collector/source/PinnedHttp.java": "6ae5e4b37b7628a9ace3f06b43efc6a3dbcd8595c5f00da1e111b77d66e55402",
+    "apps/collector/src/main/java/com/blariyo/collector/source/SourcePolicy.java": "6d90442c992aad0d88988a770f316c5cd3fd143a7b4daa9ce4f927a6d1171985",
+    "apps/collector/src/main/java/com/blariyo/collector/source/common/OrderedContentParser.java": "0fbea6e4e28f5372fdfd6478f9c0b35a4e3548d4ae0e17e7c4b10fb245a17538",
+    "apps/collector/src/test/java/com/blariyo/collector/run/DirectBatchRunnerTests.java": "370bb0a19e6b1142f7c86dc11e6ccd6a8f56492fb2e952ac8f9a8610b1ccac78",
+    "apps/collector/src/test/java/com/blariyo/collector/run/ImageFailureReadbackTests.java": "0b885425ef7479eb2be4777ac78fbefb9859da23a200642f55bf598584c2f3fb",
+    "apps/collector/src/test/java/com/blariyo/collector/run/SourceRequestsTests.java": "06cb12216279c63611a7c230ef360b468799690a3c7f015dbbc7469c34a465b9",
+    "apps/collector/src/test/java/com/blariyo/collector/run/TestSourceControls.java": "6cd57913d37a9e87f1859dc961b7b206d76b97c3bbffc9c6fe942c0085abeb60",
+    "apps/collector/src/test/java/com/blariyo/collector/source/PinnedHttpTests.java": "038d51ee1baa78ae70a9c21c089b2982388d9a4eba6065d1567778bf28bed35c",
+    "apps/collector/src/test/java/com/blariyo/collector/source/SiteAdapterTests.java": "3a2bf61d5d10c946552928e248eb6e6069f50df1ab76a0804b08bcf461cfae97",
+    "apps/collector/src/test/java/com/blariyo/collector/source/TheqooParserTests.java": "55c99fe988dfd7162d18bcba0d1c85949f3de1e4196b369d8b6695151e6406a2",
+    "apps/collector/src/test/java/com/blariyo/collector/run/PublicImageReadbackTests.java": "34e6dd4761d8f61aae9dc39f80400423cfb482d20140f6f7e0b7946c5105440e",
+    "apps/collector/src/test/java/com/blariyo/collector/source/PublicImagePolicyTests.java": "021ba4b728eec46d7ae219ecef34e8b9a5588250838fb6df1641d4455e815001"
+  },
+  "jarSha256": {
+    "apps/collector/build/libs/blariyo-collector-0.1.0.jar": "e059c7244f1d134895e9acc822834eb8b2426caec3c76f677c899386e86076f9"
+  },
+  "productionDeployed": false,
+  "localBatchEnabled": false
+}

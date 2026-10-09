@@ -62,7 +62,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE blariyo_migrator IN SCHEMA content,legal GRANT
 DO $$
 DECLARE t text;
 BEGIN
-  FOREACH t IN ARRAY ARRAY['source','candidate','candidate_image','collector_receipt','source_request_budget','source_request_reservation','collector_operational_event','source_discovery_policy','batch_review','batch_review_request','web_collection_request','web_collection_request_key','batch_review_control','discord_review_delivery','discord_review_part','batch_review_command','discord_review_scan_run'] LOOP
+  FOREACH t IN ARRAY ARRAY['batch_source_publish_policy','batch_source_publish_policy_change','source','candidate','candidate_image','collector_receipt','source_request_budget','source_request_reservation','collector_operational_event','source_discovery_policy','batch_review','batch_review_request','web_collection_request','web_collection_request_key','batch_review_control','discord_review_delivery','discord_review_part','batch_review_command','discord_review_scan_run'] LOOP
     IF to_regclass('collect.'||t) IS NOT NULL THEN
       EXECUTE format('GRANT SELECT,INSERT,UPDATE,DELETE ON collect.%I TO blariyo_app',t);
     END IF;
@@ -72,12 +72,12 @@ BEGIN
       EXECUTE format('GRANT USAGE,SELECT ON SEQUENCE collect.%I TO blariyo_app',t);
     END IF;
   END LOOP;
-  FOREACH t IN ARRAY ARRAY['batch_source','batch_run','batch_item','batch_media','batch_failure','batch_report','batch_checkpoint','batch_retention','batch_dedup_key','batch_input_projection','batch_runtime_projection'] LOOP
+  FOREACH t IN ARRAY ARRAY['batch_source_collection_setting','batch_source_collection_setting_change','batch_source','batch_run','batch_item','batch_media','batch_failure','batch_report','batch_checkpoint','batch_retention','batch_dedup_key','batch_input_projection','batch_runtime_projection'] LOOP
     IF to_regclass('collect.'||t) IS NOT NULL THEN
       EXECUTE format('GRANT SELECT ON collect.%I TO blariyo_app',t);
     END IF;
   END LOOP;
-  FOREACH t IN ARRAY ARRAY['collect.delete_failed_item(uuid,bigint,bigint,text)','collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()'] LOOP
+  FOREACH t IN ARRAY ARRAY['collect.delete_failed_item(uuid,bigint,bigint,text)','collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()','collect.set_source_collection_setting(text,boolean,integer,text)'] LOOP
     IF to_regprocedure(t) IS NOT NULL THEN
       EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO blariyo_app',t);
     END IF;
@@ -96,11 +96,14 @@ BEGIN
       GRANT DELETE ON collect.batch_source_runtime TO blariyo_batch;
       GRANT SELECT ON collect.batch_runtime_projection TO blariyo_batch;
     END IF;
+    IF to_regclass('collect.batch_source_collection_setting') IS NOT NULL THEN
+      GRANT SELECT ON collect.batch_source_collection_setting TO blariyo_batch;
+    END IF;
     -- Only media replacement needs DELETE; lifecycle rows remain immutable.
     IF to_regclass('collect.batch_media') IS NOT NULL THEN
       GRANT DELETE ON collect.batch_media TO blariyo_batch;
     END IF;
-    FOREACH t IN ARRAY ARRAY['collect.assert_source_owner(text)','collect.assert_run_owner(uuid)','collect.assert_item_live(uuid)','collect.lookup_dedup(text,text,text)','collect.purge_authorized(text,uuid)','collect.retention_backlog()','collect.assert_run_payload_live(uuid)','collect.complete_confirmation(uuid,text,text,text,uuid)','collect.cancel_confirmation(uuid,text,text,text)','collect.lock_collection_writer()','collect.unlock_collection_writer()','collect.claim_web_requests(integer)','collect.ack_web_request(uuid,uuid)','collect.cleanup_input_receipts()','collect.web_retry_accessible(uuid)','collect.reserve_batch_request(text,integer,bigint)','collect.defer_batch_request(text,bigint)','collect.retry_image(uuid,text)','collect.prepare_image_retry(text,text)','collect.discard_image_failure(uuid)'] LOOP
+    FOREACH t IN ARRAY ARRAY['collect.assert_source_owner(text)','collect.assert_run_owner(uuid)','collect.assert_item_live(uuid)','collect.lookup_dedup(text,text,text)','collect.purge_authorized(text,uuid)','collect.retention_backlog()','collect.assert_run_payload_live(uuid)','collect.complete_confirmation(uuid,text,text,text,uuid)','collect.cancel_confirmation(uuid,text,text,text)','collect.lock_collection_writer()','collect.unlock_collection_writer()','collect.claim_web_requests(integer)','collect.ack_web_request(uuid,uuid)','collect.cleanup_input_receipts()','collect.web_retry_accessible(uuid)','collect.reserve_batch_request(text,integer,bigint)','collect.defer_batch_request(text,bigint)','collect.retry_image(uuid,text)','collect.prepare_image_retry(text,text)','collect.discard_image_failure(uuid)','collect.sync_source_collection_setting(text,text,boolean,boolean,text)'] LOOP
       IF to_regprocedure(t) IS NOT NULL THEN
         EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO blariyo_batch',t);
       END IF;

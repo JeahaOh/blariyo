@@ -7,7 +7,7 @@ import { requiredRow } from './rows.js';
 export class TypeOrmHealthRepository extends HealthRepository {
  constructor(@Inject(DatabaseContext) private readonly database:DatabaseContext){super();}
  async commonCodesReady():Promise<boolean> {
-  const schema=requiredRow(await this.database.manager.query("SELECT (ops.is_schema_ready('V014') OR ops.is_schema_ready('V013')) AND to_regclass('content.common_code_group') IS NOT NULL AND to_regclass('content.common_code') IS NOT NULL AS ready"));
+  const schema=requiredRow(await this.database.manager.query("SELECT ((ops.is_schema_ready('V015') OR ops.is_schema_ready('V014')) OR ops.is_schema_ready('V013')) AND to_regclass('content.common_code_group') IS NOT NULL AND to_regclass('content.common_code') IS NOT NULL AS ready"));
   if(!schema.ready)return false;
   return requiredRow(await this.database.manager.query(`SELECT
     has_table_privilege(current_user,'content.common_code_group','SELECT') AND has_table_privilege(current_user,'content.common_code_group','INSERT') AND has_table_privilege(current_user,'content.common_code_group','UPDATE')
@@ -15,14 +15,14 @@ export class TypeOrmHealthRepository extends HealthRepository {
  }
  async ready(collectionEnabled:boolean,batchEnabled=false,directEnabled=false,discordEnabled=false):Promise<boolean> {
   if(discordEnabled){
-    const ready=requiredRow(await this.database.manager.query(`SELECT ops.is_schema_ready('V014') AND NOT EXISTS(
+    const ready=requiredRow(await this.database.manager.query(`SELECT (ops.is_schema_ready('V015') OR ops.is_schema_ready('V014')) AND NOT EXISTS(
       SELECT 1 FROM unnest(ARRAY['batch_review_control','discord_review_delivery','discord_review_part','batch_review_command','discord_review_scan_run']) t
       WHERE to_regclass('collect.'||t) IS NULL OR NOT has_table_privilege(current_user,'collect.'||t,'SELECT,INSERT,UPDATE'))
       AND has_sequence_privilege(current_user,'collect.discord_review_delivery_review_number_seq','USAGE,SELECT') AS ready`));
     if(!ready.ready)return false;
   }
   if(directEnabled){
-    const schema=requiredRow(await this.database.manager.query("SELECT ((((ops.is_schema_ready('V014') OR ops.is_schema_ready('V013')) OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011')) OR ops.is_schema_ready('V010')) AND to_regclass('collect.batch_runtime_projection') IS NOT NULL AND to_regclass('collect.batch_input_projection') IS NOT NULL AS ready"));
+    const schema=requiredRow(await this.database.manager.query("SELECT (((((ops.is_schema_ready('V015') OR ops.is_schema_ready('V014')) OR ops.is_schema_ready('V013')) OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011')) OR ops.is_schema_ready('V010')) AND to_regclass('collect.batch_runtime_projection') IS NOT NULL AND to_regclass('collect.batch_input_projection') IS NOT NULL AS ready"));
     if(!schema.ready)return false;
     const access=requiredRow(await this.database.manager.query(`SELECT has_table_privilege(current_user,'collect.web_collection_request','SELECT,INSERT')
       AND has_table_privilege(current_user,'collect.web_collection_request_key','SELECT,INSERT')
@@ -32,12 +32,16 @@ export class TypeOrmHealthRepository extends HealthRepository {
     if(!access.ready)return false;
   }
   const version:unknown = await this.database.manager.query(
-    "SELECT (((ops.is_schema_ready('V014') OR ops.is_schema_ready('V013')) OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011')) OR ops.is_schema_ready('V010') OR ops.is_schema_ready('V009') OR ops.is_schema_ready('V008') OR ops.is_schema_ready('V007') OR (NOT $1::boolean AND (ops.is_schema_ready('V006') OR ops.is_schema_ready('V005') OR ops.is_schema_ready('V004') OR ops.is_schema_ready('V003'))) AS ready",
+    "SELECT ((((ops.is_schema_ready('V015') OR ops.is_schema_ready('V014')) OR ops.is_schema_ready('V013')) OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011')) OR ops.is_schema_ready('V010') OR ops.is_schema_ready('V009') OR ops.is_schema_ready('V008') OR ops.is_schema_ready('V007') OR (NOT $1::boolean AND (ops.is_schema_ready('V006') OR ops.is_schema_ready('V005') OR ops.is_schema_ready('V004') OR ops.is_schema_ready('V003'))) AS ready",
     [collectionEnabled]
   );
   if (!requiredRow(version).ready) return false;
   if (batchEnabled) {
-    const batch=requiredRow(await this.database.manager.query(`SELECT (((ops.is_schema_ready('V014') OR ops.is_schema_ready('V013')) OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011'))
+    const policy=requiredRow(await this.database.manager.query(`SELECT ops.is_schema_ready('V015') AND NOT EXISTS(
+      SELECT 1 FROM unnest(ARRAY['batch_source_publish_policy','batch_source_publish_policy_change','batch_review_control','batch_review_command']) t
+      WHERE to_regclass('collect.'||t) IS NULL OR NOT has_table_privilege(current_user,'collect.'||t,'SELECT,INSERT,UPDATE')) AS ready`));
+    if (!policy.ready) return false;
+    const batch=requiredRow(await this.database.manager.query(`SELECT ((((ops.is_schema_ready('V015') OR ops.is_schema_ready('V014')) OR ops.is_schema_ready('V013')) OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011'))
       AND to_regclass('collect.batch_item') IS NOT NULL AND to_regclass('collect.batch_media') IS NOT NULL
       AND to_regclass('collect.batch_retention') IS NOT NULL AS ready`));
     if (!batch.ready) return false;

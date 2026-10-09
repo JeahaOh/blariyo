@@ -1,0 +1,188 @@
+{
+  "mainSha": "f8067abd757d404599d6f00e00239a7ab3afff43",
+  "apiImage": "ghcr.io/jeahaoh/blariyo-api@sha256:f1f6acc002acf787cf0bb4e3be73c209e7d9b42533c1dc06d1ceaded1f80879f",
+  "webImage": "ghcr.io/jeahaoh/blariyo-web@sha256:dce4fea35e21395b9ba61c432966d97b9e6f9c585fec43f58edb41213ef0ebca",
+  "previousReleasePath": "/opt/blariyo/application/release-b57724d-schema-v013-20261007T111102Z",
+  "releasePath": "/opt/blariyo/application/release-f8067ab-discord-v014-20261007T150233Z",
+  "stagedAt": "2026-10-07T15:02:33.672858+00:00",
+  "phase": "DEPLOYED",
+  "timersStoppedAt": "2026-10-07T15:02:38.924470+00:00",
+  "appsStoppedAt": "2026-10-07T15:02:39.514818+00:00",
+  "before": {
+    "posts": 83,
+    "postDigest": "28c3bfbeda99f6abad99d9b569f1f3e5",
+    "items": 118,
+    "itemDigest": "4a2ca9877e779cd9c9748aa3b9a4ed76",
+    "reviewDigest": "cf2d29464417893b5eb3c5acb1df666e"
+  },
+  "after": {
+    "posts": 83,
+    "postDigest": "28c3bfbeda99f6abad99d9b569f1f3e5",
+    "items": 118,
+    "itemDigest": "4a2ca9877e779cd9c9748aa3b9a4ed76",
+    "reviewDigest": "cf2d29464417893b5eb3c5acb1df666e"
+  },
+  "migrationFinishedAt": "2026-10-07T15:02:41.485838+00:00",
+  "appsHealthyAt": "2026-10-07T15:02:53.611819+00:00",
+  "startHelperBackup": "/opt/blariyo/operations/start-application.py.20261007T150254Z",
+  "timersResumedAt": "2026-10-07T15:02:54.118251+00:00",
+  "reviewEnabledAt": "2026-10-07T15:03:04.359364+00:00",
+  "backup": {
+    "format": 1,
+    "key": "db/daily/20261007T142551Z-6da6293a92ff.dump.age",
+    "createdAt": "2026-10-07T14:25:51.669162+00:00",
+    "postgresMajor": 18,
+    "sha256": "aefcd65c789457c8582061f9fa836fdd3dc889c9fe93f15a03311841c0f04a48",
+    "bytes": 552761,
+    "retentionDays": 7,
+    "spool": "/opt/blariyo/backup/spool/20261007T142551Z-6da6293a92ff"
+  },
+  "publicSamples": [
+    {
+      "at": "2026-10-07T15:02:38.909771+00:00",
+      "code": "502",
+      "exit": 0,
+      "ms": 793
+    },
+    {
+      "at": "2026-10-07T15:02:40.703084+00:00",
+      "code": "502",
+      "exit": 0,
+      "ms": 99
+    },
+    {
+      "at": "2026-10-07T15:02:41.804801+00:00",
+      "code": "502",
+      "exit": 0,
+      "ms": 475
+    },
+    {
+      "at": "2026-10-07T15:02:43.280560+00:00",
+      "code": "502",
+      "exit": 0,
+      "ms": 966
+    },
+    {
+      "at": "2026-10-07T15:02:45.246379+00:00",
+      "code": "502",
+      "exit": 0,
+      "ms": 66
+    },
+    {
+      "at": "2026-10-07T15:02:46.312413+00:00",
+      "code": "502",
+      "exit": 0,
+      "ms": 90
+    },
+    {
+      "at": "2026-10-07T15:02:47.402911+00:00",
+      "code": "502",
+      "exit": 0,
+      "ms": 61
+    },
+    {
+      "at": "2026-10-07T15:02:48.463983+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 213
+    },
+    {
+      "at": "2026-10-07T15:02:49.677151+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 69
+    },
+    {
+      "at": "2026-10-07T15:02:50.746066+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 69
+    },
+    {
+      "at": "2026-10-07T15:02:51.815361+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 64
+    },
+    {
+      "at": "2026-10-07T15:02:52.879798+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 65
+    },
+    {
+      "at": "2026-10-07T15:02:53.944705+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 153
+    },
+    {
+      "at": "2026-10-07T15:02:55.097764+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 465
+    },
+    {
+      "at": "2026-10-07T15:02:56.563329+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 548
+    },
+    {
+      "at": "2026-10-07T15:02:58.111884+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 87
+    },
+    {
+      "at": "2026-10-07T15:02:59.199363+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 86
+    },
+    {
+      "at": "2026-10-07T15:03:00.285985+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 89
+    },
+    {
+      "at": "2026-10-07T15:03:01.375194+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 125
+    },
+    {
+      "at": "2026-10-07T15:03:02.500595+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 202
+    },
+    {
+      "at": "2026-10-07T15:03:03.702458+00:00",
+      "code": "400",
+      "exit": 0,
+      "ms": 112
+    }
+  ],
+  "runtime": [
+    {
+      "name": "blariyo-app-api-1",
+      "image": "ghcr.io/jeahaoh/blariyo-api@sha256:f1f6acc002acf787cf0bb4e3be73c209e7d9b42533c1dc06d1ceaded1f80879f",
+      "health": "healthy",
+      "discordFlags": [
+        "DISCORD_REVIEW_ENABLED=true"
+      ]
+    },
+    {
+      "name": "blariyo-app-web-1",
+      "image": "ghcr.io/jeahaoh/blariyo-web@sha256:dce4fea35e21395b9ba61c432966d97b9e6f9c585fec43f58edb41213ef0ebca",
+      "health": "healthy",
+      "discordFlags": [
+        "NUXT_DISCORD_REVIEW_ENABLED=true"
+      ]
+    }
+  ],
+  "timers": "NEXT                            LEFT LAST                         PASSED UNIT                              ACTIVATES\nWed 2026-10-07 15:03:30 UTC      10s Wed 2026-10-07 15:02:30 UTC 49s ago blariyo-outbox.timer              blariyo-outbox.service\nWed 2026-10-07 15:04:00 UTC      40s Wed 2026-10-07 15:03:00 UTC 19s ago blariyo-publish.timer             blariyo-publish.service\nWed 2026-10-07 15:04:16 UTC      56s Wed 2026-10-07 15:03:04 UTC 15s ago blariyo-discord-review.timer      blariyo-discord-review.service\nWed 2026-10-07 18:00:21 UTC 2h 57min Tue 2026-10-06 18:01:56 UTC 21h ago blariyo-nightly-main-deploy.timer blariyo-nightly-main-deploy.service\nWed 2026-10-07 18:30:27 UTC 3h 27min Wed 2026-10-07 06:30:19 UTC  8h ago blariyo-backup.timer              blariyo-backup.service\nWed 2026-10-07 19:30:00 UTC 4h 26min -                                 - blariyo-collection.timer          blariyo-collection.service\nWed 2026-10-07 22:30:00 UTC       7h -                                 - blariyo-discord-review-scan.timer blariyo-discord-review-scan.service\nThu 2026-10-08 00:05:00 UTC       9h Wed 2026-10-07 00:05:00 UTC 14h ago blariyo-log-retention.timer       blariyo-log-retention.service\nThu 2026-10-08 03:15:00 UTC      12h Wed 2026-10-07 03:15:00 UTC 11h ago blariyo-cleanup.timer             blariyo-cleanup.service\n\n9 timers listed.\n",
+  "reviewService": "Result=success\nExecMainStatus=0\nActiveState=inactive\n"
+}

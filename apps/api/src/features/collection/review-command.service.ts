@@ -1,4 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { SourcePublishPolicyRepository } from './source-publish-policy.repository.js';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { UnitOfWork } from '../../shared/unit-of-work.js';
 import { ApiError, fail } from '../../shared/errors.js';
 import { BatchReviewService, type PreparedBatchDraft } from './batch-review.service.js';
@@ -20,8 +21,16 @@ export class ReviewCommandService {
     @Inject(ReviewAuthority) private readonly authority: ReviewAuthority,
     @Inject(DiscordCleanupDispatcher) private readonly cleanup: DiscordCleanupDispatcher,
     @Inject(PostsService) private readonly posts: PostsService,
-    @Inject(PostsRepository) private readonly postRepository: PostsRepository) {}
+    @Inject(PostsRepository) private readonly postRepository: PostsRepository,
+    @Optional() @Inject(SourcePublishPolicyRepository) private readonly policies?: SourcePublishPolicyRepository) {}
 
+  private async authorize(command: ReviewCommandRecord) {
+    this.authority.assertCommand(command);
+    if (command.origin === 'AUTO') {
+      if (!this.policies) fail(503,'AUTO_PUBLISH_POLICY_REQUIRED');
+      await this.policies.assertEligible(command.itemId,command.requestBody);
+    }
+  }
   private async cleanupAfterCommit(itemId: string) {
     for (const deliveryId of await this.commands.enqueueCleanup(itemId))
       this.work.afterCommit(() => this.cleanup.notify(deliveryId));
@@ -34,7 +43,7 @@ export class ReviewCommandService {
     return this.work.transaction(async () => {
       const accepted = await this.commands.accept(input);
       if (!accepted.created) return accepted.command;
-      this.authority.assertCommand(accepted.command);
+      await this.authorize(accepted.command);
       const current = await this.batches.commandSnapshot(input.itemId);
       if (current.item.state !== 'FETCHED' || Number(current.item.version) !== input.itemVersion || current.digest.toString('hex') !== input.contentDigest)
         fail(409,'BATCH_ITEM_VERSION_CONFLICT');
@@ -69,7 +78,7 @@ export class ReviewCommandService {
         if (!draftClaim?.leaseToken) fail(409,'BATCH_REVIEW_LEASE_LOST');
         command = await this.commands.progress(command.id,command.epoch,draftClaim.leaseToken,'APPROVED','DRAFTED',linkedDraft,updated.lockVersion);
       }
-      if (input.origin === 'ADMIN' || input.action === 'REJECT') await this.cleanupAfterCommit(input.itemId);
+      if (input.origin === 'ADMIN' || input.origin === 'AUTO' || input.action === 'REJECT') await this.cleanupAfterCommit(input.itemId);
       return command;
     });
   }
@@ -83,7 +92,7 @@ export class ReviewCommandService {
     const lease = claimed.leaseToken;
     let prepared: PreparedBatchDraft | undefined;
     try {
-      this.authority.assertCommand(claimed);
+      await this.authorize(claimed);
       if (claimed.stage === 'APPROVED' || claimed.stage === 'PREPARING') {
         const boardSlug = claimed.requestBody.boardSlug, title = claimed.requestBody.title;
         if (typeof boardSlug !== 'string' || (title !== undefined && typeof title !== 'string')) fail(400,'VALIDATION_FAILED');
@@ -91,7 +100,7 @@ export class ReviewCommandService {
         const ready = prepared;
         return await this.work.transaction(async () => {
           await this.commands.assertActive(id,claimed.epoch,lease);
-          this.authority.assertCommand(claimed);
+          await this.authorize(claimed);
           const current = await this.batches.commandSnapshot(claimed.itemId);
           if (current.digest.toString('hex') !== claimed.contentDigest || current.review?.status !== 'APPROVED' ||
             current.review.lockVersion !== claimed.reviewVersion || current.review.postId !== null) fail(409,'BATCH_REVIEW_VERSION_CONFLICT');
@@ -110,7 +119,7 @@ export class ReviewCommandService {
         if (!currentPost) fail(404,'POST_NOT_FOUND');
         if (currentPost.status !== 'PUBLISHED') await this.posts.command({ action: 'publish',params: { postId: String(claimed.postId) },
           body: { lockVersion: claimed.postVersion,mode: 'IMMEDIATE' } },claimed.actor,`review-publish:${id}`,`review-publish:${id}`,
-        { commandId: id,epoch: claimed.epoch,leaseToken: lease,authorize: () => this.authority.assertCommand(claimed) });
+        { commandId: id,epoch: claimed.epoch,leaseToken: lease,authorize: () => this.authorize(claimed) });
         return await this.work.transaction(async () => {
           await this.commands.assertActive(id,claimed.epoch,lease);
           const post = await this.postRepository.find(String(claimed.postId),true);

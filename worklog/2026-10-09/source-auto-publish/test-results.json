@@ -1,0 +1,63 @@
+{
+  "feature": {
+    "logSha256": "771ae363ace4464e615a62612a4906a698fc7e43e8ca99b5d00dee1ea91f69a1",
+    "summaries": {
+      "tests": "12",
+      "pass": "12",
+      "fail": "0",
+      "skipped": "0",
+      "todo": "0"
+    },
+    "results": []
+  },
+  "browser": {
+    "logSha256": "b34662b1fc7da46fc38dd5dcbbe13c1658455055f091c95904d7a652d6eea93d",
+    "summaries": {
+      "tests": "25",
+      "pass": "25",
+      "fail": "0",
+      "skipped": "0",
+      "todo": "0"
+    },
+    "results": []
+  },
+  "unit": {
+    "logSha256": "e5c47660916bab512882288acdd4eba9cc1545742a689d20f342730af0c6d7a9",
+    "summaries": {
+      "tests": "88",
+      "pass": "88",
+      "fail": "0",
+      "skipped": "0",
+      "todo": "0"
+    },
+    "results": []
+  },
+  "roles": {
+    "logSha256": "e10c5a2f096df98e7c3171c7132fd81587792254d423d8196ff137ad892e5dae",
+    "summaries": {},
+    "results": [
+      "PASS 역할 5개 · SCRAM 접속 · 잘못된 비밀번호/관리자 TCP/다른 DB 차단 · 재실행 덮어쓰기 차단",
+      "PASS 별도 Java batch 계정 수집·중복 skip·본문/image/file/SNS·raw/media/report/checkpoint readback · API/batch 경계",
+      "PASS 실제 API V001–V015 / Collector V001–V015 migration · D02 앱 접수/batch ack/안전 조회 · 앱 draft/publish · trigger 유지 · DDL/ledger/역할 전환 차단",
+      "PASS manual delete role/version/dedup/exact raw-media cleanup and sibling preservation",
+      "PASS retention 전용 역할·교차 접근 거부·dry-run/backup gate·실제 CLI 삭제·게시글 사본 보존",
+      "PASS 향후 table/sequence 권한 · 새 ops table 앱 접근 차단 · backup 읽기 전용(설정 해제 후에도 쓰기 거부)",
+      "PASS backup 계정 dump · 별도 DB restore · 86개 table 전체 행/ledger · 17개 sequence 일치",
+      "PASS DB 역할 검사 완료 — 임시 PostgreSQL·합성 비밀번호 사용, 운영 서버 미변경"
+    ]
+  },
+  "apiAll": {
+    "isolatedPort": 55449,
+    "files": 37,
+    "summary": {
+      "tests": 161,
+      "pass": 161,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "logSha256": "e7f56605606e31d477e33ac1883a05eea83b42497a8b2111e70a8f4d3be0f83b",
+    "ownedDatabaseRemoved": true
+  }
+}

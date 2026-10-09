@@ -48,12 +48,14 @@ public final class DirectUrlRunner {
     var failureDetail=new LinkedHashMap<String,Object>();
     BatchStore.SourceLock lease=null;
     try {
+      if(!options.writeDb()&&store!=null)source=store.collectionSource(source);
       if(!options.writeDb())requests=SourceRequests.controlled(transport,sleeper,options.intervalMs(),source,store,()->{});
       if(!sourceLocked)lease=store.lockSource(source.key());
       if(options.writeDb()) {
         store.registerSource(source.key(),source.config().path("host").asText());
         run=store.begin(source.key(),sourceLocked?"discord":"manual","WRITE_DB",1,1,options.intervalMs(),null);runStarted=true;
         started.accept(run);
+        source=store.collectionSource(source);
         UUID activeRun=run;
         requests=SourceRequests.controlled(transport,sleeper,options.intervalMs(),source,store,()->store.assertRunLive(activeRun));
       }
@@ -139,7 +141,7 @@ public final class DirectUrlRunner {
   private void storeAsset(SourcePolicy policy, BatchStore store, UUID run, UUID item, int position, String kind, String remoteUrl, boolean requireImage) {
     URI remote = URI.create(remoteUrl);
 
-    var response = fetchAsset(remote, policy.imagePolicy(remote.toString()));
+    var response = fetchAsset(remote, requireImage ? policy.imagePolicy(remote.toString()) : policy.attachmentPolicy(remote.toString()));
     String contentType = requireImage ? SourceImageType.detect(response.bytes(), response.contentType()) : response.contentType();
     if (requireImage && !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) throw new CollectorFailure(415, "SOURCE_NOT_IMAGE");
     String key = "collect/media/" + run + "/" + item + "/" + position;

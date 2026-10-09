@@ -19,7 +19,7 @@ function strings(value: unknown): string[] {
 }
 function record(row: Record<string, unknown>): ReviewCommandRecord {
   const origin = row.origin, action = row.action, stage = row.stage;
-  if ((origin !== 'ADMIN' && origin !== 'DISCORD' && origin !== 'SYSTEM') ||
+  if ((origin !== 'ADMIN' && origin !== 'DISCORD' && origin !== 'SYSTEM' && origin !== 'AUTO') ||
     (action !== 'APPROVE_PUBLISH' && action !== 'REJECT') || typeof stage !== 'string' || !Object.hasOwn(transitions, stage) ||
     !Buffer.isBuffer(row.content_digest) || !Buffer.isBuffer(row.selection_digest)) throw new Error('REVIEW_RECORD_INVALID');
   // Narrow through a runtime-validated list instead of trusting arbitrary database JSON.
@@ -48,6 +48,8 @@ export class TypeOrmReviewCommandRepository extends ReviewCommandRepository {
     await this.db.manager.query('INSERT INTO collect.batch_review_control(item_id) VALUES($1) ON CONFLICT DO NOTHING', [input.itemId]);
     const control = requiredRow(await this.db.manager.query('SELECT * FROM collect.batch_review_control WHERE item_id=$1 FOR UPDATE', [input.itemId]));
     const previous = typeof control.active_command_id === 'string' ? await this.find(control.active_command_id) : null;
+    if (input.origin === 'AUTO' && rows(await this.db.manager.query('SELECT 1 FROM collect.discord_review_delivery WHERE item_id=$1',[input.itemId])).length) fail(409,'BATCH_REVIEW_SUPERSEDED');
+    if (input.origin === 'AUTO' && (previous || control.authority === 'ADMIN' || input.reviewVersion !== 0)) fail(409,'BATCH_REVIEW_SUPERSEDED');
     if (input.origin !== 'ADMIN' && (control.authority === 'ADMIN' || Number(control.decision_epoch) !== input.expectedEpoch))
       fail(409,'BATCH_REVIEW_SUPERSEDED');
     if (input.origin !== 'ADMIN' && typeof control.active_command_id === 'string') {
@@ -67,7 +69,7 @@ export class TypeOrmReviewCommandRepository extends ReviewCommandRepository {
     await this.db.manager.query(`UPDATE collect.batch_review_control SET authority=$2,decision_epoch=$3,active_command_id=$4,
       updated_at=clock_timestamp() WHERE item_id=$1`, [input.itemId,input.origin,epoch,id]);
     return { command: result, created: true,
-      preemptedDiscordReviewVersion: previous?.origin === 'DISCORD' ? previous.reviewVersion : null };
+      preemptedDiscordReviewVersion: previous && ['DISCORD','AUTO'].includes(previous.origin) ? previous.reviewVersion : null };
   }
   async replay(actor: string, key: string, hash: string) {
     const row = rows(await this.db.manager.query('SELECT * FROM collect.batch_review_command WHERE actor=$1 AND request_key=$2',[actor,key]))[0];

@@ -1,0 +1,175 @@
+{
+  "observedAt": "2026-10-09T14:07:02.442Z",
+  "queryMs": 8,
+  "sources": 21,
+  "withRuns": 17,
+  "withCollected": 16,
+  "withFailures": 7,
+  "settingsCounts": {
+    "publication_settings": 0,
+    "collection_changes": 0
+  },
+  "items": [
+    {
+      "sourceKey": "theqoo",
+      "lastCollectedAt": "2026-10-09T12:02:41.651Z",
+      "lastRunAt": "2026-10-09T11:59:55.247Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "ppomppu",
+      "lastCollectedAt": null,
+      "lastRunAt": null,
+      "lastRunState": null,
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "yuldo",
+      "lastCollectedAt": "2026-10-09T06:58:14.805Z",
+      "lastRunAt": "2026-10-09T06:56:21.529Z",
+      "lastRunState": "BLOCKED",
+      "lastFailureCodes": [
+        "SOURCE_NOT_ALLOWED"
+      ]
+    },
+    {
+      "sourceKey": "inven",
+      "lastCollectedAt": "2026-10-06T11:26:32.041Z",
+      "lastRunAt": "2026-10-06T11:24:27.739Z",
+      "lastRunState": "PARTIAL",
+      "lastFailureCodes": [
+        "PARSE_FAILED"
+      ]
+    },
+    {
+      "sourceKey": "dogdrip",
+      "lastCollectedAt": "2026-10-09T06:43:07.453Z",
+      "lastRunAt": "2026-10-09T06:30:18.532Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "ruliweb",
+      "lastCollectedAt": "2026-10-09T06:52:41.590Z",
+      "lastRunAt": "2026-10-09T06:48:53.223Z",
+      "lastRunState": "BLOCKED",
+      "lastFailureCodes": [
+        "SOURCE_URL_INVALID"
+      ]
+    },
+    {
+      "sourceKey": "clien",
+      "lastCollectedAt": "2026-10-09T06:30:32.602Z",
+      "lastRunAt": "2026-10-09T06:30:18.423Z",
+      "lastRunState": "BLOCKED",
+      "lastFailureCodes": [
+        "SOURCE_NOT_ALLOWED"
+      ]
+    },
+    {
+      "sourceKey": "goodgag",
+      "lastCollectedAt": "2026-10-09T06:37:00.771Z",
+      "lastRunAt": "2026-10-09T06:31:17.489Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "natepann",
+      "lastCollectedAt": "2026-10-09T06:51:05.102Z",
+      "lastRunAt": "2026-10-09T06:48:14.100Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "dmitory",
+      "lastCollectedAt": "2026-10-09T06:48:09.867Z",
+      "lastRunAt": "2026-10-09T06:30:18.960Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "bobaedream",
+      "lastCollectedAt": "2026-10-06T11:14:01.971Z",
+      "lastRunAt": "2026-10-06T11:10:33.571Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "humoruniv",
+      "lastCollectedAt": "2026-10-09T06:48:47.060Z",
+      "lastRunAt": "2026-10-09T06:37:04.480Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "etoland",
+      "lastCollectedAt": "2026-10-06T11:17:46.226Z",
+      "lastRunAt": "2026-10-09T06:30:42.858Z",
+      "lastRunState": "FAILED",
+      "lastFailureCodes": [
+        "PARSE_FAILED"
+      ]
+    },
+    {
+      "sourceKey": "instiz",
+      "lastCollectedAt": "2026-10-09T06:56:31.905Z",
+      "lastRunAt": "2026-10-09T06:43:11.879Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "arcalive",
+      "lastCollectedAt": "2026-10-06T11:23:15.636Z",
+      "lastRunAt": "2026-10-06T11:10:33.578Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "fmkorea",
+      "lastCollectedAt": null,
+      "lastRunAt": null,
+      "lastRunState": null,
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "todayhumor",
+      "lastCollectedAt": "2026-10-09T11:59:53.791Z",
+      "lastRunAt": "2026-10-09T11:59:27.560Z",
+      "lastRunState": "COMPLETED",
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "dcinside",
+      "lastCollectedAt": null,
+      "lastRunAt": "2026-10-06T11:10:54.728Z",
+      "lastRunState": "FAILED",
+      "lastFailureCodes": [
+        "BATCH_OWNER_LOST"
+      ]
+    },
+    {
+      "sourceKey": "youtube-community",
+      "lastCollectedAt": null,
+      "lastRunAt": null,
+      "lastRunState": null,
+      "lastFailureCodes": []
+    },
+    {
+      "sourceKey": "mlbpark",
+      "lastCollectedAt": "2026-10-06T11:29:14.030Z",
+      "lastRunAt": "2026-10-06T11:26:48.128Z",
+      "lastRunState": "PARTIAL",
+      "lastFailureCodes": [
+        "PARSE_FAILED"
+      ]
+    },
+    {
+      "sourceKey": "pgr21",
+      "lastCollectedAt": null,
+      "lastRunAt": null,
+      "lastRunState": null,
+      "lastFailureCodes": []
+    }
+  ]
+}

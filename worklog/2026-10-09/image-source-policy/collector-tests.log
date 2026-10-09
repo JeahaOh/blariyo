@@ -1,0 +1,37 @@
+Picked up JAVA_TOOL_OPTIONS: -XX:+EnableDynamicAgentLoading
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+Invalid Java installation found at '/Library/Java/JavaVirtualMachines/jdk1.7.0_80.jdk/Contents/Home' (MacOS java_home) auto-detected. It will be re-checked in the next build. If the configuration cache is enabled, the re-check will happen only after the cache is invalidated. This might have performance impact if it keeps failing. Run the 'javaToolchains' task for more details.
+Invalid Java installation found at '/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home' (MacOS java_home) auto-detected. It will be re-checked in the next build. If the configuration cache is enabled, the re-check will happen only after the cache is invalidated. This might have performance impact if it keeps failing. Run the 'javaToolchains' task for more details.
+
+> Task :compileJava
+Caught exception: Could not start the FSEvents stream: /Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :cyclonedxDirectBom
+[CycloneDX] Invalid Git URL identified from environment, ignoring it
+
+> Task :cyclonedxBom
+[CycloneDX] Invalid Git URL identified from environment, ignoring it
+
+> Task :processResources
+> Task :classes
+
+> Task :compileTestJava
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :processTestResources
+> Task :testClasses
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :test
+Picked up JAVA_TOOL_OPTIONS: -XX:+EnableDynamicAgentLoading
+
+[Incubating] Problems report is available at: file:///Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 3m 2s
+7 actionable tasks: 7 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+{"state":"PASSED","suites":85,"tests":312,"failures":0,"errors":0,"skipped":0,"readbackTests":21}

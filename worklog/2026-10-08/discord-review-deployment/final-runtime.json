@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-07T15:05:48.450184+00:00",
+  "postDeploymentBackup": {
+    "format": 1,
+    "key": "db/daily/20261007T150526Z-e7d77784a725.dump.age",
+    "createdAt": "2026-10-07T15:05:26.360220+00:00",
+    "postgresMajor": 18,
+    "sha256": "bc5baab752bae0204a67c6cef24657893051b359327cb9f40d2664540c65685b",
+    "bytes": 582233,
+    "retentionDays": 7,
+    "spool": "/opt/blariyo/backup/spool/20261007T150526Z-e7d77784a725"
+  },
+  "backupService": "Result=success\nExecMainStatus=0\n",
+  "reviewService": "Result=success\nExecMainStatus=0\n",
+  "timers": {
+    "blariyo-collection": "NextElapseUSecRealtime=Wed 2026-10-07 19:30:00 UTC\nNextElapseUSecMonotonic=0\nActiveState=active\nUnitFileState=enabled\n",
+    "blariyo-collectionConfig": "# /etc/systemd/system/blariyo-collection.timer\n[Unit]\nDescription=Blariyo collection at 04:30 and 15:30 Asia/Seoul\n\n[Timer]\nOnCalendar=*-*-* 04:30:00 Asia/Seoul\nOnCalendar=*-*-* 15:30:00 Asia/Seoul\nPersistent=false\nAccuracySec=1s\nRandomizedDelaySec=0\nUnit=blariyo-collection.service\n\n[Install]\nWantedBy=timers.target\n",
+    "blariyo-discord-review": "NextElapseUSecRealtime=\nNextElapseUSecMonotonic=2w 5d 1h 4.718599s\nActiveState=active\nUnitFileState=enabled\n",
+    "blariyo-discord-reviewConfig": "# /etc/systemd/system/blariyo-discord-review.timer\n[Unit]\nDescription=Blariyo Discord review maintenance every minute\n\n[Timer]\nOnBootSec=90s\nOnUnitInactiveSec=60s\nAccuracySec=5s\nUnit=blariyo-discord-review.service\n\n[Install]\nWantedBy=timers.target\n",
+    "blariyo-discord-review-scan": "NextElapseUSecRealtime=Wed 2026-10-07 22:30:00 UTC\nNextElapseUSecMonotonic=0\nActiveState=active\nUnitFileState=enabled\n",
+    "blariyo-discord-review-scanConfig": "# /etc/systemd/system/blariyo-discord-review-scan.timer\n[Unit]\nDescription=Blariyo Discord review 07:30 and 17:00 KST\n\n[Timer]\nOnCalendar=*-*-* 07:30:00 Asia/Seoul\nOnCalendar=*-*-* 17:00:00 Asia/Seoul\nPersistent=true\nAccuracySec=1s\nUnit=blariyo-discord-review-scan.service\n\n[Install]\nWantedBy=timers.target\n"
+  },
+  "resources": "               total        used        free      shared  buff/cache   available\nMem:            1906         754         269          26        1113        1151\nSwap:           2047          37        2010\n"
+}

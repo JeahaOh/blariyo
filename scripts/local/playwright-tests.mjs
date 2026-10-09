@@ -114,7 +114,7 @@ try {
   ownedContainerId = docker([
     'run', '-d', '--rm', '--name', containerName,
     '-p', `${host}:${port}:55450`,
-    image, 'npx', 'playwright', 'run-server', '--host', '0.0.0.0', '--port', String(port),
+    image, 'npx', `playwright@${playwrightVersion}`, 'run-server', '--host', '0.0.0.0', '--port', String(port),
   ]);
   await waitForPort();
   const testProcess = spawn(process.execPath, ['--test', '--test-concurrency=1', ...testTargets], {

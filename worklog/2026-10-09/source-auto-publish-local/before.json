@@ -1,0 +1,12 @@
+{
+  "backup": ".local-data/backups/20261009-source-auto-publish-before.dump",
+  "bytes": 1845771,
+  "sha256": "d06ea57f56eb82921e4d263ccfcf98f68118543d25446e9bdf312f8794c0c401",
+  "archiveEntries": 714,
+  "tables": {
+    "content.board_post": "30|a1e1e61e85e9410dd630e9074a6209b0",
+    "collect.batch_item": "948|0766a56ef21d11f8f7fa635bd23865ab",
+    "collect.batch_review": "47|1c4451c0b1bf30c2ed5903aa09ab040c",
+    "collect.batch_review_command": "17|9cf1d2bfea738aa88eb800817ec27a4e"
+  }
+}

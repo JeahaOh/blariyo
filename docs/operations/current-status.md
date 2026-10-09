@@ -1,5 +1,7 @@
 # M0 운영 상태와 남은 작업
 
+> **최신 확인: 2026-10-08 00:06 KST.** main `f8067abd757d404599d6f00e00239a7ab3afff43`의 API/Web 이미지와 API V014·Collector V015를 운영에서 확인했다. Discord 검수 API/Web flag와 전용 worker를 활성화했고 실제 수집 1건의 헤드·스레드·본문4개/반응·READY/48시간을 확인했다. 공개 HTTP·인증 경계 검사 통과, 수집04:30/15:30·검수07:30/17:00 예약 활성화. 실제 검수 승인·발행은 하지 않았다. 상세 digest·백업·교체 중 응답·미검증은 [운영 반영 기록](../../worklog/2026-10-08/discord-review-deployment/README.md)을 따른다. 아래 9월의 마지막 배포·미활성화·미구현 표기는 당시 기록이며 현재 상태를 대신하지 않는다.
+
 - 마지막 앱 배포: **2026-09-25 01:47:24 KST**, `8af7244` API/Web 교체와 GTM 실제 로딩 확인. 중단 후 08:23 KST 공개 응답, 이어 서버 배포 기록·부팅 경로를 재확인했다([배포 기록](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)). DB·콘텐츠 반영은 [9월 23일 기록](../../worklog/2026-09-23/release/production-db-promotion.md)을 따른다.
 - 마지막 공개 HTTP 확인: **2026-09-26 16:39 KST 이후**, 인증 없는 GET 7개. robots·사이트맵·일부 noindex와 GTM HTML 삽입을 확인했다([점검 근거](../../worklog/2026-09-26/m0-progress-audit/EVIDENCE.md)).
 - 마지막 DB·콘텐츠 전수 확인 기록: **2026-09-23 22:54:49 KST** ([앱 배포 기록](../../worklog/2026-09-23/release/production-deployment-5c581c2.md), [DB·콘텐츠 반영 기록](../../worklog/2026-09-23/release/production-db-promotion.md)). 9월 26일 점검·동기화에서는 내부 서버·DB·백업·원격 CI를 다시 조회하지 않았다.

@@ -999,7 +999,34 @@ export class CollectDiscordReviewScanRunEntity {
   @Column({ type: 'timestamptz', precision: 3 }) started_at!: Date;
   @Column({ type: 'timestamptz', precision: 3, nullable: true }) finished_at!: Date | null;
 }
+@Entity({ schema: 'collect', name: 'batch_source_publish_policy', synchronize: false })
+export class CollectSourcePublishPolicyEntity {
+  @PrimaryColumn({ type: 'varchar', length: 80 }) source_key!: string;
+  @Column({ type: 'boolean', default: false }) auto_publish_enabled!: boolean;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) enabled_since!: Date | null;
+  @Column({ type: 'integer', default: 1 }) lock_version!: number;
+  @Column({ type: 'varchar', length: 100 }) updated_by!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'clock_timestamp()' }) updated_at!: Date;
+}
+@Entity({ schema: 'collect', name: 'batch_source_publish_policy_change', synchronize: false })
+export class CollectSourcePublishPolicyChangeEntity {
+  @PrimaryColumn({ type: 'varchar', length: 80 }) source_key!: string;
+  @PrimaryColumn({ type: 'integer' }) lock_version!: number;
+  @Column({ type: 'boolean' }) auto_publish_enabled!: boolean;
+  @Column({ type: 'timestamptz', precision: 3, nullable: true }) enabled_since!: Date | null;
+  @Column({ type: 'varchar', length: 100 }) actor!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'clock_timestamp()' }) occurred_at!: Date;
+  @ManyToOne(() => CollectSourcePublishPolicyEntity, {
+    nullable: false, onDelete: 'NO ACTION', onUpdate: 'NO ACTION',
+    cascade: false, eager: false, lazy: false, persistence: false,
+    createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+  })
+  @JoinColumn([{ name: 'source_key', referencedColumnName: 'source_key' }])
+  policy?: Relation<CollectSourcePublishPolicyEntity>;
+}
 export const entities = [
+  CollectSourcePublishPolicyEntity,
+  CollectSourcePublishPolicyChangeEntity,
   CollectBatchReviewControlEntity,
   CollectDiscordReviewDeliveryEntity,
   CollectDiscordReviewPartEntity,

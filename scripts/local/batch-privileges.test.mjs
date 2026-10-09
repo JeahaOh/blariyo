@@ -27,7 +27,12 @@ test('local batch privileges permit current intake and quota, deny Core/review w
     owner=new pg.Client({...settings,database:name});await owner.connect();
     for(let i=0;i<2;i++)await grantLocalBatchPrivileges(owner,config.batchRole);
     batch=new pg.Client({...settings,database:name,user:config.batchRole,password:config.batchPassword});await batch.connect();
-    assert.equal((await owner.query('SELECT max(version) AS version FROM collector.schema_migration')).rows[0].version,'V015');
+    assert.equal((await owner.query('SELECT max(version) AS version FROM collector.schema_migration')).rows[0].version,'V016');
+    await batch.query("SELECT collect.sync_source_collection_setting('theqoo','https://theqoo.net/hot',true,true,NULL)");
+    assert.equal((await batch.query("SELECT collection_enabled FROM collect.batch_source_collection_setting WHERE source_key='theqoo'")).rows[0].collection_enabled,true);
+    await assert.rejects(batch.query("UPDATE collect.batch_source_collection_setting SET collection_enabled=false"),e=>e.code==='42501');
+    await assert.rejects(batch.query("SELECT collect.set_source_collection_setting('theqoo',false,0,'admin:v1:'||repeat('a',43))"),e=>e.code==='42501');
+    await assert.rejects(batch.query("SELECT * FROM collect.batch_source_publish_policy"),e=>e.code==='42501');
     await batch.query('BEGIN');
     const first=(await batch.query("SELECT * FROM collect.reserve_batch_request('local_grant_test',2,10000)")).rows[0];
     assert.equal(first.used,1);assert.equal(Number(first.wait_ms),0);

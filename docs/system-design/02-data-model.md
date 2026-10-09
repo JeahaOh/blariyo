@@ -1363,3 +1363,13 @@ Collector V011의 `batch_image_retry`는 item UUID·첫/최종 오류 코드·�
 ## Discord 검수 복구 데이터 — 2026-10-07
 
 API V014의5개 검수/전송/명령/scan 테이블과 기존 batch_review의 연결 초안 관리자 선점 제약은 [Discord 검수 데이터 계약](10-discord-review.md#영속-상태)을 따른다. 원문 본문·binary·저장 key를 추가 보관하지 않으며 선택 백업에는 최소 복구 상태만 보존한다.
+
+### 출처별 자동 발행 정책 — API V015
+
+API 소유 정책·변경 이력 2개 테이블과 AUTO 공통 명령의 구조·권한·보존 기준은 [출처별 자동 발행](11-source-auto-publish.md)을 따른다. 모든 출처 기본 OFF이며 Collector 권한은 확장하지 않는다.
+
+## 수집처 수집 설정 — Collector V016
+
+- Collector 소유 `collect.batch_source_collection_setting`: source_key PK, source_url, configured_enabled, collection_available, blocked_reason, collection_enabled, lock_version, updated_by, updated_at.
+- `collect.batch_source_collection_setting_change`: (source_key,lock_version) PK, 설정 FK, collection_enabled, actor, occurred_at. API는 직접 변경 없이 제한 함수를 호출한다. 두 테이블은 선택 백업 보존 대상이다.
+- API 소유 자동 발행 정책과는 별도 버전이다. 함께 저장할 때 하나의 DB transaction으로 처리한다. [수집처 설정 계약](11-source-auto-publish.md#수집처-수집-설정url--2026-10-09)을 따른다.

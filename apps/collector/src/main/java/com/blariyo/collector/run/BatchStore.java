@@ -15,10 +15,21 @@ import org.springframework.stereotype.Repository;
 /** Batch-owned ledger. It never calls the Core HTTP API and never writes content tables. */
 @Repository
 public final class BatchStore {
+  public com.blariyo.collector.source.SourceRegistry.Source collectionSource(com.blariyo.collector.source.SourceRegistry.Source source) { return new SourceCollectionSettings(this).resolve(source); }
+  public void assertCollectionEnabled(String source) { new SourceCollectionSettings(this).assertEnabled(source); }
   private final DataSource dataSource;
   public BatchStore(DataSource dataSource) { this.dataSource = dataSource; }
   public void reserveRequest(String source,int limit,long interval,java.util.function.LongConsumer sleeper,Runnable beforeSend) {
     new DirectRequestBudget(this,source,limit,sleeper).reserve(interval,beforeSend);
+  }
+  static String imageHostBudgetKey(String host) {
+    return "image-host-" + java.util.HexFormat.of().formatHex(sha(host.toLowerCase(Locale.ROOT)));
+  }
+  public void reserveImageHost(String host) {
+    new DirectRequestBudget(this,imageHostBudgetKey(host),1000000,ignored->{}).reserveWithoutWaiting();
+  }
+  public void deferImageHost(String host,long millis) {
+    deferRequests(imageHostBudgetKey(host),millis);
   }
   public void deferRequests(String source,long millis) {
     try(var c=connection();var q=c.prepareStatement("SELECT collect.defer_batch_request(?,?)")) {

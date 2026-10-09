@@ -6,6 +6,7 @@ import java.util.*;
 
 /** Durable requests and private confirmation receipts. Never reads or writes Core content. */
 public final class BatchQueueStore {
+  public com.blariyo.collector.source.SourceRegistry.Source collectionSource(com.blariyo.collector.source.SourceRegistry.Source source) { return new SourceCollectionSettings(store).resolve(source); }
   public record Confirmation(UUID id,String source,String postKey,String url,UUID requestId) {}
   public record Request(UUID id,String source,String postKey,String url,String state,int attempts,UUID runId,long version) {}
   private final BatchStore store;

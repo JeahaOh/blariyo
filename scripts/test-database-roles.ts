@@ -121,10 +121,10 @@ try {
   await command(java, ['-cp', classpath, 'com.blariyo.collector.ops.MigrationMain'], undefined, collectorEnv('migrator'));
   await migrator.query(grants);
   await migrator.query(grants);
-  assert.equal(rows(await migrator.query('SELECT count(*)::int AS count FROM ops.schema_migration'))[0]?.count, 14);
+  assert.equal(rows(await migrator.query('SELECT count(*)::int AS count FROM ops.schema_migration'))[0]?.count, 15);
   assert.deepEqual(rows(await migrator.query('SELECT version FROM collector.schema_migration ORDER BY version')).map(row=>row.version),
-    ['V001','V002','V003','V004','V005','V006','V007','V008','V009','V010','V011','V012','V013','V014','V015']);
-  assert.equal(rows(await app.query("SELECT ops.is_schema_ready('V014') AS ready"))[0]?.ready, true);
+    ['V001','V002','V003','V004','V005','V006','V007','V008','V009','V010','V011','V012','V013','V014','V015','V016']);
+  assert.equal(rows(await app.query("SELECT ops.is_schema_ready('V015') AS ready"))[0]?.ready, true);
   assert.equal(rows(await app.query('SHOW timezone'))[0]?.TimeZone, 'UTC');
   await denied(app, 'SELECT * FROM ops.schema_migration');
   await denied(app, 'UPDATE ops.schema_migration SET duration_ms=0');
@@ -186,6 +186,13 @@ try {
   for (const table of ['batch_queue','batch_confirmation']) await denied(app, `SELECT * FROM collect.${table}`);
   for (const table of ['content.board_post','collect.batch_review','collect.source','ops.schema_migration']) await denied(batch, `SELECT * FROM ${table}`);
   await denied(app, "SELECT collect.assert_source_owner('theqoo')");
+  for(const table of ['batch_source_publish_policy','batch_source_publish_policy_change']) {
+    assert.equal(rows(await app.query(`SELECT has_table_privilege(current_user,'collect.${table}','SELECT,INSERT,UPDATE') AS allowed`))[0]?.allowed,true);
+    for(const role of [batch,retention]) {
+      await denied(role,`SELECT * FROM collect.${table}`);
+      await denied(role,`UPDATE collect.${table} SET auto_publish_enabled=true`);
+    }
+  }
   await denied(batch, 'CREATE TABLE collect.__forbidden(id integer)');
   await denied(batch, 'SET ROLE blariyo_app');
   for(const relation of ['batch_input_receipt','batch_source_runtime'])await denied(app,`SELECT * FROM collect.${relation}`);
@@ -215,15 +222,19 @@ try {
     });
     assert.equal((await direct.get(accepted.requestId)).state,'BLOCKED');
     assert.equal((await direct.runtime()).items.find(value=>value.sourceKey==='role-mailbox')?.freshness,'ABSENT');
+    stage = 'application review detail';
     const {item} = await review.detail(itemId);
+    stage = 'application review approval';
     await review.review(itemId,{decision:'APPROVED',itemVersion:item.version,lockVersion:item.review.lockVersion,contentDigest:item.contentDigest},actor,randomUUID());
     const approved = (await review.detail(itemId)).item;
+    stage = 'application draft promotion';
     await review.promote(itemId,{boardSlug:'meme',itemVersion:approved.version,lockVersion:approved.review.lockVersion},actor,randomUUID());
     const postId = (await review.detail(itemId)).item.review.postId;
     assert.ok(postId);
     assert.equal(rows(await app.query('SELECT status FROM content.board_post WHERE id=$1',[postId]))[0]?.status,'DRAFT');
     assert.equal((await storage.inventory('private')).length,1);
     assert.equal((await storage.inventory('public')).length,0);
+    stage = 'application publication';
     await posts.command({action:'publish',params:{postId:String(postId)},body:{lockVersion:1,mode:'IMMEDIATE'}},actor);
     const media = rows(await app.query('SELECT public_storage_key,private_storage_key FROM content.board_post_image WHERE post_id=$1',[postId]))[0];
     assert.ok(media);
@@ -246,7 +257,7 @@ try {
     [imageJob.item_id,imageJob.run_id,`collect/raw/${imageJob.run_id}/${imageJob.item_id}.html`]))[0]?.allowed,true);
   assert.equal(rows(await retention.query('SELECT collect.image_cleanup_allowed($1,$2,$3) AS allowed',
     [imageJob.item_id,imageJob.run_id,'private/protected.png']))[0]?.allowed,false);
-  console.log('PASS 실제 API V001–V014 / Collector V001–V015 migration · D02 앱 접수/batch ack/안전 조회 · 앱 draft/publish · trigger 유지 · DDL/ledger/역할 전환 차단');
+  console.log('PASS 실제 API V001–V015 / Collector V001–V016 migration · D02 앱 접수/batch ack/안전 조회 · 앱 draft/publish · trigger 유지 · DDL/ledger/역할 전환 차단');
 
   stage = 'dedicated retention capabilities and real CLI readback';
   for(const sql of ['SELECT * FROM content.board_post','SELECT * FROM legal.policy_version','SELECT * FROM collect.batch_item',
@@ -357,6 +368,7 @@ try {
       "SELECT p.proname||':'||has_function_privilege('blariyo_batch',p.oid,'EXECUTE') FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='collect' AND p.proname LIKE 'assert_%'"]).catch(()=>Buffer.alloc(0));
     console.error(diagnostics.toString().trim());
   }
+  if (error && typeof error==='object' && 'code' in error && typeof error.code==='string' && /^[A-Z0-9_]+$/.test(error.code)) console.error(`CODE ${error.code}`);
   if (error instanceof assert.AssertionError) console.error(`ASSERT ${error.operator}`);
   console.error(`FAIL DB 역할 검사 — ${stage} (오류 원문·비밀값 비출력)`);
   process.exitCode = 1;

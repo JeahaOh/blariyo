@@ -1,5 +1,8 @@
 # 수집 보조 기능 명세
 
+> 2026-10-09 이미지 정책 변경: [제품 정본](../../../planning/content-collection/README.md)의 HTTP·HTTPS 공개 이미지/외부 CDN 허용이 아래 과거 이미지 HTTPS·출처별 imageOrigins 제한을 대체한다. 목록·본문·일반 첨부 계약은 유지한다. 이미지 실패는 글 단위로 격리하고 후속 글을 진행하며, 이미지 호스트별 영속 Retry-After와 출처별 총 예산·DNS/IP 고정·이미지 형식/크기 제한을 적용한다.
+
+
 > 2026-10-06 수집 정책 변경: robots.txt는 참고 정보이며 자동 조회·허용 판정·활성화 선행 조건으로 사용하지 않는다. 과거 설계의 robots 차단 조건은 [현행 수집 정책](../../../planning/content-collection/README.md#수집-요청-정책--2026-10-06-사용자-결정)으로 대체한다. 기본 요청 간격5초·출처별 일일5000 HTTP 요청이며 명시한 출처별 설정은 유지한다. 실제 접근 제한·요청 한도·DNS 보호와 별도 법무 검토 항목은 유지한다.
 
 
@@ -50,7 +53,7 @@ Web URL 입력의 direct 전달은 API mailbox pull, source는 runtime 읽기 �
 | legacy 후보 | 기존 `/admin/collect`·candidate·임시 preview·선택 이미지 승격 API 호환 | 아래 legacy 절에만 적용. direct source 설정이나 queue를 수정하지 않음 |
 | 자동 목록 수집 | 2026-09-21 확장의 허용 HOT/GENERAL 목록·pagination | source별 실제 검증·기능 활성화는 별도 |
 
-자동 발행, Discord 일반 메시지 감시·검수/발행 명령, 로그인·CAPTCHA·유료 장벽·차단 우회,
+출처 정책 없이 하는 자동 발행, Discord 일반 메시지 감시, 로그인·CAPTCHA·유료 장벽·차단 우회,
 비공개 collect 원본의 익명 다운로드·raw HTML 렌더링은 범위 밖이다.
 DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. direct의 비공개 원본 object 저장은 범위에
 포함되며 legacy의 임시 preview만 저장하는 규칙과 구분한다.
@@ -165,7 +168,7 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 
 ## 11. 결정·가정·미정·차단 항목
 
-- 확정: 검수 승인 없는 자동 발행은 하지 않는다. 2026-10-07 Discord 검수와 관리자 공통 명령의 승인→발행은 명시적 운영자 검수 결정에 따라 실행한다.
+- 2026-10-09 확정: 기본은 사람 검수다. OWNER가 출처별 자동 발행을 켠 이후 시작한 신규 run은 검수 없이 공통 승인→발행 경로로 처리한다. 나머지는 Discord·관리자의 검수 결정을 따른다.
 - 확정: 수집 실패는 공개 목록·상세와 수동 게시를 막지 않는다.
 - 확정: direct batch는 비공개 원문 object를 저장하고, API는 승격 시 검증된 private 사본을 만든다. 기존 legacy 후보만 임시 preview 계약을 적용한다.
 - 확정: Discord 연결 scraper는 운영자 로컬 컴퓨터에서 별도 프로세스로 실행하고 BE·FE runtime과 분리한다.
@@ -736,7 +739,7 @@ incoming webhook은 처리 결과 알림용으로만 사용한다.
 
 - 초안이 생성되고 기존 관리자 편집기로 이동한다.
 - 후보는 `APPROVED` terminal 상태가 된다.
-- 자동 발행하지 않는다.
+- legacy 후보는 자동 발행하지 않는다. 출처별 자동 발행은 direct batch_item에만 적용한다.
 - 외부 이미지 원본 URL이나 storage key를 공개 화면에 노출하지 않는다.
 - 수집기 임시 파일 내부 경로를 화면·로그에 노출하지 않는다.
 
@@ -1262,7 +1265,7 @@ mobile은 입력→요청 상태→검수 순서로 표시하고 status는 aria-
 
 - 명세 상태: 작성 완료. 구현·로컬/운영 검증은 [작업 기록](../../../../worklog/2026-10-07/discord-review-implementation/README.md)의 개별 증거를 따른다.
 - 제품은 [수집 기획 §8](../../../planning/content-collection/README.md#8-discord-보고실행-연동), 기술·DB·transaction 경계는 [Discord 검수 계약](../../../system-design/10-discord-review.md)을 적용한다. 기존 `/collect url` Gateway와 독립된 opt-in REST 배치다.
-- 이 기능 ON에서는 위 direct 화면의 클라이언트 review→draft→publish 연속 호출을 서버 공통 명령으로 대체한다. 검수자 승인 없이 자동 발행하지 않으며, 정시 배치가 확인한 유효한 👍는 승인·발행 요청이다. 기능 OFF와 legacy 후보는 기존 계약을 유지한다.
+- 이 기능 ON에서는 위 direct 화면의 클라이언트 review→draft→publish 연속 호출을 서버 공통 명령으로 대체한다. 출처별 자동 발행 OFF인 글은 검수자 승인이 필요하며, 정시 배치가 확인한 유효한 👍는 승인·발행 요청이다. 기능 OFF와 legacy 후보는 기존 계약을 유지한다.
 
 ### API와 처리 흐름
 
@@ -1290,3 +1293,27 @@ mobile은 입력→요청 상태→검수 순서로 표시하고 status는 aria-
 - 등록 인간의 헤드👍/❌ 조합·본문 비👍 제외·전체 제외·48시간 경계·미완료 관찰·두 종류 반응의 전체 사용자 페이지.
 - 초안 이후 관리자 반려/재승인, 운영자 권한 회수, generic publish 우회, 선정된 이미지에만 저장 검증 적용.
 - 실제 Discord·로컬 브라우저·production 배포·04:30 수집/07:30 판정의 실제 실행은 합성 시험과 따로 기록한다.
+
+
+## Direct 공개 이미지 수집 — 2026-10-09
+
+- 목록·URL direct runner에 [공개 이미지 기술 계약](../../../system-design/07-spring-collector-design.md#공개-이미지와-글-단위-실패-격리--2026-10-09)을 적용한다. HTTP 이미지와 미등록 외부 CDN은 정상 형식/크기 검증 후 저장하며 raw remote URL을 보존한다.
+- 이미지 실패 뒤 후속 글의 FETCHED/DB/media hash readback을 확인한다. 이미지가 빠진 글을 정상 완료로 만들지 않는다. 네트워크/정책/일시 제한 실패는 기존 재시도·보존 계약을 유지한다.
+- host별 Retry-After 영속 보존, 다른 호스트 진행, redirect 내부 IP 차단, 실제 HTTP pinned 연결, MIME/용량 실패를 회귀 시나리오에 포함한다.
+- 앞부분 legacy candidate API의 HTTPS remoteUrl 계약은 그대로이며 비활성 경로의 수용 완료로 보고하지 않는다.
+
+## 출처별 자동 발행 — 2026-10-09 사용자 요청
+
+- 관리자 UI는 별도 `수집처 관리`(`/admin/sources`) 메뉴에 배치한다. 목록·자동 발행 상태 조회와 행별 설정/저장을 제공하며 `/admin/batch`의 검수 기능과 분리한다. `batchReview` 기능 및 기존 OWNER/EDITOR 권한을 적용한다.
+
+정본 [출처별 자동 발행 기술 계약](../../../system-design/11-source-auto-publish.md)을 적용한다. API V015의 정책·변경 이력, OWNER 설정·EDITOR 조회, 신규 run만 적용, AUTO 공통 명령·최종 정책 재검사·Discord 전송 제외, 관리자 설정 UI와 기존 API 예약 명령 연결을 개발 범위에 추가한다. 기본값은 OFF이며 실제 출처 활성화·운영 배포는 구현 검증과 구분한다. OpenAPI의 listSourcePublishPolicies·updateSourcePublishPolicy가 HTTP 정본이다.
+
+### 수집처 설정 확장 — 2026-10-09
+
+- `/admin/sources`에 각 행에 sourceUrl 링크·수집 여부 select·자동 발행 여부 select·저장 버튼을 제공한다. 해당 행만 저장하고 다른 행의 미저장 변경은 유지한다. 기존 정책 POST에 collectionEnabled/collectionLockVersion을 함께 보내면 두 설정을 원자적으로 저장한다. 수집 버전 충돌은409, 기술 제한 수집처 ON도409이며 전체 요청을 되돌린다.
+- 수집 메타데이터가 없으면 collectionEnabled/sourceUrl은 null, collectionAvailable은 false이며 미확인 상태를 표시한다. 기존 자동 발행 전용 요청은 유지한다.
+- Collector V016과 역할 권한, `sources-sync`, 새 Java 실행 파일이 DB 수집 여부의 실제 적용 조건이다. 임시 중지값을 유지하며 실제 활성화는 OWNER 저장으로 수행한다.
+
+### 수집처 관리 이력·필터 보완 (2026-10-09)
+
+`listSourcePublishPolicies`/`updateSourcePublishPolicy` 응답에 마지막 정상 수집 시각과 최근 WRITE_DB 실행 시각·상태·오류 코드 배열을 포함한다. 데이터 기준과 미적용 처리는 [수집처 실행 이력 계약](../../../system-design/11-source-auto-publish.md#수집처-실행-이력-조회--2026-10-09)을 따른다. 관리자 화면은 이름·URL/수집 여부/자동 발행/최근 오류 필터, 공통 색상의 키보드 지원 선택 목록을 제공한다. 필터 전환은 저장이나 미저장 값 삭제를 수행하지 않는다.

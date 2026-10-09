@@ -7,7 +7,7 @@
 
 - API는 공통 검수 결정·본문 선택·초안/발행·영속 작업 상태를 소유한다. Collector의 content 테이블 쓰기 권한을 늘리지 않는다.
 - BATCH는 전용 REST CLI로 export/scan/maintain을 수행한다. 수집과 검수 lock을 분리한다. 기존 Gateway·slash command와 별도 기능 flag를 사용한다.
-- 관리자 결정은 같은 item의 decision epoch를 증가시키고 미완료 Discord 명령을 취소한다. 실제 초안/발행 commit에서 epoch·버전·내용 digest·실행자 권한을 다시 확인한다. 일반 게시글 publish 경로에서도 반려된 수집 초안 발행을 막는다.
+- 관리자 결정은 같은 item의 decision epoch를 증가시키고 미완료 Discord·AUTO 명령을 취소한다. 실제 초안/발행 commit에서 epoch·버전·내용 digest·실행자 권한을 다시 확인한다. 일반 게시글 publish 경로에서도 반려된 수집 초안 발행을 막는다.
 - Discord 사용자와 내부 active OWNER/EDITOR operator를 명시적으로 연결한다. 수집 allowlist와 발행 권한을 혼용하지 않는다. 서비스 인증과 사용자 업무 권한은 별도 검증한다.
 - API의 공통 문장 분리/manifest가 원본 block·문자 offset·이미지 position과 unit ID를 고정한다. BATCH는 이를 렌더하며 재분리하지 않는다. 긴 문장의 조각은 같은 unit의 제외 여부를 공유한다. 최종 selection digest는 원본 digest·단위 목록·renderer version에 바인딩한다.
 
@@ -53,3 +53,7 @@
 - 동일 명령·응답 유실·중복 ACK·프로세스 종료에도 초안/발행1회. 삭제 재시도에서 업무 실행0회.
 - rollback 시 외부 호출0회, 중첩 commit·잠금 반환 이전 호출0회, 느린 Discord와 응답 분리, 종료/큐 포화 후 DB 복구.
 - 실제 Discord 쓰기/삭제, 로컬 DB/브라우저, 운영 배포/검수, 실제48시간 관찰을 합성 시계 시험과 구분한다.
+
+## 출처별 자동 발행과의 분기 — 2026-10-09
+
+[출처별 자동 발행](11-source-auto-publish.md)이 켜진 뒤 시작한 신규 run의 글은 Discord 신규 전송 대상에서 제외한다. 이미 전달했거나 사람이 결정한 글은 AUTO가 접수하지 않는다. delivery 생성과 AUTO 접수는 같은 item control 잠금으로 경합을 판정한다. OFF 출처 및 활성화 이전 글은 현행 사람 검수 경로를 유지한다.

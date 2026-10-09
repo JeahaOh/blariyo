@@ -61,8 +61,7 @@ public final class BatchMain {
     long interval=Long.parseLong(values.getOrDefault("--interval-ms",Long.toString(SourceRequestPolicy.interval(source.config()))));
     if(interval<SourceRequestPolicy.interval(source.config())||interval>SourceRequestPolicy.MAX_INTERVAL_MS)
       throw new CollectorFailure(400,"SOURCE_LIMIT_EXCEEDED");
-    // Reject disallowed sources before opening a DB connection or reading object-store credentials.
-    source.policy();
+    // The runner resolves the persisted collection switch before source HTTP.
     com.zaxxer.hikari.HikariDataSource datasource = null;
     boolean write = flags.contains("--write-db");
     {
@@ -79,8 +78,20 @@ public final class BatchMain {
     System.exit(switch (report.state()) { case "BLOCKED" -> 2; case "FAILED" -> 1; default -> 0; });
   }
 
+  private static void syncSources() throws Exception {
+    String config=System.getenv("COLLECTOR_CONFIG_FILE");if(config!=null&&!config.isBlank())OperatorSettings.load(config);
+    String file=System.getenv().getOrDefault("COLLECTOR_SOURCE_CONFIG",OperatorSettings.get("collector.sources-file","COLLECTOR_SOURCES_FILE","apps/collector/ops/reference-sites.sources.example.json"));
+    var registry=SourceRegistry.read(file);var hikari=new com.zaxxer.hikari.HikariConfig();
+    hikari.setJdbcUrl(OperatorSettings.url());hikari.setUsername(OperatorSettings.user());hikari.setPassword(OperatorSettings.password());hikari.setMaximumPoolSize(2);
+    try(var db=new com.zaxxer.hikari.HikariDataSource(hikari)) {
+      var settings=new com.blariyo.collector.run.SourceCollectionSettings(new BatchStore(db));
+      for(var source:registry.sources())settings.sync(source);
+    }
+    System.out.println(Json.tree(Map.of("state","SYNCED","sources",registry.sources().size())));
+  }
   public static void main(String[] args) {
     try {
+      if (args.length == 1 && args[0].equals("sources-sync")) { syncSources(); return; }
       if (args.length > 0 && args[0].equals("retention")) { RetentionMain.execute(args); return; }
       if (args.length > 0 && Set.of("queue","discord").contains(args[0])) { QueueMain.execute(args); return; }
       if (args.length > 0 && args[0].equals("collect-url")) { collectUrl(args); return; }
@@ -92,13 +103,6 @@ public final class BatchMain {
               "apps/collector/ops/reference-sites.sources.example.json"));
       var source = SourceRegistry.read(sourceFile).key(options.source());
       String chart=Arrays.asList(args).contains("--chart")?options.chart():source.config().path("defaultChart").asText("hot");
-      String blocked = source.config().path("blockedReason").asText();
-      if (!blocked.isBlank() || !source.config().path("approved").asBoolean(false)) {
-        var report = Map.of("runId", UUID.randomUUID().toString(), "mode", options.writeDb() ? "WRITE_DB" : "DRY_RUN",
-            "report", Map.of("source", options.source(), "state", "BLOCKED", "reason", blocked.isBlank() ? "SOURCE_NOT_ALLOWED" : blocked));
-        System.out.println(Json.tree(report)); System.exit(2); return;
-      }
-      // Resolve dependencies lazily: a blocked source never accesses credentials or opens sockets.
       com.zaxxer.hikari.HikariDataSource datasource = null;
       {
         var hikari = new com.zaxxer.hikari.HikariConfig();

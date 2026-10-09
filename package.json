@@ -50,7 +50,8 @@
     "verify:migration": "node scripts/verify-migration.ts",
     "lint:quality-rules": "oxlint --config oxlint.config.ts apps/api/src apps/api/test apps/web/app apps/web/server apps/web/shared packages/contracts/src scripts tests",
     "typecheck:quality-rules": "tsc -p tools/oxlint/tsconfig.json",
-    "quality:audit": "node scripts/quality/audit.ts"
+    "quality:audit": "node scripts/quality/audit.ts",
+    "collection:auto-publish": "node apps/api/dist/commands/command.js collection:auto-publish"
   },
   "devDependencies": {
     "@oxlint/plugins": "1.78.0",

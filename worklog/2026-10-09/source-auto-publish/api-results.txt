@@ -1,0 +1,485 @@
+OWNED_ISOLATED_DATABASE_READY
+▶ original administrator transactions, storage and scheduler with strict contract types
+  ✔ authentication precedes validation (20.847875ms)
+  ✔ mixed upload fails entirely and valid upload decodes (43.10225ms)
+  ✔ create idempotency, conflict, image ownership and version (91.968042ms)
+  ✔ publish, hide, delete retry, republish and final removal (256.722209ms)
+  ✔ schedule, cancellation, outage recovery, concurrent due workers (77.570417ms)
+✔ original administrator transactions, storage and scheduler with strict contract types (669.859375ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1271.179
+✔ D04-T1/T2/T3: real Core HTTP enforces role after token and actor validation (270.551ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 882.738958
+▶ D01-T4/T5: real retention JVM, restricted DB role, object failure and late PUT
+  ✔ restricted login cannot read/delete payload or invoke private capabilities (10.934417ms)
+  ✔ backup gate is closed; 403 preserves the failed manifest and blocks logical access (3783.130875ms)
+  ✔ timeout retains evidence; a JVM crash after DELETE is resumed after lease expiry (802.826416ms)
+  ✔ another JVM retries durably, deletes raw/unrecorded media, preserves content and dedup (1220.191041ms)
+  ✔ late PUT reopens PURGED and is removed by the next inventory (462.565333ms)
+  ✔ quiesced restore inventory removes orphan collect objects immediately and keeps private copies (1055.654666ms)
+  ✔ completed manifests and run shells expire after seven days; permanent identity survives (493.051292ms)
+✔ D01-T4/T5: real retention JVM, restricted DB role, object failure and late PUT (8089.23375ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8437.700208
+▶ D01: real PostgreSQL lifecycle, first review, immutable dedup and commit deadline
+  ✔ D01-T1: fixed database instants reject exact equality in UTC and KST (3.174167ms)
+  ✔ D01-T2: day 27 approval gets seven days; re-review does not restart the clock (14.768416ms)
+  ✔ D01-T2/T3: an expired item and a transaction crossing the original deadline cannot commit review (1130.466625ms)
+  ✔ D01: length-prefix hashes, minimal permanent columns and cross-source conflict (14.793458ms)
+  ✔ D01-T3: concurrent purge skips a promotion lock; expired commit rolls back the post and purge wins next (1134.023ms)
+  ✔ D01: gated purge keeps its manifest on failure, rejects stale owners and removes only expired payload (24.249667ms)
+✔ D01: real PostgreSQL lifecycle, first review, immutable dedup and commit deadline (2503.937ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2829.763917
+▶ batch-owned objects pass through API review and draft before separate publication
+  ✔ authenticated list/detail retain long body and never expose object keys (73.722458ms)
+  ✔ review state/version and idempotency are enforced (72.130583ms)
+  ✔ corrupt collect object fails without draft and restored bytes allow the same request (133.715792ms)
+  ✔ separate publish/hide/outbox/republish preserves private copy and recreates public copy (108.483667ms)
+  ✔ V011 preserves legacy REVIEWING as unreviewed and rejects new start transitions (50.887709ms)
+  ✔ concurrent direct decisions preserve one winner and displayed media snapshot (83.096125ms)
+  ✔ one corrupt body cannot break list and changed content requires a new review snapshot (68.907458ms)
+  ✔ second image failure is compensated and same-key concurrent retry creates one private draft (111.829292ms)
+  ✔ legacy canonical duplicate and source post key uniqueness are enforced (29.264125ms)
+  ✔ 257-frame collect animation survives authenticated preview and private draft promotion (74.482791ms)
+  ✔ failed and policy-skipped items expose reasons and cannot enter review (49.745667ms)
+  ✔ 49 images survive review, draft and separate publication without truncation (791.216417ms)
+  ✔ aggregate media size is rejected before any private writes or object reads (61.058916ms)
+  ✔ expired preparation compensates private images and permits the same-key retry (147.430708ms)
+  ✔ file attachment remains a source link through review and publish without public collect access (117.306458ms)
+  ✔ combined source/state/review filters count and paginate unreviewed rows consistently (141.460125ms)
+  ✔ D01: expired payload and idempotent receipts are inaccessible and excluded from list totals (43.692291ms)
+  ✔ D01: crash staging has a pre-PUT cleanup receipt and never deletes committed content copies (467.219375ms)
+  ✔ draft creation strips source suffix with omitted or explicit title and retains original attribution (97.891959ms)
+  ✔ CON-02: one and twenty review items use the same SQL count with a single data query (27.009458ms)
+✔ batch-owned objects pass through API review and draft before separate publication (3008.0315ms)
+ℹ review SQL statements: one=5, twenty=5, data queries=1
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3630.702167
+✔ Nest: original Nuxt BFF, Core, PostgreSQL and SSR HTTP integration (1267.014875ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1853.270375
+▶ Nest collection sources, filtered pagination, candidate details and private previews
+  ✔ source patch preserves null vs omitted, audit actor and version fencing across connections (84.196292ms)
+  ✔ candidate ordering, filters, second page, bigint IDs and image count are preserved (58.006666ms)
+  ✔ private preview uses DB expiry and generalized storage errors without leaking keys (17.556792ms)
+  ✔ candidate creation preserves normalization, idempotency expiry, duplicate conflicts and atomic rollback (74.884208ms)
+  ✔ retry resets execution metadata with preview outbox atomically; rejection respects version and status (59.784208ms)
+✔ Nest collection sources, filtered pagination, candidate details and private previews (580.705958ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1167.164125
+▶ Original content: HTTP result, PostgreSQL readback and transactional ordered draft
+  ✔ reject broken references, replay exact content and require every attachment (318.496042ms)
+  ✔ text and SNS only draft, legacy empty result rejected, rejection clears content (141.364375ms)
+✔ Original content: HTTP result, PostgreSQL readback and transactional ordered draft (647.961209ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1243.414417
+▶ Discovery: migration, shared quota, post-key dedup and Java parser -> Core -> DB readback
+  ✔ arcalive: redacted fixture readback (549.376167ms)
+  ✔ bobaedream: redacted fixture readback (415.018959ms)
+  ✔ dogdrip: redacted fixture readback (449.548208ms)
+  ✔ inven: redacted fixture readback (462.460125ms)
+✔ Discovery: migration, shared quota, post-key dedup and Java parser -> Core -> DB readback (2063.339959ms)
+ℹ {"source":"arcalive","capturedPublicHtml":false,"status":"NEW","bodyReadback":true,"imageReferences":0,"binaryDownloaded":false,"discordGateway":false,"batchGateway":false}
+ℹ {"source":"bobaedream","capturedPublicHtml":false,"status":"NEW","bodyReadback":true,"imageReferences":0,"binaryDownloaded":false,"discordGateway":false,"batchGateway":false}
+ℹ {"source":"dogdrip","capturedPublicHtml":false,"status":"NEW","bodyReadback":true,"imageReferences":16,"binaryDownloaded":false,"discordGateway":false,"batchGateway":false}
+ℹ {"source":"inven","capturedPublicHtml":false,"status":"NEW","bodyReadback":true,"imageReferences":1,"binaryDownloaded":false,"discordGateway":false,"batchGateway":false}
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2647.461042
+▶ Nest: original collection lifecycle, isolation and transactional promotion
+  ✔ authentication and normalized URL idempotency (97.711375ms)
+  ✔ exclusive claim, lease ownership and result replay (89.823166ms)
+  ✔ private preview validation and atomic draft creation (101.440042ms)
+  ✔ lease expiry rejects stale results and draft rollback preserves candidate (117.945458ms)
+  ✔ expired runs stop after three attempts or 24 hours (73.706375ms)
+  ✔ failure retry, source version conflict and retention (85.488917ms)
+✔ Nest: original collection lifecycle, isolation and transactional promotion (756.175083ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1411.118167
+▶ Nest collection transition, administrator events and built CLI preserve the existing contracts
+  ✔ readiness permits reads before strict transition and refuses legacy writers without backfill (458.509042ms)
+  ✔ the transition locks writers and rolls back both constraints on failure (1395.671583ms)
+  ✔ events require authentication, filter retention, cap at 100, order ties and acknowledge once (137.561ms)
+  ✔ feature flag precedes auth; maintenance precedes collection body validation (52.983166ms)
+✔ Nest collection transition, administrator events and built CLI preserve the existing contracts (2208.38875ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2882.305291
+▶ Nest: original Spring V2 fencing, replay, quota and legacy transition with PostgreSQL
+  ✔ legacy running and preview rows block strict transition without backfill (30.931875ms)
+  ✔ contract mode rejects legacy mutations and V2 requires execution and replay key (79.229084ms)
+  ✔ lost claim/heartbeat responses replay once and receipts contain no original URL (84.173083ms)
+  ✔ 100 parallel reservations cannot overspend; replay keeps permit and source interval survives date change (447.505292ms)
+  ✔ result and preview response-loss replay preserve version and reject stale execution (106.566709ms)
+  ✔ refresh fences previous execution, event replay deduplicates and status never claims (69.268666ms)
+  ✔ expired receipts retain result digest; candidate expiry preserves generalized quota and events (36.830625ms)
+✔ Nest: original Spring V2 fencing, replay, quota and legacy transition with PostgreSQL (1055.076041ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1701.4195
+▶ collector leases retain SKIP LOCKED claiming, expiration and execution ownership on real PostgreSQL
+  ✔ two workers cannot claim the same candidate and old heartbeat versions fail (30.44575ms)
+  ✔ an independent row lock is skipped without claiming or modifying it (13.211791ms)
+  ✔ exhausted or day-old RUNNING candidates expire once and release their leases (24.8005ms)
+  ✔ strict mode writes execution metadata and rejects stale execution even with a current version (20.521417ms)
+  ✔ result failure and success retain lease checks, source audit, digest and outer transaction rollback (72.976459ms)
+  ✔ preview upload commits raw digest and receipt atomically, compensates rollback and preserves a lost-ack object (61.735125ms)
+  ✔ concurrent canonical URL replacement maps the database uniqueness race to the same duplicate conflict (25.290959ms)
+✔ collector leases retain SKIP LOCKED claiming, expiration and execution ownership on real PostgreSQL (458.433042ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1131.51175
+▶ common groups migrate source identities and enforce group boundaries, permissions and concurrency
+  ✔ unmapped legacy sources stop migration without loss; names, versions and audit survive mapping (136.509334ms)
+  ✔ readiness requires every group and code privilege (13.619625ms)
+  ✔ source group and exact requested short codes are readable; only OWNER mutates (53.6015ms)
+  ✔ generic groups scope code uniqueness and source mapping remains immutable (65.168375ms)
+  ✔ concurrent code edits produce one winner and a stale version conflict (19.500959ms)
+  ✔ maintenance permits reads and rejects both group and code mutations (34.358833ms)
+✔ common groups migrate source identities and enforce group boundaries, permissions and concurrency (486.440083ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1147.558958
+▶ collection failures preserve Core cleanup and private previews
+  ✔ absent (54.506917ms)
+  ✔ cleanup-failure (31.856417ms)
+  ✔ reference-failure (34.384167ms)
+✔ collection failures preserve Core cleanup and private previews (262.437458ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 898.106667
+✔ notifications wait for outer commit and session unlock, detach DB context, and never delay response (54.300625ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 363.364542
+✔ TypeORM maps all SQL columns without changing schema and coordinates real transactions and locks (229.939125ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 577.087
+✔ actual dev script rebuilds changed TypeScript before restarting the Nest process (20464.289958ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20806.112375
+✔ D02-T3/T4: historical restore ordering, 24-hour deadline and five-minute heartbeat boundary (1281.767958ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1646.669834
+▶ D02: PostgreSQL mailbox transaction, fencing and safe runtime projection
+  ✔ hashes match TypeScript length-prefixed UTF-8, including Unicode (4.075875ms)
+  ✔ claim skips locked requests; rollback leaves no queue, receipt or consumed lease (17.686958ms)
+  ✔ queue and initial receipt commit atomically; transitions increase version and close request (13.371542ms)
+  ✔ runtime absent/current/conflict expose only explicit safe fields; foreign keys rejected (7.322042ms)
+  ✔ actual Java pull under restricted login, restart no duplicate queue, denied cross-owner access (4936.135667ms)
+  ✔ real HTTP direct endpoints: feature gate, OWNER/EDITOR, aliases, conflict, limits and no fetch (350.574458ms)
+  ✔ D02-T2: real 60-second lease expiry rejects old owner and accepts one new owner (61016.08875ms)
+✔ D02: PostgreSQL mailbox transaction, fencing and safe runtime projection (66925.3385ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 67539.971167
+▶ D02-T5: manual retry identity, idempotency, deadline and deferred commit fences
+  ✔ new request and previous link; same key replay, wrong version, permanent dedup (126.657708ms)
+  ✔ D02-T1/T4: concurrent key, CONFLICT/disabled rejection and read-only runtime GET (56.745916ms)
+  ✔ transaction crossing the original deadline cannot commit a retry mailbox (1132.328833ms)
+  ✔ original deadline blocks queue claim and in-flight writes; cleanup records EXPIRED (94.554292ms)
+✔ D02-T5: manual retry identity, idempotency, deadline and deferred commit fences (1635.174334ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2272.306125
+✔ durable cleanup shares leases, counts failures once, preserves thread, and never repeats business decisions (248.282041ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 608.105375
+✔ Discord HTTP export, chunked scans, current approval after expiry, async cleanup and admin preemption (699.319459ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1333.980125
+✔ original storage compensation, rollback and outbox exhaustion against Nest and TypeORM (410.314875ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1073.283375
+▶ HTTP method, parser, authentication and maintenance boundaries preserve the original contract
+  ✔ unsupported methods and missing paths are rejected before authentication (50.9115ms)
+  ✔ JSON parsing precedes guards; collection maintenance precedes validation while normal API validates first (30.02375ms)
+  ✔ view increment requires an empty body and emits a bodyless 204 without cookie or content type (42.44225ms)
+✔ HTTP method, parser, authentication and maintenance boundaries preserve the original contract (306.648208ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 952.768625
+✔ Nest image authentication, multipart validation, storage and discard outbox remain atomic (269.590583ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 922.730417
+✔ TypeORM migration preserves SQL ledger, all down/up scripts and restricted application readiness (401.463ms)
+✔ additive V009/V010 refuse destructive rollback and preserve exact ledgers (154.620042ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 921.597667
+✔ Nest: original policy verification, atomic release, history and rollback (203.466208ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 870.040708
+▶ original PostgreSQL public API boundaries with canonical response narrowing
+  ✔ empty page one, excess page, invalid page and invalid board (59.607542ms)
+  ✔ pagination, detail context, schema response and concurrent view increments (67.522042ms)
+  ✔ hidden and missing posts have identical errors (23.23525ms)
+✔ original PostgreSQL public API boundaries with canonical response narrowing (337.902458ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 986.645125
+✔ shared review commands replay once, fence stale workers and give admin precedence through commit (200.262583ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 533.714875
+▶ original publication ownership, stale deletion, scheduled immediate publication and alert regressions
+  ✔ different request keys cannot overtake a paused copy, hide stays private (155.337666ms)
+  ✔ copy succeeds but returns failure: durable compensation respects current ownership (44.098ms)
+  ✔ DB rollback after copy is compensated; lost commit acknowledgement preserves publication (67.062ms)
+  ✔ scheduled immediate publish clears schedule and scheduler cannot publish twice (34.743459ms)
+  ✔ scheduler records context and webhook retries survive workers and group repeats (100.021416ms)
+✔ original publication ownership, stale deletion, scheduled immediate publication and alert regressions (589.160791ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1247.790875
+▶ shared review workflow publishes only selected content once and fences rejected/revoked drafts
+  ✔ excluded text and missing image are not published; replay and recovery create one post/history (138.483916ms)
+  ✔ admin rejection after draft retains the link and blocks both worker and direct publish (72.999167ms)
+  ✔ administrator can take over the existing draft with its current post version (91.459833ms)
+  ✔ revoked operator cannot finish an already approved draft (54.694208ms)
+✔ shared review workflow publishes only selected content once and fences rejected/revoked drafts (555.762667ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1214.217834
+▶ Nest cleanup and built operating commands preserve ownership, failures and server lifecycle
+  ✔ staged expiry and orphan cleanup preserve live image and retry-task references (35.19725ms)
+  ✔ collection reference failure preserves private previews and reports failure (7.75775ms)
+  ✔ built CLI closes DB context, preserves policy publication and exits nonzero on rejected operations (4299.913708ms)
+  ✔ built main serves live, ready, public and local binary routes then closes on SIGTERM (751.637375ms)
+✔ Nest cleanup and built operating commands preserve ownership, failures and server lifecycle (5284.771959ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5931.55
+✔ schedule alerts survive restart, retry delivery, throttle grouping and serialize independent workers (288.5635ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 961.414959
+✔ full SQL schema, existing ledger/data and isolated PostgreSQL backup restore remain identical (4354.873375ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4980.87925
+✔ PostgreSQL to built Web sitemaps exclude nonpublic data and preserve HTTP/noindex boundaries (842.6145ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1510.740958
+▶ source publication opt-in is versioned, isolated from Discord and fenced at publication
+  ✔ default is OFF, OWNER-only changes, optimistic concurrency and complete audit (89.543292ms)
+  ✔ only enabled source runs started after opt-in publish once without Discord configuration (145.037417ms)
+  ✔ OFF and policy version changes fence drafts and direct publication (82.850625ms)
+  ✔ OFF during object promotion is rechecked in final DB transaction (69.180916ms)
+  ✔ an invalid image becomes NEEDS_ADMIN and does not stop the following item (109.446083ms)
+  ✔ administrator rejection takes precedence over an automatic draft (67.690333ms)
+  ✔ stale Discord export cannot create a delivery for an automatic source (75.473084ms)
+  ✔ storage outage retries only the affected command while other items publish (174.239ms)
+  ✔ existing manual decisions and expired items are not automatically accepted (19.95125ms)
+  ✔ restricted API role can save audited policy and publish with the same guards (100.489959ms)
+  ✔ a policy in use prevents destructive migration rollback (20.016542ms)
+✔ source publication opt-in is versioned, isolated from Discord and fenced at publication (1140.241542ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1763.955125
+OWNED_ISOLATED_DATABASE_REMOVED

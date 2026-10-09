@@ -1,0 +1,19 @@
+{
+  "apiFiles": 37,
+  "apiTests": 162,
+  "apiFailures": 0,
+  "apiSkipped": 0,
+  "collector": {
+    "state": "PASSED",
+    "suites": 86,
+    "tests": 313,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "readbackTests": 22
+  },
+  "browserTests": 7,
+  "qualityChecks": 14,
+  "scriptTests": 7,
+  "schedulerTests": 4
+}

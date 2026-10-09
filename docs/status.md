@@ -1,5 +1,11 @@
 # M0 현재 진행 상황
 
+- 2026-10-09 수집처 설정: 수집 URL·수집 여부·자동 발행 select와 DB 기반 배치 수집 설정을 연결한다. 기존 임시 중지를 유지하고 Collector V016·권한 적용이 필요하다. 검증·로컬/운영 반영 상태는 [작업 기록](../worklog/2026-10-09/source-collection-settings/README.md)을 따른다.
+
+- 2026-10-09 관리자 메뉴 분리: `수집처 관리`(`/admin/sources`)에서 목록·자동 발행 상태와 설정을 관리하도록 검수 화면에서 분리했다. 검증·로컬 적용 상태는 [작업 기록](../worklog/2026-10-09/source-management-menu/README.md)을 따른다.
+
+- 2026-10-09 출처별 자동 발행: API 정책·변경 이력, 기본 OFF/OWNER 설정, 신규 run 자동 발행·최종 정책 검사, 관리자 설정 UI를 로컬 구현했다. 검증·운영 적용 여부는 [작업 기록](../worklog/2026-10-09/source-auto-publish/README.md)을 따른다.
+
 - 2026-10-09 이미지 정책 변경: direct 수집의 HTTP·HTTPS/외부 CDN 이미지 허용, 이미지 오류의 글 단위 격리, 이미지 호스트별 영속 대기 코드를 보완했다. 검증 결과와 운영 반영 여부는 [작업 기록](../worklog/2026-10-09/image-source-policy/README.md)을 따른다. 개발 배치 자동 실행은 중지 유지하며 운영 적용은 별도다.
 
 

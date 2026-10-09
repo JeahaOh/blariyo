@@ -1,0 +1,40 @@
+{
+  "backup": {
+    "file": ".local-data/backups/20261009-source-collection-settings-before.dump",
+    "bytes": 1852647,
+    "mode": "600",
+    "sha256": "09201910acdd772627c29987b6f7b18f9a9bfb34722b379e904d1782223ec73c"
+  },
+  "preserved": {
+    "content.board_post": {
+      "count": 30,
+      "hash": "6b0a2580236ceda2203f8c1ad1eaf2f5"
+    },
+    "collect.batch_item": {
+      "count": 948,
+      "hash": "22cafe9a4bc8e71d10e8194049416726"
+    },
+    "collect.batch_review": {
+      "count": 47,
+      "hash": "5645483daa514672ed5d8452ecaa64b3"
+    },
+    "collect.batch_review_command": {
+      "count": 17,
+      "hash": "98afc09416117b91ac45f4248b1c6088"
+    },
+    "collect.batch_source_publish_policy": {
+      "count": 0,
+      "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "collect.batch_source_publish_policy_change": {
+      "count": 0,
+      "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  },
+  "settings": {
+    "total": 21,
+    "urls": 21,
+    "enabled": 13,
+    "restricted": 2
+  }
+}

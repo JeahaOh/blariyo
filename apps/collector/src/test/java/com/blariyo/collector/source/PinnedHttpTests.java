@@ -17,6 +17,7 @@ import org.junit.jupiter.api.io.TempDir;
 class PinnedHttpTests {
   @TempDir Path directory;
   HttpsServer server;
+  HttpServer plain;
   SSLContext tls;
   ExecutorService workers;
 
@@ -99,6 +100,7 @@ class PinnedHttpTests {
   @AfterEach
   void close() {
     if (server != null) server.stop(0);
+    if (plain != null) plain.stop(0);
     if (workers != null) workers.shutdownNow();
   }
 
@@ -150,6 +152,33 @@ class PinnedHttpTests {
   }
 
   @Test
+  void httpImageUsesValidatedIpPort80AndPreservesHostPathAndSizeLimit() throws Exception {
+    var host=new AtomicReference<String>();var path=new AtomicReference<String>();
+    byte[] png=java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=");
+    plain=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
+    plain.createContext("/",exchange->{
+      host.set(exchange.getRequestHeaders().getFirst("Host"));path.set(exchange.getRequestURI().toString());
+      exchange.getResponseHeaders().set("Content-Type","image/png");
+      exchange.sendResponseHeaders(200,png.length);exchange.getResponseBody().write(png);exchange.close();
+    });plain.start();
+    var target=new AtomicReference<InetSocketAddress>();var lookups=new AtomicInteger();
+    var publicIp=InetAddress.getByName("8.8.8.8");
+    var client=new PinnedHttp(h->{lookups.incrementAndGet();return new InetAddress[]{publicIp};},()->new Socket(){
+      @Override public void connect(SocketAddress endpoint,int timeout)throws IOException {
+        target.set((InetSocketAddress)endpoint);super.connect(new InetSocketAddress("127.0.0.1",plain.getAddress().getPort()),timeout);
+      }
+    },null);
+    var response=client.get(URI.create("http://cdn.fixture.invalid/image%20one.png?v=1"),1024,"fixture contact");
+    assertArrayEquals(png,response.bytes());assertEquals("image/png",response.contentType());
+    assertEquals("cdn.fixture.invalid",host.get());assertEquals("/image%20one.png?v=1",path.get());
+    assertEquals("8.8.8.8",target.get().getAddress().getHostAddress());assertEquals(80,target.get().getPort());
+    assertEquals(1,lookups.get());
+    assertEquals(413,assertThrows(CollectorFailure.class,()->client.get(URI.create("http://cdn.fixture.invalid/large"),4,"fixture contact")).status());
+    assertThrows(CollectorFailure.class,()->client.get(URI.create("http://cdn.fixture.invalid:8080/x"),1024,"fixture contact"));
+    assertEquals(2,lookups.get(),"Nonstandard port must fail before DNS or a connection");
+  }
+
+  @Test
   void reboundPrivateAddressNeverOpensASocket() throws Exception {
     var lookups = new AtomicInteger();
     var connections = new AtomicInteger();
@@ -163,9 +192,10 @@ class PinnedHttpTests {
               return new Socket();
             },
             tls);
-    var uri = URI.create("https://fixture.invalid/detail");
+    var uri = URI.create("http://fixture.invalid/detail");
     client.validate(uri);
     assertThrows(CollectorFailure.class, () -> client.get(uri, 1024, "Fixture/contact-test"));
+    assertThrows(CollectorFailure.class, () -> client.get(URI.create("https://fixture.invalid/detail"),1024,"fixture contact"));
     assertEquals(0, connections.get());
   }
 

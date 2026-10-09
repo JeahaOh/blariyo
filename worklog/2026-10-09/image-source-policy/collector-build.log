@@ -1,0 +1,23 @@
+Picked up JAVA_TOOL_OPTIONS: -XX:+EnableDynamicAgentLoading
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+Invalid Java installation found at '/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home' (MacOS java_home) auto-detected. It will be re-checked in the next build. If the configuration cache is enabled, the re-check will happen only after the cache is invalidated. This might have performance impact if it keeps failing. Run the 'javaToolchains' task for more details.
+Invalid Java installation found at '/Library/Java/JavaVirtualMachines/jdk1.7.0_80.jdk/Contents/Home' (MacOS java_home) auto-detected. It will be re-checked in the next build. If the configuration cache is enabled, the re-check will happen only after the cache is invalidated. This might have performance impact if it keeps failing. Run the 'javaToolchains' task for more details.
+
+> Task :compileJava UP-TO-DATE
+Caught exception: Could not start the FSEvents stream: /Volumes/MicroVault/iCloudDrive/git/private/blariyo/apps/collector
+
+> Task :cyclonedxDirectBom UP-TO-DATE
+> Task :cyclonedxBom UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :resolveMainClassName
+> Task :bootJar
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources UP-TO-DATE
+> Task :testClasses UP-TO-DATE
+> Task :fixtureClasspath
+
+BUILD SUCCESSFUL in 5s
+9 actionable tasks: 3 executed, 6 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html

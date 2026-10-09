@@ -1,0 +1,32 @@
+{
+  "status": "no_candidates",
+  "base": "0bf953383fd100f99ce182d7e1af7ca6011f4be4",
+  "findings": [],
+  "unsupported": [
+    "apps/collector/src/main/java/com/blariyo/collector/run/BatchStore.java",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DirectBatchRunner.java",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DirectRequestBudget.java",
+    "apps/collector/src/main/java/com/blariyo/collector/run/DirectUrlRunner.java",
+    "apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java",
+    "apps/collector/src/main/java/com/blariyo/collector/source/PinnedHttp.java",
+    "apps/collector/src/main/java/com/blariyo/collector/source/SourcePolicy.java",
+    "apps/collector/src/main/java/com/blariyo/collector/source/common/OrderedContentParser.java",
+    "apps/collector/src/test/java/com/blariyo/collector/run/DirectBatchRunnerTests.java",
+    "apps/collector/src/test/java/com/blariyo/collector/run/ImageFailureReadbackTests.java",
+    "apps/collector/src/test/java/com/blariyo/collector/run/SourceRequestsTests.java",
+    "apps/collector/src/test/java/com/blariyo/collector/run/TestSourceControls.java",
+    "apps/collector/src/test/java/com/blariyo/collector/source/PinnedHttpTests.java",
+    "apps/collector/src/test/java/com/blariyo/collector/source/SiteAdapterTests.java",
+    "apps/collector/src/test/java/com/blariyo/collector/source/TheqooParserTests.java",
+    "docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md",
+    "docs/planning/content-collection/README.md",
+    "docs/planning/content-collection/source-collection-policy.md",
+    "docs/roadmap.md",
+    "docs/status.md",
+    "docs/system-design/05-security-operations.md",
+    "docs/system-design/07-spring-collector-design.md",
+    "apps/collector/src/test/java/com/blariyo/collector/run/PublicImageReadbackTests.java",
+    "apps/collector/src/test/java/com/blariyo/collector/source/PublicImagePolicyTests.java"
+  ],
+  "files": 24
+}

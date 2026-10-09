@@ -126,14 +126,14 @@ class SiteAdapterTests {
     assertThrows(CollectorFailure.class, () -> SiteAdapters.require("METADATA"));
     assertThrows(CollectorFailure.class, () -> SiteAdapters.require("UNKNOWN_SITE"));
   }
-  @Test void observedDcconOriginUsesOnlyConfiguredImagePathAndNeverDetailPermission() throws Exception {
+  @Test void observedDcconAndOtherCdnImagesNeverGrantDetailPermission() throws Exception {
     var policy = ObservedFixtureMain.offlinePolicy(SourceRegistry.read("ops/reference-sites.sources.example.json").key("dcinside"));
     var uri = URI.create("https://gall.dcinside.com/board/view/?id=hit&no=17805");
     var parsed = policy.extract(Files.readAllBytes(Path.of("src/test/resources/sites/dcinside.dccon.observed.html")), uri);
     assertEquals(1,parsed.path("imageCandidates").size());
     assertEquals("https://dcimg5.dcinside.com/dccon.php?no=fixture",parsed.path("imageCandidates").get(0).path("remoteUrl").asText());
-    assertThrows(CollectorFailure.class,()->policy.imagePolicy("https://dcimg5.dcinside.com/unobserved/path"));
-    assertThrows(CollectorFailure.class,()->policy.imagePolicy("https://dcimg6.dcinside.com/dccon.php?no=fixture"));
+    assertDoesNotThrow(()->policy.imagePolicy("https://dcimg5.dcinside.com/unobserved/path"));
+    assertDoesNotThrow(()->policy.imagePolicy("http://dcimg6.dcinside.com/dccon.php?no=fixture"));
     assertThrows(CollectorFailure.class,()->policy.allow("https://dcimg5.dcinside.com/dccon.php?no=fixture"));
   }
   @Test void robotsHonorsQueryLongestRulesAndDoesNotAcceptChallenge() {

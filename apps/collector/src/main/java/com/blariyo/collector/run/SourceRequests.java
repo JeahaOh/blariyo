@@ -16,15 +16,19 @@ final class SourceRequests {
   private final Runnable beforeRequest;
   private final LongConsumer reservation;
   private final LongConsumer cooldown;
+  private final java.util.function.Consumer<String> imageReservation;
+  private final java.util.function.BiConsumer<String,Long> imageCooldown;
   SourceRequests(SourceTransport transport, LongConsumer sleeper, long interval) {
     this(transport,sleeper,interval,()->{});
   }
   SourceRequests(SourceTransport transport, LongConsumer sleeper, long interval,Runnable beforeRequest) {
-    this(transport,sleeper,interval,beforeRequest,ignored->{},ignored->{});
+    this(transport,sleeper,interval,beforeRequest,ignored->{},ignored->{},ignored->{},(host,delay)->{});
   }
-  private SourceRequests(SourceTransport transport,LongConsumer sleeper,long interval,Runnable beforeRequest,LongConsumer reservation,LongConsumer cooldown) {
+  private SourceRequests(SourceTransport transport,LongConsumer sleeper,long interval,Runnable beforeRequest,LongConsumer reservation,LongConsumer cooldown,
+      java.util.function.Consumer<String> imageReservation,java.util.function.BiConsumer<String,Long> imageCooldown) {
     this.transport=transport;this.sleeper=sleeper;this.interval=interval;
     this.beforeRequest=beforeRequest;this.reservation=reservation;this.cooldown=cooldown;
+    this.imageReservation=imageReservation;this.imageCooldown=imageCooldown;
   }
   static SourceRequests controlled(SourceTransport transport,LongConsumer sleeper,long interval,SourceRegistry.Source source,BatchStore store,Runnable beforeRequest) {
     source.policy();
@@ -37,7 +41,7 @@ final class SourceRequests {
     if(store==null)throw new CollectorFailure(503,"SOURCE_BUDGET_REQUIRED");
     return new SourceRequests(transport,sleeper,interval,beforeRequest,
         delay->store.reserveRequest(source.key(),dailyLimit,delay,sleeper,beforeRequest),
-        delay->store.deferRequests(source.key(),delay));
+        delay->store.deferRequests(source.key(),delay),store::reserveImageHost,store::deferImageHost);
   }
   PinnedHttp.Response fetch(URI url,SourcePolicy policy,int maximum) {
     // robots.txt is operator reference data, not a preflight or an execution gate.
@@ -54,7 +58,7 @@ final class SourceRequests {
         URI target;
         try {target=policy.allow(current.resolve(location).toString());}
         catch(IllegalArgumentException failure){throw new CollectorFailure(403,"SOURCE_REDIRECT_BLOCKED");}
-        if(!url.getHost().equalsIgnoreCase(target.getHost()))throw new CollectorFailure(403,"SOURCE_REDIRECT_BLOCKED");
+        if(!policy.publicImage()&&!url.getHost().equalsIgnoreCase(target.getHost()))throw new CollectorFailure(403,"SOURCE_REDIRECT_BLOCKED");
         current=target;continue;
       }
       int status=response.status();
@@ -73,6 +77,7 @@ final class SourceRequests {
       PinnedHttp.Response response;
       try {
         transport.validate(url);
+        if(policy.publicImage())imageReservation.accept(url.getHost());
         reservation.accept(interval);
         response=transport.get(url,maximum,policy.userAgent());
       }
@@ -86,7 +91,9 @@ final class SourceRequests {
       long retryAfter=retryAfter(response);
       // Persist the server deadline before ending this source, including across JVM restarts.
       if(status==429||attempt==SourceRequestPolicy.MAX_HTTP_ATTEMPTS-1||retryAfter>SourceRequestPolicy.MAX_INLINE_RETRY_WAIT_MS) {
-        cooldown.accept(Math.max(interval,retryAfter>0?retryAfter:SourceRequestPolicy.DEFAULT_COOLDOWN_MS));
+        long wait=Math.max(interval,retryAfter>0?retryAfter:SourceRequestPolicy.DEFAULT_COOLDOWN_MS);
+        if(policy.publicImage())imageCooldown.accept(url.getHost(),wait);
+        else cooldown.accept(wait);
         throw new CollectorFailure(status==429?429:503,code);
       }
       delay=Math.max(Math.max(interval,1000L<<attempt),retryAfter);
@@ -105,5 +112,14 @@ final class SourceRequests {
   }
   static boolean stopSite(CollectorFailure failure) {
     return failure.status()==403||failure.status()==429||failure.status()==503;
+  }
+  static boolean imageFailure(String phase,Map<String,Object> detail,CollectorFailure failure) {
+    String code=failure.getMessage();
+    if(code.equals("IMAGE_URL_NOT_ALLOWED")||code.equals("IMAGE_PARSE_FAILED"))return true;
+    return phase.equals("MEDIA")&&"IMAGE".equals(detail.get("assetKind"))&&Set.of(
+        "SOURCE_NOT_ALLOWED","SOURCE_ACCESS_BLOCKED","SOURCE_REDIRECT_BLOCKED","SOURCE_REDIRECT_LOOP",
+        "SOURCE_GONE","SOURCE_FETCH_FAILED","SOURCE_DNS_FAILED","SOURCE_HTTP_UNAVAILABLE","SOURCE_RATE_LIMITED",
+        "IMAGE_HOST_DEFERRED","SOURCE_HTTP_REJECTED","SOURCE_NOT_IMAGE","SOURCE_ENCODING_UNSUPPORTED",
+        "SOURCE_TOO_LARGE","SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED").contains(code);
   }
 }

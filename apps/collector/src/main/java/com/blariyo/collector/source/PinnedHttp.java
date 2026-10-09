@@ -9,8 +9,8 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * Each HTTPS request tunnels through a one-use loopback proxy connected to an already validated IP.
- * HttpClient still verifies the origin hostname/TLS certificate. The origin is never re-resolved.
+ * HTTP(S) uses a one-use loopback proxy connected to an already validated IP.
+ * HTTPS still verifies the origin hostname/TLS certificate. The origin is never re-resolved.
  */
 public final class PinnedHttp implements SourceTransport {
   private final java.util.function.Function<String, InetAddress[]> resolver;
@@ -54,7 +54,9 @@ public final class PinnedHttp implements SourceTransport {
   }
 
   public void validate(URI uri) {
-    if (Arrays.stream(resolver.apply(uri.getHost())).anyMatch(a -> !publicAddress(a)))
+    requestPort(uri);
+    var addresses = resolver.apply(uri.getHost());
+    if (addresses.length == 0 || Arrays.stream(addresses).anyMatch(a -> !publicAddress(a)))
       throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
   }
 
@@ -97,6 +99,8 @@ public final class PinnedHttp implements SourceTransport {
   public Response get(URI uri, int maximum, String userAgent) {
     long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(20);
     try {
+      int port = requestPort(uri);
+      boolean secure = uri.getScheme().equals("https");
       InetAddress[] addresses = resolver.apply(uri.getHost());
       if (addresses.length == 0 || Arrays.stream(addresses).anyMatch(a -> !publicAddress(a)))
         throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
@@ -119,17 +123,25 @@ public final class PinnedHttp implements SourceTransport {
                       if (last == 0x0d0a0d0a) break;
                     }
                     String header = buffer.toString(java.nio.charset.StandardCharsets.US_ASCII);
-                    if (!header.startsWith("CONNECT " + uri.getHost() + ":443 HTTP/1.1\r\n"))
+                    String firstLine = secure ? "CONNECT " + uri.getHost() + ":443 HTTP/1.1\r\n"
+                        : "GET " + uri.toASCIIString() + " HTTP/1.1\r\n";
+                    if (!header.startsWith(firstLine) || !header.endsWith("\r\n\r\n"))
                       throw new IOException();
                     Socket remote = socketFactory.get();
                     sockets.add(remote);
-                    remote.connect(new InetSocketAddress(addresses[0], 443), 5000);
+                    remote.connect(new InetSocketAddress(addresses[0], port), 5000);
                     remote.setSoTimeout(20000);
-                    incoming
+                    if (secure) incoming
                         .getOutputStream()
                         .write(
                             "HTTP/1.1 200 Connection Established\r\n\r\n"
                                 .getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+                    else {
+                      String path = uri.getRawPath().isEmpty() ? "/" : uri.getRawPath();
+                      if (uri.getRawQuery() != null) path += "?" + uri.getRawQuery();
+                      remote.getOutputStream().write(("GET " + path + " HTTP/1.1\r\n"
+                          + header.substring(firstLine.length())).getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+                    }
                     Thread.ofVirtual().start(() -> copy(in, remote, incoming));
                     copy(remote.getInputStream(), incoming, remote);
                   } catch (Exception ignored) {
@@ -202,6 +214,13 @@ public final class PinnedHttp implements SourceTransport {
     } catch (Exception e) {
       throw new CollectorFailure(503, "SOURCE_FETCH_FAILED");
     }
+  }
+
+  private static int requestPort(URI uri) {
+    int port = "https".equals(uri.getScheme()) ? 443 : "http".equals(uri.getScheme()) ? 80 : -1;
+    if (port == -1 || uri.getHost() == null || uri.getUserInfo() != null || uri.getFragment() != null
+        || (uri.getPort() != -1 && uri.getPort() != port)) throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+    return port;
   }
 
   private static void copy(InputStream input, Socket target, Socket source) {

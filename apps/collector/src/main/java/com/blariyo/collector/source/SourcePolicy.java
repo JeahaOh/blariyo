@@ -17,7 +17,12 @@ public record SourcePolicy(
     String parser,
     Map<String, List<String>> imageOrigins,
     List<String> hostAliases,
-    SourceMediaLimits mediaLimits) {
+    SourceMediaLimits mediaLimits,
+    boolean publicImage) {
+  public SourcePolicy(String host, List<String> paths, String title, String image, String agent, String parser,
+      Map<String, List<String>> origins, List<String> aliases, SourceMediaLimits limits) {
+    this(host, paths, title, image, agent, parser, origins, aliases, limits, false);
+  }
   public SourcePolicy(String host, List<String> paths, String title, String image, String agent, String parser, Map<String, List<String>> imageOrigins, List<String> aliases) {
     this(host, paths, title, image, agent, parser, imageOrigins, aliases, SourceMediaLimits.DEFAULT);
   }
@@ -62,8 +67,16 @@ public record SourcePolicy(
         agent, parser, Map.copyOf(origins), List.copyOf(aliases), SourceMediaLimits.from(config.path("mediaLimits")));
   }
 
-  /** Images have a separate exact-origin allowlist; detail fetch never inherits it. */
+  /** Public images are independent of the article's host. DNS/IP checks still precede every socket. */
   public SourcePolicy imagePolicy(String value) {
+    var policy = new SourcePolicy(host, List.of("/"), "", "", userAgent, parser,
+        Map.of(), List.of(), mediaLimits, true);
+    policy.allow(value);
+    return policy;
+  }
+
+  /** Non-image attachments retain the existing exact-origin policy. */
+  public SourcePolicy attachmentPolicy(String value) {
     try {
       URI uri = URI.create(value);
       var paths = imageOrigins.get(uri.getHost());
@@ -76,6 +89,7 @@ public record SourcePolicy(
   public URI allow(String value) {
     try {
       URI uri = URI.create(value);
+      if (publicImage) return allowImage(uri);
       if (!"https".equals(uri.getScheme())
           || !(host.equalsIgnoreCase(uri.getHost()) || hostAliases.stream().anyMatch(a -> a.equalsIgnoreCase(uri.getHost())))
           || uri.getUserInfo() != null
@@ -85,8 +99,23 @@ public record SourcePolicy(
           || uri.getPath().contains("..")) throw new IllegalArgumentException();
       return uri;
     } catch (Exception e) {
-      throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+      throw new CollectorFailure(403, publicImage ? "IMAGE_URL_NOT_ALLOWED" : "SOURCE_NOT_ALLOWED");
     }
+  }
+
+  private static URI allowImage(URI uri) throws java.net.UnknownHostException {
+    String scheme = uri.getScheme(), target = uri.getHost();
+    if (!("http".equals(scheme) || "https".equals(scheme)) || target == null
+        || uri.getUserInfo() != null || uri.getFragment() != null
+        || (uri.getPort() != -1 && uri.getPort() != (scheme.equals("http") ? 80 : 443))
+        || uri.getPath().contains("..") || uri.toString().length() > 2048)
+      throw new IllegalArgumentException();
+    // Literal IPs can be rejected without DNS or opening a socket. Hostnames are checked by PinnedHttp.
+    if ((target.contains(":") || target.matches("[0-9.]+"))
+        && !PinnedHttp.publicAddress(java.net.InetAddress.getByName(target))) throw new IllegalArgumentException();
+    if (target.equalsIgnoreCase("localhost") || target.toLowerCase(Locale.ROOT).endsWith(".localhost"))
+      throw new IllegalArgumentException();
+    return uri;
   }
 
   public JsonNode extract(byte[] html, URI uri) {

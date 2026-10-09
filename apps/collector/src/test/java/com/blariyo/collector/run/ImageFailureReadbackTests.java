@@ -95,7 +95,7 @@ class ImageFailureReadbackTests {
       assertEquals(1,count(ds,"SELECT count(*) FROM collect.batch_item WHERE id='"+fetched+"' AND state='FETCHED'"));
     }
   }
-  @Test void rateLimitedImageIsPreservedAndCooldownSurvivesNewClient(@TempDir Path root)throws Exception {
+  @Test void rateLimitedImageIsPreservedAndHostCooldownSurvivesNewClient(@TempDir Path root)throws Exception {
     String jdbc=System.getenv("COLLECTOR_READBACK_DATABASE_URL");
     Assumptions.assumeTrue(jdbc!=null&&!jdbc.isBlank());
     var config=new HikariConfig();config.setJdbcUrl(jdbc);
@@ -106,17 +106,19 @@ class ImageFailureReadbackTests {
       var store=TestSourceControls.store(ds);var calls=new AtomicInteger();
       String key=Long.toString(System.nanoTime());
       String sourceKey="throttle-"+UUID.randomUUID();
+      String imageHost=sourceKey+".invalid";
       var isolatedConfig=(tools.jackson.databind.node.ObjectNode)source().config().deepCopy();
       isolatedConfig.put("requestIntervalMs",5000);
       var isolatedSource=new SourceRegistry.Source(sourceKey,isolatedConfig);
       SourceTransport transport=new SourceTransport() {
         public void validate(URI uri){}
         public PinnedHttp.Response get(URI uri,int maximum,String agent) {
-          if(uri.getHost().equals("img.theqoo.net")) {
+          if(uri.getHost().equals(imageHost)) {
             calls.incrementAndGet();
             return new PinnedHttp.Response(429,"text/html",Map.of("Retry-After",List.of("3600")),new byte[0]);
           }
-          return network(new AtomicInteger(),0).get(uri,maximum,agent);
+          var original=network(new AtomicInteger(),0).get(uri,maximum,agent);
+          return new PinnedHttp.Response(original.status(),original.contentType(),original.headers(),new String(original.bytes(),StandardCharsets.UTF_8).replace("img.theqoo.net",imageHost).getBytes(StandardCharsets.UTF_8));
         }
       };
       var report=new DirectUrlRunner(transport,store,new BatchObjectStore.Local(root.toString()),ignored->{}).run(isolatedSource,new DirectUrlRunner.Options(sourceKey,url(key),5000,true));
@@ -124,7 +126,7 @@ class ImageFailureReadbackTests {
       assertEquals(1,count(ds,"SELECT count(*) FROM collect.batch_item WHERE run_id='"+report.runId()+"' AND state='FAILED'"));
       assertEquals(0,count(ds,"SELECT count(*) FROM collect.batch_image_retry r JOIN collect.batch_item i ON i.id=r.item_id WHERE i.run_id='"+report.runId()+"'"));
       // A fresh DB connection, without the test spy, still receives the persisted wait.
-      try(var c=ds.getConnection();var q=c.createStatement();var r=q.executeQuery("SELECT * FROM collect.reserve_batch_request('"+sourceKey+"',1000000,15000)")) {
+      try(var c=ds.getConnection();var q=c.createStatement();var r=q.executeQuery("SELECT * FROM collect.reserve_batch_request('"+BatchStore.imageHostBudgetKey(imageHost)+"',1000000,15000)")) {
         assertTrue(r.next());assertTrue(r.getLong("wait_ms")>3590000);
       }
     }

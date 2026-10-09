@@ -32,10 +32,12 @@ final class TestSourceControls {
   }
   // These fixtures isolate lifecycle/ownership from real waiting. The SQL quota and real waits
   // are covered separately by DirectRequestBudgetTests; SourceRequestsTests checks every charge.
+  // Host admission also reserves a 2-second send permit; PublicImageReadbackTests exercises it with real SQL.
   static BatchStore store(DataSource db) {
     var store=spy(new BatchStore(db));
     doAnswer(call->{((Runnable)call.getArgument(4)).run();return null;}).when(store)
         .reserveRequest(anyString(),anyInt(),anyLong(),any(),any());
+    doNothing().when(store).reserveImageHost(anyString());
     return store;
   }
 }

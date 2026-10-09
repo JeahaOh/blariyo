@@ -1,0 +1,50 @@
+[
+  {
+    "source": "todayhumor",
+    "exitCode": 0,
+    "timeout": false,
+    "seconds": 27.7,
+    "log": ".local-data/verification/local-image-batch-20261009/todayhumor.log",
+    "result": {
+      "mode": "WRITE_DB",
+      "report": {
+        "runId": "271c5758-684a-48a5-a553-cf9153d8dd62",
+        "source": "todayhumor",
+        "state": "COMPLETED",
+        "pages": 1,
+        "discovered": 5,
+        "fetched": 1,
+        "duplicates": 4,
+        "failures": 0,
+        "unknownDates": 1,
+        "skippedByDate": 0,
+        "errors": []
+      },
+      "runId": "271c5758-684a-48a5-a553-cf9153d8dd62"
+    }
+  },
+  {
+    "source": "theqoo",
+    "exitCode": 0,
+    "timeout": false,
+    "seconds": 167.8,
+    "log": ".local-data/verification/local-image-batch-20261009/theqoo.log",
+    "result": {
+      "mode": "WRITE_DB",
+      "report": {
+        "runId": "4dc57641-6683-4a1a-8027-8b925a403f2c",
+        "source": "theqoo",
+        "state": "COMPLETED",
+        "pages": 1,
+        "discovered": 5,
+        "fetched": 5,
+        "duplicates": 0,
+        "failures": 0,
+        "unknownDates": 5,
+        "skippedByDate": 0,
+        "errors": []
+      },
+      "runId": "4dc57641-6683-4a1a-8027-8b925a403f2c"
+    }
+  }
+]

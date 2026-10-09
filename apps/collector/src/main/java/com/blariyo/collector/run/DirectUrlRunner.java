@@ -139,7 +139,7 @@ public final class DirectUrlRunner {
   private void storeAsset(SourcePolicy policy, BatchStore store, UUID run, UUID item, int position, String kind, String remoteUrl, boolean requireImage) {
     URI remote = URI.create(remoteUrl);
 
-    var response = fetchAsset(remote, policy.imagePolicy(remote.toString()));
+    var response = fetchAsset(remote, requireImage ? policy.imagePolicy(remote.toString()) : policy.attachmentPolicy(remote.toString()));
     String contentType = requireImage ? SourceImageType.detect(response.bytes(), response.contentType()) : response.contentType();
     if (requireImage && !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) throw new CollectorFailure(415, "SOURCE_NOT_IMAGE");
     String key = "collect/media/" + run + "/" + item + "/" + position;

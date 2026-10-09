@@ -20,6 +20,15 @@ public final class BatchStore {
   public void reserveRequest(String source,int limit,long interval,java.util.function.LongConsumer sleeper,Runnable beforeSend) {
     new DirectRequestBudget(this,source,limit,sleeper).reserve(interval,beforeSend);
   }
+  static String imageHostBudgetKey(String host) {
+    return "image-host-" + java.util.HexFormat.of().formatHex(sha(host.toLowerCase(Locale.ROOT)));
+  }
+  public void reserveImageHost(String host) {
+    new DirectRequestBudget(this,imageHostBudgetKey(host),1000000,ignored->{}).reserveWithoutWaiting();
+  }
+  public void deferImageHost(String host,long millis) {
+    deferRequests(imageHostBudgetKey(host),millis);
+  }
   public void deferRequests(String source,long millis) {
     try(var c=connection();var q=c.prepareStatement("SELECT collect.defer_batch_request(?,?)")) {
       if(!c.getAutoCommit())throw new CollectorFailure(503,"SOURCE_BUDGET_TRANSACTION_OPEN");

@@ -73,4 +73,16 @@ class DirectBatchRunnerTests {
     var strict=new DirectBatchRunner(TestSourceControls.allowRobots(transport),org.mockito.Mockito.mock(BatchStore.class),null,ignored->{}).run(new SourceRegistry.Source("arcalive",config),new DirectBatchRunner.Options("arcalive","hot",1,1,Duration.ofHours(24),10000,false));
     assertEquals(0,strict.fetched());assertEquals(1,strict.skippedByDate());assertEquals(1,strict.unknownDates());
   }
+  @Test void malformedImagesDoNotCountTowardSourceStopThreshold() {
+    var transport=mock(SourceTransport.class);
+    when(transport.get(any(),anyInt(),anyString())).thenAnswer(call->{URI u=call.getArgument(0);
+      String html=u.getPath().equals("/b/live")?"<div class='article-list'>"+java.util.stream.IntStream.rangeClosed(1,5).mapToObj(i->"<div class='vrow'><a class='title' href='/b/live/"+i+"'>post</a></div>").collect(java.util.stream.Collectors.joining())+"</div>":
+        "<title>fixture</title><div class='article-view'><div class='article-content'>"+(u.getPath().endsWith("/5")?"<p>valid</p>":"<img>")+"</div></div>";
+      return new PinnedHttp.Response(200,"text/html",Map.of(),html.getBytes());
+    });
+    var result=new DirectBatchRunner(transport,mock(BatchStore.class),null,ignored->{}).run(source(),new DirectBatchRunner.Options("arcalive","hot",1,5,Duration.ofHours(24),10000,false));
+    assertEquals("PARTIAL",result.state());assertEquals(4,result.failures());assertEquals(1,result.fetched());
+    assertTrue(result.errors().stream().allMatch("IMAGE_PARSE_FAILED"::equals));
+  }
+
 }

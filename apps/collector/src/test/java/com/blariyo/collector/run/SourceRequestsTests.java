@@ -133,4 +133,42 @@ class SourceRequestsTests {
     assertThrows(CollectorFailure.class,()->new SourceRequests(transport,sleeps::add,0).fetch(url,policy(),100));
     verify(transport,times(1)).get(any(),anyInt(),anyString());
   }
+  @Test void imageRedirectsCanCrossCdnAndSchemeButEveryHopIsCheckedAndCharged() {
+    var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
+    var start=URI.create("http://first-cdn.invalid/one.png");var next=URI.create("https://second-cdn.invalid/two.png");
+    when(transport.get(eq(start),anyInt(),anyString())).thenReturn(response(302,Map.of("Location",List.of(next.toString()))));
+    when(transport.get(eq(next),anyInt(),anyString())).thenReturn(response(200,Map.of()));
+    var requests=SourceRequests.controlled(transport,x->{},10000,controlledSource(),store,()->{});
+    assertEquals(200,requests.fetch(start,policy().imagePolicy(start.toString()),100).status());
+    verify(transport).validate(start);verify(transport).validate(next);
+    verify(store,times(2)).reserveRequest(eq("arcalive"),eq(1000000),eq(10000L),any(),any());
+    verify(store).reserveImageHost("first-cdn.invalid");verify(store).reserveImageHost("second-cdn.invalid");
+    reset(transport);
+    when(transport.get(eq(start),anyInt(),anyString())).thenReturn(response(302,Map.of("Location",List.of(next.toString()))));
+    doThrow(new CollectorFailure(403,"SOURCE_NOT_ALLOWED")).when(transport).validate(next);
+    assertThrows(CollectorFailure.class,()->requests.fetch(start,policy().imagePolicy(start.toString()),100));
+    verify(transport,never()).get(eq(next),anyInt(),anyString());
+  }
+  @Test void imageRedirectToLiteralPrivateAddressIsRejectedBeforeAnotherRequest() {
+    for(String next:List.of("http://127.0.0.1/x","https://169.254.169.254/x","http://[::1]/x")) {
+      var transport=mock(SourceTransport.class);var start=URI.create("http://cdn.invalid/x");
+      when(transport.get(any(),anyInt(),anyString())).thenReturn(response(302,Map.of("Location",List.of(next))));
+      assertThrows(CollectorFailure.class,()->new SourceRequests(transport,x->{},0).fetch(start,policy().imagePolicy(start.toString()),100));
+      verify(transport,times(1)).get(any(),anyInt(),anyString());
+    }
+  }
+  @Test void imageCooldownDoesNotDeferArticleBudgetAndHostDenialSendsNothing() {
+    var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
+    var image=URI.create("http://cdn.invalid/x");
+    when(transport.get(eq(image),anyInt(),anyString())).thenReturn(response(429,Map.of("Retry-After",List.of("3600"))));
+    when(transport.get(eq(url),anyInt(),anyString())).thenReturn(response(200,Map.of()));
+    var requests=SourceRequests.controlled(transport,x->{},10000,controlledSource(),store,()->{});
+    assertThrows(CollectorFailure.class,()->requests.fetch(image,policy().imagePolicy(image.toString()),100));
+    verify(store).deferImageHost("cdn.invalid",3600000L);verify(store,never()).deferRequests(anyString(),anyLong());
+    assertEquals(200,requests.fetch(url,policy(),100).status());
+    doThrow(new CollectorFailure(429,"IMAGE_HOST_DEFERRED")).when(store).reserveImageHost("cdn.invalid");
+    assertThrows(CollectorFailure.class,()->requests.fetch(image,policy().imagePolicy(image.toString()),100));
+    verify(transport,times(1)).get(eq(image),anyInt(),anyString());
+  }
+
 }

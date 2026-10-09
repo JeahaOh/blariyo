@@ -102,8 +102,9 @@ public final class DirectBatchRunner {
             failures++;errors.add(e.getMessage());
             if(o.writeDb()&&runStarted)store.failItem(run,item,phase,e.getMessage(),failureDetail);
             // A deleted or oversized post says nothing about the structure/accessibility of the next post.
-            if(!Set.of("SOURCE_GONE","SOURCE_TOO_LARGE","SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED","SOURCE_IMAGE_LIMIT_EXCEEDED","SOURCE_BODY_LIMIT_EXCEEDED","SOURCE_TEXT_LIMIT_EXCEEDED").contains(e.getMessage()))siteFailures++;
-            if(SourceRequests.stopSite(e))throw e;
+            boolean imageFailure=SourceRequests.imageFailure(phase,failureDetail,e);
+            if(!imageFailure&&!Set.of("SOURCE_GONE","SOURCE_TOO_LARGE","SOURCE_MEDIA_TOTAL_LIMIT_EXCEEDED","SOURCE_IMAGE_LIMIT_EXCEEDED","SOURCE_BODY_LIMIT_EXCEEDED","SOURCE_TEXT_LIMIT_EXCEEDED").contains(e.getMessage()))siteFailures++;
+            if(!imageFailure&&SourceRequests.stopSite(e))throw e;
             if(siteFailures>=3)break;
           }
         }
@@ -163,7 +164,7 @@ public final class DirectBatchRunner {
     URI remote=URI.create(remoteUrl);
 
     SourcePolicy assetPolicy;
-    try { assetPolicy = policy.imagePolicy(remote.toString()); }
+    try { assetPolicy = requireImage ? policy.imagePolicy(remote.toString()) : policy.attachmentPolicy(remote.toString()); }
     catch (CollectorFailure e) {
       if ("true".equalsIgnoreCase(System.getenv("COLLECTOR_DEBUG_ERRORS"))) System.err.println("asset policy rejected: " + remote);
       throw e;

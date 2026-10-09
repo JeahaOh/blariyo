@@ -1,5 +1,8 @@
 # M0 보안·운영 설계
 
+> 2026-10-09 이미지 정책 변경: [제품 정본](../planning/content-collection/README.md)의 HTTP·HTTPS 공개 이미지/외부 CDN 허용이 아래 과거 이미지 HTTPS·출처별 imageOrigins 제한을 대체한다. 목록·본문·일반 첨부 계약은 유지한다. 이미지 실패는 글 단위로 격리하고 후속 글을 진행하며, 이미지 호스트별 영속 Retry-After와 출처별 총 예산·DNS/IP 고정·이미지 형식/크기 제한을 적용한다.
+
+
 > 2026-10-06 수집 정책 변경: robots.txt는 참고 정보이며 자동 조회·허용 판정·활성화 선행 조건으로 사용하지 않는다. 과거 설계의 robots 차단 조건은 [현행 수집 정책](../planning/content-collection/README.md#수집-요청-정책--2026-10-06-사용자-결정)으로 대체한다. 기본 요청 간격5초·출처별 일일5000 HTTP 요청이며 명시한 출처별 설정은 유지한다. 실제 접근 제한·요청 한도·DNS 보호와 별도 법무 검토 항목은 유지한다.
 
 
@@ -283,10 +286,10 @@ direct 수집·API 수집 preview/초안 승격의 입력은 파일당 30MiB·�
 영속 일일 budget 연결 부재와 redirect 상한 차이를 확인했다. [미충족 통제](07-spring-collector-design.md#direct-실행의-미충족-통제--2026-09-24-코드-대조)는
 운영 활성화 전에 구현·검증하며 legacy의 quota/robots 테스트로 대체하지 않는다.
 
-1. 입력·redirect·이미지·첨부 URL을 정규화하고 허용된 source/미디어 host와 대조한다.
+1. 입력·본문·일반 첨부 URL은 기존 허용 host/path와 대조한다. direct 이미지는 출처별 host 목록 없이 HTTP·HTTPS 공개 주소를 허용한다.
 2. robots·공개 범위·연락 수단·출처별 간격과 요청 상한을 확인한다. 차단을 우회하지 않는다.
 3. DNS 결과의 사설·loopback·link-local·metadata 주소를 거부하고 연결 주소를 검증한다.
-4. timeout·응답 크기·redirect 횟수/host 이탈 제한을 적용하며 문서·이미지·파일의 형식을 구분한다.
+4. timeout·응답 크기·redirect 횟수 제한을 적용한다. direct 이미지는 CDN 간 이동을 허용하되 각 hop의 공개 DNS/IP를 재검증하고 문서·이미지·파일 형식을 구분한다.
 5. raw HTML과 원본 미디어는 비공개 collect 경로에 보관한다. raw는 파싱 전 응답이므로 댓글·프로필·개인정보가
    전혀 없다고 보장하지 않는다. 웹 렌더링·익명 제공·로그 출력과 분리하고 보존/파기·고지 정합성을 확인한다.
 6. API preview/승격은 DB object key·hash·size와 실제 bytes를 대조한다. 이미지 decode·metadata 제거·재인코딩 또는

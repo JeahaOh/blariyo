@@ -27,6 +27,12 @@ final class DirectRequestBudget {
     reserve(interval,()->{});
   }
   void reserve(long interval,Runnable beforeSend) {
+    reserve(interval,beforeSend,false);
+  }
+  void reserveWithoutWaiting() {
+    reserve(0,()->{},true);
+  }
+  private void reserve(long interval,Runnable beforeSend,boolean imageHost) {
     for(;;) {
       if(Thread.currentThread().isInterrupted())throw new CollectorFailure(503,"BATCH_INTERRUPTED");
       long started=nanoTime.getAsLong(),wait,valid;
@@ -43,7 +49,10 @@ final class DirectRequestBudget {
           if(error.getMessage()!=null&&error.getMessage().contains(code))throw new CollectorFailure(code.equals("SOURCE_DAILY_LIMIT_EXCEEDED")?429:503,code);
         throw new CollectorFailure(503,"SOURCE_BUDGET_UNAVAILABLE");
       }
-      if(wait>0){sleeper.accept(wait);continue;}
+      if(wait>0){
+        if(imageHost)throw new CollectorFailure(429,"IMAGE_HOST_DEFERRED");
+        sleeper.accept(wait);continue;
+      }
       beforeSend.run();
       long elapsed=nanoTime.getAsLong()-started;
       if(valid<=0||elapsed<0||elapsed>=valid*1_000_000L)

@@ -49,7 +49,7 @@
 - chart를 생략하면 `defaultChart`를 사용한다. 일반 목록에 `--chart hot`을 강제로 적용하지 않는다.
 - `maxPages`, `maxItems`, `requestIntervalMs`는 source별 상한·최소 간격이다. 이번 표본 검증은 최대5개 고유 상세 URL이며 한도 초과·접근 차단을 성공으로 바꾸지 않는다.
 - `--since`는 확인된 게시 시각을 대상으로 검사한다. `datePolicy=INCLUDE_UNKNOWN`은 시각 미확인 글도 수량 제한 내에서 처리하고 `unknownDates`를 기록하므로 엄격한 24시간 보장은 아니다. `REQUIRE_KNOWN`은 시각 미확인 글을 수집 완료 결과로 채택하지 않고 `SKIPPED_POLICY`와 제외 사유를 남긴다. parse 전에 확보한 원문 HTML은 진단용으로 보존하며 미디어는 다운로드하지 않는다. 기간 제외 수는 `skippedByDate`다.
-- 삭제·로그인·CAPTCHA·차단은 우회하지 않는다. 접근 제한 및 재시도 소진은 site stop, 구조 오류 누적은 제한된 실패 후 종료한다. 설정된 이미지 한도(기본·최대 200개) 초과는 본문을 잘라 저장하지 않고 실패한다.
+- 삭제·로그인·CAPTCHA·차단은 우회하지 않는다. 목록/본문의 접근 제한 및 재시도 소진은 site stop, 구조 오류 누적은 제한된 실패 후 종료한다. 이미지 오류는 해당 글 실패로 격리하고 다음 글을 계속 처리한다. 이미지 주소/redirect/HTTP 허용은 [10/9 이미지 정책](README.md#이미지-수집-정책--2026-10-09-사용자-결정)을 따른다. 설정된 이미지 한도(기본·최대 200개) 초과는 본문을 잘라 저장하지 않고 실패한다.
 - 일반 목록의 공지·광고 제외는 사이트의 실제 row/badge 구조로 검증한다. 이토랜드의 중첩 공지 category는 관측 fixture로 검증한다.
 - 설정의 approved/batchApproved는 해당 실행 설정의 gate이며 production 배포·법률 판단·전체 수집 완료 증거가 아니다. 운영 활성화와 Discord Gateway, 실제 원격 R2 권한은 별도 검증한다.
 - `collectionPolicy` 분류명만으로 실행 차단을 보장하지 않는다. 현재 direct runner는 `approved`/`blockedReason`, `batchApproved`, `chartVerified`와 URL·요청 제한을 검사한다. 개발 예제의 차단/상세 전용 4개 출처는 `chartVerified=false`이며, 예제 승인 플래그를 그대로 운영 승인으로 사용하지 않는다.

@@ -1,0 +1,75 @@
+{
+  "readback": [
+    {
+      "runId": "271c5758-684a-48a5-a553-cf9153d8dd62",
+      "source": "todayhumor",
+      "state": "COMPLETED",
+      "reportMatches": true,
+      "ledgerMatches": true,
+      "failureCountMatches": true,
+      "readbackPass": true,
+      "executionComplete": true,
+      "collectionComplete": true,
+      "items": 1,
+      "media": 2,
+      "totalMediaBytes": 227716,
+      "imageDecodeAndHashesPass": true
+    },
+    {
+      "runId": "4dc57641-6683-4a1a-8027-8b925a403f2c",
+      "source": "theqoo",
+      "state": "COMPLETED",
+      "reportMatches": true,
+      "ledgerMatches": true,
+      "failureCountMatches": true,
+      "readbackPass": true,
+      "executionComplete": true,
+      "collectionComplete": true,
+      "items": 5,
+      "media": 13,
+      "totalMediaBytes": 2068724,
+      "imageDecodeAndHashesPass": true
+    }
+  ],
+  "sourceAndJarUnchanged": true,
+  "jobs": [
+    {
+      "label": "com.blariyo.local-collection",
+      "disabled": true,
+      "loaded": false
+    },
+    {
+      "label": "com.blariyo.discord-review.scan",
+      "disabled": true,
+      "loaded": false
+    },
+    {
+      "label": "com.blariyo.discord-review.maintenance",
+      "disabled": true,
+      "loaded": false
+    },
+    {
+      "label": "com.blariyo.local-collection.awake",
+      "disabled": true,
+      "loaded": false
+    }
+  ],
+  "mediaOrigins": [
+    {
+      "source": "todayhumor",
+      "scheme": "https",
+      "host": "thimg.todayhumor.co.kr",
+      "images": 2
+    },
+    {
+      "source": "theqoo",
+      "scheme": "https",
+      "host": "img-cdn.theqoo.net",
+      "images": 13
+    }
+  ],
+  "discordWorkerExecuted": false,
+  "productionTouched": false,
+  "liveHttpImageTested": false,
+  "liveImageFailureContinuationTested": false
+}

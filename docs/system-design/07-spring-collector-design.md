@@ -1,5 +1,8 @@
 # Spring 수집 서버 상세 설계
 
+> 2026-10-09 이미지 정책 변경: [제품 정본](../planning/content-collection/README.md)의 HTTP·HTTPS 공개 이미지/외부 CDN 허용이 아래 과거 이미지 HTTPS·출처별 imageOrigins 제한을 대체한다. 목록·본문·일반 첨부 계약은 유지한다. 이미지 실패는 글 단위로 격리하고 후속 글을 진행하며, 이미지 호스트별 영속 Retry-After와 출처별 총 예산·DNS/IP 고정·이미지 형식/크기 제한을 적용한다.
+
+
 - 최초 기준일: 2026-09-08; 문서 대조일: 2026-09-24
 - 상태: direct/legacy source·migration·API·로컬 검증 증거 있음. 17출처 로컬 readback과 4출처 실패를 구분하며 원격 writer·Discord·운영 활성화는 미완료
 - 대상 단계: `M0 수집 보조`와 `M0 자동 수집`; 초기 Spring 절은 legacy 호환
@@ -711,9 +714,9 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
   더쿠는 `article[itemprop=articleBody]` 한 개를 요구하며 제목·본문이 없거나 구조가 달라지면 실패한다.
 - 본문을 순회해 TEXT, IMAGE, LINK 블록을 만든다. raw HTML과 임의의 iframe HTML은 보내지 않는다.
   SNS blockquote/iframe은 참조 URL로 치환한다. 동영상·오디오 binary는 받지 않고 출처 URL을 LINK로 보존한다.
-- detail URL과 redirect는 출처 host/path 제한을 그대로 적용한다. 첨부 CDN은 `imageOrigins`의 정확한 HTTPS
-  origin과 path prefix를 따로 허용한다. wildcard host·임의 외부 URL은 허용하지 않는다. 이미지 redirect도 같은
-  허용 origin 안에서만 처리한다. 모든 실제 요청은 기존 pinned DNS·public IP 검사·quota·timeout·크기 제한을 거친다.
+- detail URL과 redirect는 출처 host/path 제한을 유지한다. 일반 파일 첨부는 `imageOrigins`의 정확한 HTTPS origin/path 계약을 유지한다.
+  direct 이미지는 출처별 origin 목록 없이 HTTP·HTTPS의 공개 호스트를 허용하며 CDN 간 redirect도 최대3회 허용한다.
+  각 hop은 공개 DNS/IP 고정·출처 총 quota·timeout·크기 제한을 통과해야 한다. HTTP는 검증된 IP의80번, HTTPS는443번에 연결하고 HTTPS 인증서/호스트 검증을 유지한다.
 - 반복된 같은 이미지도 본문의 위치를 잃지 않도록 각 IMAGE 위치에 독립 후보 번호를 부여한다.
   빈 이미지 주소·알 수 없는 본문 iframe 주소·한도 초과를 조용히 버리지 않고 PARSE_FAILED로 처리한다.
 
@@ -803,7 +806,7 @@ rollback은 Spring 신규 실행을 끄고 기존 Core/BFF route와 수동 게�
   미구현 update 옵션을 성공으로 받지 않는다. canonical과 source post key가 다른 게시물을 합치면 안 된다.
 - 본문 이미지는 `img[src]`, `data-src`, `data-original`, `data-original-src`, `data-lazy-src`,
   `data-srcset`/`srcset`, CSS `background-image`를 순서대로 해석한다. `srcset`은 가장 큰 width/density 후보를 선택한다.
-  후보 URL은 `SourcePolicy.imageOrigins`의 정확한 HTTPS host/path prefix를 다시 통과해야 하며 실패 시 성공 처리하지 않는다.
+  이미지 후보 URL은 출처별 `imageOrigins` 제한 없이 HTTP·HTTPS 공개 주소로 검증한다. 내부망·비표준 포트 등은 거부하며 실패한 글을 성공 처리하지 않는다.
 - 목록 discovery는 타 사이트 공지·필독·운영 안내를 후보 큐에 넣지 않는다. 공통 필터는 row/link class·id의
   `notice/noti/fixed/sticky/pinned`, badge text `공지/알림/필독/NOTICE`, 제목 prefix `공지:`·`[필독]`을 제외한다.
   일반 게시글 제목 중간에 같은 단어가 들어간 경우까지 광범위하게 제거하지 않는다.
@@ -1016,3 +1019,13 @@ REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 s
 ### 관리자 실패 삭제 연동 — 2026-10-06
 
 Collector V014는 명시 삭제와 image retry를 별도 원장으로 구분한다. API는 제한 함수로 실패/차단·미검수·미연결 항목만 삭제하며 출처/검수/restore 잠금을 공유한다. 기존 `ImageFailureCleanup`의 exact item/run 경로 정리 호출은 수동 삭제 작업도 조회한다(기존 SQL 함수명은 호환성 유지). 수동 삭제는 run 전체의 보고서·다른 실패 항목·queue를 건드리지 않는다. 삭제 결과와 파일 회수 완료는 별도로 검증한다.
+
+
+## 공개 이미지와 글 단위 실패 격리 — 2026-10-09
+
+- direct `SourcePolicy.imagePolicy`는 HTTP·HTTPS 공개 이미지 모드다. `attachmentPolicy`는 기존 일반 첨부용 HTTPS origin/path 제한을 유지한다. 이미지 실패는 `IMAGE_URL_NOT_ALLOWED` 또는 기존 네트워크/미디어 오류로 기록한다.
+- PARSE의 이미지 URL 거부, MEDIA의 이미지 접근/통신/형식/용량 오류는 해당 글 실패로 마감하고 다음 글을 처리한다. 출처 실패 횟수에 합산하지 않는다. 목록/상세의 접근 실패와 DB/예산/소유권 오류의 기존 중단 조건은 유지한다.
+- `collect.batch_request_budget`의 기존 출처 키는 전체 HTTP 요청의 일일 상한·간격을 담당한다. 추가 `image-host-<정규화 host SHA-256>` 키는 이미지 서버별 영속 대기를 담당한다. 기존 reserve/defer 제한 함수를 재사용하며 새 migration/일반 쓰기 권한은 필요 없다. host 키의 보조 상한은100만/일, interval0이며 기존 함수의2초 전송 permit 간격을 적용한다. 출처별 총 한도·기본5초 간격에 추가로 적용된다.
+- 호스트별 Retry-After가 남으면 `IMAGE_HOST_DEFERRED`로 즉시 해당 이미지/글을 실패 처리하며 긴 sleep으로 출처 전체를 붙잡지 않는다. 새 프로세스도 DB 대기를 확인하고, 다른 이미지 서버/상세 페이지는 출처 예산 범위에서 진행한다.
+- raw 미디어의 MIME/크기 검증과 API의 decode·재인코딩·hash/size 확인은 계속 적용한다. HTTP 수집 허용은 원본 핫링크 또는 이미지 검증 생략을 뜻하지 않는다.
+- 이 변경의 구현 수용 대상은 direct 목록·URL 수집이다. 비활성 legacy Core 후보 API의 HTTPS remoteUrl 계약은 이 작업에서 확대하지 않으며 재활성화 때 별도 정합화한다.

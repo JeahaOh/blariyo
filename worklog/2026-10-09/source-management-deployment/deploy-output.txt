@@ -1,0 +1,78 @@
+STAGED /opt/blariyo/application/release-77a425d-sources-v015-20261009T143304Z
+WRITERS_STOPPED
+API_V015_COMPLETE
+COLLECTOR_V016_COMPLETE
+SETTINGS_SYNCED
+{"state": "READY", "sources": ["arcalive", "bobaedream", "clien", "dcinside", "dmitory", "dogdrip", "etoland", "fmkorea", "goodgag", "humoruniv", "instiz", "inven", "mlbpark", "natepann", "pgr21", "ppomppu", "ruliweb", "theqoo", "todayhumor", "yuldo", "youtube-community"], "sourceConcurrency": 1, "maxSeconds": 7200}
+{
+  "mainSha": "77a425d98327dc7933c8871194cc31f3608089a1",
+  "releasePath": "/opt/blariyo/application/release-77a425d-sources-v015-20261009T143304Z",
+  "previousReleasePath": "/opt/blariyo/application/release-f8067ab-discord-v014-20261007T150233Z",
+  "apiImage": "ghcr.io/jeahaoh/blariyo-api@sha256:7242443ffb3b8453c85547c66467878a363b7594b69e90f046b1408ebf114cf3",
+  "webImage": "ghcr.io/jeahaoh/blariyo-web@sha256:8ea07e34c27d75dde87c0e7e1cabd0fc5c001868c8827acc29e84796147b5adb",
+  "collectorJarSha256": "a67f9dae519896558b7e6aa9417b306de630be7fa8f0e17f006e8a1f1eacd5df",
+  "ciRun": 37943085194,
+  "imageCiRun": 37944479479,
+  "collectorArtifactSha256": "bc754a523b838a36f5b67559c4f09831cfbb19a9eecd0021d125b489d605ec96",
+  "backup": {
+    "format": 1,
+    "key": "db/daily/20261009T141533Z-579cab1f0e9b.dump.age",
+    "createdAt": "2026-10-09T14:15:33.148789+00:00",
+    "postgresMajor": 18,
+    "sha256": "b5047e3338d72fa1153aa84accb1faee24d9ffceee019e08995a07ea4f02a106",
+    "bytes": 1274224,
+    "retentionDays": 7,
+    "spool": "/opt/blariyo/backup/spool/20261009T141533Z-579cab1f0e9b"
+  },
+  "timers": [
+    "blariyo-publish.timer",
+    "blariyo-outbox.timer",
+    "blariyo-cleanup.timer",
+    "blariyo-collection.timer",
+    "blariyo-discord-review.timer",
+    "blariyo-discord-review-scan.timer",
+    "blariyo-nightly-main-deploy.timer"
+  ],
+  "stagedAt": "2026-10-09T14:33:05.059809+00:00",
+  "status": "DEPLOYED",
+  "stoppedAt": "2026-10-09T14:33:05.441825+00:00",
+  "before": {
+    "posts": 106,
+    "items": 445,
+    "postsHash": "2e37020fd1eb6b97af4beb1e1816ff82477a41508e70f480623dffba698e4aca",
+    "itemsHash": "32d26f348b37b93e9a032bb48421890814b813d7857f7002c61483fd088662bc"
+  },
+  "apiMigratedAt": "2026-10-09T14:33:06.671768+00:00",
+  "collectorMigratedAt": "2026-10-09T14:33:09.370573+00:00",
+  "sourceSettings": {
+    "total": 21,
+    "enabled": 13,
+    "unavailable": 2,
+    "urls": 21
+  },
+  "appHealthyAt": "2026-10-09T14:33:24.995244+00:00",
+  "startHelperBackup": "/opt/blariyo/operations/start-application.py.20261009T143324Z",
+  "resumedAt": "2026-10-09T14:33:26.131702+00:00",
+  "after": {
+    "posts": 106,
+    "items": 445,
+    "postsHash": "2e37020fd1eb6b97af4beb1e1816ff82477a41508e70f480623dffba698e4aca",
+    "itemsHash": "32d26f348b37b93e9a032bb48421890814b813d7857f7002c61483fd088662bc"
+  },
+  "dbVersions": {
+    "api": "V015",
+    "collector": "V016"
+  },
+  "runtime": [
+    {
+      "name": "blariyo-app-api-1",
+      "image": "ghcr.io/jeahaoh/blariyo-api@sha256:7242443ffb3b8453c85547c66467878a363b7594b69e90f046b1408ebf114cf3",
+      "health": "healthy"
+    },
+    {
+      "name": "blariyo-app-web-1",
+      "image": "ghcr.io/jeahaoh/blariyo-web@sha256:8ea07e34c27d75dde87c0e7e1cabd0fc5c001868c8827acc29e84796147b5adb",
+      "health": "healthy"
+    }
+  ]
+}

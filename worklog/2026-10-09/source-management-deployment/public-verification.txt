@@ -1,0 +1,13 @@
+PASS HTTPS 200 /meme
+PASS HTTPS 200 /terms
+PASS HTTPS 200 /privacy
+PASS HTTPS 200 /cookie-settings
+PASS HTTPS 200 /health/live
+PASS 공개 정책 API terms v0.1 · 시행일 · placeholder 없음
+PASS 공개 정책 API privacy v0.1 · 시행일 · placeholder 없음
+PASS 익명·위조 헤더 관리자 요청 → Access 인증 /admin
+PASS 익명·위조 헤더 관리자 요청 → Access 인증 /api/v1/admin/posts
+PASS Core internal 경로 공개 차단
+PASS HTTP → HTTPS
+PASS www → 대표 도메인 (관리자 경로도 본 도메인 인증 적용)
+범위: 실제 공개 HTTPS·정책 API·익명 인증 경계. 로그인 이후 기능·부하·전체 CDN 전파는 별도.

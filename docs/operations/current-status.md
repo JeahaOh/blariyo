@@ -1,5 +1,7 @@
 # M0 운영 상태와 남은 작업
 
+> **최신 확인: 2026-10-09 23:35 KST.** main `77a425d98327dc7933c8871194cc31f3608089a1`의 CI digest 고정 API/Web과 Collector JAR를 운영에 반영했다. API V015·Collector V016·제한 역할 권한과 수집처21개 URL/설정(ON13·임시OFF6·수집 불가2), 자동발행 ON0을 실제 API 저장소의 앱 역할 조회로 확인했다. 수집처 관리 행별 저장·사용자 정의 선택 UI·필터·마지막 수집/실패 이력, HTTP/외부 CDN 이미지·글 단위 실패 격리를 반영했다. 게시글106·수집445건의 전후 행 해시 보존, 기존 예약 작업 재개, 공개 HTTPS/인증 경계 및 배포 전후 R2 백업의 다운로드·복호화·격리 PostgreSQL18 실제 복원 통과. 운영 관리자 브라우저는 Cloudflare 로그인 대기이며 실제 설정 변경·다음 정기 수집·자동발행 관찰은 별도다. 개발 예약 수집은 중지 유지. [SHA/digest·DB·백업·실행 증거](../../worklog/2026-10-09/source-management-deployment/README.md). 아래 10월8일과 9월 기록은 해당 시점의 결과다.
+
 > **최신 확인: 2026-10-08 00:06 KST.** main `f8067abd757d404599d6f00e00239a7ab3afff43`의 API/Web 이미지와 API V014·Collector V015를 운영에서 확인했다. Discord 검수 API/Web flag와 전용 worker를 활성화했고 실제 수집 1건의 헤드·스레드·본문4개/반응·READY/48시간을 확인했다. 공개 HTTP·인증 경계 검사 통과, 수집04:30/15:30·검수07:30/17:00 예약 활성화. 실제 검수 승인·발행은 하지 않았다. 상세 digest·백업·교체 중 응답·미검증은 [운영 반영 기록](../../worklog/2026-10-08/discord-review-deployment/README.md)을 따른다. 아래 9월의 마지막 배포·미활성화·미구현 표기는 당시 기록이며 현재 상태를 대신하지 않는다.
 
 - 마지막 앱 배포: **2026-09-25 01:47:24 KST**, `8af7244` API/Web 교체와 GTM 실제 로딩 확인. 중단 후 08:23 KST 공개 응답, 이어 서버 배포 기록·부팅 경로를 재확인했다([배포 기록](../../worklog/2026-09-25/google-tag-manager/PRODUCTION-DEPLOYMENT.md)). DB·콘텐츠 반영은 [9월 23일 기록](../../worklog/2026-09-23/release/production-db-promotion.md)을 따른다.

@@ -1,0 +1,6 @@
+PASS R2 다운로드 SHA-256
+PASS age 복호화
+PASS 격리 pg_restore 완료
+PASS R2 실파일 다운로드·SHA-256·age 복호화·격리 PostgreSQL 18 실제 복원
+PASS migration ledger·정책 본문 해시·게시판/게시글 수 운영 DB 대조
+PASS 복구 시험 container·메모리 임시 DB 정리, 복구키 서버 파일 저장 없음

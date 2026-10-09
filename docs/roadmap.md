@@ -1,10 +1,12 @@
 # M0 로드맵 — 남은 작업과 완료 조건
 
-- 2026-10-09 수집처 설정: 수집 URL·수집 여부·자동 발행 select와 DB 기반 배치 수집 설정을 연결한다. 기존 임시 중지를 유지하고 Collector V016·권한 적용이 필요하다. 검증·로컬/운영 반영 상태는 [작업 기록](../worklog/2026-10-09/source-collection-settings/README.md)을 따른다.
+- 2026-10-09 수집처 관리 운영 배포 완료: main `77a425d`, API V015·Collector V016과 제한 DB 권한 반영. 수집21개(ON13·임시OFF6·수집 불가2), 자동발행 ON0, 개발 예약 수집 중지 유지. 행별 설정·URL·필터·수집/실패 이력과 HTTP/외부 CDN 이미지 정책을 배포했다. 기존 게시글/수집 데이터 보존과 배포 전후 실제 백업 복원·공개 인증 경계 검사는 통과했다. 남은 인수는 운영 관리자 로그인 후 설정 저장, 다음 정기 수집과 별도 승인된 자동발행 실관찰이다. [운영 증거](../worklog/2026-10-09/source-management-deployment/README.md).
+
+- 2026-10-09 수집처 설정: 수집 URL·수집 여부·자동 발행 select와 DB 기반 배치 수집 설정을 연결한다. 기존 임시 중지를 유지하고 Collector V016·권한을 운영에 적용했다. 구현 검증은 [작업 기록](../worklog/2026-10-09/source-collection-settings/README.md), 현재 운영 반영은 [배포 기록](../worklog/2026-10-09/source-management-deployment/README.md)을 따른다.
 
 - 2026-10-09 출처별 자동 발행: API 정책·변경 이력, 기본 OFF/OWNER 설정, 신규 run 자동 발행·최종 정책 검사, 관리자 설정 UI를 로컬 구현했다. 검증·운영 적용 여부는 [작업 기록](../worklog/2026-10-09/source-auto-publish/README.md)을 따른다.
 
-- 2026-10-09 이미지 정책 변경: direct 수집의 HTTP·HTTPS/외부 CDN 이미지 허용, 이미지 오류의 글 단위 격리, 이미지 호스트별 영속 대기 코드를 보완했다. 검증 결과와 운영 반영 여부는 [작업 기록](../worklog/2026-10-09/image-source-policy/README.md)을 따른다. 개발 배치 자동 실행은 중지 유지하며 운영 적용은 별도다.
+- 2026-10-09 이미지 정책 변경: direct 수집의 HTTP·HTTPS/외부 CDN 이미지 허용, 이미지 오류의 글 단위 격리, 이미지 호스트별 영속 대기 코드를 보완했다. 검증 결과와 운영 반영 여부는 [작업 기록](../worklog/2026-10-09/image-source-policy/README.md)을 따른다. 개발 배치 자동 실행은 중지 유지하며 main `77a425d`의 운영 적용은 [배포 기록](../worklog/2026-10-09/source-management-deployment/README.md)을 따른다.
 
 
 - 2026-10-08 Discord 검수: 로컬·운영 구현과 실제 수집→메시지 전송 검증 완료. 남은 관찰은 첫04:30 정기 수집, 사람의👍/❌에 따른07:30 처리, 실제48시간 만료·장기 삭제 복구다. 제목/문장 수정 기능은 합의대로 후속 개발이다. [운영 결과](../worklog/2026-10-08/discord-review-deployment/README.md). 아래 과거 인수 목록 전체가 완료된 것은 아니다.

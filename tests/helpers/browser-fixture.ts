@@ -1,3 +1,4 @@
+import { object } from './browser-values.ts';
 import { CollectionOperationsService } from '../../apps/api/dist/features/collection/collection-operations.service.js';
 import assert from 'node:assert/strict';
 import type { TestContext } from 'node:test';
@@ -282,6 +283,18 @@ export async function browserFixture(
     }
   }
   const runningApp = app;
+  if (batchReview) {
+    await source.query(await readFile('apps/collector/src/main/resources/db/collector-v016.sql','utf8'));
+    const catalogue=object(JSON.parse(await readFile('apps/collector/ops/reference-sites.sources.example.json','utf8')));
+    for (const [key,raw] of Object.entries(catalogue)) {
+      const value=object(raw),charts=object(value.charts??{});
+      const url=charts[typeof value.defaultChart==='string'?value.defaultChart:'hot']??Object.values(charts)[0]??(typeof value.host==='string'?`https://${value.host}/`:null);
+      const available=value.collectionPolicy!=='BLOCKED'&&value.collectionPolicy!=='UNVERIFIED';
+      await source.query('SELECT collect.sync_source_collection_setting($1,$2,$3,$4,$5)',[key,
+        typeof url==='string'?url:null,
+        available&&value.approved===true&&value.enabled!==false&&!value.blockedReason,available,available?null:'SOURCE_NOT_ALLOWED']);
+    }
+  }
   return {
     origin,
     pool,

@@ -26,7 +26,7 @@ export async function proxyCoreRequest(event: H3Event, directAlias = false) {
     if (directAlias) url.pathname = url.pathname.replace(/^\/api\/admin\/collect\//, '/api/v1/admin/collect/');
     const operation = matchOperation(event.method, url.pathname);
     if (!operation) return error(404, 'POST_NOT_FOUND');
-    const batchReview = /^\/api\/v1\/admin\/collect\/batch-items(?:\/|$)/.test(url.pathname);
+    const batchReview = /^\/api\/v1\/admin\/collect\/(?:batch-items|source-publish-policies)(?:\/|$)/.test(url.pathname);
     const directInput = /^\/api\/v1\/admin\/collect\/(requests|runtime-sources)(?:\/|$)/.test(url.pathname);
     if (directInput && !config.collectDirectInputEnabled) return error(404, 'COLLECTION_REQUEST_NOT_FOUND');
     if (directAlias && !directInput) return error(404, 'COLLECTION_REQUEST_NOT_FOUND');

@@ -791,3 +791,7 @@ D04-T1 두 운영자의 Core·검수 허용, D04-T2 EDITOR의 직접 legacy PATC
 
 
 D04 선택·복귀 근거: 앱 기능별 새 권한 편집 UI/범용 정책 엔진 대신 기존 operator allowlist의 두 role과 명시적 operation allowlist를 선택한다. 두 사람의 게시물 협업을 유지하면서 관리 계정 credential 분리로 서버/백업 경계를 강제할 수 있다. role 배포는 Core의 선택 gate 지원→BFF role 전달·registry 검증→실제 두 계정 거부 시험→Core role 필수 gate 순서다. gate 필수화 뒤 이전 BFF로 복귀하면 관리자 쓰기를 닫고 사용자만 점검하며 역할 없는 요청을 OWNER로 허용하지 않는다. 공개 읽기·예약 worker는 별도 machine 경계로 유지한다.
+
+### 출처별 자동 발행 운영 조건 — 2026-10-09
+
+`posts:publish-due`는 예약 게시글 처리 후 출처별 AUTO 작업을 최대5건 처리한다. `collection:auto-publish`는 같은 작업의 단독 1회 실행 명령이다. API V015와 정책 테이블 권한·선택 백업을 먼저 반영하고, OWNER가 지정한 출처만 켠다. 기본 OFF·최종 버전 검사·중단/복귀 계약은 [기술 계약](11-source-auto-publish.md)을 따른다. 개발 예약 중지는 배포·정책 변경과 별개다.

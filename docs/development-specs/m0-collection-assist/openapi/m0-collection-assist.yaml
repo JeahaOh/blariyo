@@ -5,6 +5,145 @@ info:
   description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public
     Core routes remain unchanged. New M0-D02 operations are implemented locally and synchronized with runtime packages/contracts. Production acceptance remains pending.
 paths:
+  /api/v1/admin/collect/source-publish-policies:
+    get:
+      operationId: listSourcePublishPolicies
+      tags:
+        - source-publication
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      parameters: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/SourcePublishPolicy"
+                      canManage:
+                        type: boolean
+                    required:
+                      - items
+                      - canManage
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/source-publish-policies/{sourceKey}:
+    post:
+      operationId: updateSourcePublishPolicy
+      tags:
+        - source-publication
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+      parameters:
+        - name: sourceKey
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-z][a-z0-9-]{0,79}$
+            maxLength: 80
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/SourcePublishPolicy"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSourcePublishPolicy"
   /internal/discord-review/v1/runtime:
     get:
       operationId: discordReviewRuntime
@@ -5454,6 +5593,110 @@ components:
       in: cookie
       name: BLARIYO_ADMIN_SESSION
   schemas:
+    SourcePublishPolicy:
+      type: object
+      additionalProperties: false
+      properties:
+        sourceKey:
+          type: string
+          pattern: ^[a-z][a-z0-9-]{0,79}$
+          maxLength: 80
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        sourceUrl:
+          anyOf:
+            - type: string
+              format: uri
+              pattern: ^https?://
+            - type: "null"
+        collectionEnabled:
+          anyOf:
+            - type: boolean
+            - type: "null"
+        collectionAvailable:
+          type: boolean
+        collectionBlockedReason:
+          anyOf:
+            - type: string
+            - type: "null"
+        collectionLockVersion:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        autoPublishEnabled:
+          type: boolean
+        enabledSince:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        lockVersion:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        updatedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        lastCollectedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        lastRunAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        lastRunState:
+          anyOf:
+            - type: string
+              enum: [QUEUED, RUNNING, COMPLETED, PARTIAL, FAILED, BLOCKED]
+            - type: "null"
+        lastFailureCodes:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[A-Z][A-Z0-9_]{0,79}$
+      required:
+        - sourceKey
+        - displayName
+        - sourceUrl
+        - collectionEnabled
+        - collectionAvailable
+        - collectionBlockedReason
+        - collectionLockVersion
+        - autoPublishEnabled
+        - enabledSince
+        - lockVersion
+        - updatedAt
+        - lastCollectedAt
+        - lastRunAt
+        - lastRunState
+        - lastFailureCodes
+    UpdateSourcePublishPolicy:
+      type: object
+      additionalProperties: false
+      properties:
+        collectionEnabled:
+          type: boolean
+        collectionLockVersion:
+          type: integer
+          minimum: 0
+          maximum: 2147483646
+        autoPublishEnabled:
+          type: boolean
+        lockVersion:
+          type: integer
+          minimum: 0
+          maximum: 2147483646
+      required:
+        - autoPublishEnabled
+        - lockVersion
     DiscordReviewMessage:
       type: object
       additionalProperties: false

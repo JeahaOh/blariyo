@@ -48,12 +48,14 @@ public final class DirectUrlRunner {
     var failureDetail=new LinkedHashMap<String,Object>();
     BatchStore.SourceLock lease=null;
     try {
+      if(!options.writeDb()&&store!=null)source=store.collectionSource(source);
       if(!options.writeDb())requests=SourceRequests.controlled(transport,sleeper,options.intervalMs(),source,store,()->{});
       if(!sourceLocked)lease=store.lockSource(source.key());
       if(options.writeDb()) {
         store.registerSource(source.key(),source.config().path("host").asText());
         run=store.begin(source.key(),sourceLocked?"discord":"manual","WRITE_DB",1,1,options.intervalMs(),null);runStarted=true;
         started.accept(run);
+        source=store.collectionSource(source);
         UUID activeRun=run;
         requests=SourceRequests.controlled(transport,sleeper,options.intervalMs(),source,store,()->store.assertRunLive(activeRun));
       }

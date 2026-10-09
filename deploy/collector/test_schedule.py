@@ -6,8 +6,8 @@ class DeploymentContract(unittest.TestCase):
  def test_source_disable_and_resource_boundary(self):
   sources=json.loads(Path('apps/collector/ops/reference-sites.sources.example.json').read_text())
   active=m.active_sources(sources)
-  self.assertEqual(len(active),15)
-  self.assertFalse(set(active)&{'dcinside','arcalive','bobaedream','inven','mlbpark','pgr21'})
+  self.assertEqual(len(active),21)
+  self.assertTrue({'dcinside','arcalive','bobaedream','inven','mlbpark','pgr21'} <= set(active)) # DB switches are evaluated by Java, not filtered by the old file.
   args=m.container_args({'dbNetworkIp':'172.18.0.21','image':'jre@sha256:fixed'},'goodgag')
   for option,value in [('--memory','512m'),('--memory-swap','512m'),('--cpus','0.5'),('--max-pages','2'),('--max-items','20'),('--since','24h'),('--interval-ms','5000')]:self.assertEqual(args[args.index(option)+1],value)
   self.assertNotIn('--privileged',args);self.assertNotIn('-p',args);self.assertIn('--write-db',args)

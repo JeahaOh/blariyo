@@ -35,6 +35,7 @@ class DirectHttpControlReadbackTests {
       "parser","METADATA","pathPrefixes",List.of("/"),"userAgent","fixture contact.invalid",
       "dailyRequestLimit",2,"requestIntervalMs",5000)))).key(key);
     try(var db=new HikariDataSource(config);var http=HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()) {
+      new SourceCollectionSettings(new BatchStore(db)).sync(source);
       // Explicit test adapter: all packets go to this owned loopback server. Production PinnedHttp is unchanged.
       SourceTransport transport=new SourceTransport() {
         public void validate(URI uri){assertEquals("fixture.invalid",uri.getHost());}

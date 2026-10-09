@@ -14,10 +14,10 @@ import org.junit.jupiter.api.*;
 class DirectRequestBudgetTests {
   @Test void missingStoreOrInvalidLimitNeverAuthorizesARequest() {
     assertEquals("SOURCE_BUDGET_REQUIRED",assertThrows(CollectorFailure.class,()->new DirectRequestBudget(null,"fixture",10,x->{})).getMessage());
-    for(int limit:List.of(0,-1,1000001))assertThrows(CollectorFailure.class,()->new DirectRequestBudget(mock(BatchStore.class),"fixture",limit,x->{}));
+    for(int limit:List.of(0,-1,1000001))assertThrows(CollectorFailure.class,()->new DirectRequestBudget(TestSourceControls.mockStore(),"fixture",limit,x->{}));
   }
   @Test void failedAndExpiredPermitsFailClosed() throws Exception {
-    var store=mock(BatchStore.class);var c=mock(Connection.class);var q=mock(PreparedStatement.class);var row=mock(ResultSet.class);
+    var store=TestSourceControls.mockStore();var c=mock(Connection.class);var q=mock(PreparedStatement.class);var row=mock(ResultSet.class);
     when(store.connection()).thenReturn(c);when(c.getAutoCommit()).thenReturn(true);when(c.prepareStatement(anyString())).thenReturn(q);
     when(q.executeQuery()).thenReturn(row);when(row.next()).thenReturn(true);when(row.getLong(1)).thenReturn(0L);when(row.getLong(2)).thenReturn(2000L);
     var clock=new AtomicLong();

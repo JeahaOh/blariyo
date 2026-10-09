@@ -33,6 +33,12 @@ final class TestSourceControls {
   // These fixtures isolate lifecycle/ownership from real waiting. The SQL quota and real waits
   // are covered separately by DirectRequestBudgetTests; SourceRequestsTests checks every charge.
   // Host admission also reserves a 2-second send permit; PublicImageReadbackTests exercises it with real SQL.
+  // Parser-only unit tests stub catalogue resolution; real DB switch enforcement has readback tests.
+  static BatchStore mockStore() {
+    var store=mock(BatchStore.class);
+    when(store.collectionSource(any())).thenAnswer(call->call.getArgument(0));
+    return store;
+  }
   static BatchStore store(DataSource db) {
     var store=spy(new BatchStore(db));
     doAnswer(call->{((Runnable)call.getArgument(4)).run();return null;}).when(store)

@@ -1,3 +1,4 @@
+import { assertAutoPublishPolicy } from './source-publish-policy.repository.js';
 import { Inject, Injectable } from '@nestjs/common';
 import { ReviewPublicationGuard, type ReviewPublicationFence } from '../features/posts/review-publication.guard.js';
 import { DatabaseContext } from './database.js';
@@ -26,6 +27,7 @@ export class TypeOrmReviewPublicationGuard extends ReviewPublicationGuard {
       FROM collect.batch_review_command WHERE id=$1`, [control.active_command_id]))[0];
     if (!command || command.action !== 'APPROVE_PUBLISH' || (typeof command.stage !== 'string' || !['DRAFTED','PUBLISHED'].includes(command.stage)))
       fail(409,'BATCH_REVIEW_SUPERSEDED');
+    if (command.origin === 'AUTO') await assertAutoPublishPolicy(this.db,String(control.item_id),requiredRow([command.request_body]));
     if (fence && (command.lease_token !== fence.leaseToken || !command.leased)) fail(409,'BATCH_REVIEW_LEASE_LOST');
     const original = rows(await this.db.manager.query(`SELECT i.version FROM collect.batch_item i
       JOIN collect.batch_retention r ON r.item_id=i.id WHERE i.id=$1 AND i.state='FETCHED'

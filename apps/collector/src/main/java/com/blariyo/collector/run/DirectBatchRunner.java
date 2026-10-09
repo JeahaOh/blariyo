@@ -27,6 +27,7 @@ public final class DirectBatchRunner {
     int pages=0,discovered=0,fetched=0,duplicates=0,failures=0,siteFailures=0,unknownDates=0,skippedByDate=0;var errors=new ArrayList<String>();var seen=new HashSet<String>();var visited=new HashSet<URI>();
     BatchStore.SourceLock lease=null;
     try {
+      if(store!=null)source=store.collectionSource(source);
       var policy=source.policy();var adapter=source.adapter();String chart=source.config().path("charts").path(o.chart()).asText();
       if(!source.config().path("batchApproved").asBoolean(false))throw new CollectorFailure(403,"BATCH_NOT_APPROVED");
       if(o.maxPages()>source.config().path("maxPages").asInt(2)||o.maxItems()>source.config().path("maxItems").asInt(20)
@@ -116,6 +117,7 @@ public final class DirectBatchRunner {
       if(o.writeDb()){String reportKey="collect/report/"+run+".jsonl";store.assertRunLive(run);objects.put(reportKey,reportBytes(report),"application/jsonl");store.assertRunLive(run);store.finish(run,state,Map.of("pages",pages,"items",discovered,"fetched",fetched,"unknownDates",unknownDates,"skippedByDate",skippedByDate),reportKey,BatchStore.sha(new String(reportBytes(report),StandardCharsets.UTF_8)));}
       return report;
     }catch(CollectorFailure e){
+      if(!runStarted&&e.getMessage().equals("SOURCE_DISABLED"))return new Report(run,source.key(),"SKIPPED",0,0,0,0,0,0,0,List.of("SOURCE_DISABLED"));
       if(failures==0){failures=1;if(runStarted)store.failItem(run,null,"LIST",e.getMessage());}
       if(errors.isEmpty()||!errors.getLast().equals(e.getMessage()))errors.add(e.getMessage());
       var report = new Report(run,source.key(),e.status()==403?"BLOCKED":"FAILED",pages,discovered,fetched,duplicates,failures,unknownDates,skippedByDate,List.copyOf(errors));

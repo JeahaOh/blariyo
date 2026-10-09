@@ -62,8 +62,9 @@ export function discordReviewSettings(env: Readonly<Record<string,string|undefin
 export interface ReviewOperator { operatorId: string; actor: string; role: 'OWNER' | 'EDITOR' }
 @Injectable()
 export class ReviewAuthority {
-  constructor(@Inject(DISCORD_REVIEW_SETTINGS) private readonly settings: DiscordReviewSettings) {}
+  constructor(@Inject(DISCORD_REVIEW_SETTINGS) private readonly settings: DiscordReviewSettings | undefined) {}
   private operators(): Map<string,ReviewOperator> {
+    if (!this.settings) fail(403,'ADMIN_FORBIDDEN');
     const secret = privateReviewFile(this.settings.actorSecretFile).replace(/\r?\n$/, '');
     if (Buffer.byteLength(secret) < 32) throw new Error('DISCORD_ACTOR_SECRET_INVALID');
     const result = new Map<string,ReviewOperator>(), identities = new Set<string>(), ids = new Set<string>();
@@ -77,6 +78,7 @@ export class ReviewAuthority {
     return result;
   }
   reviewers(): Map<string,ReviewOperator> {
+    if (!this.settings) fail(403,'ADMIN_FORBIDDEN');
     const operators = this.operators(), result = new Map<string,ReviewOperator>(), seen = new Set<string>();
     for (const row of list(this.settings.reviewersFile)) {
       const id = string(row.discordUserId), operatorId = string(row.operatorId);
@@ -93,6 +95,8 @@ export class ReviewAuthority {
     return operator;
   }
   assertCommand(command: ReviewCommandRecord): void {
+    if (command.origin === 'AUTO' && command.action === 'APPROVE_PUBLISH' && command.actor === 'system:collector'
+      && command.operatorId === null && command.reviewerIds.length === 0) return;
     if (command.origin === 'SYSTEM' && command.action === 'REJECT' && command.actor === 'system:discord-review-expiry') return;
     const operator = this.admin(command.actor);
     if (operator.operatorId !== command.operatorId) fail(403,'ADMIN_FORBIDDEN');

@@ -294,7 +294,9 @@ Discord URL -> 권한·확인 -> batch queue -> 상세 URL
   -> 출처/URL·robots·간격·용량 제한 검사
   -> 외부 fetch·사이트별 parser·canonical/source post key 중복 검사
   -> batch 소유 DB와 비공개 raw/media/report 저장
-  -> API 조회·운영자 검수 -> 초안 승격 -> 별도 발행
+  -> API 출처 정책 분기(기본 OFF)
+     -> OFF/기존 검수 글: 운영자 검수 -> 초안 승격 -> 발행
+     -> ON 이후 신규 run: API 공통 AUTO 명령 -> 초안 승격 -> 발행
 ```
 
 direct는 본문·이미지·첨부·SNS 링크의 원래 순서를 보존한다. API는 외부 원문을 다시 fetch하지 않는다.
@@ -504,3 +506,5 @@ COLLECTOR_SOURCE_CONCURRENCY=5 node scripts/local/run-batches.mjs --max-pages 2 
 ```
 
 PowerShell에서는 `$env:COLLECTOR_SOURCE_CONCURRENCY='5'`로 지정하고 같은 Node 명령을 실행한다. 항상 적용할 기본값을 바꾸려면 위 상수 한 곳을 수정한다. 소스 설정의 요청 간격 기본5초와는 독립적이다.
+
+출처별 자동 발행의 신규 run·기존 사람 결정 보존·정책 변경 중단 조건은 [출처별 자동 발행 기술 계약](11-source-auto-publish.md)을 따른다.

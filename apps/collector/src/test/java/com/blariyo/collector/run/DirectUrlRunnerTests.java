@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 class DirectUrlRunnerTests {
   @Test void dryRunParsesDetailOnlyTheqooAndReservesQuotaWithoutContentWrites() {
     var transport = transport();
-    var store = mock(BatchStore.class);
+    var store = TestSourceControls.mockStore();
     var objects = mock(BatchObjectStore.class);
     var report = new DirectUrlRunner(TestSourceControls.allowRobots(transport), store, objects, ignored -> {})
         .run(source(), new DirectUrlRunner.Options("theqoo", "https://theqoo.net/hot/1234567890", 10000, false));
@@ -29,7 +29,7 @@ class DirectUrlRunnerTests {
   }
 
   @Test void writeDbStoresRawMediaAndReportForManualUrl() {
-    var store = mock(BatchStore.class);
+    var store = TestSourceControls.mockStore();
     var objects = mock(BatchObjectStore.class);
     UUID run = UUID.randomUUID(), item = UUID.randomUUID();
     when(store.begin(eq("theqoo"), eq("manual"), eq("WRITE_DB"), eq(1), eq(1), eq(10000L), isNull())).thenReturn(run);

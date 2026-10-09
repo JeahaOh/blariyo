@@ -39,8 +39,10 @@ final class SourceRequests {
     if(interval<minimum||interval>SourceRequestPolicy.MAX_INTERVAL_MS)
       throw new CollectorFailure(503,"SOURCE_CONFIG_REQUIRED");
     if(store==null)throw new CollectorFailure(503,"SOURCE_BUDGET_REQUIRED");
-    return new SourceRequests(transport,sleeper,interval,beforeRequest,
-        delay->store.reserveRequest(source.key(),dailyLimit,delay,sleeper,beforeRequest),
+    Runnable guarded=()->{beforeRequest.run();store.assertCollectionEnabled(source.key());};
+    guarded.run();
+    return new SourceRequests(transport,sleeper,interval,guarded,
+        delay->store.reserveRequest(source.key(),dailyLimit,delay,sleeper,guarded),
         delay->store.deferRequests(source.key(),delay),store::reserveImageHost,store::deferImageHost);
   }
   PinnedHttp.Response fetch(URI url,SourcePolicy policy,int maximum) {

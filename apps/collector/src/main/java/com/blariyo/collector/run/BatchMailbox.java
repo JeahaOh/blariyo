@@ -42,7 +42,7 @@ public final class BatchMailbox {
               q.setObject(1,lease.id());try(var r=q.executeQuery()){r.next();if(!r.getBoolean(1))throw new CollectorFailure(409,"REQUEST_RETRY_NOT_ALLOWED");}
             }
             if(lease.version()!=1)throw new CollectorFailure(409,"NORMALIZATION_VERSION_MISMATCH");
-            var source=sources.key(lease.source());
+            var source=store.collectionSource(sources.key(lease.source()));
             if(!BatchSourceRuntime.policy(source).path("enabled").asBoolean())throw new CollectorFailure(403,"SOURCE_DISABLED");
             try(var q=c.prepareStatement("SELECT freshness FROM collect.batch_runtime_projection WHERE source_key=?")) {
               q.setString(1,source.key());try(var r=q.executeQuery()){

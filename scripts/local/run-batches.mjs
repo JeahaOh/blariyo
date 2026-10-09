@@ -1,4 +1,4 @@
-// Run registered sources except explicitly disabled ones through the fixed-local-DB command.
+// Evaluate registered sources against their database collection switches through the fixed-local-DB command.
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {spawn} from 'node:child_process';
@@ -6,7 +6,7 @@ import {DEFAULT_SOURCE_CONCURRENCY, sourceConcurrency, runSourcePool} from './ba
 
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
-  console.log(`Usage: node scripts/local/run-batches.mjs (--dry-run | --write-db) [--chart NAME] [--max-pages N] [--max-items N] [--since 24h] [--interval-ms N]\nCOLLECTOR_SOURCE_CONCURRENCY: simultaneous source batches (default ${DEFAULT_SOURCE_CONCURRENCY}).\nCOLLECTOR_SOURCE_CONFIG: source JSON file (same setting as run-batch.mjs).\nCOLLECTOR_SOURCE_FILTER: optional comma-separated registered keys; disabled sources stay excluded.\n--dry-run still fetches remote content; it is not an offline preview.`);
+  console.log(`Usage: node scripts/local/run-batches.mjs (--dry-run | --write-db) [--chart NAME] [--max-pages N] [--max-items N] [--since 24h] [--interval-ms N]\nCOLLECTOR_SOURCE_CONCURRENCY: simultaneous source batches (default ${DEFAULT_SOURCE_CONCURRENCY}).\nCOLLECTOR_SOURCE_CONFIG: source JSON file (same setting as run-batch.mjs).\nCOLLECTOR_SOURCE_FILTER: optional comma-separated registered keys; the Java worker checks database collection settings.\n--dry-run still fetches remote content; it is not an offline preview.`);
 } else {
   const controller = new AbortController();
   const children = new Set();
@@ -33,7 +33,7 @@ if (args.includes('--help')) {
     const sourcePath = resolve(process.env.COLLECTOR_SOURCE_CONFIG ?? 'apps/collector/ops/reference-sites.sources.example.json');
     const config = JSON.parse(await readFile(sourcePath, 'utf8'));
     if (!config || Array.isArray(config) || typeof config !== 'object' || !Object.keys(config).length) throw new Error('SOURCE_CONFIG_INVALID');
-    const excludedSources = Object.keys(config).filter(source => config[source]?.blockedReason === 'SOURCE_DISABLED');
+    const excludedSources = [];
     const filter = process.env.COLLECTOR_SOURCE_FILTER?.split(',');
     if (filter && (!filter.length || filter.some(source => !Object.hasOwn(config, source)))) throw new Error('SOURCE_FILTER_INVALID');
     const sources = Object.keys(config).filter(source => !excludedSources.includes(source) && (!filter || filter.includes(source)));

@@ -48,7 +48,7 @@ export class TypeOrmMigrationsRepository extends MigrationsRepository {
      EXECUTE format('GRANT USAGE,SELECT ON SEQUENCE collect.%I TO ${role}',t);
    END IF;
  END LOOP;
- FOREACH t IN ARRAY ARRAY['collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()'] LOOP
+ FOREACH t IN ARRAY ARRAY['collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()','collect.set_source_collection_setting(text,boolean,integer,text)'] LOOP
    IF to_regprocedure(t) IS NOT NULL THEN
      EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO ${role}',t);
    END IF;

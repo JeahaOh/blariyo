@@ -118,3 +118,5 @@ feature flag로 활성화하고 공개 읽기 경로와 분리해, 수집이 멈
 - 공개 승인: 실제 출처·robots·이용 조건, Discord Application·운영 계정, User-Agent 연락처, 법무·운영
   수용 전에는 collector를 활성화하지 않는다. M0 Core 공개와 collector 활성화는 분리한다.
 - 범위: 수집 보조 전환이며 목록 자동 발견·자동 발행·M1·M1.5 변경·전체 BE 스택 전환은 포함하지 않는다.
+
+- [출처별 자동 발행](11-source-auto-publish.md): API 정책·신규 run 분기·공통 발행·OFF 경합·관리자 설정.

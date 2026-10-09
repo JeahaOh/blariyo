@@ -23,7 +23,7 @@ class SourceRequestsTests {
   @Test void robotsNeverBlocksOrAddsNetworkTraffic() {
     for(var robot:List.of(response(403,Map.of()),response(404,Map.of()),
         new PinnedHttp.Response(200,"text/plain",Map.of(),"User-agent: *\nDisallow: /\nCrawl-delay: 3600".getBytes()))) {
-      var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
+      var transport=mock(SourceTransport.class);var store=TestSourceControls.mockStore();
       when(transport.get(any(),anyInt(),anyString())).thenAnswer(call ->
           ((URI)call.getArgument(0)).getPath().equals("/robots.txt")?robot:response(200,Map.of()));
       var requests=SourceRequests.controlled(transport,x->{},10000,controlledSource(),store,()->{});
@@ -36,7 +36,7 @@ class SourceRequestsTests {
     }
   }
   @Test void retryAndMediaUseOnePersistentSourceBudget() {
-    var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);var sleeps=new ArrayList<Long>();
+    var transport=mock(SourceTransport.class);var store=TestSourceControls.mockStore();var sleeps=new ArrayList<Long>();
     when(transport.get(any(),anyInt(),anyString())).thenReturn(response(503,Map.of()),response(200,Map.of()),response(200,Map.of()));
     var requests=SourceRequests.controlled(transport,sleeps::add,15000,controlledSource(),store,()->{});
     requests.fetch(url,policy(),100);
@@ -45,7 +45,7 @@ class SourceRequestsTests {
     verify(store,times(3)).reserveRequest(eq("arcalive"),eq(1000000),eq(15000L),any(),any());
   }
   @Test void defaultsAreRelaxedButInvalidLimitsAndBudgetOutageDenyRequests() {
-    var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
+    var transport=mock(SourceTransport.class);var store=TestSourceControls.mockStore();
     var config=(tools.jackson.databind.node.ObjectNode)controlledSource().config().deepCopy();
     config.remove("dailyRequestLimit");config.remove("requestIntervalMs");
     var source=new SourceRegistry.Source("arcalive",config);
@@ -62,7 +62,7 @@ class SourceRequestsTests {
   }
   @Test void throttlingPersistsDeadlineAndStopsWithoutAnImmediateRetry() {
     for(int status:List.of(429,503)) {
-      var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
+      var transport=mock(SourceTransport.class);var store=TestSourceControls.mockStore();
       when(transport.get(any(),anyInt(),anyString())).thenReturn(response(status,Map.of("Retry-After",List.of("3600"))));
       var failure=assertThrows(CollectorFailure.class,()->SourceRequests.controlled(transport,x->{},15000,controlledSource(),store,()->{}).fetch(url,policy(),100));
       assertTrue(SourceRequests.stopSite(failure));
@@ -134,7 +134,7 @@ class SourceRequestsTests {
     verify(transport,times(1)).get(any(),anyInt(),anyString());
   }
   @Test void imageRedirectsCanCrossCdnAndSchemeButEveryHopIsCheckedAndCharged() {
-    var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
+    var transport=mock(SourceTransport.class);var store=TestSourceControls.mockStore();
     var start=URI.create("http://first-cdn.invalid/one.png");var next=URI.create("https://second-cdn.invalid/two.png");
     when(transport.get(eq(start),anyInt(),anyString())).thenReturn(response(302,Map.of("Location",List.of(next.toString()))));
     when(transport.get(eq(next),anyInt(),anyString())).thenReturn(response(200,Map.of()));
@@ -158,7 +158,7 @@ class SourceRequestsTests {
     }
   }
   @Test void imageCooldownDoesNotDeferArticleBudgetAndHostDenialSendsNothing() {
-    var transport=mock(SourceTransport.class);var store=mock(BatchStore.class);
+    var transport=mock(SourceTransport.class);var store=TestSourceControls.mockStore();
     var image=URI.create("http://cdn.invalid/x");
     when(transport.get(eq(image),anyInt(),anyString())).thenReturn(response(429,Map.of("Retry-After",List.of("3600"))));
     when(transport.get(eq(url),anyInt(),anyString())).thenReturn(response(200,Map.of()));

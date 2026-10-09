@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 /** Batch-owned ledger. It never calls the Core HTTP API and never writes content tables. */
 @Repository
 public final class BatchStore {
+  public com.blariyo.collector.source.SourceRegistry.Source collectionSource(com.blariyo.collector.source.SourceRegistry.Source source) { return new SourceCollectionSettings(this).resolve(source); }
+  public void assertCollectionEnabled(String source) { new SourceCollectionSettings(this).assertEnabled(source); }
   private final DataSource dataSource;
   public BatchStore(DataSource dataSource) { this.dataSource = dataSource; }
   public void reserveRequest(String source,int limit,long interval,java.util.function.LongConsumer sleeper,Runnable beforeSend) {

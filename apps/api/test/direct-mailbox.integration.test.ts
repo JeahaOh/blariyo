@@ -115,9 +115,9 @@ await test('D02: PostgreSQL mailbox transaction, fencing and safe runtime projec
   try {
    await c.query(`GRANT USAGE ON SCHEMA collect TO ${batchRole};
     GRANT SELECT,INSERT,UPDATE ON collect.batch_source,collect.batch_source_runtime,collect.batch_input_receipt,collect.batch_queue TO ${batchRole};
-    GRANT DELETE ON collect.batch_source_runtime TO ${batchRole}; GRANT SELECT ON collect.batch_runtime_projection TO ${batchRole};
+    GRANT DELETE ON collect.batch_source_runtime TO ${batchRole}; GRANT SELECT ON collect.batch_runtime_projection,collect.batch_source_collection_setting TO ${batchRole};
     GRANT EXECUTE ON FUNCTION collect.retention_backlog(),collect.claim_web_requests(integer),collect.ack_web_request(uuid,uuid),
-     collect.cleanup_input_receipts(),collect.web_retry_accessible(uuid),collect.lookup_dedup(text,text,text),collect.purge_authorized(text,uuid),collect.assert_source_owner(text) TO ${batchRole}`);
+     collect.cleanup_input_receipts(),collect.web_retry_accessible(uuid),collect.lookup_dedup(text,text,text),collect.purge_authorized(text,uuid),collect.assert_source_owner(text),collect.sync_source_collection_setting(text,text,boolean,boolean,text) TO ${batchRole}`);
    await new TypeOrmMigrationsRepository(new DatabaseContext(db)).grantApplication(apiRole);
    for(const role of [batchRole,apiRole]) {
     const address=new URL(url);address.username=role;address.password='';

@@ -18,6 +18,8 @@ export class TypeOrmDiscordReviewRepository extends DiscordReviewRepository {
     return rows(await this.db.manager.query(`SELECT i.id FROM collect.batch_item i JOIN collect.batch_retention l ON l.item_id=i.id
       LEFT JOIN collect.batch_review r ON r.item_id=i.id LEFT JOIN collect.batch_review_control c ON c.item_id=i.id
       WHERE i.state='FETCHED' AND i.fetched_at >= $1 AND l.retention_state='LIVE' AND l.expires_at>clock_timestamp()
+      AND NOT EXISTS(SELECT 1 FROM collect.batch_source_publish_policy p JOIN collect.batch_run b ON b.source_key=p.source_key
+        WHERE b.id=i.run_id AND p.auto_publish_enabled AND b.started_at>=p.enabled_since)
       AND r.item_id IS NULL AND COALESCE(c.authority,'DISCORD')='DISCORD'
       AND NOT EXISTS(SELECT 1 FROM collect.discord_review_delivery d WHERE d.item_id=i.id)
       ORDER BY i.fetched_at,i.id LIMIT 20`,[since])).map(r=>String(r.id));
@@ -42,6 +44,9 @@ export class TypeOrmDiscordReviewRepository extends DiscordReviewRepository {
     await this.db.manager.query('INSERT INTO collect.batch_review_control(item_id) VALUES($1) ON CONFLICT DO NOTHING',[itemId]);
     const control = requiredRow(await this.db.manager.query('SELECT * FROM collect.batch_review_control WHERE item_id=$1 FOR UPDATE',[itemId]));
     if (control.authority !== 'DISCORD' || control.active_command_id !== null) return;
+    if (rows(await this.db.manager.query(`SELECT 1 FROM collect.batch_source_publish_policy p
+      JOIN collect.batch_run b ON b.source_key=p.source_key JOIN collect.batch_item i ON i.run_id=b.id
+      WHERE i.id=$1 AND p.auto_publish_enabled AND b.started_at>=p.enabled_since FOR SHARE OF p`,[itemId])).length) return;
     const id = randomUUID();
     // Persist offsets/hashes only; source text and object keys remain under original retention.
     const metadata = { rendererVersion: manifest.rendererVersion, contentDigest: manifest.contentDigest,

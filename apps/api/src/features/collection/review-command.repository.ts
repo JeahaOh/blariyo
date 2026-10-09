@@ -1,7 +1,7 @@
 export type ReviewCommandStage = 'ACCEPTED' | 'APPROVED' | 'PREPARING' | 'DRAFTED' | 'PUBLISHED' | 'REJECTED' | 'CANCELLED' | 'NEEDS_ADMIN' | 'FAILED';
 export interface AcceptReviewCommand {
   itemId: string;
-  origin: 'ADMIN' | 'DISCORD' | 'SYSTEM';
+  origin: 'ADMIN' | 'DISCORD' | 'SYSTEM' | 'AUTO';
   action: 'APPROVE_PUBLISH' | 'REJECT';
   actor: string;
   operatorId: string | null;

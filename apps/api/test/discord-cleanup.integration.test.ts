@@ -97,6 +97,9 @@ await test('durable cleanup shares leases, counts failures once, preserves threa
   // Missing source rows do not cascade the only copy of cleanup IDs away.
   assert.equal((await read()).item_id, itemId);
   await assert.rejects(migrationContext(url).then(async context => {
-    try { await context.get(MigrationsService).migrate('down'); } finally { await context.close(); }
+    try {
+      await context.get(MigrationsService).migrate('down'); // Empty V015 policy rolls back before testing the V014 cleanup guard.
+      await context.get(MigrationsService).migrate('down');
+    } finally { await context.close(); }
   }), /recovery\/export plan/);
 });

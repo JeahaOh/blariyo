@@ -1029,3 +1029,13 @@ Collector V014는 명시 삭제와 image retry를 별도 원장으로 구분한�
 - 호스트별 Retry-After가 남으면 `IMAGE_HOST_DEFERRED`로 즉시 해당 이미지/글을 실패 처리하며 긴 sleep으로 출처 전체를 붙잡지 않는다. 새 프로세스도 DB 대기를 확인하고, 다른 이미지 서버/상세 페이지는 출처 예산 범위에서 진행한다.
 - raw 미디어의 MIME/크기 검증과 API의 decode·재인코딩·hash/size 확인은 계속 적용한다. HTTP 수집 허용은 원본 핫링크 또는 이미지 검증 생략을 뜻하지 않는다.
 - 이 변경의 구현 수용 대상은 direct 목록·URL 수집이다. 비활성 legacy Core 후보 API의 HTTPS remoteUrl 계약은 이 작업에서 확대하지 않으며 재활성화 때 별도 정합화한다.
+
+## 출처별 자동 발행 후속 처리 — 2026-10-09
+
+Collector는 기존 원문·첨부 수집까지만 수행한다. API의 출처별 기본 OFF 정책과 공통 발행 명령이 수집 결과를 처리하며, Collector에 content 쓰기 권한을 부여하지 않는다. 신규 run 적용·검수 제외·정책 변경 중단·운영 실행 계약은 [출처별 자동 발행](11-source-auto-publish.md)을 따른다.
+
+## 수집처 DB 설정 — 2026-10-09
+
+- Collector V016은 수집 URL/초기 설정 메타데이터와 관리자 수집 여부를 보존한다. 관리자가 저장한 수집 여부는 소스 파일 재읽기로 덮어쓰지 않는다.
+- 로컬/운영 wrapper는 등록 수집처 전체를 Java에 전달한다. `SourceCollectionSettings`가 DB OFF를 외부 요청 전 SKIPPED 처리하며 목록/URL/queue/Discord 입력과 요청 직전 검사를 공유한다.
+- `sources-sync`는 수집·전송 없이 설정 메타데이터만 동기화한다. 수집 예약은 별도로 유지한다. 테이블/최소 권한/자동 발행과의 원자적 저장은 [통합 설정 계약](11-source-auto-publish.md#수집처-수집-설정url--2026-10-09)을 따른다.

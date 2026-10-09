@@ -3,6 +3,8 @@ export const profileVersion = 'm0-direct-excluded-v1';
 // Discord jobs contain IDs, hashes, offsets and decisions, never source body/image bytes.
 // Keep recovery targets even when original batch rows are excluded from backups.
 const preserved = new Set([
+  'batch_source_collection_setting', 'batch_source_collection_setting_change',
+  'batch_source_publish_policy', 'batch_source_publish_policy_change',
   'batch_review_control', 'discord_review_delivery', 'discord_review_part',
   'batch_review_command', 'discord_review_scan_run',
   'source', 'candidate', 'candidate_image', 'collector_receipt', 'source_request_budget',

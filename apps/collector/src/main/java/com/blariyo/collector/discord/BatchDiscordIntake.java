@@ -15,7 +15,7 @@ public final class BatchDiscordIntake {
   public BatchDiscordIntake(BatchQueueStore queue,Supplier<SourceRegistry> sources,Function<String,String> hmac){this.queue=queue;this.sources=sources;this.hmac=hmac;}
   public BatchQueueStore.Confirmation prepare(String interaction,String actor,String channel,String url) {
     try {
-      var source=sources.get().host(URI.create(url).getHost(),null);
+      var source=queue.collectionSource(sources.get().host(URI.create(url).getHost(),null));
       String canonical=source.canonical(url);String key=source.adapter().identify(URI.create(canonical)).postKey();
       return queue.prepare(hmac.apply("interaction:"+interaction+":"+actor+":"+channel),hmac.apply("actor:"+actor),hmac.apply("channel:"+channel),source.key(),key,canonical);
     }catch(IllegalArgumentException e){throw new CollectorFailure(400,"VALIDATION_FAILED");}
@@ -26,7 +26,7 @@ public final class BatchDiscordIntake {
     var confirmation=queue.confirmation(id,a,c,replay);
     if(confirmation.requestId()!=null)return confirmation.requestId();
     // A source disabled after preparation cannot be confirmed; worker rechecks again.
-    var source=sources.get().key(confirmation.source());
+    var source=queue.collectionSource(sources.get().key(confirmation.source()));
     if(!source.canonical(confirmation.url()).equals(confirmation.url())||!source.adapter().identify(URI.create(confirmation.url())).postKey().equals(confirmation.postKey()))
       throw new CollectorFailure(409,"SOURCE_IDENTITY_CHANGED");
     return queue.confirm(id,a,c,replay);

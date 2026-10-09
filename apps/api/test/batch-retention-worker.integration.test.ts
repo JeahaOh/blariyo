@@ -49,7 +49,8 @@ await test('D01-T4/T5: real retention JVM, restricted DB role, object failure an
   });
   // This retention-only fixture omits the Spring framework schema and V010 quota;
   // the collection fixture stubs permits. V011 adds the cleanup entry points used by the real worker.
-  for(const version of ['011','012','013'])await db.transaction(async manager=>{
+  // V016 supplies the persisted source switch checked by both collection runners.
+  for(const version of ['011','012','013','016'])await db.transaction(async manager=>{
     await manager.query(await readFile(`apps/collector/src/main/resources/db/collector-v${version}.sql`,'utf8'));
   });
   await db.query(`CREATE ROLE ${role} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT`);created=true;

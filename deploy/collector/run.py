@@ -19,7 +19,8 @@ def command(args,timeout=30):
     return r.stdout.strip()
 
 def active_sources(config):
-    return [key for key,value in config.items() if value.get('blockedReason')!='SOURCE_DISABLED']
+    # The Java worker applies persisted switches; file-level exclusion would hide re-enabled sources.
+    return list(config)
 
 def container_args(manifest,source,max_pages=2,max_items=20):
     return ['docker','create','--name',NAME,'--label','blariyo.owner=scheduled-collection',

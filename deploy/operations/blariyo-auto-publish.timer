@@ -1,0 +1,10 @@
+[Unit]
+Description=Blariyo independent collected post publication timer
+
+[Timer]
+OnCalendar=*-*-* *:*:20
+Persistent=false
+Unit=blariyo-auto-publish.service
+
+[Install]
+WantedBy=timers.target

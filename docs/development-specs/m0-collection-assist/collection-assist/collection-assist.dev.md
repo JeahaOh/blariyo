@@ -168,7 +168,7 @@ DB에는 binary 자체가 아니라 object 참조·hash·size를 저장한다. d
 
 ## 11. 결정·가정·미정·차단 항목
 
-- 2026-10-09 확정: 기본은 사람 검수다. OWNER가 출처별 자동 발행을 켠 이후 시작한 신규 run은 검수 없이 공통 승인→발행 경로로 처리한다. 나머지는 Discord·관리자의 검수 결정을 따른다.
+- 2026-10-09 확정: 기본은 사람 검수다. OWNER가 출처별 자동 발행을 켠 이후 시작한 신규 run 중 생활·유머 분류 통과 글은 검수 없이 공통 승인→발행 경로로 처리한다. 나머지는 Discord·관리자의 검수 결정을 따른다.
 - 확정: 수집 실패는 공개 목록·상세와 수동 게시를 막지 않는다.
 - 확정: direct batch는 비공개 원문 object를 저장하고, API는 승격 시 검증된 private 사본을 만든다. 기존 legacy 후보만 임시 preview 계약을 적용한다.
 - 확정: Discord 연결 scraper는 운영자 로컬 컴퓨터에서 별도 프로세스로 실행하고 BE·FE runtime과 분리한다.
@@ -1307,7 +1307,7 @@ mobile은 입력→요청 상태→검수 순서로 표시하고 status는 aria-
 
 - 관리자 UI는 별도 `수집처 관리`(`/admin/sources`) 메뉴에 배치한다. 목록·자동 발행 상태 조회와 행별 설정/저장을 제공하며 `/admin/batch`의 검수 기능과 분리한다. `batchReview` 기능 및 기존 OWNER/EDITOR 권한을 적용한다.
 
-정본 [출처별 자동 발행 기술 계약](../../../system-design/11-source-auto-publish.md)을 적용한다. API V015의 정책·변경 이력, OWNER 설정·EDITOR 조회, 신규 run만 적용, AUTO 공통 명령·최종 정책 재검사·Discord 전송 제외, 관리자 설정 UI와 기존 API 예약 명령 연결을 개발 범위에 추가한다. 기본값은 OFF이며 실제 출처 활성화·운영 배포는 구현 검증과 구분한다. OpenAPI의 listSourcePublishPolicies·updateSourcePublishPolicy가 HTTP 정본이다.
+정본 [출처별 자동 발행 기술 계약](../../../system-design/11-source-auto-publish.md)을 적용한다. API V015의 정책·변경 이력, OWNER 설정·EDITOR 조회, 신규 run만 적용, AUTO 공통 명령·최종 정책 재검사·Discord 전송 제외, 관리자 설정 UI와 별도 collection:auto-publish 배치 연결을 개발 범위에 추가한다. 기본값은 OFF이며 실제 출처 활성화·운영 배포는 구현 검증과 구분한다. OpenAPI의 listSourcePublishPolicies·updateSourcePublishPolicy가 HTTP 정본이다.
 
 ### 수집처 설정 확장 — 2026-10-09
 
@@ -1318,3 +1318,18 @@ mobile은 입력→요청 상태→검수 순서로 표시하고 status는 aria-
 ### 수집처 관리 이력·필터 보완 (2026-10-09)
 
 `listSourcePublishPolicies`/`updateSourcePublishPolicy` 응답에 마지막 정상 수집 시각과 최근 WRITE_DB 실행 시각·상태·오류 코드 배열을 포함한다. 데이터 기준과 미적용 처리는 [수집처 실행 이력 계약](../../../system-design/11-source-auto-publish.md#수집처-실행-이력-조회--2026-10-09)을 따른다. 관리자 화면은 이름·URL/수집 여부/자동 발행/최근 오류 필터, 공통 색상의 키보드 지원 선택 목록을 제공한다. 필터 전환은 저장이나 미저장 값 삭제를 수행하지 않는다.
+
+### 생활·유머 분류와 별도 배치 — 2026-10-10
+
+- 출처 ON 신규 글을 최대20건 분류하고 기본5건 접수한다. 규칙/원문/정책 버전 기록과 최종 재검사, 정규화 제목 중복 검사, REVIEW의 Discord 인계를 적용한다. 상세 기준·API V016·한계는 [기술 계약](../../../system-design/11-source-auto-publish.md#생활유머-분류-계약--2026-10-10)을 따른다.
+- `collection:auto-publish --dry-run`은 읽기 전용이다. `posts:publish-due`에서 수집 자동 발행을 제거한다. HTTP 계약과 관리자 설정 권한은 변경하지 않는다.
+
+## 키워드 관리 — 2026-10-10
+
+- 제품 정본: [수집 기획](../../../planning/content-collection/README.md), 기술 계약: [자동 발행](../../../system-design/11-source-auto-publish.md#db-키워드-규칙--2026-10-10).
+- D01: API V017 불변 규칙 snapshot과 현재 head, 초기 life-humor-v1 보존, revision INSERT/head UPDATE만 앱 변경 권한. 두 테이블 선택 백업 포함, Collector/retention 접근 금지. 변경 이력/미완료 AUTO가 있으면 down 인계 필요.
+- API: GET/POST `/api/v1/admin/collect/auto-publish-keywords`, PATCH `/:keywordId`, OpenAPI `listAutoPublishKeywords/createAutoPublishKeyword/updateAutoPublishKeyword`. 조회는 OWNER/EDITOR, 쓰기는 OWNER. batchReview feature·유지보수·세션/Origin·계약 검증을 적용한다.
+- D08: `/admin/keywords` 독립 메뉴, 추가·행별 저장·검색/분류/사용 여부 필터·25건 페이지. 행/일괄 중복·입력 오류 초안 보존, 저장 충돌/응답 유실 재조회와 미확인 저장 차단, 다른 행 편집 보존·미수정 행 최신값 갱신. 미저장 행/추가 폼/실제 일괄 방식 변경은 메뉴 이동/새로고침 경고, 처리 중 이탈 차단. EDITOR 입력 비활성/저장 미표시. 단어 일치는 조사/합성어의 의미를 이해하지 않는다.
+- 일괄 API `bulkAutoPublishKeywords`: POST `/api/v1/admin/collect/auto-publish-keywords/bulk`, `BulkAutoPublishKeywords` SAVE(items) 또는 DELETE(keywordIds), 현재 ruleVersion 필수. 1~500개/중복 ID 금지·OWNER 전용·하나의 불변 snapshot으로 전체 반영. 중복 조건409·버전충돌409·없는 ID404·검증400은 전체 변경 없음. 동일 값 저장은 version 유지, 삭제는 현재 배열만 제거하며 이력 유지. SQL 변경 없음.
+- 일괄 D08: 저장은 선택 없음이면 필터 결과 전체/선택 있으면 선택 행만 대상, 현재 페이지 체크·페이지 이동 유지·필터 변경 선택/방식 초기화. 일치 방식 유지(기본)/부분/단어를 고른 뒤 일괄 저장 한 번으로 최종 요청값이 변경될 행만 SAVE 요청. 중간 적용 버튼 없음. 삭제는 행별 또는 체크한 행만 대상, `선택한 N개 삭제`·0개 비활성·대상 수 확인/취소. 응답 유실/충돌 후 대상 최신값 재조회, 다른 행 미저장 편집 보존. EDITOR 선택/일괄/삭제 버튼 없음. 모델/API 편집/선택 상태/이탈 방어/표현 모듈로 분리한다.
+- 배치는 DB snapshot 고정, AUTO 발행 transaction은 head FOR SHARE로 현재 버전 확인. 기존 REVIEW를 재자동접수하지 않으며 Discord 인계를 유지한다. 운영/개발 예약 활성화는 화면 저장과 별도다.

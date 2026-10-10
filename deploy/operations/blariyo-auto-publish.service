@@ -1,0 +1,9 @@
+[Unit]
+Description=Blariyo collected post classification and publication
+After=docker.service blariyo-application.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/blariyo/operations/run-job.py auto-publish
+TimeoutStartSec=210

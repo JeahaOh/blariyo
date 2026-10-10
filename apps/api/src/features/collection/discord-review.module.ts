@@ -1,7 +1,13 @@
+import { AutoPublishKeywordController } from './auto-publish-keyword.controller.js';
+import { AutoPublishKeywordService } from './auto-publish-keyword.service.js';
+import { AutoPublishKeywordRepository } from './auto-publish-keyword.repository.js';
+import { TypeOrmAutoPublishKeywordRepository } from '../../persistence/auto-publish-keyword.repository.js';
 import { SourcePublishPolicyController } from './source-publish-policy.controller.js';
 import { SourcePublishPolicyRepository } from './source-publish-policy.repository.js';
 import { TypeOrmSourcePublishPolicyRepository } from '../../persistence/source-publish-policy.repository.js';
 import { SourceAutoPublishService } from './source-auto-publish.service.js';
+import { AutoPublishClassificationRepository } from './auto-publish-classification.repository.js';
+import { TypeOrmAutoPublishClassificationRepository } from '../../persistence/auto-publish-classification.repository.js';
 import { BatchReviewEnabledGuard } from './batch-review.controller.js';
 import { Module, type DynamicModule } from '@nestjs/common';
 import { AdminGuard, HTTP_OPTIONS } from '../../http/auth.guard.js';
@@ -20,9 +26,10 @@ import { RestDiscordDeleteClient } from '../../adapters/discord-delete.js';
 @Module({})
 export class DiscordReviewModule {
   static register(persistence:DynamicModule,batches:DynamicModule,posts:DynamicModule,options:CollectionOptions,settings?:DiscordReviewSettings):DynamicModule {
-    return {module:DiscordReviewModule,imports:[persistence,batches,posts],controllers:[SourcePublishPolicyController,...(settings?[DiscordReviewController,AdminReviewCommandController]:[])],
-      providers:[AdminGuard,CollectionMaintenanceGuard,BatchReviewEnabledGuard,ReviewAuthority,ReviewCommandService,SourceAutoPublishService,
+    return {module:DiscordReviewModule,imports:[persistence,batches,posts],controllers:[AutoPublishKeywordController,SourcePublishPolicyController,...(settings?[DiscordReviewController,AdminReviewCommandController]:[])],
+      providers:[AutoPublishKeywordService,{provide:AutoPublishKeywordRepository,useClass:TypeOrmAutoPublishKeywordRepository},AdminGuard,CollectionMaintenanceGuard,BatchReviewEnabledGuard,ReviewAuthority,ReviewCommandService,SourceAutoPublishService,
         {provide:SourcePublishPolicyRepository,useClass:TypeOrmSourcePublishPolicyRepository},
+        {provide:AutoPublishClassificationRepository,useClass:TypeOrmAutoPublishClassificationRepository},
         ...(settings?[DiscordReviewWorkerGuard,DiscordReviewService,DiscordCleanupService,DiscordCleanupDispatcher]:[
           {provide:DiscordCleanupDispatcher,useValue:{notify:(_id:string)=>{}}}]),
         {provide:HTTP_OPTIONS,useValue:options},{provide:COLLECTION_OPTIONS,useValue:options},{provide:DISCORD_REVIEW_SETTINGS,useValue:settings ?? null},

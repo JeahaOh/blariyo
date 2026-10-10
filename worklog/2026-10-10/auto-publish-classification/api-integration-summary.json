@@ -1,0 +1,18 @@
+{
+  "api-integration-current.log": {
+    "tests": 171,
+    "pass": 171,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "files": 37
+  },
+  "api-unit-current.log": {
+    "tests": 46,
+    "pass": 46,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "files": 1
+  }
+}

@@ -48,12 +48,17 @@ export class TypeOrmMigrationsRepository extends MigrationsRepository {
      EXECUTE format('GRANT USAGE,SELECT ON SEQUENCE collect.%I TO ${role}',t);
    END IF;
  END LOOP;
- FOREACH t IN ARRAY ARRAY['collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()','collect.set_source_collection_setting(text,boolean,integer,text)'] LOOP
+ FOREACH t IN ARRAY ARRAY['collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()','collect.set_source_collection_setting(text,boolean,integer,text)','collect.auto_publish_title_key(text)'] LOOP
    IF to_regprocedure(t) IS NOT NULL THEN
      EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO ${role}',t);
    END IF;
  END LOOP;
  END $grant$;
+ DO $keywords$ BEGIN
+ IF to_regclass('collect.auto_publish_keyword_head') IS NOT NULL THEN
+  REVOKE INSERT,DELETE ON collect.auto_publish_keyword_head FROM ${role};
+  REVOKE UPDATE,DELETE ON collect.auto_publish_keyword_revision FROM ${role};
+ END IF; END $keywords$;
  REVOKE ALL ON ops.schema_migration FROM ${role};
  GRANT EXECUTE ON FUNCTION ops.is_schema_ready(TEXT) TO ${role}`);
  }

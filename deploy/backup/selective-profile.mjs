@@ -4,6 +4,7 @@ export const profileVersion = 'm0-direct-excluded-v1';
 // Keep recovery targets even when original batch rows are excluded from backups.
 const preserved = new Set([
   'batch_source_collection_setting', 'batch_source_collection_setting_change',
+  'auto_publish_keyword_revision','auto_publish_keyword_head','batch_auto_publish_classification',
   'batch_source_publish_policy', 'batch_source_publish_policy_change',
   'batch_review_control', 'discord_review_delivery', 'discord_review_part',
   'batch_review_command', 'discord_review_scan_run',

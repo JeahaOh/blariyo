@@ -1024,7 +1024,41 @@ export class CollectSourcePublishPolicyChangeEntity {
   @JoinColumn([{ name: 'source_key', referencedColumnName: 'source_key' }])
   policy?: Relation<CollectSourcePublishPolicyEntity>;
 }
+@Entity({ schema: 'collect', name: 'batch_auto_publish_classification', synchronize: false })
+export class CollectAutoPublishClassificationEntity {
+  @PrimaryColumn({ type: 'uuid' }) item_id!: string;
+  @Column({ type: 'bigint' }) item_version!: string;
+  @Column({ type: 'integer' }) policy_version!: number;
+  @Column({ type: 'bytea' }) content_digest!: Buffer;
+  @Column({ type: 'bytea' }) title_key!: Buffer;
+  @Column({ type: 'varchar', length: 40 }) rule_version!: string;
+  @Column({ type: 'varchar', length: 10 }) decision!: string;
+  @Column({ type: 'varchar', length: 10, nullable: true }) category!: string | null;
+  @Column({ type: 'varchar', length: 80 }) reason!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'clock_timestamp()' }) classified_at!: Date;
+}
+@Entity({ schema: 'collect', name: 'auto_publish_keyword_revision', synchronize: false })
+export class CollectAutoPublishKeywordRevisionEntity {
+  @PrimaryColumn({ type: 'integer' }) revision!: number;
+  @Column({ type: 'varchar', length: 40, unique: true }) rule_version!: string;
+  @Column({ type: 'jsonb' }) keywords!: unknown;
+  @Column({ type: 'varchar', length: 100 }) updated_by!: string;
+  @Column({ type: 'timestamptz', precision: 3, default: () => 'clock_timestamp()' }) updated_at!: Date;
+}
+@Entity({ schema: 'collect', name: 'auto_publish_keyword_head', synchronize: false })
+export class CollectAutoPublishKeywordHeadEntity {
+  @PrimaryColumn({ type: 'boolean', default: true }) singleton!: boolean;
+  @Column({ type: 'varchar', length: 40 }) rule_version!: string;
+  @ManyToOne(() => CollectAutoPublishKeywordRevisionEntity, {
+    nullable: false, onDelete: 'NO ACTION', onUpdate: 'NO ACTION', cascade: false, eager: false,
+    lazy: false, persistence: false, createForeignKeyConstraints: false, orphanedRowAction: 'disable',
+  })
+  @JoinColumn([{ name: 'rule_version', referencedColumnName: 'rule_version' }])
+  revision?: Relation<CollectAutoPublishKeywordRevisionEntity>;
+}
 export const entities = [
+  CollectAutoPublishKeywordRevisionEntity, CollectAutoPublishKeywordHeadEntity,
+  CollectAutoPublishClassificationEntity,
   CollectSourcePublishPolicyEntity,
   CollectSourcePublishPolicyChangeEntity,
   CollectBatchReviewControlEntity,

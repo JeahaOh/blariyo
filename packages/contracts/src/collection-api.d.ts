@@ -820,6 +820,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/collect/auto-publish-keywords": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listAutoPublishKeywords"];
+        put?: never;
+        post: operations["createAutoPublishKeyword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collect/auto-publish-keywords/{keywordId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateAutoPublishKeyword"];
+        trace?: never;
+    };
+    "/api/v1/admin/collect/auto-publish-keywords/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["bulkAutoPublishKeywords"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -840,6 +888,7 @@ export interface components {
             lastRunAt: string | null;
             lastRunState: ("QUEUED" | "RUNNING" | "COMPLETED" | "PARTIAL" | "FAILED" | "BLOCKED") | null;
             lastFailureCodes: string[];
+            lastFailures: components["schemas"]["SourceFailureLog"][];
         };
         UpdateSourcePublishPolicy: {
             collectionEnabled?: boolean;
@@ -1291,6 +1340,57 @@ export interface components {
             status: "DRAFT";
             lockVersion: number;
             reviewLockVersion: number;
+        };
+        AutoPublishKeyword: {
+            /** Format: uuid */
+            keywordId: string;
+            keyword: string;
+            /** @enum {string} */
+            group: "LIFE" | "HUMOR" | "REACTION" | "POLITICS_OR_CONFLICT" | "NEWS_OR_ENTERTAINMENT" | "HEALTH_OR_FINANCE" | "PROMOTION_OR_POINTS" | "ADULT_OR_HARM";
+            /** @enum {string} */
+            scope: "TITLE" | "BODY" | "BOTH";
+            /** @enum {string} */
+            matchMode: "CONTAINS" | "WORD";
+            enabled: boolean;
+        };
+        SaveAutoPublishKeyword: {
+            ruleVersion: string;
+            keyword: string;
+            /** @enum {string} */
+            group: "LIFE" | "HUMOR" | "REACTION" | "POLITICS_OR_CONFLICT" | "NEWS_OR_ENTERTAINMENT" | "HEALTH_OR_FINANCE" | "PROMOTION_OR_POINTS" | "ADULT_OR_HARM";
+            /** @enum {string} */
+            scope: "TITLE" | "BODY" | "BOTH";
+            /** @enum {string} */
+            matchMode: "CONTAINS" | "WORD";
+            enabled: boolean;
+        };
+        AutoPublishKeywordsData: {
+            ruleVersion: string;
+            items: components["schemas"]["AutoPublishKeyword"][];
+            /** Format: date-time */
+            updatedAt: string;
+            canManage: boolean;
+        };
+        SourceFailureLog: {
+            /** Format: date-time */
+            occurredAt: string;
+            /** @enum {string} */
+            phase: "CONFIG" | "LIST" | "CLAIM" | "FETCH" | "RAW" | "PARSE" | "PERSIST" | "MEDIA" | "REPORT";
+            code: string;
+            diagnosticReason: ("UNAPPROVED_SOURCE" | "CONFIG_BLOCKED" | "INVALID_URL" | "SCHEME_NOT_ALLOWED" | "HOST_NOT_ALLOWED" | "PATH_NOT_ALLOWED" | "PORT_NOT_ALLOWED" | "URL_CREDENTIALS_NOT_ALLOWED" | "URL_FRAGMENT_NOT_ALLOWED" | "NON_PUBLIC_IP" | "DNS_EMPTY" | "DNS_LOOKUP_FAILED" | "TLS_ERROR" | "TIMEOUT" | "CONNECTION_ERROR" | "NETWORK_INTERRUPTED" | "HTTP_ACCESS_DENIED" | "HTTP_REJECTED" | "HTTP_RETRY_EXHAUSTED" | "HTTP_RATE_LIMITED" | "ACCESS_CHALLENGE" | "PARSER_REJECTED" | "CHART_UNVERIFIED" | "REDIRECT_LIMIT" | "REDIRECT_HOST_NOT_ALLOWED" | "REDIRECT_MISSING_LOCATION" | "REDIRECT_LOOP" | "BODY_TOO_LARGE" | "ENCODING_UNSUPPORTED") | null;
+            requestHost: string | null;
+            httpStatus: number | null;
+        };
+        BulkAutoPublishKeywords: {
+            ruleVersion: string;
+            /** @constant */
+            action: "SAVE";
+            items: components["schemas"]["AutoPublishKeyword"][];
+        } | {
+            ruleVersion: string;
+            /** @constant */
+            action: "DELETE";
+            keywordIds: string[];
         };
     };
     responses: {
@@ -4092,6 +4192,168 @@ export interface operations {
             404: components["responses"]["CollectionFailure"];
             409: components["responses"]["CollectionFailure"];
             422: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    listAutoPublishKeywords: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["AutoPublishKeywordsData"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    createAutoPublishKeyword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveAutoPublishKeyword"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["AutoPublishKeywordsData"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    updateAutoPublishKeyword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                keywordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveAutoPublishKeyword"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["AutoPublishKeywordsData"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
+            429: components["responses"]["CollectionFailure"];
+            500: components["responses"]["CollectionFailure"];
+            503: components["responses"]["CollectionFailure"];
+        };
+    };
+    bulkAutoPublishKeywords: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkAutoPublishKeywords"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["AutoPublishKeywordsData"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["CollectionFailure"];
+            401: components["responses"]["CollectionFailure"];
+            403: components["responses"]["CollectionFailure"];
+            404: components["responses"]["CollectionFailure"];
+            409: components["responses"]["CollectionFailure"];
+            413: components["responses"]["CollectionFailure"];
+            415: components["responses"]["CollectionFailure"];
             429: components["responses"]["CollectionFailure"];
             500: components["responses"]["CollectionFailure"];
             503: components["responses"]["CollectionFailure"];

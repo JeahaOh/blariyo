@@ -1,0 +1,13 @@
+{
+  "observedAtKst": "2026-10-10T09:02:08.326475+09:00",
+  "humanPublished": 23,
+  "humanRejected": 23,
+  "publishedImageBearing": 19,
+  "publishedNoImages": 4,
+  "rejectedImageBearing": 7,
+  "rejectedOnlyLink": 12,
+  "excludedAutomaticExpiry": 51,
+  "publicTotal": 102,
+  "withoutExplicitCommand": 79,
+  "limit": "topic/intent are hypotheses from titles and stored text/format; full images and past rejection intent not verified"
+}

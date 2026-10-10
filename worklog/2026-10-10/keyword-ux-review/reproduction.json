@@ -1,0 +1,24 @@
+{
+  "failedRow": {
+    "httpStatus": 409,
+    "inputBefore": "퇴근",
+    "inputAfter": "출근",
+    "databaseUnchanged": true
+  },
+  "failedBulk": {
+    "httpStatus": 409,
+    "inputAfter": "퇴근",
+    "databaseUnchanged": true
+  },
+  "navigation": {
+    "inputBefore": "출근미저장검토",
+    "inputAfter": "출근",
+    "confirmations": 0
+  },
+  "scope": {
+    "checkedTargetCount": 1,
+    "afterUncheckTargetCount": 125,
+    "deleteConfirmationCount": 125,
+    "deleteExecuted": false
+  }
+}

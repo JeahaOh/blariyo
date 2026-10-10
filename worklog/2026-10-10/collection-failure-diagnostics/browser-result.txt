@@ -1,0 +1,14 @@
+✔ source auto publication: opt-in, OFF, stale edit, reload and responsive owner controls (2215.629584ms)
+✔ source auto publication: EDITOR can inspect but cannot enable (1007.146333ms)
+✔ source management: failed initial load can recover without saving policy (932.737959ms)
+✔ source management: disabled feature hides menu and settings (889.987875ms)
+✔ source management: temporary stop, URL and both selects persist after reload (1519.769875ms)
+✔ source management: custom menu keyboard, disabled option, filters and stored history (1837.099417ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9815.211834

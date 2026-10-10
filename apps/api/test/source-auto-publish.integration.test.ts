@@ -129,16 +129,33 @@ await test('source publication opt-in is versioned, isolated from Discord and fe
     }
     await query(`INSERT INTO collect.batch_item(id,run_id,source_key,canonical_url,canonical_url_hash,state,fetched_at)
       VALUES($1,$2,$3,'https://example.invalid/history',$4,'FETCHED','2026-01-01T00:01:00Z')`,[item,old,source,createHash('sha256').update(item).digest()]);
-    for (const [run,code] of [[old,'SOURCE_FETCH_FAILED'],[latest,'SOURCE_HTTP_UNAVAILABLE'],[latest,'SOURCE_HTTP_UNAVAILABLE'],[latest,'https://secret.invalid/token']])
-      await query("INSERT INTO collect.batch_failure(id,run_id,phase,code,detail) VALUES($1,$2,'FETCH',$3,$4)",[randomUUID(),run,code,JSON.stringify({privateDetail:'must not return'})]);
+    const failures = [[old,'SOURCE_FETCH_FAILED'],[latest,'SOURCE_HTTP_UNAVAILABLE'],[latest,'SOURCE_HTTP_UNAVAILABLE'],[latest,'https://secret.invalid/token']];
+    for (const [index,[run,code]] of failures.entries()) {
+      const detail = index===1 ? {diagnosticReason:'HTTP_RETRY_EXHAUSTED',requestHost:'example.invalid',httpStatus:503,privateDetail:'fixture-secret',rawBody:'fixture-secret'}
+        : {diagnosticReason:'https://secret.invalid/token',requestHost:'https://user:fixture-secret@bad.invalid/?token=fixture-secret',httpStatus:999,privateDetail:'fixture-secret'};
+      await query("INSERT INTO collect.batch_failure(id,run_id,phase,code,detail,occurred_at) VALUES($1,$2,'FETCH',$3,$4,$5)",
+        [randomUUID(),run,code,JSON.stringify(detail),`2026-01-02T00:01:0${index}Z`]);
+    }
     let result=(await contractSuccess('listSourcePublishPolicies',await request())).data.items.find(p=>p.sourceKey===source);assert.ok(result);
     assert.equal(result.lastCollectedAt,'2026-01-01T00:01:00.000Z');assert.equal(result.lastRunAt,'2026-01-02T00:00:00.000Z');assert.equal(result.lastRunState,'PARTIAL');
     assert.deepEqual(result.lastFailureCodes,['BATCH_OWNER_LOST','SOURCE_HTTP_UNAVAILABLE']);
+    assert.deepEqual(result.lastFailures,[
+      {occurredAt:'2026-01-02T00:01:02.000Z',phase:'FETCH',code:'SOURCE_HTTP_UNAVAILABLE',diagnosticReason:null,requestHost:null,httpStatus:null},
+      {occurredAt:'2026-01-02T00:01:01.000Z',phase:'FETCH',code:'SOURCE_HTTP_UNAVAILABLE',diagnosticReason:'HTTP_RETRY_EXHAUSTED',requestHost:'example.invalid',httpStatus:503},
+    ]);
+    assert.equal(JSON.stringify(result).includes('fixture-secret'),false);
+    for(let index=0;index<11;index++) await query("INSERT INTO collect.batch_failure(id,run_id,phase,code,occurred_at) VALUES($1,$2,'LIST','SOURCE_HTTP_UNAVAILABLE',$3)",
+      [randomUUID(),latest,`2026-01-02T00:02:${String(index).padStart(2,'0')}Z`]);
+    const bounded=(await policies.list()).find(p=>p.sourceKey===source);assert.ok(bounded);
+    assert.equal(bounded.lastFailures.length,10);
+    const firstFailure=bounded.lastFailures[0],lastFailure=bounded.lastFailures[9];assert.ok(firstFailure);assert.ok(lastFailure);
+    assert.equal(firstFailure.occurredAt,'2026-01-02T00:02:10.000Z');assert.equal(lastFailure.occurredAt,'2026-01-02T00:02:01.000Z');
     const absent=(await policies.list()).find(p=>p.sourceKey==='pgr21');assert.ok(absent);assert.equal(absent.lastRunAt,null);assert.equal(absent.lastCollectedAt,null);assert.deepEqual(absent.lastFailureCodes,[]);
     await query(`INSERT INTO collect.batch_run(id,source_key,chart_key,mode,state,max_pages,max_items,interval_ms,started_at)
       VALUES($1,$2,'hot','WRITE_DB','COMPLETED',1,10,10000,'2026-01-03T00:00:00Z')`,[clean,source]);
     result=(await contractSuccess('listSourcePublishPolicies',await request())).data.items.find(p=>p.sourceKey===source);assert.ok(result);
     assert.equal(result.lastRunState,'COMPLETED');assert.equal(result.lastRunAt,'2026-01-03T00:00:00.000Z');assert.deepEqual(result.lastFailureCodes,[]);
+    assert.deepEqual(result.lastFailures,[]);
     assert.equal(result.lastCollectedAt,'2026-01-01T00:01:00.000Z');
   });
   await t.test('only enabled source runs started after opt-in publish once without Discord configuration',async()=>{

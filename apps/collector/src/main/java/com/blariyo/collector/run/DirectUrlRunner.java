@@ -104,6 +104,10 @@ public final class DirectUrlRunner {
       if(options.writeDb())finish(run,report,Map.of("items",1,"fetched",fetched));
       return report;
     }catch(CollectorFailure e) {
+      URI diagnosticTarget;
+      try { diagnosticTarget=URI.create(options.url()); } catch(IllegalArgumentException ignored) { diagnosticTarget=null; }
+      e=e.diagnostic(phase.equals("PARSE")?"PARSER_REJECTED":null,diagnosticTarget,phase.equals("PARSE")?200:null);
+      failureDetail.putAll(e.details());
       boolean discarded=runStarted && store.failItem(run,itemComplete?null:item,phase,e.getMessage(),failureDetail);
       String code=discarded?"IMAGE_RETRY_EXHAUSTED":e.getMessage();
       var report=new Report(run,source.key(),e.status()==403?"BLOCKED":"FAILED",fetched,duplicates,1,List.of(code));

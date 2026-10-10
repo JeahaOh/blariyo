@@ -808,6 +808,7 @@ incoming webhook은 처리 결과 알림용으로만 사용한다.
 - 재시도 결과와 반려 사유가 화면에 반영된다.
 - 반려된 후보는 승격할 수 없다.
 - 실패 사유는 일반화하고 내부 stack·HTML 원문은 노출하지 않는다.
+- 수집처 관리의 최신 WRITE_DB 실행 상세는 `SourcePublishPolicy.lastFailures`로 최대10건을 최신순 조회한다. 각 행의 occurredAt/phase/code와 allowlist 진단 코드·대상 호스트·실제 HTTP 상태만 표시한다. 진단 없는 과거 failure는 null로 반환하고 일반화된 `세부 진단 미기록`을 표시한다. 기존 오류 코드와 수집/재시도 정책은 변경하지 않으며 URL 인증값/query·예외 메시지·응답 원문은 반환하지 않는다.
 
 #### 미정·차단·미검증 항목
 

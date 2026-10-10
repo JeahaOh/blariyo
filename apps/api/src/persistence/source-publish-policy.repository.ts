@@ -3,6 +3,7 @@ import { SourcePublishPolicyRepository, type SourcePublishPolicy } from '../feat
 import { DatabaseContext } from './database.js';
 import { rows } from './rows.js';
 import { fail } from '../shared/errors.js';
+import { failureLogs } from '../features/collection/failure-diagnostics.js';
 
 function runState(value: unknown): SourcePublishPolicy['lastRunState'] {
   switch (value) {
@@ -23,7 +24,8 @@ function policy(row: Record<string, unknown>): SourcePublishPolicy {
     lastCollectedAt: row.last_collected_at instanceof Date ? row.last_collected_at.toISOString() : null,
     lastRunAt: row.last_run_at instanceof Date ? row.last_run_at.toISOString() : null,
     lastRunState: runState(row.last_run_state),
-    lastFailureCodes: Array.isArray(row.last_failure_codes) ? row.last_failure_codes.map(String) : [] };
+    lastFailureCodes: Array.isArray(row.last_failure_codes) ? row.last_failure_codes.map(String) : [],
+    lastFailures: failureLogs(row.last_failures) };
 }
 export async function assertAutoPublishPolicy(db: DatabaseContext, itemId: string, body: Record<string, unknown>): Promise<void> {
   if (typeof body.sourceKey !== 'string' || !Number.isSafeInteger(body.policyVersion) || Number(body.policyVersion) < 1
@@ -60,8 +62,14 @@ export class TypeOrmSourcePublishPolicyRepository extends SourcePublishPolicyRep
       SELECT i.source_key,max(i.fetched_at) AS fetched_at FROM collect.batch_item i JOIN collect.batch_run r ON r.id=i.run_id
       WHERE i.state='FETCHED' AND r.mode='WRITE_DB' GROUP BY i.source_key
     )` : '';
-    const historyFields = historyReady ? "r.started_at AS last_run_at,r.state AS last_run_state,i.fetched_at AS last_collected_at,COALESCE(e.codes,ARRAY[]::text[]) AS last_failure_codes"
-      : "NULL AS last_run_at,NULL AS last_run_state,NULL AS last_collected_at,ARRAY[]::text[] AS last_failure_codes";
+    const historyFields = historyReady ? `r.started_at AS last_run_at,r.state AS last_run_state,i.fetched_at AS last_collected_at,COALESCE(e.codes,ARRAY[]::text[]) AS last_failure_codes,
+      COALESCE((SELECT jsonb_agg(log ORDER BY occurred_at DESC,id DESC) FROM (
+        SELECT f.id,f.occurred_at,jsonb_build_object('occurredAt',f.occurred_at,'phase',f.phase,'code',f.code,
+          'detail',jsonb_build_object('diagnosticReason',f.detail->'diagnosticReason','requestHost',f.detail->'requestHost','httpStatus',f.detail->'httpStatus')) AS log
+        FROM collect.batch_failure f WHERE f.run_id=r.id AND f.code ~ '^[A-Z][A-Z0-9_]{0,79}$'
+        ORDER BY f.occurred_at DESC,f.id DESC LIMIT 10
+      ) logs),'[]'::jsonb) AS last_failures`
+      : "NULL AS last_run_at,NULL AS last_run_state,NULL AS last_collected_at,ARRAY[]::text[] AS last_failure_codes,'[]'::jsonb AS last_failures";
     return rows(await this.db.manager.query(`${history} SELECT ${fields},${historyFields},c.reference_key AS source_key,c.display_name,p.auto_publish_enabled,
       p.enabled_since,p.lock_version,p.updated_at FROM content.common_code c
       LEFT JOIN collect.batch_source_publish_policy p ON p.source_key=c.reference_key

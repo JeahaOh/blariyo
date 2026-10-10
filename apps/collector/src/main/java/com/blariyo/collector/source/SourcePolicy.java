@@ -35,9 +35,9 @@ public record SourcePolicy(
 
   public static SourcePolicy from(JsonNode config) {
     if (!config.path("approved").asBoolean(false))
-      throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+      throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED").diagnostic("UNAPPROVED_SOURCE", null, null);
     if (!config.path("blockedReason").asText("").isBlank())
-      throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+      throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED").diagnostic("CONFIG_BLOCKED", null, null);
     var paths = new ArrayList<String>();
     config.path("pathPrefixes").forEach(v -> paths.add(v.asText()));
     String agent = config.path("userAgent").asText();
@@ -90,32 +90,41 @@ public record SourcePolicy(
     try {
       URI uri = URI.create(value);
       if (publicImage) return allowImage(uri);
-      if (!"https".equals(uri.getScheme())
-          || !(host.equalsIgnoreCase(uri.getHost()) || hostAliases.stream().anyMatch(a -> a.equalsIgnoreCase(uri.getHost())))
-          || uri.getUserInfo() != null
-          || uri.getPort() != -1
-          || uri.getFragment() != null
-          || pathPrefixes.stream().noneMatch(p -> uri.getPath().startsWith(p))
-          || uri.getPath().contains("..")) throw new IllegalArgumentException();
+      if (!"https".equals(uri.getScheme())) throw denied("SCHEME_NOT_ALLOWED", uri);
+      if (!(host.equalsIgnoreCase(uri.getHost()) || hostAliases.stream().anyMatch(a -> a.equalsIgnoreCase(uri.getHost())))) throw denied("HOST_NOT_ALLOWED", uri);
+      if (uri.getUserInfo() != null) throw denied("URL_CREDENTIALS_NOT_ALLOWED", uri);
+      if (uri.getPort() != -1) throw denied("PORT_NOT_ALLOWED", uri);
+      if (uri.getFragment() != null) throw denied("URL_FRAGMENT_NOT_ALLOWED", uri);
+      if (pathPrefixes.stream().noneMatch(p -> uri.getPath().startsWith(p)) || uri.getPath().contains("..")) throw denied("PATH_NOT_ALLOWED", uri);
       return uri;
+    } catch (CollectorFailure e) {
+      throw e;
     } catch (Exception e) {
-      throw new CollectorFailure(403, publicImage ? "IMAGE_URL_NOT_ALLOWED" : "SOURCE_NOT_ALLOWED");
+      throw new CollectorFailure(403, publicImage ? "IMAGE_URL_NOT_ALLOWED" : "SOURCE_NOT_ALLOWED").diagnostic("INVALID_URL", null, null);
     }
+  }
+
+  private static CollectorFailure denied(String reason, URI uri) {
+    return new CollectorFailure(403,"SOURCE_NOT_ALLOWED").diagnostic(reason,uri,null);
   }
 
   private static URI allowImage(URI uri) throws java.net.UnknownHostException {
     String scheme = uri.getScheme(), target = uri.getHost();
-    if (!("http".equals(scheme) || "https".equals(scheme)) || target == null
-        || uri.getUserInfo() != null || uri.getFragment() != null
-        || (uri.getPort() != -1 && uri.getPort() != (scheme.equals("http") ? 80 : 443))
-        || uri.getPath().contains("..") || uri.toString().length() > 2048)
-      throw new IllegalArgumentException();
+    if (!("http".equals(scheme) || "https".equals(scheme))) throw imageDenied("SCHEME_NOT_ALLOWED",uri);
+    if (target == null || uri.toString().length() > 2048) throw imageDenied("INVALID_URL",uri);
+    if (uri.getUserInfo() != null) throw imageDenied("URL_CREDENTIALS_NOT_ALLOWED",uri);
+    if (uri.getFragment() != null) throw imageDenied("URL_FRAGMENT_NOT_ALLOWED",uri);
+    if (uri.getPort() != -1 && uri.getPort() != (scheme.equals("http") ? 80 : 443)) throw imageDenied("PORT_NOT_ALLOWED",uri);
+    if (uri.getPath().contains("..")) throw imageDenied("PATH_NOT_ALLOWED",uri);
     // Literal IPs can be rejected without DNS or opening a socket. Hostnames are checked by PinnedHttp.
     if ((target.contains(":") || target.matches("[0-9.]+"))
-        && !PinnedHttp.publicAddress(java.net.InetAddress.getByName(target))) throw new IllegalArgumentException();
+        && !PinnedHttp.publicAddress(java.net.InetAddress.getByName(target))) throw imageDenied("NON_PUBLIC_IP",uri);
     if (target.equalsIgnoreCase("localhost") || target.toLowerCase(Locale.ROOT).endsWith(".localhost"))
-      throw new IllegalArgumentException();
+      throw imageDenied("NON_PUBLIC_IP",uri);
     return uri;
+  }
+  private static CollectorFailure imageDenied(String reason,URI uri) {
+    return new CollectorFailure(403,"IMAGE_URL_NOT_ALLOWED").diagnostic(reason,uri,null);
   }
 
   public JsonNode extract(byte[] html, URI uri) {

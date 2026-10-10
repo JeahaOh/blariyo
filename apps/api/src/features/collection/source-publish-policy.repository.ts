@@ -1,3 +1,4 @@
+import type { SourceFailureLog } from './failure-diagnostics.js';
 export interface SourcePublishPolicy {
   sourceKey: string;
   displayName: string;
@@ -14,6 +15,7 @@ export interface SourcePublishPolicy {
   lastRunAt: string | null;
   lastRunState: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'PARTIAL' | 'FAILED' | 'BLOCKED' | null;
   lastFailureCodes: string[];
+  lastFailures: SourceFailureLog[];
 }
 export abstract class SourcePublishPolicyRepository {
   abstract list(): Promise<SourcePublishPolicy[]>;

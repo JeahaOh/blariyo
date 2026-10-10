@@ -39,11 +39,11 @@ public final class HtmlSupport {
       Document doc = Jsoup.parse(new java.io.ByteArrayInputStream(bytes), null, url.toString());
       String text = doc.text();
       String title = doc.title();
-      if (looksLikeAccessChallenge(title, text)) throw new CollectorFailure(403, "SOURCE_ACCESS_BLOCKED");
+      if (looksLikeAccessChallenge(title, text)) throw new CollectorFailure(403, "SOURCE_ACCESS_BLOCKED").diagnostic("ACCESS_CHALLENGE", url, 200);
       return doc;
     }
     catch (CollectorFailure e) { throw e; }
-    catch (Exception e) { throw new CollectorFailure(422, "PARSE_FAILED"); }
+    catch (Exception e) { throw new CollectorFailure(422, "PARSE_FAILED").diagnostic("PARSER_REJECTED", url, 200); }
   }
 
   private static boolean looksLikeAccessChallenge(String title, String text) {

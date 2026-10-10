@@ -102,7 +102,7 @@ def main():
                         try:record=json.loads(line)
                         except ValueError:continue
                         if isinstance(record,dict) and 'report' in record:
-                            report=record['report'];entry['runId']=record.get('runId');entry['reportState']=report.get('state');entry['errors']=report.get('errors',[]);entry['counts']={k:v for k,v in report.items() if isinstance(v,int) and not isinstance(v,bool)}
+                            report=record['report'];entry['runId']=record.get('runId');entry['reportState']=report.get('state');entry['errors']=report.get('errors',[]);entry['diagnostics']=report.get('diagnostics',[])[:10];entry['counts']={k:v for k,v in report.items() if isinstance(v,int) and not isinstance(v,bool)}
                     if 'reportState' not in entry:entry['error']='REPORT_MISSING'
                 except Exception:
                     entry['error']='SOURCE_EXECUTION_FAILED'

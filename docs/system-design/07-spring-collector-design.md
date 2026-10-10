@@ -938,6 +938,8 @@ REQUIRE_KNOWN에서는 FETCHED로 저장하지 않고 SKIPPED_POLICY 상태와 s
 - 목록과 수동 URL 모두 상세 fetch 전에 source post key/canonical hash로 item을 FETCHING claim한다.
   FETCHED 중복은 상세·미디어 요청 전에 건너뛴다. fetch 성공 원문은 parse 전에 저장한다.
 - fetch/parse/raw/media 실패는 해당 item의 FAILED/BLOCKED와 failure phase/code를 함께 기록한다.
+- direct 수집 실패의 `batch_failure.detail`에 안전한 `diagnosticReason`(고정 검사 코드), `requestHost`(호스트만), `httpStatus`(실제 응답100~599)를 추가한다. URL query/인증값·응답 본문·예외 메시지/stack은 진단 필드에 저장하지 않는다. 기존 실패 코드·차단·재시도·이미지 실패 격리 정책은 유지한다. 목록 요청과 parser 실패도 같은 경로로 기록하며 report의 `diagnostics` 및 운영 구조화 실행 로그에 최대10건을 포함한다. 기존 JSONB를 사용하므로 DB migration은 추가하지 않는다.
+- 수집처 조회 API는 최신 WRITE_DB run의 failure 행 최대10건을 최신순으로 `lastFailures`에 반환한다. 시각·phase/code와 위3개 필드만 allowlist 검증 후 반환하고 arbitrary detail은 반환하지 않는다. 기존 기록의 없는 진단은 null이며 최근 정상 실행으로 바뀌면 이전 실패를 함께 표시하지 않는다.
   과거 item 없는 failure 행을 성공·실패 item으로 소급 조작하지 않는다.
 - 날짜 미확인 REQUIRE_KNOWN, 기간 밖 날짜는 SKIPPED_POLICY로 구분한다. skip_reason은
   SOURCE_DATE_UNKNOWN 또는 SOURCE_OUTSIDE_WINDOW다. 실패 건수에는 더하지 않으며 재실행 시 다시 판단할 수 있다.

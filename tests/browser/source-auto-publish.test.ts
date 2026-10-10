@@ -36,9 +36,9 @@ await test('source auto publication: opt-in, OFF, stale edit, reload and respons
   await page.reload();
   await expect(panel.getByRole('combobox',{name:'더쿠 자동 발행 여부',exact:true})).toHaveText('사용 안 함');
   await page.setViewportSize({width:390,height:900});
-  await page.screenshot({path:'worklog/2026-10-09/source-management-history/admin-sources-mobile.png',fullPage:true});
+  await page.screenshot({path:'worklog/2026-10-10/collection-failure-diagnostics/settings-mobile.png',fullPage:true});
   await page.setViewportSize({width:1280,height:900});
-  await page.screenshot({path:'worklog/2026-10-09/source-management-history/admin-sources.png'});
+  await page.screenshot({path:'worklog/2026-10-10/collection-failure-diagnostics/settings-desktop.png'});
 });
 await test('source auto publication: EDITOR can inspect but cannot enable',{timeout:90000},async t=>{
   const f=await browserFixture(t,{batchReview:true,adminRole:'EDITOR'});
@@ -113,13 +113,14 @@ await test('source management: custom menu keyboard, disabled option, filters an
       VALUES($1,'theqoo','hot','WRITE_DB',$2,1,10,10000,$3)`,[id,state,time]);
   await f.database.query(`INSERT INTO collect.batch_item(id,run_id,source_key,canonical_url,canonical_url_hash,state,fetched_at)
     VALUES($1,$2,'theqoo','https://theqoo.net/history-fixture',$3,'FETCHED','2026-01-01T00:01:00Z')`,[item,old,createHash('sha256').update(item).digest()]);
-  await f.database.query("INSERT INTO collect.batch_failure(id,run_id,phase,code) VALUES($1,$2,'FETCH','SOURCE_HTTP_UNAVAILABLE')",[randomUUID(),run]);
+  await f.database.query("INSERT INTO collect.batch_failure(id,run_id,phase,code,detail,occurred_at) VALUES($1,$2,'FETCH','SOURCE_HTTP_UNAVAILABLE',$3,'2026-01-02T00:01:00Z')",
+    [randomUUID(),run,JSON.stringify({diagnosticReason:'HTTP_RETRY_EXHAUSTED',requestHost:'theqoo.net',httpStatus:503,rawBody:'fixture-secret'})]);
   await page.goto(f.origin+'/admin/sources');await page.getByRole('button',{name:'개발 관리자 로그인'}).click();
   const panel=page.locator('.source-publish-policies'),sourceRow=panel.getByRole('row').filter({has:page.getByRole('rowheader',{name:'더쿠',exact:true})});
   await expect(sourceRow).toContainText('마지막 수집');await expect(sourceRow).toContainText('2026. 01. 01. 09:01');await expect(sourceRow).toContainText('부분 실패');await expect(sourceRow).toContainText('SOURCE_HTTP_UNAVAILABLE');
   const publish=page.getByRole('combobox',{name:'더쿠 자동 발행 여부',exact:true});
   await publish.focus();await publish.press('ArrowDown');await expect(publish).toHaveAttribute('aria-expanded','true');
-  await page.screenshot({path:'worklog/2026-10-09/source-management-history/custom-options.png'});
+  await page.screenshot({path:'worklog/2026-10-10/collection-failure-diagnostics/custom-options.png'});
   await publish.press('ArrowUp');await publish.press('Enter');await expect(publish).toHaveText('사용');await expect(publish).toBeFocused();
   await publish.press('Enter');await publish.press('ArrowDown');await publish.press('Escape');await expect(publish).toHaveText('사용');await expect(page.getByRole('listbox')).toHaveCount(0);
   const search=page.getByRole('searchbox',{name:'수집처 검색'});await search.fill('inven.co.kr');await expect(panel.getByRole('rowheader')).toHaveCount(1);await expect(panel.getByRole('rowheader')).toHaveText('인벤');
@@ -135,9 +136,14 @@ await test('source management: custom menu keyboard, disabled option, filters an
   await limited.press('Escape');
   await publish.click();await search.click();await expect(page.getByRole('listbox')).toHaveCount(0);
   await publish.press('Enter');await publish.press('Tab');await expect(page.getByRole('listbox')).toHaveCount(0);await expect(publish).not.toBeFocused();
+  await sourceRow.locator('summary').click();
+  await expect(sourceRow).toContainText('서버 오류·재시도 또는 대기 한도 도달');await expect(sourceRow).toContainText('대상: theqoo.net');await expect(sourceRow).toContainText('HTTP 503');
+  await expect(sourceRow).toContainText('2026. 01. 02. 09:01');await expect(sourceRow).not.toContainText('fixture-secret');
   for(const width of [1280,390,320]) {await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
+  await sourceRow.locator('summary').press('Enter');await expect(sourceRow.locator('details')).not.toHaveAttribute('open','');
+  await sourceRow.locator('summary').press('Enter');await expect(sourceRow.locator('details')).toHaveAttribute('open','');
   await choose(page,publish,'사용 안 함'); // Restore the unsaved value; no settings are written.
-  await page.setViewportSize({width:1280,height:900});await page.getByRole('heading',{name:'수집처 관리',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:'worklog/2026-10-09/source-management-history/admin-sources-history.png'});
-  await page.setViewportSize({width:390,height:900});await page.getByRole('heading',{name:'수집처 관리',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:'worklog/2026-10-09/source-management-history/admin-sources-history-mobile.png'});
+  await page.setViewportSize({width:1280,height:900});await page.getByRole('heading',{name:'수집처 관리',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:'worklog/2026-10-10/collection-failure-diagnostics/fixture-desktop.png'});
+  await page.setViewportSize({width:390,height:900});await page.getByRole('heading',{name:'수집처 관리',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:'worklog/2026-10-10/collection-failure-diagnostics/fixture-mobile.png'});
   assert.deepEqual(await f.database.query('SELECT count(*)::int n FROM collect.batch_source_publish_policy'),[{n:0}]);
 });

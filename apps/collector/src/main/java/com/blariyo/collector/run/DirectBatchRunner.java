@@ -14,7 +14,7 @@ import tools.jackson.databind.JsonNode;
 /** End-to-end batch owner: network, parser, deduplication, collect ledger and object store. */
 public final class DirectBatchRunner {
   public record Options(String source,String chart,int maxPages,int maxItems,Duration since,long intervalMs,boolean writeDb) {}
-  public record Report(UUID runId,String source,String state,int pages,int discovered,int fetched,int duplicates,int failures,int unknownDates,int skippedByDate,List<String> errors) {}
+  public record Report(UUID runId,String source,String state,int pages,int discovered,int fetched,int duplicates,int failures,int unknownDates,int skippedByDate,List<String> errors,List<Map<String,Object>> diagnostics) {}
   private final SourceTransport transport; private final BatchStore store; private final BatchObjectStore objects;
   private final LongConsumer sleeper;
   private SourceRequests requests;
@@ -24,6 +24,9 @@ public final class DirectBatchRunner {
   public Report run(SourceRegistry.Source source,Options o){
     UUID run=UUID.randomUUID();
     boolean runStarted=false;
+    var diagnostics=new ArrayList<Map<String,Object>>();
+    URI activeList=null;
+    CollectorFailure lastItemFailure=null;
     int pages=0,discovered=0,fetched=0,duplicates=0,failures=0,siteFailures=0,unknownDates=0,skippedByDate=0;var errors=new ArrayList<String>();var seen=new HashSet<String>();var visited=new HashSet<URI>();
     BatchStore.SourceLock lease=null;
     try {
@@ -32,7 +35,7 @@ public final class DirectBatchRunner {
       if(!source.config().path("batchApproved").asBoolean(false))throw new CollectorFailure(403,"BATCH_NOT_APPROVED");
       if(o.maxPages()>source.config().path("maxPages").asInt(2)||o.maxItems()>source.config().path("maxItems").asInt(20)
           ||o.intervalMs()<SourceRequestPolicy.interval(source.config()))throw new CollectorFailure(400,"SOURCE_LIMIT_EXCEEDED");
-      if(chart.isBlank()||!source.config().path("chartVerified").asBoolean(false))throw new CollectorFailure(403,"CHART_UNVERIFIED");
+      if(chart.isBlank()||!source.config().path("chartVerified").asBoolean(false))throw new CollectorFailure(403,"CHART_UNVERIFIED").diagnostic("CHART_UNVERIFIED",null,null);
       requests=SourceRequests.controlled(transport,sleeper,o.intervalMs(),source,store,()->{});
       lease=store.lockSource(source.key());
       if(o.writeDb()){store.registerSource(source.key(),source.config().path("host").asText());run=store.begin(source.key(),o.chart(),"WRITE_DB",o.maxPages(),o.maxItems(),o.intervalMs(),Instant.now().minus(o.since()));runStarted=true;}
@@ -43,7 +46,12 @@ public final class DirectBatchRunner {
       URI next=policy.allow(chart);Instant cutoff=Instant.now().minus(o.since());
       while(next!=null&&pages<o.maxPages()&&discovered<o.maxItems()){
         if(!visited.add(next))throw new CollectorFailure(422,"PAGINATION_LOOP");
-        byte[] list=fetchBytes(next,policy,30*1024*1024);var page=adapter.list(list,next);pages++;
+        activeList=next;
+        byte[] list=fetchBytes(next,policy,30*1024*1024);
+        SiteAdapter.Page page;
+        try { page=adapter.list(list,next); }
+        catch(CollectorFailure e) { throw e.diagnostic("PARSER_REJECTED",next,200); }
+        pages++;
         for(var entry:page.entries()){
           if(discovered>=o.maxItems())break;String key=entry.identity().postKey();if(!seen.add(key)){duplicates++;continue;}discovered++;
           UUID item = null;String phase="CLAIM";
@@ -99,8 +107,12 @@ public final class DirectBatchRunner {
             }
             fetched++;
           }catch(CollectorFailure e){
+            e=e.diagnostic(phase.equals("PARSE")?"PARSER_REJECTED":null,entry.identity().canonical(),phase.equals("PARSE")?200:null);
+            lastItemFailure=e;
             if("true".equalsIgnoreCase(System.getenv("COLLECTOR_DEBUG_ERRORS")))e.printStackTrace(System.err);
             failures++;errors.add(e.getMessage());
+            failureDetail.putAll(e.details());
+            addDiagnostic(diagnostics,phase,e);
             if(o.writeDb()&&runStarted)store.failItem(run,item,phase,e.getMessage(),failureDetail);
             // A deleted or oversized post says nothing about the structure/accessibility of the next post.
             boolean imageFailure=SourceRequests.imageFailure(phase,failureDetail,e);
@@ -113,17 +125,27 @@ public final class DirectBatchRunner {
         if(siteFailures>=3)break;next=page.next();
       }
       String state=failures>0?(fetched==0?"FAILED":"PARTIAL"):(o.writeDb()?"COMPLETED":"COMPLETED");
-      var report = new Report(run,source.key(),state,pages,discovered,fetched,duplicates,failures,unknownDates,skippedByDate,List.copyOf(errors));
+      var report = new Report(run,source.key(),state,pages,discovered,fetched,duplicates,failures,unknownDates,skippedByDate,List.copyOf(errors),List.copyOf(diagnostics));
       if(o.writeDb()){String reportKey="collect/report/"+run+".jsonl";store.assertRunLive(run);objects.put(reportKey,reportBytes(report),"application/jsonl");store.assertRunLive(run);store.finish(run,state,Map.of("pages",pages,"items",discovered,"fetched",fetched,"unknownDates",unknownDates,"skippedByDate",skippedByDate),reportKey,BatchStore.sha(new String(reportBytes(report),StandardCharsets.UTF_8)));}
       return report;
     }catch(CollectorFailure e){
-      if(!runStarted&&e.getMessage().equals("SOURCE_DISABLED"))return new Report(run,source.key(),"SKIPPED",0,0,0,0,0,0,0,List.of("SOURCE_DISABLED"));
-      if(failures==0){failures=1;if(runStarted)store.failItem(run,null,"LIST",e.getMessage());}
+      if(!runStarted&&e.getMessage().equals("SOURCE_DISABLED"))return new Report(run,source.key(),"SKIPPED",0,0,0,0,0,0,0,List.of("SOURCE_DISABLED"),List.of());
+      if(e!=lastItemFailure) {
+        failures++;
+        var diagnosed=e.diagnostic(null,activeList,null);
+        addDiagnostic(diagnostics,runStarted?"LIST":"CONFIG",diagnosed);
+        if(runStarted)store.failItem(run,null,"LIST",e.getMessage(),diagnosed.details());
+      }
       if(errors.isEmpty()||!errors.getLast().equals(e.getMessage()))errors.add(e.getMessage());
-      var report = new Report(run,source.key(),e.status()==403?"BLOCKED":"FAILED",pages,discovered,fetched,duplicates,failures,unknownDates,skippedByDate,List.copyOf(errors));
+      var report = new Report(run,source.key(),e.status()==403?"BLOCKED":"FAILED",pages,discovered,fetched,duplicates,failures,unknownDates,skippedByDate,List.copyOf(errors),List.copyOf(diagnostics));
       if(runStarted){String reportKey="collect/report/"+run+".jsonl";store.assertRunLive(run);objects.put(reportKey,reportBytes(report),"application/jsonl");store.assertRunLive(run);store.finish(run,report.state(),Map.of("pages",pages,"items",discovered,"fetched",fetched,"unknownDates",unknownDates,"skippedByDate",skippedByDate,"reason",e.getMessage()),reportKey,BatchStore.sha(new String(reportBytes(report),StandardCharsets.UTF_8)));}
       return report;
     } finally { if(lease!=null)lease.close(); }
+  }
+  private static void addDiagnostic(List<Map<String,Object>> target,String phase,CollectorFailure failure) {
+    if(target.size()>=10)return;
+    var detail=new LinkedHashMap<String,Object>(failure.details());
+    detail.put("phase",phase);detail.put("code",failure.getMessage());target.add(Map.copyOf(detail));
   }
   private static byte[] reportBytes(Report report){return (Json.tree(report).toString()+"\n").getBytes(StandardCharsets.UTF_8);}
   private byte[] fetchBytes(URI url,SourcePolicy policy,int maximum){return fetch(url,policy,maximum).bytes();}

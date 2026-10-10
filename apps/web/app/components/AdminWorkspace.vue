@@ -12,15 +12,6 @@ const { data: session } = await useAsyncData(
     ).catch(() => null),
   { server: false }
 );
-const titles: Record<string, string> = {
-  '/admin': '게시글 관리',
-  '/admin/batch': '수집 결과 검수',
-  '/admin/sources': '수집처 관리',
-  '/admin/common-codes': '공통코드 관리',
-  '/admin/collect': '수집 요청',
-  '/admin/collect/sources': '수집 출처',
-};
-const title = computed(() => titles[route.path] || '관리자');
 const sessionUrl = computed(() => '/admin/login?returnTo=' + encodeURIComponent(route.fullPath));
 </script>
 <template>
@@ -48,9 +39,6 @@ const sessionUrl = computed(() => '/admin/login?returnTo=' + encodeURIComponent(
     </aside>
     <div class="admin-main-column">
       <header class="admin-topbar">
-        <div>
-          <span class="admin-topbar-kicker">BLARIYO / ADMIN</span><strong>{{ title }}</strong>
-        </div>
         <div class="admin-account">
           <span class="admin-online"
             ><i /> {{ session?.localLoginAvailable ? '로컬 개발' : '인증됨' }}</span

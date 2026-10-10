@@ -12,6 +12,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class DirectBatchRunnerTests {
+  @Test void listFailureAfterAnItemFailureIsRecordedSeparately(@org.junit.jupiter.api.io.TempDir java.nio.file.Path root) {
+    var transport=mock(SourceTransport.class);var store=TestSourceControls.mockStore();var run=UUID.randomUUID();
+    when(store.begin(anyString(),anyString(),anyString(),anyInt(),anyInt(),anyLong(),any())).thenReturn(run);
+    when(store.claim(any(),anyString(),anyString(),anyString())).thenReturn(UUID.randomUUID());
+    when(transport.get(any(),anyInt(),anyString())).thenAnswer(call->{
+      URI uri=call.getArgument(0);
+      if(uri.getRawQuery()!=null)return new PinnedHttp.Response(403,"text/html",Map.of(),new byte[0]);
+      String html=uri.getPath().equals("/b/live") ? "<div class='article-list'><div class='vrow'><a class='title' href='/b/live/123'>post</a></div></div><a href='/b/live?p=2'>next</a>" : "<html><body>missing article</body></html>";
+      return new PinnedHttp.Response(200,"text/html",Map.of(),html.getBytes());
+    });
+    var report=new DirectBatchRunner(transport,store,new BatchObjectStore.Local(root.toString()),ignored->{})
+        .run(source(),new DirectBatchRunner.Options("arcalive","hot",2,5,Duration.ofHours(24),10000,true));
+    assertEquals("BLOCKED",report.state());assertEquals(2,report.failures());assertEquals(2,report.diagnostics().size());
+    assertEquals("PARSE",report.diagnostics().get(0).get("phase"));assertEquals("LIST",report.diagnostics().get(1).get("phase"));
+    verify(store).failItem(eq(run),isNull(),eq("LIST"),eq("SOURCE_ACCESS_BLOCKED"),argThat(d->Objects.equals(d.get("httpStatus"),403)));
+  }
   private SourceRegistry.Source source(){return TestSourceControls.registry(Json.tree(Map.of("arcalive",Map.of("host","arca.live","approved",true,"batchApproved",true,"chartVerified",true,"parser","ARCALIVE","pathPrefixes",List.of("/"),"userAgent","fixture contact.invalid","imageOrigins",Map.of(),"charts",Map.of("hot","https://arca.live/b/live"))))).key("arcalive");}
   @Test void dryRunOnlyReservesNetworkQuotaWithoutContentOrObjectWrites(){
     var transport=mock(SourceTransport.class);var store=TestSourceControls.mockStore();var objects=mock(BatchObjectStore.class);var calls=new AtomicInteger();
@@ -30,6 +46,8 @@ class DirectBatchRunnerTests {
     when(transport.get(any(),anyInt(),anyString())).thenReturn(new PinnedHttp.Response(403,"text/html",Map.of(),new byte[0]));
     var report=new DirectBatchRunner(TestSourceControls.allowRobots(transport),store,objects,ignored->{}).run(source(),new DirectBatchRunner.Options("arcalive","hot",1,1,Duration.ofHours(24),10000,true));
     assertEquals("BLOCKED",report.state());
+    assertEquals(List.of(Map.of("phase","LIST","code","SOURCE_ACCESS_BLOCKED","diagnosticReason","HTTP_ACCESS_DENIED","requestHost","arca.live","httpStatus",403)),report.diagnostics());
+    verify(store).failItem(eq(run),isNull(),eq("LIST"),eq("SOURCE_ACCESS_BLOCKED"),eq(Map.of("diagnosticReason","HTTP_ACCESS_DENIED","requestHost","arca.live","httpStatus",403)));
     verify(store).finish(eq(run),eq("BLOCKED"),argThat(c->Objects.equals(c.get("fetched"),0)&&Objects.equals(c.get("unknownDates"),0)&&Objects.equals(c.get("skippedByDate"),0)),anyString(),any(byte[].class));
   }
   @Test void detailAccessBlockStopsSiteInsteadOfFetchingTheRemainingList() {

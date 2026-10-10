@@ -1,0 +1,461 @@
+- link "관리 화면으로 건너뛰기":
+  - /url: "#main-content"
+- complementary "관리자 메뉴":
+  - link "B 블라리요 관리":
+    - /url: /admin
+    - generic: B
+    - text: 블라리요
+    - generic: 관리
+  - paragraph: 작업 공간
+  - navigation "관리 메뉴":
+    - link "게시글 관리":
+      - /url: /admin
+      - generic: ▤
+      - text: 게시글 관리
+    - link "수집 결과 검수":
+      - /url: /admin/batch
+      - generic: ◎
+      - text: 수집 결과 검수
+    - link "수집처 관리":
+      - /url: /admin/sources
+    - link "공통코드 관리":
+      - /url: /admin/common-codes
+  - link "↗ 공개 사이트 보기":
+    - /url: /meme
+- banner:
+  - generic: BLARIYO / ADMIN
+  - strong: 수집처 관리
+  - generic: 인증됨
+  - link "인증":
+    - /url: /admin/login?returnTo=%2Fadmin%2Fsources
+- main:
+  - heading "수집처 관리" [level=1]
+  - paragraph: 수집처 수집 여부, 자동 발행 여부 관리.
+  - region "수집처 설정":
+    - heading "수집처 목록 21 / 21개" [level=2]:
+      - text: 수집처 목록
+      - generic: 21 / 21개
+    - button "다시 조회"
+    - search "수집처 필터":
+      - text: 수집처 검색
+      - searchbox "수집처 검색"
+      - text: 수집 여부
+      - combobox "수집 여부 필터":
+        - generic: 전체
+      - text: 자동 발행
+      - combobox "자동 발행 필터":
+        - generic: 전체
+      - text: 최근 수집 오류
+      - combobox "최근 수집 오류 필터":
+        - generic: 전체
+      - button "초기화"
+    - table:
+      - rowgroup:
+        - row "수집처 수집처 URL 수집 이력 수집 여부 자동 발행 여부 저장":
+          - columnheader "수집처"
+          - columnheader "수집처 URL"
+          - columnheader "수집 이력"
+          - columnheader "수집 여부"
+          - columnheader "자동 발행 여부"
+          - columnheader "저장"
+      - rowgroup:
+        - row "더쿠 https://theqoo.net/hot 마지막 수집 2026. 10. 10. 04:58 수집 중 2026. 10. 10. 04:53 더쿠 저장":
+          - rowheader "더쿠"
+          - cell "https://theqoo.net/hot":
+            - link "https://theqoo.net/hot":
+              - /url: https://theqoo.net/hot
+          - cell "마지막 수집 2026. 10. 10. 04:58 수집 중 2026. 10. 10. 04:53":
+            - text: 마지막 수집
+            - time: 2026. 10. 10. 04:58
+            - generic: 수집 중
+            - time: 2026. 10. 10. 04:53
+          - cell:
+            - combobox "더쿠 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "더쿠 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "더쿠 저장":
+            - button "더쿠 저장" [disabled]: 저장
+        - row "뽐뿌 https://www.ppomppu.co.kr/hot.php 수집 이력 없음 수집 제한 뽐뿌 저장":
+          - rowheader "뽐뿌"
+          - cell "https://www.ppomppu.co.kr/hot.php":
+            - link "https://www.ppomppu.co.kr/hot.php":
+              - /url: https://www.ppomppu.co.kr/hot.php
+          - cell "수집 이력 없음":
+            - generic: 수집 이력 없음
+          - cell "수집 제한":
+            - combobox "뽐뿌 수집 여부" [active]:
+              - generic: 수집 안 함
+            - generic: 수집 제한
+          - cell:
+            - combobox "뽐뿌 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "뽐뿌 저장":
+            - button "뽐뿌 저장" [disabled]: 저장
+        - row "율도 https://yul-do.com/humorissue 마지막 수집 2026. 10. 10. 05:11 실패 2026. 10. 10. 05:06 최근 실행 실패 사유 율도 저장":
+          - rowheader "율도"
+          - cell "https://yul-do.com/humorissue":
+            - link "https://yul-do.com/humorissue":
+              - /url: https://yul-do.com/humorissue
+          - cell "마지막 수집 2026. 10. 10. 05:11 실패 2026. 10. 10. 05:06 최근 실행 실패 사유":
+            - text: 마지막 수집
+            - time: 2026. 10. 10. 05:11
+            - generic: 실패
+            - time: 2026. 10. 10. 05:06
+            - list "최근 실행 실패 사유":
+              - code: LIST_STRUCTURE_CHANGED
+          - cell:
+            - combobox "율도 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "율도 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "율도 저장":
+            - button "율도 저장" [disabled]: 저장
+        - row "인벤 https://www.inven.co.kr/best/issue 마지막 수집 2026. 09. 23. 12:20 완료 2026. 09. 23. 12:18 인벤 저장":
+          - rowheader "인벤"
+          - cell "https://www.inven.co.kr/best/issue":
+            - link "https://www.inven.co.kr/best/issue":
+              - /url: https://www.inven.co.kr/best/issue
+          - cell "마지막 수집 2026. 09. 23. 12:20 완료 2026. 09. 23. 12:18":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 12:20
+            - generic: 완료
+            - time: 2026. 09. 23. 12:18
+          - cell:
+            - combobox "인벤 수집 여부":
+              - generic: 수집 안 함
+          - cell:
+            - combobox "인벤 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "인벤 저장":
+            - button "인벤 저장" [disabled]: 저장
+        - row "개드립 https://www.dogdrip.net/dogdrip?sort_index=popular 마지막 수집 2026. 09. 23. 07:27 차단 2026. 10. 10. 04:31 최근 실행 실패 사유 개드립 저장":
+          - rowheader "개드립"
+          - cell "https://www.dogdrip.net/dogdrip?sort_index=popular":
+            - link "https://www.dogdrip.net/dogdrip?sort_index=popular":
+              - /url: https://www.dogdrip.net/dogdrip?sort_index=popular
+          - cell "마지막 수집 2026. 09. 23. 07:27 차단 2026. 10. 10. 04:31 최근 실행 실패 사유":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 07:27
+            - generic: 차단
+            - time: 2026. 10. 10. 04:31
+            - list "최근 실행 실패 사유":
+              - text: 원문 접근 차단
+              - code: SOURCE_ACCESS_BLOCKED
+          - cell:
+            - combobox "개드립 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "개드립 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "개드립 저장":
+            - button "개드립 저장" [disabled]: 저장
+        - row "루리웹 https://bbs.ruliweb.com/best/humor 마지막 수집 2026. 09. 23. 07:36 실패 2026. 10. 10. 04:51 최근 실행 실패 사유 루리웹 저장":
+          - rowheader "루리웹"
+          - cell "https://bbs.ruliweb.com/best/humor":
+            - link "https://bbs.ruliweb.com/best/humor":
+              - /url: https://bbs.ruliweb.com/best/humor
+          - cell "마지막 수집 2026. 09. 23. 07:36 실패 2026. 10. 10. 04:51 최근 실행 실패 사유":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 07:36
+            - generic: 실패
+            - time: 2026. 10. 10. 04:51
+            - list "최근 실행 실패 사유":
+              - text: 원문 가져오기 실패
+              - code: SOURCE_FETCH_FAILED
+          - cell:
+            - combobox "루리웹 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "루리웹 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "루리웹 저장":
+            - button "루리웹 저장" [disabled]: 저장
+        - row "클리앙 https://www.clien.net/service/board/park 마지막 수집 2026. 09. 23. 07:24 차단 2026. 10. 10. 04:30 최근 실행 실패 사유 클리앙 저장":
+          - rowheader "클리앙"
+          - cell "https://www.clien.net/service/board/park":
+            - link "https://www.clien.net/service/board/park":
+              - /url: https://www.clien.net/service/board/park
+          - cell "마지막 수집 2026. 09. 23. 07:24 차단 2026. 10. 10. 04:30 최근 실행 실패 사유":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 07:24
+            - generic: 차단
+            - time: 2026. 10. 10. 04:30
+            - list "최근 실행 실패 사유":
+              - text: 수집 정책 제한
+              - code: SOURCE_NOT_ALLOWED
+          - cell:
+            - combobox "클리앙 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "클리앙 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "클리앙 저장":
+            - button "클리앙 저장" [disabled]: 저장
+        - row "고급유머 https://www.goodgag.net/ 마지막 수집 2026. 10. 10. 04:35 완료 2026. 10. 10. 04:32 고급유머 저장":
+          - rowheader "고급유머"
+          - cell "https://www.goodgag.net/":
+            - link "https://www.goodgag.net/":
+              - /url: https://www.goodgag.net/
+          - cell "마지막 수집 2026. 10. 10. 04:35 완료 2026. 10. 10. 04:32":
+            - text: 마지막 수집
+            - time: 2026. 10. 10. 04:35
+            - generic: 완료
+            - time: 2026. 10. 10. 04:32
+          - cell:
+            - combobox "고급유머 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "고급유머 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "고급유머 저장":
+            - button "고급유머 저장" [disabled]: 저장
+        - row "네이트판 https://pann.nate.com/talk/c20002 마지막 수집 2026. 10. 10. 04:50 완료 2026. 10. 10. 04:50 네이트판 저장":
+          - rowheader "네이트판"
+          - cell "https://pann.nate.com/talk/c20002":
+            - link "https://pann.nate.com/talk/c20002":
+              - /url: https://pann.nate.com/talk/c20002
+          - cell "마지막 수집 2026. 10. 10. 04:50 완료 2026. 10. 10. 04:50":
+            - text: 마지막 수집
+            - time: 2026. 10. 10. 04:50
+            - generic: 완료
+            - time: 2026. 10. 10. 04:50
+          - cell:
+            - combobox "네이트판 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "네이트판 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "네이트판 저장":
+            - button "네이트판 저장" [disabled]: 저장
+        - row "디미토리 https://www.dmitory.com/issue 마지막 수집 2026. 09. 23. 10:38 차단 2026. 10. 10. 04:30 최근 실행 실패 사유 디미토리 저장":
+          - rowheader "디미토리"
+          - cell "https://www.dmitory.com/issue":
+            - link "https://www.dmitory.com/issue":
+              - /url: https://www.dmitory.com/issue
+          - cell "마지막 수집 2026. 09. 23. 10:38 차단 2026. 10. 10. 04:30 최근 실행 실패 사유":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 10:38
+            - generic: 차단
+            - time: 2026. 10. 10. 04:30
+            - list "최근 실행 실패 사유":
+              - text: 원문 접근 차단
+              - code: SOURCE_ACCESS_BLOCKED
+          - cell:
+            - combobox "디미토리 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "디미토리 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "디미토리 저장":
+            - button "디미토리 저장" [disabled]: 저장
+        - row "보배드림 https://www.bobaedream.co.kr/list?code=best 마지막 수집 2026. 09. 23. 07:23 부분 실패 2026. 09. 23. 07:22 최근 실행 실패 사유 보배드림 저장":
+          - rowheader "보배드림"
+          - cell "https://www.bobaedream.co.kr/list?code=best":
+            - link "https://www.bobaedream.co.kr/list?code=best":
+              - /url: https://www.bobaedream.co.kr/list?code=best
+          - cell "마지막 수집 2026. 09. 23. 07:23 부분 실패 2026. 09. 23. 07:22 최근 실행 실패 사유":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 07:23
+            - generic: 부분 실패
+            - time: 2026. 09. 23. 07:22
+            - list "최근 실행 실패 사유":
+              - text: 수집 정책 제한
+              - code: SOURCE_NOT_ALLOWED
+          - cell:
+            - combobox "보배드림 수집 여부":
+              - generic: 수집 안 함
+          - cell:
+            - combobox "보배드림 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "보배드림 저장":
+            - button "보배드림 저장" [disabled]: 저장
+        - row "웃긴대학 https://m.humoruniv.com/board/list.html?table=pds 마지막 수집 2026. 10. 10. 04:42 수집 중 2026. 10. 10. 04:35 웃긴대학 저장":
+          - rowheader "웃긴대학"
+          - cell "https://m.humoruniv.com/board/list.html?table=pds":
+            - link "https://m.humoruniv.com/board/list.html?table=pds":
+              - /url: https://m.humoruniv.com/board/list.html?table=pds
+          - cell "마지막 수집 2026. 10. 10. 04:42 수집 중 2026. 10. 10. 04:35":
+            - text: 마지막 수집
+            - time: 2026. 10. 10. 04:42
+            - generic: 수집 중
+            - time: 2026. 10. 10. 04:35
+          - cell:
+            - combobox "웃긴대학 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "웃긴대학 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "웃긴대학 저장":
+            - button "웃긴대학 저장" [disabled]: 저장
+        - row "이토랜드 https://etoland.co.kr/b/etohumor06/list 마지막 수집 2026. 09. 23. 07:28 실패 2026. 10. 10. 04:31 최근 실행 실패 사유 이토랜드 저장":
+          - rowheader "이토랜드"
+          - cell "https://etoland.co.kr/b/etohumor06/list":
+            - link "https://etoland.co.kr/b/etohumor06/list":
+              - /url: https://etoland.co.kr/b/etohumor06/list
+          - cell "마지막 수집 2026. 09. 23. 07:28 실패 2026. 10. 10. 04:31 최근 실행 실패 사유":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 07:28
+            - generic: 실패
+            - time: 2026. 10. 10. 04:31
+            - list "최근 실행 실패 사유":
+              - text: 본문 분석 실패
+              - code: PARSE_FAILED
+          - cell:
+            - combobox "이토랜드 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "이토랜드 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "이토랜드 저장":
+            - button "이토랜드 저장" [disabled]: 저장
+        - row "인스티즈 https://www.instiz.net/pt 마지막 수집 2026. 10. 10. 04:48 수집 중 2026. 10. 10. 04:42 인스티즈 저장":
+          - rowheader "인스티즈"
+          - cell "https://www.instiz.net/pt":
+            - link "https://www.instiz.net/pt":
+              - /url: https://www.instiz.net/pt
+          - cell "마지막 수집 2026. 10. 10. 04:48 수집 중 2026. 10. 10. 04:42":
+            - text: 마지막 수집
+            - time: 2026. 10. 10. 04:48
+            - generic: 수집 중
+            - time: 2026. 10. 10. 04:42
+          - cell:
+            - combobox "인스티즈 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "인스티즈 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "인스티즈 저장":
+            - button "인스티즈 저장" [disabled]: 저장
+        - row "아카라이브 https://arca.live/b/live 마지막 수집 2026. 09. 23. 10:18 완료 2026. 09. 23. 10:17 아카라이브 저장":
+          - rowheader "아카라이브"
+          - cell "https://arca.live/b/live":
+            - link "https://arca.live/b/live":
+              - /url: https://arca.live/b/live
+          - cell "마지막 수집 2026. 09. 23. 10:18 완료 2026. 09. 23. 10:17":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 10:18
+            - generic: 완료
+            - time: 2026. 09. 23. 10:17
+          - cell:
+            - combobox "아카라이브 수집 여부":
+              - generic: 수집 안 함
+          - cell:
+            - combobox "아카라이브 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "아카라이브 저장":
+            - button "아카라이브 저장" [disabled]: 저장
+        - row "에펨코리아 https://www.fmkorea.com/best 수집 이력 없음 수집 제한 에펨코리아 저장":
+          - rowheader "에펨코리아"
+          - cell "https://www.fmkorea.com/best":
+            - link "https://www.fmkorea.com/best":
+              - /url: https://www.fmkorea.com/best
+          - cell "수집 이력 없음":
+            - generic: 수집 이력 없음
+          - cell "수집 제한":
+            - combobox "에펨코리아 수집 여부":
+              - generic: 수집 안 함
+            - generic: 수집 제한
+          - cell:
+            - combobox "에펨코리아 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "에펨코리아 저장":
+            - button "에펨코리아 저장" [disabled]: 저장
+        - row "오늘의유머 https://www.todayhumor.co.kr/board/list.php?table=humorbest 마지막 수집 2026. 10. 10. 05:05 완료 2026. 10. 10. 05:00 오늘의유머 저장":
+          - rowheader "오늘의유머"
+          - cell "https://www.todayhumor.co.kr/board/list.php?table=humorbest":
+            - link "https://www.todayhumor.co.kr/board/list.php?table=humorbest":
+              - /url: https://www.todayhumor.co.kr/board/list.php?table=humorbest
+          - cell "마지막 수집 2026. 10. 10. 05:05 완료 2026. 10. 10. 05:00":
+            - text: 마지막 수집
+            - time: 2026. 10. 10. 05:05
+            - generic: 완료
+            - time: 2026. 10. 10. 05:00
+          - cell:
+            - combobox "오늘의유머 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "오늘의유머 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "오늘의유머 저장":
+            - button "오늘의유머 저장" [disabled]: 저장
+        - row "디시인사이드 https://gall.dcinside.com/board/lists/?id=hit 마지막 수집 2026. 09. 23. 11:24 완료 2026. 09. 23. 11:00 디시인사이드 저장":
+          - rowheader "디시인사이드"
+          - cell "https://gall.dcinside.com/board/lists/?id=hit":
+            - link "https://gall.dcinside.com/board/lists/?id=hit":
+              - /url: https://gall.dcinside.com/board/lists/?id=hit
+          - cell "마지막 수집 2026. 09. 23. 11:24 완료 2026. 09. 23. 11:00":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 11:24
+            - generic: 완료
+            - time: 2026. 09. 23. 11:00
+          - cell:
+            - combobox "디시인사이드 수집 여부":
+              - generic: 수집 안 함
+          - cell:
+            - combobox "디시인사이드 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "디시인사이드 저장":
+            - button "디시인사이드 저장" [disabled]: 저장
+        - row "유튜브 커뮤니티 https://www.youtube.com/ 정상 수집 이력 없음 실패 2026. 09. 23. 11:03 최근 실행 실패 사유 유튜브 커뮤니티 저장":
+          - rowheader "유튜브 커뮤니티"
+          - cell "https://www.youtube.com/":
+            - link "https://www.youtube.com/":
+              - /url: https://www.youtube.com/
+          - cell "정상 수집 이력 없음 실패 2026. 09. 23. 11:03 최근 실행 실패 사유":
+            - generic: 정상 수집 이력 없음
+            - generic: 실패
+            - time: 2026. 09. 23. 11:03
+            - list "최근 실행 실패 사유":
+              - text: 본문 분석 실패
+              - code: PARSE_FAILED
+          - cell:
+            - combobox "유튜브 커뮤니티 수집 여부":
+              - generic: 수집함
+          - cell:
+            - combobox "유튜브 커뮤니티 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "유튜브 커뮤니티 저장":
+            - button "유튜브 커뮤니티 저장" [disabled]: 저장
+        - row "MLBPARK https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen 마지막 수집 2026. 09. 23. 07:33 완료 2026. 09. 23. 07:32 MLBPARK 저장":
+          - rowheader "MLBPARK"
+          - cell "https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen":
+            - link "https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen":
+              - /url: https://mlbpark.donga.com/mp/b.php?m=list&b=bullpen
+          - cell "마지막 수집 2026. 09. 23. 07:33 완료 2026. 09. 23. 07:32":
+            - text: 마지막 수집
+            - time: 2026. 09. 23. 07:33
+            - generic: 완료
+            - time: 2026. 09. 23. 07:32
+          - cell:
+            - combobox "MLBPARK 수집 여부":
+              - generic: 수집 안 함
+          - cell:
+            - combobox "MLBPARK 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "MLBPARK 저장":
+            - button "MLBPARK 저장" [disabled]: 저장
+        - row "PGR21 https://pgr21.com/ 정상 수집 이력 없음 차단 2026. 09. 23. 11:03 최근 실행 실패 사유 PGR21 저장":
+          - rowheader "PGR21"
+          - cell "https://pgr21.com/":
+            - link "https://pgr21.com/":
+              - /url: https://pgr21.com/
+          - cell "정상 수집 이력 없음 차단 2026. 09. 23. 11:03 최근 실행 실패 사유":
+            - generic: 정상 수집 이력 없음
+            - generic: 차단
+            - time: 2026. 09. 23. 11:03
+            - list "최근 실행 실패 사유":
+              - text: 원문 접근 차단
+              - code: SOURCE_ACCESS_BLOCKED
+          - cell:
+            - combobox "PGR21 수집 여부":
+              - generic: 수집 안 함
+          - cell:
+            - combobox "PGR21 자동 발행 여부":
+              - generic: 사용 안 함
+          - cell "PGR21 저장":
+            - button "PGR21 저장" [disabled]: 저장
+- status
+- alert

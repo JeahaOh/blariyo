@@ -115,27 +115,14 @@
   min-width: 0;
 }
 .admin-topbar {
-  min-height: 78px;
+  min-height: 56px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 18px;
-  padding: 14px clamp(20px, 3vw, 46px);
+  padding: 8px clamp(20px, 3vw, 46px);
   border-bottom: 1px solid var(--admin-line);
   background: #fff;
-}
-.admin-topbar > div:first-child {
-  display: grid;
-  gap: 1px;
-}
-.admin-topbar-kicker {
-  color: #869399;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-}
-.admin-topbar strong {
-  font-size: 17px;
 }
 .admin-account {
   display: flex;
@@ -707,26 +694,20 @@
     display: none;
   }
   .admin-topbar {
-    min-height: 58px;
-    padding: 8px 14px;
-  }
-  .admin-topbar-kicker {
-    font-size: 9px;
-  }
-  .admin-topbar strong {
-    font-size: 14px;
+    min-height: 52px;
+    padding: 6px 14px;
   }
   .admin-account {
     gap: 7px;
   }
   .admin-account button,
   .admin-account a {
-    min-height: 32px;
+    min-height: 40px;
     padding: 4px 7px;
     font-size: 11px;
   }
   .admin-online {
-    font-size: 0;
+    font-size: 12px;
   }
   .admin-online i {
     width: 8px;

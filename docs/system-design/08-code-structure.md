@@ -144,6 +144,8 @@ Nuxt 경로 규약을 유지한다. `app/pages`는 URL과 페이지 조립, `app
 `server/utils`는 identity adapter를 소유한다. 페이지 파일명과 공개 URL은 내부 패키지 정리로 변경하지 않는다.
 다른 앱 source를 직접 import하지 않고 HTTP와 `packages/contracts`를 사용한다.
 
+키워드 관리는 `admin-keywords.vue`가 페이지를 조립한다. `useKeywordEditor`는 API 조회·행/일괄 쓰기·공통 오류 복구와 초안 보존, `useKeywordSelection`은 필터·페이지·선택·저장 대상/선택 삭제 대상, `useUnsavedChanges`는 미저장/처리 중 이탈 방어를 소유한다. `utils/keyword-editor.ts`는 계약 타입·옵션·순수 비교/요청값 계산·오류 분류만 다룬다. `KeywordEditorForm/Table`, `KeywordBulkActions`, `KeywordDeleteConfirmation`은 표현과 사용자 이벤트를 담당하며 HTTP를 호출하지 않는다. API 권한·버전 검증은 Core에서 유지한다.
+
 ## 5. 검증과 운영 경계
 
 `npm run test:architecture` 구조 검사는 API import 경계·Collector 패키지 순환과 금지 의존성·Web 앱 경계를 검사한다.

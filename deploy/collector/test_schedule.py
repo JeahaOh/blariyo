@@ -23,7 +23,7 @@ class DeploymentContract(unittest.TestCase):
     calls.append(args)
     if args[:2]==['docker','create'] and args[args.index('--source')+1]=='first':raise RuntimeError('start failed')
     if args[:2]==['docker','inspect']:return json.dumps({'Running':False,'ExitCode':0,'OOMKilled':False,'FinishedAt':'now'})
-    if args[:2]==['docker','logs']:return json.dumps({'runId':'fixture','report':{'state':'COMPLETED','errors':[],'fetched':1}})
+    if args[:2]==['docker','logs']:return json.dumps({'runId':'fixture','report':{'state':'PARTIAL','errors':['SOURCE_ACCESS_BLOCKED'],'fetched':1,'diagnostics':[{'phase':'FETCH','code':'SOURCE_ACCESS_BLOCKED','diagnosticReason':'HTTP_ACCESS_DENIED','requestHost':'fixture.invalid','httpStatus':403}]}})
     return ''
    config={'first':{},'second':{}}
    manifest={'mainSha':'fixture','dbNetworkIp':'172.18.0.21','image':'jre@sha256:fixed'}
@@ -37,6 +37,7 @@ class DeploymentContract(unittest.TestCase):
    self.assertEqual(status['state'],'COMPLETED_WITH_ERRORS')
    self.assertEqual(status['sources'][0]['error'],'SOURCE_EXECUTION_FAILED')
    self.assertEqual(status['sources'][1]['counts']['fetched'],1)
+   self.assertEqual(status['sources'][1]['diagnostics'],[{'phase':'FETCH','code':'SOURCE_ACCESS_BLOCKED','diagnosticReason':'HTTP_ACCESS_DENIED','requestHost':'fixture.invalid','httpStatus':403}])
    self.assertEqual(status['unattemptedSources'],[])
  def test_missing_report_is_not_success(self):
   with tempfile.TemporaryDirectory() as folder:

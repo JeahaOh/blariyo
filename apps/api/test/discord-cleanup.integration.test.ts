@@ -98,7 +98,9 @@ await test('durable cleanup shares leases, counts failures once, preserves threa
   assert.equal((await read()).item_id, itemId);
   await assert.rejects(migrationContext(url).then(async context => {
     try {
-      await context.get(MigrationsService).migrate('down'); // Empty V015 policy rolls back before testing the V014 cleanup guard.
+      await context.get(MigrationsService).migrate('down'); // Unchanged V017 keywords are reversible.
+      await context.get(MigrationsService).migrate('down'); // Empty V016 classification is reversible.
+    await context.get(MigrationsService).migrate('down'); // Empty V015 policy rolls back before testing the V014 cleanup guard.
       await context.get(MigrationsService).migrate('down');
     } finally { await context.close(); }
   }), /recovery\/export plan/);

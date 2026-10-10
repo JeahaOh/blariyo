@@ -1,0 +1,15 @@
+  ✔ administrator rejection takes precedence over an automatic draft (114.475667ms)
+  ✔ stale Discord export cannot create a delivery for an automatic source (116.871333ms)
+  ✔ storage outage retries only the affected command while other items publish (237.864083ms)
+  ✔ existing manual decisions and expired items are not automatically accepted (26.014167ms)
+  ✔ restricted API role can save audited policy and publish with the same guards (132.299458ms)
+  ✔ a policy in use prevents destructive migration rollback (26.771416ms)
+✔ source publication opt-in is versioned, isolated from Discord and fenced at publication (1865.288333ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2756.719333

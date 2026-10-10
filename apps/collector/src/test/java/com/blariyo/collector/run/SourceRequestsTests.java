@@ -9,6 +9,28 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 class SourceRequestsTests {
+  @Test void httpDenialAndChallengeHaveDifferentDiagnosticsWithoutResponseContent() {
+    var transport=mock(SourceTransport.class);
+    for(int status:List.of(401,403)) {
+      when(transport.get(any(),anyInt(),anyString())).thenReturn(response(status,Map.of()));
+      var failure=assertThrows(CollectorFailure.class,()->new SourceRequests(transport,x->{},0).fetch(url,policy(),100));
+      assertEquals("SOURCE_ACCESS_BLOCKED",failure.getMessage());
+      assertEquals(Map.of("diagnosticReason","HTTP_ACCESS_DENIED","requestHost","arca.live","httpStatus",status),failure.details());
+    }
+    var challenge=assertThrows(CollectorFailure.class,()->com.blariyo.collector.source.common.HtmlSupport.parseHtml(
+        "<title>Just a moment</title><p>fixture-secret</p>".getBytes(),url));
+    assertEquals("ACCESS_CHALLENGE",challenge.details().get("diagnosticReason"));
+    assertEquals(200,challenge.details().get("httpStatus"));
+    assertFalse(Json.tree(challenge.details()).toString().contains("fixture-secret"));
+  }
+  @Test void redirectedHostDenialRetainsTargetHostAndOriginalHttpStatus() {
+    var transport=mock(SourceTransport.class);
+    when(transport.get(any(),anyInt(),anyString())).thenReturn(response(302,Map.of("Location",List.of("https://other.invalid/path?token=fixture-secret"))));
+    var failure=assertThrows(CollectorFailure.class,()->new SourceRequests(transport,x->{},0).fetch(url,policy(),100));
+    assertEquals("HOST_NOT_ALLOWED",failure.details().get("diagnosticReason"));
+    assertEquals("other.invalid",failure.details().get("requestHost"));assertEquals(302,failure.details().get("httpStatus"));
+    verify(transport,times(1)).get(any(),anyInt(),anyString());
+  }
   private final URI url=URI.create("https://arca.live/b/live");
   private SourcePolicy policy() {return new SourceRegistry(Json.tree(Map.of("arcalive",Map.of(
       "host","arca.live","approved",true,"parser","ARCALIVE","pathPrefixes",List.of("/"),

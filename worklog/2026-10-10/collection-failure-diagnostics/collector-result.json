@@ -1,0 +1,9 @@
+{
+  "state": "PASSED",
+  "suites": 88,
+  "tests": 320,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "readbackTests": 23
+}

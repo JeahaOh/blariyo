@@ -1,0 +1,56 @@
+[
+  {
+    "timer": "blariyo-publish.timer",
+    "active": "active",
+    "enabled": "enabled",
+    "nextRun": "Fri 2026-10-09 14:38:00 UTC"
+  },
+  {
+    "timer": "blariyo-outbox.timer",
+    "active": "active",
+    "enabled": "enabled",
+    "nextRun": "Fri 2026-10-09 14:37:30 UTC"
+  },
+  {
+    "timer": "blariyo-cleanup.timer",
+    "active": "active",
+    "enabled": "enabled",
+    "nextRun": "Sat 2026-10-10 03:15:00 UTC"
+  },
+  {
+    "timer": "blariyo-collection.timer",
+    "active": "active",
+    "enabled": "enabled",
+    "nextRun": "Fri 2026-10-09 19:30:00 UTC"
+  },
+  {
+    "timer": "blariyo-discord-review.timer",
+    "active": "active",
+    "enabled": "enabled",
+    "nextRun": ""
+  },
+  {
+    "timer": "blariyo-discord-review-scan.timer",
+    "active": "active",
+    "enabled": "enabled",
+    "nextRun": "Fri 2026-10-09 22:30:00 UTC"
+  },
+  {
+    "timer": "blariyo-nightly-main-deploy.timer",
+    "active": "active",
+    "enabled": "enabled",
+    "nextRun": "Fri 2026-10-09 18:00:25 UTC"
+  },
+  {
+    "timer": "blariyo-backup.timer",
+    "active": "active",
+    "enabled": "enabled",
+    "nextRun": "Fri 2026-10-09 18:30:04 UTC"
+  },
+  {
+    "timer": "blariyo-log-retention.timer",
+    "active": "active",
+    "enabled": "enabled",
+    "nextRun": "Sat 2026-10-10 00:05:00 UTC"
+  }
+]

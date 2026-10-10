@@ -28,11 +28,20 @@ const failureLabels: Record<string,string> = {
   IMAGE_URL_NOT_ALLOWED:'이미지 URL 제한',IMAGE_TYPE_NOT_ALLOWED:'이미지 형식 제한',IMAGE_TOO_LARGE:'이미지 크기 초과',
   BATCH_OWNER_LOST:'수집 프로세스 연결 끊김',DEPENDENCY_UNAVAILABLE:'외부 저장소 연결 오류',
 };
+const phaseLabels: Record<string,string> = {CONFIG:'설정 확인',LIST:'목록 수집',CLAIM:'수집 대상 등록',FETCH:'본문 요청',RAW:'원문 저장',PARSE:'본문 분석',PERSIST:'결과 저장',MEDIA:'이미지·첨부 수집',REPORT:'보고서 저장'};
+const diagnosticLabels: Record<string,string> = {
+  UNAPPROVED_SOURCE:'수집 미승인',CONFIG_BLOCKED:'설정에서 수집 제한',INVALID_URL:'주소 형식 오류',SCHEME_NOT_ALLOWED:'허용되지 않은 주소 프로토콜',
+  HOST_NOT_ALLOWED:'허용 호스트 불일치',PATH_NOT_ALLOWED:'허용 경로 불일치',PORT_NOT_ALLOWED:'허용되지 않은 포트',URL_CREDENTIALS_NOT_ALLOWED:'주소에 인증 정보 포함',URL_FRAGMENT_NOT_ALLOWED:'주소에 fragment 포함',
+  NON_PUBLIC_IP:'공개 IP가 아닌 주소로 연결됨',DNS_EMPTY:'DNS 주소 결과 없음',DNS_LOOKUP_FAILED:'DNS 조회 실패',TLS_ERROR:'TLS 인증·연결 실패',TIMEOUT:'연결·응답 시간 초과',CONNECTION_ERROR:'네트워크 연결 실패',NETWORK_INTERRUPTED:'네트워크 요청 중단',
+  HTTP_ACCESS_DENIED:'사이트가 HTTP 요청 거부',HTTP_REJECTED:'허용되지 않은 HTTP 응답',HTTP_RETRY_EXHAUSTED:'서버 오류·재시도 또는 대기 한도 도달',HTTP_RATE_LIMITED:'사이트 요청 횟수 제한',
+  ACCESS_CHALLENGE:'사람 확인·접근 차단 페이지 감지',PARSER_REJECTED:'페이지 구조 분석 실패',CHART_UNVERIFIED:'자동 목록 수집 미지원·미검증',
+  REDIRECT_LIMIT:'리다이렉트 횟수 초과',REDIRECT_HOST_NOT_ALLOWED:'리다이렉트 호스트 불일치',REDIRECT_MISSING_LOCATION:'리다이렉트 대상 누락',REDIRECT_LOOP:'리다이렉트 반복',BODY_TOO_LARGE:'응답 크기 초과',ENCODING_UNSUPPORTED:'응답 압축 형식 미지원',
+};
 const dateFormatter = new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
 function date(value: string) { return dateFormatter.format(new Date(value)); }
 const saving = computed(() => policies.value.some(item => item.saving));
 function row(item: Policy): PolicyRow {
-  return { ...item, draftCollection: item.collectionEnabled ?? false, draftAutoPublish: item.autoPublishEnabled, saving: false, message: '', uncertain: false };
+  return { ...item, lastFailures: item.lastFailures ?? [], draftCollection: item.collectionEnabled ?? false, draftAutoPublish: item.autoPublishEnabled, saving: false, message: '', uncertain: false };
 }
 function changed(item: PolicyRow) {
   return item.autoPublishEnabled !== item.draftAutoPublish || (item.collectionEnabled !== null && item.collectionEnabled !== item.draftCollection);
@@ -111,6 +120,19 @@ async function save(item: PolicyRow) {
               <li v-for="code in item.lastFailureCodes" :key="code"><span v-if="failureLabels[code]">{{ failureLabels[code] }}</span><code>{{ code }}</code></li>
             </ul>
             <small v-else-if="hasError(item)">실패 사유 미기록</small>
+            <details v-if="item.lastFailures.length" class="failure-log">
+              <summary :aria-label="`${item.displayName} 상세 로그`">상세 로그 ({{ item.lastFailures.length }})</summary>
+              <ol :aria-label="`${item.displayName} 최근 실행 상세 로그`">
+                <li v-for="(failure,index) in item.lastFailures" :key="index">
+                  <time :datetime="failure.occurredAt">{{ date(failure.occurredAt) }}</time>
+                  <strong>{{ phaseLabels[failure.phase] ?? failure.phase }}</strong>
+                  <span>{{ failure.diagnosticReason ? diagnosticLabels[failure.diagnosticReason] : '세부 진단 미기록' }}</span>
+                  <span v-if="failure.requestHost">대상: {{ failure.requestHost }}</span>
+                  <span v-if="failure.httpStatus !== null">HTTP {{ failure.httpStatus }}</span>
+                  <code>{{ failure.code }}</code>
+                </li>
+              </ol>
+            </details>
           </td>
           <td class="setting-cell">
             <span class="mobile-label" aria-hidden="true">수집 여부</span>
@@ -137,6 +159,12 @@ async function save(item: PolicyRow) {
   </section>
 </template>
 <style scoped>
+.failure-log { margin-top: 8px; font-size: 12px; overflow-wrap: anywhere; }
+.failure-log summary { color: var(--brand-strong); cursor: pointer; padding: 6px 0; }
+.failure-log summary:focus-visible { outline: 2px solid var(--brand-strong); outline-offset: 2px; }
+.failure-log ol { list-style: none; margin: 8px 0 0; padding: 0; }
+.failure-log li { display: grid; gap: 3px; padding: 8px 0; border-top: 1px solid var(--line); }
+.failure-log code { font-size: 11px; }
 .source-publish-policies { margin: 0; border: 1px solid var(--line); border-radius: 12px; background: #fff; overflow: hidden; }
 .list-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 18px 20px; border-bottom: 1px solid var(--line); }
 .list-heading h2 { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; border: 0; font-size: 16px; font-weight: 700; }

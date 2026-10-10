@@ -29,6 +29,9 @@ export class ReviewCommandService {
     if (command.origin === 'AUTO') {
       if (!this.policies) fail(503,'AUTO_PUBLISH_POLICY_REQUIRED');
       await this.policies.assertEligible(command.itemId,command.requestBody);
+      const current = await this.batches.commandSnapshot(command.itemId);
+      if (command.requestBody.classificationDigest !== command.contentDigest || current.digest.toString('hex') !== command.contentDigest)
+        fail(409,'AUTO_PUBLISH_CLASSIFICATION_CHANGED');
     }
   }
   private async cleanupAfterCommit(itemId: string) {

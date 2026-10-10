@@ -62,7 +62,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE blariyo_migrator IN SCHEMA content,legal GRANT
 DO $$
 DECLARE t text;
 BEGIN
-  FOREACH t IN ARRAY ARRAY['batch_source_publish_policy','batch_source_publish_policy_change','source','candidate','candidate_image','collector_receipt','source_request_budget','source_request_reservation','collector_operational_event','source_discovery_policy','batch_review','batch_review_request','web_collection_request','web_collection_request_key','batch_review_control','discord_review_delivery','discord_review_part','batch_review_command','discord_review_scan_run'] LOOP
+  FOREACH t IN ARRAY ARRAY['auto_publish_keyword_revision','auto_publish_keyword_head','batch_auto_publish_classification','batch_source_publish_policy','batch_source_publish_policy_change','source','candidate','candidate_image','collector_receipt','source_request_budget','source_request_reservation','collector_operational_event','source_discovery_policy','batch_review','batch_review_request','web_collection_request','web_collection_request_key','batch_review_control','discord_review_delivery','discord_review_part','batch_review_command','discord_review_scan_run'] LOOP
     IF to_regclass('collect.'||t) IS NOT NULL THEN
       EXECUTE format('GRANT SELECT,INSERT,UPDATE,DELETE ON collect.%I TO blariyo_app',t);
     END IF;
@@ -77,7 +77,7 @@ BEGIN
       EXECUTE format('GRANT SELECT ON collect.%I TO blariyo_app',t);
     END IF;
   END LOOP;
-  FOREACH t IN ARRAY ARRAY['collect.delete_failed_item(uuid,bigint,bigint,text)','collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()','collect.set_source_collection_setting(text,boolean,integer,text)'] LOOP
+  FOREACH t IN ARRAY ARRAY['collect.delete_failed_item(uuid,bigint,bigint,text)','collect.finalize_retention(uuid,bigint,text)','collect.lookup_dedup(text,text,text)','collect.cleanup_web_requests()','collect.set_source_collection_setting(text,boolean,integer,text)','collect.auto_publish_title_key(text)'] LOOP
     IF to_regprocedure(t) IS NOT NULL THEN
       EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO blariyo_app',t);
     END IF;
@@ -130,5 +130,12 @@ BEGIN
       END IF;
     END LOOP;
   END IF;
+END $$;
+
+DO $$ BEGIN
+ IF to_regclass('collect.auto_publish_keyword_head') IS NOT NULL THEN
+  REVOKE INSERT,DELETE ON collect.auto_publish_keyword_head FROM blariyo_app;
+  REVOKE UPDATE,DELETE ON collect.auto_publish_keyword_revision FROM blariyo_app;
+ END IF;
 END $$;
 COMMIT;

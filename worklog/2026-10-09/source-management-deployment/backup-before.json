@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "key": "db/daily/20261009T141533Z-579cab1f0e9b.dump.age",
+  "createdAt": "2026-10-09T14:15:33.148789+00:00",
+  "postgresMajor": 18,
+  "sha256": "b5047e3338d72fa1153aa84accb1faee24d9ffceee019e08995a07ea4f02a106",
+  "bytes": 1274224,
+  "retentionDays": 7,
+  "spool": "/opt/blariyo/backup/spool/20261009T141533Z-579cab1f0e9b"
+}

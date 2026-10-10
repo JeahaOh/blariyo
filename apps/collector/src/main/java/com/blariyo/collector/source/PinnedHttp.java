@@ -49,7 +49,7 @@ public final class PinnedHttp implements SourceTransport {
     } catch (Exception e) {
       if (result != null) result.cancel(true);
       if (e instanceof InterruptedException) Thread.currentThread().interrupt();
-      throw new CollectorFailure(503, "SOURCE_DNS_FAILED");
+      throw new CollectorFailure(503, "SOURCE_DNS_FAILED").diagnostic("DNS_LOOKUP_FAILED", null, null);
     }
   }
 
@@ -57,7 +57,7 @@ public final class PinnedHttp implements SourceTransport {
     requestPort(uri);
     var addresses = resolver.apply(uri.getHost());
     if (addresses.length == 0 || Arrays.stream(addresses).anyMatch(a -> !publicAddress(a)))
-      throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+      throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED").diagnostic(addresses.length == 0 ? "DNS_EMPTY" : "NON_PUBLIC_IP", uri, null);
   }
 
   public record Response(
@@ -103,7 +103,7 @@ public final class PinnedHttp implements SourceTransport {
       boolean secure = uri.getScheme().equals("https");
       InetAddress[] addresses = resolver.apply(uri.getHost());
       if (addresses.length == 0 || Arrays.stream(addresses).anyMatch(a -> !publicAddress(a)))
-        throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+        throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED").diagnostic(addresses.length == 0 ? "DNS_EMPTY" : "NON_PUBLIC_IP", uri, null);
       try (ServerSocket proxy = new ServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
         proxy.setSoTimeout(5000);
         var sockets = new CopyOnWriteArrayList<Socket>();
@@ -179,9 +179,9 @@ public final class PinnedHttp implements SourceTransport {
                 .firstValue("content-encoding")
                 .orElse("identity")
                 .equalsIgnoreCase("identity"))
-              throw new CollectorFailure(415, "SOURCE_ENCODING_UNSUPPORTED");
+              throw new CollectorFailure(415, "SOURCE_ENCODING_UNSUPPORTED").diagnostic("ENCODING_UNSUPPORTED", uri, response.statusCode());
             if (response.headers().firstValueAsLong("content-length").orElse(0) > maximum)
-              throw new CollectorFailure(413, "SOURCE_TOO_LARGE");
+              throw new CollectorFailure(413, "SOURCE_TOO_LARGE").diagnostic("BODY_TOO_LARGE", uri, response.statusCode());
             try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
               var read = executor.submit(() -> input.readNBytes(maximum + 1));
               byte[] bytes;
@@ -193,7 +193,7 @@ public final class PinnedHttp implements SourceTransport {
                 if (e instanceof InterruptedException) Thread.currentThread().interrupt();
                 throw e;
               }
-              if (bytes.length > maximum) throw new CollectorFailure(413, "SOURCE_TOO_LARGE");
+              if (bytes.length > maximum) throw new CollectorFailure(413, "SOURCE_TOO_LARGE").diagnostic("BODY_TOO_LARGE", uri, response.statusCode());
               return new Response(
                   response.statusCode(),
                   response.headers().firstValue("content-type").orElse(""),
@@ -210,16 +210,21 @@ public final class PinnedHttp implements SourceTransport {
         }
       }
     } catch (CollectorFailure e) {
-      throw e;
+      throw e.diagnostic(null, uri, null);
     } catch (Exception e) {
-      throw new CollectorFailure(503, "SOURCE_FETCH_FAILED");
+      String reason = e instanceof javax.net.ssl.SSLException ? "TLS_ERROR"
+          : e instanceof java.net.http.HttpTimeoutException || e instanceof TimeoutException || e instanceof SocketTimeoutException ? "TIMEOUT"
+          : e instanceof InterruptedException ? "NETWORK_INTERRUPTED" : "CONNECTION_ERROR";
+      throw new CollectorFailure(503, "SOURCE_FETCH_FAILED").diagnostic(reason, uri, null);
     }
   }
 
   private static int requestPort(URI uri) {
     int port = "https".equals(uri.getScheme()) ? 443 : "http".equals(uri.getScheme()) ? 80 : -1;
-    if (port == -1 || uri.getHost() == null || uri.getUserInfo() != null || uri.getFragment() != null
-        || (uri.getPort() != -1 && uri.getPort() != port)) throw new CollectorFailure(403, "SOURCE_NOT_ALLOWED");
+    String reason = port == -1 ? "SCHEME_NOT_ALLOWED" : uri.getHost() == null ? "INVALID_URL"
+        : uri.getUserInfo() != null ? "URL_CREDENTIALS_NOT_ALLOWED" : uri.getFragment() != null ? "URL_FRAGMENT_NOT_ALLOWED"
+        : uri.getPort() != -1 && uri.getPort() != port ? "PORT_NOT_ALLOWED" : null;
+    if(reason != null)throw new CollectorFailure(403,"SOURCE_NOT_ALLOWED").diagnostic(reason,uri,null);
     return port;
   }
 

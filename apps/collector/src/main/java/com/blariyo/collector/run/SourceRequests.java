@@ -51,22 +51,23 @@ final class SourceRequests {
     var visited=new HashSet<URI>();
     for(int redirects=0;redirects<=3;redirects++) {
       policy.allow(current.toString());
-      if(!visited.add(current.normalize()))throw new CollectorFailure(403,"SOURCE_REDIRECT_LOOP");
+      if(!visited.add(current.normalize()))throw new CollectorFailure(403,"SOURCE_REDIRECT_LOOP").diagnostic("REDIRECT_LOOP",current,null);
       var response=request(current,policy,maximum);
       if(response.status()==200)return response;
       if(response.status()>=300&&response.status()<400) {
         String location=header(response,"location");
-        if(location.isBlank()||redirects==3)throw new CollectorFailure(403,"SOURCE_REDIRECT_BLOCKED");
+        if(location.isBlank()||redirects==3)throw new CollectorFailure(403,"SOURCE_REDIRECT_BLOCKED").diagnostic(location.isBlank()?"REDIRECT_MISSING_LOCATION":"REDIRECT_LIMIT",current,response.status());
         URI target;
         try {target=policy.allow(current.resolve(location).toString());}
-        catch(IllegalArgumentException failure){throw new CollectorFailure(403,"SOURCE_REDIRECT_BLOCKED");}
-        if(!policy.publicImage()&&!url.getHost().equalsIgnoreCase(target.getHost()))throw new CollectorFailure(403,"SOURCE_REDIRECT_BLOCKED");
+        catch(CollectorFailure failure){throw failure.diagnostic(null,current,response.status());}
+        catch(IllegalArgumentException failure){throw new CollectorFailure(403,"SOURCE_REDIRECT_BLOCKED").diagnostic("INVALID_URL",current,response.status());}
+        if(!policy.publicImage()&&!url.getHost().equalsIgnoreCase(target.getHost()))throw new CollectorFailure(403,"SOURCE_REDIRECT_BLOCKED").diagnostic("REDIRECT_HOST_NOT_ALLOWED",target,response.status());
         current=target;continue;
       }
       int status=response.status();
-      if(status==404||status==410)throw new CollectorFailure(404,"SOURCE_GONE");
-      if(status==401||status==403)throw new CollectorFailure(403,"SOURCE_ACCESS_BLOCKED");
-      throw new CollectorFailure(422,"SOURCE_HTTP_REJECTED");
+      if(status==404||status==410)throw new CollectorFailure(404,"SOURCE_GONE").diagnostic("HTTP_REJECTED",current,status);
+      if(status==401||status==403)throw new CollectorFailure(403,"SOURCE_ACCESS_BLOCKED").diagnostic("HTTP_ACCESS_DENIED",current,status);
+      throw new CollectorFailure(422,"SOURCE_HTTP_REJECTED").diagnostic("HTTP_REJECTED",current,status);
     }
     throw new CollectorFailure(403,"SOURCE_REDIRECT_LOOP");
   }
@@ -84,7 +85,7 @@ final class SourceRequests {
         response=transport.get(url,maximum,policy.userAgent());
       }
       catch(CollectorFailure failure) {
-        if(!Set.of("SOURCE_FETCH_FAILED","SOURCE_DNS_FAILED").contains(failure.getMessage())||attempt==SourceRequestPolicy.MAX_HTTP_ATTEMPTS-1)throw failure;
+        if(!Set.of("SOURCE_FETCH_FAILED","SOURCE_DNS_FAILED").contains(failure.getMessage())||attempt==SourceRequestPolicy.MAX_HTTP_ATTEMPTS-1)throw failure.diagnostic(null,url,null);
         delay=Math.max(interval,1000L<<attempt);continue;
       }
       int status=response.status();
@@ -96,7 +97,7 @@ final class SourceRequests {
         long wait=Math.max(interval,retryAfter>0?retryAfter:SourceRequestPolicy.DEFAULT_COOLDOWN_MS);
         if(policy.publicImage())imageCooldown.accept(url.getHost(),wait);
         else cooldown.accept(wait);
-        throw new CollectorFailure(status==429?429:503,code);
+        throw new CollectorFailure(status==429?429:503,code).diagnostic(status==429?"HTTP_RATE_LIMITED":"HTTP_RETRY_EXHAUSTED",url,status);
       }
       delay=Math.max(Math.max(interval,1000L<<attempt),retryAfter);
     }

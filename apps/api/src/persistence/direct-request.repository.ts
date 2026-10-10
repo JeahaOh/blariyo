@@ -18,7 +18,7 @@ function bytes(value:unknown):Buffer {if(!Buffer.isBuffer(value)||value.length!=
 export class TypeOrmDirectRequestRepository extends DirectRequestRepository {
  constructor(@Inject(DatabaseContext) private readonly db:DatabaseContext){super();}
  async ready(){
-  const row=requiredRow(await this.db.manager.query("SELECT (((((ops.is_schema_ready('V015') OR ops.is_schema_ready('V014')) OR ops.is_schema_ready('V013')) OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011')) OR ops.is_schema_ready('V010')) AND to_regclass('collect.batch_input_projection') IS NOT NULL AND to_regclass('collect.batch_runtime_projection') IS NOT NULL AS ready"));
+  const row=requiredRow(await this.db.manager.query("SELECT ((((((ops.is_schema_ready('V017') OR ops.is_schema_ready('V016')) OR ops.is_schema_ready('V015') OR ops.is_schema_ready('V014')) OR ops.is_schema_ready('V013')) OR ops.is_schema_ready('V012')) OR ops.is_schema_ready('V011')) OR ops.is_schema_ready('V010')) AND to_regclass('collect.batch_input_projection') IS NOT NULL AND to_regclass('collect.batch_runtime_projection') IS NOT NULL AS ready"));
   return row.ready===true;
  }
  async sources():Promise<RuntimeIdentity[]> {

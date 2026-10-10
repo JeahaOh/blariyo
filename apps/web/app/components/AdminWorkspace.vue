@@ -12,15 +12,6 @@ const { data: session } = await useAsyncData(
     ).catch(() => null),
   { server: false }
 );
-const titles: Record<string, string> = {
-  '/admin': '게시글 관리',
-  '/admin/batch': '수집 결과 검수',
-  '/admin/sources': '수집처 관리',
-  '/admin/common-codes': '공통코드 관리',
-  '/admin/collect': '수집 요청',
-  '/admin/collect/sources': '수집 출처',
-};
-const title = computed(() => titles[route.path] || '관리자');
 const sessionUrl = computed(() => '/admin/login?returnTo=' + encodeURIComponent(route.fullPath));
 </script>
 <template>
@@ -42,15 +33,13 @@ const sessionUrl = computed(() => '/admin/login?returnTo=' + encodeURIComponent(
           ><span aria-hidden="true">◎</span> 수집 결과 검수</NuxtLink
         >
     <NuxtLink v-if="features?.batchReview" to="/admin/sources" :aria-current="route.path === '/admin/sources' ? 'page' : undefined">수집처 관리</NuxtLink>
+    <NuxtLink v-if="features?.batchReview" to="/admin/keywords" :aria-current="route.path === '/admin/keywords' ? 'page' : undefined">키워드 관리</NuxtLink>
     <NuxtLink to="/admin/common-codes" :aria-current="route.path === '/admin/common-codes' ? 'page' : undefined">공통코드 관리</NuxtLink>
       </nav>
       <div class="admin-sidebar-bottom"><NuxtLink to="/meme">↗ 공개 사이트 보기</NuxtLink></div>
     </aside>
     <div class="admin-main-column">
       <header class="admin-topbar">
-        <div>
-          <span class="admin-topbar-kicker">BLARIYO / ADMIN</span><strong>{{ title }}</strong>
-        </div>
         <div class="admin-account">
           <span class="admin-online"
             ><i /> {{ session?.localLoginAvailable ? '로컬 개발' : '인증됨' }}</span

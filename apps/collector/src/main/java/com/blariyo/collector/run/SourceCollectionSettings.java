@@ -54,7 +54,7 @@ public final class SourceCollectionSettings {
     try(var c=store.connection();var q=c.prepareStatement("SELECT collection_enabled,collection_available,blocked_reason FROM collect.batch_source_collection_setting WHERE source_key=?")) {
       q.setString(1,source);try(var r=q.executeQuery()) {
         if(!r.next())throw new CollectorFailure(503,"SOURCE_COLLECTION_SETTING_UNAVAILABLE");
-        if(!r.getBoolean(2))throw new CollectorFailure(403,Objects.requireNonNullElse(r.getString(3),"SOURCE_NOT_ALLOWED"));
+        if(!r.getBoolean(2))throw new CollectorFailure(403,Objects.requireNonNullElse(r.getString(3),"SOURCE_NOT_ALLOWED")).diagnostic("CONFIG_BLOCKED",null,null);
         if(!r.getBoolean(1))throw new CollectorFailure(403,"SOURCE_DISABLED");
       }
     }catch(SQLException error){throw new CollectorFailure(503,"SOURCE_COLLECTION_SETTING_UNAVAILABLE");}

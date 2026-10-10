@@ -1,12 +1,24 @@
 # M0 현재 진행 상황
 
-- 2026-10-09 수집처 설정: 수집 URL·수집 여부·자동 발행 select와 DB 기반 배치 수집 설정을 연결한다. 기존 임시 중지를 유지하고 Collector V016·권한 적용이 필요하다. 검증·로컬/운영 반영 상태는 [작업 기록](../worklog/2026-10-09/source-collection-settings/README.md)을 따른다.
+- 2026-10-10 키워드 검토 후 개선: 행/일괄 입력 오류 초안 보존, 미저장/저장 중 이탈 방어, 체크한 행만 삭제·건수 표시를 적용한다. 편집 API/선택 상태/순수 모델/표현/이탈 방어로 모듈화한다. 회귀 검증·로컬 반영·운영 미반영 경계는 [작업 기록](../worklog/2026-10-10/keyword-modular-improvements/README.md)을 따른다.
+
+- 2026-10-10 키워드 사용성: 필터 결과/선택 행 대상 표시, 일치 방식 선택 후 한 번 저장, 한 줄 일괄 도구 모음으로 개선한다. 검증·로컬 적용 경계는 [후속 기록](../worklog/2026-10-10/keyword-bulk-ux/README.md)을 따른다.
+
+- 2026-10-10 키워드 일괄 관리: 행/페이지/필터 전체 선택, 선택한 일치 방식 적용·일괄 저장·행/선택 삭제를 구현했다. 한 transaction과 불변 이력/버전 검사, OWNER 변경·EDITOR 조회 유지. 로컬 반영·최종 검증 및 운영 미반영 경계는 [작업 기록](../worklog/2026-10-10/keyword-bulk-management/README.md)을 따른다.
+
+- 2026-10-10 키워드 관리: 독립 `/admin/keywords`와 DB 규칙/버전·배치 연결을 구현했다. OWNER 변경/EDITOR 조회, 기존 보류 소급 발행 금지. 운영 DB/배포·예약 활성화 미실행. 검증 결과는 [작업 기록](../worklog/2026-10-10/keyword-management/README.md)을 따른다.
+
+- 2026-10-10 생활·유머 자동 분류: 출처 ON 신규 글의 보수적 분류·사유/버전 기록, 보류 글의 사람 검수 인계, 제목 중복과 발행 직전 재검사를 추가한다. `collection:auto-publish`/읽기 전용 dry-run을 별도 명령으로 구성하고 예약 글 발행에서 분리한다. API V016·최소 권한·전용 timer는 코드 산출물이며 운영 적용/활성화는 미실행이다. 구현 검증의 개별 결과·한계는 [작업 기록](../worklog/2026-10-10/auto-publish-classification/README.md)을 따른다. 개발 예약 중지 유지.
+
+- 2026-10-09 23:33 KST 수집처 관리 운영 반영: main `77a425d`, API V015·Collector V016, Web/API healthy와 CI digest 일치 확인. `/admin/sources`의 행별 수집/자동발행 저장·URL·검색/상태 필터·마지막 수집/실패 이력, HTTP/외부 CDN 이미지와 글 단위 실패 격리를 반영했다. 수집처21개(ON13·임시OFF6·수집 불가2), 자동발행 ON0. 게시글106·수집445건의 전후 전체 행 해시 보존, 예약 작업 재개, 배포 전후 백업 실제 복원 완료. 운영 관리자 브라우저는 Cloudflare 로그인 대기이며 실제 설정 변경·재수집·자동발행 관찰은 별도다. 개발 예약 수집은 중지 유지. [배포 증거](../worklog/2026-10-09/source-management-deployment/README.md).
+
+- 2026-10-09 수집처 설정: 수집 URL·수집 여부·자동 발행 select와 DB 기반 배치 수집 설정을 연결한다. 기존 임시 중지를 유지하고 Collector V016·권한을 운영에 적용했다. 구현 검증은 [작업 기록](../worklog/2026-10-09/source-collection-settings/README.md), 현재 운영 반영은 [배포 기록](../worklog/2026-10-09/source-management-deployment/README.md)을 따른다.
 
 - 2026-10-09 관리자 메뉴 분리: `수집처 관리`(`/admin/sources`)에서 목록·자동 발행 상태와 설정을 관리하도록 검수 화면에서 분리했다. 검증·로컬 적용 상태는 [작업 기록](../worklog/2026-10-09/source-management-menu/README.md)을 따른다.
 
 - 2026-10-09 출처별 자동 발행: API 정책·변경 이력, 기본 OFF/OWNER 설정, 신규 run 자동 발행·최종 정책 검사, 관리자 설정 UI를 로컬 구현했다. 검증·운영 적용 여부는 [작업 기록](../worklog/2026-10-09/source-auto-publish/README.md)을 따른다.
 
-- 2026-10-09 이미지 정책 변경: direct 수집의 HTTP·HTTPS/외부 CDN 이미지 허용, 이미지 오류의 글 단위 격리, 이미지 호스트별 영속 대기 코드를 보완했다. 검증 결과와 운영 반영 여부는 [작업 기록](../worklog/2026-10-09/image-source-policy/README.md)을 따른다. 개발 배치 자동 실행은 중지 유지하며 운영 적용은 별도다.
+- 2026-10-09 이미지 정책 변경: direct 수집의 HTTP·HTTPS/외부 CDN 이미지 허용, 이미지 오류의 글 단위 격리, 이미지 호스트별 영속 대기 코드를 보완했다. 검증 결과와 운영 반영 여부는 [작업 기록](../worklog/2026-10-09/image-source-policy/README.md)을 따른다. 개발 배치 자동 실행은 중지 유지하며 main `77a425d`의 운영 적용은 [배포 기록](../worklog/2026-10-09/source-management-deployment/README.md)을 따른다.
 
 
 - 2026-10-08 Discord 검수 로컬·운영 반영: main `f8067ab`, API V014·Collector V015, 공통 승인/반려/발행 명령·관리자 우선권·비동기 삭제 복구·Java worker를 활성화했다. 실제 운영 수집 1건이 헤드와 본문 4개 메시지로 전송돼 READY/48시간·봇 반응만 존재·미발행을 확인했다. 수집04:30/15:30, 검수07:30/17:00 KST 예약 enabled/active. 첫04:30 정기 실행·사람의 운영 승인/발행·실시간48시간 만료 관찰은 아직 미실행이다. [배포·실연동 근거](../worklog/2026-10-08/discord-review-deployment/README.md).

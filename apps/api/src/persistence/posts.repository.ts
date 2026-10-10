@@ -81,6 +81,7 @@ export class TypeOrmPostsRepository extends PostsRepository {
     body: CreatePost,
     actor: string
   ): Promise<PostRecord> {
+    await this.titleLock(body.title);
     const result = await this.db.manager.createQueryBuilder().insert().into(ContentBoardPostEntity)
       .values({ board_id: boardId, title: body.title.trim(), source_name: body.source?.name.trim() || null, source_url: body.source?.url || null,
         status: 'DRAFT', pinned_position: body.pinnedPosition, created_by: actor, created_at: () => 'now()', updated_by: actor, updated_at: () => 'now()' })
@@ -91,6 +92,7 @@ export class TypeOrmPostsRepository extends PostsRepository {
     return mapPost(row, slug);
   }
   async update(post: PostRecord, actor: string, publishNow: boolean) {
+    await this.titleLock(post.title);
     const changed = await this.db.manager.createQueryBuilder().update(ContentBoardPostEntity)
       .set({ title: post.title, source_name: post.sourceName, source_url: post.sourceUrl, status: post.status,
         pinned_position: post.pinnedPosition, scheduled_at: post.scheduledAt, published_at: publishNow ? () => 'statement_timestamp()' : post.publishedAt,
@@ -104,6 +106,10 @@ export class TypeOrmPostsRepository extends PostsRepository {
   }
   async deleteBlocks(postId: string) {
     await this.db.manager.delete(ContentBoardPostBlockEntity, { post_id: postId });
+  }
+  private async titleLock(title: string) {
+    await this.db.manager.query(`SELECT pg_advisory_xact_lock(hashtextextended(
+      'auto-publish-title:'||encode(collect.auto_publish_title_key($1),'hex'),0))`,[title]);
   }
   async addBlock(postId: string, position: number, block: EditBlock, actor: string) {
     await this.db.manager.createQueryBuilder().insert().into(ContentBoardPostBlockEntity)

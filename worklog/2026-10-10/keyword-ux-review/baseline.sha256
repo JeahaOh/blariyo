@@ -1,0 +1,6 @@
+f05913410c009cd920373fe50b3ae47961871539bb26c720e8409e0643169009  apps/web/app/pages/admin-keywords.vue
+0969d05aa9dd1ae5886f85ba1c7165b704d00d642a633d2f8b27bdf58aa64d47  tests/browser/keyword-management.test.ts
+6bb62aec612eb6a6ecc44388cc4945028d49f695e2d3e563875a0bb61fbe0b63  apps/api/src/features/collection/auto-publish-keyword.service.ts
+d027b50fd66ea03dcaa675ec0f7f8c11f2a3880c9e4dafb07a2e26d189cfbc2c  apps/api/src/persistence/auto-publish-keyword.repository.ts
+3310f45db6d875b46e35cf6cc22cb0b8fc64553f9da06ef9679894d86d3fe8e0  docs/planning/content-collection/README.md
+2d818dd77c4b5d94cfbad9932149b20b4c3f6e20d1c96da22c4c8fda69c53d92  docs/system-design/11-source-auto-publish.md

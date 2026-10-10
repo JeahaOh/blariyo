@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-10-10T20:27:07+09:00",
+  "webUrl": "http://localhost:3000/admin/keywords",
+  "coreHealth": {"status": "READY", "httpStatus": 200},
+  "database": {"ruleVersion": "life-humor-v1", "keywordCount": 125, "revisionCount": 1},
+  "uiObserved": {"filteredTargetCount": 20, "pendingCount": 20, "saveEnabled": true, "applyButtonRemoved": true},
+  "realKeywordWrites": false,
+  "uiResetAfterCapture": true,
+  "productionApplied": false
+}

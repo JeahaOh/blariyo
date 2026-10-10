@@ -15,6 +15,15 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 class PinnedHttpTests {
+  @Test void nonPublicDnsResultRecordsReasonWithoutOpeningSocket() throws Exception {
+    var connections=new AtomicInteger();
+    var client=new PinnedHttp(host->new InetAddress[]{InetAddress.getLoopbackAddress()},()->{connections.incrementAndGet();return new Socket();},null);
+    var failure=assertThrows(CollectorFailure.class,()->client.validate(URI.create("https://fixture.invalid/path?token=fixture-secret")));
+    assertEquals("NON_PUBLIC_IP",failure.details().get("diagnosticReason"));assertEquals("fixture.invalid",failure.details().get("requestHost"));
+    assertEquals(0,connections.get());
+    var empty=new PinnedHttp(host->new InetAddress[]{},Socket::new,null);
+    assertEquals("DNS_EMPTY",assertThrows(CollectorFailure.class,()->empty.validate(URI.create("https://fixture.invalid/"))).details().get("diagnosticReason"));
+  }
   @TempDir Path directory;
   HttpsServer server;
   HttpServer plain;
@@ -141,14 +150,12 @@ class PinnedHttpTests {
             .get(URI.create("https://fixture.invalid/redirect"), 1024, "Fixture/contact-test")
             .status());
     assertEquals(2, lookups.get());
-    assertEquals(
-        "SOURCE_FETCH_FAILED",
-        assertThrows(
+    var tlsFailure = assertThrows(
                 CollectorFailure.class,
                 () ->
                     client.get(
-                        URI.create("https://other.invalid/detail"), 1024, "Fixture/contact-test"))
-            .getMessage());
+                        URI.create("https://other.invalid/detail"), 1024, "Fixture/contact-test"));
+    assertEquals("SOURCE_FETCH_FAILED",tlsFailure.getMessage());assertEquals("TLS_ERROR",tlsFailure.details().get("diagnosticReason"));
   }
 
   @Test
@@ -221,9 +228,10 @@ class PinnedHttpTests {
                         "Fixture/contact-test"))
             .status());
     long start = System.nanoTime();
-    assertThrows(
+    var timeout = assertThrows(
         CollectorFailure.class,
         () -> client.get(URI.create("https://fixture.invalid/slow"), 1024, "Fixture/contact-test"));
+    assertEquals("TIMEOUT",timeout.details().get("diagnosticReason"));
     assertTrue((System.nanoTime() - start) / 1_000_000_000L < 24);
   }
 }

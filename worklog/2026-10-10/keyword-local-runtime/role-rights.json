@@ -1,0 +1,8 @@
+{
+  "head_read": true,
+  "head_update": true,
+  "revision_read": true,
+  "revision_insert": true,
+  "revision_update": false,
+  "revision_delete": false
+}

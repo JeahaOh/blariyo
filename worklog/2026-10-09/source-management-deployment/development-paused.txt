@@ -1,0 +1,4 @@
+PASS com.blariyo.local-collection disabled/unloaded
+PASS com.blariyo.discord-review.scan disabled/unloaded
+PASS com.blariyo.discord-review.maintenance disabled/unloaded
+PASS com.blariyo.local-collection.awake disabled/unloaded

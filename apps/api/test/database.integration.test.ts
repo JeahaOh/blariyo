@@ -48,8 +48,8 @@ await test('TypeORM maps all SQL columns without changing schema and coordinates
   assert.equal(source.options.synchronize, false);
   assert.equal(source.options.migrationsRun, false);
   const columns = before.filter((row) => row.kind === 'column');
-  // V015 adds source policy and policy history to the existing 30 entities.
-  assert.equal(source.entityMetadatas.length, 32);
+  // V016 adds classification metadata without a source-row foreign key.
+  assert.equal(source.entityMetadatas.length, 35);
   assert.equal(
     source.entityMetadatas.reduce((n, m) => n + m.columns.length, 0),
     columns.length
@@ -119,7 +119,7 @@ await test('TypeORM maps all SQL columns without changing schema and coordinates
     }
   }
   // V015 adds the policy-history to policy relation.
-  assert.equal(foreignKeys.length, 23);
+  assert.equal(foreignKeys.length, 24);
   assert.equal(mapped.length, foreignKeys.length);
   assert.deepEqual(
     mapped.map((row) => JSON.stringify(row)).sort(),

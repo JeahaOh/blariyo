@@ -1,0 +1,10 @@
+.{"source": "first", "startedAt": "2026-10-09T23:45:57.356316+00:00", "error": "SOURCE_EXECUTION_FAILED"}
+{"source": "second", "startedAt": "2026-10-09T23:45:57.356421+00:00", "exitCode": 0, "oomKilled": false, "finishedAt": "now", "runId": "fixture", "reportState": "PARTIAL", "errors": ["SOURCE_ACCESS_BLOCKED"], "diagnostics": [{"phase": "FETCH", "code": "SOURCE_ACCESS_BLOCKED", "diagnosticReason": "HTTP_ACCESS_DENIED", "requestHost": "fixture.invalid", "httpStatus": 403}], "counts": {"fetched": 1}}
+{"state": "COMPLETED_WITH_ERRORS", "sources": 2, "unattempted": 0}
+.{"source": "source", "startedAt": "2026-10-09T23:45:57.360394+00:00", "exitCode": 0, "oomKilled": false, "finishedAt": "now", "error": "REPORT_MISSING"}
+{"state": "COMPLETED_WITH_ERRORS", "sources": 1, "unattempted": 0}
+..
+----------------------------------------------------------------------
+Ran 4 tests in 0.012s
+
+OK

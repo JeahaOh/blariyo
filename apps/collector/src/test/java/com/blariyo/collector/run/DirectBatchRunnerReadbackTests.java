@@ -22,6 +22,35 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class DirectBatchRunnerReadbackTests {
+  @Test void listFailureDiagnosticsSurviveDatabaseAndReportReadback(@TempDir Path root) throws Exception {
+    String jdbc=System.getenv("COLLECTOR_READBACK_DATABASE_URL");
+    Assumptions.assumeTrue(jdbc!=null&&!jdbc.isBlank(),"COLLECTOR_READBACK_DATABASE_URL not set");
+    var config=new HikariConfig();config.setJdbcUrl(jdbc);
+    config.setUsername(System.getenv().getOrDefault("COLLECTOR_READBACK_DATABASE_USER","blariyo_local"));
+    config.setPassword(System.getenv().getOrDefault("COLLECTOR_READBACK_DATABASE_PASSWORD",""));config.setMaximumPoolSize(2);
+    try(var ds=new HikariDataSource(config)) {
+      com.blariyo.collector.ops.MigrationMain.migrate(jdbc,config.getUsername(),config.getPassword());
+      var store=TestSourceControls.store(ds);
+      SourceTransport network=new SourceTransport() {
+        public void validate(URI uri) {}
+        public PinnedHttp.Response get(URI uri,int maximum,String agent) { return new PinnedHttp.Response(403,"text/html",Map.of(),"fixture-secret".getBytes()); }
+      };
+      var report=new DirectBatchRunner(network,store,new BatchObjectStore.Local(root.toString()),ignored->{})
+          .run(source(Long.toString(System.nanoTime())),new DirectBatchRunner.Options("arcalive","hot",1,1,Duration.ofHours(24),10000,true));
+      assertEquals("BLOCKED",report.state());
+      try(var c=ds.getConnection();var q=c.prepareStatement("SELECT phase,code,detail FROM collect.batch_failure WHERE run_id=?")) {
+        q.setObject(1,report.runId());try(var r=q.executeQuery()) {
+          assertTrue(r.next());assertEquals("LIST",r.getString("phase"));assertEquals("SOURCE_ACCESS_BLOCKED",r.getString("code"));
+          var detail=Json.parse(r.getString("detail").getBytes());assertEquals("HTTP_ACCESS_DENIED",detail.path("diagnosticReason").asText());
+          assertEquals(403,detail.path("httpStatus").asInt());assertEquals("arca.live",detail.path("requestHost").asText());
+          assertFalse(r.getString("detail").contains("fixture-secret"));assertFalse(r.next());
+        }
+      }
+      var saved=Json.parse(Files.readAllBytes(root.resolve("collect/report/"+report.runId()+".jsonl")));
+      assertEquals("HTTP_ACCESS_DENIED",saved.path("diagnostics").get(0).path("diagnosticReason").asText());
+      assertFalse(saved.toString().contains("fixture-secret"));
+    }
+  }
   private static final byte[] PNG=java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=");
   @Test void failedAndAbandonedItemsResumeWithoutDuplicatingOrChangingFetchedSnapshot(@TempDir Path root) throws Exception {
     String jdbc=System.getenv("COLLECTOR_READBACK_DATABASE_URL");

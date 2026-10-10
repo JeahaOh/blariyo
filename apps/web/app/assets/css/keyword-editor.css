@@ -1,0 +1,449 @@
+.keyword-management {
+  width: 100%;
+  max-width: 1240px;
+}
+.keyword-heading,
+.keyword-heading-actions,
+.keyword-footer,
+.keyword-pages {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.keyword-heading {
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.keyword-heading h1 {
+  margin: 0;
+}
+.keyword-management .keyword-heading-actions button {
+  min-height: 36px;
+  padding: 7px 12px;
+  font-size: 13px;
+}
+.keyword-management .keyword-add-trigger {
+  background: var(--brand-strong);
+  border-color: var(--brand-strong);
+  color: #fff;
+}
+.keyword-form {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1fr 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+.keyword-add {
+  margin: 0 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  padding: 16px;
+}
+.keyword-list {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.keyword-filters {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 220px 160px;
+  gap: 12px;
+  padding: 16px;
+}
+.keyword-management label {
+  display: grid;
+  margin: 0;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.keyword-management input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 36px;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  color: var(--admin-ink);
+}
+.keyword-management .setting-select {
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 400;
+}
+.keyword-count {
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.keyword-management .muted,
+.keyword-footer small {
+  color: var(--muted);
+}
+.keyword-bulk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: #f8fafb;
+}
+.keyword-selection,
+.keyword-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.keyword-selection {
+  font-size: 13px;
+}
+.keyword-selection strong {
+  font-weight: 600;
+}
+.keyword-selection small {
+  color: var(--brand-strong);
+}
+.keyword-management .keyword-page-check {
+  display: none;
+}
+.keyword-management .keyword-clear {
+  padding: 4px 6px;
+  font-size: 12px;
+  border-color: transparent;
+  background: transparent;
+}
+.keyword-bulk-mode {
+  width: 155px;
+}
+.keyword-management .keyword-bulk-actions button {
+  min-height: 36px;
+  font-size: 13px;
+}
+.keyword-management .keyword-bulk-save {
+  background: var(--brand-strong);
+  color: #fff;
+  border-color: var(--brand-strong);
+}
+.keyword-management .keyword-delete {
+  color: #a12c30;
+}
+.keyword-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.keyword-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 10px 8px;
+  background: #f8fafb;
+}
+.keyword-table .keyword-check {
+  width: 4%;
+  padding-left: 12px;
+  padding-right: 4px;
+}
+.keyword-table .keyword-name {
+  width: 18%;
+}
+.keyword-table .keyword-group {
+  width: 22%;
+}
+.keyword-table .keyword-scope {
+  width: 17%;
+}
+.keyword-table .keyword-mode,
+.keyword-table .keyword-enabled,
+.keyword-table .keyword-actions {
+  width: 13%;
+}
+.keyword-table td {
+  padding: 7px 8px;
+  border-top: 1px solid var(--line);
+  vertical-align: middle;
+}
+.keyword-table tr.is-selected {
+  background: #f0f8f7;
+}
+.keyword-table tr.is-modified {
+  background: #fff9eb;
+}
+.keyword-table tr.is-modified td:first-child {
+  box-shadow: inset 3px 0 #c78d24;
+}
+.keyword-table input:not([type='checkbox']),
+.keyword-management .keyword-table .setting-select {
+  border-color: transparent;
+  background: transparent;
+}
+.keyword-table input:not([type='checkbox']) {
+  font-weight: 600;
+}
+.keyword-table input:not([type='checkbox']):hover:not(:disabled),
+.keyword-management .keyword-table .setting-select:hover:not(:disabled) {
+  border-color: var(--line);
+  background: #fff;
+}
+.keyword-management .keyword-table .setting-select.is-open {
+  border-color: var(--brand-strong);
+  background: #fff;
+}
+.keyword-management .keyword-table .setting-select.is-enabled {
+  color: var(--brand-strong);
+}
+.keyword-modified {
+  display: block;
+  margin: 0 10px 2px;
+  font-size: 11px;
+  color: #805b17;
+}
+.keyword-save > div {
+  display: flex;
+  gap: 4px;
+}
+.keyword-management .keyword-save button {
+  min-height: 32px;
+  padding: 5px 7px;
+  font-size: 12px;
+  border-color: transparent;
+  background: transparent;
+  white-space: nowrap;
+}
+.keyword-management .keyword-save button:hover:not(:disabled) {
+  background: #eef3f4;
+  border-color: var(--line);
+}
+.keyword-table tr.is-modified .keyword-save button:first-child {
+  background: var(--brand-strong);
+  color: #fff;
+}
+.keyword-save span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.keyword-management input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--brand);
+  vertical-align: middle;
+}
+.keyword-footer {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+}
+.keyword-footer small {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.keyword-pages {
+  font-size: 12px;
+}
+.keyword-management .keyword-pages button {
+  min-height: 32px;
+  padding: 4px 9px;
+  font-size: 12px;
+}
+.keyword-delete-confirm {
+  margin: 0;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  background: #fff5f4;
+}
+.keyword-delete-confirm p {
+  margin: 0 0 12px;
+}
+.keyword-delete-confirm button + button {
+  margin-left: 12px;
+}
+.keyword-list > .muted {
+  margin: 0;
+  padding: 32px 16px;
+}
+@media (max-width: 1100px) {
+  .keyword-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .keyword-management .keyword-page-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .keyword-table,
+  .keyword-table tbody {
+    display: block;
+  }
+  .keyword-table thead {
+    display: none;
+  }
+  .keyword-table tbody {
+    padding: 12px;
+  }
+  .keyword-table tr {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1fr);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
+    gap: 10px 8px;
+  }
+  .keyword-table tr:last-child {
+    margin-bottom: 0;
+  }
+  .keyword-table td {
+    display: block;
+    border: 0;
+    padding: 0;
+  }
+  .keyword-table td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+  .keyword-table td.keyword-check {
+    width: auto;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .keyword-table td.keyword-check::before,
+  .keyword-table td.keyword-name-cell::before {
+    display: none;
+  }
+  .keyword-table .keyword-name-cell {
+    grid-column: 2/-1;
+  }
+  .keyword-table td[data-label='분류'],
+  .keyword-table td[data-label='일치 방식'] {
+    grid-column: 1/3;
+  }
+  .keyword-table .keyword-save {
+    grid-column: 1/-1;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .keyword-save > div {
+    justify-content: flex-end;
+  }
+  .keyword-table tr.is-modified td:first-child {
+    box-shadow: none;
+  }
+  .keyword-table tr.is-modified {
+    border-left: 3px solid #c78d24;
+  }
+  .keyword-management input:not([type='checkbox']),
+  .keyword-management .setting-select {
+    min-height: 44px;
+    height: auto;
+  }
+  .keyword-management .keyword-save button,
+  .keyword-management .keyword-bulk-actions button,
+  .keyword-management .keyword-heading-actions button,
+  .keyword-management .keyword-pages button {
+    min-height: 44px;
+  }
+  .keyword-management .keyword-table .setting-select {
+    border-color: var(--line);
+    background: #fff;
+  }
+  .keyword-management .keyword-table .setting-select.is-enabled {
+    background: var(--brand-soft);
+  }
+  .keyword-management .keyword-table input:not([type='checkbox']) {
+    font-size: 15px;
+  }
+  .keyword-management .keyword-page-check {
+    min-height: 44px;
+  }
+  .keyword-table td.keyword-check {
+    min-height: 44px;
+  }
+}
+@media (max-width: 600px) {
+  .keyword-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+  .keyword-heading-actions {
+    margin-left: auto;
+  }
+  .keyword-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .keyword-form label:first-child {
+    grid-column: 1/-1;
+  }
+  .keyword-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 12px;
+    gap: 10px;
+  }
+  .keyword-filters label:first-child {
+    grid-column: 1/-1;
+  }
+  .keyword-bulk {
+    padding: 8px 12px 12px;
+    gap: 4px;
+  }
+  .keyword-selection {
+    width: 100%;
+    gap: 8px;
+  }
+  .keyword-management .keyword-page-check {
+    margin-left: auto;
+  }
+  .keyword-bulk-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .keyword-bulk-mode {
+    width: auto;
+    grid-column: 1/-1;
+  }
+  .keyword-footer {
+    padding: 12px;
+    gap: 10px;
+  }
+  .keyword-pages {
+    margin-left: auto;
+  }
+}
+@media (max-width: 360px) {
+  .keyword-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .keyword-heading-actions {
+    width: 100%;
+  }
+  .keyword-heading-actions button {
+    flex: 1;
+  }
+}

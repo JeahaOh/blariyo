@@ -3,7 +3,8 @@ info:
   title: Blariyo M0 Collection Assist
   version: 0.2.0
   description: Separate opt-in collection routes. Machine routes proxy to /internal/collect; public
-    Core routes remain unchanged. New M0-D02 operations are implemented locally and synchronized with runtime packages/contracts. Production acceptance remains pending.
+    Core routes remain unchanged. New M0-D02 operations are implemented locally and synchronized
+    with runtime packages/contracts. Production acceptance remains pending.
 paths:
   /api/v1/admin/collect/source-publish-policies:
     get:
@@ -1859,7 +1860,7 @@ paths:
   /api/v1/admin/collect/sources/{sourceId}:
     patch:
       operationId: updateCollectionSource
-      x-admin-roles: [OWNER]
+      x-admin-roles: [ OWNER ]
       x-role-contract-status: planned
       tags:
         - collection-assist
@@ -4854,12 +4855,12 @@ paths:
           name: state
           schema:
             type: string
-            enum: [DISCOVERED, FETCHING, FETCHED, FAILED, BLOCKED, SKIPPED_DUPLICATE, SKIPPED_POLICY]
+            enum: [ DISCOVERED, FETCHING, FETCHED, FAILED, BLOCKED, SKIPPED_DUPLICATE, SKIPPED_POLICY ]
         - in: query
           name: reviewStatus
           schema:
             type: string
-            enum: [UNREVIEWED, APPROVED, REJECTED]
+            enum: [ UNREVIEWED, APPROVED, REJECTED ]
       responses:
         "200":
           description: Success
@@ -5296,7 +5297,8 @@ paths:
       operationId: createDirectCollectionRequest
       tags:
         - collection-assist
-      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default;
+        production acceptance pending.
       x-implementation-status: implemented-local
       x-admin-roles:
         - OWNER
@@ -5378,7 +5380,8 @@ paths:
       operationId: getDirectCollectionRequest
       tags:
         - collection-assist
-      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default;
+        production acceptance pending.
       x-implementation-status: implemented-local
       x-admin-roles:
         - OWNER
@@ -5443,7 +5446,8 @@ paths:
       operationId: retryDirectCollectionRequest
       tags:
         - collection-assist
-      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default;
+        production acceptance pending.
       x-implementation-status: implemented-local
       x-admin-roles:
         - OWNER
@@ -5517,7 +5521,8 @@ paths:
       operationId: listRuntimeCollectionSources
       tags:
         - collection-assist
-      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default; production acceptance pending.
+      description: M0-D02 local implementation; runtime contract synchronized. Disabled by default;
+        production acceptance pending.
       x-implementation-status: implemented-local
       x-admin-roles:
         - OWNER
@@ -5579,6 +5584,258 @@ paths:
           $ref: "#/components/responses/CollectionFailure"
         "503":
           $ref: "#/components/responses/CollectionFailure"
+  /api/v1/admin/collect/auto-publish-keywords:
+    get:
+      operationId: listAutoPublishKeywords
+      tags:
+        - auto-publish-keywords
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+        - EDITOR
+      parameters: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/AutoPublishKeywordsData"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+    post:
+      operationId: createAutoPublishKeyword
+      tags:
+        - auto-publish-keywords
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+      parameters: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/AutoPublishKeywordsData"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveAutoPublishKeyword"
+  /api/v1/admin/collect/auto-publish-keywords/{keywordId}:
+    patch:
+      operationId: updateAutoPublishKeyword
+      tags:
+        - auto-publish-keywords
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+      parameters:
+        - name: keywordId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/AutoPublishKeywordsData"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveAutoPublishKeyword"
+  /api/v1/admin/collect/auto-publish-keywords/bulk:
+    post:
+      operationId: bulkAutoPublishKeywords
+      tags:
+        - auto-publish-keywords
+      security:
+        - AdminSession: []
+      x-admin-roles:
+        - OWNER
+      parameters: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    const: true
+                  data:
+                    $ref: "#/components/schemas/AutoPublishKeywordsData"
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      requestId:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - requestId
+                required:
+                  - success
+                  - data
+                  - meta
+        "400":
+          $ref: "#/components/responses/CollectionFailure"
+        "401":
+          $ref: "#/components/responses/CollectionFailure"
+        "403":
+          $ref: "#/components/responses/CollectionFailure"
+        "404":
+          $ref: "#/components/responses/CollectionFailure"
+        "409":
+          $ref: "#/components/responses/CollectionFailure"
+        "413":
+          $ref: "#/components/responses/CollectionFailure"
+        "415":
+          $ref: "#/components/responses/CollectionFailure"
+        "429":
+          $ref: "#/components/responses/CollectionFailure"
+        "500":
+          $ref: "#/components/responses/CollectionFailure"
+        "503":
+          $ref: "#/components/responses/CollectionFailure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkAutoPublishKeywords"
 components:
   securitySchemes:
     DiscordReviewWorker:
@@ -5654,7 +5911,7 @@ components:
         lastRunState:
           anyOf:
             - type: string
-              enum: [QUEUED, RUNNING, COMPLETED, PARTIAL, FAILED, BLOCKED]
+              enum: [ QUEUED, RUNNING, COMPLETED, PARTIAL, FAILED, BLOCKED ]
             - type: "null"
         lastFailureCodes:
           type: array
@@ -5662,6 +5919,11 @@ components:
           items:
             type: string
             pattern: ^[A-Z][A-Z0-9_]{0,79}$
+        lastFailures:
+          type: array
+          maxItems: 10
+          items:
+            $ref: "#/components/schemas/SourceFailureLog"
       required:
         - sourceKey
         - displayName
@@ -5678,6 +5940,7 @@ components:
         - lastRunAt
         - lastRunState
         - lastFailureCodes
+        - lastFailures
     UpdateSourcePublishPolicy:
       type: object
       additionalProperties: false
@@ -6995,7 +7258,7 @@ components:
         skipReason:
           anyOf:
             - type: string
-              enum: [SOURCE_DATE_UNKNOWN, SOURCE_OUTSIDE_WINDOW]
+              enum: [ SOURCE_DATE_UNKNOWN, SOURCE_OUTSIDE_WINDOW ]
             - type: "null"
         review:
           $ref: "#/components/schemas/BatchReview"
@@ -7070,7 +7333,7 @@ components:
         skipReason:
           anyOf:
             - type: string
-              enum: [SOURCE_DATE_UNKNOWN, SOURCE_OUTSIDE_WINDOW]
+              enum: [ SOURCE_DATE_UNKNOWN, SOURCE_OUTSIDE_WINDOW ]
             - type: "null"
         review:
           $ref: "#/components/schemas/BatchReview"
@@ -7237,6 +7500,227 @@ components:
         - status
         - lockVersion
         - reviewLockVersion
+    AutoPublishKeyword:
+      type: object
+      additionalProperties: false
+      properties:
+        keywordId:
+          type: string
+          format: uuid
+        keyword:
+          type: string
+          minLength: 1
+          maxLength: 80
+        group:
+          type: string
+          enum:
+            - LIFE
+            - HUMOR
+            - REACTION
+            - POLITICS_OR_CONFLICT
+            - NEWS_OR_ENTERTAINMENT
+            - HEALTH_OR_FINANCE
+            - PROMOTION_OR_POINTS
+            - ADULT_OR_HARM
+        scope:
+          type: string
+          enum:
+            - TITLE
+            - BODY
+            - BOTH
+        matchMode:
+          type: string
+          enum:
+            - CONTAINS
+            - WORD
+        enabled:
+          type: boolean
+      required:
+        - keywordId
+        - keyword
+        - group
+        - scope
+        - matchMode
+        - enabled
+    SaveAutoPublishKeyword:
+      type: object
+      additionalProperties: false
+      properties:
+        ruleVersion:
+          type: string
+          pattern: ^[a-z][a-z0-9-]{0,39}$
+          maxLength: 40
+        keyword:
+          type: string
+          minLength: 1
+          maxLength: 80
+        group:
+          type: string
+          enum:
+            - LIFE
+            - HUMOR
+            - REACTION
+            - POLITICS_OR_CONFLICT
+            - NEWS_OR_ENTERTAINMENT
+            - HEALTH_OR_FINANCE
+            - PROMOTION_OR_POINTS
+            - ADULT_OR_HARM
+        scope:
+          type: string
+          enum:
+            - TITLE
+            - BODY
+            - BOTH
+        matchMode:
+          type: string
+          enum:
+            - CONTAINS
+            - WORD
+        enabled:
+          type: boolean
+      required:
+        - ruleVersion
+        - keyword
+        - group
+        - scope
+        - matchMode
+        - enabled
+    AutoPublishKeywordsData:
+      type: object
+      additionalProperties: false
+      properties:
+        ruleVersion:
+          type: string
+          pattern: ^[a-z][a-z0-9-]{0,39}$
+          maxLength: 40
+        items:
+          type: array
+          maxItems: 500
+          items:
+            $ref: "#/components/schemas/AutoPublishKeyword"
+        updatedAt:
+          type: string
+          format: date-time
+        canManage:
+          type: boolean
+      required:
+        - ruleVersion
+        - items
+        - updatedAt
+        - canManage
+    SourceFailureLog:
+      type: object
+      additionalProperties: false
+      properties:
+        occurredAt:
+          type: string
+          format: date-time
+        phase:
+          type: string
+          enum:
+            - CONFIG
+            - LIST
+            - CLAIM
+            - FETCH
+            - RAW
+            - PARSE
+            - PERSIST
+            - MEDIA
+            - REPORT
+        code:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]{0,79}$
+        diagnosticReason:
+          anyOf:
+            - type: string
+              enum:
+                - UNAPPROVED_SOURCE
+                - CONFIG_BLOCKED
+                - INVALID_URL
+                - SCHEME_NOT_ALLOWED
+                - HOST_NOT_ALLOWED
+                - PATH_NOT_ALLOWED
+                - PORT_NOT_ALLOWED
+                - URL_CREDENTIALS_NOT_ALLOWED
+                - URL_FRAGMENT_NOT_ALLOWED
+                - NON_PUBLIC_IP
+                - DNS_EMPTY
+                - DNS_LOOKUP_FAILED
+                - TLS_ERROR
+                - TIMEOUT
+                - CONNECTION_ERROR
+                - NETWORK_INTERRUPTED
+                - HTTP_ACCESS_DENIED
+                - HTTP_REJECTED
+                - HTTP_RETRY_EXHAUSTED
+                - HTTP_RATE_LIMITED
+                - ACCESS_CHALLENGE
+                - PARSER_REJECTED
+                - CHART_UNVERIFIED
+                - REDIRECT_LIMIT
+                - REDIRECT_HOST_NOT_ALLOWED
+                - REDIRECT_MISSING_LOCATION
+                - REDIRECT_LOOP
+                - BODY_TOO_LARGE
+                - ENCODING_UNSUPPORTED
+            - type: "null"
+        requestHost:
+          anyOf:
+            - type: string
+              pattern: ^[a-z0-9.-]{1,253}$
+            - type: "null"
+        httpStatus:
+          anyOf:
+            - type: integer
+              minimum: 100
+              maximum: 599
+            - type: "null"
+      required:
+        - occurredAt
+        - phase
+        - code
+        - diagnosticReason
+        - requestHost
+        - httpStatus
+    BulkAutoPublishKeywords:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          properties:
+            ruleVersion: &a15
+              type: string
+              pattern: ^[a-z][a-z0-9-]{0,39}$
+              maxLength: 40
+            action:
+              const: SAVE
+            items:
+              type: array
+              minItems: 1
+              maxItems: 500
+              items:
+                $ref: "#/components/schemas/AutoPublishKeyword"
+          required:
+            - ruleVersion
+            - action
+            - items
+        - type: object
+          additionalProperties: false
+          properties:
+            ruleVersion: *a15
+            action:
+              const: DELETE
+            keywordIds:
+              type: array
+              minItems: 1
+              maxItems: 500
+              uniqueItems: true
+              items:
+                type: string
+                format: uuid
+          required:
+            - ruleVersion
+            - action
+            - keywordIds
   responses:
     CollectionFailure:
       description: Generalized failure

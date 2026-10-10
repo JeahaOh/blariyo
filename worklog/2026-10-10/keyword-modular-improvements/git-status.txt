@@ -1,0 +1,95 @@
+## feature/discord-review
+ M apps/api/src/commands/command.ts
+ M apps/api/src/features/collection/discord-review.module.ts
+ M apps/api/src/features/collection/review-command.service.ts
+ M apps/api/src/features/collection/source-auto-publish.service.ts
+ M apps/api/src/features/collection/source-publish-policy.repository.ts
+ M apps/api/src/http/admin-permissions.ts
+ M apps/api/src/persistence/collect-ownership.ts
+ M apps/api/src/persistence/collection-operations.repository.ts
+ M apps/api/src/persistence/direct-request.repository.ts
+ M apps/api/src/persistence/discord-review.repository.ts
+ M apps/api/src/persistence/entities.ts
+ M apps/api/src/persistence/health.repository.ts
+ M apps/api/src/persistence/migrations.repository.ts
+ M apps/api/src/persistence/posts.repository.ts
+ M apps/api/src/persistence/source-publish-policy.repository.ts
+ M apps/api/test/common-codes.integration.test.ts
+ M apps/api/test/database.integration.test.ts
+ M apps/api/test/discord-cleanup.integration.test.ts
+ M apps/api/test/migrations.integration.test.ts
+ M apps/api/test/source-auto-publish.integration.test.ts
+ M apps/collector/src/main/java/com/blariyo/collector/run/DirectBatchRunner.java
+ M apps/collector/src/main/java/com/blariyo/collector/run/DirectUrlRunner.java
+ M apps/collector/src/main/java/com/blariyo/collector/run/SourceCollectionSettings.java
+ M apps/collector/src/main/java/com/blariyo/collector/run/SourceRequests.java
+ M apps/collector/src/main/java/com/blariyo/collector/shared/CollectorFailure.java
+ M apps/collector/src/main/java/com/blariyo/collector/source/PinnedHttp.java
+ M apps/collector/src/main/java/com/blariyo/collector/source/SourcePolicy.java
+ M apps/collector/src/main/java/com/blariyo/collector/source/common/HtmlSupport.java
+ M apps/collector/src/test/java/com/blariyo/collector/run/DirectBatchRunnerReadbackTests.java
+ M apps/collector/src/test/java/com/blariyo/collector/run/DirectBatchRunnerTests.java
+ M apps/collector/src/test/java/com/blariyo/collector/run/SourceRequestsTests.java
+ M apps/collector/src/test/java/com/blariyo/collector/source/PinnedHttpTests.java
+ M apps/web/app/assets/css/admin.css
+ M apps/web/app/components/AdminWorkspace.vue
+ M apps/web/app/components/SourcePublishPolicies.vue
+ M apps/web/server/api/v1/[...path].ts
+ M apps/web/shared/admin-return.ts
+ M deploy/backup/selective-profile.mjs
+ M deploy/collector/run.py
+ M deploy/collector/test_schedule.py
+ M deploy/operations/README.md
+ M deploy/operations/run-job.py
+ M deploy/postgresql/apply-privileges.sql
+ M docs/development-specs/m0-collection-assist/collection-assist/collection-assist.dev.md
+ M docs/development-specs/m0-collection-assist/openapi/m0-collection-assist.yaml
+ M docs/migration/contract-evolution.json
+ M docs/planning/01-service-plan.md
+ M docs/planning/03-screen-design.md
+ M docs/planning/content-collection/README.md
+ M docs/roadmap.md
+ M docs/status.md
+ M docs/system-design/07-spring-collector-design.md
+ M docs/system-design/08-code-structure.md
+ M docs/system-design/11-source-auto-publish.md
+ M packages/contracts/openapi/m0-collection-assist.yaml
+ M packages/contracts/src/collection-api.d.ts
+ M packages/contracts/src/schema.mjs
+ M scripts/test-database-roles.ts
+ M tests/browser/source-auto-publish.test.ts
+?? apps/api/migrations/V016__auto_publish_classification.down.sql
+?? apps/api/migrations/V016__auto_publish_classification.sql
+?? apps/api/migrations/V017__auto_publish_keywords.down.sql
+?? apps/api/migrations/V017__auto_publish_keywords.sql
+?? apps/api/src/features/collection/auto-publish-classification.repository.ts
+?? apps/api/src/features/collection/auto-publish-classifier.ts
+?? apps/api/src/features/collection/auto-publish-keyword.controller.ts
+?? apps/api/src/features/collection/auto-publish-keyword.repository.ts
+?? apps/api/src/features/collection/auto-publish-keyword.service.ts
+?? apps/api/src/features/collection/failure-diagnostics.ts
+?? apps/api/src/persistence/auto-publish-classification.repository.ts
+?? apps/api/src/persistence/auto-publish-keyword.repository.ts
+?? apps/api/test/auto-publish-classifier.service.test.ts
+?? apps/api/test/auto-publish-rules.fixture.ts
+?? apps/collector/src/test/java/com/blariyo/collector/shared/
+?? apps/collector/src/test/java/com/blariyo/collector/source/SourcePolicyDiagnosticsTests.java
+?? apps/web/app/assets/css/keyword-editor.css
+?? apps/web/app/components/KeywordBulkActions.vue
+?? apps/web/app/components/KeywordDeleteConfirmation.vue
+?? apps/web/app/components/KeywordEditorForm.vue
+?? apps/web/app/components/KeywordEditorTable.vue
+?? apps/web/app/composables/useKeywordEditor.ts
+?? apps/web/app/composables/useKeywordSelection.ts
+?? apps/web/app/composables/useUnsavedChanges.ts
+?? apps/web/app/pages/admin-keywords.vue
+?? apps/web/app/utils/keyword-editor.ts
+?? deploy/backup/test-auto-publish-backup.mjs
+?? deploy/operations/blariyo-auto-publish.service
+?? deploy/operations/blariyo-auto-publish.timer
+?? deploy/operations/test_auto_publish.py
+?? tests/browser/keyword-management.test.ts
+?? tests/browser/keyword-recovery.test.ts
+?? tests/helpers/choose-setting.ts
+?? worklog/2026-10-09/code-structure-audit/
+?? worklog/2026-10-10/

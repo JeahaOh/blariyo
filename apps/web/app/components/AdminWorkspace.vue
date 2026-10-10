@@ -33,6 +33,7 @@ const sessionUrl = computed(() => '/admin/login?returnTo=' + encodeURIComponent(
           ><span aria-hidden="true">◎</span> 수집 결과 검수</NuxtLink
         >
     <NuxtLink v-if="features?.batchReview" to="/admin/sources" :aria-current="route.path === '/admin/sources' ? 'page' : undefined">수집처 관리</NuxtLink>
+    <NuxtLink v-if="features?.batchReview" to="/admin/keywords" :aria-current="route.path === '/admin/keywords' ? 'page' : undefined">키워드 관리</NuxtLink>
     <NuxtLink to="/admin/common-codes" :aria-current="route.path === '/admin/common-codes' ? 'page' : undefined">공통코드 관리</NuxtLink>
       </nav>
       <div class="admin-sidebar-bottom"><NuxtLink to="/meme">↗ 공개 사이트 보기</NuxtLink></div>
